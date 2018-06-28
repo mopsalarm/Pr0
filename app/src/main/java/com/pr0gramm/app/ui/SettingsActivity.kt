@@ -26,12 +26,8 @@ import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.bundle
-import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.components.RxPreferenceFragment
-import rx.android.schedulers.AndroidSchedulers
 
 /**
  */
@@ -156,9 +152,9 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             val preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
             if (preference != null) {
                 preloadManager.all()
-                        .subscribeOn(BackgroundScheduler.instance())
+                        .subscribeOnBackground()
                         .map { items -> items.fold(0L) { sum, item -> sum + item.media.length() + item.thumbnail.length() } }
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .observeOnMainThread()
                         .compose(bindToLifecycle())
                         .subscribe { totalSize ->
                             preference.summary = getString(

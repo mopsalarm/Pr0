@@ -43,9 +43,10 @@ class UserService(private val api: Api,
 
     private val fullSyncInProgress = AtomicBoolean()
 
-    // login state and observable for that.
-    private var loginState: LoginState = NOT_AUTHORIZED
-    private val loginStateObservable = BehaviorSubject.create(loginState).toSerialized()
+    private val loginStateSubject = BehaviorSubject.create(NOT_AUTHORIZED)
+
+    val loginState: LoginState get() = loginStateSubject.value
+    val loginStates: Observable<LoginState> = loginStateSubject
 
     init {
         // only restore user data if authorized.
@@ -55,8 +56,8 @@ class UserService(private val api: Api,
 
         this.cookieHandler.onCookieChanged = { this.onCookieChanged() }
 
-        loginStateObservable.subscribe { state -> persistLatestLoginState(state) }
-        Track.updateUserState(loginStateObservable)
+        loginStateSubject.subscribe { state -> persistLatestLoginState(state) }
+        Track.updateUserState(loginStateSubject)
     }
 
     private fun updateLoginState(transformer: (LoginState) -> LoginState): LoginState {
@@ -64,9 +65,8 @@ class UserService(private val api: Api,
             val newLoginState = transformer(this.loginState)
 
             // persist and publish
-            if (newLoginState !== loginState) {
-                this.loginState = newLoginState
-                this.loginStateObservable.onNext(newLoginState)
+            if (newLoginState != loginState) {
+                this.loginStateSubject.onNext(newLoginState)
             }
 
             return newLoginState
@@ -204,10 +204,6 @@ class UserService(private val api: Api,
             // see the nsfw and nsfl stuff.
             Settings.get().resetContentTypeSettings()
         }
-    }
-
-    fun loginState(): Observable<LoginState> {
-        return loginStateObservable.asObservable()
     }
 
     /**
@@ -383,7 +379,7 @@ class UserService(private val api: Api,
      * The observable will produce updated tokens on changes.
      */
     fun userToken(): Observable<String> {
-        return loginStateObservable.map { value ->
+        return loginStateSubject.map { value ->
             if (value.authorized) value.uniqueToken else null
         }
     }

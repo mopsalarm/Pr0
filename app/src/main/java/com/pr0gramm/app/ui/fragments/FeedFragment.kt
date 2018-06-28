@@ -219,14 +219,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // observe changes so we can update the menu
         followService.changes()
-                .observeOnMain()
+                .observeOnMainThread()
                 .compose(bindToLifecycle<String>())
                 .filter { name -> name.equals(activeUsername, ignoreCase = true) }
                 .subscribe { activity.invalidateOptionsMenu() }
 
         // execute a search when we get a search term
-        searchView.searchQuery().compose(bindToLifecycle()).subscribe { this.performSearch(it) }
-        searchView.searchCanceled().compose(bindToLifecycle()).subscribe { hideSearchContainer() }
+        searchView.searchQuery().bindToLifecycle().subscribe { this.performSearch(it) }
+        searchView.searchCanceled().bindToLifecycle().subscribe { hideSearchContainer() }
         searchView.setupAutoComplete(recentSearchesServices)
 
         // restore open search
@@ -245,12 +245,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
                 .observeOn(mainThread())
-                .compose(bindToLifecycle())
+                .bindToLifecycle()
                 .subscribe { show -> state = state.copy(adsVisible = show) }
     }
 
     private fun subscribeToFeedUpdates() {
-        loader.updates.compose(bindToLifecycle()).subscribe { update ->
+        loader.updates.bindToLifecycle().subscribe { update ->
             logger.info("Got update {}", update)
 
             when (update) {
@@ -392,7 +392,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
         }
 
-        queryUserInfo().take(1).compose(bindToLifecycle()).ignoreError().subscribe { value ->
+        queryUserInfo().take(1).bindToLifecycle().ignoreError().subscribe { value ->
             state = state.copy(userInfo = value)
             activity?.invalidateOptionsMenu()
         }
@@ -473,7 +473,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return Observable
                     .zip(first, second, ::UserInfo)
                     .doOnNext { info -> inMemoryCacheService.cacheUserInfo(contentTypes, info) }
-                    .observeOnMain()
+                    .observeOnMainThread()
 
         } else {
             return Observable.empty()
@@ -531,7 +531,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
             bookmarkService.isBookmarkable(currentFilter)
-                    .compose(bindToLifecycleAsync())
+                    .bindToLifecycleAsync()
                     .subscribe({ onBookmarkableStateChanged(it) }, {})
         }
 
@@ -557,7 +557,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // correct state in the ui once they are loaded
         preloadManager.all()
                 .throttleLast(5, TimeUnit.SECONDS)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .ignoreError()
                 .subscribe { state = state.copy(preloadedCount = it.size) }
     }
@@ -578,7 +578,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     response.items.count { it.id !in previousIds }
                 }
                 .onErrorResumeEmpty()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .filter { it > 0 && feed.isNotEmpty() && feed.filter == query.filter }
                 .subscribe { itemCount -> newItemsSnackbar(itemCount) }
     }
@@ -949,7 +949,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         settings.changes()
                 .startWith("")
-                .compose(bindToLifecycle())
+                .bindToLifecycle()
                 .subscribe { listener.enableLongClick(settings.enableQuickPeek) }
     }
 

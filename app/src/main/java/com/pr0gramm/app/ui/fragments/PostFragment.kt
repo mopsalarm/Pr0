@@ -55,7 +55,6 @@ import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import rx.Observable
 import rx.Observable.combineLatest
-import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.lang.kotlin.subscribeBy
 import rx.subjects.BehaviorSubject
 import java.io.IOException
@@ -133,13 +132,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         // check if we are admin or not
-        userService.loginState().observeOn(mainThread()).compose(bindToLifecycle()).subscribe {
+        userService.loginStates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
             activity?.invalidateOptionsMenu()
         }
 
         // subscribe to it as long as the fragment lives.
         feedItemVote.ignoreError()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe()
     }
 
@@ -190,16 +189,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeMediaView()
 
         adapter.updates
-                .compose(bindToLifecycle())
+                .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow() }
 
-        userService.loginState()
-                .map { it.authorized }
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe { authorized ->
-                    if (state.commentsVisible != authorized) {
-                        state = state.copy(commentsVisible = authorized)
+
+        userService.loginStates
+                .observeOnMainThread(firstIsSync = true)
+                .bindToLifecycle()
+                .distinctUntilChanged { loginState -> loginState.id }
+                .subscribe { loginState ->
+                    stateTransaction {
+                        if (state.commentsVisible != loginState.authorized) {
+                            state = state.copy(commentsVisible = loginState.authorized)
+                        }
+
+                        commentTreeHelper.userIsAdmin(loginState.admin)
                     }
                 }
 
@@ -229,7 +233,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiTags.subscribe { hideProgressIfLoop(it) }
 
-        feedItemVote.compose(bindToLifecycleAsync()).subscribe { vote ->
+        feedItemVote.bindToLifecycleAsync().subscribe { vote ->
             state = state.copy(itemVote = vote)
         }
 
@@ -293,7 +297,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onStart() {
-        activeState.compose(bindToLifecycle()).subscribe { active ->
+        activeState.bindToLifecycle().subscribe { active ->
             logger.info("Switching viewer state to {}", active)
             if (active) {
                 playMediaOnViewer()
@@ -565,7 +569,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         downloadService
                 .downloadWithNotification(feedItem, preview)
                 .decoupleSubscribe()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribeBy(onError = { err ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
                         showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
@@ -583,8 +587,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                             .subscribeOnBackground()
                             .onErrorResumeEmpty()
                 }
-                .observeOnMain()
-                .compose(bindToLifecycle())
+                .observeOnMainThread()
+                .bindToLifecycle()
                 .subscribe { votes -> commentTreeHelper.updateVotes(votes) }
 
         apiTags
@@ -594,8 +598,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                             .subscribeOnBackground()
                             .onErrorResumeEmpty()
                 }
-                .observeOnMain()
-                .compose(bindToLifecycle())
+                .observeOnMainThread()
+                .bindToLifecycle()
                 .subscribe { votes -> state = state.copy(tagVotes = votes) }
 
         // track that the user visited this post.
@@ -877,7 +881,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun doVoteOnDoubleTap() {
-        feedItemVote.first().compose(bindToLifecycleAsync()).subscribe { currentVote ->
+        feedItemVote.first().bindToLifecycleAsync().subscribe { currentVote ->
             doVoteFeedItem(currentVote.nextUpVote)
         }
     }
@@ -936,7 +940,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show comments now
         logger.info("Sending {} comments to tree helper", comments.size)
         commentTreeHelper.updateComments(comments, updateSync) { state ->
-            extraChanges(state.copy(op = feedItem.user, self = userService.name))
+            extraChanges(state.copy(
+                    op = feedItem.user,
+                    self = userService.name,
+                    isAdmin = userService.userIsAdmin))
         }
     }
 
@@ -965,7 +972,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             logger.info("Adding new tags {} to post", newTags)
 
             voteService.tag(feedItem.id, newTags)
-                    .compose(bindToLifecycleAsync())
+                    .bindToLifecycleAsync()
                     .lift(BusyDialog.busyDialog(activity))
                     .subscribeWithErrorHandling { updateTags(it) }
         }
@@ -1205,7 +1212,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             val action = Runnable {
                 voteService.postComment(feedItem, 0, text)
-                        .compose(bindToLifecycleAsync())
+                        .bindToLifecycleAsync()
                         .lift(BusyDialog.busyDialog(context))
                         .subscribeWithErrorHandling { onNewComments(it) }
             }

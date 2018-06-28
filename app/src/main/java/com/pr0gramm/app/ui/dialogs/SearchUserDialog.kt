@@ -40,7 +40,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
         val username = inputView.text.toString().trim()
 
         userService.info(username)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .withBusyDialog(this)
                 .subscribe({ this.onSearchSuccess(it) }, { this.onSearchFailure() })
     }

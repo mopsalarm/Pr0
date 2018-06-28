@@ -32,56 +32,56 @@ class UploadService(private val api: Api,
                     private val voteService: VoteService,
                     private val cacheService: InMemoryCacheService) {
 
-    private val maxSize: Observable<Long> get() {
-        return userService.loginState().take(1).map { state ->
-            if (state.premium)
-                configService.config().maxUploadSizePremium
-            else
-                configService.config().maxUploadSizeNormal
+    /**
+     * Maximum upload size for the currently signed in user.
+     */
+    private val maxUploadSize: Long
+        get() {
+            return userService.loginState.let { state ->
+                val config = configService.config()
+                if (state.premium) config.maxUploadSizePremium else config.maxUploadSizeNormal
+            }
         }
-    }
 
     fun sizeOkay(file: File): Observable<Boolean> {
-        return maxSize.map { file.length() < it }
+        return Observable.just(maxUploadSize).map { file.length() < it }
     }
 
     fun downsize(file: File): Observable<File> {
-        return maxSize.flatMap { maxSize ->
-            Observable.fromCallable {
-                logger.info("Try to scale {}kb image down to max of {}kb",
-                        file.length() / 1024, maxSize / 1024)
+        return Observable.fromCallable {
+            logger.info("Try to scale {}kb image down to max of {}kb",
+                    file.length() / 1024, maxUploadSize / 1024)
 
-                val bitmap = picasso.load(file)
-                        .config(Bitmap.Config.ARGB_8888)
-                        .centerInside()
-                        .resize(2048, 2048)
-                        .onlyScaleDown()
-                        .get()
+            val bitmap = picasso.load(file)
+                    .config(Bitmap.Config.ARGB_8888)
+                    .centerInside()
+                    .resize(2048, 2048)
+                    .onlyScaleDown()
+                    .get()
 
-                logger.info("Image loaded at {}x{}px", bitmap.width, bitmap.height)
+            logger.info("Image loaded at {}x{}px", bitmap.width, bitmap.height)
 
-                // scale down to temp file
-                val target = File.createTempFile("upload", "jpg", file.parentFile)
-                target.deleteOnExit()
+            // scale down to temp file
+            val target = File.createTempFile("upload", "jpg", file.parentFile)
+            target.deleteOnExit()
 
-                val format = Bitmap.CompressFormat.JPEG
-                var quality = 90
-                do {
-                    FileOutputStream(target).use { output ->
-                        logger.info("Compressing to {} at quality={}", format, quality)
-                        if (!bitmap.compress(format, quality, output))
-                            throw IOException("Could not compress image data")
+            val format = Bitmap.CompressFormat.JPEG
+            var quality = 90
+            do {
+                FileOutputStream(target).use { output ->
+                    logger.info("Compressing to {} at quality={}", format, quality)
+                    if (!bitmap.compress(format, quality, output))
+                        throw IOException("Could not compress image data")
 
-                        logger.info("Size is now {}kb", target.length() / 1024)
-                    }
+                    logger.info("Size is now {}kb", target.length() / 1024)
+                }
 
-                    // decrease quality to shrink even further
-                    quality -= 10
-                } while (target.length() >= maxSize && quality > 30)
+                // decrease quality to shrink even further
+                quality -= 10
+            } while (target.length() >= maxUploadSize && quality > 30)
 
-                logger.info("Finished downsizing with an image size of {}kb", target.length() / 1024)
-                target
-            }
+            logger.info("Finished downsizing with an image size of {}kb", target.length() / 1024)
+            target
         }
     }
 

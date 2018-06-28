@@ -12,9 +12,8 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.observeOnMainThread
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.ReplaySubject
 
 
@@ -61,8 +60,8 @@ class AdService(private val configService: ConfigService, private val userServic
     }
 
     fun enabledForType(type: Config.AdType): Observable<Boolean> {
-        return userService.loginState()
-                .observeOn(AndroidSchedulers.mainThread())
+        return userService.loginStates
+                .observeOnMainThread()
                 .map { isEnabledFor(type) }
                 .startWith(isEnabledFor(type))
                 .distinctUntilChanged()

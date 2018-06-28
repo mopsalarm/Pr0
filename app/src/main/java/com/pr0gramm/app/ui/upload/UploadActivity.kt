@@ -37,7 +37,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
                     .commit()
 
             uploadService.checkIsRateLimited()
-                    .compose(bindToLifecycleAsync())
+                    .bindToLifecycleAsync()
                     .subscribe({ limited ->
                         if (!limited) {
                             limitCheckPassed()

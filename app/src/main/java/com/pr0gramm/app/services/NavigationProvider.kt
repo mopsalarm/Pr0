@@ -16,7 +16,7 @@ import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.RxPicasso
-import com.pr0gramm.app.util.observeOnMain
+import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
 import rx.Observable
@@ -52,7 +52,7 @@ class NavigationProvider(
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
 
     private val specialMenuItems = configService.observeConfig()
-            .observeOnMain()
+            .observeOnMainThread()
             .distinctUntilChanged()
             .flatMap { resolveSpecial(it) }
 
@@ -77,7 +77,7 @@ class NavigationProvider(
 
                     categoryNavigationItems(),
 
-                    userService.loginState()
+                    userService.loginStates
                             .flatMap { bookmarkService.get() }
                             .map { bookmarksToNavItem(it) },
 
@@ -210,7 +210,7 @@ class NavigationProvider(
     }
 
     private fun categoryNavigationItems(): Observable<List<NavigationItem>> {
-        val username = userService.loginState().map({ it.name })
+        val username = userService.loginStates.map { it.name }
         val categoriesAvailable = extraCategories.categoriesAvailable
 
         return combineLatest(username, categoriesAvailable, this::categoryNavigationItems)
@@ -257,7 +257,7 @@ class NavigationProvider(
                             layout = R.layout.left_drawer_nav_item_special))
                 }
                 .retryWhen { err ->
-                    err.zipWith(Observable.range(1, 3), { n, i -> i }).flatMap { idx ->
+                    err.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
                         logger.debug("Delay retry by {} second(s)", idx)
                         Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }

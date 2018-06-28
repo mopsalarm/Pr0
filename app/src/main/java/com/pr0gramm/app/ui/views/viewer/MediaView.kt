@@ -214,7 +214,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                     logger.warn("Could not generate fancy thumbnail", err)
                     Observable.empty()
                 }
-                .observeOnMain()
+                .observeOnMainThread()
                 .compose(backgroundBindView())
                 .subscribe(previewTarget)
     }

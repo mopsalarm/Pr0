@@ -55,7 +55,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
                 dialog.context, LinearLayoutManager.VERTICAL, false)
 
         adminService.tagsDetails(itemId)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe(Action1 { this.showTagsDetails(it) }, defaultOnError())
     }
 

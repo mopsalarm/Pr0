@@ -127,7 +127,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
             voteService.postComment(itemId, parentComment, message)
                     .decoupleSubscribe()
-                    .compose(bindToLifecycleAsync())
+                    .bindToLifecycleAsync()
                     .lift(BusyDialog.busyDialog(this))
                     .doOnCompleted { this.finishAfterSending() }
                     .subscribeWithErrorHandling { newComments ->

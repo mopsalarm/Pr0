@@ -38,7 +38,7 @@ class RulesService(okHttpClient: OkHttpClient) {
 
     fun displayInto(targetView: TextView) {
         this.rules
-                .observeOnMain()
+                .observeOnMainThread()
                 .bindToLifecycle(targetView)
                 .subscribe { text -> displayInto(targetView, text) }
     }

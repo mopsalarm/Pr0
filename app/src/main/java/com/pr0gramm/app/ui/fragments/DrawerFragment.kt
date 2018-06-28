@@ -26,7 +26,6 @@ import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import java.util.*
@@ -153,62 +152,69 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     override fun onResume() {
         super.onResume()
 
-        userService.loginState()
-                .compose(bindToLifecycleAsync())
-                .ignoreError()
-                .subscribe { this.onLoginStateChanged(it) }
+        userService.loginStates
+                .observeOnMainThread(firstIsSync = true)
+                .bindToLifecycle()
+                .subscribe { onLoginStateChanged(it) }
 
         navigationProvider.navigationItems
                 .debug("navigation items", logger)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe { navigationAdapter.setNavigationItems(it) }
     }
 
     private fun onLoginStateChanged(state: UserService.LoginState) {
         if (state.authorized) {
-            usernameView.text = state.name
-            usernameView.setOnClickListener { callback.onUsernameClicked() }
-
-            userTypeView.visible = true
-            userTypeView.setTextColor(ContextCompat.getColor(context,
-                    UserClasses.MarkColors[state.mark]))
-
-            userTypeView.text = getString(UserClasses.MarkStrings[state.mark]).toUpperCase()
-            userTypeView.setOnClickListener { callback.onUsernameClicked() }
-
-
-            benisView.text = (state.score).toString()
-
-            val benis = state.benisHistory
-            if (benis != null && benis.points.size > 2) {
-                benisGraph.setImageDrawable(GraphDrawable(benis))
-                benisContainer.visible = true
-
-                updateBenisDeltaForGraph(benis)
-            } else {
-                updateBenisDelta(0)
-            }
-
-            loginView.visible = false
-            logoutView.visible = true
-            inviteView.visible = true
-            actionPremium.visible = !state.premium
-
+            applyAuthorizedUserState(state)
         } else {
-            usernameView.setText(R.string.pr0gramm)
-            usernameView.setOnClickListener(null)
-
-            userTypeView.text = ""
-            userTypeView.visible = false
-
-            benisContainer.visible = false
-            benisGraph.setImageDrawable(null)
-
-            loginView.visible = true
-            logoutView.visible = false
-            inviteView.visible = false
-            actionPremium.visible = false
+            applyNotAuthorizedState()
         }
+    }
+
+    private fun applyAuthorizedUserState(state: UserService.LoginState) {
+        usernameView.text = state.name
+        usernameView.setOnClickListener { callback.onUsernameClicked() }
+
+        userTypeView.visible = true
+        userTypeView.setTextColor(ContextCompat.getColor(context,
+                UserClasses.MarkColors[state.mark]))
+
+        userTypeView.text = getString(UserClasses.MarkStrings[state.mark]).toUpperCase()
+        userTypeView.setOnClickListener { callback.onUsernameClicked() }
+
+
+        benisView.text = (state.score).toString()
+
+        val benis = state.benisHistory
+        if (benis != null && benis.points.size > 2) {
+            benisGraph.setImageDrawable(GraphDrawable(benis))
+            benisContainer.visible = true
+
+            updateBenisDeltaForGraph(benis)
+        } else {
+            updateBenisDelta(0)
+        }
+
+        loginView.visible = false
+        logoutView.visible = true
+        inviteView.visible = true
+        actionPremium.visible = !state.premium
+    }
+
+    private fun applyNotAuthorizedState() {
+        usernameView.setText(R.string.pr0gramm)
+        usernameView.setOnClickListener(null)
+
+        userTypeView.text = ""
+        userTypeView.visible = false
+
+        benisContainer.visible = false
+        benisGraph.setImageDrawable(null)
+
+        loginView.visible = true
+        logoutView.visible = false
+        inviteView.visible = false
+        actionPremium.visible = false
     }
 
     private fun updateBenisDeltaForGraph(benis: Graph) {

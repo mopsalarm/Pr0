@@ -141,8 +141,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
 
         uploadService.sizeOkay(file)
-                .onErrorResumeNext(Observable.empty<Boolean>())
-                .compose(bindToLifecycleAsync<Boolean>())
+                .onErrorResumeNext(Observable.empty())
+                .bindToLifecycleAsync()
                 .subscribe { sizeOkay ->
                     if (sizeOkay) {
                         startUpload(file)
@@ -298,7 +298,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         logger.info("copy image to private memory")
         copy(activity, image)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe({ this.onMediaFile(it) }, { this.onError(it) })
     }
 

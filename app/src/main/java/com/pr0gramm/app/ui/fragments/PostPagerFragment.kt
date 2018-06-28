@@ -51,7 +51,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         adapter = PostAdapter(previousFeed, manager)
 
         manager.updates
-                .compose(bindToLifecycle())
+                .bindToLifecycle()
                 .ofType(FeedManager.Update.NewFeed::class.java)
                 .subscribe { adapter.feed = it.feed }
 

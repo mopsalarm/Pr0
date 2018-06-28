@@ -56,7 +56,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         imageView.setBitmapDecoderFactory { PicassoDecoder(tag, picasso) }
         imageView.setRegionDecoderFactory { Decoders.newFancyRegionDecoder(downloader) }
 
-        rxImageLoaded(imageView).compose(bindToLifecycle()).subscribe {
+        rxImageLoaded(imageView).bindToLifecycle().subscribe {
             hideBusyIndicator()
 
             imageView.maxScale = Math.max(

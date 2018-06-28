@@ -12,7 +12,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.fragmentArgument
-import com.pr0gramm.app.util.observeOnMain
+import com.pr0gramm.app.util.observeOnMainThread
 
 class DeleteCommentDialog : BaseDialogFragment("DeleteCommentFragment") {
     private val reason: EditText by bindView(R.id.reason)
@@ -35,7 +35,7 @@ class DeleteCommentDialog : BaseDialogFragment("DeleteCommentFragment") {
         val reason = this.reason.text.toString()
         adminService.deleteComment(hard, commentId, reason)
                 .decoupleSubscribe()
-                .observeOnMain()
+                .observeOnMainThread()
                 .withBusyDialog(this)
                 .subscribeWithErrorHandling(childFragmentManager, onComplete = { dismiss() })
     }

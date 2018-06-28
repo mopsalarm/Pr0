@@ -52,7 +52,7 @@ class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity
         val password = this.password.text.toString().trim()
         userService.resetPassword(user, token, password)
                 .decoupleSubscribe()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .withBusyDialog(this)
                 .subscribeWithErrorHandling { requestCompleted(it) }
     }

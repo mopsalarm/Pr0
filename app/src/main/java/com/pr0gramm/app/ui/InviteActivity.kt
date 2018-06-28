@@ -78,7 +78,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
     private fun requeryInvites() {
         inviteService.invites()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribeWithErrorHandling { handleInvites(it) }
     }
 

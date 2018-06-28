@@ -26,6 +26,7 @@ import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import org.slf4j.LoggerFactory
@@ -40,8 +41,9 @@ import kotlin.reflect.KProperty
  */
 abstract class CommentTreeHelper : CommentView.Listener {
     private val logger = LoggerFactory.getLogger("CommentTreeHelper")
-    private var nextUpdateIsSync = false
+
     private var state: CommentTree.Input by StateProperty()
+    private var stateUpdateSync = false
 
     private val subject = BehaviorSubject.create<List<CommentTree.Item>>(listOf())
     val itemsObservable = subject as Observable<List<CommentTree.Item>>
@@ -50,6 +52,12 @@ abstract class CommentTreeHelper : CommentView.Listener {
     fun selectComment(id: Long) {
         if (state.selectedCommentId != id) {
             state = state.copy(selectedCommentId = id)
+        }
+    }
+
+    fun userIsAdmin(admin: Boolean) {
+        if (state.isAdmin != admin) {
+            state = state.copy(isAdmin = admin)
         }
     }
 
@@ -78,26 +86,29 @@ abstract class CommentTreeHelper : CommentView.Listener {
     fun updateComments(comments: List<Api.Comment>, synchronous: Boolean = false,
                        extraChanges: (CommentTree.Input) -> CommentTree.Input) {
 
-        this.nextUpdateIsSync = synchronous
+
+        stateUpdateSync = synchronous
         state = extraChanges(state.copy(allComments = comments.toList()))
     }
 
     private fun updateVisibleComments() {
+        checkMainThread()
+
         val targetState = state
 
         logger.debug("Will run an update for current state {} ({} comments, selected={})",
                 System.identityHashCode(targetState),
                 targetState.allComments.size, targetState.selectedCommentId)
 
-        val runThisUpdateAsync = !nextUpdateIsSync && !targetState.allComments.isEmpty()
-        nextUpdateIsSync = false
+        val runThisUpdateAsync = !stateUpdateSync && !targetState.allComments.isEmpty()
+        stateUpdateSync = false
 
         Observable
                 .fromCallable { CommentTree(targetState).visibleComments }
                 .ignoreError()
                 .applyIf(runThisUpdateAsync) {
                     logger.info("Running update in background")
-                    subscribeOnBackground().observeOnMain()
+                    subscribeOnBackground().observeOnMainThread()
                 }
                 .subscribe { visibleComments ->
                     debug {
@@ -330,7 +341,7 @@ class CommentTree(val state: Input) {
 
             val hasChildren = comment.id in byParent
             val hasOpBadge = state.op == comment.name
-            val pointsVisible = state.self == comment.name
+            val pointsVisible = state.isAdmin || state.self == comment.name
             val selectedComment = state.selectedCommentId == comment.id
 
             Item(comment, vote, depth, hasChildren, score, hasOpBadge, hiddenCount,
@@ -397,6 +408,7 @@ class CommentTree(val state: Input) {
             val collapsed: Set<Long> = setOf(),
             val op: String? = null,
             val self: String? = null,
+            val isAdmin: Boolean = false,
             val selectedCommentId: Long = 0L)
 
     data class Item(val comment: Api.Comment,

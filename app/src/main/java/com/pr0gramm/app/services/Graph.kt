@@ -4,11 +4,9 @@ package com.pr0gramm.app.services
 /**
  * A simple graph of double values.
  */
-class Graph(start: Double, end: Double,
-            val points: List<Graph.Point>) {
+class Graph(start: Double, end: Double, val points: List<Graph.Point>) {
 
-    constructor(points: List<Graph.Point>) : this(points.first().x, points.last().x, points) {
-    }
+    constructor(points: List<Graph.Point>) : this(points.first().x, points.last().x, points)
 
     val range = start.rangeTo(end)
 

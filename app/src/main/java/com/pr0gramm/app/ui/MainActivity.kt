@@ -34,14 +34,11 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.decoupleSubscribe
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
+import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
@@ -170,7 +167,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             if (updateCheck) {
                 Observable.just<Any>(null)
                         .delay((if (updateCheckDelay) 10 else 0).toLong(), TimeUnit.SECONDS, mainThread())
-                        .compose(bindToLifecycle())
+                        .bindToLifecycle(this)
                         .subscribe { UpdateDialogFragment.checkForUpdates(this, false) }
             }
         }
@@ -181,8 +178,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             val showAnyAds = adService.enabledForType(Config.AdType.FEED).take(1)
 
             showAnyAds.takeFirst { v -> v }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .compose(bindToLifecycle())
+                    .observeOnMainThread()
+                    .bindToLifecycle()
                     .onErrorResumeEmpty()
                     .filter { !userService.isPremiumUser }
                     .subscribe {
@@ -205,7 +202,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun checkForInfoMessage() {
         infoMessageService.fetch()
                 .onErrorResumeEmpty()
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe { showInfoMessage(it) }
     }
 
@@ -438,7 +435,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // schedule a sync operation every 45 seconds while the app window is open
         Observable.interval(0, 45, TimeUnit.SECONDS, mainThread())
-                .compose(bindToLifecycle())
+                .bindToLifecycle()
                 .subscribe { SyncJob.syncNow() }
     }
 
@@ -540,8 +537,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 .replace(R.id.content, fragment)
 
         if (!clear) {
-            logger.info("Adding fragment {} to backstrack", fragment.javaClass.name)
-            transaction.addToBackStack("Feed" + fragment)
+            logger.info("Adding fragment {} to backstack", fragment.javaClass.name)
+            transaction.addToBackStack("Feed$fragment")
         }
 
         try {

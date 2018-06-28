@@ -19,7 +19,6 @@ import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.*
-import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindView
 import rx.Observable
 import java.util.concurrent.TimeUnit
@@ -73,18 +72,18 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        benisGraphTimeSelector.selectedTimeRange.bindToLifecycle(this).subscribe { millis ->
+        benisGraphTimeSelector.selectedTimeRange.bindToLifecycle().subscribe { millis ->
             benisTimeRangeStart = System.currentTimeMillis() - millis
         }
 
-        voteService.summary.ignoreError().compose(bindToLifecycleAsync()).subscribe {
+        voteService.summary.ignoreError().bindToLifecycleAsync().subscribe {
             handleVoteCounts(it)
         }
 
         userService.loadBenisRecords()
                 .ignoreError()
                 .delay(200, TimeUnit.MILLISECONDS)
-                .compose(bindToLifecycleAsync())
+                .bindToLifecycleAsync()
                 .subscribe { benisValues = it.records }
 
         userService.name?.let { username ->
@@ -94,7 +93,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private fun showContentTypesOf(view: CircleChartView, stats: Observable<StatisticsService.Stats>) {
-        stats.compose(bindToLifecycleAsync()).subscribeWithErrorHandling {
+        stats.bindToLifecycleAsync().subscribeWithErrorHandling {
             showContentTypes(view, it)
         }
     }

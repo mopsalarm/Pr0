@@ -32,8 +32,8 @@ class SyncService(private val userService: UserService,
 
 
     init {
-        // do a sync everytime the user token changes
-        userService.loginState()
+        // do a sync every time the user token changes
+        userService.loginStates
                 .mapNotNull { state -> state.uniqueToken }
                 .distinctUntilChanged()
                 .doOnNext { logger.debug("Unique token is now {}", it) }
@@ -99,18 +99,14 @@ class SyncService(private val userService: UserService,
     }
 
     private fun syncSeenService() {
-        val shouldSync = settings.backup && if (settings.seenIndicatorStyle == IndicatorStyle.NONE) {
-            singleShotService.firstTimeToday("sync-seen")
-        } else {
-            singleShotService.firstTimeInHour("sync-seen")
+        val shouldSync = settings.backup && when (settings.seenIndicatorStyle) {
+            IndicatorStyle.NONE -> singleShotService.firstTimeToday("sync-seen")
+            else -> singleShotService.firstTimeInHour("sync-seen")
         }
 
-        if (shouldSync) {
-            userService.loginState().take(1).subscribe { state ->
-                if (state.uniqueToken != null) {
-                    performSyncSeenService(state.uniqueToken)
-                }
-            }
+        val token = userService.loginState.uniqueToken
+        if (shouldSync && token != null) {
+            performSyncSeenService(token)
         }
     }
 

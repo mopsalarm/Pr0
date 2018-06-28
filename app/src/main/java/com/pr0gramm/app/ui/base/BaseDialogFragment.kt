@@ -11,6 +11,7 @@ import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import rx.Observable
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -35,6 +36,10 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), S
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
+
+    fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycle())
+
+    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.time("Injecting services") { initializeInjector() }

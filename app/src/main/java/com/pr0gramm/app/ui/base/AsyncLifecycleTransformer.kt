@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.base
 
 import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.observeOnMain
+import com.pr0gramm.app.util.observeOnMainThread
 import com.pr0gramm.app.util.subscribeOnBackground
 import com.trello.rxlifecycle.LifecycleTransformer
 
@@ -36,7 +36,7 @@ class AsyncLifecycleTransformer<T>(
         return observable
                 .subscribeOnBackground()
                 .unsubscribeOn(BackgroundScheduler.instance())
-                .observeOnMain()
+                .observeOnMainThread()
                 .compose(transformer)
     }
 }
