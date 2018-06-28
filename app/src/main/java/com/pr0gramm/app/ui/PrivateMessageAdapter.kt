@@ -30,7 +30,7 @@ class PrivateMessageAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return messages[position].message.id.toLong()
+        return messages[position].message.id
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
