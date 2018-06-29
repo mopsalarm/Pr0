@@ -990,7 +990,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val newestItem = (new - old).filter { !it.isPinned }.maxBy { new.feedTypeId(it) } ?: return
 
         // load repost info for the new items, starting at the most recent one
-        val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
+        val queryTerm = filter.tags?.let {
+            if (filter.feedType.extraCategory) {
+                val baseQueryTerm = it.trim('?', ' ')
+                "? ($baseQueryTerm) repost"
+            } else {
+                "$it repost"
+            }
+        } ?: "repost"
+
         val query = FeedService.FeedQuery(filter.withTags(queryTerm),
                 contentTypes = new.contentType, older = new.feedTypeId(newestItem))
 
