@@ -78,7 +78,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
 
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
-    private val scrollHandler: RecyclerView.OnScrollListener = ScrollHandler()
+    private var scrollHandler: RecyclerView.OnScrollListener = NoopScrollHandler()
 
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
@@ -104,7 +104,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
-    private lateinit var viewer: MediaView
+    private var viewer: MediaView? = null
 
     // must only be accessed after injecting kodein
     private val feedItemVote: Observable<Vote> by lazy {
@@ -144,11 +144,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun stopMediaOnViewer() {
-        viewer.stopMedia()
+        viewer?.stopMedia()
     }
 
     private fun playMediaOnViewer() {
-        viewer.playMedia()
+        viewer?.playMedia()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -180,8 +180,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // as long as the fragment is visible, the screen stays on.
         view.keepScreenOn = settings.keepScreenOn
 
+        // default to no scrolling
+        scrollHandler = NoopScrollHandler()
+
         recyclerView?.let { recyclerView ->
             // react to scrolling
+            scrollHandler = ScrollHandler()
+
             recyclerView.addOnScrollListener(scrollHandler)
 
             recyclerView.itemAnimator = null
@@ -204,6 +209,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeMediaView()
 
         adapterComments.updates
+                .observeOnMainThread()
                 .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow() }
 
@@ -288,8 +294,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val items = mutableListOf<PostAdapter.Item>()
 
-        state.mediaControlsContainer?.let { mcc ->
-            items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight, viewer, mcc)
+        viewer?.let { viewer ->
+            state.mediaControlsContainer?.let { mcc ->
+                items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight, viewer, mcc)
+            }
         }
 
         val isOurPost = userService.name.equals(state.item.user, ignoreCase = true)
@@ -428,6 +436,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     @OnOptionsItemSelected(R.id.action_zoom)
     fun enterFullscreen() {
+        val viewer = viewer ?: return
         val activity = activity ?: return
 
         if (isStaticImage(feedItem)) {
@@ -484,14 +493,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun realignFullScreen() {
-        activity?.let { activity ->
-            val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
-            viewer.pivotX = params.pivot.x
-            viewer.pivotY = params.pivot.y
-            viewer.translationY = params.trY
-            viewer.scaleX = params.scale
-            viewer.scaleY = params.scale
-        }
+        val viewer = viewer ?: return
+        val activity = activity ?: return
+
+        val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
+        viewer.pivotX = params.pivot.x
+        viewer.pivotY = params.pivot.y
+        viewer.translationY = params.trY
+        viewer.scaleX = params.scale
+        viewer.scaleY = params.scale
     }
 
     fun exitFullscreen() {
@@ -508,7 +518,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         swipeRefreshLayout.visible = true
 
         // reset the values correctly
-        viewer.apply {
+        viewer?.apply {
             rotation = 0f
             scaleX = 1f
             scaleY = 1f
@@ -730,11 +740,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val isTabletMode: Boolean get() = recyclerViewInfo != null
 
     private fun initializeMediaView() {
-        val activity = activity ?: return
+        val activity = requireActivity()
         val uri = buildMediaUri()
 
-        viewer = MediaViews.newInstance(Config(activity, uri,
-                audio = feedItem.audio, previewInfo = previewInfo))
+        val viewerConfig = Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo)
+        val viewer = MediaViews.newInstance(viewerConfig).also { this.viewer = it }
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
             //  mark this item seen. We do that in a background thread
@@ -908,7 +918,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         if (rewindOnNextLoad) {
             rewindOnNextLoad = false
-            viewer.rewind()
+            viewer?.rewind()
         }
     }
 
@@ -930,7 +940,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * we will hide the little video progress bar.
      */
     private fun hideProgressIfLoop(tags: List<Api.Tag>) {
-        val actualView = viewer.actualMediaView
+        val actualView = viewer?.actualMediaView
         if (actualView is AbstractProgressMediaView) {
             if (tags.any { it.isLoopTag() }) {
                 actualView.hideVideoProgress()
@@ -1038,7 +1048,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     fun mediaHorizontalOffset(offset: Int) {
-        viewer.translationX = offset.toFloat()
+        viewer?.translationX = offset.toFloat()
     }
 
     override fun onBackButton(): Boolean {
@@ -1050,10 +1060,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return false
     }
 
+    private class NoopScrollHandler : RecyclerView.OnScrollListener()
+
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
                 return
+
+            val viewer = viewer ?: return
 
             // get our facts straight
             val recyclerHeight = recyclerView.height
@@ -1110,6 +1124,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * Positions the media view using the given offset (on the y axis)
      */
     internal fun offsetMediaView(viewerVisible: Boolean, offset: Float) {
+        val viewer = viewer ?: return
+
         if (viewerVisible) {
             // finally position the viewer
             viewer.translationY = -offset
@@ -1157,8 +1173,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return doIfAuthorizedHelper.run(action, action)
     }
 
-    private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
-
     private val adapterComments: PostAdapter
         get() = recyclerView?.postAdapter
                 ?: recyclerViewComments?.postAdapter
@@ -1167,7 +1181,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val adapterInfo: PostAdapter
         get() = recyclerView?.postAdapter
                 ?: recyclerViewInfo?.postAdapter
-                ?: throw IllegalStateException("no comment adapter set")
+                ?: throw IllegalStateException("no info adapter set")
 
     inner class PostFragmentCommentTreeHelper : CommentTreeHelper() {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
@@ -1282,5 +1296,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 putParcelable(ARG_FEED_ITEM, item)
             }
         }
+
+        private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
     }
 }

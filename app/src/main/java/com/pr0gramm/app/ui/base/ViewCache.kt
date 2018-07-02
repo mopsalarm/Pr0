@@ -7,8 +7,6 @@ import gnu.trove.map.hash.TIntObjectHashMap
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-private object Empty
-
 class ViewCache(val lookupView: (Int) -> View?) {
     private val cache: TIntObjectMap<Any> = TIntObjectHashMap(64)
 
@@ -33,13 +31,12 @@ class ViewCache(val lookupView: (Int) -> View?) {
         return object : ReadOnlyProperty<R, V?> {
             override fun getValue(thisRef: R, property: KProperty<*>): V? {
                 val result = cache[id] ?: run {
-                    val view = lookupView(id) ?: Empty
-                    cache.put(id, view)
+                    val view = lookupView(id)?.also { cache.put(id, it) }
                     view
                 }
 
                 @Suppress("UNCHECKED_CAST")
-                return result.takeIf { it !== Empty } as V?
+                return result as V?
             }
         }
     }
