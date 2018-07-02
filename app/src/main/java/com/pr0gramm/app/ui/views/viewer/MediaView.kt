@@ -17,8 +17,8 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch
-import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.view.attachEvents
+import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -111,7 +111,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         showPreloadedIndicator()
 
-        RxView.detaches(this).subscribe {
+        this.detaches().subscribe {
             if (isPlaying)
                 stopMedia()
 
@@ -454,6 +454,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         private val watch = Stopwatch.createStarted()
 
         override fun call(bitmap: Bitmap) {
+            bitmap ?: return
+
             logger.debug("Got a preview image after {}", watch)
 
             this.mediaView?.let { mediaView ->

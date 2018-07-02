@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -75,7 +76,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     // start with an empty adapter here
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
-    private val adapter = PostAdapter(commentTreeHelper as CommentView.Listener, Actions())
 
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
     private val scrollHandler: RecyclerView.OnScrollListener = ScrollHandler()
@@ -98,12 +98,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
-    private val recyclerView: RecyclerView by bindView(R.id.post_content)
+    private val recyclerView: RecyclerView? by bindOptionalView(R.id.post_content)
+    private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
+    private val recyclerViewComments: RecyclerView? by bindOptionalView(R.id.post_content__comments)
     private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
     private lateinit var viewer: MediaView
-    private lateinit var mediaControlsContainer: ViewGroup
 
     // must only be accessed after injecting kodein
     private val feedItemVote: Observable<Vote> by lazy {
@@ -179,16 +180,30 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // as long as the fragment is visible, the screen stays on.
         view.keepScreenOn = settings.keepScreenOn
 
-        // react to scrolling
-        recyclerView.addOnScrollListener(scrollHandler)
+        recyclerView?.let { recyclerView ->
+            // react to scrolling
+            recyclerView.addOnScrollListener(scrollHandler)
 
-        recyclerView.itemAnimator = null
-        recyclerView.layoutManager = LinearLayoutManager(getActivity())
-        recyclerView.adapter = adapter
+            recyclerView.itemAnimator = null
+            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
+        }
+
+        recyclerViewInfo?.let { recyclerView ->
+            recyclerView.itemAnimator = null
+            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
+        }
+
+        recyclerViewComments?.let { recyclerView ->
+            recyclerView.itemAnimator = DefaultItemAnimator().apply { supportsChangeAnimations = false }
+            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
+        }
 
         initializeMediaView()
 
-        adapter.updates
+        adapterComments.updates
                 .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow() }
 
@@ -273,7 +288,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val items = mutableListOf<PostAdapter.Item>()
 
-        items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight, viewer, state.mediaControlsContainer)
+        state.mediaControlsContainer?.let { mcc ->
+            items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight, viewer, mcc)
+        }
 
         val isOurPost = userService.name.equals(state.item.user, ignoreCase = true)
         items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost)
@@ -292,7 +309,26 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        adapter.submitList(items)
+        submitItemsToAdapter(items)
+    }
+
+    private fun submitItemsToAdapter(items: MutableList<PostAdapter.Item>) {
+        recyclerView?.postAdapter?.submitList(items)
+
+        recyclerViewInfo?.postAdapter?.let { adapter ->
+            adapter.submitList(items.filter { item ->
+                item is PostAdapter.Item.InfoItem || item is PostAdapter.Item.TagsItem
+            })
+        }
+
+        recyclerViewComments?.postAdapter?.let { adapter ->
+            adapter.submitList(items.filter { item ->
+                item is PostAdapter.Item.CommentItem
+                        || item is PostAdapter.Item.CommentInputItem
+                        || item === PostAdapter.Item.CommentsLoadingItem
+                        || item === PostAdapter.Item.LoadErrorItem
+            })
+        }
     }
 
     override fun onStart() {
@@ -313,7 +349,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onDestroyView() {
-        recyclerView.removeOnScrollListener(scrollHandler)
+        recyclerView?.removeOnScrollListener(scrollHandler)
 
         activity?.let {
             // restore orientation if the user closes this view
@@ -372,7 +408,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = settings.showRefreshButton && !isVideoFullScreen
 
         menu.findItem(R.id.action_zoom)
-                ?.isVisible = !isVideoFullScreen
+                ?.isVisible = !isVideoFullScreen && (!isTabletMode || isImage)
 
         menu.findItem(R.id.action_share_image)
                 ?.isVisible = true
@@ -436,8 +472,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             // move to fullscreen!?
             AndroidUtility.applyWindowFullscreen(activity, true)
 
-            mediaControlsContainer.removeFromParent()
-            viewer.addView(mediaControlsContainer)
+            state.mediaControlsContainer?.let { mcc ->
+                mcc.removeFromParent()
+                viewer.addView(mcc)
+            }
 
             if (activity is AdControl) {
                 activity.showAds(false)
@@ -495,12 +533,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         Screen.unlockOrientation(activity)
 
         // remove view from the player
-        mediaControlsContainer.removeFromParent()
+        state.mediaControlsContainer?.removeFromParent()
 
         // and tell the adapter to bind it back to the view.
-        val idx = adapter.items.indexOfFirst { it is PostAdapter.Item.PlaceholderItem }
-        if (idx >= 0) {
-            adapter.notifyItemChanged(idx)
+        recyclerView?.postAdapter?.let { adapter ->
+            val idx = adapter.items.indexOfFirst { it is PostAdapter.Item.PlaceholderItem }
+            if (idx >= 0) {
+                adapter.notifyItemChanged(idx)
+            }
         }
     }
 
@@ -598,7 +638,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // observeOnMainThread uses post to scroll in the next frame.
         // this prevents the viewer from getting bad clipping.
-        adapter.updates.skip(1).observeOnMainThread().bindToLifecycle().subscribe { simulateScroll() }
+        recyclerView?.postAdapter?.let { adapter ->
+            adapter.updates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
+                simulateScroll()
+            }
+        }
 
         // track that the user visited this post.
         if (configService.config().trackItemView) {
@@ -683,6 +727,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
+    private val isTabletMode: Boolean get() = recyclerViewInfo != null
+
     private fun initializeMediaView() {
         val activity = activity ?: return
         val uri = buildMediaUri()
@@ -705,98 +751,59 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         playerContainer.addView(viewer, idx)
 
         // Add a container for the children
-        mediaControlsContainer = FrameLayout(context)
+        val mediaControlsContainer = FrameLayout(context)
         mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
                 LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
 
-
-        // add space to the top of the viewer to compensate for the action bar.
+        // add space to the top of the viewer or to the screen to compensate
+        // for the action bar.
         val viewerPaddingTop = AndroidUtility.getActionBarContentOffset(activity)
-        viewer.setPadding(0, viewerPaddingTop, 0, 0)
+        if (isTabletMode) {
+            view?.setPadding(0, viewerPaddingTop, 0, 0)
 
-        if (feedItem.width > 0 && feedItem.height > 0) {
-            val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
-            val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
-            val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
-            state = state.copy(viewerBaseHeight = expectedViewerHeight)
+            playerContainer.addView(mediaControlsContainer)
 
-            logger.debug("Initialized viewer height to {}", expectedViewerHeight)
-        }
+            viewer.layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER)
 
-        viewer.layoutChanges().map { Unit }.subscribe {
-            val newHeight = viewer.measuredHeight
-            if (newHeight != state.viewerBaseHeight) {
-                logger.debug("Change in viewer height detected, setting height to {} to {}",
-                        state.viewerBaseHeight, newHeight)
+        } else {
+            viewer.setPadding(0, viewerPaddingTop, 0, 0)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    state = state.copy(viewerBaseHeight = newHeight)
-                } else {
-                    // it looks like a requestLayout is not honored on pre kitkat devices
-                    // if already in a layout pass.
-                    viewer.post { state = state.copy(viewerBaseHeight = newHeight) }
+            if (feedItem.width > 0 && feedItem.height > 0) {
+                val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
+                val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
+                val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
+                state = state.copy(viewerBaseHeight = expectedViewerHeight)
+
+                logger.debug("Initialized viewer height to {}", expectedViewerHeight)
+            }
+
+            viewer.layoutChanges().map { Unit }.subscribe {
+                val newHeight = viewer.measuredHeight
+                if (newHeight != state.viewerBaseHeight) {
+                    logger.debug("Change in viewer height detected, setting height to {} to {}",
+                            state.viewerBaseHeight, newHeight)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        state = state.copy(viewerBaseHeight = newHeight)
+                    } else {
+                        // it looks like a requestLayout is not honored on pre kitkat devices
+                        // if already in a layout pass.
+                        viewer.post { state = state.copy(viewerBaseHeight = newHeight) }
+                    }
+
+                    if (isVideoFullScreen) {
+                        realignFullScreen()
+                    }
                 }
 
-                if (isVideoFullScreen) {
-                    realignFullScreen()
-                }
+
+                state = state.copy(mediaControlsContainer = mediaControlsContainer)
             }
         }
 
-        state = state.copy(mediaControlsContainer = mediaControlsContainer)
-
-        // TODO tablet layout
-//        if (tabletLayoutView != null) {
-//            viewer.layoutParams = FrameLayout.LayoutParams(
-//                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER)
-//
-//            playerContainer.addView(mediaControlsContainer)
-//
-//            viewer.thumbnail()
-//                    .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-//                    .subscribe { this.updatePlayerContainerBackground(it) }
-//
-//        } else {
-
-
-//            adapter.addAdapter(SingleViewAdapter.of {
-//                // we add a placeholder to the first element of the recycler view.
-//                // this placeholder will mirror the size of the viewer.
-//                val placeholder = PlaceholderView(viewer.context, viewer)
-//
-//                RxView.layoutChanges(viewer).map { Unit }.startWith(Unit).subscribe {
-//                    val newHeight = viewer.measuredHeight
-//                    if (newHeight != placeholder.fixedHeight) {
-//                        placeholder.fixedHeight = newHeight
-//
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                            placeholder.requestLayout()
-//                        } else {
-//                            // it looks like a requestLayout is not honored on pre kitkat devices
-//                            // if already in a layout pass.
-//                            placeholder.post { placeholder.requestLayout() }
-//                        }
-//
-//                        if (isVideoFullScreen) {
-//                            realignFullScreen()
-//                        }
-//                    }
-//                }
-//
-//                RxView.layoutChanges(placeholder).subscribe {
-//                    // simulate scroll after layouting the placeholder to
-//                    // reflect changes to the viewers clipping.
-//                    simulateScroll()
-//                }
-//
-//
-//                mediaControlsContainer.removeFromParent()
-//                placeholder.addView(mediaControlsContainer)
-//
-//                playerPlaceholder = placeholder
-//
-//                placeholder
-//            })
 
         // add the controls as child of the controls-container.
         viewer.controllerView()
@@ -842,6 +849,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
+        val recyclerView = this.recyclerView ?: return
+
         val handler = scrollHandler
         if (handler is ScrollHandler) {
             handler.onScrolled(recyclerView, 0, 0)
@@ -993,10 +1002,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             })
         }
 
-        Snackbar.make(recyclerView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
-                .configureNewStyle()
-                .setAction(R.string.okay) {}
-                .show()
+        view?.let { fragmentView ->
+            Snackbar.make(fragmentView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
+                    .configureNewStyle()
+                    .setAction(R.string.okay) {}
+                    .show()
+        }
     }
 
     fun autoScrollToComment(commentId: Long, delayed: Boolean = false) {
@@ -1010,9 +1021,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun tryAutoScrollToCommentNow() {
         val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: return
 
-        val idx = adapter.items.indexOfFirst { it is PostAdapter.Item.CommentItem && it.commentTreeItem.commentId == commentId }
+        // get the current recycler view and adapter.
+        val recyclerView = recyclerView ?: recyclerViewComments ?: return
+        val adapter = recyclerView.postAdapter ?: return
+
+        val idx = adapter.items.indexOfFirst { item ->
+            item is PostAdapter.Item.CommentItem && item.commentTreeItem.commentId == commentId
+        }
+
         if (idx >= 0) {
             recyclerView.scrollToPosition(idx)
+
             commentTreeHelper.selectComment(commentId)
             arguments?.remove(ARG_AUTOSCROLL_COMMENT_ID)
         }
@@ -1137,6 +1156,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         return doIfAuthorizedHelper.run(action, action)
     }
+
+    private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
+
+    private val adapterComments: PostAdapter
+        get() = recyclerView?.postAdapter
+                ?: recyclerViewComments?.postAdapter
+                ?: throw IllegalStateException("no comment adapter set")
+
+    private val adapterInfo: PostAdapter
+        get() = recyclerView?.postAdapter
+                ?: recyclerViewInfo?.postAdapter
+                ?: throw IllegalStateException("no comment adapter set")
 
     inner class PostFragmentCommentTreeHelper : CommentTreeHelper() {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
