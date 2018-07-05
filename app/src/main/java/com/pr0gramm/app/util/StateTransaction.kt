@@ -6,7 +6,7 @@ class StateTransaction<V : Any>(private val valueSupplier: () -> V, private val 
     private val logger = LoggerFactory.getLogger("StateTransaction")
     private var txLevel = 0
 
-    operator fun <T> invoke(tx: () -> T): T {
+    operator fun <T> invoke(dispatch: Boolean = true, tx: () -> T): T {
         AndroidUtility.checkMainThread()
 
         val previousState = valueSupplier()
@@ -18,9 +18,13 @@ class StateTransaction<V : Any>(private val valueSupplier: () -> V, private val 
             txLevel--
         }
 
-        if (!isActive && previousState != valueSupplier()) {
-            logger.debug("Running deferred state update in transaction")
-            applyChange()
+        if (dispatch) {
+            if (!isActive && previousState != valueSupplier()) {
+                logger.debug("Running deferred state update in transaction")
+                applyChange()
+            }
+        } else {
+            logger.debug("Not doing state update, cause dispatch=false")
         }
 
         return result

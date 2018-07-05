@@ -115,7 +115,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         arguments = Bundle()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction {
+    override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(dispatch = false) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
@@ -285,18 +285,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val state = this.state
 
         debug {
-            logger.debug("Applying post fragment state: h={}, tags={}, tagVotes={}, comments={} ({}), l={}",
+            logger.debug("Applying post fragment state: h={}, tags={}, tagVotes={}, comments={} ({}), l={}, viewer={}, mcc={}",
                     state.viewerBaseHeight,
                     state.tags.size, state.tagVotes.size(),
                     state.comments.size, state.comments.hashCode(),
-                    state.commentsLoading)
+                    state.commentsLoading,
+                    viewer != null, state.mediaControlsContainer != null)
         }
 
         val items = mutableListOf<PostAdapter.Item>()
 
         viewer?.let { viewer ->
-            state.mediaControlsContainer?.let { mcc ->
-                items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight, viewer, mcc)
+            if (state.viewerBaseHeight > 0) {
+                items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight,
+                        viewer, state.mediaControlsContainer)
             }
         }
 
@@ -808,10 +810,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                         realignFullScreen()
                     }
                 }
-
-
-                state = state.copy(mediaControlsContainer = mediaControlsContainer)
             }
+
+            state = state.copy(mediaControlsContainer = mediaControlsContainer)
         }
 
 
