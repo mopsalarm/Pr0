@@ -312,7 +312,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
     override fun <T : Any?> invokeAny(tasks: MutableCollection<out Callable<T>>, timeout: Long, unit: TimeUnit?): T {
         return tasks.toObservable()
                 .flatMap { Async.fromCallable(it, scheduler) }
-                .switchIfEmpty(Observable.error(object : ExecutionException("No one finished") {}))
+                .switchIfEmpty(Observable.error(ExecutionException(IllegalStateException("No one finished"))))
                 .apply { if (unit != null) timeout(timeout, unit) }
                 .toBlocking()
                 .first()

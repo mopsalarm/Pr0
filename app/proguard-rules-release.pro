@@ -1,13 +1,10 @@
--flattenpackagehierarchy
 -allowaccessmodification
 -repackageclasses
 
--optimizationpasses 5
-
--optimizations !field/removal/writeonly
--optimizations !field/propagation/value
--optimizations !class/merging/horizontal
--optimizations !method/removal/parameter
+# -optimizations !field/removal/writeonly
+# -optimizations !field/propagation/value
+# -optimizations !method/removal/parameter
+# -optimizations !class/merging/horizontal
 -optimizations **
 
 # remove all not so important logging
@@ -16,10 +13,11 @@
       public *** debug(...);
 }
 
--assumenosideeffects class kotlin.jvm.internal.Intrinsics {
-    public static void check*NotNull(java.lang.Object, java.lang.String);
+-assumenosideeffects class android.util.Log {
+      public *** d(...);
+      public *** v(...);
 }
 
--keepclassmembers class **$WhenMappings {
-    <fields>;
+-assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+    public static void check*NotNull(java.lang.Object, java.lang.String);
 }

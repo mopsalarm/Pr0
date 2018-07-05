@@ -3,9 +3,19 @@
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
 
--dontwarn **
 -dontnote **
 -ignorewarnings
+
+-dontwarn com.google.android.gms.gcm.GcmTaskService
+-dontwarn android.support.transition.Transition
+-dontwarn java.lang.ClassValue
+-dontwarn sun.net.spi.nameservice.NameServiceDescriptor
+
+# Ignore annotation used for build tooling.
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# Ignore JSR 305 annotations for embedding nullability information.
+-dontwarn javax.annotation.**
 
 # keep exception names
 -keepnames class * extends java.lang.Throwable
@@ -42,7 +52,7 @@
 }
 
 # Preserve some attributes that may be required for reflection.
--keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepattributes RuntimeVisible*Annotations,InnerClasses,Signature
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {
@@ -59,37 +69,19 @@
     public static final ** CREATOR;
 }
 
--keepclassmembers class **.R$* {
-    public static <fields>;
-}
-
-# Understand the @Keep support annotation.
--keep class android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class * {*;}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep <methods>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep <init>(...);
-}
-
 # for moshi we need to keep the json adapters.
--keep class **JsonAdapter {
+-keep,allowoptimization class **JsonAdapter {
     <init>(...);
     <fields>;
 }
 
 -keepnames @com.squareup.moshi.JsonClass class *
 
-# keeps crashing without this on kotlin 1.2.50... maybe
-# old dependencies? propagate fields?
--keep class kotlin.math.MathKt*
+-keepclassmembers class **$WhenMappings {
+    <fields>;
+}
 
--printconfiguration /tmp/proguard.pro
+# Retain service method parameters when optimizing.
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
