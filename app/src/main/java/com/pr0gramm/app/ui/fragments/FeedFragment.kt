@@ -244,7 +244,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
-                .observeOn(mainThread())
                 .bindToLifecycle()
                 .subscribe { show -> state = state.copy(adsVisible = show) }
     }
@@ -556,7 +555,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // Observe all preloaded items to get them into the cache and to show the
         // correct state in the ui once they are loaded
         preloadManager.all()
-                .throttleLast(5, TimeUnit.SECONDS)
+                .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler.instance())
                 .bindToLifecycleAsync()
                 .ignoreError()
                 .subscribe { state = state.copy(preloadedCount = it.size) }
@@ -608,6 +607,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val newContentType = selectedContentType
         if (feed.contentType != newContentType) {
             replaceFeedFilter(feedFilter, newContentType)
+            queryForUserInfo()
         }
     }
 

@@ -61,9 +61,8 @@ class AdService(private val configService: ConfigService, private val userServic
 
     fun enabledForType(type: Config.AdType): Observable<Boolean> {
         return userService.loginStates
-                .observeOnMainThread()
+                .observeOnMainThread(firstIsSync = true)
                 .map { isEnabledFor(type) }
-                .startWith(isEnabledFor(type))
                 .distinctUntilChanged()
     }
 
