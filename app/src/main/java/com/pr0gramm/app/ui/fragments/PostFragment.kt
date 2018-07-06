@@ -206,7 +206,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
         }
 
-        initializeMediaView()
+        logger.time("Initialize media view") {
+            initializeMediaView()
+        }
 
         adapterComments.updates
                 .observeOnMainThread()
@@ -746,7 +748,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val uri = buildMediaUri()
 
         val viewerConfig = Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo)
-        val viewer = MediaViews.newInstance(viewerConfig).also { this.viewer = it }
+        val viewer = logger.time("MediaView.newInstance") {
+            MediaViews.newInstance(viewerConfig).also { this.viewer = it }
+        }
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
             //  mark this item seen. We do that in a background thread

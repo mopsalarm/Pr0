@@ -59,6 +59,12 @@ if ! unzip -t app/build/outputs/apk/release/app-release.apk | grep publicsuffixe
     exit 1
 fi
 
+# verify apk
+if unzip -t app/build/outputs/apk/release/app-release.apk | grep classes2.dex ; then
+    echo "Found classes2.dex in the apk"
+    exit 1
+fi
+
 # create tag for this version
 git tag -a "$(format_version ${VERSION})" \
         -m "Released version $(format_version ${VERSION})"

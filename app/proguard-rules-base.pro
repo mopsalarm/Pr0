@@ -3,8 +3,8 @@
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
 
--dontnote **
--ignorewarnings
+# -dontnote **
+# -ignorewarnings
 
 -dontwarn com.google.android.gms.gcm.GcmTaskService
 -dontwarn android.support.transition.Transition

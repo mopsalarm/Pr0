@@ -38,6 +38,8 @@ android {
         targetSdkVersion 27
         applicationId "com.pr0gramm.app"
 
+        multiDexEnabled false
+
         versionCode appVersion
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
 
@@ -79,6 +81,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
+
+            multiDexEnabled true
 
             versionNameSuffix ".dev"
             applicationIdSuffix ".dev"
@@ -205,6 +209,7 @@ dependencies {
 
     debugImplementation "com.facebook.stetho:stetho:1.5.0"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
+    debugImplementation 'com.android.support:multidex:1.0.3'
 
     // rx java
     implementation "io.reactivex:rxjava:1.3.8"

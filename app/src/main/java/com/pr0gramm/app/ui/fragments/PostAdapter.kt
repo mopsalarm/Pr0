@@ -23,7 +23,9 @@ import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.time
 import gnu.trove.map.TLongObjectMap
+import org.slf4j.LoggerFactory
 import java.util.*
 
 
@@ -41,6 +43,8 @@ class PostAdapter(
         private val commentViewListener: CommentView.Listener,
         private val postActions: PostActions)
     : AsyncListAdapter<PostAdapter.Item, RecyclerView.ViewHolder>(ItemCallback()) {
+
+    private val logger = LoggerFactory.getLogger("PostAdapter")
 
     init {
         setHasStableIds(true)
@@ -67,27 +71,29 @@ class PostAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val context = parent.context
 
-        return when (viewTypesByIndex[viewType]) {
-            Offset.Placeholder ->
-                PlaceholderHolder(PlaceholderView(context))
+        return logger.time("Inflating layout for ${viewTypesByIndex[viewType]}") {
+            when (viewTypesByIndex[viewType]) {
+                Offset.Placeholder ->
+                    PlaceholderHolder(PlaceholderView(context))
 
-            Offset.Info ->
-                InfoLineViewHolder(postActions, InfoLineView(context))
+                Offset.Info ->
+                    InfoLineViewHolder(postActions, InfoLineView(context))
 
-            Offset.Tags ->
-                TagsViewHolder(TagsView(context, postActions))
+                Offset.Tags ->
+                    TagsViewHolder(TagsView(context, postActions))
 
-            Offset.CommentInputItem ->
-                CommentPostLineHolder(postActions, CommentPostLine(context))
+                Offset.CommentInputItem ->
+                    CommentPostLineHolder(postActions, CommentPostLine(context))
 
-            Offset.CommentItem ->
-                CommentView(parent, commentViewListener)
+                Offset.CommentItem ->
+                    CommentView(parent, commentViewListener)
 
-            Offset.CommentsLoadingItem ->
-                StaticViewHolder(parent, R.layout.comments_are_loading)
+                Offset.CommentsLoadingItem ->
+                    StaticViewHolder(parent, R.layout.comments_are_loading)
 
-            Offset.LoadErrorItem ->
-                StaticViewHolder(parent, R.layout.comments_load_err)
+                Offset.LoadErrorItem ->
+                    StaticViewHolder(parent, R.layout.comments_load_err)
+            }
         }
     }
 
