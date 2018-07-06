@@ -138,6 +138,12 @@ android.applicationVariants.all { variant ->
         if (!output.toString("UTF-8").contains("okhttp3/internal/publicsuffix/publicsuffixes.gz")) {
             throw new RuntimeException("publicsuffixes.gz not found in build")
         }
+
+        if (variant.name.toLowerCase() == "release") {
+            if (output.toString("UTF-8").contains("classes2.dex")) {
+                throw new RuntimeException("classes2.dex should not exist.")
+            }
+        }
     }
 }
 
