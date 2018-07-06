@@ -5,13 +5,12 @@ package com.pr0gramm.app.feed
  */
 enum class FeedType(val searchable: Boolean = true,
                     val preloadable: Boolean = true,
-                    val sortable: Boolean = true,
-                    val extraCategory: Boolean = false) {
+                    val sortable: Boolean = true) {
     NEW,
     PROMOTED,
     PREMIUM,
-    CONTROVERSIAL(sortable = false, extraCategory = true),
-    RANDOM(preloadable = false, sortable = false, extraCategory = true),
-    BESTOF(extraCategory = true),
-    TEXT(extraCategory = true),
+    CONTROVERSIAL(sortable = false),
+    RANDOM(preloadable = false, sortable = false),
+    BESTOF(),
+    TEXT(),
 }

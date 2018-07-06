@@ -9,6 +9,10 @@
       {
         "type": "Überarbeitet",
         "change": "Viele kleine Designänderungen."
+      },
+      {
+        "type": "Fix",
+        "change": "Unter bestimmten Umständen wurden alle Posts als repost markiert."
       }
     ]
   },
