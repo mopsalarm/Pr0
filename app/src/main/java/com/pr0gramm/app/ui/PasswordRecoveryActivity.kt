@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import com.github.salomonbrys.kodein.instance
 import com.google.code.regexp.Pattern
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.RxTextView
@@ -15,6 +14,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.decoupleSubscribe
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 
 class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity") {
     private lateinit var user: String

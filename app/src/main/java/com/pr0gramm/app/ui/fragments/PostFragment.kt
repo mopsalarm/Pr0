@@ -19,7 +19,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.R
@@ -54,6 +53,7 @@ import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import org.kodein.di.erased.instance
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.lang.kotlin.subscribeBy

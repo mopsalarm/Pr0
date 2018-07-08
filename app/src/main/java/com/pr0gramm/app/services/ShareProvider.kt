@@ -9,23 +9,26 @@ import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.util.kodein
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
 /**
  */
-class ShareProvider : ContentProvider() {
-    private val cache by lazy { context.appKodein().instance<Cache>() }
+class ShareProvider : ContentProvider(), KodeinAware {
+    override val kodein: Kodein by lazy { context.kodein }
+
+    private val cache by instance<Cache>()
 
     override fun onCreate(): Boolean {
         return true
@@ -59,7 +62,6 @@ class ShareProvider : ContentProvider() {
         return cursor
     }
 
-    @Throws(IOException::class)
     private fun getSizeForUri(uri: Uri): Long {
         val url = decode(uri).toString()
         return cache.get(Uri.parse(url)).totalSize.toLong()
@@ -85,7 +87,6 @@ class ShareProvider : ContentProvider() {
         return arrayOf(guessMimetype(decode(uri)))
     }
 
-    @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         val url = decode(uri).toString()
         val mimeType = guessMimetype(decode(uri))

@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.AutoCompleteTextView
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -12,6 +11,7 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
+import org.kodein.di.erased.instance
 
 /**
  */

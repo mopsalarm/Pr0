@@ -3,10 +3,6 @@ package com.pr0gramm.app
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.util.LruCache
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.bind
-import com.github.salomonbrys.kodein.instance
-import com.github.salomonbrys.kodein.singleton
 import com.google.common.base.Stopwatch
 import com.google.common.base.Throwables
 import com.google.common.net.HttpHeaders
@@ -26,6 +22,10 @@ import com.squareup.picasso.Downloader
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import okhttp3.*
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
+import org.kodein.di.erased.singleton
 import org.slf4j.LoggerFactory
 import org.xbill.DNS.*
 import rx.Observable
@@ -43,7 +43,7 @@ import kotlin.concurrent.timer
 
 /**
  */
-fun httpModule(app: ApplicationClass) = Kodein.Module {
+fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
     bind<LoginCookieHandler>() with singleton { LoginCookieHandler(app, instance()) }
 
     bind<OkHttpClient>() with singleton {
@@ -95,7 +95,6 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
-                .addNetworkInterceptor(app.debugNetworkInterceptor())
                 .addNetworkInterceptor(LoggingInterceptor())
                 .build()
     }

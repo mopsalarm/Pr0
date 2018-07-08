@@ -41,7 +41,17 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
             if (ids.isEmpty())
                 return Observable.just(emptyList())
 
-            val encodedIds = ids.sorted().map { voteId(type, it) }.joinToString(",")
+            val encodedIds = StringBuilder().apply {
+                append(voteId(type, ids[0]))
+
+                for (index in 1 until ids.size) {
+                    append(',')
+                    append(voteId(type, ids[index]))
+                }
+
+                toString()
+            }
+
             val query = "SELECT item_id, type, vote FROM cached_vote WHERE id IN ($encodedIds)"
             return db.createQuery("cached_vote", query).mapToList(this::ofCursor)
         }

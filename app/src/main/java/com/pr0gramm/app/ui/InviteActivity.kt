@@ -9,7 +9,6 @@ import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -28,6 +27,7 @@ import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import kotterknife.bindViews
+import org.kodein.di.erased.instance
 import rx.lang.kotlin.subscribeBy
 
 /**

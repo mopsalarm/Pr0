@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
@@ -21,6 +20,7 @@ import com.pr0gramm.app.ui.fragments.BusyDialog
 import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import java.util.*
 
 /**

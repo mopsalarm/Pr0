@@ -1,18 +1,19 @@
 package com.pr0gramm.app.services
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.github.salomonbrys.kodein.android.KodeinBroadcastReceiver
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.util.directKodein
+import org.kodein.di.erased.instance
 
 
 /**
  */
-class InboxNotificationCanceledReceiver : KodeinBroadcastReceiver() {
-    private val inboxService: InboxService by instance()
+class InboxNotificationCanceledReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val inboxService: InboxService = context.directKodein.instance()
 
-    override fun onBroadcastReceived(context: Context, intent: Intent) {
         val timestamp = intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0)
         if (timestamp > 0) {
             inboxService.markAsRead(timestamp)
@@ -23,7 +24,7 @@ class InboxNotificationCanceledReceiver : KodeinBroadcastReceiver() {
     }
 
     companion object {
-        val EXTRA_MESSAGE_TIMESTAMP = "InboxNotificationCanceledReceiver.messageTimestamp"
+        const val EXTRA_MESSAGE_TIMESTAMP = "InboxNotificationCanceledReceiver.messageTimestamp"
 
         fun makeIntent(context: Context, timestamp: Instant): Intent {
             val intent = Intent(context, InboxNotificationCanceledReceiver::class.java)

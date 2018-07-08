@@ -2,13 +2,13 @@ package com.pr0gramm.app.ui.fragments
 
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.MessageAdapter
+import org.kodein.di.erased.instance
 
 /**
  */

@@ -6,8 +6,6 @@ import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
-import com.github.salomonbrys.kodein.instance
-
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -15,6 +13,7 @@ import com.pr0gramm.app.ui.fragments.MessageInboxFragment
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 
 
 /**

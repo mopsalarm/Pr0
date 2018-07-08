@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -22,6 +21,7 @@ import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
+import org.kodein.di.erased.instance
 import rx.functions.Action0
 import rx.functions.Action1
 import java.util.*

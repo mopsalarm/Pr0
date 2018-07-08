@@ -5,9 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import com.github.salomonbrys.kodein.KodeinInjector
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.FirebaseAnalytics.Event
@@ -15,6 +12,9 @@ import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.kodein
+import org.kodein.di.LateInitKodein
+import org.kodein.di.erased.instance
 import rx.Observable
 import java.util.concurrent.TimeUnit
 
@@ -26,13 +26,13 @@ object Track {
     private const val GA_CUSTOM_PREMIUM = "premium"
     private const val GA_CUSTOM_ADS = "ads"
 
-    private val injector = KodeinInjector()
+    private val injector = LateInitKodein()
     private val fa: FirebaseAnalytics by injector.instance()
     private val settingsTracker: SettingsTrackerService by injector.instance()
     private val config: Config by injector.instance()
 
     fun initialize(context: Context) {
-        injector.inject(context.appKodein())
+        injector.baseKodein = context.kodein
     }
 
     private inline fun send(eventType: String, b: Bundle.() -> Unit = {}) {

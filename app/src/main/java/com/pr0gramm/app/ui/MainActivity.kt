@@ -18,7 +18,6 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
 import android.view.*
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -38,6 +37,7 @@ import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindOptionalView
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.BehaviorSubject

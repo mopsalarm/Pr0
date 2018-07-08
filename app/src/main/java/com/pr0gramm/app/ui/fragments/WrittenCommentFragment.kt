@@ -1,10 +1,10 @@
 package com.pr0gramm.app.ui.fragments
 
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
+import org.kodein.di.erased.instance
 import rx.Observable
 
 /**

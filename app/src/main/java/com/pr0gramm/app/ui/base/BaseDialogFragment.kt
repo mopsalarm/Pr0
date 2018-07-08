@@ -3,12 +3,14 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import com.github.salomonbrys.kodein.KodeinInjector
-import com.github.salomonbrys.kodein.android.SupportFragmentInjector
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
+import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.KodeinTrigger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Observable
@@ -16,16 +18,12 @@ import rx.Observable
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), SupportFragmentInjector, HasViewCache {
+abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache {
     @JvmField
     protected val logger: Logger = LoggerFactory.getLogger(name)
 
-    final override val injector = KodeinInjector()
-    final override val kodeinComponent = super.kodeinComponent
-    final override val kodeinScope = super.kodeinScope
-
-    final override fun initializeInjector() = super.initializeInjector()
-    final override fun destroyInjector() = super.destroyInjector()
+    override val kodein: Kodein by lazy { requireContext().kodein }
+    override val kodeinTrigger = KodeinTrigger()
 
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
@@ -42,13 +40,8 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), S
     fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        logger.time("Injecting services") { initializeInjector() }
+        logger.time("Injecting services") { kodeinTrigger.trigger() }
         super.onCreate(savedInstanceState)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        destroyInjector()
     }
 
     override fun onStart() {

@@ -11,9 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
-
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -29,6 +27,7 @@ import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import rx.Emitter
 import rx.Observable
 

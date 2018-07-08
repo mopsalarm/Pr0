@@ -4,10 +4,10 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.util.SimpleJobCreator
+import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.doInBackground
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -19,7 +19,7 @@ class SyncJob : Job() {
         scheduleNextSyncIn(nextIntervalInMillis(params), TimeUnit.MILLISECONDS)
 
         // get service and sync now.
-        val syncService = context.appKodein().instance<SyncService>()
+        val syncService = context.directKodein.instance<SyncService>()
         syncService.sync()
 
         return Job.Result.SUCCESS

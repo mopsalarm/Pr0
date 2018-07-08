@@ -6,8 +6,6 @@ import android.net.Uri
 import android.support.customtabs.CustomTabsIntent
 import android.support.customtabs.CustomTabsService
 import android.support.v4.content.ContextCompat
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -17,6 +15,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -70,7 +69,7 @@ object BrowserHelper {
     }
 
     fun open(context: Context, url: String) {
-        if (context.appKodein().instance<Settings>().useIncognitoBrowser) {
+        if (context.directKodein.instance<Settings>().useIncognitoBrowser) {
             openIncognito(context, url)
         } else {
             openCustomTab(context, Uri.parse(url))
@@ -153,7 +152,7 @@ object BrowserHelper {
         val externalUri = uri.host.toLowerCase() != "pr0gramm.com"
 
         // the user needs to be signed in for handover to make sense
-        val userService = context.appKodein().instance<UserService>()
+        val userService = context.directKodein.instance<UserService>()
         val notAuthorized = !userService.isAuthorized
 
         if (activity !is BaseAppCompatActivity || externalUri || notAuthorized) {
@@ -161,7 +160,7 @@ object BrowserHelper {
             return
         }
 
-        activity.appKodein().instance<Api>()
+        activity.directKodein.instance<Api>()
                 .handoverToken(null)
                 .map { response ->
                     Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()

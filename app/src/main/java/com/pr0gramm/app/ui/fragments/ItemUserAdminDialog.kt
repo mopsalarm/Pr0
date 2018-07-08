@@ -6,7 +6,6 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ListView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
 import com.jakewharton.rxbinding.widget.checkedChanges
 import com.jakewharton.rxbinding.widget.itemClicks
@@ -17,6 +16,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.arguments
+import org.kodein.di.erased.instance
 import rx.Completable
 import rx.functions.Action0
 

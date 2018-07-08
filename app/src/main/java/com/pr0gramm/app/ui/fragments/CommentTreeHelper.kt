@@ -10,8 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -29,6 +27,7 @@ import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -242,7 +241,7 @@ class CommentView(val parent: ViewGroup,
     }
 
     private fun showCommentMenu(view: View, entry: CommentTree.Item) {
-        val userService = view.context.appKodein().instance<UserService>()
+        val userService = view.context.directKodein.instance<UserService>()
 
         val popup = PopupMenu(view.context, view)
         popup.inflate(R.menu.menu_comment)

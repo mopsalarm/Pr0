@@ -7,7 +7,6 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.TextView
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
@@ -20,6 +19,7 @@ import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.*
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import rx.Observable
 import java.util.concurrent.TimeUnit
 

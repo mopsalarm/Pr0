@@ -7,8 +7,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
 import com.google.android.exoplayer2.decoder.DecoderCounters
@@ -35,7 +33,9 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.getMessageWithCauses
+import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.weakref
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -347,7 +347,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     private class DataSourceFactory(private val context: Context, private val uri: Uri) : DataSource.Factory {
         override fun createDataSource(): DataSource {
-            val cache = context.appKodein().instance<Cache>()
+            val cache by context.kodein.instance<Cache>()
             return InputStreamCacheDataSource(uri, cache)
         }
     }

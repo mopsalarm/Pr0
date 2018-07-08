@@ -15,7 +15,6 @@ import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch
 import com.jakewharton.rxbinding.view.attachEvents
 import com.jakewharton.rxbinding.view.detaches
@@ -31,6 +30,7 @@ import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import org.kodein.di.erased.instance
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Observable
@@ -57,9 +57,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     private var mediaShown: Boolean = false
     private var compatClipBounds: Rect? = null
 
-    protected val picasso: Picasso = instance()
-    private val inMemoryCacheService: InMemoryCacheService = instance()
-    private val fancyThumbnailGenerator: FancyExifThumbnailGenerator = instance()
+    protected val picasso: Picasso by instance()
+    private val inMemoryCacheService: InMemoryCacheService by instance()
+    private val fancyThumbnailGenerator: FancyExifThumbnailGenerator by instance()
 
     /**
      * Returns the url that this view should display.

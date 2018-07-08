@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.MultiAutoCompleteTextView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Splitter
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
@@ -14,6 +13,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.bottomSheet
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.visible
+import org.kodein.di.erased.instance
 
 /**
  */

@@ -14,20 +14,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.github.salomonbrys.kodein.instance
-import com.github.salomonbrys.kodein.with
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClasses
+import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
+import com.squareup.picasso.Picasso
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 import java.util.*
 
 /**
@@ -36,7 +39,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
 
-    private val navigationProvider: NavigationProvider by injector.with { activity }.instance()
+    private val navigationProvider: NavigationProvider by lazy {
+        val k = kodein.direct
+        val picasso = k.instance<Picasso>()
+        val inboxService = k.instance<InboxService>()
+        val configService = k.instance<ConfigService>()
+        val extraCategories = k.instance<ExtraCategories>()
+        NavigationProvider(requireActivity(), userService, inboxService,
+                bookmarkService, configService, extraCategories, picasso)
+    }
 
     private val usernameView: TextView by bindView(R.id.username)
     private val userTypeView: TextView by bindView(R.id.user_type)

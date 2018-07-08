@@ -1,14 +1,14 @@
 package com.pr0gramm.app
 
 import android.app.Application
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.bind
-import com.github.salomonbrys.kodein.instance
 import com.google.firebase.analytics.FirebaseAnalytics
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
 
 /**
  */
-fun trackingModule(app: Application) = Kodein.Module {
+fun trackingModule(app: Application) = Kodein.Module("tracking") {
     bind<FirebaseAnalytics>() with instance(FirebaseAnalytics.getInstance(app).apply {
         setAnalyticsCollectionEnabled(true)
     })

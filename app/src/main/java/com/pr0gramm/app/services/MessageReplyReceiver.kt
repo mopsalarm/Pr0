@@ -1,26 +1,35 @@
 package com.pr0gramm.app.services
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.support.v4.app.RemoteInput
-import com.github.salomonbrys.kodein.android.KodeinBroadcastReceiver
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.kodein
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.Completable
 
 /**
  * Reply directly to a user
  */
-class MessageReplyReceiver : KodeinBroadcastReceiver() {
+class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
+    override lateinit var kodein: Kodein
+
     private val inboxService: InboxService by instance()
     private val voteService: VoteService by instance()
     private val notificationService: NotificationService by instance()
 
-    override fun onBroadcastReceived(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (!this::kodein.isInitialized) {
+            kodein = context.kodein
+        }
+
         // normal receiver info
         val receiverId = intent.getIntExtra("receiverId", 0)
         val receiverName = intent.getStringExtra("receiverName")
@@ -56,11 +65,11 @@ class MessageReplyReceiver : KodeinBroadcastReceiver() {
         }
     }
 
-    internal fun sendResponseAsComment(itemId: Long, commentId: Long, text: String): Completable {
+    private fun sendResponseAsComment(itemId: Long, commentId: Long, text: String): Completable {
         return voteService.postComment(itemId, commentId, text).toCompletable()
     }
 
-    internal fun sendResponseToMessage(receiverId: Int, text: String): Completable {
+    private fun sendResponseToMessage(receiverId: Int, text: String): Completable {
         return inboxService.send(receiverId.toLong(), text)
     }
 

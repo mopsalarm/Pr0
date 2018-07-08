@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -12,6 +11,7 @@ import com.pr0gramm.app.ui.OnOptionsItemSelected
 import com.pr0gramm.app.ui.OptionMenuHelper
 import com.pr0gramm.app.ui.PrivateMessageAdapter
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog
+import org.kodein.di.erased.instance
 
 /**
  */

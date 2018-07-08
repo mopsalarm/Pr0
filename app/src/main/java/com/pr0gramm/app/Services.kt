@@ -1,8 +1,6 @@
 package com.pr0gramm.app
 
 import android.app.Application
-import com.github.salomonbrys.kodein.*
-import com.github.salomonbrys.kodein.android.androidActivityScope
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
@@ -16,8 +14,13 @@ import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
+import org.kodein.di.erased.provider
+import org.kodein.di.erased.singleton
 
-fun servicesModule(app: Application) = Kodein.Module {
+fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<SeenService>() with instance(SeenService(app))
     bind<InMemoryCacheService>() with instance(InMemoryCacheService())
 
@@ -68,8 +71,4 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
 
     bind<Config>() with provider { instance<ConfigService>().config() }
-
-    bind<NavigationProvider>() with scopedSingleton(androidActivityScope) { activity ->
-        NavigationProvider(activity, instance(), instance(), instance(), instance(), instance(), instance())
-    }
 }

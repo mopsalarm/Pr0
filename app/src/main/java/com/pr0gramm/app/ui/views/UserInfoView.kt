@@ -9,8 +9,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.clicks
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -20,6 +18,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
+import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 /**
@@ -162,7 +161,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
 
         val imageView = view.find<ImageView>(R.id.image)
         if (!isInEditMode) {
-            val picasso = appKodein().instance<Picasso>()
+            val picasso = context.directKodein.instance<Picasso>()
 
             val localImageId = knownImages.get(image)
             if (localImageId != null) {

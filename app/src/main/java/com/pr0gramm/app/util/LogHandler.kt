@@ -31,10 +31,8 @@ class LogHandler : Handler() {
         val tag = record.loggerName
         val androidLogLevel = logRecord.logLevel.androidLevel
 
-        if (BuildConfig.DEBUG) {
-            Log.println(androidLogLevel, tag, formatted)
-        } else {
-            Log.println(androidLogLevel, tag, formatted)
+        Log.println(androidLogLevel, tag, formatted)
+        if (!BuildConfig.DEBUG) {
             crashlytics.log(androidLogLevel, tag, formatted)
         }
 
@@ -65,7 +63,7 @@ class LogHandler : Handler() {
          */
         fun recentMessages(): List<String> {
             val entries = synchronized(BUFFER) {
-                (0..BUFFER.size() - 1).map { BUFFER.get(it) }
+                (0 until BUFFER.size()).map { BUFFER.get(it) }
             }
 
             // get the most recent entry. should be the last one

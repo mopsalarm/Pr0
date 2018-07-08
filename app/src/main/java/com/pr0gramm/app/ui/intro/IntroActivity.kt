@@ -1,21 +1,25 @@
 package com.pr0gramm.app.ui.intro
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import com.github.paolorotolo.appintro.AppIntro
-import com.github.salomonbrys.kodein.KodeinInjector
-import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.intro.slides.*
+import com.pr0gramm.app.util.kodein
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.KodeinTrigger
 
-class IntroActivity : AppIntro(), AppCompatActivityInjector {
-    override val injector = KodeinInjector()
+class IntroActivity : AppIntro(), KodeinAware {
+    override val kodein: Kodein by lazy { (this as Context).kodein }
+    override val kodeinTrigger: KodeinTrigger = KodeinTrigger()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        initializeInjector()
         super.onCreate(savedInstanceState)
+        kodeinTrigger.trigger()
 
         addSlide(GenericAppIntroFragment.newInstance(
                 title = "",
@@ -44,11 +48,6 @@ class IntroActivity : AppIntro(), AppCompatActivityInjector {
         setDoneText(getString(R.string.action_done))
 
         setFadeAnimation()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        destroyInjector()
     }
 
     override fun onDonePressed(currentFragment: Fragment?) {

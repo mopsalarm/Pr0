@@ -9,8 +9,6 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
@@ -38,6 +36,7 @@ import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
@@ -901,13 +900,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val idx = feed.indexById(item.id) ?: return
 
         try {
+            val generator: FancyExifThumbnailGenerator by instance()
+
             val fragment = PostPagerFragment.newInstance(feed, idx, commentId)
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
 
                 val info = PreviewInfo.of(context, item, image)
-                info.preloadFancyPreviewImage(appKodein().instance())
+                info.preloadFancyPreviewImage(generator)
                 fragment.setPreviewInfo(info)
             }
 

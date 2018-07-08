@@ -7,8 +7,6 @@ import android.os.Build
 import android.os.Environment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
@@ -17,7 +15,9 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.onErrorResumeEmpty
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -109,10 +109,11 @@ class UpdateChecker {
         }
 
 
-        fun download(activity: FragmentActivity, update: Update) {
-            val injector = activity.appKodein()
+        fun download(activity: FragmentActivity, update: Update) = with(activity.directKodein) {
+            val downloadService = instance<DownloadService>()
+            val notificationService = instance<NotificationService>()
 
-            val progress = injector.instance<DownloadService>()
+            val progress = downloadService
                     .downloadUpdateFile(update.apk)
                     .subscribeOn(BackgroundScheduler.instance())
                     .unsubscribeOn(BackgroundScheduler.instance())
@@ -138,7 +139,7 @@ class UpdateChecker {
             dialog.show(activity.supportFragmentManager, null)
 
             // remove pending upload notification
-            injector.instance<NotificationService>().cancelForUpdate()
+            notificationService.cancelForUpdate()
         }
 
         private fun install(context: Context, apk: File) {

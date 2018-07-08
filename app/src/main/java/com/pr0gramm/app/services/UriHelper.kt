@@ -2,15 +2,15 @@ package com.pr0gramm.app.services
 
 import android.content.Context
 import android.net.Uri
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
+import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.toUri
+import org.kodein.di.erased.instance
 
 
 /**
@@ -20,7 +20,7 @@ class UriHelper private constructor(context: Context) {
     private val settings: Settings = Settings.get()
     private val noPreload = NoPreload()
 
-    private val preloadManager: PreloadManager by lazy { context.appKodein().instance<PreloadManager>() }
+    private val preloadManager: PreloadManager by lazy { context.directKodein.instance<PreloadManager>() }
 
     private fun start(): Uri.Builder {
         return Uri.Builder()

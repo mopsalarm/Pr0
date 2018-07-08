@@ -8,16 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.dp2px
-import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
 
@@ -51,7 +50,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             container.addView(placeholder)
 
-            val adService = context.appKodein().instance<AdService>()
+            val adService = context.directKodein.instance<AdService>()
 
             val adView = adService.newAdView(context)
             adView.adSize = AdSize(AdSize.FULL_WIDTH, 70)

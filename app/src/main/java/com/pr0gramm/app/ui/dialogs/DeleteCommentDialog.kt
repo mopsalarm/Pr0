@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.CheckBox
 import android.widget.EditText
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
@@ -13,6 +12,7 @@ import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.observeOnMainThread
+import org.kodein.di.erased.instance
 
 class DeleteCommentDialog : BaseDialogFragment("DeleteCommentFragment") {
     private val reason: EditText by bindView(R.id.reason)

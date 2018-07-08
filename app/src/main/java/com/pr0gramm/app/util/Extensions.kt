@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.app.Activity
+import android.content.ContentProvider
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -28,6 +29,10 @@ import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import org.kodein.di.DKodein
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.direct
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Completable
@@ -405,3 +410,13 @@ inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
 fun <T : Any?> T.applyIf(b: Boolean, fn: T.() -> T): T {
     return if (b) this.fn() else this
 }
+
+inline val Context.kodein: Kodein get() = (applicationContext as KodeinAware).kodein
+
+inline val Context.directKodein: DKodein get() = (applicationContext as KodeinAware).kodein.direct
+
+inline val View.kodein: Kodein get() = context.kodein
+
+inline val ContentProvider.kodein: Kodein get() = context.kodein
+
+

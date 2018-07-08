@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
-import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
@@ -12,6 +11,7 @@ import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.endAction
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import pl.droidsonroids.gif.GifDrawable
 import rx.functions.Action1
 
@@ -19,7 +19,7 @@ import rx.functions.Action1
  */
 @SuppressLint("ViewConstructor")
 class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config, R.layout.player_gif) {
-    private val gifDrawableLoader: GifDrawableLoader = instance()
+    private val gifDrawableLoader: GifDrawableLoader by instance()
 
     private val imageView: ImageView by bindView(R.id.image)
 

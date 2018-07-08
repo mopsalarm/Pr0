@@ -7,7 +7,6 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -20,6 +19,7 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.observeChange
+import org.kodein.di.erased.instance
 
 /**
  */

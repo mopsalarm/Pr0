@@ -16,8 +16,6 @@ import android.support.v4.view.ViewCompat
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
@@ -34,6 +32,7 @@ import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import retrofit2.HttpException
 import rx.Observable
 
@@ -221,7 +220,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
             val context = fragment.context ?: return false
 
-            val userService = context.appKodein().instance<UserService>()
+            val userService: UserService = context.directKodein.instance()
             return if (userService.isAuthorized) {
                 runnable.run()
                 true

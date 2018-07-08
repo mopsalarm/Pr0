@@ -7,12 +7,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.widget.ImageView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
+import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.ui.views.viewer.MediaUri
@@ -20,13 +19,14 @@ import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
+import org.kodein.di.erased.instance
 
 /**
  */
 class SimilarImageView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr), KodeinViewMixin {
 
-    private val picasso: Picasso = appKodein().instance()
+    private val picasso: Picasso by instance()
 
     init {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)

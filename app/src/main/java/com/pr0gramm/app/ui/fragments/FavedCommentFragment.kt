@@ -1,9 +1,9 @@
 package com.pr0gramm.app.ui.fragments
 
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.FavedCommentService
+import org.kodein.di.erased.instance
 
 /**
  */

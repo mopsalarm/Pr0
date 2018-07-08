@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.widget.itemClickEvents
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -16,6 +15,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.optionalFragmentArgument
+import org.kodein.di.erased.instance
 import rx.functions.Action0
 
 /**

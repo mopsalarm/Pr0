@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui.dialogs
 import android.app.Dialog
 import android.content.SharedPreferences
 import android.os.Bundle
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -18,7 +16,9 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.directKodein
 import com.trello.rxlifecycle.android.ActivityEvent
+import org.kodein.di.erased.instance
 import rx.Observable
 
 /**
@@ -59,7 +59,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
          * @param activity The activity that starts this update check.
          */
         fun checkForUpdates(activity: BaseAppCompatActivity, interactive: Boolean) {
-            val shared = activity.appKodein().instance<SharedPreferences>()
+            val shared = activity.directKodein.instance<SharedPreferences>()
 
             if (!interactive && !BuildConfig.DEBUG) {
                 val last = Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0))

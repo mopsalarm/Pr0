@@ -11,8 +11,6 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -24,13 +22,11 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.TagCloudLayoutManager
-import com.pr0gramm.app.util.DurationFormat
-import com.pr0gramm.app.util.ValueHolder
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.*
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import java.lang.Math.min
 
 /**
@@ -44,7 +40,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
     private val voteView: VoteView by bindView(R.id.voting)
 
-    private val admin: Boolean = !isInEditMode && context.appKodein().instance<UserService>().userIsAdmin
+    private val admin: Boolean = !isInEditMode && context.directKodein.instance<UserService>().userIsAdmin
 
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false

@@ -5,22 +5,22 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.bind
-import com.github.salomonbrys.kodein.instance
-import com.github.salomonbrys.kodein.singleton
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Databases
 import com.pr0gramm.app.util.Holder
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
+import org.kodein.di.erased.singleton
 import org.slf4j.LoggerFactory
 import rx.Single
 
 /**
  */
-fun appModule(app: Application) = Kodein.Module {
-    bind<SharedPreferences>(overrides = true) with instance(app.getSharedPreferences("pr0gramm", Context.MODE_PRIVATE))
+fun appModule(app: Application) = Kodein.Module("app") {
+    bind<SharedPreferences>() with instance(app.getSharedPreferences("pr0gramm", Context.MODE_PRIVATE))
 
     bind<Settings>() with instance(Settings.get())
 

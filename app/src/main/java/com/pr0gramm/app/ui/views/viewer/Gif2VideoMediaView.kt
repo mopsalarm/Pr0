@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.Observable
 
@@ -12,7 +12,7 @@ import rx.Observable
  */
 @SuppressLint("ViewConstructor")
 class Gif2VideoMediaView internal constructor(config: MediaView.Config) : ProxyMediaView(config) {
-    private val gifToVideoService: GifToVideoService = instance()
+    private val gifToVideoService: GifToVideoService by instance()
 
     init {
         startWebmConversion()

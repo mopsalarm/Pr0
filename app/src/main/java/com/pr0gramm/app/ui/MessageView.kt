@@ -7,8 +7,6 @@ import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Ascii
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -18,10 +16,13 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.SenderDrawableProvider
+import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.use
 import com.squareup.picasso.Picasso
 import kotterknife.bindOptionalView
 import kotterknife.bindView
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
 /**
  */
@@ -46,9 +47,9 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         View.inflate(context, layoutId, this)
 
         if (!isInEditMode) {
-            picasso = context.appKodein().instance()
+            picasso = kodein.direct.instance()
 
-            val userService = context.appKodein().instance<UserService>()
+            val userService by kodein.instance<UserService>()
             admin = userService.userIsAdmin
         } else {
             admin = false

@@ -10,9 +10,6 @@ import android.preference.PreferenceGroup
 import android.preference.PreferenceScreen
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.github.salomonbrys.kodein.LazyKodein
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.BuildConfig
@@ -28,6 +25,9 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.components.RxPreferenceFragment
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.erased.instance
 
 /**
  */
@@ -62,13 +62,14 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         return super.onOptionsItemSelected(item)
     }
 
-    class SettingsFragment : RxPreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+    class SettingsFragment : RxPreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener, KodeinAware {
         private val settings = Settings.get()
 
-        private val k = LazyKodein { activity.appKodein().kodein }
-        private val userService: UserService by k.instance()
-        private val preloadManager: PreloadManager by k.instance()
-        private val recentSearchesServices: RecentSearchesServices by k.instance()
+        override val kodein: Kodein by lazy { activity.kodein }
+
+        private val userService: UserService by instance()
+        private val preloadManager: PreloadManager by instance()
+        private val recentSearchesServices: RecentSearchesServices by instance()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)

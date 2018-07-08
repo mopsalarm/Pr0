@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
-import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.afterTextChangeEvents
 import com.pr0gramm.app.R
+import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.UsernameTokenizer
@@ -15,6 +15,7 @@ import com.pr0gramm.app.util.ViewUtility
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import rx.Observable
 
 /**
@@ -25,6 +26,8 @@ class CommentPostLine @JvmOverloads constructor(
 
     private val postButton: View by bindView(R.id.comment_post)
     private val commentTextView: LineMultiAutoCompleteTextView by bindView(R.id.comment_text)
+
+    private val userSuggestionService: UserSuggestionService by instance()
 
     init {
         layoutInflater.inflate(R.layout.write_comment_layout, this)
@@ -38,7 +41,7 @@ class CommentPostLine @JvmOverloads constructor(
 
         commentTextView.setAnchorView(anchorView)
         commentTextView.setTokenizer(UsernameTokenizer())
-        commentTextView.setAdapter(UsernameAutoCompleteAdapter(instance(), context,
+        commentTextView.setAdapter(UsernameAutoCompleteAdapter(userSuggestionService, context,
                 android.R.layout.simple_dropdown_item_1line))
 
         // The post button is only enabled if we have at least one letter.

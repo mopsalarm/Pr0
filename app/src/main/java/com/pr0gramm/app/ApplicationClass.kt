@@ -5,11 +5,6 @@ import android.os.StrictMode
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobConfig
 import com.evernote.android.job.JobManager
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.KodeinAware
-import com.github.salomonbrys.kodein.android.autoAndroidModule
-import com.github.salomonbrys.kodein.android.withContext
-import com.github.salomonbrys.kodein.lazy
 import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -24,7 +19,10 @@ import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.ignoreException
 import io.fabric.sdk.android.Fabric
-import okhttp3.Interceptor
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import pl.brightinventions.slf4android.LogLevel
 import pl.brightinventions.slf4android.LoggerConfiguration
@@ -87,7 +85,7 @@ open class ApplicationClass : Application(), KodeinAware {
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
 
-        EagerBootstrap.initEagerSingletons(withContext(this).kodein())
+        // EagerBootstrap.initEagerSingletons(withContext(this).kodein())
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme()
@@ -120,17 +118,11 @@ open class ApplicationClass : Application(), KodeinAware {
         Stats.get().histogram("app.boot.time", bootupTime)
     }
 
-    /**
-     * Overridden in debug application to provide the stetho interceptor.
-     */
-    open fun debugNetworkInterceptor(): Interceptor {
-        return Interceptor { it.proceed(it.request()) }
-    }
-
-    override val kodein: Kodein by Kodein.lazy {
+    override val kodein: Kodein = Kodein.lazy {
         val app = this@ApplicationClass
-        import(autoAndroidModule(app))
-        import(appModule(app), allowOverride = true)
+        bind<Application>() with instance(app)
+
+        import(appModule(app))
         import(httpModule(app))
         import(trackingModule(app))
         import(servicesModule(app))

@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.TextView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
@@ -17,6 +16,7 @@ import com.pr0gramm.app.util.removeFromParent
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
@@ -28,7 +28,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)
 
-    private val downloader: Downloader = instance()
+    private val downloader: Downloader by instance()
 
     init {
         imageView.visibility = View.VISIBLE

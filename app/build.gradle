@@ -111,6 +111,7 @@ android {
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
         exclude 'META-INF/rxjava.properties'
         exclude 'META-INF/app_debug.kotlin_module'
+        exclude 'META-INF/main.kotlin_module'
         exclude 'kotlin'
     }
 }
@@ -213,8 +214,6 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.8.2'
 
-    debugImplementation "com.facebook.stetho:stetho:1.5.0"
-    debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
     debugImplementation 'com.android.support:multidex:1.0.3'
 
     // rx java
@@ -238,8 +237,7 @@ dependencies {
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.4"
 
     // dependency injection using kotlin.
-    implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
-    implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
+    implementation 'org.kodein.di:kodein-di-erased-jvm:5.2.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.natpryce:hamkrest:1.4.2.2'
@@ -247,12 +245,18 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
     testImplementation "com.nhaarman:mockito-kotlin:1.5.0"
+
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 configurations {
     implementation {
         exclude group: "com.android.support", module: "transition"
         exclude group: "com.android.support", module: "support-media-compat"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
     }
 }
 

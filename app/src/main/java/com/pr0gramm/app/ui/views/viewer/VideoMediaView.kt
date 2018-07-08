@@ -15,7 +15,6 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import com.github.salomonbrys.kodein.instance
 import com.google.common.hash.Hashing
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
@@ -34,6 +33,7 @@ import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.hideViewEndAction
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
@@ -48,9 +48,9 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     private val videoPlayerParent: AspectLayout by bindView(R.id.video_container)
 
-    private val settings: Settings = instance()
-    private val proxyService: ProxyService = instance()
-    private val preferences: SharedPreferences = instance()
+    private val settings: Settings by instance()
+    private val proxyService: ProxyService by instance()
+    private val preferences: SharedPreferences by instance()
 
     private var videoViewInitialized: Boolean = false
     private var errorShown: Boolean = false

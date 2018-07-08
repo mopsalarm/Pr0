@@ -3,14 +3,14 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
-import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -24,8 +24,8 @@ object TagInputView {
     /**
      * Parses the list of tags. It is provided as one tag per line in utf8 encoding.
      */
-    internal fun loadTagJson(context: Context): List<String> {
-        val config = context.appKodein().instance<Config>()
+    private fun loadTagJson(context: Context): List<String> {
+        val config = context.directKodein.instance<Config>()
 
         val questionableTags = config.questionableTags.map { it.toLowerCase() }
 

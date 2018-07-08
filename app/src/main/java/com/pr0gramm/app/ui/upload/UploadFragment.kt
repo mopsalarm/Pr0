@@ -14,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.CharMatcher
 import com.google.common.base.Preconditions.checkNotNull
 import com.google.common.base.Splitter
@@ -43,6 +42,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
+import org.kodein.di.erased.instance
 import rx.Observable
 import java.io.File
 import java.io.FileOutputStream

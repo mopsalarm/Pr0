@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services.preloading
 
+import android.app.IntentService
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -9,8 +10,6 @@ import android.net.Uri
 import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
-import com.github.salomonbrys.kodein.android.KodeinIntentService
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.Duration
@@ -24,10 +23,14 @@ import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.use
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
@@ -37,7 +40,9 @@ import java.util.concurrent.TimeUnit
 /**
  * This service handles preloading and resolving of preloaded images.
  */
-class PreloadService : KodeinIntentService("PreloadService") {
+class PreloadService : IntentService("PreloadService"), KodeinAware {
+    override val kodein: Kodein by lazy { applicationContext.kodein }
+
     private val httpClient: OkHttpClient by instance()
     private val notificationManager: NotificationManager by instance()
     private val preloadManager: PreloadManager by instance()
