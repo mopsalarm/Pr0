@@ -51,7 +51,7 @@ android {
             abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
         }
 
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'com.pr0gramm.app.Runner'
     }
 
     aaptOptions {
@@ -78,8 +78,8 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
 
             multiDexEnabled true
@@ -92,6 +92,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-release.pro'
+
+            multiDexEnabled false
 
             signingConfig signingConfigs.release
         }
@@ -249,6 +251,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+    androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:3.10.0"
 }
 
 configurations {

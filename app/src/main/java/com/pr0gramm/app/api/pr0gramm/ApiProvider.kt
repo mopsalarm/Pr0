@@ -1,14 +1,11 @@
 package com.pr0gramm.app.api.pr0gramm
 
-import android.app.Application
-import android.content.Context
 import com.google.common.base.Stopwatch
 import com.google.common.reflect.Reflection
 import com.google.common.util.concurrent.Uninterruptibles
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.services.UriHelper
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
@@ -23,11 +20,10 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-class ApiProvider(context: Application, client: OkHttpClient,
-                  cookieHandler: LoginCookieHandler,
+class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookieHandler,
                   private val singleShotService: SingleShotService) {
 
-    val api = newProxyWrapper(newRestAdapter(context, client), cookieHandler)
+    val api = newProxyWrapper(newRestAdapter(base, client), cookieHandler)
 
     private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
         // proxy to add the nonce if not provided
@@ -98,7 +94,7 @@ class ApiProvider(context: Application, client: OkHttpClient,
     }
 
 
-    private fun newRestAdapter(context: Context, client: OkHttpClient): Api {
+    private fun newRestAdapter(base: String, client: OkHttpClient): Api {
         val settings = Settings.get()
 
         val baseUrl: HttpUrl
@@ -106,7 +102,7 @@ class ApiProvider(context: Application, client: OkHttpClient,
             // activate this to use a mock
             baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888")!!
         } else {
-            baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString())!!
+            baseUrl = HttpUrl.parse(base)!!
         }
 
         return Retrofit.Builder()

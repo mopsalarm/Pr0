@@ -83,6 +83,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
 
+        // in tests we would like to quiet dialogs on startup
+        val quiet = intent?.getBooleanExtra("MainActivity.quiet", false) ?: false
+
         if (settings.secureApp) {
             // hide app from recent apps list
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -128,8 +131,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true)
 
-                // only check on normal app start
-                checkForInfoMessage()
+                unless(quiet) {
+                    // only check on normal app start
+                    checkForInfoMessage()
+                }
 
             } else {
                 startedWithIntent = true
@@ -137,12 +142,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
         }
 
-        if (singleShotService.isFirstTime("onboarding-activity:1")) {
-            startActivityForResult(Intent(this, IntroActivity::class.java), RequestCodes.INTRO_ACTIVITY)
-            return
+        unless(quiet) {
+            if (singleShotService.isFirstTime("onboarding-activity:1")) {
+                startActivityForResult(Intent(this, IntroActivity::class.java), RequestCodes.INTRO_ACTIVITY)
+                return
+            }
         }
 
-        if (coldStart) {
+        if (coldStart && !quiet) {
             var updateCheck = true
             var updateCheckDelay = false
 

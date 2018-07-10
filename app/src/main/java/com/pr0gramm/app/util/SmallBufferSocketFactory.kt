@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import android.net.TrafficStats
 import java.net.InetAddress
 import java.net.Socket
 import javax.net.SocketFactory
@@ -31,6 +32,8 @@ class SmallBufferSocketFactory : SocketFactory() {
     }
 
     private fun process(socket: Socket): Socket {
+        TrafficStats.setThreadStatsTag(0)
+
         socket.sendBufferSize = 1024 * 48
         return socket
     }

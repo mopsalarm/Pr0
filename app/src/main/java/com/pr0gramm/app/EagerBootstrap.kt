@@ -7,6 +7,7 @@ import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.time
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
@@ -20,13 +21,13 @@ object EagerBootstrap {
     fun initEagerSingletons(kodein: Kodein) {
         doInBackground {
             try {
-                logger.info("Bootstrapping instances...")
-
-                kodein.instance<ProxyService>()
-                kodein.instance<PreloadManager>()
-                kodein.instance<VoteService>()
-                kodein.instance<UserService>()
-                kodein.instance<SyncService>()
+                logger.time("Bootstrapping instances...") {
+                    kodein.instance<ProxyService>()
+                    kodein.instance<PreloadManager>()
+                    kodein.instance<VoteService>()
+                    kodein.instance<UserService>()
+                    kodein.instance<SyncService>()
+                }
 
             } catch (error: Throwable) {
                 AndroidUtility.logToCrashlytics(error)

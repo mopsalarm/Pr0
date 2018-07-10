@@ -38,6 +38,10 @@ open class ApplicationClass : Application(), KodeinAware {
 
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
+    init {
+        StrictMode.enableDefaults()
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -49,6 +53,8 @@ open class ApplicationClass : Application(), KodeinAware {
 
         JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
         JobConfig.addLogger(SimpleJobLogger())
+
+        EagerBootstrap.initEagerSingletons(kodein)
 
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
@@ -63,7 +69,6 @@ open class ApplicationClass : Application(), KodeinAware {
 
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.")
-            StrictMode.enableDefaults()
 
         } else {
             // allow all the dirty stuff.
@@ -84,8 +89,6 @@ open class ApplicationClass : Application(), KodeinAware {
 
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
-
-        // EagerBootstrap.initEagerSingletons(withContext(this).kodein())
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme()
@@ -118,14 +121,18 @@ open class ApplicationClass : Application(), KodeinAware {
         Stats.get().histogram("app.boot.time", bootupTime)
     }
 
-    override val kodein: Kodein = Kodein.lazy {
-        val app = this@ApplicationClass
-        bind<Application>() with instance(app)
+    override val kodein: Kodein = Kodein.lazy { configureKodein(this) }
 
-        import(appModule(app))
-        import(httpModule(app))
-        import(trackingModule(app))
-        import(servicesModule(app))
+    protected open fun configureKodein(builder: Kodein.MainBuilder) {
+        builder.apply {
+            val app = this@ApplicationClass
+            bind<Application>() with instance(app)
+
+            import(appModule(app))
+            import(httpModule(app))
+            import(trackingModule(app))
+            import(servicesModule(app))
+        }
     }
 }
 

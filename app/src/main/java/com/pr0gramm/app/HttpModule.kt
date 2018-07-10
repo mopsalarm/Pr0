@@ -24,13 +24,17 @@ import com.squareup.picasso.Picasso
 import okhttp3.*
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
+import org.kodein.di.erased.eagerSingleton
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.xbill.DNS.*
 import rx.Observable
 import rx.Scheduler
+import rx.Single
 import rx.lang.kotlin.toObservable
+import rx.schedulers.Schedulers
 import rx.util.async.Async
 import java.io.File
 import java.io.IOException
@@ -41,10 +45,16 @@ import java.util.concurrent.*
 import kotlin.concurrent.timer
 
 
+const val TagApiURL = "api.baseurl"
+
 /**
  */
 fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
     bind<LoginCookieHandler>() with singleton { LoginCookieHandler(app, instance()) }
+
+    bind<Dns>() with singleton { FallbackDns() }
+
+    bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
 
     bind<OkHttpClient>() with singleton {
         val executor: ExecutorService = instance()
@@ -88,7 +98,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
                 .dispatcher(Dispatcher(executor))
-                .dns(FallbackDns())
+                .dns(instance())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
                 .addInterceptor(DebugInterceptor())
@@ -105,28 +115,38 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
         PicassoDownloader(cache, fallback)
     }
 
+    bind<Single<ProxyService>>(tag = "proxyServiceSingle") with eagerSingleton {
+        Async.start({
+            checkNotMainThread()
+
+            val logger = LoggerFactory.getLogger("ProxyServiceFactory")
+            repeat(10) {
+                val port = HttpProxyService.randomPort()
+                logger.debug("Trying port {}", port)
+
+                try {
+                    val proxy = HttpProxyService(instance<Cache>(), port)
+                    proxy.start()
+
+                    // return the proxy
+                    return@start proxy
+
+                } catch (ioError: IOException) {
+                    logger.warn("Could not open proxy on port {}: {}", port, ioError.toString())
+                }
+            }
+
+            logger.warn("Stop trying, using no proxy now.")
+            return@start object : ProxyService {
+                override fun proxy(url: Uri): Uri {
+                    return url
+                }
+            }
+        }, Schedulers.io()).toSingle()
+    }
+
     bind<ProxyService>() with singleton {
-        val logger = LoggerFactory.getLogger("ProxyServiceFactory")
-        repeat(10) {
-            val port = HttpProxyService.randomPort()
-            try {
-                val proxy = HttpProxyService(instance<Cache>(), port)
-                proxy.start()
-
-                // return the proxy
-                return@singleton proxy
-
-            } catch (ioError: IOException) {
-                logger.warn("Could not open proxy on port {}: {}", port, ioError.toString())
-            }
-        }
-
-        logger.warn("Stop trying, using no proxy now.")
-        return@singleton object : ProxyService {
-            override fun proxy(url: Uri): Uri {
-                return url
-            }
-        }
+        instance<Single<ProxyService>>(tag = "proxyServiceSingle").toBlocking().value()
     }
 
     bind<Cache>() with singleton {
@@ -144,10 +164,10 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
     bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler.instance()))
 
     bind<Api>() with singleton {
-        ApiProvider(instance(), instance(), instance(), instance()).api
+        val base = instance<String>(TagApiURL)
+        ApiProvider(base, instance(), instance(), instance()).api
     }
 }
-
 
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
     val logger = LoggerFactory.getLogger("Picasso.Downloader")
@@ -335,7 +355,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 }
 
 private class FallbackDns : Dns {
-    val logger = LoggerFactory.getLogger("FallbackDns")
+    val logger: Logger = LoggerFactory.getLogger("FallbackDns")
 
     val resolver = SimpleResolver("8.8.8.8")
     val cache = org.xbill.DNS.Cache()

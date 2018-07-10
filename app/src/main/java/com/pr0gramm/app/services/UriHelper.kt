@@ -38,7 +38,6 @@ class UriHelper private constructor(context: Context) {
         return preloadManager.get(item.id)?.thumbnail?.toUri() ?: noPreload.thumbnail(item)
     }
 
-    @JvmOverloads
     fun media(item: FeedItem, hq: Boolean = false): Uri {
         if (hq && !Strings.isNullOrEmpty(item.fullsize))
             return noPreload.media(item, true)
@@ -126,7 +125,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     companion object {
-        fun of(context: Context, forceSSL: Boolean = false): UriHelper {
+        fun of(context: Context): UriHelper {
             return UriHelper(context)
         }
 
