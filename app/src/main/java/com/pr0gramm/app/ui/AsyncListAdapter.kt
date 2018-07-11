@@ -75,7 +75,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
 
 
         Observable.fromCallable { calculateDiff(oldList, newList) }
-                .applyIf(oldList.size > 32 && newList.size > 32) {
+                .applyIf(oldList.size > 32 || newList.size > 32) {
                     logger.debug("Calculate diff in background")
                     subscribeOnBackground().observeOnMainThread()
                 }
