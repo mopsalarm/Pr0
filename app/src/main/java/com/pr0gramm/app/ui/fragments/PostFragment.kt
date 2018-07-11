@@ -98,7 +98,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
-    private val recyclerView: RecyclerView? by bindOptionalView(R.id.post_content)
+    private val recyclerView: StatefulRecyclerView? by bindOptionalView(R.id.post_content)
     private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
     private val recyclerViewComments: RecyclerView? by bindOptionalView(R.id.post_content__comments)
     private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
@@ -190,7 +190,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             recyclerView.addOnScrollListener(scrollHandler)
 
             recyclerView.itemAnimator = null
-            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.layoutManager = recyclerView.LinearLayoutManager(getActivity())
             recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
         }
 
