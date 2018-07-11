@@ -6,11 +6,10 @@ import android.view.View
 import android.widget.MultiAutoCompleteTextView
 import com.google.common.base.Splitter
 import com.jakewharton.rxbinding.widget.textChanges
-import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.bottomSheet
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.visible
 import org.kodein.di.erased.instance
@@ -24,7 +23,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val config: Config by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return bottomSheet(this) {
+        return dialog(this) {
             layout(R.layout.dialog_add_tags)
             negative(R.string.cancel) { AndroidUtility.hideSoftKeyboard(tagInput) }
             positive(R.string.dialog_action_add) { onOkayClicked() }
