@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services.preloading
 
 import android.app.IntentService
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -9,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
 import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
@@ -44,10 +44,11 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
     override val kodein: Kodein by lazy { applicationContext.kodein }
 
     private val httpClient: OkHttpClient by instance()
-    private val notificationManager: NotificationManager by instance()
     private val preloadManager: PreloadManager by instance()
-    private val powerManager: PowerManager by instance()
     private val notificationService: NotificationService by instance()
+
+    private val powerManager: PowerManager by lazy { getSystemService(Context.POWER_SERVICE) as PowerManager }
+    private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     @Volatile
     private var canceled: Boolean = false
@@ -235,7 +236,6 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
         preloadManager.deleteBefore(createdBefore)
     }
 
-    @Throws(IOException::class)
     private fun download(index: Int, total: Int, uri: Uri, targetFile: File) {
 
         // if the file exists, we dont need to download it again
@@ -273,10 +273,8 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
             if (!tempFile.delete())
                 logger.warn("Could not remove temporary file")
 
-            Throwables.throwIfInstanceOf(error, IOException::class.java)
-            throw Throwables.propagate(error)
+            throw error
         }
-
     }
 
     private inline fun show(config: NotificationCompat.Builder.() -> Unit) {
