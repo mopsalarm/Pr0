@@ -31,14 +31,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.getMessageWithCauses
-import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.weakref
+import com.pr0gramm.app.util.*
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
-import java.io.IOException
-import java.lang.ref.WeakReference
 
 /**
  * Stripped down version of [android.widget.VideoView].
@@ -57,11 +52,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     private var exoAudioRenderer: MediaCodecAudioRenderer? = null
 
-    override var muted: Boolean = false
-        set(muted) {
-            field = muted
-            applyVolumeState()
-        }
+    override var muted: Boolean by observeChange(false) { applyVolumeState() }
 
     private val surfaceProvider: ViewBackend
 
@@ -134,9 +125,10 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val extractorsFactory = ExtractorsFactory { arrayOf(FragmentedMp4Extractor(), Mp4Extractor()) }
 
-        val mediaSource = LoopingMediaSource(ExtractorMediaSource(uri,
-                DataSourceFactory(context, uri), extractorsFactory, handler,
-                MediaSourceListener(callbacks)))
+        val mediaSource = LoopingMediaSource(
+                ExtractorMediaSource.Factory(DataSourceFactory(context, uri))
+                        .setExtractorsFactory(extractorsFactory)
+                        .createMediaSource(uri))
 
         // apply volume before starting the player
         applyVolumeState()
@@ -186,12 +178,13 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     internal fun sendSetSurfaceMessage(async: Boolean, surface: Surface?) {
-        val message = ExoPlayer.ExoPlayerMessage(exoVideoRenderer, C.MSG_SET_SURFACE, surface)
+        val message = exo.createMessage(exoVideoRenderer)
+                .setType(C.MSG_SET_SURFACE)
+                .setPayload(surface)
+                .send()
 
-        if (async) {
-            exo.sendMessages(message)
-        } else {
-            exo.blockingSendMessages(message)
+        if (!async) {
+            message.blockUntilDelivered()
         }
     }
 
@@ -210,7 +203,10 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
             val volume = if (this.muted) 0f else 1f
             logger.info("Setting volume on exo player to {}", volume)
 
-            exo.sendMessages(ExoPlayer.ExoPlayerMessage(exoAudioRenderer, C.MSG_SET_VOLUME, volume))
+            exo.createMessage(exoAudioRenderer)
+                    .setType(C.MSG_SET_VOLUME)
+                    .setPayload(volume)
+                    .send()
         }
     }
 
@@ -251,17 +247,21 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         val rootCause = Throwables.getRootCause(error)
 
         val messageChain = error.getMessageWithCauses()
-        if (error.type == ExoPlaybackException.TYPE_SOURCE) {
-            val message = context.getString(R.string.media_exo_error_io, rootCause.message)
-            callbacks.onVideoError(message, VideoPlayer.ErrorKind.NETWORK)
+        when {
+            error.type == ExoPlaybackException.TYPE_SOURCE -> {
+                val message = context.getString(R.string.media_exo_error_io, rootCause.message)
+                callbacks.onVideoError(message, VideoPlayer.ErrorKind.NETWORK)
+            }
 
-        } else if (messageChain.contains("Top bit not zero:")) {
-            val message = context.getString(R.string.media_exo_error_topbit)
-            callbacks.onVideoError(message, VideoPlayer.ErrorKind.NETWORK)
+            messageChain.contains("Top bit not zero:") -> {
+                val message = context.getString(R.string.media_exo_error_topbit)
+                callbacks.onVideoError(message, VideoPlayer.ErrorKind.NETWORK)
+            }
 
-        } else {
-            callbacks.onVideoError(messageChain, VideoPlayer.ErrorKind.UNKNOWN)
-            AndroidUtility.logToCrashlytics(rootCause)
+            else -> {
+                AndroidUtility.logToCrashlytics(rootCause)
+                callbacks.onVideoError(messageChain, VideoPlayer.ErrorKind.UNKNOWN)
+            }
         }
 
         // try to reset the player
@@ -318,17 +318,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         }
     }
 
-    private class MediaSourceListener internal constructor(callbacks: VideoPlayer.Callbacks) : ExtractorMediaSource.EventListener {
-        private val callbacks: WeakReference<VideoPlayer.Callbacks> = WeakReference(callbacks)
-
-        override fun onLoadError(error: IOException) {
-            this.callbacks.get()?.onVideoError(error.toString(), VideoPlayer.ErrorKind.NETWORK)
-        }
-    }
-
     private class MediaCodecSelectorImpl internal constructor(private val settings: Settings) : MediaCodecSelector {
-
-
         @Throws(MediaCodecUtil.DecoderQueryException::class)
         override fun getDecoderInfo(mimeType: String, requiresSecureDecoder: Boolean): MediaCodecInfo? {
             val codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder)
