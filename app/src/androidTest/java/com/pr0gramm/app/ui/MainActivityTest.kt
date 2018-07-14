@@ -14,6 +14,8 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import com.pr0gramm.app.R
+import com.pr0gramm.app.robot.FeedRobot
+import org.hamcrest.Matchers
 import org.hamcrest.Matchers.containsString
 import org.junit.Rule
 import org.junit.Test
@@ -42,22 +44,25 @@ class MainActivityTest {
 
     @Test
     fun performSearchAndOpenProfile() {
-        onView(withText("Top"))
-        onView(withId(R.id.action_search)).perform(click())
-        onView(withId(R.id.search_term)).perform(typeText("Mopsalarm"))
-        onView(withId(R.id.search_button)).perform(click())
+        val feed = FeedRobot()
 
-        onView(withText(R.string.user_info_uploads)).perform(click())
-        onView(withId(R.id.user_extra_info))
-                .check(matches(withText("Dabei seit 3 Jahren")))
+        feed.withSearchPanel {
+            performSearch("Mopsalarm")
+        }
+
+        feed.clickUserProfileHint()
+
+        // check that the view is openable
+        feed.hasView(withId(R.id.user_extra_info))
     }
 
     @Test
     fun viewPost() {
         onView(withText("Top"))
 
-        onView(withId(R.id.list)).perform(
-                actionOnItemAtPosition<RecyclerView.ViewHolder>(2, click()))
+        val feed = FeedRobot()
+
+        feed.openPostAt(0)
 
         onView(withText("579")).check(matches(isDisplayed()))
         onView(withText(containsString("rib"))).check(matches(isDisplayed()))
