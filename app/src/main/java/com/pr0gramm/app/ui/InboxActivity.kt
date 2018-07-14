@@ -9,6 +9,7 @@ import android.view.MenuItem
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.fragments.AbstractMessageInboxFragment
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
@@ -50,10 +51,10 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         tabsAdapter = TabsAdapter(this, this.supportFragmentManager)
         tabsAdapter.addTab(R.string.inbox_type_unread, MessageInboxFragment::class.java,
-                MessageInboxFragment.buildArguments(InboxType.UNREAD))
+                AbstractMessageInboxFragment.buildArguments(InboxType.UNREAD))
 
         tabsAdapter.addTab(R.string.inbox_type_all, MessageInboxFragment::class.java,
-                MessageInboxFragment.buildArguments(InboxType.ALL))
+                AbstractMessageInboxFragment.buildArguments(InboxType.ALL))
 
         tabsAdapter.addTab(R.string.inbox_type_private, PrivateMessageInboxFragment::class.java, null)
 

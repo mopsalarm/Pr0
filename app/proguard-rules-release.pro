@@ -1,8 +1,6 @@
 -allowaccessmodification
 -repackageclasses
 
--dontobfuscate
-
 # -optimizations !field/propagation/value
 # -optimizations !method/removal/parameter
 # -optimizations !class/merging/horizontal

@@ -7,7 +7,7 @@ import org.kodein.di.erased.instance
 
 /**
  */
-class FavedCommentFragment : MessageInboxFragment("FavedCommentFragment") {
+class FavedCommentFragment : AbstractMessageInboxFragment("FavedCommentFragment") {
     private val settings = Settings.get()
     private val favedCommentService: FavedCommentService by instance()
 
