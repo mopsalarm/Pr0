@@ -8,7 +8,7 @@
 # -optimizations !class/merging/horizontal
 # -optimizations !field/removal/writeonly
 -optimizations **
--optimizationpasses 5
+-optimizationpasses 7
 
 # remove all not so important logging
 -assumenosideeffects class * implements org.slf4j.Logger {

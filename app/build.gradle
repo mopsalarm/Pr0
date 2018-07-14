@@ -45,19 +45,18 @@ android {
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
 
         resConfigs "en", "de"
-        //resConfigs "anydpi", "nodpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"
 
         vectorDrawables.useSupportLibrary = true
 
         ndk {
-            abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+            abiFilters "x86", "x86_64", "armeabi-v7a", "arm64-v8a"
         }
 
         testInstrumentationRunner 'com.pr0gramm.app.Runner'
     }
 
     aaptOptions {
-        cruncherEnabled = true
+        cruncherEnabled = false
     }
 
     signingConfigs {
