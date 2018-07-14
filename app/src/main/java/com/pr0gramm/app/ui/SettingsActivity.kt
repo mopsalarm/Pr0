@@ -11,7 +11,6 @@ import android.preference.PreferenceScreen
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
-import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -39,7 +38,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         var category: String? = null
         val action = intent.action
         if (action != null && action.startsWith("preference://"))
-            category = emptyToNull(action.substring("preference://".length))
+            category = action.substring("preference://".length).takeIf { it.isNotEmpty() }
 
         if (savedInstanceState == null) {
             val fragment = SettingsFragment()

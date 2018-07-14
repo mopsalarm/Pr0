@@ -6,7 +6,6 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ListView
-import com.google.common.primitives.Floats
 import com.jakewharton.rxbinding.widget.checkedChanges
 import com.jakewharton.rxbinding.widget.itemClicks
 import com.pr0gramm.app.R
@@ -84,13 +83,13 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     private fun deleteItem(item: FeedItem, reason: String): Completable {
         val ban = blockUser.isChecked
-        val banUserDays = if (ban) Floats.tryParse(blockUserForDays.text.toString()) else null
+        val banUserDays = if (ban) blockUserForDays.text.toString().toFloatOrNull() else null
         return adminService.deleteItem(item, reason, banUserDays)
     }
 
     private fun blockUser(user: String, reason: String): Completable {
         val treeup = blockTreeup.isChecked
-        val banUserDays = Floats.tryParse(blockUserForDays.text.toString()) ?: 0f
+        val banUserDays = blockUserForDays.text.toString().toFloatOrNull() ?: 0f
         return adminService.banUser(user, reason, banUserDays, treeup)
     }
 

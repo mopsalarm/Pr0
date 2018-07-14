@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.support.v4.app.RemoteInput
-import com.google.common.base.Strings
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
@@ -41,7 +40,7 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
         val text = getMessageText(intent)
 
         // validate parameters
-        if (Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(receiverName)) {
+        if (text.isEmpty() || receiverName.isNullOrEmpty()) {
             logger.error("No receiver id or message.")
             return
         }

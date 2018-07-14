@@ -9,10 +9,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
-import com.google.common.base.Charsets
-import com.google.common.io.BaseEncoding
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.decodeBase64String
+import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.kodein
@@ -96,11 +95,11 @@ class ShareProvider : ContentProvider(), KodeinAware {
                 if (url.matches("https?://.*".toRegex())) {
                     cache.get(Uri.parse(url)).inputStreamAt(0).use { source ->
                         // stream the data to the caller
-                        ByteStreams.copy(source, FileOutputStream(output.fileDescriptor))
+                        source.copyTo(FileOutputStream(output.fileDescriptor))
                     }
                 } else {
                     context.contentResolver.openInputStream(Uri.parse(url)).use { source ->
-                        ByteStreams.copy(source, FileOutputStream(output.fileDescriptor))
+                        source.copyTo(FileOutputStream(output.fileDescriptor))
                     }
                 }
             } catch (error: IOException) {
@@ -124,8 +123,7 @@ class ShareProvider : ContentProvider(), KodeinAware {
      * Decodes the received url
      */
     private fun decode(uri: Uri): Uri {
-        val decoder = BaseEncoding.base64Url()
-        return Uri.parse(String(decoder.decode(uri.lastPathSegment), Charsets.UTF_8))
+        return Uri.parse(uri.lastPathSegment.decodeBase64String(urlSafe = true))
     }
 
     companion object {
@@ -136,7 +134,7 @@ class ShareProvider : ContentProvider(), KodeinAware {
          */
         fun getShareUri(context: Context, item: FeedItem): Uri {
             val uri = getMediaUri(context, item).toString()
-            val path = BaseEncoding.base64Url().encode(uri.toByteArray(Charsets.UTF_8))
+            val path = uri.toByteArray().encodeBase64(urlSafe = true)
             return Uri.Builder()
                     .scheme("content")
                     .authority(BuildConfig.APPLICATION_ID + ".ShareProvider")

@@ -2,14 +2,7 @@ package com.pr0gramm.app.api.pr0gramm
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.common.base.Strings
-import com.google.common.hash.Hashing
-import com.google.common.io.BaseEncoding
-import com.google.common.primitives.Doubles
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Debug
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
@@ -30,11 +23,16 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
     private val lock = Any()
 
     private val uniqueToken: String by lazy {
-        val hash = Hashing.md5()
-                .hashBytes(ConfigService.makeUniqueIdentifier(context, preferences).toByteArray())
-                .asBytes()
+        val input = ConfigService.makeUniqueIdentifier(context, preferences).hashCode()
 
-        BaseEncoding.base16().encode(hash).take(32)
+        // create a string with 32 bytes
+        var result = ""
+        result += input.toString(16)
+        result += result.hashCode().toString(16)
+        result += result.hashCode().toString(16)
+        result += result.hashCode().toString(16)
+
+        result.toLowerCase()
     }
 
     private var httpCookie: okhttp3.Cookie? = null
@@ -94,7 +92,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
     }
 
     private fun isLoginCookie(cookie: okhttp3.Cookie): Boolean {
-        return cookie.name() == "me" && !Strings.isNullOrEmpty(cookie.value())
+        return cookie.name() == "me" && !cookie.value().isNullOrEmpty()
 
     }
 
@@ -220,7 +218,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
             if (value is Number)
                 return value.toInt() != 0
 
-            val parsed: Number? = Doubles.tryParse(value.toString())
+            val parsed: Number? = value.toString().toDoubleOrNull()
             if (parsed != null) {
                 return parsed.toInt() != 0
             }

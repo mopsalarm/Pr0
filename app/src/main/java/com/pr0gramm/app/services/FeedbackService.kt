@@ -1,14 +1,8 @@
 package com.pr0gramm.app.services
 
 import android.os.Build
-import android.util.Base64
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
-import com.google.common.base.Charsets
-import com.google.common.base.Throwables
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.NoValue
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.LogHandler
 import okhttp3.OkHttpClient
@@ -23,6 +17,8 @@ import rx.Completable
 import rx.Observable
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.lang.reflect.Modifier
 import java.util.zip.DeflaterOutputStream
 
@@ -55,7 +51,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             }
 
             // rewrite the logcat.
-            val encoded = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            val encoded = bytes.encodeBase64()
 
             logger.info("Sending feedback with {}bytes of logcat", encoded.length)
             api.post(name, feedback, version, encoded).toCompletable()
@@ -67,8 +63,9 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             block(result)
         } catch (thr: Throwable) {
             result.append("Error while adding $name:")
-            result.append(Throwables.getStackTraceAsString(thr))
+            result.append(StringWriter().also { thr.printStackTrace(PrintWriter(it)) })
         }
+
         result.append("\n\n")
     }
 

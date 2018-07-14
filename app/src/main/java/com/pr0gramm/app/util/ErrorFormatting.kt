@@ -41,7 +41,6 @@ object ErrorFormatting {
          */
         fun getMessage(context: Context, thr: Throwable): String {
             LoggerFactory.getLogger("ErrorFormatting").info("Formatting error:", thr)
-
             return message(thr, context)
         }
 

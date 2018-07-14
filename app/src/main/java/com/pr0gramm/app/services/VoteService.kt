@@ -1,16 +1,14 @@
 package com.pr0gramm.app.services
 
-import com.google.common.base.Preconditions.checkArgument
-import com.google.common.base.Stopwatch
-import com.google.common.io.BaseEncoding
-import com.google.common.io.LittleEndianDataInputStream
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.Databases.withTransaction
+import com.pr0gramm.app.util.Stopwatch
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.subscribeOnBackground
 import com.squareup.sqlbrite.BriteDatabase
@@ -20,7 +18,7 @@ import gnu.trove.map.hash.TLongObjectHashMap
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
-import java.io.ByteArrayInputStream
+import java.io.*
 
 
 /**
@@ -110,8 +108,12 @@ class VoteService(private val api: Api,
         if (actions.isEmpty())
             return
 
-        val decoded = BaseEncoding.base64().decode(actions)
-        checkArgument(decoded.size % 5 == 0, "Length of vote log must be a multiple of 5")
+        val decoded = actions.decodeBase64()
+        require(decoded.size % 5 == 0) {
+            "Length of vote log must be a multiple of 5"
+        }
+
+
 
         val actionCount = decoded.size / 5
         val actionStream = LittleEndianDataInputStream(ByteArrayInputStream(decoded))
@@ -130,7 +132,7 @@ class VoteService(private val api: Api,
             }
         }
 
-        logger.info("Applying vote actions took {}", watch)
+        logger.info("Applying vote actions took {}", watch.toString())
     }
 
     /**
@@ -236,5 +238,52 @@ class VoteService(private val api: Api,
                 9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
                 10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE),
                 11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
+    }
+
+
+    private class LittleEndianDataInputStream(private val input: InputStream) : FilterInputStream(input) {
+        fun readUnsignedByte(): Int {
+            val b1 = input.read()
+            if (0 > b1) {
+                throw EOFException()
+            }
+
+            return b1
+        }
+
+        /**
+         * Reads an integer as specified by [DataInputStream.readInt], except using little-endian
+         * byte order.
+         *
+         * @return the next four bytes of the input stream, interpreted as an `int` in little-endian
+         * byte order
+         * @throws IOException if an I/O error occurs
+         */
+        fun readInt(): Int {
+            val b1 = readAndCheckByte().toInt()
+            val b2 = readAndCheckByte().toInt() shl 8
+            val b3 = readAndCheckByte().toInt() shl 16
+            val b4 = readAndCheckByte().toInt() shl 24
+
+            return b4 or b3 or b2 or b1
+        }
+
+        /**
+         * Reads a byte from the input stream checking that the end of file (EOF) has not been
+         * encountered.
+         *
+         * @return byte read from input
+         * @throws IOException if an error is encountered while reading
+         * @throws EOFException if the end of file (EOF) is encountered.
+         */
+        private fun readAndCheckByte(): Byte {
+            val b1 = input.read()
+
+            if (-1 == b1) {
+                throw EOFException()
+            }
+
+            return b1.toByte()
+        }
     }
 }

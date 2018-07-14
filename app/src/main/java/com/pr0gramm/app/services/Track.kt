@@ -5,12 +5,12 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import com.google.common.base.Stopwatch
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.FirebaseAnalytics.Event
 import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.util.Stopwatch
 import com.pr0gramm.app.util.ignoreException
 import com.pr0gramm.app.util.kodein
 import org.kodein.di.LateInitKodein

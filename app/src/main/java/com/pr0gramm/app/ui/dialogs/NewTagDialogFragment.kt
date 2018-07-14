@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.MultiAutoCompleteTextView
-import com.google.common.base.Splitter
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
@@ -45,7 +44,8 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
         val text = tagInput.text.toString()
 
         // split text into tags.
-        val tags = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(text)
+        val tags = text.split(',')
+                .mapNotNull { it.trim().takeIf { it.isNotEmpty() } }
 
         // do nothing if the user had not typed any tags
         if (tags.isEmpty())

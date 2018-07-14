@@ -7,7 +7,6 @@ import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.google.common.base.Ascii
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -92,7 +91,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // show the points
-        val visible = name != null && Ascii.equalsIgnoreCase(message.name, name)
+        val visible = name != null && message.name.equals(name, ignoreCase = true)
                 || message.creationTime.isBefore(scoreVisibleThreshold)
 
         // sender info

@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Environment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
@@ -161,7 +160,7 @@ class UpdateChecker {
                 logger.info("Copy apk to public space.")
                 FileInputStream(apk).use { input ->
                     FileOutputStream(file).use { output ->
-                        ByteStreams.copy(input, output)
+                        input.copyTo(output)
                     }
                 }
 

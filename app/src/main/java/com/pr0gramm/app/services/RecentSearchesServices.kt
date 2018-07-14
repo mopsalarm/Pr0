@@ -2,7 +2,7 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.api.pr0gramm.TypeToken
+import com.pr0gramm.app.TypeToken
 import com.pr0gramm.app.util.edit
 import org.slf4j.LoggerFactory
 import java.util.*

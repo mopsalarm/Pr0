@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.api.pr0gramm.adapter
+import com.pr0gramm.app.adapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import java.text.SimpleDateFormat

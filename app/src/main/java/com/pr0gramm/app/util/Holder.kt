@@ -1,6 +1,5 @@
 package com.pr0gramm.app.util
 
-import com.google.common.util.concurrent.SettableFuture
 import rx.Observable
 import rx.Single
 import rx.subjects.BehaviorSubject
@@ -11,16 +10,13 @@ import rx.subjects.BehaviorSubject
  */
 class Holder<T> private constructor(single: Single<T>) {
     private val subject = BehaviorSubject.create<T>()
-    private val future = SettableFuture.create<T>()
 
     init {
         single.subscribe(
                 { value ->
-                    future.set(value)
                     subject.onNext(value)
                 },
                 { error ->
-                    future.setException(error)
                     subject.onError(error)
                 })
     }
@@ -33,22 +29,13 @@ class Holder<T> private constructor(single: Single<T>) {
      * Gets the value of this holder. This will block, if the value
      * is not yet present.
      */
-    val value: T get() = future.get()
+    val value: T get() = subject.toBlocking().first()
 
     /**
      * Returns the current value or returns null, if the value is
      * not yet available.
      */
-    val valueOrNull: T? get() {
-        if (future.isDone) {
-            try {
-                return future.get()
-            } catch(ignored: Exception) {
-            }
-        }
-
-        return null
-    }
+    val valueOrNull: T? get() = subject.value
 
     companion object {
         @JvmStatic

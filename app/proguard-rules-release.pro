@@ -1,11 +1,14 @@
 -allowaccessmodification
 -repackageclasses
 
-# -optimizations !field/removal/writeonly
+-dontobfuscate
+
 # -optimizations !field/propagation/value
 # -optimizations !method/removal/parameter
 # -optimizations !class/merging/horizontal
+# -optimizations !field/removal/writeonly
 -optimizations **
+-optimizationpasses 5
 
 # remove all not so important logging
 -assumenosideeffects class * implements org.slf4j.Logger {

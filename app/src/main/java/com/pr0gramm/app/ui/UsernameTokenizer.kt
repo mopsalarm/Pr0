@@ -2,18 +2,13 @@ package com.pr0gramm.app.ui
 
 import android.widget.MultiAutoCompleteTextView
 
-import com.google.common.base.CharMatcher
-
 /**
  */
 class UsernameTokenizer : MultiAutoCompleteTextView.Tokenizer {
-    private val letterMatcher = CharMatcher.inRange('a', 'z')
-            .or(CharMatcher.inRange('A', 'Z'))
-            .or(CharMatcher.inRange('0', '9'))
 
     override fun findTokenStart(text: CharSequence, cursor: Int): Int {
         var idx = Math.min(cursor - 1, text.length - 1)
-        while (idx > 0 && letterMatcher.matches(text[idx]))
+        while (idx > 0 && isLetterOrNumeric(text[idx]))
             idx--
 
         return idx
@@ -25,7 +20,7 @@ class UsernameTokenizer : MultiAutoCompleteTextView.Tokenizer {
         if (idx < text.length && text[idx] == '@')
             idx++
 
-        while (idx < text.length && letterMatcher.matches(text[idx]))
+        while (idx < text.length && isLetterOrNumeric(text[idx]))
             idx++
 
         return idx
@@ -33,5 +28,9 @@ class UsernameTokenizer : MultiAutoCompleteTextView.Tokenizer {
 
     override fun terminateToken(text: CharSequence): CharSequence {
         return text
+    }
+
+    private fun isLetterOrNumeric(str: Char): Boolean {
+        return str in 'a'..'z' || str in 'A'..'Z' || str in '0'..'9'
     }
 }

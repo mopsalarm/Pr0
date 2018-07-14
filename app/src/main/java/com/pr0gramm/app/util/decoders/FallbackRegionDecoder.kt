@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.google.common.base.Preconditions.checkState
 import org.slf4j.LoggerFactory
 
 /**
@@ -70,7 +69,9 @@ class FallbackRegionDecoder(private val decoder: Decoder,
         } catch (ignored: Exception) {
         }
 
-        checkState(fallback == null, "Fallback already assigned")
+        require(fallback == null) {
+            "Fallback already assigned"
+        }
 
         return fallbackSupplier().also {
             this.fallback = it

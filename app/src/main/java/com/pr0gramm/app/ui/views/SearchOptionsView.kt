@@ -11,9 +11,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import com.google.common.base.CharMatcher.javaLetterOrDigit
-import com.google.common.base.CharMatcher.whitespace
-import com.google.common.base.Splitter
 import com.jakewharton.rxbinding.widget.changes
 import com.jakewharton.rxbinding.widget.editorActions
 import com.pr0gramm.app.R
@@ -179,7 +176,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         }
 
         // empty or actually simple search?
-        if (terms.all { javaLetterOrDigit().or(whitespace()).matchesAllOf(it) }) {
+        if (terms.all { it.all { it.isWhitespace() || it.isLetterOrDigit() } }) {
             extendedSearch = false
         }
 
@@ -215,9 +212,9 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         val withoutTags = this.excludedTags.toHashSet()
 
         // add custom tags
-        withoutTags.addAll(Splitter
-                .on(whitespace()).trimResults().omitEmptyStrings()
-                .splitToList(customExcludesView.text.toString().toLowerCase()))
+        customExcludesView.text.toString().toLowerCase()
+                .split("\\w".toPattern())
+                .filterTo(withoutTags) { it != "" }
 
         return withoutTags
     }

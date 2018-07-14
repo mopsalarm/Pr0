@@ -9,7 +9,7 @@ import android.text.SpannableStringBuilder
 import android.widget.TextView
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.adapter
+import com.pr0gramm.app.adapter
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.Truss.Companion.bold
 import com.pr0gramm.app.ui.base.BaseDialogFragment

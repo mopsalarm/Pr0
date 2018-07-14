@@ -1,9 +1,6 @@
 package com.pr0gramm.app.io
 
 import android.net.Uri
-import com.google.common.base.MoreObjects
-import com.google.common.io.Closeables
-import com.google.common.util.concurrent.SettableFuture
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
@@ -11,7 +8,9 @@ import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
+import rx.subjects.BehaviorSubject
 import java.io.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -51,7 +50,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             if (pos >= totalSizeField) {
                 return -1
             }
-
             // check how much we can actually read at most!
             val amount = Math.min(pos + amount, totalSizeField) - pos
 
@@ -199,7 +197,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
         } catch (err: Exception) {
             // resetting fp on error.
-            Closeables.close(fp, true)
+            IOUtils.closeQuietly(fp)
 
             // cleanup
             reset()
@@ -239,7 +237,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             }
 
             return try {
-                writer.size.get()
+                writer.size.toBlocking().first()
             } catch(err: ExecutionException) {
                 // throw the real error, not the wrapped one.
                 throw err.cause ?: err
@@ -250,7 +248,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     private inner class CacheWriter {
         val canceled get() = cacheWriter !== this
 
-        val size: SettableFuture<Int> = SettableFuture.create()
+        val size: BehaviorSubject<Int> = BehaviorSubject.create<Int>()
 
         /**
          * This method is called from the caching thread once caching stops.
@@ -290,7 +288,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                         response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
                     }
 
-                    size.set(body.contentLength().toInt())
+                    size.onNext(body.contentLength().toInt())
 
                 } catch (err: Exception) {
                     response.close()
@@ -302,7 +300,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
             } catch (err: Exception) {
                 logger.error("Error in caching thread")
-                size.setException(err)
+                size.onError(err)
 
             } finally {
                 cachingStopped()
@@ -397,14 +395,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
     override fun toString(): String {
         lock.withLock {
-            return MoreObjects.toStringHelper(this)
-                    .add("written", written)
-                    .add("totalSize", totalSizeField)
-                    .add("caching", cacheWriter != null)
-                    .add("refCount", refCount.get())
-                    .add("fullyCached", fullyCached())
-                    .add("uri", uri)
-                    .toString()
+            return "Entry(written=$written, totalSize=$totalSize, caching=${cacheWriter != null}, refCount=${refCount.get()}, fullyCached=${fullyCached()}, uri=$uri)"
         }
     }
 

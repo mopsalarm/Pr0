@@ -1,15 +1,11 @@
 package com.pr0gramm.app.sync
 
-import com.google.common.base.Throwables
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.mapNotNull
-import com.pr0gramm.app.util.time
-import com.pr0gramm.app.util.unless
+import com.pr0gramm.app.util.*
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -136,7 +132,7 @@ class SyncService(private val userService: UserService,
                     Stats.get().incrementCounter("seen.sync.error")
 
                     // log non IOExceptions
-                    if (Throwables.getCausalChain(err).all { it !is IOException }) {
+                    if (err.causalChain.all { it !is IOException }) {
                         AndroidUtility.logToCrashlytics(err)
                     }
                 }

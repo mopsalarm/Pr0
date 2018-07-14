@@ -1,10 +1,8 @@
 package com.pr0gramm.app.ui.views.viewer
 
 import android.net.Uri
-import com.google.common.base.Charsets
-import com.google.common.base.Preconditions.checkArgument
-import com.google.common.io.BaseEncoding
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.encodeBase64
 import java.util.regex.Pattern
 
 /**
@@ -16,7 +14,9 @@ object ThumbyService {
     @JvmStatic
     fun thumbUri(mediaUri: MediaUri): Uri {
         if (BuildConfig.DEBUG) {
-            checkArgument(isEligibleForPreview(mediaUri), "not eligible for thumby preview")
+            require(isEligibleForPreview(mediaUri)) {
+                "not eligible for thumby preview"
+            }
         }
 
         // normalize url before fetching generated thumbnail
@@ -25,7 +25,7 @@ object ThumbyService {
                 .replace(".mpg", ".mp4")
                 .replace(".webm", ".mp4")
 
-        val encoded = BaseEncoding.base64Url().encode(url.toByteArray(Charsets.UTF_8))
+        val encoded = url.toByteArray().encodeBase64(urlSafe = true)
         return Uri.parse("https://pr0.wibbly-wobbly.de/api/thumby/v1/$encoded/thumb.jpg")
     }
 

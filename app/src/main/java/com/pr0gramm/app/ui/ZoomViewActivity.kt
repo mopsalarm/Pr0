@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.ImageView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.google.common.base.Strings
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -109,7 +108,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private val isHqImageAvailable: Boolean
-        get() = !Strings.isNullOrEmpty(item.fullsize)
+        get() = !item.fullsize.isNullOrEmpty()
 
     private fun loadHqImage() {
         hq.setOnClickListener(null)

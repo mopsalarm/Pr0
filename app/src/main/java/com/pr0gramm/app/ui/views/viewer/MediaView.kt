@@ -15,7 +15,6 @@ import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
-import com.google.common.base.Stopwatch
 import com.jakewharton.rxbinding.view.attachEvents
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.BuildConfig

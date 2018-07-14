@@ -4,7 +4,7 @@
 -dontskipnonpubliclibraryclassmembers
 
 # -dontnote **
-# -ignorewarnings
+-ignorewarnings
 
 -dontwarn com.google.android.gms.gcm.GcmTaskService
 -dontwarn android.support.transition.Transition
@@ -26,11 +26,7 @@
 }
 
 # Keep api names for metrics
--keepnames interface com.pr0gramm.app.Api
-
-# for gifs
--keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
--keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
+-keepnames interface com.pr0gramm.app.api.pr0gramm.Api
 
 # evernote android job library
 -keep public class com.evernote.android.job.v21.PlatformJobService
@@ -84,4 +80,12 @@
 # Retain service method parameters when optimizing.
 -keepclassmembers,allowshrinking,allowobfuscation interface * {
     @retrofit2.http.* <methods>;
+}
+
+# Keep mBackgroundTintHelper etc in support library who are used in
+# a bad access pattern. A null check is mistakenly optimized away.
+# see https://sourceforge.net/p/proguard/bugs/531/
+-keepclassmembers,allowshrinking,allowobfuscation class  android.support.** {
+    !static final <fields>;
+    ** m*Helper;
 }

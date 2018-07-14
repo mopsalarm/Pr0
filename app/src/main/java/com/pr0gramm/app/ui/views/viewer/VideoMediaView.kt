@@ -15,7 +15,6 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import com.google.common.hash.Hashing
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -272,7 +271,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
         if (!errorShown) {
             showDialog(context) {
-                dontShowAgainKey("video." + Hashing.murmur3_32().hashUnencodedChars(message).toString())
+                dontShowAgainKey("video." + message.hashCode())
                 content(R.string.media_exo_error, message)
                 positive()
             }

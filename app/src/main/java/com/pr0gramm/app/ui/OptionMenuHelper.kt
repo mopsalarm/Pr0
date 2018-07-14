@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui
 
 import android.view.MenuItem
-import com.google.common.base.Throwables
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -49,7 +48,7 @@ object OptionMenuHelper {
             return false
 
         } catch (e: InvocationTargetException) {
-            throw Throwables.propagate(e.cause)
+            throw e.cause ?: e
         }
 
     }

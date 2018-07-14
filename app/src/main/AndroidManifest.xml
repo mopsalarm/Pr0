@@ -236,11 +236,6 @@
         </activity>
 
         <activity
-            android:name="com.thefinestartist.finestwebview.FinestWebViewActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme"/>
-
-        <activity
             android:name=".ui.intro.IntroActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Intro.TranslucentStatus"/>

@@ -1,6 +1,6 @@
 package com.pr0gramm.app.io
 
-import com.google.common.io.ByteStreams
+import com.pr0gramm.app.util.skipSimple
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
@@ -26,7 +26,7 @@ internal class FileEntry(override val file: File) : Cache.Entry {
         val stream = FileInputStream(file)
 
         // skip to the given offset.
-        ByteStreams.skipFully(stream, offset.toLong())
+        stream.skipSimple(offset.toLong())
 
         return stream
     }

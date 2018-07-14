@@ -5,9 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.google.common.base.Preconditions.checkState
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.squareup.picasso.Downloader
 import org.slf4j.LoggerFactory
@@ -23,7 +20,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     private var deleteImageOnRecycle: Boolean = false
 
     override fun init(context: Context, uri: Uri): Point? {
-        checkState(imageFile == null, "Can not call init twice.")
+        require(imageFile == null) { "Can not call init twice." }
 
         val file = if ("file" == uri.scheme) {
             toFile(uri).also { imageFile = it }
@@ -89,7 +86,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
         // download to temp file. not nice, but useful :/
         downloader.load(req).body()?.byteStream()?.use { inputStream ->
             FileOutputStream(imageFile).use { output ->
-                ByteStreams.copy(inputStream, output)
+                inputStream.copyTo(output)
             }
         }
     }

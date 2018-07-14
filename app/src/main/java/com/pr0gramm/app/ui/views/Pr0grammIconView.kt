@@ -12,7 +12,6 @@ import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.TypedValue.applyDimension
 import android.view.View
-import com.google.common.base.MoreObjects.firstNonNull
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.cached
 import com.pr0gramm.app.util.observeChange
@@ -43,7 +42,7 @@ class Pr0grammIconView @JvmOverloads constructor(
 
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.IconView, 0, 0).use { a ->
-            text = firstNonNull(a.getString(R.styleable.IconView_iv_text), "")
+            text = a.getString(R.styleable.IconView_iv_text) ?: ""
             textSize = a.getDimensionPixelSize(R.styleable.IconView_iv_textSize, 16).toFloat()
             textColor = a.getColor(R.styleable.IconView_iv_textColor, Color.RED)
         }

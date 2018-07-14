@@ -2,7 +2,6 @@ package com.pr0gramm.app.orm
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import com.google.common.base.Objects.equal
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.util.mapToList
@@ -35,7 +34,7 @@ data class Bookmark(val title: String, private val filterTags: String?, private 
 
         fun byFilter(database: SQLiteDatabase, filter: FeedFilter): Bookmark? {
             return Bookmark.all(database)
-                    .firstOrNull { bookmark -> equal(filter, bookmark.asFeedFilter()) }
+                    .firstOrNull { bookmark -> filter == bookmark.asFeedFilter() }
         }
 
         fun save(db: SQLiteDatabase, bookmark: Bookmark) {

@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
-import com.google.common.io.ByteStreams
-import com.google.common.primitives.Bytes
+import com.pr0gramm.app.util.readSimple
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -12,19 +11,19 @@ import java.io.InputStream
  */
 object MimeTypeHelper {
     fun guess(bytes: ByteArray): String? {
-        if (Bytes.indexOf(bytes, MAGIC_JPEG) == 0)
+        if (indexOf(bytes, MAGIC_JPEG) == 0)
             return "image/jpeg"
 
-        if (Bytes.indexOf(bytes, MAGIC_GIF) == 0)
+        if (indexOf(bytes, MAGIC_GIF) == 0)
             return "image/gif"
 
-        if (Bytes.indexOf(bytes, MAGIC_PNG) == 0)
+        if (indexOf(bytes, MAGIC_PNG) == 0)
             return "image/png"
 
-        if (MAGIC_MP4.any { q -> Bytes.indexOf(bytes, q) != -1 })
+        if (MAGIC_MP4.any { q -> indexOf(bytes, q) != -1 })
             return "video/mp4"
 
-        if (MAGIC_WEBM.any { q -> Bytes.indexOf(bytes, q) != -1 })
+        if (MAGIC_WEBM.any { q -> indexOf(bytes, q) != -1 })
             return "video/webm"
 
         return null
@@ -43,10 +42,7 @@ object MimeTypeHelper {
     }
 
     fun guess(input: InputStream): String? {
-        val bytes = ByteArray(512)
-        ByteStreams.read(input, bytes, 0, bytes.size)
-
-        return guess(bytes)
+        return guess(ByteArray(512).also { input.readSimple(it) })
     }
 
     fun extension(type: String): String? {
@@ -83,4 +79,19 @@ object MimeTypeHelper {
             byteArrayOf(0x1a, 0x54, 0xdf.toByte(), 0xa3.toByte()),
             "webm".toByteArray())
 
+    fun indexOf(array: ByteArray, target: ByteArray): Int {
+        if (target.isEmpty()) {
+            return 0
+        }
+
+        outer@ for (i in 0 until array.size - target.size + 1) {
+            for (j in target.indices) {
+                if (array[i + j] != target[j]) {
+                    continue@outer
+                }
+            }
+            return i
+        }
+        return -1
+    }
 }

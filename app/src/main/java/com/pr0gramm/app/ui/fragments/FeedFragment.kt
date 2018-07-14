@@ -9,9 +9,6 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
-import com.google.common.base.CharMatcher
-import com.google.common.base.Objects.equal
-import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.support.design.widget.dismisses
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -869,13 +866,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         var filter = current.withTagsNoReset(query.combined)
 
         // do nothing, if the filter did not change
-        if (equal(current, filter))
+        if (current == filter)
             return
 
         var startAt: CommentRef? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
             filter = filter.withTags("")
-            startAt = CommentRef(CharMatcher.inRange('0', '9').retainFrom(query.combined).toLong(), null)
+            startAt = CommentRef(query.combined.filter { it in '0'..'9' }.toLong(), null)
         }
 
         val searchQueryState = searchView.currentState()
@@ -1030,7 +1027,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         getString(R.string.could_not_load_feed_json))
             }
 
-            Throwables.getRootCause(error) is ConnectException -> {
+            error.rootCause is ConnectException -> {
                 ErrorDialogFragment.showErrorString(fragmentManager,
                         getString(R.string.could_not_load_feed_https))
             }

@@ -3,10 +3,9 @@ package com.pr0gramm.app.parcel.core
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.common.base.Stopwatch
-import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.util.Stopwatch
 import org.slf4j.LoggerFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -32,7 +31,6 @@ abstract class Parceler<T> : Parcelable {
                 MoshiInstance.adapter<T>(type).failOnUnknown().fromJson(reader)
             }
         } catch (ioError: Exception) {
-            Throwables.propagateIfPossible(ioError, RuntimeException::class.java)
             throw RuntimeException("Could not read json as parcel", ioError)
         }
     }

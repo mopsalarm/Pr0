@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import com.google.common.primitives.Longs
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import gnu.trove.set.TLongSet
@@ -27,9 +26,11 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
     fun deleteTags(itemId: Long, tagIds: TLongSet, blockDays: Float?): Completable {
         cacheService.invalidate()
 
+        val tags = tagIds.toArray().toList()
+
         val pBlockUser = if (blockDays != null) "on" else null
         return api
-                .deleteTag(null, itemId, pBlockUser, blockDays, Longs.asList(*tagIds.toArray()))
+                .deleteTag(null, itemId, pBlockUser, blockDays, tags)
                 .toCompletable()
     }
 

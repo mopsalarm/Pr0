@@ -1,17 +1,17 @@
 package com.pr0gramm.app.parcel.core
 
-import com.google.common.io.ByteArrayDataInput
-import com.google.common.io.ByteStreams
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonReaderOpener
 import com.squareup.moshi.tokens
 import java.io.ByteArrayInputStream
+import java.io.DataInput
+import java.io.DataInputStream
 import java.io.IOException
 import java.util.zip.InflaterInputStream
 
 /**
  */
-internal class BinaryReader private constructor(private val input: ByteArrayDataInput) : JsonReaderOpener() {
+internal class BinaryReader private constructor(private val input: DataInput) : JsonReaderOpener() {
     private val nameCache = mutableListOf<String>()
     private var next: ProtocolToken? = null
 
@@ -162,12 +162,13 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
         private val TOKENS = ProtocolToken.values()
 
         fun from(input: ByteArray): BinaryReader {
-            when (input[0]) {
-                ContainerFormat.RAW -> return BinaryReader(ByteStreams.newDataInput(input, 1))
+            return when (input[0]) {
+                ContainerFormat.RAW -> BinaryReader(DataInputStream(
+                        ByteArrayInputStream(input, 1, input.size - 1)))
 
                 ContainerFormat.DEFLATE -> {
                     val uncompressed = inflate(input, 1)
-                    return BinaryReader(ByteStreams.newDataInput(uncompressed))
+                    BinaryReader(DataInputStream(ByteArrayInputStream(uncompressed)))
                 }
 
                 else -> throw IllegalArgumentException("Invalid container format for binary json")
@@ -175,15 +176,11 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
         }
 
         /**
-         * Uncompresses gzip compresse data.
+         * Uncompress gzip compressed data.
          */
         private fun inflate(input: ByteArray, start: Int): ByteArray {
-            ByteArrayInputStream(input, start, input.size - start).use {
-                inputStream ->
-                InflaterInputStream(inputStream).use {
-                    inflated ->
-                    return ByteStreams.toByteArray(inflated)
-                }
+            return ByteArrayInputStream(input, start, input.size - start).use { inputStream ->
+                InflaterInputStream(inputStream).use { inflated -> inflated.readBytes() }
             }
         }
     }

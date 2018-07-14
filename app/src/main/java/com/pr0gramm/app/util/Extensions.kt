@@ -25,10 +25,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.common.base.Stopwatch
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import org.apache.commons.io.IOUtils
 import org.kodein.di.DKodein
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -71,11 +70,18 @@ fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observa
     return observeOn(AndroidSchedulers.mainThread())
 }
 
+
+fun InputStream.readSimple(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
+    return IOUtils.read(this, b, off, len)
+}
+
+fun InputStream.skipSimple(len: Long): Long = IOUtils.skip(this, len)
+
 inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (ByteArray, Int) -> Unit) {
     val buffer = ByteArray(bufferSize)
 
     while (true) {
-        val read = ByteStreams.read(stream, buffer, 0, buffer.size)
+        val read = stream.readSimple(buffer)
         if (read <= 0) {
             break
         }
@@ -420,3 +426,59 @@ inline val View.kodein: Kodein get() = context.kodein
 inline val ContentProvider.kodein: Kodein get() = context.kodein
 
 
+fun sleepUninterruptibly(duration: Long, unit: TimeUnit) {
+    val deadline = System.nanoTime() + unit.toNanos(duration)
+
+    while (true) {
+        val amount = deadline - System.nanoTime()
+        if (amount > 0) {
+            try {
+                TimeUnit.NANOSECONDS.sleep(amount)
+            } catch (_: InterruptedException) {
+            }
+        }
+    }
+}
+
+val Throwable.rootCause
+    get(): Throwable {
+        val c = this.cause
+        if (c === null || c === this) {
+            return this
+        } else {
+            return c.rootCause
+        }
+    }
+
+val Throwable.causalChain
+    get(): List<Throwable> {
+        val chain = mutableListOf<Throwable>()
+
+        var current = this
+        while (true) {
+            chain.add(current)
+
+            val cause = current.cause
+            if (cause === null || cause === current) {
+                break
+            }
+
+            current = cause
+        }
+
+        return chain
+    }
+
+val Byte.unsigned: Int get() = this.toInt() and 0xff
+
+
+inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
+    if (key == null)
+        return null
+
+    try {
+        return enumValueOf<T>(key)
+    } catch (err: IllegalArgumentException) {
+        return null
+    }
+}

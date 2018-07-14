@@ -10,8 +10,6 @@ import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.content.ContextCompat
-import com.google.common.base.Throwables
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -21,11 +19,8 @@ import com.pr0gramm.app.parcel.parcelToByteArray
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.toFile
-import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.readStream
-import com.pr0gramm.app.util.use
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kodein.di.Kodein
@@ -171,7 +166,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
             }
 
         } catch (error: Throwable) {
-            if (Throwables.getRootCause(error) !is IOException) {
+            if (error.rootCause !is IOException) {
                 AndroidUtility.logToCrashlytics(error)
             }
 
@@ -301,7 +296,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
                 FileOutputStream(targetFile).use { outputStream ->
                     if (contentLength < 0) {
                         progress(0.0f)
-                        ByteStreams.copy(inputStream, outputStream)
+                        inputStream.copyTo(outputStream)
                         progress(1.0f)
                     } else {
                         copyWithProgress(progress, contentLength, inputStream, outputStream)

@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import android.content.Context
 import android.net.Uri
-import com.google.common.base.Strings
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.feed.FeedItem
@@ -39,7 +38,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     fun media(item: FeedItem, hq: Boolean = false): Uri {
-        if (hq && !Strings.isNullOrEmpty(item.fullsize))
+        if (hq && item.fullsize.isNotEmpty())
             return noPreload.media(item, true)
 
         return preloadManager.get(item.id)?.media?.toUri() ?: noPreload.media(item, false)

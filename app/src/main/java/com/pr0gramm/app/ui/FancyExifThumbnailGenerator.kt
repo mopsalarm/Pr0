@@ -7,7 +7,6 @@ import android.net.Uri
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
-import it.sephiroth.android.library.exif2.ExifInterface
 import okhttp3.Request
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
@@ -93,9 +92,8 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
     private fun exifThumbnail(bytes: ByteArray): Bitmap? {
         ByteArrayInputStream(bytes).use { inputStream ->
-            val ei = ExifInterface()
-            ei.readExif(inputStream, ExifInterface.Options.OPTION_ALL)
-            return ei.thumbnailBitmap
+            val exif = android.support.media.ExifInterface(inputStream)
+            return exif.thumbnailBitmap
         }
     }
 

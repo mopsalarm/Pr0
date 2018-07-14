@@ -2,8 +2,7 @@ package com.pr0gramm.app.feed
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.common.base.Objects
-import com.google.common.base.Strings.emptyToNull
+import com.google.android.gms.common.util.Strings.emptyToNull
 import com.pr0gramm.app.parcel.core.creator
 
 /**
@@ -107,7 +106,7 @@ class FeedFilter() : Parcelable {
     }
 
     override fun hashCode(): Int {
-        return Objects.hashCode(feedType, tags, likes, username)
+        return listOf(feedType, tags, likes, username).hashCode()
     }
 
     override fun equals(other: Any?): Boolean {

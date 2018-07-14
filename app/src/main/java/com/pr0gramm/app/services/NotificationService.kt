@@ -11,7 +11,6 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.FileProvider
-import com.google.common.base.Strings.isNullOrEmpty
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -246,13 +245,13 @@ class NotificationService(private val context: Application,
 
         val allForTheSamePost = messages.all { message.itemId == it.itemId }
 
-        if (allForTheSamePost && message.itemId != 0L && !isNullOrEmpty(message.thumbnail)) {
+        if (allForTheSamePost && message.itemId != 0L && !message.thumbnail.isNullOrEmpty()) {
             return loadThumbnail(message)
         }
 
         val allForTheSameUser = messages.all { message.senderId == it.senderId }
 
-        if (allForTheSameUser && message.itemId == 0L && !isNullOrEmpty(message.name)) {
+        if (allForTheSameUser && message.itemId == 0L && message.name.isNotEmpty()) {
             val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
 

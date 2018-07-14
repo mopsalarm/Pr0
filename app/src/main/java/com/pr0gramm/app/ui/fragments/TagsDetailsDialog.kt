@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
-import com.google.common.primitives.Floats
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
@@ -71,8 +70,8 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
             return
         }
 
-        val blockAmount = Floats.tryParse(
-                if (blockUser.isChecked) blockUserDays.text.toString() else "")
+        val blockAmountStr = if (blockUser.isChecked) blockUserDays.text.toString() else ""
+        val blockAmount = blockAmountStr.toFloatOrNull()
 
         adminService.deleteTags(itemId, selected, blockAmount)
                 .compose(bindToLifecycleAsync<Any>().forCompletable())

@@ -31,8 +31,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
-import com.google.common.base.Preconditions.checkArgument
-import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -44,6 +42,8 @@ import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.util.async.Async
 import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.regex.Pattern
 
 /**
@@ -102,7 +102,7 @@ object AndroidUtility {
             return
 
         try {
-            val trace = Throwables.getStackTraceAsString(error)
+            val trace = StringWriter().also { error.printStackTrace(PrintWriter(it)) }.toString()
             if (EXCEPTION_BLACKLIST.any { it in trace }) {
                 return
             }
@@ -178,7 +178,7 @@ object AndroidUtility {
     }
 
     fun toFile(uri: Uri): File {
-        checkArgument("file" == uri.scheme, "not a file:// uri")
+        require("file" == uri.scheme) { "not a file:// uri" }
         return File(uri.path)
     }
 

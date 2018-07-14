@@ -9,7 +9,6 @@ import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import com.google.common.base.Throwables
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InviteService
@@ -21,10 +20,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
-import com.pr0gramm.app.util.DurationFormat
-import com.pr0gramm.app.util.decoupleSubscribe
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
 import kotterknife.bindView
 import kotterknife.bindViews
 import org.kodein.di.erased.instance
@@ -115,7 +111,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     }
 
     private fun onInviteError(error: Throwable) {
-        val cause = Throwables.getRootCause(error)
+        val cause = error.rootCause
         if (cause is InviteService.InviteException) {
             when {
                 cause.noMoreInvites() -> showDialog(this) {

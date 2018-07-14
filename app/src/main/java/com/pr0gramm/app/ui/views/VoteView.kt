@@ -8,7 +8,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.common.base.MoreObjects.firstNonNull
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper.accentColor
@@ -139,7 +138,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         if (voteState === Vote.DOWN) {
             viewRateUp.setTextColor(defaultColor)
-            viewRateDown.setTextColor(firstNonNull(markedColorDown, markedColor))
+            viewRateDown.setTextColor(markedColorDown ?: markedColor)
             viewRateUp.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()
             viewRateDown.animate().rotation(360f).alpha(1f).setDuration(duration.toLong()).start()
         }

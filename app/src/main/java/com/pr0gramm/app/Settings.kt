@@ -5,13 +5,11 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import com.google.common.base.Enums
-import com.google.common.base.Objects.equal
-import com.google.common.primitives.Ints
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.edit
+import com.pr0gramm.app.util.tryEnumValueOf
 import rx.Observable
 import rx.subjects.PublishSubject
 import java.util.*
@@ -68,9 +66,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val seenIndicatorStyle: IndicatorStyle
         get() {
-            val value = preferences.getString("pref_seen_indicator_style", IndicatorStyle.NONE.toString())!!
-
-            return Enums.getIfPresent(IndicatorStyle::class.java, value).or(IndicatorStyle.NONE)
+            val value = preferences.getString("pref_seen_indicator_style", null)
+            return tryEnumValueOf<IndicatorStyle>(value) ?: IndicatorStyle.NONE
         }
 
     val doubleTapToUpvote: Boolean
@@ -102,7 +99,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             }
 
             for (enumValue in ConfirmOnMobile.values()) {
-                if (equal(app.getString(enumValue.value), prefValue)) {
+                if (app.getString(enumValue.value) == prefValue) {
                     return enumValue
                 }
             }
@@ -143,7 +140,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val bestOfBenisThreshold: Int
         get() {
             val value = preferences.getString("pref_bestof_threshold", "2000")
-            return Ints.tryParse(value) ?: 0
+            return value.toIntOrNull() ?: 0
         }
 
     val useIncognitoBrowser: Boolean
@@ -182,9 +179,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val volumeNavigation: VolumeNavigationType
         get() {
             val pref = preferences.getString("pref_volume_navigation", "disabled")
-            return Enums
-                    .getIfPresent(VolumeNavigationType::class.java, pref!!.toUpperCase())
-                    .or(VolumeNavigationType.DISABLED)
+            return enumValueOf<VolumeNavigationType>(pref.toUpperCase())
+                    ?: VolumeNavigationType.DISABLED
         }
 
     val showCategoryText: Boolean

@@ -1,10 +1,10 @@
 package com.pr0gramm.app.services
 
 import android.content.Context
-import com.google.common.primitives.UnsignedBytes
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.time
+import com.pr0gramm.app.util.unsigned
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -49,7 +49,7 @@ class SeenService(context: Context) {
         }
 
         val mask = 1 shl (7 - id % 8).toInt()
-        return (UnsignedBytes.toInt(buffer.get(idx)) and mask) != 0
+        return (buffer.get(idx).unsigned and mask) != 0
     }
 
     fun markAsSeen(id: Long) {
@@ -63,9 +63,9 @@ class SeenService(context: Context) {
 
         // only one thread can write the buffer at a time.
         synchronized(lock) {
-            val value = UnsignedBytes.toInt(buffer.get(idx))
+            val value = buffer.get(idx).unsigned
             val updatedValue = value or (1 shl (7 - id.toInt() % 8))
-            buffer.put(idx, UnsignedBytes.saturatedCast(updatedValue.toLong()))
+            buffer.put(idx, updatedValue.toByte())
         }
     }
 

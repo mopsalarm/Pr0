@@ -1,8 +1,7 @@
 package com.pr0gramm.app.services.gif
 
-import com.google.common.base.Charsets
-import com.google.common.io.BaseEncoding
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.encodeBase64
 import com.squareup.moshi.JsonClass
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -38,7 +37,7 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
             return fallback
         }
 
-        val encoded = BaseEncoding.base64Url().encode(url.toByteArray(Charsets.UTF_8))
+        val encoded = url.toByteArray().encodeBase64(urlSafe = true)
         return api.convert(encoded)
                 .map { result -> GifToVideoService.Result(url, DEFAULT_ENDPOINT + result.path) }
                 .onErrorResumeNext(fallback)

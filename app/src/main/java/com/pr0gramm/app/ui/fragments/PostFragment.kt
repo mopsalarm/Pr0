@@ -19,7 +19,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
-import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -682,7 +681,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         feedService.post(feedItem.id)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doOnError { err ->
-                    if (Throwables.getRootCause(err) !is IOException) {
+                    if (err.rootCause !is IOException) {
                         AndroidUtility.logToCrashlytics(err)
                     }
 

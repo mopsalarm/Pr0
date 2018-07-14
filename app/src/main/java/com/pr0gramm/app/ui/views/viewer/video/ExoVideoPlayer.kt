@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
 import com.google.android.exoplayer2.video.VideoRendererEventListener
-import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -244,7 +243,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
-        val rootCause = Throwables.getRootCause(error)
+        val rootCause = error.rootCause
 
         val messageChain = error.getMessageWithCauses()
         when {

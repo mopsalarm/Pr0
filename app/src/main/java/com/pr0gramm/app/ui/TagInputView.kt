@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
-import com.google.common.base.Charsets
-import com.google.common.io.CharStreams
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.directKodein
@@ -33,7 +31,7 @@ object TagInputView {
             return logger.time("Loading tags from file") {
                 context.assets.open("tags.txt").use { stream ->
                     InputStreamReader(stream, Charsets.UTF_8).use { reader ->
-                        CharStreams.readLines(reader).mapNotNull { line ->
+                        reader.readLines().mapNotNull { line ->
                             line.trim().takeIf { tag ->
                                 val lower = tag.toLowerCase()
                                 tag.length > 1 && questionableTags.none { lower.contains(it) }

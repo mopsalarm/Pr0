@@ -2,14 +2,9 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
-import com.google.common.base.Stopwatch
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
-import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config

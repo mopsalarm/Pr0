@@ -3,9 +3,9 @@ package com.pr0gramm.app.ui.views.viewer.video
 import android.net.Uri
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
-import com.google.common.io.ByteStreams
-import com.google.common.io.Closeables
 import com.pr0gramm.app.io.Cache
+import org.apache.commons.io.IOUtils
+import org.apache.commons.io.input.BoundedInputStream
 import java.io.InputStream
 
 /**
@@ -21,7 +21,7 @@ internal class InputStreamCacheDataSource(private val uri: Uri, private val cach
 
             if (dataSpec.length >= 0) {
                 // limit amount to the requestet length.
-                inputStream = ByteStreams.limit(inputStream!!, dataSpec.length)
+                inputStream = BoundedInputStream(inputStream!!, dataSpec.length)
             }
 
             return entry.totalSize.toLong()
@@ -30,7 +30,7 @@ internal class InputStreamCacheDataSource(private val uri: Uri, private val cach
 
     override fun close() {
         if (inputStream != null) {
-            Closeables.closeQuietly(inputStream)
+            IOUtils.closeQuietly(inputStream)
             inputStream = null
         }
     }

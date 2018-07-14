@@ -1,11 +1,10 @@
 package com.pr0gramm.app.api.pr0gramm
 
-import com.google.common.base.Stopwatch
-import com.google.common.reflect.Reflection
-import com.google.common.util.concurrent.Uninterruptibles
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.util.Stopwatch
+import com.pr0gramm.app.util.sleepUninterruptibly
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
@@ -16,6 +15,7 @@ import retrofit2.http.GET
 import rx.Observable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 import java.util.concurrent.TimeUnit
 
 /**
@@ -27,12 +27,12 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
 
     private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
         // proxy to add the nonce if not provided
-        return Reflection.newProxy(Api::class.java) { _, method, nullableArguments ->
+        val proxy = Proxy.newProxyInstance(Api::class.java.classLoader, arrayOf(Api::class.java)) { _, method, nullableArguments ->
             var args: Array<Any?> = nullableArguments ?: emptyArray()
             val watch = Stopwatch.createStarted()
 
             val params = method.parameterTypes
-            if (params.isNotEmpty() && params[0] == com.pr0gramm.app.api.pr0gramm.Api.Nonce::class.java) {
+            if (params.isNotEmpty() && params[0] == Api.Nonce::class.java) {
                 if (args.isNotEmpty() && args[0] == null) {
 
                     // inform about failure.
@@ -43,7 +43,7 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                     } catch (error: Throwable) {
                         if (method.returnType === Observable::class.java) {
                             // don't fail during call but fail in the resulting observable.
-                            return@newProxy Observable.error<Any>(error)
+                            return@newProxyInstance Observable.error<Any>(error)
 
                         } else {
                             throw error
@@ -81,6 +81,8 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                 throw targetError.cause ?: targetError
             }
         }
+
+        return proxy as Api
     }
 
     private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
@@ -136,14 +138,14 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
             shouldRetryTest: (Throwable) -> Boolean, retryCount: Int): Observable<Any> {
 
         var result = method.invoke(api, *args) as Observable<Any>
-        for (i in 0..retryCount - 1) {
+        for (i in 0 until retryCount) {
             result = result.onErrorResumeNext { err ->
                 try {
                     convertErrorIfNeeded(err).let { err ->
                         if (shouldRetryTest(err)) {
                             try {
                                 // give the server a small grace period before trying again.
-                                Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS)
+                                sleepUninterruptibly(500, TimeUnit.MILLISECONDS)
 
                                 logger.warn("perform retry, calling method {} again", method)
                                 method.invoke(api, *args) as Observable<Any>

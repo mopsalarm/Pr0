@@ -1,9 +1,9 @@
 package com.pr0gramm.app.services
 
 import android.support.annotation.ColorRes
-import com.google.common.base.Enums
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.Themes
+import com.pr0gramm.app.util.tryEnumValueOf
 
 /**
  * A little service to get theme stuff.
@@ -27,7 +27,7 @@ object ThemeHelper {
     fun updateTheme() {
         val settings = Settings.get()
         val name = settings.themeName
-        theme = Enums.getIfPresent(Themes::class.java, name).or(Themes.ORANGE)
+        theme = tryEnumValueOf<Themes>(name) ?: Themes.ORANGE
     }
 
     /**

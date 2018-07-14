@@ -2,8 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.net.Uri
 import com.google.code.regexp.Pattern
-import com.google.common.base.MoreObjects.firstNonNull
-import com.google.common.primitives.Longs
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.ui.fragments.CommentRef
@@ -55,7 +53,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
                 if (tag != null && tag.isNotBlank())
                     filter = filter.withTags(tag)
 
-                val itemId = Longs.tryParse(firstNonNull(groups["id"], ""))
+                val itemId = groups["id"]?.toLongOrNull()
                 return FeedFilterWithStart(filter, itemId, commentId)
             }
 
@@ -68,7 +66,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
          */
         private fun extractCommentId(path: String): Long? {
             val matcher = Pattern.compile(":comment([0-9]+)$").matcher(path)
-            return if (matcher.find()) Longs.tryParse(matcher.group(1)) else null
+            return if (matcher.find()) matcher.group(1).toLongOrNull() else null
         }
 
         private val pFeed = Pattern.compile("^/(?<type>new|top|stalk)$")

@@ -14,11 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.google.common.base.CharMatcher
-import com.google.common.base.Preconditions.checkNotNull
-import com.google.common.base.Splitter
-import com.google.common.base.Throwables
-import com.google.common.io.ByteStreams
 import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
@@ -42,6 +37,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
+import org.apache.commons.io.input.BoundedInputStream
 import org.kodein.di.erased.instance
 import rx.Observable
 import java.io.File
@@ -175,9 +171,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         // get those from UI
         val type = selectedContentType
-        val tags = Splitter.on(CharMatcher.anyOf("#,"))
-                .trimResults().omitEmptyStrings()
-                .split(this.tags.text.toString()).toSet()
+
+        val tags = tags.text.split('#', ',')
+                .mapNotNull { it.trim().takeIf { it.isNotEmpty() } }
+                .toSet()
 
         val uploadInfo = uploadInfo
 
@@ -303,7 +300,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun onError(throwable: Throwable) {
-        if (Throwables.getRootCause(throwable) is MediaNotSupported) {
+        if (throwable.rootCause is MediaNotSupported) {
             showCanNotHandleTypeDialog()
             return
         }
@@ -425,18 +422,18 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun copy(context: Context, source: Uri): Observable<File> {
         return Observable.fromCallable<File> {
             context.contentResolver.openInputStream(source).use { input ->
-                checkNotNull(input, "Could not open input stream")
+                requireNotNull(input) { "Could not open input stream" }
 
                 // read the "header"
                 val bytes = ByteArray(512)
-                val count = ByteStreams.read(input, bytes, 0, bytes.size)
+                val count = input.readSimple(bytes)
 
                 // and guess the type
-                val ext = MimeTypeHelper.guess(bytes)?.let { MimeTypeHelper.extension(it) }
+                val ext = MimeTypeHelper.guess(bytes)
+                        ?.let { MimeTypeHelper.extension(it) }
+                        ?: throw MediaNotSupported()
 
                 // fail if we couldn't get an extension (and thereby a type)
-                if (ext == null)
-                    throw MediaNotSupported()
 
                 val target = makeTempUploadFile(context, ext)
 
@@ -444,7 +441,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
                     output.write(bytes, 0, count)
 
                     val maxSize = 1024L * 1024 * 24
-                    val copied = ByteStreams.copy(ByteStreams.limit(input, maxSize), output)
+                    val copied = BoundedInputStream(input, maxSize).copyTo(output)
                     logger.info("Copied {}kb", copied / 1024)
 
                     if (copied == maxSize) {

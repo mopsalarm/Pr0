@@ -4,8 +4,6 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.os.Environment
-import com.google.common.io.CountingInputStream
-import com.google.common.io.PatternFilenameFilter
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
@@ -14,6 +12,7 @@ import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.readStream
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.apache.commons.io.input.CountingInputStream
 import org.slf4j.LoggerFactory
 import rx.Emitter
 import rx.Observable
@@ -87,11 +86,13 @@ class DownloadService(
         }
 
         // clear all previous files
-        directory.listFiles(PatternFilenameFilter("pr0gramm-update.*.apk")).forEach { file ->
-            if (!file.delete()) {
-                logger.warn("Could not delete file {}", file)
-            }
-        }
+        directory.listFiles()
+                .filter { it.name.matches("pr0gramm-update[.].*[.]apk".toRegex()) }
+                .forEach { file ->
+                    if (!file.delete()) {
+                        logger.warn("Could not delete file {}", file)
+                    }
+                }
 
         // and download the new file.
         val tempFile = File.createTempFile("pr0gramm-update", ".apk", directory)

@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
-import com.google.common.base.Preconditions.checkArgument
 import com.pr0gramm.app.util.AndroidUtility
 
 /**
@@ -49,9 +48,17 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
 
     fun setAnchorView(anchor: View?) {
         if (anchor != null) {
-            checkArgument(anchor.id != View.NO_ID, "Anchor view must have an id.")
-            checkArgument(anchor.parent === parent, "Anchor view must have the same parent")
-            checkArgument(parent is FrameLayout, "Parent must be a FrameLayout.")
+            require(anchor.id != View.NO_ID) {
+                "Anchor view must have an id."
+            }
+
+            require(anchor.parent === parent) {
+                "Anchor view must have the same parent"
+            }
+
+            require(parent is FrameLayout) {
+                "Parent must be a FrameLayout."
+            }
 
             anchorView = anchor
             dropDownAnchor = anchor.id

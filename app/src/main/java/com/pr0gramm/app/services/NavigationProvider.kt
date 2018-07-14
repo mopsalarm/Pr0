@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
-import com.google.common.base.Objects
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -273,9 +272,11 @@ class NavigationProvider(
                          val unreadCount: Int = 0,
                          val uri: Uri? = null) {
 
+        private val hashCode by lazy { listOf(action, title, layout, filter, bookmark, unreadCount, uri).hashCode() }
+
         val hasFilter: Boolean get() = filter != null
 
-        override fun hashCode(): Int = Objects.hashCode(action, title, layout, filter, bookmark, unreadCount, uri)
+        override fun hashCode(): Int = hashCode
 
         override fun equals(other: Any?): Boolean {
             return other is NavigationItem

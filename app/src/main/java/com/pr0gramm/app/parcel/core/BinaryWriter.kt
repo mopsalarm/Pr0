@@ -1,17 +1,16 @@
 package com.pr0gramm.app.parcel.core
 
-import com.google.common.io.ByteStreams
-import com.google.common.primitives.Ints
-import com.google.common.primitives.Shorts
-import com.google.common.primitives.SignedBytes
 import com.squareup.moshi.JsonWriterOpener
 import gnu.trove.map.hash.TObjectByteHashMap
 import okio.BufferedSource
 import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import java.util.zip.DeflaterOutputStream
 
 internal class BinaryWriter : JsonWriterOpener() {
-    private val output = ByteStreams.newDataOutput()
+    private val byteBuffer = ByteArrayOutputStream()
+    private val output = DataOutputStream(byteBuffer)
+
     private val nameCache = TObjectByteHashMap<String>(32, 0.7f, (-1).toByte())
 
     override fun value(value: Boolean?): com.squareup.moshi.JsonWriter {
@@ -122,15 +121,15 @@ internal class BinaryWriter : JsonWriterOpener() {
         // Write the value with the least amount of bytes
         if (java.lang.Byte.MIN_VALUE <= value && value <= java.lang.Byte.MAX_VALUE) {
             token(ProtocolToken.BYTE)
-            output.writeByte(SignedBytes.checkedCast(value).toInt())
+            output.writeByte(value.toInt())
 
         } else if (java.lang.Short.MIN_VALUE <= value && value <= java.lang.Short.MAX_VALUE) {
             token(ProtocolToken.SHORT)
-            output.writeShort(Shorts.checkedCast(value).toInt())
+            output.writeShort(value.toInt())
 
         } else if (Integer.MIN_VALUE <= value && value <= Integer.MAX_VALUE) {
             token(ProtocolToken.INTEGER)
-            output.writeInt(Ints.checkedCast(value))
+            output.writeInt(value.toInt())
 
         } else {
             token(ProtocolToken.LONG)
@@ -148,7 +147,7 @@ internal class BinaryWriter : JsonWriterOpener() {
      * Convert the output to a byte array.
      */
     fun toByteArray(): ByteArray {
-        val raw = output.toByteArray()
+        val raw = byteBuffer.toByteArray()
 
         ByteArrayOutputStream(raw.size + 1).use { outputStream ->
             if (raw.size > 1024) {

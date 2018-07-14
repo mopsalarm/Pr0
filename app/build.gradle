@@ -24,7 +24,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
         classpath 'io.fabric.tools:gradle:1.25.4'
-        classpath 'com.google.gms:google-services:4.0.1'
+        classpath 'com.google.gms:google-services:4.0.2'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.3'
     }
 }
@@ -41,9 +41,11 @@ android {
         multiDexEnabled false
 
         versionCode appVersion
+
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
 
         resConfigs "en", "de"
+        //resConfigs "anydpi", "nodpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"
 
         vectorDrawables.useSupportLibrary = true
 
@@ -56,10 +58,6 @@ android {
 
     aaptOptions {
         cruncherEnabled = true
-    }
-
-    sourceSets.main {
-        java.srcDirs += 'src/main/kotlin'
     }
 
     signingConfigs {
@@ -109,8 +107,6 @@ android {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
-        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
         exclude 'META-INF/rxjava.properties'
         exclude 'META-INF/app_debug.kotlin_module'
         exclude 'META-INF/main.kotlin_module'
@@ -161,7 +157,6 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":api-kotlin")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     implementation "com.google.code.findbugs:jsr305:3.0.2"
@@ -177,10 +172,6 @@ dependencies {
     implementation("com.android.support:support-v4:$VersionSupportLibrary")
     implementation("com.android.support:appcompat-v7:$VersionSupportLibrary")
 
-    implementation("com.google.guava:guava:25.1-android") {
-        force = true
-    }
-
     implementation "com.google.firebase:firebase-core:16.0.1"
     implementation "com.google.firebase:firebase-analytics:16.0.1"
 
@@ -191,7 +182,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-moshi:$VersionRetrofit"
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
-    implementation "com.squareup.okhttp3:okhttp:3.10.0"
+    implementation "com.squareup.okhttp3:okhttp:3.11.0"
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.squareup.moshi:moshi:1.6.0"
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
@@ -205,8 +196,8 @@ dependencies {
     implementation "org.nanohttpd:nanohttpd:2.3.1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
-    implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     implementation "dnsjava:dnsjava:2.1.8"
+    implementation "commons-io:commons-io:2.5"
 
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
 
@@ -253,7 +244,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
     androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
-    androidTestImplementation "com.squareup.okhttp3:mockwebserver:3.10.0"
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:3.11.0"
 }
 
 configurations {

@@ -8,7 +8,7 @@ import android.net.Uri
 import android.provider.Settings
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.api.pr0gramm.adapter
+import com.pr0gramm.app.adapter
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.edit

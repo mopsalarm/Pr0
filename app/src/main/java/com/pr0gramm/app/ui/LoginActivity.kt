@@ -16,7 +16,6 @@ import android.support.v4.view.ViewCompat
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import com.google.common.base.Strings
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -54,7 +53,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         // restore last username
         val defaultUsername = prefs.getString(PREF_USERNAME, "")
-        if (!Strings.isNullOrEmpty(defaultUsername)) {
+        if (!defaultUsername.isNullOrEmpty()) {
             usernameView.setText(defaultUsername)
         }
 
@@ -139,7 +138,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 map { response ->
                     when {
                         response.success -> LoginResult.Success()
-                        response.banInfo != null -> LoginResult.Banned(response.banInfo!!)
+                        response.banInfo != null -> LoginResult.Banned(response.banInfo)
                         else -> LoginResult.Failure()
                     }
                 }

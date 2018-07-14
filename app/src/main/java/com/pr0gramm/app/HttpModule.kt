@@ -3,21 +3,14 @@ package com.pr0gramm.app
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.util.LruCache
-import com.google.common.base.Stopwatch
-import com.google.common.base.Throwables
-import com.google.common.net.HttpHeaders
-import com.google.common.util.concurrent.Uninterruptibles
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.GuavaPicassoCache
-import com.pr0gramm.app.util.SmallBufferSocketFactory
-import com.pr0gramm.app.util.debug
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
@@ -248,7 +241,7 @@ private class DebugInterceptor : Interceptor {
 private class UserAgentInterceptor(val userAgent: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-                .header(HttpHeaders.USER_AGENT, userAgent)
+                .header("User-Agent", userAgent)
                 .build()
 
         return chain.proceed(request)
@@ -320,7 +313,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 
     override fun awaitTermination(timeout: Long, unit: TimeUnit?): Boolean {
         while (true) {
-            Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS)
+            sleepUninterruptibly(1, TimeUnit.SECONDS)
         }
     }
 
@@ -393,7 +386,7 @@ private class FallbackDns : Dns {
             val fallback = try {
                 fallbackLookup(hostname)
             } catch (r: Throwable) {
-                if (Throwables.getCausalChain(r).any { it is Error }) {
+                if (r.causalChain.any { it is Error }) {
                     // sometimes the Lookup class does not initialize correctly, in that case, we'll
                     // just return an empty array here and delegate back to the systems resolver.
                     arrayListOf<InetAddress>()

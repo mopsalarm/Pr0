@@ -1,14 +1,12 @@
 package com.pr0gramm.app.services.proxy
 
 import android.net.Uri
-import com.google.common.base.Charsets
-import com.google.common.base.MoreObjects.firstNonNull
-import com.google.common.hash.Hashing
-import com.google.common.io.BaseEncoding
-import com.google.common.io.ByteStreams
+import com.pr0gramm.app.decodeBase64String
+import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import fi.iki.elonen.NanoHTTPD
+import org.apache.commons.io.input.BoundedInputStream
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
@@ -21,7 +19,7 @@ class HttpProxyService(
         private val cache: Cache,
         private val port: Int) : NanoHTTPD("127.0.0.1", port), ProxyService {
 
-    private val nonce: String = Hashing.murmur3_32().hashLong(currentTimeMillis()).toString()
+    private val nonce: String = currentTimeMillis().toString(16)
 
     override fun proxy(url: Uri): Uri {
         // do not proxy twice!
@@ -30,9 +28,9 @@ class HttpProxyService(
             return url
 
         // append the name at the end of the generated uri.
-        val name = firstNonNull(url.lastPathSegment, "name")
+        val name = url.lastPathSegment ?: "name"
 
-        val encoded = BaseEncoding.base64Url().encode(uriString.toByteArray(Charsets.UTF_8))
+        val encoded = uriString.toByteArray().encodeBase64(urlSafe = true)
         return Uri.Builder()
                 .scheme("http")
                 .encodedAuthority("127.0.0.1:" + port)
@@ -56,7 +54,7 @@ class HttpProxyService(
             val encodedUrl = uri.pathSegments[1]
 
             logger.info("Decode {} as utf8 string now", encodedUrl)
-            decodedUrl = String(BaseEncoding.base64Url().decode(encodedUrl), Charsets.UTF_8).trim()
+            decodedUrl = encodedUrl.decodeBase64String().trim()
 
             val url = decodedUrl
 
@@ -108,7 +106,7 @@ class HttpProxyService(
                 contentLength = range.length
 
                 // limit the input stream to the content amount
-                input = ByteStreams.limit(input, contentLength.toLong())
+                input = BoundedInputStream(input, contentLength.toLong())
             } else {
                 status = NanoHTTPD.Response.Status.OK
                 contentLength = totalSize
