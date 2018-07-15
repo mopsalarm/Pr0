@@ -2,6 +2,7 @@ package com.pr0gramm.app.io
 
 import android.net.Uri
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
+import com.pr0gramm.app.util.SettableFuture
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
 import okhttp3.CacheControl
@@ -10,7 +11,6 @@ import okhttp3.Request
 import okhttp3.Response
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
-import rx.subjects.BehaviorSubject
 import java.io.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -237,7 +237,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             }
 
             return try {
-                writer.size.toBlocking().first()
+                writer.size.get()
             } catch(err: ExecutionException) {
                 // throw the real error, not the wrapped one.
                 throw err.cause ?: err
@@ -248,7 +248,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     private inner class CacheWriter {
         val canceled get() = cacheWriter !== this
 
-        val size: BehaviorSubject<Int> = BehaviorSubject.create<Int>()
+        val size = SettableFuture<Int>()
 
         /**
          * This method is called from the caching thread once caching stops.
@@ -288,7 +288,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                         response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
                     }
 
-                    size.onNext(body.contentLength().toInt())
+                    size.setValue(body.contentLength().toInt())
 
                 } catch (err: Exception) {
                     response.close()
@@ -300,7 +300,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
             } catch (err: Exception) {
                 logger.error("Error in caching thread")
-                size.onError(err)
+                size.setError(err)
 
             } finally {
                 cachingStopped()
@@ -355,16 +355,13 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             // close if ref count is zero.
             if (this.refCount.get() <= 0 && this.fp != null) {
                 logger.debug("Closing cache file for entry {} now.", this)
-
-                try {
-                    this.fp?.close()
-                } catch (ignored: IOException) {
-                }
-
+                IOUtils.closeQuietly(fp)
                 reset()
             }
         }
     }
+
+    protected fun finalize() = close()
 
     override fun inputStreamAt(offset: Int): InputStream {
         // update the time stamp if the cache file already exists.
@@ -395,7 +392,9 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
     override fun toString(): String {
         lock.withLock {
-            return "Entry(written=$written, totalSize=$totalSize, caching=${cacheWriter != null}, refCount=${refCount.get()}, fullyCached=${fullyCached()}, uri=$uri)"
+            return "Entry(written=$written, totalSize=${totalSizeField.takeIf { it > 0 }}, " +
+                    "caching=${cacheWriter != null}, refCount=${refCount.get()}, " +
+                    "fullyCached=${fullyCached()}, uri=$uri)"
         }
     }
 
