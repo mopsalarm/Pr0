@@ -12,7 +12,11 @@
       },
       {
         "type": "Fix",
-        "change": "Unter bestimmten Umständen wurden alle Posts als repost markiert."
+        "change": "Unter bestimmten Umständen wurden alle Posts als 'repost' markiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Suche in den Favoriten wird korrekt angezeigt. Achtung: Die erweiterte Suche funktioniert aktuell nicht in den Favoriten!"
       }
     ]
   },

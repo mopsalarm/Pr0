@@ -495,9 +495,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun hideToolbar() {
-        val activity = activity
-        if (activity is ToolbarActivity) {
-            activity.scrollHideToolbarListener.hide()
+        if (isNormalMode) {
+            val activity = activity
+            if (activity is ToolbarActivity) {
+                activity.scrollHideToolbarListener.hide()
+            }
         }
     }
 
@@ -1130,7 +1132,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // prepare search view
         val typeName = FeedFilterFormatter.feedTypeToString(context, currentFilter.withTagsNoReset("dummy"))
         searchView.queryHint = getString(R.string.action_search, typeName)
-        searchView.setPadding(0, AndroidUtility.getStatusBarHeight(context), 0, 0)
+
+        val paddingTop = if (isNormalMode) AndroidUtility.getStatusBarHeight(context) else 0
+        searchView.setPadding(0, paddingTop, 0, 0)
 
         searchContainer.visibility = View.VISIBLE
 
