@@ -13,13 +13,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.SenderDrawableProvider
-import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.use
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
-import kotterknife.bindOptionalView
-import kotterknife.bindView
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
@@ -29,10 +24,10 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val senderDrawableProvider: SenderDrawableProvider = SenderDrawableProvider(context)
     private val admin: Boolean
 
-    private val text: TextView by bindView(R.id.message_text)
-    private val image: ImageView by bindView(R.id.message_image)
-    private val sender: SenderInfoView by bindView(R.id.message_sender_info)
-    private val type: TextView? by bindOptionalView(R.id.message_type)
+    private val text: TextView
+    private val image: ImageView
+    private val sender: SenderInfoView
+    private val type: TextView?
 
     private val picasso: Picasso?
 
@@ -44,6 +39,10 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         View.inflate(context, layoutId, this)
+        text = find(R.id.message_text)
+        image = find(R.id.message_image)
+        sender = find(R.id.message_sender_info)
+        type = findOptional(R.id.message_type)
 
         if (!isInEditMode) {
             picasso = kodein.direct.instance()

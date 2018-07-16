@@ -5,6 +5,7 @@ import android.os.Parcelable
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.util.SparseArray
+import com.pr0gramm.app.ui.views.TagsView
 
 class StatefulRecyclerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -17,7 +18,9 @@ class StatefulRecyclerView @JvmOverloads constructor(
 
         for (idx in 0 until childCount) {
             val child = getChildAt(idx)
-            child.saveHierarchyState(container)
+            if (child is TagsView) {
+                child.saveHierarchyState(container)
+            }
         }
     }
 
