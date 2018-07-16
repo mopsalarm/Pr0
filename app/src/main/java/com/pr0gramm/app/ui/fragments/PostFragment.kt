@@ -657,6 +657,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
+        if (isTabletMode) {
+            simulateScroll()
+        }
+
         // track that the user visited this post.
         if (configService.config().trackItemView) {
             Track.screen(activity, "Item")
@@ -863,10 +867,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
-        val recyclerView = this.recyclerView ?: return
-
         val handler = scrollHandler
         if (handler is ScrollHandler) {
+            val recyclerView = this.recyclerView ?: return
             handler.onScrolled(recyclerView, 0, 0)
         } else {
             // simulate a scroll to "null"

@@ -1,6 +1,6 @@
 [
   {
-    "version": 146,
+    "version": 147,
     "changes": [
       {
         "type": "Überarbeitet",
@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Suche in den Favoriten wird korrekt angezeigt. Achtung: Die erweiterte Suche funktioniert aktuell nicht in den Favoriten!"
+      },
+      {
+        "type": "Fix",
+        "change": "Auf einigen Geräten wurde bei allen Kommentaren der gleiche Text angezeigt."
       }
     ]
   },

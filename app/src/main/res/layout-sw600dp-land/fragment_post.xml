@@ -19,15 +19,13 @@
             android:id="@+id/vote_indicator"
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-80dp"
+            android:layout_gravity="center"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:visibility="gone"
             app:iv_text="M"
             app:iv_textColor="?colorAccent"
             app:iv_textSize="150dp"
-            tools:ignore="NegativeMargin"/>
+            tools:visibility="visible"/>
 
         <TextView
             android:id="@+id/repost_hint"
