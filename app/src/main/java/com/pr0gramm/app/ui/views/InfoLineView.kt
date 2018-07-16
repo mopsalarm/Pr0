@@ -175,7 +175,7 @@ interface PostActions {
 class TagsView(context: Context, private val onDetailClickedListener: PostActions) : FrameLayout(context) {
     private val alwaysVoteViews = !Settings.get().hideTagVoteButtons
 
-    private val adapter = TagsAdapter().apply { submitList(emptyList()) }
+    private val adapter = TagsAdapter()
 
     private var selectedTagId = -1L
     private var tags: List<Api.Tag> = listOf()
