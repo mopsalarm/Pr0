@@ -179,7 +179,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val volumeNavigation: VolumeNavigationType
         get() {
             val pref = preferences.getString("pref_volume_navigation", "disabled")
-            return enumValueOf<VolumeNavigationType>(pref.toUpperCase())
+            return tryEnumValueOf<VolumeNavigationType>(pref.toUpperCase())
                     ?: VolumeNavigationType.DISABLED
         }
 
