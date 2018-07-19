@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.apache.commons.io.IOUtils
@@ -34,11 +35,9 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import rx.Completable
-import rx.Emitter
-import rx.Observable
-import rx.Scheduler
+import rx.*
 import rx.android.schedulers.AndroidSchedulers
+import rx.functions.Action1
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
@@ -413,7 +412,7 @@ inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
     }
 }
 
-fun <T : Any?> T.applyIf(b: Boolean, fn: T.() -> T): T {
+fun <T : Any?> T.withIf(b: Boolean, fn: T.() -> T): T {
     return if (b) this.fn() else this
 }
 
@@ -480,5 +479,22 @@ inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
         return enumValueOf<T>(key)
     } catch (err: IllegalArgumentException) {
         return null
+    }
+}
+
+fun replaceableSubscription(): ReadWriteProperty<Any?, Subscription?> {
+    return Delegates.observable<Subscription?>(null) { _, oldValue, _ ->
+        oldValue?.unsubscribe()
+    }
+}
+
+fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
+    private var previousValue: CharSequence? = null
+
+    override fun call(newValue: CharSequence?) {
+        if (previousValue != newValue) {
+            view.text = newValue
+            previousValue = newValue
+        }
     }
 }

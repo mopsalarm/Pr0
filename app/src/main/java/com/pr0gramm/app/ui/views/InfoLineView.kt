@@ -45,6 +45,8 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false
 
+    private var updateSubscription by replaceableSubscription()
+
     var onDetailClickedListener: PostActions? = null
 
     init {
@@ -86,8 +88,12 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         // update the views!
         usernameView.setUsername(item.user, item.mark)
 
-        dateView.text = context.getString(R.string.dt_since_label_past,
-                DurationFormat.timeToPointInTime(context, item.created, short = true))
+        updateSubscription = ViewUpdater.ofView(dateView)
+                .map {
+                    context.getString(R.string.dt_since_label_past, DurationFormat
+                            .timeToPointInTime(context, item.created, short = true))
+                }
+                .subscribe(updateTextView(dateView))
 
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)
@@ -102,7 +108,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
      * @param vote The vote that is currently selected.
      */
-    fun updateViewState(vote: Vote) {
+    private fun updateViewState(vote: Vote) {
         val feedItem = this.feedItem ?: return
 
         if (isOneHourOld || isSelfPost || admin) {

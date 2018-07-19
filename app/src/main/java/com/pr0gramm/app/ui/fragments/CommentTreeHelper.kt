@@ -105,7 +105,7 @@ abstract class CommentTreeHelper : CommentView.Listener {
         Observable
                 .fromCallable { CommentTree(targetState).visibleComments }
                 .ignoreError()
-                .applyIf(runThisUpdateAsync) {
+                .withIf(runThisUpdateAsync) {
                     logger.info("Running update in background")
                     subscribeOnBackground().observeOnMainThread()
                 }

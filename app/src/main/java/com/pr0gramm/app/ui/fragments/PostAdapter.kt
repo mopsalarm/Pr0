@@ -194,8 +194,13 @@ private class InfoLineViewHolder(
         val onDetailClickedListener: PostActions,
         val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
 
-    fun set(item: PostAdapter.Item.InfoItem) {
+    init {
+        infoView.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
 
+    fun set(item: PostAdapter.Item.InfoItem) {
         // display the feed item in the view
         infoView.setFeedItem(item.item, item.isOurPost, item.vote)
         infoView.onDetailClickedListener = onDetailClickedListener

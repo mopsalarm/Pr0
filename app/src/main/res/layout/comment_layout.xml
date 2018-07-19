@@ -27,7 +27,7 @@
 
     <com.pr0gramm.app.ui.ExceptionCatchingTextView
         android:id="@+id/comment"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="8dp"
@@ -38,8 +38,7 @@
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/sender_info"
-        layout="@layout/sender_info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/comment"
         android:layout_below="@+id/comment"

@@ -3,9 +3,9 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
-import com.pr0gramm.app.util.applyIf
 import com.pr0gramm.app.util.observeOnMainThread
 import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.util.withIf
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -75,7 +75,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
 
 
         Observable.fromCallable { calculateDiff(oldList, newList) }
-                .applyIf(oldList.size > 32 || newList.size > 32) {
+                .withIf(oldList.size > 32 || newList.size > 32) {
                     logger.debug("Calculate diff in background")
                     subscribeOnBackground().observeOnMainThread()
                 }

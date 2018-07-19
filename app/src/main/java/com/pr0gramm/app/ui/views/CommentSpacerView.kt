@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -23,6 +22,8 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     private val config: Config = ConfigService.get(context)
 
     private val basePaddingLeft = paddingLeft
+
+    val path = Path()
 
     var depth: Int = 0; set(value) {
         field = value.coerceAtMost(config.commentsMaxLevels)
@@ -63,17 +64,23 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
-    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        val path = Path()
-        for (i in 1 until depth) {
-            val x = spaceAtDepth(i) - lineWidth
-
-            path.moveTo(x, 0f)
-            path.lineTo(x, height.toFloat())
-        }
-
         canvas.drawPath(path, linePaint)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+
+        if (changed) {
+            path.reset()
+
+            for (i in 1 until depth) {
+                val x = spaceAtDepth(i) - lineWidth
+
+                path.moveTo(x, 0f)
+                path.lineTo(x, (b - t).toFloat())
+            }
+        }
     }
 
     companion object {
