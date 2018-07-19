@@ -210,7 +210,7 @@ class UserService(private val api: Api,
             return Observable.empty()
 
         // tell the sync request where to start
-        val lastLogOffset = preferences.getLong(KEY_LAST_LOF_OFFSET + config.syncVersion, 0L)
+        val lastLogOffset = preferences.getLong(syncOffsetKey(), 0L)
         val fullSync = (lastLogOffset == 0L)
 
         if (fullSync && !fullSyncInProgress.compareAndSet(false, true)) {
@@ -240,7 +240,7 @@ class UserService(private val api: Api,
                 // store syncId for next time.
                 if (response.logLength > lastLogOffset) {
                     preferences.edit {
-                        putLong(KEY_LAST_LOF_OFFSET + config.syncVersion, response.logLength)
+                        putLong(syncOffsetKey(), response.logLength)
                     }
                 }
             } catch (error: Throwable) {
@@ -250,6 +250,8 @@ class UserService(private val api: Api,
             return@flatMap Observable.just(response)
         }
     }
+
+    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v1:" + config.syncVersion
 
     /**
      * Retrieves the user data and stores part of the data in the database.

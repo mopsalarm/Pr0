@@ -11,14 +11,16 @@ import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.Stopwatch
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import okio.Okio
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
-import java.io.*
+import java.io.ByteArrayInputStream
 
 
 /**
@@ -114,16 +116,15 @@ class VoteService(private val api: Api,
         }
 
 
-
         val actionCount = decoded.size / 5
-        val actionStream = LittleEndianDataInputStream(ByteArrayInputStream(decoded))
+        val actionStream = Okio.buffer(Okio.source(ByteArrayInputStream(decoded)))
 
         val watch = Stopwatch.createStarted()
         withTransaction(database) {
             logger.info("Applying {} vote actions", actionCount)
             for (idx in 0 until actionCount) {
-                val id = actionStream.readInt().toLong()
-                val action = VOTE_ACTIONS[actionStream.readUnsignedByte()] ?: continue
+                val id = actionStream.readIntLe().toLong()
+                val action = VOTE_ACTIONS[actionStream.readByte().unsigned] ?: continue
 
                 storeVoteValue(action.type, id, action.vote)
                 if (action.type == ITEM) {
@@ -238,52 +239,5 @@ class VoteService(private val api: Api,
                 9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
                 10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE),
                 11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
-    }
-
-
-    private class LittleEndianDataInputStream(private val input: InputStream) : FilterInputStream(input) {
-        fun readUnsignedByte(): Int {
-            val b1 = input.read()
-            if (0 > b1) {
-                throw EOFException()
-            }
-
-            return b1
-        }
-
-        /**
-         * Reads an integer as specified by [DataInputStream.readInt], except using little-endian
-         * byte order.
-         *
-         * @return the next four bytes of the input stream, interpreted as an `int` in little-endian
-         * byte order
-         * @throws IOException if an I/O error occurs
-         */
-        fun readInt(): Int {
-            val b1 = readAndCheckByte().toInt()
-            val b2 = readAndCheckByte().toInt() shl 8
-            val b3 = readAndCheckByte().toInt() shl 16
-            val b4 = readAndCheckByte().toInt() shl 24
-
-            return b4 or b3 or b2 or b1
-        }
-
-        /**
-         * Reads a byte from the input stream checking that the end of file (EOF) has not been
-         * encountered.
-         *
-         * @return byte read from input
-         * @throws IOException if an error is encountered while reading
-         * @throws EOFException if the end of file (EOF) is encountered.
-         */
-        private fun readAndCheckByte(): Byte {
-            val b1 = input.read()
-
-            if (-1 == b1) {
-                throw EOFException()
-            }
-
-            return b1.toByte()
-        }
     }
 }
