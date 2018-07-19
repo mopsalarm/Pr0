@@ -1,5 +1,14 @@
 [
   {
+    "version": 148,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Votes wurden teilweise nicht richtig von der Website in die App synchronisiert."
+      }
+    ]
+  },
+  {
     "version": 147,
     "changes": [
       {
