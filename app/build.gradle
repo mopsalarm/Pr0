@@ -184,7 +184,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:3.11.0"
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.squareup.moshi:moshi:1.6.0"
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.15"
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"
     implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
@@ -196,6 +196,8 @@ dependencies {
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
     implementation "dnsjava:dnsjava:2.1.8"
+    
+    //noinspection GradleDependency
     implementation "commons-io:commons-io:2.5"
 
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
