@@ -6,17 +6,12 @@ import com.jakewharton.rxbinding.view.ViewAttachEvent
 import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
-typealias Action = () -> Unit
-
 object ViewUpdater {
-    private val logger = LoggerFactory.getLogger("ViewUpdater")
-
     private val tickerSeconds: Observable<Unit> = Observable
             .interval(1, 1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .map { Unit }
