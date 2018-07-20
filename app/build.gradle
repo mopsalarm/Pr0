@@ -124,7 +124,7 @@ android.applicationVariants.all { variant ->
         filesToDelete.each { it.delete() }
     }
 
-    tasks."assemble${variant.name.capitalize()}".doLast {
+    tasks."package${variant.name.capitalize()}".doLast {
         println("Checking for important files in the apk...")
 
         def output = new ByteArrayOutputStream()

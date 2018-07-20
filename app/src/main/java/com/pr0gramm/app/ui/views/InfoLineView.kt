@@ -88,7 +88,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         // update the views!
         usernameView.setUsername(item.user, item.mark)
 
-        updateSubscription = ViewUpdater.ofView(dateView)
+        updateSubscription = ViewUpdater.ofView(dateView, item.created)
                 .map {
                     context.getString(R.string.dt_since_label_past, DurationFormat
                             .timeToPointInTime(context, item.created, short = true))

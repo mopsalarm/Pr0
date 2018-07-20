@@ -75,7 +75,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun setDate(date: Instant) {
-        updateSubscription = ViewUpdater.ofView(dateView)
+        updateSubscription = ViewUpdater.ofView(dateView, date)
                 .map {
                     val now = (Instant.now().millis - date.millis) / 1000 < 30
                     if (now) {
