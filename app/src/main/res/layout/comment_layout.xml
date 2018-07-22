@@ -8,11 +8,7 @@
     android:paddingBottom="4dp"
     android:paddingRight="16dp"
     android:paddingLeft="8dp"
-    android:paddingTop="4dp"
-    app:depth="3"
-    app:lineColor="@color/comment_line"
-    app:lineMargin="8dp"
-    app:lineWidth="1dp">
+    android:paddingTop="4dp">
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/voting"

@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.BaseDrawable
 import com.pr0gramm.app.ui.paint
-import com.pr0gramm.app.util.dp2px
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
 import kotterknife.bindView
@@ -51,7 +51,7 @@ class CircleChartView : AspectLayout {
             if (totalValue == 0 || bounds.width() < 5 || bounds.height() < 5)
                 return
 
-            val lineWidth = context.dp2px(4f)
+            val lineWidth = context.dip2px(4f)
 
             val paint = paint {
                 style = Paint.Style.STROKE

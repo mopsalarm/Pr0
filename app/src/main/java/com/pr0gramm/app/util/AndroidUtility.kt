@@ -133,7 +133,7 @@ object AndroidUtility {
     }
 
     fun dp(context: Context, dpValue: Int): Int {
-        return context.dp2px(dpValue.toFloat()).toInt()
+        return context.dip2px(dpValue.toFloat()).toInt()
     }
 
     fun isOnMobile(context: Context?): Boolean {

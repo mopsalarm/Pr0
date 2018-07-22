@@ -150,15 +150,11 @@ fun arrayOfStrings(vararg args: Any): Array<String> {
 }
 
 inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<R, T> {
-    return Delegates.observable(def) { _, _, _ ->
-        onChange()
-    }
+    return Delegates.observable(def) { _, _, _ -> onChange() }
 }
 
 inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit): ReadWriteProperty<R, T> {
-    return Delegates.observable(def) { _, old, new ->
-        onChange(old, new)
-    }
+    return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 
 val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
@@ -333,7 +329,7 @@ fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
 }
 
-fun Context.dp2px(dpValue: Float): Float {
+fun Context.dip2px(dpValue: Float): Float {
     val density = resources.displayMetrics.density
     return dpValue * density
 }

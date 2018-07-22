@@ -14,8 +14,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.dp2px
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
@@ -36,7 +36,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val placeholder = ImageView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        context.dp2px(70f).roundToInt())
+                        context.dip2px(70f).roundToInt())
 
                 scaleType = ImageView.ScaleType.CENTER_CROP
 

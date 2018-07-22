@@ -169,7 +169,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         val dr = GraphDrawable(sampled).apply {
             lineColor = Color.WHITE
             fillColor = 0xa0ffffffL.toInt()
-            lineWidth = dp2px(4f)
+            lineWidth = dip2px(4f)
             highlightFillColor = getColorCompat(ThemeHelper.primaryColorDark)
         }
 
