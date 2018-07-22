@@ -101,7 +101,7 @@ open class ApplicationClass : Application(), KodeinAware {
         if (!BuildConfig.DEBUG) {
             // disable verbose logging
             val log = LogManager.getLogManager().getLogger("")
-            log?.handlqers.forEach { it.level = Level.INFO }
+            log?.handlers?.forEach { it.level = Level.INFO }
         }
 
         doInBackground {
