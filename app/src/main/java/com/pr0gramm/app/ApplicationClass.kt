@@ -19,6 +19,7 @@ import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
+import io.fabric.sdk.android.SilentLogger
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.bind
@@ -76,7 +77,11 @@ open class ApplicationClass : Application(), KodeinAware {
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
 
             logger.info("Initialize fabric")
-            Fabric.with(this, Crashlytics())
+            Fabric.with(Fabric.Builder(this)
+                    .debuggable(false)
+                    .logger(SilentLogger())
+                    .kits(Crashlytics())
+                    .build())
         }
 
         // handler to ignore certain exceptions before they reach crashlytics.
@@ -96,9 +101,7 @@ open class ApplicationClass : Application(), KodeinAware {
         if (!BuildConfig.DEBUG) {
             // disable verbose logging
             val log = LogManager.getLogManager().getLogger("")
-            for (h in log?.handlers ?: arrayOf()) {
-                h.level = Level.INFO
-            }
+            log?.handlers?.forEach { it.level = Level.INFO }
         }
 
         doInBackground {
