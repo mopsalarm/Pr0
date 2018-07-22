@@ -1,10 +1,23 @@
 package com.pr0gramm.app
 
+import android.os.Parcel
+import android.os.Parcelable
+import android.support.v4.util.CircularArray
+import com.pr0gramm.app.parcel.core.creator
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
-class Instant(val millis: Long) : Comparable<Instant> {
+class Instant(val millis: Long) : Comparable<Instant>, Parcelable {
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeLong(millis)
+    }
+
+    override fun describeContents(): Int = 0
+
     fun plus(offsetInMillis: Long, unit: TimeUnit): Instant {
         return Instant(millis + unit.toMillis(offsetInMillis))
     }
@@ -31,13 +44,15 @@ class Instant(val millis: Long) : Comparable<Instant> {
 
     val isAfterNow: Boolean
         get() {
-            return millis > System.currentTimeMillis()
+            return millis > TimeFactory.currentTimeMillis()
         }
 
     val isBeforeNow: Boolean
         get() {
-            return millis < System.currentTimeMillis()
+            return millis < TimeFactory.currentTimeMillis()
         }
+
+    constructor(parcel: Parcel) : this(parcel.readLong())
 
     override fun compareTo(other: Instant): Int {
         return millis.compareTo(other.millis)
@@ -57,6 +72,41 @@ class Instant(val millis: Long) : Comparable<Instant> {
 
     companion object {
         @JvmStatic
-        fun now(): Instant = Instant(System.currentTimeMillis())
+        fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
+
+        @JvmField
+        val CREATOR = creator { p -> Instant(p.readLong()) }
     }
+}
+
+object TimeFactory {
+    private val logger: Logger = LoggerFactory.getLogger("TimeFactory")
+
+    private val buffer = CircularArray<Long>(16)
+    private val deltaInMillis = AtomicLong(0)
+
+    fun updateServerTime(serverTime: Instant) {
+        synchronized(buffer) {
+            if (buffer.size() >= 16) {
+                buffer.popFirst()
+            }
+
+            val delta = serverTime.millis - System.currentTimeMillis()
+
+            logger.info("Storing time delta of {}ms", this.deltaInMillis)
+            buffer.addLast(delta)
+
+            // calculate average server/client delta
+            var sum = 0L
+            for (idx in 0 until buffer.size()) {
+                sum += buffer.get(idx)
+            }
+
+            this.deltaInMillis.set(sum / buffer.size())
+        }
+
+        Stats.get().time("server.time.delta", this.deltaInMillis.get())
+    }
+
+    fun currentTimeMillis(): Long = System.currentTimeMillis() + this.deltaInMillis.get()
 }

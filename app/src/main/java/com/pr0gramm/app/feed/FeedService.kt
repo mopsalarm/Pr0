@@ -2,6 +2,7 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
+import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.Reducer
@@ -17,7 +18,7 @@ import rx.Observable
 interface FeedService {
     fun load(query: FeedQuery): Observable<Api.Feed>
 
-    fun post(id: Long): Observable<Api.Post>
+    fun post(id: Long, bust: Boolean = false): Observable<Api.Post>
 
     /**
      * Streams feed items - giving one page after the next until
@@ -96,8 +97,9 @@ class FeedServiceImpl(private val api: Api,
         }
     }
 
-    override fun post(id: Long): Observable<Api.Post> {
-        return api.info(id)
+    override fun post(id: Long, bust: Boolean): Observable<Api.Post> {
+        val buster = if (bust) TimeFactory.currentTimeMillis() else null
+        return api.info(id, bust = buster)
     }
 
     override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {

@@ -20,11 +20,17 @@ import rx.Single
 /**
  */
 fun appModule(app: Application) = Kodein.Module("app") {
-    bind<SharedPreferences>() with instance(app.getSharedPreferences("pr0gramm", Context.MODE_PRIVATE))
+    bind<SharedPreferences>() with singleton {
+        app.getSharedPreferences("pr0gramm", Context.MODE_PRIVATE)
+    }
 
-    bind<Settings>() with instance(Settings.get())
+    bind<Settings>() with singleton {
+        Settings.get()
+    }
 
-    bind<SQLiteOpenHelper>() with instance(Databases.PlainOpenHelper(app))
+    bind<SQLiteOpenHelper>() with singleton {
+        Databases.PlainOpenHelper(app)
+    }
 
     bind<Holder<SQLiteDatabase>>() with singleton {
         val helper: SQLiteOpenHelper = instance()

@@ -39,9 +39,11 @@ typealias DialogOnCancelListener = (Dialog) -> Unit
 class DialogBuilder(private val context: Context, private val bottomSheet: Boolean = false) {
     private val dialogButtons = intArrayOf(Dialog.BUTTON_NEGATIVE, Dialog.BUTTON_POSITIVE, Dialog.BUTTON_NEUTRAL)
 
-    private val preferences: SharedPreferences = context.applicationContext.getSharedPreferences(
-            "dialog-builder-v" + AndroidUtility.buildVersionCode(),
-            Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences by lazy {
+        context.applicationContext.getSharedPreferences(
+                "dialog-builder-v" + AndroidUtility.buildVersionCode(),
+                Context.MODE_PRIVATE)
+    }
 
     private val logger = LoggerFactory.getLogger("DialogBuilder")
 

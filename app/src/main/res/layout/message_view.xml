@@ -33,7 +33,7 @@
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/message_sender_info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/message_text"
         android:layout_below="@+id/message_text"

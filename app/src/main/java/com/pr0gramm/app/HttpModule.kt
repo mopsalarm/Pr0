@@ -34,6 +34,8 @@ import java.io.IOException
 import java.lang.UnsupportedOperationException
 import java.net.InetAddress
 import java.net.UnknownHostException
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.*
 import kotlin.concurrent.timer
 
@@ -99,6 +101,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
                 .addNetworkInterceptor(LoggingInterceptor())
+                .addNetworkInterceptor(UpdateServerTimeInterceptor())
                 .build()
     }
 
@@ -221,6 +224,41 @@ private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloade
     }
 }
 
+private class UpdateServerTimeInterceptor : Interceptor {
+    private val format by threadLocal {
+        val format = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ROOT)
+        format.isLenient = false
+        format
+    }
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+
+        val requestStartTime = System.currentTimeMillis()
+        val response = chain.proceed(request)
+
+        // we need the time of the network request
+        val requestTime = System.currentTimeMillis() - requestStartTime
+
+        if (response.isSuccessful && request.url().host() == "pr0gramm.com") {
+            response.header("Date")?.let { dateValue ->
+                val serverTime = try {
+                    format.parse(dateValue)
+                } catch (err: Exception) {
+                    null
+                }
+
+                if (serverTime != null) {
+                    val serverTimeApprox = serverTime.time + requestTime / 2
+                    TimeFactory.updateServerTime(Instant(serverTimeApprox))
+                }
+            }
+        }
+
+        return response
+    }
+
+}
 
 private class DebugInterceptor : Interceptor {
     private val logger = LoggerFactory.getLogger("DebugInterceptor")

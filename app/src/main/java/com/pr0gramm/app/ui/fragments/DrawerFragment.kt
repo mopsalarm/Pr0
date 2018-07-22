@@ -374,7 +374,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         Track.specialMenuActionClicked(uri)
 
         // check if we can handle the uri in the app
-        FeedFilterWithStart.fromUri(uri)?.let { parsed ->
+        FilterParser.parse(uri)?.let { parsed ->
             callback.onFeedFilterSelectedInNavigation(parsed.filter, parsed.start)
             return
         }

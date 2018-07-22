@@ -82,7 +82,8 @@ interface Api {
 
     @GET("/api/items/info")
     fun info(
-            @Query("itemId") itemId: Long): Observable<Post>
+            @Query("itemId") itemId: Long,
+            @Query("bust") bust: Long?): Observable<Post>
 
     @GET("/api/user/sync")
     fun sync(

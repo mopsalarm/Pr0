@@ -36,6 +36,14 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     // to prevent double saving of current state
     private var lastSavedPosition: Int = -1
 
+    private var initialCommentRef: CommentRef? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        initialCommentRef = arguments?.getParcelable(ARG_START_ITEM_COMMENT_REF)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_post_pager, container, false)
     }
@@ -103,11 +111,6 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         makeItemCurrent(start)
     }
 
-    fun restartCurrentPostFragment() {
-        activePostFragment?.setActive(false)
-        activePostFragment?.setActive(true)
-    }
-
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 
@@ -131,10 +134,9 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
             // try scroll to initial comment. This will only work if the comment
             // is a part of the given post and will otherwise do nothing
-            val startCommentId = arguments?.getLong(ARG_START_ITEM_COMMENT) ?: 0
-            if (startCommentId > 0) {
-                fragment.autoScrollToComment(startCommentId)
-            }
+            // arguments?.getParcelable<CommentRef>(ARG_START_ITEM_COMMENT_REF)?.let { commentRef ->
+            //    fragment.autoScrollToComment(commentRef)
+            // }
         }
     }
 
@@ -259,7 +261,16 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
             // build a new fragment from the given item.
             val capped = position.coerceIn(0, feed.size - 1)
-            return PostFragment.newInstance(feed[capped])
+            val item = feed[capped]
+
+            // initialize with reference to comment
+            val initialCommentRef = initialCommentRef
+            if (initialCommentRef?.itemId == item.id) {
+                this@PostPagerFragment.initialCommentRef = null
+                return PostFragment.newInstance(item, initialCommentRef)
+            }
+
+            return PostFragment.newInstance(item)
         }
 
         override fun getCount(): Int {
@@ -279,13 +290,13 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     companion object {
         const val ARG_FEED = "PP.feed"
         const val ARG_START_ITEM = "PP.startItem"
-        const val ARG_START_ITEM_COMMENT = "PP.startItemComment"
+        const val ARG_START_ITEM_COMMENT_REF = "PP.startItemComment"
 
-        fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
+        fun newInstance(feed: Feed, idx: Int, commentRef: CommentRef?): PostPagerFragment {
             return PostPagerFragment().arguments {
                 putByteArray(ARG_FEED, feed.persist(idx))
                 putParcelable(ARG_START_ITEM, feed[idx])
-                putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
+                putParcelable(ARG_START_ITEM_COMMENT_REF, commentRef)
             }
         }
     }

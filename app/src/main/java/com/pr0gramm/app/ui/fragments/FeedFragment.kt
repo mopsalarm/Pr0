@@ -67,6 +67,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
+    private val filterArgument: FeedFilter by fragmentArgument(ARG_FEED_FILTER)
+    private val isNormalMode: Boolean by fragmentArgumentWithDefault(true, ARG_NORMAL_MODE)
+
     private var quickPeekDialog: Dialog? = null
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
@@ -397,11 +400,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return isNormalMode
     }
 
-    private val isNormalMode: Boolean
-        get() {
-            return arguments?.getBoolean(ARG_NORMAL_MODE, true) ?: true
-        }
-
     private inner class UserActionListener : UserInfoView.UserActionListener {
         override fun onWriteMessageClicked(userId: Int, name: String) {
             doIfAuthorizedHelper.run {
@@ -507,8 +505,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         this.bookmarkable = bookmarkable
         activity?.invalidateOptionsMenu()
     }
-
-    private val filterArgument: FeedFilter by fragmentArgument(name = ARG_FEED_FILTER)
 
     private val selectedContentType: EnumSet<ContentType>
         get() {
@@ -874,7 +870,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         var startAt: CommentRef? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
             filter = filter.withTags("")
-            startAt = CommentRef(query.combined.filter { it in '0'..'9' }.toLong(), null)
+            startAt = CommentRef(query.combined.filter { it in '0'..'9' }.toLong())
         }
 
         val searchQueryState = searchView.currentState()
@@ -888,7 +884,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         Track.search(query.combined)
     }
 
-    private fun onItemClicked(item: FeedItem, commentId: Long? = null, preview: ImageView? = null) {
+    private fun onItemClicked(item: FeedItem, commentRef: CommentRef? = null, preview: ImageView? = null) {
         val activity = activity ?: return
 
         // reset auto open.
@@ -901,7 +897,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         try {
             val generator: FancyExifThumbnailGenerator by instance()
 
-            val fragment = PostPagerFragment.newInstance(feed, idx, commentId)
+            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef)
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
@@ -1196,7 +1192,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 logger.debug("Found item at idx={}", idx)
 
                 // scroll to item now and click
-                onItemClicked(feed[idx], autoLoad.commentId)
+                onItemClicked(feed[idx], autoLoad)
             }
         }
 
@@ -1298,7 +1294,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         fun newArguments(feedFilter: FeedFilter, normalMode: Boolean,
                          start: CommentRef?,
-                         searchQueryState: Bundle?): Bundle {
+                         searchQueryState: Bundle?,
+                         fromNotification: Boolean = false): Bundle {
 
             return bundle {
                 putParcelable(ARG_FEED_FILTER, feedFilter)

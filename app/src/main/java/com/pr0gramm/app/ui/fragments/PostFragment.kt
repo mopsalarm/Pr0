@@ -20,9 +20,7 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import com.jakewharton.rxbinding.view.layoutChanges
-import com.pr0gramm.app.R
-import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
@@ -66,7 +64,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
-    val feedItem: FeedItem by fragmentArgument(name = ARG_FEED_ITEM)
+    val feedItem: FeedItem by fragmentArgument(ARG_FEED_ITEM)
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
@@ -85,6 +83,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val apiComments = BehaviorSubject.create(listOf<Api.Comment>())
     private val apiTags = BehaviorSubject.create(listOf<Api.Tag>())
 
+    private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
 
     private val settings = Settings.get()
     private val feedService: FeedService by instance()
@@ -108,10 +107,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     // must only be accessed after injecting kodein
     private val feedItemVote: Observable<Vote> by lazy {
         voteService.getVote(feedItem).replay(1).refCount()
-    }
-
-    init {
-        arguments = Bundle()
     }
 
     override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(dispatch = false) {
@@ -249,7 +244,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // we do this after the first commentTreeHelper callback above
         if (comments.isEmpty() && tags.isEmpty()) {
-            loadItemDetails(firstLoad = true)
+            val requiresCacheBust = commentRef?.notificationTime?.let { notificationTime ->
+                val threshold = Instant.now().minus(Duration.seconds(60))
+                notificationTime.isAfter(threshold)
+            }
+
+            loadItemDetails(firstLoad = true, bust = requiresCacheBust ?: false)
         }
 
         apiTags.subscribe { hideProgressIfLoop(it) }
@@ -671,7 +671,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * Loads the information about the post. This includes the
      * tags and the comments.
      */
-    private fun loadItemDetails(firstLoad: Boolean = false) {
+    private fun loadItemDetails(firstLoad: Boolean = false, bust: Boolean = false) {
         // postDelayed could execute this if it is not added anymore
         if (!isAdded || isDetached) {
             return
@@ -682,7 +682,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
                 commentsLoadError = false)
 
-        feedService.post(feedItem.id)
+        feedService.post(feedItem.id, bust)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doOnError { err ->
                     if (err.rootCause !is IOException) {
@@ -1027,8 +1027,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    fun autoScrollToComment(commentId: Long, delayed: Boolean = false) {
-        arguments?.putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId)
+    private fun autoScrollToComment(commentId: Long, delayed: Boolean = false) {
+        commentRef = CommentRef(feedItem.id, commentId)
 
         if (!delayed) {
             tryAutoScrollToCommentNow()
@@ -1036,7 +1036,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun tryAutoScrollToCommentNow() {
-        val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: return
+        val commentId = commentRef?.commentId ?: return
 
         // get the current recycler view and adapter.
         val recyclerView = recyclerView ?: recyclerViewComments ?: return
@@ -1050,7 +1050,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             recyclerView.scrollToPosition(idx)
 
             commentTreeHelper.selectComment(commentId)
-            arguments?.remove(ARG_AUTOSCROLL_COMMENT_ID)
+            commentRef = null
         }
     }
 
@@ -1290,17 +1290,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val mediaControlsContainer: View? = null)
 
     companion object {
-        const val ARG_FEED_ITEM = "PostFragment.post"
-        const val ARG_COMMENT_DRAFT = "PostFragment.comment-draft"
-        const val ARG_AUTOSCROLL_COMMENT_ID = "PostFragment.first-comment"
+        const val ARG_FEED_ITEM = "PF.post"
+        const val ARG_COMMENT_DRAFT = "PF.comment-draft"
+        const val ARG_COMMENT_REF = "PF.commentRef"
 
         /**
          * Creates a new instance of a [PostFragment] displaying the
          * given [FeedItem].
          */
-        fun newInstance(item: FeedItem): PostFragment {
+        fun newInstance(item: FeedItem, commentRef: CommentRef? = null): PostFragment {
             return PostFragment().arguments {
                 putParcelable(ARG_FEED_ITEM, item)
+                putParcelable(ARG_COMMENT_REF, commentRef)
             }
         }
 

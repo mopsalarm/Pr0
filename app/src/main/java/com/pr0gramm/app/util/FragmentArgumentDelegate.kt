@@ -13,44 +13,31 @@ import kotlin.reflect.KProperty
  *
  * Inspired by Jake Wharton, he mentioned it during his IO/17 talk about Kotlin
  */
-private class FragmentArgumentDelegate<T : Any>(val nameOverride: String?) : ReadWriteProperty<Fragment, T> {
-    var value: T? = null
-
+private class FragmentArgumentDelegate<T : Any>(val nameOverride: String?, val defaultValue: T?) : ReadWriteProperty<Fragment, T> {
+    @Suppress("UNCHECKED_CAST")
     override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         val name = nameOverride ?: property.name
-        if (value == null) {
-            val args = thisRef.arguments ?: throw IllegalStateException("Cannot read property $name if no arguments have been set")
-            @Suppress("UNCHECKED_CAST")
-            value = args.get(name) as T
-        }
-        return value ?: throw IllegalStateException("Property $name could not be read")
+        val value = thisRef.arguments?.get(name) as T?
+        return value ?: defaultValue ?: throw IllegalStateException("Property $name is not set")
     }
 
     override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
-        if (thisRef.arguments == null) {
-            thisRef.arguments = Bundle()
-        }
-
-        this.value = value
-
-        val args = thisRef.arguments!!
+        val args = thisRef.arguments ?: Bundle().also { thisRef.arguments = it }
         setArgumentValue(args, nameOverride ?: property.name, value)
     }
 }
 
-private class OptionalFragmentArgumentDelegate<T : Any>(val default: T? = null) : ReadWriteProperty<Fragment, T?> {
+private class OptionalFragmentArgumentDelegate<T : Any>(val nameOverride: String?, val default: T?) : ReadWriteProperty<Fragment, T?> {
+    @Suppress("UNCHECKED_CAST")
     override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return (thisRef.arguments?.get(property.name) as T?) ?: default
+        val name = nameOverride ?: property.name
+        val value = thisRef.arguments?.get(name) as T?
+        return value ?: default
     }
 
     override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T?) {
-        if (thisRef.arguments == null) {
-            thisRef.arguments = Bundle()
-        }
-
-        val args = thisRef.arguments!!
-        setArgumentValue(args, property.name, value)
+        val args = thisRef.arguments ?: Bundle().also { thisRef.arguments = it }
+        setArgumentValue(args, nameOverride ?: property.name, value)
     }
 }
 
@@ -79,11 +66,15 @@ private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
 }
 
 fun <T : Any> fragmentArgument(name: String? = null): ReadWriteProperty<Fragment, T> {
-    return FragmentArgumentDelegate(name)
+    return FragmentArgumentDelegate(name, null)
 }
 
-fun <T : Any> optionalFragmentArgument(default: T? = null): ReadWriteProperty<Fragment, T?> {
-    return OptionalFragmentArgumentDelegate<T>(default)
+fun <T : Any> fragmentArgumentWithDefault(defaultValue: T, name: String? = null): ReadWriteProperty<Fragment, T> {
+    return FragmentArgumentDelegate(name, defaultValue)
+}
+
+fun <T : Any> optionalFragmentArgument(default: T? = null, name: String? = null): ReadWriteProperty<Fragment, T?> {
+    return OptionalFragmentArgumentDelegate(name, default)
 }
 
 inline fun <reified T : Enum<T>> enumFragmentArgument(): ReadWriteProperty<Fragment, T> {

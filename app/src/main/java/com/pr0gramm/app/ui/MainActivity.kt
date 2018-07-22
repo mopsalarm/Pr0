@@ -18,10 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
 import android.view.*
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.R
-import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*
@@ -127,7 +124,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             createDrawerFragment()
 
-            if (startedFromLauncher) {
+            if (startedFromLauncher || intent == null) {
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true)
 
@@ -138,7 +135,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             } else {
                 startedWithIntent = true
-                onNewIntent(intent!!)
+                onNewIntent(intent)
             }
         }
 
@@ -225,7 +222,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         if (Intent.ACTION_VIEW != intent.action)
             return
 
-        handleUri(intent.data)
+        handleIntent(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -572,15 +569,18 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
      * @param uri The uri to handle
      */
-    private fun handleUri(uri: Uri) {
+    private fun handleIntent(intent: Intent) {
+        val uri = intent.data
         if (uri.toString().matches(".*/user/[^/]+/resetpass/[^/]+".toRegex())) {
-            val intent = Intent(this, PasswordRecoveryActivity::class.java)
-            intent.putExtra("url", uri.toString())
-            startActivity(intent)
+            val openIntent = Intent(this, PasswordRecoveryActivity::class.java)
+            openIntent.putExtra("url", uri.toString())
+            startActivity(openIntent)
             return
         }
 
-        val result = FeedFilterWithStart.fromUri(uri)
+        val notificationTime: Instant? = intent.getParcelableExtra("MainActivity.NOTIFICATION_TIME")
+
+        val result = FilterParser.parse(uri, notificationTime)
         if (result != null) {
             val filter = result.filter
             val start = result.start

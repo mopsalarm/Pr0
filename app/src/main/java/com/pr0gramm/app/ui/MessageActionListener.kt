@@ -16,7 +16,7 @@ interface MessageActionListener {
     /**
      * The user clicked on a comment (and probably wants to see that comment now)
      */
-    fun onCommentClicked(itemId: Long, commentId: Long)
+    fun onCommentClicked(comment: Api.Message)
 
     /**
      * The user wants to answer to a comment

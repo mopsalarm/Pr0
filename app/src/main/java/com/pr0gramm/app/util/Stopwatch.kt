@@ -6,13 +6,13 @@ import java.util.concurrent.TimeUnit
 class Stopwatch {
     private val startTime = System.nanoTime()
 
-    val elapsedNanos get() = startTime - System.nanoTime()
+    private val nanos get() = System.nanoTime() - startTime
 
-    fun elapsed(unit: TimeUnit) = unit.convert(elapsedNanos, TimeUnit.NANOSECONDS)
+    fun elapsed(unit: TimeUnit) = unit.convert(nanos, TimeUnit.NANOSECONDS)
 
     /** Returns a string representation of the current elapsed time.  */
     override fun toString(): String {
-        val nanos = elapsedNanos
+        val nanos = nanos
 
         val unit = chooseUnit(nanos)
         val value = nanos.toDouble() / TimeUnit.NANOSECONDS.convert(1, unit)

@@ -168,12 +168,14 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
             startActivity(WriteMessageActivity.intent(context, userId, name))
         }
 
-        override fun onCommentClicked(itemId: Long, commentId: Long) {
-            open(UriHelper.of(context).post(FeedType.NEW, itemId, commentId))
+        override fun onCommentClicked(comment: Api.Message) {
+            val uri = UriHelper.of(context).post(FeedType.NEW, comment.itemId, comment.id)
+            open(uri, comment.creationTime)
         }
 
-        private fun open(uri: Uri) {
+        private fun open(uri: Uri, notificationTime: Instant? = null) {
             val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
+            intent.putExtra("MainActivity.NOTIFICATION_TIME", notificationTime)
             startActivity(intent)
         }
 

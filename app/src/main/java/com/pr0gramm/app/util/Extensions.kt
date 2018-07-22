@@ -47,6 +47,7 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -496,5 +497,12 @@ fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
             view.text = newValue
             previousValue = newValue
         }
+    }
+}
+
+fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
+    return object : ThreadLocal<T>(), ReadOnlyProperty<Any, T> {
+        override fun initialValue(): T = supplier()
+        override fun getValue(thisRef: Any, property: KProperty<*>): T = get()
     }
 }

@@ -63,7 +63,7 @@ open class MessageAdapter(private val itemLayout: Int,
                     }
 
                     view.setOnClickListener {
-                        actionListener.onCommentClicked(message.itemId, message.id)
+                        actionListener.onCommentClicked(message)
                     }
 
                 } else {
