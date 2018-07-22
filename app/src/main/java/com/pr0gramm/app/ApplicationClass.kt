@@ -17,7 +17,7 @@ import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
-import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -101,8 +101,7 @@ open class ApplicationClass : Application(), KodeinAware {
             }
         }
 
-        // enable ads - do not fail if we get an exception from this shitty google library.
-        ignoreException {
+        doInBackground {
             if (BuildConfig.DEBUG) {
                 // test ads for debug, see https://developers.google.com/admob/android/test-ads
                 MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111")
