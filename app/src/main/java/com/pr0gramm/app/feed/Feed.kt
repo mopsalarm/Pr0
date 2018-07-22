@@ -126,7 +126,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         // add a subset of the items
         val start = (pivot - itemCountAround).coerceIn(0, items.size)
         val stop = (pivot + itemCountAround).coerceIn(0, items.size)
-        val items = ArrayList(this.items.subList(start, stop))
+        val items = this.items.subList(start, stop).toList()
 
         return parcelToByteArray {
             writeTyped(filter)

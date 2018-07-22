@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.R
-import com.pr0gramm.app.parcel.core.creator
+import com.pr0gramm.app.parcel.creator
 import java.util.*
 
 /**
@@ -58,7 +58,7 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
         @JvmField
         val CREATOR = creator {
             val idx = it.readInt()
-            ContentType.values()[idx]
+            values()[idx]
         }
     }
 }

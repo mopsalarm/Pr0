@@ -27,7 +27,6 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.parcel.CommentListParceler
 import com.pr0gramm.app.parcel.TagListParceler
-import com.pr0gramm.app.parcel.core.Parceler
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
@@ -114,13 +113,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         setHasOptionsMenu(true)
 
-        if (savedInstanceState != null) {
-            val tags = Parceler.get(TagListParceler::class.java, savedInstanceState, "PostFragment.tags")
+        savedInstanceState?.let { state ->
+            val tags = state.getParcelable<TagListParceler?>("PostFragment.tags")?.tags
             if (tags != null) {
                 this.apiTags.onNext(tags)
             }
 
-            val comments = Parceler.get(CommentListParceler::class.java, savedInstanceState, "PostFragment.comments")
+            val comments = state.getParcelable<CommentListParceler?>("PostFragment.comments")?.comments
             if (comments != null) {
                 this.apiComments.onNext(comments)
             }

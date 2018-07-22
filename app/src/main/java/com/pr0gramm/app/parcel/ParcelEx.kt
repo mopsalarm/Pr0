@@ -34,8 +34,8 @@ inline fun <R> byteArrayToParcel(bytes: ByteArray, consumer: (Parcel) -> R): R {
 
     val parcel = Parcel.obtain()
     try {
-        parcel.unmarshall(inflated, 0, inflated.size);
-        parcel.setDataPosition(0);
+        parcel.unmarshall(inflated, 0, inflated.size)
+        parcel.setDataPosition(0)
 
         return consumer(parcel)
 
@@ -45,3 +45,9 @@ inline fun <R> byteArrayToParcel(bytes: ByteArray, consumer: (Parcel) -> R): R {
 }
 
 
+inline fun <reified T : Parcelable> creator(crossinline createFromParcel: (Parcel) -> T): Parcelable.Creator<T> {
+    return object : Parcelable.Creator<T> {
+        override fun createFromParcel(source: Parcel): T = createFromParcel(source)
+        override fun newArray(size: Int): Array<T?> = arrayOfNulls(size)
+    }
+}

@@ -3,7 +3,7 @@ package com.pr0gramm.app.feed
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.android.gms.common.util.Strings.emptyToNull
-import com.pr0gramm.app.parcel.core.creator
+import com.pr0gramm.app.parcel.creator
 
 /**
  */

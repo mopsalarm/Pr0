@@ -3,7 +3,7 @@ package com.pr0gramm.app
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.util.CircularArray
-import com.pr0gramm.app.parcel.core.creator
+import com.pr0gramm.app.parcel.creator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat

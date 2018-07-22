@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.fragments
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.parcel.core.creator
+import com.pr0gramm.app.parcel.creator
 
 /**
  */

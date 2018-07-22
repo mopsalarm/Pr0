@@ -2,7 +2,7 @@ package com.pr0gramm.app.services
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.pr0gramm.app.parcel.core.creator
+import com.pr0gramm.app.parcel.creator
 import com.squareup.moshi.JsonClass
 
 /**
