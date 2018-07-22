@@ -84,13 +84,13 @@ open class ApplicationClass : Application(), KodeinAware {
                     .build())
         }
 
-        // handler to ignore certain exceptions before they reach crashlytics.
-        ExceptionHandler.install()
-
         LoggerConfiguration.configuration()
                 .removeRootLogcatHandler()
                 .setRootLogLevel(if (BuildConfig.DEBUG) LogLevel.DEBUG else LogLevel.INFO)
                 .addHandlerToRootLogger(LogHandler())
+
+        // handler to ignore certain exceptions before they reach crashlytics.
+        ExceptionHandler.install()
 
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
@@ -101,7 +101,7 @@ open class ApplicationClass : Application(), KodeinAware {
         if (!BuildConfig.DEBUG) {
             // disable verbose logging
             val log = LogManager.getLogManager().getLogger("")
-            log?.handlers?.forEach { it.level = Level.INFO }
+            log?.handlqers.forEach { it.level = Level.INFO }
         }
 
         doInBackground {
