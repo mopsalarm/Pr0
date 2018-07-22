@@ -31,9 +31,10 @@ class LogHandler : Handler() {
         val tag = record.loggerName
         val androidLogLevel = logRecord.logLevel.androidLevel
 
-        Log.println(androidLogLevel, tag, formatted)
         if (!BuildConfig.DEBUG) {
             crashlytics.log(androidLogLevel, tag, formatted)
+        } else {
+            Log.println(androidLogLevel, tag, formatted)
         }
 
         synchronized(BUFFER) {
