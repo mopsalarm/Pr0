@@ -14,8 +14,6 @@ import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.parcel.byteArrayToParcel
-import com.pr0gramm.app.parcel.parcelToByteArray
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UriHelper
@@ -191,14 +189,8 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
     }
 
     private fun parseFeedItemsFromIntent(intent: Intent?): List<FeedItem> {
-        val bytes = intent?.extras?.getByteArray(EXTRA_LIST_OF_ITEMS)
-        if (bytes == null || bytes.isEmpty()) {
-            return listOf()
-        }
-
-        byteArrayToParcel(bytes) { parcel ->
-            return parcel.createTypedArrayList(FeedItem.CREATOR)
-        }
+        val feed = intent?.extras?.getParcelableArray(EXTRA_LIST_OF_ITEMS)
+        return feed?.mapNotNull { it as? FeedItem } ?: listOf()
     }
 
     private fun showEndMessage(downloaded: Int, failed: Int) {
@@ -333,17 +325,14 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
 
     companion object {
         private val logger = LoggerFactory.getLogger("PreloadService")
-        private val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
-        private val EXTRA_CANCEL = "PreloadService.cancel"
-        private val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"
+        private const val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
+        private const val EXTRA_CANCEL = "PreloadService.cancel"
+        private const val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"
 
         fun preload(context: Context, items: List<FeedItem>, allowOnMobile: Boolean) {
             val intent = Intent(context, PreloadService::class.java)
             intent.putExtra(EXTRA_ALLOW_ON_MOBILE, allowOnMobile)
-            intent.putExtra(EXTRA_LIST_OF_ITEMS, parcelToByteArray {
-                writeTypedList(items)
-            })
-
+            intent.putExtra(EXTRA_LIST_OF_ITEMS, items.toTypedArray())
             ContextCompat.startForegroundService(context, intent)
         }
     }

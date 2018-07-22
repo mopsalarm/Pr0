@@ -7,7 +7,7 @@ import com.pr0gramm.app.parcel.creator
 
 /**
  */
-class FeedFilter() : Parcelable {
+class FeedFilter : Parcelable {
     var feedType: FeedType = FeedType.PROMOTED
         private set
 
@@ -117,9 +117,7 @@ class FeedFilter() : Parcelable {
                 && username == other.username)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, f: Int) {
         dest.writeInt(feedType.ordinal)
@@ -128,16 +126,17 @@ class FeedFilter() : Parcelable {
         dest.writeString(username)
     }
 
-    internal constructor(p: Parcel) : this() {
-        val feedType = p.readInt()
-        this.feedType = FeedType.values()[feedType]
-        this.tags = p.readString()
-        this.likes = p.readString()
-        this.username = p.readString()
-    }
-
     companion object {
+        private val values: Array<FeedType> = FeedType.values()
+
         @JvmField
-        val CREATOR = creator(::FeedFilter)
+        val CREATOR = creator { p ->
+            FeedFilter().apply {
+                this.feedType = values[p.readInt()]
+                this.tags = p.readString()
+                this.likes = p.readString()
+                this.username = p.readString()
+            }
+        }
     }
 }

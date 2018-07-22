@@ -25,6 +25,8 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
         val All: List<ContentType> = values().toList()
         val AllSet: EnumSet<ContentType> = EnumSet.allOf(ContentType::class.java)
 
+        private val values: Array<ContentType> = values()
+
         fun combine(flags: Iterable<ContentType>): Int {
             return flags.sumBy { it.flag }
         }
@@ -58,7 +60,7 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
         @JvmField
         val CREATOR = creator {
             val idx = it.readInt()
-            values()[idx]
+            values[idx]
         }
     }
 }

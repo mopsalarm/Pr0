@@ -147,16 +147,16 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     /**
      * Gets the feed from the saved state. If there is no state
      * or it does not contain the feed proxy, the feed proxy is extracted
-     * from [.getArguments]
-
+     * from [getArguments]
+     *
      * @param savedState An optional saved state.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val encoded: ByteArray = savedState?.getByteArray(ARG_FEED)
-                ?: arguments?.getByteArray(ARG_FEED)
+        val parceled = savedState?.getParcelable<Feed.FeedParcel?>(ARG_FEED)
+                ?: arguments?.getParcelable<Feed.FeedParcel?>(ARG_FEED)
                 ?: throw IllegalStateException("No feed found.")
 
-        return Feed.restore(encoded)
+        return parceled.feed
     }
 
     /**
@@ -202,7 +202,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             if (lastSavedPosition != position) {
                 val item = adapter.feed[position]
                 outState.putParcelable(ARG_START_ITEM, item)
-                outState.putByteArray(ARG_FEED, adapter.feed.persist(position))
+                outState.putParcelable(ARG_FEED, adapter.feed.parcelAround(position))
 
                 lastSavedPosition = position
             }
@@ -294,7 +294,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         fun newInstance(feed: Feed, idx: Int, commentRef: CommentRef?): PostPagerFragment {
             return PostPagerFragment().arguments {
-                putByteArray(ARG_FEED, feed.persist(idx))
+                putParcelable(ARG_FEED, feed.parcelAround(idx))
                 putParcelable(ARG_START_ITEM, feed[idx])
                 putParcelable(ARG_START_ITEM_COMMENT_REF, commentRef)
             }

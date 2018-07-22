@@ -158,9 +158,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         this.scrollToolbar = useToolbarTopMargin()
 
-        val bundle = savedInstanceState?.getByteArray(ARG_FEED)
-        val previousFeed = bundle?.let { Feed.restore(it) }
-
+        val previousFeed = savedInstanceState?.getParcelable<Feed.FeedParcel?>(ARG_FEED)?.feed
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
 
@@ -369,7 +367,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             if (lastVisibleItem != null && lastVisibleIndex != null) {
                 logger.debug("Store feed around item {} ({})", lastVisibleItem.id, feed)
-                outState.putByteArray(ARG_FEED, feed.persist(lastVisibleIndex))
+                outState.putParcelable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
                 outState.putLong(ARG_FEED_SCROLL, lastVisibleItem.id)
             }
 
