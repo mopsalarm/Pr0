@@ -99,7 +99,7 @@ private fun format(ctx: Context, duration: Duration, mode: TimeMode, short: Bool
     val magnitudes = if (short) MagnitudesShort else MagnitudesLong
 
     val diff = duration.convertTo(TimeUnit.SECONDS).absoluteValue
-    val magnitude = magnitudes.first { it.threshold >= diff }
+    val magnitude = magnitudes.first { it.threshold > diff }
     val format = ctx.getString(mode.select(magnitude))
 
     val rest = magnitude.rest?.let { (diff - magnitude.factor) / it }
