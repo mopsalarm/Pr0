@@ -15,6 +15,8 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
+import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -67,7 +69,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
-    private val filterArgument: FeedFilter by fragmentArgument(ARG_FEED_FILTER)
+    private val filterArgument: FeedFilter by lazy { arguments?.getFreezable(ARG_FEED_FILTER, FeedFilter)!! }
     private val isNormalMode: Boolean by fragmentArgumentWithDefault(true, ARG_NORMAL_MODE)
 
     private var quickPeekDialog: Dialog? = null
@@ -158,7 +160,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         this.scrollToolbar = useToolbarTopMargin()
 
-        val previousFeed = savedInstanceState?.getParcelable<Feed.FeedParcel?>(ARG_FEED)?.feed
+        val previousFeed = savedInstanceState?.getFreezable(ARG_FEED, Feed.FeedParcel)?.feed
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
 
@@ -367,7 +369,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             if (lastVisibleItem != null && lastVisibleIndex != null) {
                 logger.debug("Store feed around item {} ({})", lastVisibleItem.id, feed)
-                outState.putParcelable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
+                outState.putFreezable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
                 outState.putLong(ARG_FEED_SCROLL, lastVisibleItem.id)
             }
 
@@ -1292,11 +1294,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         fun newArguments(feedFilter: FeedFilter, normalMode: Boolean,
                          start: CommentRef?,
-                         searchQueryState: Bundle?,
-                         fromNotification: Boolean = false): Bundle {
+                         searchQueryState: Bundle?): Bundle {
 
             return bundle {
-                putParcelable(ARG_FEED_FILTER, feedFilter)
+                putFreezable(ARG_FEED_FILTER, feedFilter)
                 putParcelable(ARG_FEED_START, start)
                 putBoolean(ARG_NORMAL_MODE, normalMode)
                 putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)

@@ -1,13 +1,10 @@
 package com.pr0gramm.app.feed
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.parcel.creator
-import com.pr0gramm.app.parcel.readTyped
-import com.pr0gramm.app.parcel.readTypedList
-import com.pr0gramm.app.parcel.writeTyped
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.util.listOfSize
 import com.pr0gramm.app.util.toInt
 
 /**
@@ -133,26 +130,25 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 items = this.items.subList(start, stop).toList()))
     }
 
-    class FeedParcel(val feed: Feed) : Parcelable {
-        override fun describeContents(): Int = 0
+    class FeedParcel(val feed: Feed) : Freezable {
+        override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
+            sink.write(feed.filter)
+            sink.writeInt(ContentType.combine(feed.contentType))
+            sink.writeInt(feed.isAtStart.toInt())
+            sink.write(feed.created)
 
-        override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
-            writeTyped(feed.filter)
-            writeInt(ContentType.combine(feed.contentType))
-            writeInt(feed.isAtStart.toInt())
-            writeTyped(feed.created)
-            writeTypedList(feed.items)
+            sink.writeInt(feed.items.size)
+            feed.items.forEach { write(it) }
         }
 
-        companion object {
-            @JvmField
-            val CREATOR = creator { parcel ->
-                FeedParcel(Feed(
-                        filter = parcel.readTyped(FeedFilter.CREATOR),
-                        contentType = ContentType.decompose(parcel.readInt()),
-                        isAtStart = parcel.readInt() != 0,
-                        created = parcel.readTyped(Instant.CREATOR),
-                        items = parcel.readTypedList(FeedItem.CREATOR)))
+        companion object : Unfreezable<FeedParcel> {
+            override fun unfreeze(source: Freezable.Source): FeedParcel = with(source) {
+                return FeedParcel(Feed(
+                        filter = read(FeedFilter),
+                        contentType = ContentType.decompose(readInt()),
+                        isAtStart = readInt() != 0,
+                        created = read(Instant),
+                        items = listOfSize(readInt()) { read(FeedItem) }))
             }
         }
     }

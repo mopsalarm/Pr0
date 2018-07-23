@@ -15,6 +15,8 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.parcel.getFreezableExtra
+import com.pr0gramm.app.parcel.putExtra
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -33,7 +35,10 @@ import rx.Observable
 class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val tag = "ZoomViewActivity" + System.currentTimeMillis()
 
-    internal val item: FeedItem by lazy { intent.getParcelableExtra<FeedItem>("ZoomViewActivity__item") }
+    internal val item: FeedItem by lazy {
+        intent.getFreezableExtra("ZoomViewActivity__item", FeedItem)
+                ?: throw IllegalArgumentException("no feed item in intent")
+    }
 
     private val hq: ImageView by bindView(R.id.hq)
     private val busyIndicator: View by bindView(R.id.busy_indicator)

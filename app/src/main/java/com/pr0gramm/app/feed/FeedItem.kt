@@ -1,17 +1,17 @@
 package com.pr0gramm.app.feed
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
-import com.pr0gramm.app.parcel.creator
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.util.toInt
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by the data of an [Api.Feed.Item].
  */
-class FeedItem : Parcelable, HasThumbnail {
+class FeedItem : Freezable, HasThumbnail {
     val created: Instant
     override val thumbnail: String
     val image: String
@@ -92,51 +92,45 @@ class FeedItem : Parcelable, HasThumbnail {
         return other is FeedItem && other._id == _id
     }
 
-    override fun describeContents(): Int {
-        return 0
+    override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
+        sink.writeInt(_id)
+        sink.writeInt(_promotedId)
+
+        sink.writeString(thumbnail)
+        sink.writeString(image)
+        sink.writeString(fullsize)
+        sink.writeString(user)
+
+        sink.writeInt(_rating)
+        sink.writeInt((created.millis / 1000).toInt())
+        sink.writeInt(width)
+        sink.writeInt(height)
+
+        sink.writeByte(_mark.toInt())
+        sink.writeByte(_flags.toInt())
+        sink.writeByte(audio.toInt())
     }
 
-    override fun writeToParcel(dest: Parcel, f: Int) {
-        // combine up/down as rating.
-        dest.writeInt(this._id)
-        dest.writeInt(this._promotedId)
+    constructor(source: Freezable.Source) {
+        _id = source.readInt()
+        _promotedId = source.readInt()
 
-        dest.writeString(this.thumbnail)
-        dest.writeString(this.image)
-        dest.writeString(this.fullsize)
-        dest.writeString(this.user)
+        thumbnail = source.readString()
+        image = source.readString()
+        fullsize = source.readString()
+        user = source.readString()
 
-        dest.writeInt(_rating)
-        dest.writeInt((created.millis / 1000).toInt())
-        dest.writeInt(width)
-        dest.writeInt(height)
+        _rating = source.readInt()
+        created = Instant(1000L * source.readInt())
+        width = source.readInt()
+        height = source.readInt()
 
-        val mfa = (_mark.toInt() shl 16) or (_flags.toInt() shl 8) or (if (audio) 1 else 0)
-        dest.writeInt(mfa)
+        _mark = source.readByte()
+        _flags = source.readByte()
+        audio = source.readByte() != 0.toByte()
     }
 
-    internal constructor(parcel: Parcel) {
-        this._id = parcel.readInt()
-        this._promotedId = parcel.readInt()
-
-        this.thumbnail = parcel.readString()
-        this.image = parcel.readString()
-        this.fullsize = parcel.readString()
-        this.user = parcel.readString()
-
-        this._rating = parcel.readInt()
-        this.created = Instant(1000L * parcel.readInt())
-        this.width = parcel.readInt()
-        this.height = parcel.readInt()
-
-        val mfa = parcel.readInt()
-        this._mark = ((mfa shr 16) and 0xff).toByte()
-        this._flags = ((mfa shr 8) and 0xff).toByte()
-        this.audio = (mfa and 0xff) != 0
-    }
-
-    companion object {
-        @JvmField
-        val CREATOR = creator(::FeedItem)
+    companion object : Unfreezable<FeedItem> {
+        override fun unfreeze(source: Freezable.Source): FeedItem = FeedItem(source)
     }
 }

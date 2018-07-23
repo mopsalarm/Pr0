@@ -1,13 +1,12 @@
 package com.pr0gramm.app.feed
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.google.android.gms.common.util.Strings.emptyToNull
-import com.pr0gramm.app.parcel.creator
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
 
 /**
  */
-class FeedFilter : Parcelable {
+class FeedFilter : Freezable {
     var feedType: FeedType = FeedType.PROMOTED
         private set
 
@@ -117,25 +116,22 @@ class FeedFilter : Parcelable {
                 && username == other.username)
     }
 
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, f: Int) {
-        dest.writeInt(feedType.ordinal)
-        dest.writeString(tags)
-        dest.writeString(likes)
-        dest.writeString(username)
+    override fun freeze(sink: Freezable.Sink) = with(sink) {
+        writeInt(feedType.ordinal)
+        writeString(tags ?: "")
+        writeString(likes ?: "")
+        writeString(username ?: "")
     }
 
-    companion object {
+    companion object : Unfreezable<FeedFilter> {
         private val values: Array<FeedType> = FeedType.values()
 
-        @JvmField
-        val CREATOR = creator { p ->
-            FeedFilter().apply {
-                this.feedType = values[p.readInt()]
-                this.tags = p.readString()
-                this.likes = p.readString()
-                this.username = p.readString()
+        override fun unfreeze(source: Freezable.Source): FeedFilter {
+            return FeedFilter().apply {
+                this.feedType = values[source.readInt()]
+                this.tags = source.readString().takeIf { it != "" }
+                this.likes = source.readString().takeIf { it != "" }
+                this.username = source.readString().takeIf { it != "" }
             }
         }
     }

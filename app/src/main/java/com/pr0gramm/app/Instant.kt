@@ -3,6 +3,8 @@ package com.pr0gramm.app
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.util.CircularArray
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,7 +13,11 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-class Instant(val millis: Long) : Comparable<Instant>, Parcelable {
+class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
+    override fun freeze(sink: Freezable.Sink) {
+        sink.writeLong(millis)
+    }
+
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeLong(millis)
     }
@@ -70,7 +76,11 @@ class Instant(val millis: Long) : Comparable<Instant>, Parcelable {
         return format.format(Date(millis))
     }
 
-    companion object {
+    companion object : Unfreezable<Instant> {
+        override fun unfreeze(source: Freezable.Source): Instant {
+            return Instant(source.readLong())
+        }
+
         @JvmStatic
         fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
 

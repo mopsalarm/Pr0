@@ -11,8 +11,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.parcel.MessageParceler
-import com.pr0gramm.app.parcel.NewCommentParceler
+import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.BusyDialog
@@ -160,7 +159,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         val extras = intent?.extras ?: return
 
-        val message = extras.getParcelable<MessageParceler>(ARGUMENT_MESSAGE)?.message
+        val message = extras.getFreezable(ARGUMENT_MESSAGE, MessageParceler)?.message
         if (message != null) {
             messageView.update(message, userService.name)
             messageView.visible = true
@@ -214,7 +213,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
 
         fun getNewComment(data: Intent): Api.NewComment {
-            val newComment = data.getParcelableExtra<NewCommentParceler>(RESULT_EXTRA_NEW_COMMENT)?.value
+            val newComment = data.getFreezableExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)?.value
             return newComment ?: throw IllegalArgumentException("no comment found in Intent")
         }
     }

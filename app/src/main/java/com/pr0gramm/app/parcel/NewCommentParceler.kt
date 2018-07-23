@@ -1,26 +1,19 @@
 package com.pr0gramm.app.parcel
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.pr0gramm.app.api.pr0gramm.Api
 
 /**
  */
-class NewCommentParceler(val value: Api.NewComment) : Parcelable {
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.apply {
-            writeLong(value.commentId)
-            writeTyped(CommentListParceler(value.comments))
-        }
+class NewCommentParceler(val value: Api.NewComment) : Freezable {
+    override fun freeze(sink: Freezable.Sink) = with(sink) {
+        writeLong(value.commentId)
+        write(CommentListParceler(value.comments))
     }
 
-    companion object {
-        @JvmField
-        val CREATOR = creator { parcel ->
-            val id = parcel.readLong()
-            val comments = parcel.readTyped(CommentListParceler.CREATOR).comments
+    companion object : Unfreezable<NewCommentParceler> {
+        override fun unfreeze(source: Freezable.Source): NewCommentParceler = with(source) {
+            val id = readLong()
+            val comments = read(CommentListParceler).comments
             NewCommentParceler(Api.NewComment(id, comments))
         }
     }

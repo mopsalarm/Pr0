@@ -11,6 +11,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
+import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter
 import com.pr0gramm.app.ui.MainActionHandler
@@ -152,8 +154,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
      * @param savedState An optional saved state.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val parceled = savedState?.getParcelable<Feed.FeedParcel?>(ARG_FEED)
-                ?: arguments?.getParcelable<Feed.FeedParcel?>(ARG_FEED)
+        val parceled = savedState?.getFreezable(ARG_FEED, Feed.FeedParcel)
+                ?: arguments?.getFreezable(ARG_FEED, Feed.FeedParcel)
                 ?: throw IllegalStateException("No feed found.")
 
         return parceled.feed
@@ -163,8 +165,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
      * @see .getArgumentFeed
      */
     private fun getArgumentStartItem(savedState: Bundle?): FeedItem {
-        return savedState?.getParcelable<FeedItem?>(ARG_START_ITEM)
-                ?: arguments?.getParcelable<FeedItem?>(ARG_START_ITEM)
+        return savedState?.getFreezable(ARG_START_ITEM, FeedItem)
+                ?: arguments?.getFreezable(ARG_START_ITEM, FeedItem)
                 ?: throw IllegalStateException("No initial item found.")
     }
 
@@ -201,8 +203,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
             if (lastSavedPosition != position) {
                 val item = adapter.feed[position]
-                outState.putParcelable(ARG_START_ITEM, item)
-                outState.putParcelable(ARG_FEED, adapter.feed.parcelAround(position))
+                outState.putFreezable(ARG_START_ITEM, item)
+                outState.putFreezable(ARG_FEED, adapter.feed.parcelAround(position))
 
                 lastSavedPosition = position
             }
@@ -294,8 +296,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         fun newInstance(feed: Feed, idx: Int, commentRef: CommentRef?): PostPagerFragment {
             return PostPagerFragment().arguments {
-                putParcelable(ARG_FEED, feed.parcelAround(idx))
-                putParcelable(ARG_START_ITEM, feed[idx])
+                putFreezable(ARG_FEED, feed.parcelAround(idx))
+                putFreezable(ARG_START_ITEM, feed[idx])
                 putParcelable(ARG_START_ITEM_COMMENT_REF, commentRef)
             }
         }

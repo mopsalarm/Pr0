@@ -27,6 +27,8 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.parcel.CommentListParceler
 import com.pr0gramm.app.parcel.TagListParceler
+import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
@@ -63,7 +65,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
-    val feedItem: FeedItem by fragmentArgument(ARG_FEED_ITEM)
+    val feedItem: FeedItem by lazy { arguments?.getFreezable(ARG_FEED_ITEM, FeedItem)!! }
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
@@ -114,12 +116,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         setHasOptionsMenu(true)
 
         savedInstanceState?.let { state ->
-            val tags = state.getParcelable<TagListParceler?>("PostFragment.tags")?.tags
+            val tags = state.getFreezable("PostFragment.tags", TagListParceler)?.tags
             if (tags != null) {
                 this.apiTags.onNext(tags)
             }
 
-            val comments = state.getParcelable<CommentListParceler?>("PostFragment.comments")?.comments
+            val comments = state.getFreezable("PostFragment.comments", CommentListParceler)?.comments
             if (comments != null) {
                 this.apiComments.onNext(comments)
             }
@@ -374,12 +376,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val tags = apiTags.value.orEmpty()
         if (tags.isNotEmpty()) {
-            outState.putParcelable("PostFragment.tags", TagListParceler(tags))
+            outState.putFreezable("PostFragment.tags", TagListParceler(tags))
         }
 
         val comments = apiComments.value.orEmpty()
         if (comments.isNotEmpty()) {
-            outState.putParcelable("PostFragment.comments", CommentListParceler(comments))
+            outState.putFreezable("PostFragment.comments", CommentListParceler(comments))
         }
     }
 
@@ -1299,7 +1301,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
          */
         fun newInstance(item: FeedItem, commentRef: CommentRef? = null): PostFragment {
             return PostFragment().arguments {
-                putParcelable(ARG_FEED_ITEM, item)
+                putFreezable(ARG_FEED_ITEM, item)
                 putParcelable(ARG_COMMENT_REF, commentRef)
             }
         }

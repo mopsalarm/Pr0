@@ -10,6 +10,8 @@ import com.jakewharton.rxbinding.widget.checkedChanges
 import com.jakewharton.rxbinding.widget.itemClicks
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
@@ -32,7 +34,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     // one of those must be set.
     private val user: String? by lazy { arguments?.getString(KEY_USER) }
-    private val item: FeedItem? by lazy { arguments?.getParcelable<FeedItem?>(KEY_FEED_ITEM) }
+    private val item: FeedItem? by lazy { arguments?.getFreezable(KEY_FEED_ITEM, FeedItem) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layout = if (user != null) R.layout.admin_ban_user else R.layout.admin_delete_item
@@ -120,7 +122,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 "Trollscheiße.")
 
         fun forItem(item: FeedItem) = ItemUserAdminDialog().arguments {
-            putParcelable(KEY_FEED_ITEM, item)
+            putFreezable(KEY_FEED_ITEM, item)
         }
 
         fun forUser(name: String) = ItemUserAdminDialog().arguments {

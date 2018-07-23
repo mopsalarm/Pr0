@@ -1,51 +1,45 @@
 package com.pr0gramm.app.parcel
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.listOfSize
 
 /**
  */
-class CommentListParceler(val comments: List<Api.Comment>) : Parcelable {
-    override fun describeContents(): Int = 0
+class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.apply {
-            writeInt(comments.size)
+    override fun freeze(sink: Freezable.Sink) = with(sink) {
+        writeInt(comments.size)
 
-            comments.forEach { comment ->
-                writeLong(comment.id)
-                writeFloat(comment.confidence)
-                writeString(comment.name)
-                writeString(comment.content)
-                writeLong(comment.parent)
-                writeInt(comment.up)
-                writeInt(comment.down)
-                writeInt(comment.mark)
-                writeTyped(comment.created)
-            }
+        comments.forEach { comment ->
+            writeLong(comment.id)
+            writeFloat(comment.confidence)
+            writeString(comment.name)
+            writeString(comment.content)
+            writeLong(comment.parent)
+            writeShort(comment.up)
+            writeShort(comment.down)
+            writeByte(comment.mark)
+            write(comment.created)
         }
     }
 
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<CommentListParceler> = creator { parcel ->
-            val comments = listOfSize(parcel.readInt()) {
+    companion object : Unfreezable<CommentListParceler> {
+        override fun unfreeze(source: Freezable.Source): CommentListParceler {
+            val comments = listOfSize(source.readInt()) {
                 Api.Comment(
-                        id = parcel.readLong(),
-                        confidence = parcel.readFloat(),
-                        name = parcel.readString(),
-                        content = parcel.readString(),
-                        parent = parcel.readLong(),
-                        up = parcel.readInt(),
-                        down = parcel.readInt(),
-                        mark = parcel.readInt(),
-                        created = parcel.readTyped(Instant.CREATOR))
+                        id = source.readLong(),
+                        confidence = source.readFloat(),
+                        name = source.readString(),
+                        content = source.readString(),
+                        parent = source.readLong(),
+                        up = source.readShort().toInt(),
+                        down = source.readShort().toInt(),
+                        mark = source.readByte().toInt(),
+                        created = source.read(Instant))
             }
 
-            CommentListParceler(comments)
+            return CommentListParceler(comments)
         }
     }
 
