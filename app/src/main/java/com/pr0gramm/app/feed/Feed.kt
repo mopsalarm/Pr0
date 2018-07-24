@@ -4,6 +4,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.parcel.parcelableCreator
 import com.pr0gramm.app.util.listOfSize
 import com.pr0gramm.app.util.toInt
 
@@ -142,6 +143,9 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         }
 
         companion object : Unfreezable<FeedParcel> {
+            @JvmField
+            val CREATOR = parcelableCreator()
+
             override fun unfreeze(source: Freezable.Source): FeedParcel = with(source) {
                 return FeedParcel(Feed(
                         filter = read(FeedFilter),

@@ -5,6 +5,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.parcel.parcelableCreator
 import com.pr0gramm.app.util.toInt
 
 /**
@@ -131,6 +132,9 @@ class FeedItem : Freezable, HasThumbnail {
     }
 
     companion object : Unfreezable<FeedItem> {
+        @JvmField
+        val CREATOR = parcelableCreator()
+
         override fun unfreeze(source: Freezable.Source): FeedItem = FeedItem(source)
     }
 }

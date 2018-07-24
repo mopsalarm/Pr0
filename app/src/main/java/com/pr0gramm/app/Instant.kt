@@ -22,8 +22,6 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         dest.writeLong(millis)
     }
 
-    override fun describeContents(): Int = 0
-
     fun plus(offsetInMillis: Long, unit: TimeUnit): Instant {
         return Instant(millis + unit.toMillis(offsetInMillis))
     }

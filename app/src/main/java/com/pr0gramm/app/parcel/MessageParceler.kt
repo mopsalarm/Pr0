@@ -19,6 +19,9 @@ class MessageParceler(val message: Api.Message) : Freezable {
     }
 
     companion object : Unfreezable<MessageParceler> {
+        @JvmField
+        val CREATOR = parcelableCreator()
+
         override fun unfreeze(source: Freezable.Source): MessageParceler = with(source) {
             MessageParceler(Api.Message(
                     id = readLong(),

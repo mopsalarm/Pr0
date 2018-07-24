@@ -16,6 +16,7 @@ import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.getParcelable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
@@ -160,7 +161,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         this.scrollToolbar = useToolbarTopMargin()
 
-        val previousFeed = savedInstanceState?.getFreezable(ARG_FEED, Feed.FeedParcel)?.feed
+        val previousFeed = savedInstanceState?.getParcelable(ARG_FEED, Feed.FeedParcel)?.feed
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
 
@@ -369,7 +370,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             if (lastVisibleItem != null && lastVisibleIndex != null) {
                 logger.debug("Store feed around item {} ({})", lastVisibleItem.id, feed)
-                outState.putFreezable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
+                outState.putParcelable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
                 outState.putLong(ARG_FEED_SCROLL, lastVisibleItem.id)
             }
 

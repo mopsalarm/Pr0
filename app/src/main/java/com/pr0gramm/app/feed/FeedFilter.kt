@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed
 import com.google.android.gms.common.util.Strings.emptyToNull
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.parcel.parcelableCreator
 
 /**
  */
@@ -125,6 +126,9 @@ class FeedFilter : Freezable {
 
     companion object : Unfreezable<FeedFilter> {
         private val values: Array<FeedType> = FeedType.values()
+
+        @JvmField
+        val CREATOR = parcelableCreator()
 
         override fun unfreeze(source: Freezable.Source): FeedFilter {
             return FeedFilter().apply {

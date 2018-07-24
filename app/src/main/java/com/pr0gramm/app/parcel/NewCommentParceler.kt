@@ -11,6 +11,9 @@ class NewCommentParceler(val value: Api.NewComment) : Freezable {
     }
 
     companion object : Unfreezable<NewCommentParceler> {
+        @JvmField
+        val CREATOR = parcelableCreator()
+
         override fun unfreeze(source: Freezable.Source): NewCommentParceler = with(source) {
             val id = readLong()
             val comments = read(CommentListParceler).comments

@@ -16,7 +16,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.getFreezableExtra
-import com.pr0gramm.app.parcel.putExtra
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
