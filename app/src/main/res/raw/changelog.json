@@ -3,6 +3,14 @@
     "version": 148,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Das Alter von Kommentaren und Nachrichten wird nun live aktualisiert."
+      },
+      {
+        "type": "Fix",
+        "change": "App in noch mehr Punkten schneller und stabiler gemacht!"
+      },
+      {
         "type": "Fix",
         "change": "Votes wurden teilweise nicht richtig von der Website in die App synchronisiert."
       }
