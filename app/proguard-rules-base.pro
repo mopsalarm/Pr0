@@ -78,7 +78,7 @@
 }
 
 # Retain service method parameters when optimizing.
--keepclassmembers,allowshrinking,allowobfuscation interface * {
+-keepclassmembers,allowshrinking interface * {
     @retrofit2.http.* <methods>;
 }
 
