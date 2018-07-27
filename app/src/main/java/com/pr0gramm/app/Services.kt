@@ -22,7 +22,7 @@ import org.kodein.di.erased.singleton
 import java.io.File
 
 fun servicesModule(app: Application) = Kodein.Module("services") {
-    bind<File>(tag = "cache") with instance(app.cacheDir)
+    bind<File>(tag = "cache") with singleton { app.cacheDir }
 
     bind<SeenService>() with instance(SeenService(app))
     bind<InMemoryCacheService>() with instance(InMemoryCacheService())

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeOnMainThread
 import com.pr0gramm.app.util.subscribeOnBackground
 import com.pr0gramm.app.util.withIf
@@ -43,6 +44,8 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
      * @param newList The new List.
      */
     open fun submitList(newList: List<T>) {
+        AndroidUtility.checkMainThread()
+
         val oldList = items
 
         if (newList === oldList) {
@@ -72,7 +75,6 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
 
             return
         }
-
 
         Observable.fromCallable { calculateDiff(oldList, newList) }
                 .withIf(oldList.size > 32 || newList.size > 32) {

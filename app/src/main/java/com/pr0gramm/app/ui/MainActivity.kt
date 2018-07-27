@@ -150,22 +150,24 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             var updateCheck = true
             var updateCheckDelay = false
 
-            if (singleShotService.firstTimeInVersion("changelog")) {
-                updateCheck = false
+            when {
+                singleShotService.firstTimeInVersion("changelog") -> {
+                    updateCheck = false
 
-                val dialog = ChangeLogDialog()
-                dialog.show(supportFragmentManager, null)
+                    val dialog = ChangeLogDialog()
+                    dialog.show(supportFragmentManager, null)
+                }
 
-            } else if (shouldShowFeedbackReminder()) {
+                shouldShowFeedbackReminder() -> {
+                    Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                            .configureNewStyle()
+                            .setAction(R.string.okay, { })
+                            .show()
 
-                Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                        .configureNewStyle()
-                        .setAction(R.string.okay, { })
-                        .show()
+                    updateCheckDelay = true
+                }
 
-                updateCheckDelay = true
-            } else {
-                preparePremiumHint()
+                else -> preparePremiumHint()
             }
 
             if (updateCheck) {

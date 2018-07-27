@@ -116,6 +116,8 @@ open class ApplicationClass : Application(), KodeinAware {
             MobileAds.setAppMuted(true)
         }
 
+        EagerBootstrap.ensureComplete()
+
         val bootupTime = System.currentTimeMillis() - startup
         logger.info("App booted in {}ms", bootupTime)
 

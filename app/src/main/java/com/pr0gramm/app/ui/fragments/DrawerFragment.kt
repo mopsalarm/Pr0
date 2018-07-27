@@ -27,6 +27,7 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.squareup.picasso.Picasso
 import org.kodein.di.direct
@@ -323,6 +324,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         fun setNavigationItems(items: List<NavigationItem>) {
+            checkMainThread()
             this.allItems.clear()
             this.allItems.addAll(items)
             merge()
@@ -334,6 +336,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         private fun merge() {
+            checkMainThread()
+            logger.debug("Merging items now")
+
             selected = allItems.firstOrNull { it.hasFilter && it.filter == currentFilter }
 
             if (selected == null) {

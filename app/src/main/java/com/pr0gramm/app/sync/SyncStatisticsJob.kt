@@ -4,7 +4,6 @@ import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.doInBackground
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -31,10 +30,8 @@ class SyncStatisticsJob : DailyJob() {
                 setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
             }
 
-            doInBackground {
-                // run in the night if we have network
-                DailyJob.schedule(builder, TimeUnit.HOURS.toMillis(0), TimeUnit.HOURS.toMillis(6))
-            }
+            // run in the night if we have network
+            DailyJob.scheduleAsync(builder, TimeUnit.HOURS.toMillis(0), TimeUnit.HOURS.toMillis(6))
         }
     }
 }
