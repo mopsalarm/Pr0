@@ -16,6 +16,8 @@ import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.BrowserHelper
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.directKodein
+import com.pr0gramm.app.util.observeOnMainThread
+import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
@@ -50,6 +52,9 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             container.addView(placeholder)
 
+            val marker = Object()
+            container.tag = marker
+
             val adService = context.directKodein.instance<AdService>()
 
             val adView = adService.newAdView(context)
@@ -59,13 +64,15 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             // now load the ad and show it, once it finishes loading
             adService.load(adView, Config.AdType.FEED)
-                    // .delay(2, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-                    // .compose(RxLifecycleAndroid.bindView(container))
+                    .observeOnMainThread()
+                    .compose(RxLifecycleAndroid.bindView(container))
                     .subscribe { state ->
-                        if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
-                            logger.info("Ad was loaded, showing ad now.")
-                            container.removeView(placeholder)
-                            container.addView(adView)
+                        if (container.tag === marker) {
+                            if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
+                                logger.info("Ad was loaded, showing ad now.")
+                                container.removeView(placeholder)
+                                container.addView(adView)
+                            }
                         }
                     }
 

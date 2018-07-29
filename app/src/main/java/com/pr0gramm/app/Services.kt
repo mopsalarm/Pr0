@@ -15,16 +15,13 @@ import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import org.kodein.di.Kodein
-import org.kodein.di.erased.bind
-import org.kodein.di.erased.instance
-import org.kodein.di.erased.provider
-import org.kodein.di.erased.singleton
+import org.kodein.di.erased.*
 import java.io.File
 
 fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<File>(tag = "cache") with singleton { app.cacheDir }
 
-    bind<SeenService>() with instance(SeenService(app))
+    bind<SeenService>() with eagerSingleton { SeenService(app) }
     bind<InMemoryCacheService>() with instance(InMemoryCacheService())
 
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }

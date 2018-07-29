@@ -10,6 +10,7 @@ import com.google.firebase.analytics.FirebaseAnalytics.Event
 import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.Stopwatch
 import com.pr0gramm.app.util.ignoreException
 import com.pr0gramm.app.util.kodein
@@ -29,7 +30,7 @@ object Track {
     private val injector = LateInitKodein()
     private val fa: FirebaseAnalytics by injector.instance()
     private val settingsTracker: SettingsTrackerService by injector.instance()
-    private val config: Config by injector.instance()
+    private val config: ConfigService by injector.instance()
 
     fun initialize(context: Context) {
         injector.baseKodein = context.kodein
@@ -76,7 +77,7 @@ object Track {
     }
 
     fun votePost(vote: Vote) {
-        if (config.trackVotes) {
+        if (config.config().trackVotes) {
             send("vote") {
                 putString("vote_type", vote.name)
                 putString("content_type", "post")
@@ -85,7 +86,7 @@ object Track {
     }
 
     fun voteTag(vote: Vote) {
-        if (config.trackVotes) {
+        if (config.config().trackVotes) {
             send("vote") {
                 putString("vote_type", vote.name)
                 putString("content_type", "tag")
@@ -94,7 +95,7 @@ object Track {
     }
 
     fun voteComment(vote: Vote) {
-        if (config.trackVotes) {
+        if (config.config().trackVotes) {
             send("vote") {
                 putString("vote_type", vote.name)
                 putString("content_type", "comment")

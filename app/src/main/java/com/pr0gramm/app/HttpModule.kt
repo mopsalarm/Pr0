@@ -269,7 +269,12 @@ private class DebugInterceptor : Interceptor {
         val request = chain.request()
         debug {
             logger.warn("Delaying request {} for a short time", request.url())
-            TimeUnit.MILLISECONDS.sleep(750)
+
+            if ("pr0gramm.com" in request.url().toString()) {
+                TimeUnit.MILLISECONDS.sleep(750)
+            } else {
+                TimeUnit.MILLISECONDS.sleep(500)
+            }
         }
 
         return chain.proceed(request)

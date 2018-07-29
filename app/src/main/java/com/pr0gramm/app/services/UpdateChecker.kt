@@ -42,7 +42,7 @@ class UpdateChecker {
     private fun check(endpoint: String): Observable<Update> {
         return newRestAdapter(endpoint)
                 .create(UpdateApi::class.java)
-                .get()
+                .fetchUpdate()
                 .filter { update ->
                     logger.info("Installed v{}, found update v{} at {}",
                             currentVersion, update.version, endpoint)
@@ -82,7 +82,7 @@ class UpdateChecker {
 
     private interface UpdateApi {
         @GET("update.json")
-        fun get(): Observable<Update>
+        fun fetchUpdate(): Observable<Update>
     }
 
     companion object {

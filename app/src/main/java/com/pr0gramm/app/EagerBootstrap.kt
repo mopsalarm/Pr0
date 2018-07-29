@@ -9,10 +9,10 @@ import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.time
-import org.kodein.di.Kodein
+import org.kodein.di.DKodein
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
-import rx.subjects.BehaviorSubject
+import rx.Completable
 
 /**
  * Bootstraps a few instances in some other thread.
@@ -20,31 +20,22 @@ import rx.subjects.BehaviorSubject
 object EagerBootstrap {
     private val logger = LoggerFactory.getLogger("EagerBootstrap")
 
-    private val c: BehaviorSubject<Unit> = BehaviorSubject.create()
-
-    fun initEagerSingletons(kodein: Kodein) {
-        doInBackground {
+    fun initEagerSingletons(kodein: () -> DKodein): Completable {
+        return doInBackground {
             try {
                 logger.time("Bootstrapping instances...") {
-                    kodein.instance<Api>()
-                    kodein.instance<ProxyService>()
-                    kodein.instance<PreloadManager>()
-                    kodein.instance<VoteService>()
-                    kodein.instance<UserService>()
-                    kodein.instance<SyncService>()
+                    kodein().apply {
+                        instance<Api>()
+                        instance<ProxyService>()
+                        instance<PreloadManager>()
+                        instance<VoteService>()
+                        instance<UserService>()
+                        instance<SyncService>()
+                    }
                 }
             } catch (error: Throwable) {
                 AndroidUtility.logToCrashlytics(error)
-            } finally {
-                c.onCompleted()
             }
-        }
-    }
-
-    fun ensureComplete() {
-        if (!c.hasCompleted()) {
-            // just wait for it to complete.
-            c.toBlocking().subscribe()
         }
     }
 }

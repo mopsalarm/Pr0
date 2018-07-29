@@ -104,6 +104,7 @@ object AndroidUtility {
         try {
             val trace = StringWriter().also { error.printStackTrace(PrintWriter(it)) }.toString()
             if (EXCEPTION_BLACKLIST.any { it in trace }) {
+                logger.warn("Ignoring exception", error)
                 return
             }
 

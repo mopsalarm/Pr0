@@ -3,6 +3,10 @@
     "version": 148,
     "changes": [
       {
+        "type": "HILFE",
+        "change": "Falls die App für dich beim Start öfters eingefrohren ist und nur grau gezeigt hat, bevor sie nach einigen Sekunden abgestürzt ist, prüfe bitte ob das Verhalten jetzt besser ist oder ob der Fehler immer noch auftritt."
+      },
+      {
         "type": "Neu",
         "change": "Das Alter von Kommentaren und Nachrichten wird nun live aktualisiert."
       },

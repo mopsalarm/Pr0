@@ -167,9 +167,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
 
-//        if (previousFeed == null) {
-//            loader.restart(around = autoScrollOnLoad)
-//        }
+        if (previousFeed == null) {
+            loader.restart(around = autoScrollOnLoad)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -343,7 +343,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                 // always show at least one ad banner - e.g. during load
                 if (state.adsVisible && state.feedItems.isEmpty()) {
-                    // entries += FeedAdapter.Entry.Ad(0)
+                    entries += FeedAdapter.Entry.Ad(0)
                 }
 
                 for ((idx, item) in state.feedItems.withIndex()) {
@@ -354,7 +354,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                     // show an ad banner every ~50 lines
                     if (state.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
-                        // entries += FeedAdapter.Entry.Ad(idx.toLong())
+                        entries += FeedAdapter.Entry.Ad(idx.toLong())
                     }
 
                     entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)

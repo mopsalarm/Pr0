@@ -113,26 +113,28 @@ class FeedAdapter(private val picasso: Picasso,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val entry = getItem(position)
+        ignoreException {
+            val entry = getItem(position)
 
-        when (holder) {
-            is FeedItemViewHolder ->
-                holder.bindTo(picasso, entry as Entry.Item)
+            when (holder) {
+                is FeedItemViewHolder ->
+                    holder.bindTo(picasso, entry as Entry.Item)
 
-            is CommentViewHolder ->
-                holder.bindTo(entry as Entry.Comment)
+                is CommentViewHolder ->
+                    holder.bindTo(entry as Entry.Comment)
 
-            is UserHintViewHolder ->
-                holder.bindTo(entry as Entry.UserHint, userHintClickedListener)
+                is UserHintViewHolder ->
+                    holder.bindTo(entry as Entry.UserHint, userHintClickedListener)
 
-            is UserInfoLoadingViewHolder ->
-                holder.bindTo(entry as Entry.UserLoading)
+                is UserInfoLoadingViewHolder ->
+                    holder.bindTo(entry as Entry.UserLoading)
 
-            is SpacerViewHolder ->
-                holder.bindTo(entry as Entry.Spacer)
+                is SpacerViewHolder ->
+                    holder.bindTo(entry as Entry.Spacer)
 
-            is UserInfoViewHolder ->
-                holder.bindTo(entry as Entry.User)
+                is UserInfoViewHolder ->
+                    holder.bindTo(entry as Entry.User)
+            }
         }
     }
 

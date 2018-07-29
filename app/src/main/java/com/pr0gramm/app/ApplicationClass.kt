@@ -22,6 +22,7 @@ import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
+import org.kodein.di.direct
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
@@ -40,7 +41,14 @@ open class ApplicationClass : Application(), KodeinAware {
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
     init {
-        StrictMode.enableDefaults()
+        if (BuildConfig.DEBUG) {
+            StrictMode.enableDefaults()
+
+        } else {
+            // allow all the dirty stuff.
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
+            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
+        }
     }
 
     override fun onCreate() {
@@ -55,7 +63,7 @@ open class ApplicationClass : Application(), KodeinAware {
         JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
         JobConfig.addLogger(SimpleJobLogger())
 
-        EagerBootstrap.initEagerSingletons(kodein)
+        val eagerSingletons = EagerBootstrap.initEagerSingletons { kodein.direct }
 
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
@@ -72,10 +80,6 @@ open class ApplicationClass : Application(), KodeinAware {
             logger.info("This is a development version.")
 
         } else {
-            // allow all the dirty stuff.
-            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
-            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
-
             logger.info("Initialize fabric")
             Fabric.with(Fabric.Builder(this)
                     .debuggable(false)
@@ -116,7 +120,7 @@ open class ApplicationClass : Application(), KodeinAware {
             MobileAds.setAppMuted(true)
         }
 
-        EagerBootstrap.ensureComplete()
+        eagerSingletons.await()
 
         val bootupTime = System.currentTimeMillis() - startup
         logger.info("App booted in {}ms", bootupTime)
