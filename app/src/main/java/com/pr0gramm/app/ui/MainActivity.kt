@@ -31,6 +31,7 @@ import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
+import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -76,12 +77,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override var scrollHideToolbarListener: ScrollHideToolbarListener by Delegates.notNull()
 
+    // how the app was started as seen by onCreate
+    private var quiet: Boolean = false
+    private var coldStart: Boolean = false
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
 
         // in tests we would like to quiet dialogs on startup
-        val quiet = intent?.getBooleanExtra("MainActivity.quiet", false) ?: false
+        quiet = intent?.getBooleanExtra("MainActivity.quiet", false) ?: false
 
         if (settings.secureApp) {
             // hide app from recent apps list
@@ -102,15 +107,15 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name)
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.addDrawerListener(drawerToggle)
-        drawerToggle.syncState()
 
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
 
-        val coldStart = savedInstanceState == null
-        if (coldStart) {
+        if (savedInstanceState == null) {
             val intent: Intent? = intent
             val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN
+
+            coldStart = true
 
             // reset to sfw only.
             if (settings.feedStartAtSfw && startedFromLauncher) {
@@ -129,8 +134,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 gotoFeedFragment(defaultFeedFilter(), true)
 
                 unless(quiet) {
-                    // only check on normal app start
-                    checkForInfoMessage()
+                    lifecycle()
+                            .takeFirst { it == ActivityEvent.START }
+                            .subscribe { checkForInfoMessage() }
                 }
 
             } else {
@@ -143,38 +149,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             if (singleShotService.isFirstTime("onboarding-activity:1")) {
                 startActivityForResult(Intent(this, IntroActivity::class.java), RequestCodes.INTRO_ACTIVITY)
                 return
-            }
-        }
-
-        if (coldStart && !quiet) {
-            var updateCheck = true
-            var updateCheckDelay = false
-
-            when {
-                singleShotService.firstTimeInVersion("changelog") -> {
-                    updateCheck = false
-
-                    val dialog = ChangeLogDialog()
-                    dialog.show(supportFragmentManager, null)
-                }
-
-                shouldShowFeedbackReminder() -> {
-                    Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                            .configureNewStyle()
-                            .setAction(R.string.okay, { })
-                            .show()
-
-                    updateCheckDelay = true
-                }
-
-                else -> preparePremiumHint()
-            }
-
-            if (updateCheck) {
-                Observable.just<Any>(null)
-                        .delay((if (updateCheckDelay) 10 else 0).toLong(), TimeUnit.SECONDS, mainThread())
-                        .bindToLifecycle(this)
-                        .subscribe { UpdateDialogFragment.checkForUpdates(this, false) }
             }
         }
     }
@@ -405,6 +379,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun showInfoMessage(message: InfoMessageService.Message) {
+        trace { "showInfoMessage($message)" }
+
         if (message.endOfLife >= AndroidUtility.buildVersionCode()) {
             showDialog(this) {
                 contentWithLinks("Support für deine Version ist eingestellt. " +
@@ -432,17 +408,54 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onResume() {
+        trace { "onResume" }
         super.onResume()
         onBackStackChanged()
     }
 
     override fun onStart() {
+        trace { "onStart" }
         super.onStart()
 
         // schedule a sync operation every 45 seconds while the app window is open
         Observable.interval(0, 45, TimeUnit.SECONDS, mainThread())
                 .bindToLifecycle()
                 .subscribe { SyncJob.syncNow() }
+
+
+        if (coldStart && !quiet) {
+            var updateCheck = true
+            var updateCheckDelay = false
+
+            when {
+                singleShotService.firstTimeInVersion("changelog") -> {
+                    updateCheck = false
+
+                    val dialog = ChangeLogDialog()
+                    dialog.show(supportFragmentManager, null)
+                }
+
+                shouldShowFeedbackReminder() -> {
+                    Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                            .configureNewStyle()
+                            .setAction(R.string.okay, { })
+                            .show()
+
+                    updateCheckDelay = true
+                }
+
+                else -> preparePremiumHint()
+            }
+
+            if (updateCheck) {
+                Observable.just(Unit)
+                        .delay((if (updateCheckDelay) 10 else 0).toLong(), TimeUnit.SECONDS, mainThread())
+                        .bindToLifecycle(this)
+                        .subscribe {
+                            UpdateDialogFragment.checkForUpdates(this, false)
+                        }
+            }
+        }
     }
 
     override fun onLogoutClicked() {

@@ -96,7 +96,11 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .dns(instance())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
-                .addInterceptor(DebugInterceptor())
+                .apply {
+                    debug {
+                        addInterceptor(DebugInterceptor())
+                    }
+                }
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
@@ -267,17 +271,22 @@ private class DebugInterceptor : Interceptor {
         checkNotMainThread()
 
         val request = chain.request()
-        debug {
-            logger.warn("Delaying request {} for a short time", request.url())
 
+        val watch = Stopwatch.createStarted()
+        try {
             if ("pr0gramm.com" in request.url().toString()) {
                 TimeUnit.MILLISECONDS.sleep(750)
             } else {
                 TimeUnit.MILLISECONDS.sleep(500)
             }
-        }
 
-        return chain.proceed(request)
+            val response = chain.proceed(request)
+            logger.debug("Delayed request to ${request.url()} took $watch (status=${response.code()})")
+            return response
+        } catch (err: Throwable) {
+            logger.debug("Delayed request to ${request.url()} took $watch, error $err")
+            throw err
+        }
     }
 }
 

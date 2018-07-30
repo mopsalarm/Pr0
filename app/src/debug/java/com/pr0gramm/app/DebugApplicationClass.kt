@@ -27,7 +27,7 @@ class DebugApplicationClass : ApplicationClass() {
             }
         }
 
-        ANRWatchDog(2000)
+        ANRWatchDog(5000)
                 .setIgnoreDebugger(true)
                 .setReportMainThreadOnly()
                 .setANRListener { err -> err.printStackTrace() }

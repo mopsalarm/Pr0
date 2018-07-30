@@ -247,12 +247,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
                 .bindToLifecycle()
-                .subscribe { show -> state = state.copy(adsVisible = show) }
+                .subscribe { show ->
+                    trace { "enableAds($show)" }
+                    state = state.copy(adsVisible = show)
+                }
     }
 
     private fun subscribeToFeedUpdates() {
         loader.updates.bindToLifecycle().subscribe { update ->
-            logger.info("Got update {}", update)
+            trace { "gotFeedUpdate($update)" }
 
             when (update) {
                 is FeedManager.Update.NewFeed -> {
@@ -268,21 +271,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     showErrorLoadingFeedView(true)
                 }
 
-                is FeedManager.Update.LoadingStarted -> {
+                FeedManager.Update.LoadingStarted -> {
                     swipeRefreshLayout.isRefreshing = true
 
                     showNoResultsTextView(false)
                     showErrorLoadingFeedView(false)
                 }
 
-
-                is FeedManager.Update.LoadingStopped ->
+                FeedManager.Update.LoadingStopped ->
                     swipeRefreshLayout.isRefreshing = false
             }
         }
     }
 
     private fun updateAdapterState() {
+        trace { "updateAdapterState()" }
         checkMainThread()
 
         val state = this.state
@@ -975,6 +978,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun refreshRepostInfos(old: Feed, new: Feed) {
+        trace { "refreshRepostInfos" }
+
         val filter = new.filter
         if (filter.feedType !== FeedType.NEW && filter.feedType !== FeedType.PROMOTED)
             return
@@ -1009,6 +1014,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .observeOn(mainThread())
                 .compose(bindToLifecycle<Any>().forCompletable())
                 .doOnCompleted {
+                    this@FeedFragment.trace { "repostInfosUpdated" }
                     logger.debug("Repost info was refreshed, updating state now")
                     state = state.copy(repostRefreshTime = System.currentTimeMillis())
                 }

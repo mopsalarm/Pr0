@@ -27,10 +27,6 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
 
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
-    override fun getContext(): Context {
-        return super.getContext()!!
-    }
-
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
@@ -74,7 +70,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
     }
 
     protected val themedContext: Context
-        get() = dialog?.context ?: context
+        get() = dialog?.context ?: requireContext()
 
     override fun dismiss() {
         try {

@@ -17,6 +17,7 @@ import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.directKodein
+import com.pr0gramm.app.util.trace
 import com.trello.rxlifecycle.android.ActivityEvent
 import org.kodein.di.erased.instance
 import rx.Observable
@@ -33,7 +34,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
         val content = getString(R.string.new_update_available, update.changelog)
 
         return dialog(this) {
-            content(AndroidUtility.linkify(context, content))
+            content(AndroidUtility.linkify(requireContext(), content))
             positive(R.string.install_update) { activity?.let { UpdateChecker.download(it, update) } }
         }
     }
@@ -59,6 +60,8 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
          * @param activity The activity that starts this update check.
          */
         fun checkForUpdates(activity: BaseAppCompatActivity, interactive: Boolean) {
+            trace { "checkForUpdates" }
+
             val shared = activity.directKodein.instance<SharedPreferences>()
 
             if (!interactive && !BuildConfig.DEBUG) {
@@ -86,6 +89,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     .run { busyOperator?.let { lift(it) } ?: this }
                     .subscribeWithErrorHandling(activity.supportFragmentManager) { update ->
                         if (interactive || update != null) {
+                            trace { "showUpdateDialog" }
                             newInstance(update).show(activity.supportFragmentManager, null)
                         }
                     }

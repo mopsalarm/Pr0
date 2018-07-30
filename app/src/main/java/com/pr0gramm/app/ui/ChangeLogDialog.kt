@@ -28,14 +28,14 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
     private val recyclerView: RecyclerView by bindView(R.id.changelog)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(context) {
+        return dialog(requireContext()) {
             layout(R.layout.changelog)
             positive()
         }
     }
 
     override fun onDialogViewCreated() {
-        val changes = loadChangelog(context)
+        val changes = loadChangelog(requireContext())
         recyclerView.adapter = changeAdapter(changes)
         recyclerView.layoutManager = LinearLayoutManager(context)
     }

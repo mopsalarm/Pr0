@@ -30,7 +30,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     private var commentId: Long? by optionalFragmentArgument(0)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(context) {
+        return dialog(requireContext()) {
             layout(R.layout.report_item)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.okay) { onConfirmClicked() }

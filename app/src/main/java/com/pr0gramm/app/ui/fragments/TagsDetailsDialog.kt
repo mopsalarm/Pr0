@@ -23,7 +23,6 @@ import gnu.trove.set.hash.TLongHashSet
 import org.kodein.di.erased.instance
 import rx.functions.Action0
 import rx.functions.Action1
-import java.util.*
 
 /**
  */
@@ -37,11 +36,10 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     private val blockUser: CheckBox by bindView(R.id.block_user)
     private val blockUserDays: TextView by bindView(R.id.block_user_days)
 
-    private val tags: ArrayList<Api.TagDetails.TagInfo> = ArrayList()
     private val selected: TLongSet = TLongHashSet()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(context) {
+        return dialog(requireContext()) {
             layout(R.layout.admin_tags_details)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.delete) { onDeleteClicked() }

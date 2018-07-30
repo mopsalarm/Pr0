@@ -39,7 +39,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layout = if (user != null) R.layout.admin_ban_user else R.layout.admin_delete_item
 
-        return dialog(context) {
+        return dialog(requireContext()) {
             layout(layout)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.okay) { onConfirmClicked() }

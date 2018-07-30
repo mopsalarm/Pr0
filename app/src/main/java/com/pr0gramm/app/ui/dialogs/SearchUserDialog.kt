@@ -22,7 +22,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
     private val inputView: AutoCompleteTextView by bindView(R.id.username)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(context) {
+        return dialog(requireContext()) {
             layout(R.layout.search_user_dialog)
             positive(R.string.action_search_simple) { onSearchClicked() }
             negative { dismiss() }

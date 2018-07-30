@@ -2,6 +2,7 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.trace
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscription
@@ -67,6 +68,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
     }
 
     fun stop() {
+        trace { "stop" }
         subscription.unsubscribe()
     }
 
@@ -77,8 +79,8 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
         subscription = observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
-                .doOnSubscribe { subject.onNext(Update.LoadingStarted()) }
-                .doOnUnsubscribe { subject.onNext(Update.LoadingStopped()) }
+                .doOnSubscribe { subject.onNext(Update.LoadingStarted) }
+                .doOnUnsubscribe { subject.onNext(Update.LoadingStopped) }
                 .subscribe({ handleFeedUpdate(it) }, { publishError(it) })
 
     }
@@ -119,9 +121,9 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
     }
 
     sealed class Update {
-        class LoadingStarted : Update()
-        class LoadingStopped : Update()
-        class Error(val err: Throwable) : Update()
-        class NewFeed(val feed: Feed, val remote: Boolean = false) : Update()
+        object LoadingStarted : Update()
+        object LoadingStopped : Update()
+        data class Error(val err: Throwable) : Update()
+        data class NewFeed(val feed: Feed, val remote: Boolean = false) : Update()
     }
 }

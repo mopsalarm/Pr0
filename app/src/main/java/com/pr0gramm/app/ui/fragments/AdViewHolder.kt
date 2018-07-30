@@ -13,10 +13,7 @@ import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.dip2px
-import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.observeOnMainThread
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
 import org.slf4j.LoggerFactory
@@ -29,12 +26,14 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
         private val logger = LoggerFactory.getLogger("AdViewHolder")
 
         fun new(context: Context): AdViewHolder {
+            trace { "newContainerView" }
             val container = FrameLayout(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT)
             }
 
+            trace { "newPlaceholderView" }
             val placeholder = ImageView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -54,6 +53,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             val adService = context.directKodein.instance<AdService>()
 
+            trace { "newAdView()" }
             val adView = adService.newAdView(context)
             adView.adSize = AdSize(AdSize.FULL_WIDTH, 70)
 
@@ -61,9 +61,12 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             // now load the ad and show it, once it finishes loading
             adService.load(adView, Config.AdType.FEED)
+                    .subscribeOnBackground()
                     .observeOnMainThread()
+                    .debug("AdService.load")
                     .compose(RxLifecycleAndroid.bindView(container))
                     .subscribe { state ->
+                        trace { "adStateChanged($state)" }
                         if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
                             logger.info("Ad was loaded, showing ad now.")
                             container.removeView(placeholder)

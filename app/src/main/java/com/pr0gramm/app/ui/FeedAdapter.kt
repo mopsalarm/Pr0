@@ -55,11 +55,12 @@ class FeedAdapter(private val picasso: Picasso,
             throw IllegalArgumentException("Error in Offset() mapping")
     }
 
+    @Volatile
     var latestEntries: List<Entry> = listOf()
         private set
 
     private val viewTypesByType = IdentityHashMap(Offset.values().associateBy { it.type })
-    private val viewTypesByIndex = Offset.values()
+    private val viewTypesByIndex = Offset.values().toList()
 
     fun destroyAdView() {
         lastSeenAdview?.removeFromParent()
@@ -78,6 +79,8 @@ class FeedAdapter(private val picasso: Picasso,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        trace { "onCreateViewHolder($viewType)" }
+
         val context = parent.context
         
         return when (viewTypesByIndex[viewType]) {
@@ -115,6 +118,7 @@ class FeedAdapter(private val picasso: Picasso,
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         ignoreException {
             val entry = getItem(position)
+            trace { "onBindViewHolder($position, item=${entry.javaClass.simpleName})" }
 
             when (holder) {
                 is FeedItemViewHolder ->
