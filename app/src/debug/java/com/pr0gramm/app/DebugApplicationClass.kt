@@ -15,9 +15,10 @@ class DebugApplicationClass : ApplicationClass() {
     init {
         StrictMode.enableDefaults()
 
-        if (false) {
+        if (true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Debug.startMethodTracing(null, 128 * 1024 * 1024)
+                // Debug.startMethodTracing(null, 128 * 1024 * 1024)
+                Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 100)
 
                 Observable.fromCallable { Debug.stopMethodTracing() }
                         .delaySubscription(4, TimeUnit.SECONDS)

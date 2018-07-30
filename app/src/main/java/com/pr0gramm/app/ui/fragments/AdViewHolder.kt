@@ -52,9 +52,6 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             container.addView(placeholder)
 
-            val marker = Object()
-            container.tag = marker
-
             val adService = context.directKodein.instance<AdService>()
 
             val adView = adService.newAdView(context)
@@ -67,12 +64,10 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
                     .observeOnMainThread()
                     .compose(RxLifecycleAndroid.bindView(container))
                     .subscribe { state ->
-                        if (container.tag === marker) {
-                            if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
-                                logger.info("Ad was loaded, showing ad now.")
-                                container.removeView(placeholder)
-                                container.addView(adView)
-                            }
+                        if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
+                            logger.info("Ad was loaded, showing ad now.")
+                            container.removeView(placeholder)
+                            container.addView(adView)
                         }
                     }
 
