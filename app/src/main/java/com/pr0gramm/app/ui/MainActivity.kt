@@ -638,7 +638,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
 class MainThreadException : Exception("ANR - main thread hangs.")
 
+private var trackedMainThread = AtomicBoolean(false)
+
 private fun trackMainThreadNotResponding() {
+    if (!trackedMainThread.compareAndSet(false, true))
+        return
+
     val anr = AtomicBoolean(true)
     Observable
             .fromCallable { Handler(Looper.getMainLooper()).run { anr.set(false) }; Unit }
