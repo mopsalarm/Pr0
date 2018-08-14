@@ -944,13 +944,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        listener.itemLongClicked().subscribe { view ->
+        listener.itemLongClicked().ignoreError().subscribe { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 openQuickPeekDialog(holder.item)
             }
         }
 
-        listener.itemLongClickEnded().subscribe { dismissQuickPeekDialog() }
+        listener.itemLongClickEnded()
+                .ignoreError()
+                .subscribe { dismissQuickPeekDialog() }
 
         settings.changes()
                 .bindToLifecycleAsync()
