@@ -8,7 +8,7 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.2.51"
+        VersionKotlin = "1.2.60"
         VersionSupportLibrary = "27.1.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.4.0"
@@ -198,6 +198,7 @@ dependencies {
     implementation "dnsjava:dnsjava:2.1.8"
     
     //noinspection GradleDependency
+    //needs to stay at 2.5, 2.6 is not compatible with older android versions.
     implementation "commons-io:commons-io:2.5"
 
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
@@ -206,7 +207,7 @@ dependencies {
 
     implementation "com.github.apl-devs:appintro:v4.2.3"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.3'
 
     debugImplementation 'com.android.support:multidex:1.0.3'
     debugImplementation 'com.github.anrwatchdog:anrwatchdog:1.3.0'
@@ -235,7 +236,7 @@ dependencies {
     implementation 'org.kodein.di:kodein-di-erased-jvm:5.2.0'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.natpryce:hamkrest:1.4.2.2'
+    testImplementation 'com.natpryce:hamkrest:1.5.0.0'
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
