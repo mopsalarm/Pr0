@@ -1,5 +1,14 @@
 [
   {
+    "version": 149,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Verschiedene Abstürzte behoben"
+      }
+    ]
+  },
+  {
     "version": 148,
     "changes": [
       {
