@@ -3,6 +3,7 @@ package com.pr0gramm.app.util
 import android.support.v4.util.CircularArray
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import com.pr0gramm.app.BuildConfig
 import pl.brightinventions.slf4android.MessageValueSupplier
 import java.util.logging.Handler
@@ -14,9 +15,14 @@ import java.util.logging.LogRecord
 class LogHandler : Handler() {
     private val messageValueSupplier = MessageValueSupplier()
 
-    private val crashlytics by lazy(LazyThreadSafetyMode.NONE) {
-        Crashlytics.getInstance().core
-    }
+    private var cachedCrashlytics: CrashlyticsCore? = null
+        get() {
+            if (field == null) {
+                field = Crashlytics.getInstance().core
+            }
+
+            return field
+        }
 
     override fun publish(record: java.util.logging.LogRecord) {
         val logThis = BuildConfig.DEBUG || record.level.intValue() >= Level.INFO.intValue()
@@ -39,7 +45,7 @@ class LogHandler : Handler() {
         val androidLogLevel = logRecord.logLevel.androidLevel
 
         if (!BuildConfig.DEBUG) {
-            crashlytics.log(androidLogLevel, tag, formatted)
+            cachedCrashlytics?.log(androidLogLevel, tag, formatted)
         } else {
             Log.println(androidLogLevel, tag, formatted)
         }
