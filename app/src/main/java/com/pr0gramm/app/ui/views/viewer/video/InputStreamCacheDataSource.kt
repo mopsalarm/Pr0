@@ -4,8 +4,8 @@ import android.net.Uri
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import com.pr0gramm.app.io.Cache
-import org.apache.commons.io.IOUtils
-import org.apache.commons.io.input.BoundedInputStream
+import com.pr0gramm.app.util.BoundedInputStream
+import com.pr0gramm.app.util.closeQuietly
 import java.io.InputStream
 
 /**
@@ -17,12 +17,14 @@ internal class InputStreamCacheDataSource(private val uri: Uri, private val cach
         cache.get(uri).use { entry ->
 
             // get the input stream from the entry.
-            inputStream = entry.inputStreamAt(dataSpec.position.toInt())
+            var inputStream = entry.inputStreamAt(dataSpec.position.toInt())
 
             if (dataSpec.length >= 0) {
-                // limit amount to the requestet length.
-                inputStream = BoundedInputStream(inputStream!!, dataSpec.length)
+                // limit amount to the requested length.
+                inputStream = BoundedInputStream(inputStream, dataSpec.length)
             }
+
+            this.inputStream = inputStream
 
             return entry.totalSize.toLong()
         }
@@ -30,7 +32,7 @@ internal class InputStreamCacheDataSource(private val uri: Uri, private val cach
 
     override fun close() {
         if (inputStream != null) {
-            IOUtils.closeQuietly(inputStream)
+            inputStream.closeQuietly()
             inputStream = null
         }
     }

@@ -3,13 +3,13 @@ package com.pr0gramm.app.io
 import android.net.Uri
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.SettableFuture
+import com.pr0gramm.app.util.closeQuietly
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.concurrent.ExecutionException
@@ -197,7 +197,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
         } catch (err: Exception) {
             // resetting fp on error.
-            IOUtils.closeQuietly(fp)
+            fp.closeQuietly()
 
             // cleanup
             reset()
@@ -355,7 +355,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             // close if ref count is zero.
             if (this.refCount.get() <= 0 && this.fp != null) {
                 logger.debug("Closing cache file for entry {} now.", this)
-                IOUtils.closeQuietly(fp)
+                fp.closeQuietly()
                 reset()
             }
         }

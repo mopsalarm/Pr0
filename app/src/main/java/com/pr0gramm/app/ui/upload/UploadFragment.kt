@@ -37,7 +37,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.apache.commons.io.input.BoundedInputStream
 import org.kodein.di.erased.instance
 import rx.Observable
 import java.io.File
@@ -440,7 +439,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 FileOutputStream(target).use { output ->
                     output.write(bytes, 0, count)
 
-                    val maxSize = 1024L * 1024 * 24
+                    val maxSize = 1024 * 1024 * 48L
                     val copied = BoundedInputStream(input, maxSize).copyTo(output)
                     logger.info("Copied {}kb", copied / 1024)
 

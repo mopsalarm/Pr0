@@ -5,8 +5,8 @@ import com.pr0gramm.app.decodeBase64String
 import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.BoundedInputStream
 import fi.iki.elonen.NanoHTTPD
-import org.apache.commons.io.input.BoundedInputStream
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream

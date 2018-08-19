@@ -8,11 +8,11 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.proxy.ProxyService
+import com.pr0gramm.app.util.CountingInputStream
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.readStream
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.apache.commons.io.input.CountingInputStream
 import org.slf4j.LoggerFactory
 import rx.Emitter
 import rx.Observable

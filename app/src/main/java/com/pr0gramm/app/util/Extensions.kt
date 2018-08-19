@@ -28,7 +28,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import org.apache.commons.io.IOUtils
 import org.kodein.di.DKodein
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -41,6 +40,7 @@ import rx.functions.Action1
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
+import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -72,10 +72,51 @@ fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observa
 
 
 fun InputStream.readSimple(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
-    return IOUtils.read(this, b, off, len)
+    if (len < 0) {
+        throw IllegalArgumentException("Length must not be negative: $len")
+    }
+
+    var remaining = len
+    while (remaining > 0) {
+        val location = len - remaining
+        val count = read(b, off + location, remaining)
+        if (count == -1) {
+            break
+        }
+
+        remaining -= count
+    }
+
+    return len - remaining
 }
 
-fun InputStream.skipSimple(len: Long): Long = IOUtils.skip(this, len)
+// scratch buffer for skipping
+private val skipScratchBuffer = ByteArray(16 * 1024)
+
+fun InputStream.skipSimple(len: Long): Long {
+    if (len < 0) {
+        throw IllegalArgumentException("Length must not be negative: $len")
+    }
+
+    // try to quickly skip using 'skip'
+    val skipped = skip(len)
+    if (skipped == len) {
+        return skipped
+    }
+
+    // read the rest into a scratch buffer to skip the bytes we wanted to skip
+    var remaining = len - skipped
+    while (remaining > 0) {
+        val count = read(skipScratchBuffer, 0, remaining.coerceAtMost(skipScratchBuffer.size.toLong()).toInt())
+        if (count == -1) {
+            break
+        }
+
+        remaining -= count
+    }
+
+    return len - remaining
+}
 
 inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (ByteArray, Int) -> Unit) {
     val buffer = ByteArray(bufferSize)
@@ -518,5 +559,13 @@ inline fun <reified T> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
         val type = T::class.java.simpleName
         traceLogger.debug("[${Thread.currentThread().name}] $type.${msg()}")
+    }
+}
+
+fun Closeable?.closeQuietly() {
+    try {
+        this?.close()
+    } catch (err: Exception) {
+        // ignored
     }
 }
