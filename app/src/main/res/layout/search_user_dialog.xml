@@ -26,7 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp">
 
-            <AutoCompleteTextView
+            <com.pr0gramm.app.ui.views.PlainTextAutoCompleteTextView
+                style="@style/Widget.AppCompat.AutoCompleteTextView"
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -512,7 +512,7 @@ inline fun <reified T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
     return result
 }
 
-val traceLogger = LoggerFactory.getLogger("Trace")
+val traceLogger: Logger = LoggerFactory.getLogger("Trace")
 
 inline fun <reified T> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {

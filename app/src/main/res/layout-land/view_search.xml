@@ -22,7 +22,8 @@
             android:layout_height="?actionBarSize"
             android:src="@drawable/ic_arrow_back_24dp"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/search_term"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -90,7 +91,8 @@
                 android:text="@string/search_without_custom_tags"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
-            <EditText
+            <com.pr0gramm.app.ui.views.PlainEditText
+                style="@style/Widget.AppCompat.EditText"
                 android:id="@+id/without_tags_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
