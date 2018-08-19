@@ -17,7 +17,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecInfo
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.LoopingMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection
@@ -124,10 +123,9 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val extractorsFactory = ExtractorsFactory { arrayOf(FragmentedMp4Extractor(), Mp4Extractor()) }
 
-        val mediaSource = LoopingMediaSource(
-                ExtractorMediaSource.Factory(DataSourceFactory(context, uri))
-                        .setExtractorsFactory(extractorsFactory)
-                        .createMediaSource(uri))
+        val mediaSource = ExtractorMediaSource.Factory(DataSourceFactory(context, uri))
+                .setExtractorsFactory(extractorsFactory)
+                .createMediaSource(uri)
 
         // apply volume before starting the player
         applyVolumeState()
@@ -135,6 +133,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         logger.info("Preparing exo player now'")
 
         exo.prepare(mediaSource, false, false)
+        exo.repeatMode = Player.REPEAT_MODE_ONE
         exo.playWhenReady = true
 
         applyVolumeState()
