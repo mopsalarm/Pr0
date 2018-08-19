@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Verschiedene Abstürzte behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Kommentare und Tags wurden manchmal nicht angezeigt, wenn man 'Zurück gegangen' ist."
       }
     ]
   },
