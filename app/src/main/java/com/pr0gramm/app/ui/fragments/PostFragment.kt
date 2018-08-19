@@ -110,7 +110,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         voteService.getVote(feedItem).replay(1).refCount()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(dispatch = false) {
+    override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.NEVER) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
@@ -152,7 +152,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.ALWAYS) {
+
         super.onViewCreated(view, savedInstanceState)
 
         val activity = requireActivity()
