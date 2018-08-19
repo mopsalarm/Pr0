@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import com.pr0gramm.app.ui.views.handlePlainTextPaste
 import com.pr0gramm.app.util.AndroidUtility
 
 /**
@@ -65,6 +66,16 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
         } else {
             anchorView = null
             dropDownAnchor = View.NO_ID
+        }
+    }
+
+    // Intercept and modify the paste event.
+    // Let everything else through unchanged.
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        return if (id == android.R.id.paste) {
+            handlePlainTextPaste(this) { super.onTextContextMenuItem(it) }
+        } else {
+            super.onTextContextMenuItem(id)
         }
     }
 }

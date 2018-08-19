@@ -9,8 +9,6 @@ import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.TextView
 
-private const val OBJECT_UNICODE = '\uFFFC'
-
 class PlainTextAutoCompleteTextView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : AppCompatAutoCompleteTextView(context, attrs, defStyleAttr) {
@@ -41,7 +39,7 @@ class PlainEditText @JvmOverloads constructor(
     }
 }
 
-private inline fun handlePlainTextPaste(view: EditText, superCall: (id: Int) -> Boolean): Boolean {
+inline fun handlePlainTextPaste(view: EditText, superCall: (id: Int) -> Boolean): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         return superCall(android.R.id.pasteAsPlainText)
     }
@@ -66,7 +64,7 @@ private inline fun handlePlainTextPaste(view: EditText, superCall: (id: Int) -> 
     val pasteStringLength = selectionStart - selectionStartPrePaste
 
     // Only going to handle the case where the pasted object is the image
-    if (pasteStringLength == 1 && text[startIndex] == OBJECT_UNICODE) {
+    if (pasteStringLength == 1 && text[startIndex] == '\uFFFC') {
         val clipboard = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         if (clip != null) {

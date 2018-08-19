@@ -27,14 +27,16 @@
         android:layout_marginRight="16dp"
         android:orientation="vertical">
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/username"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:hint="@string/hint_username"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/password"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

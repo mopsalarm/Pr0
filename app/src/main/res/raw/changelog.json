@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Kommentare und Tags wurden manchmal nicht angezeigt, wenn man 'Zurück gegangen' ist."
+      },
+      {
+        "type": "Fix",
+        "change": "Einfügen von formatiertem Text auf neuen Androidversionen gefixt."
       }
     ]
   },

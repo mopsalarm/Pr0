@@ -31,7 +31,8 @@
                 android:text="@string/feedback_general"/>
         </RadioGroup>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/feedback_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,7 +42,8 @@
             android:inputType="textPersonName"
             android:padding="8sp"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/feedback_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,7 +53,8 @@
             android:inputType="textEmailSubject"
             android:padding="8sp"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/feedback_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,7 +64,8 @@
             android:inputType="textEmailAddress"
             android:padding="8sp"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/feedback_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,7 +79,7 @@
             android:padding="8sp">
 
             <requestFocus/>
-        </EditText>
+        </com.pr0gramm.app.ui.views.PlainEditText>
 
         <TextView
             android:id="@+id/feedback_deletion_hint"

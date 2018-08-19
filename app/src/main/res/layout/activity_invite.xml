@@ -45,7 +45,8 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             tools:text="Remaining invites: loading…"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.views.PlainEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/mail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
