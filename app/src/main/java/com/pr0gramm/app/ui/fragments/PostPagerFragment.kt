@@ -7,7 +7,6 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
@@ -133,12 +132,6 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         // and activate the next one
         activePostFragment = newActiveFragment.also { fragment ->
             fragment.setActive(true)
-
-            // try scroll to initial comment. This will only work if the comment
-            // is a part of the given post and will otherwise do nothing
-            // arguments?.getParcelable<CommentRef>(ARG_START_ITEM_COMMENT_REF)?.let { commentRef ->
-            //    fragment.autoScrollToComment(commentRef)
-            // }
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
@@ -26,6 +27,14 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
     override val kodeinTrigger = KodeinTrigger()
 
     override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
+
+    init {
+        debug {
+            lifecycle().subscribe { event ->
+                logger.info("Lifecycle {}: {}", System.identityHashCode(this), event)
+            }
+        }
+    }
 
     override fun getContext(): Context {
         return super.getContext()!!

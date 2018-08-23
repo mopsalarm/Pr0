@@ -10,7 +10,9 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import com.jakewharton.rxbinding.support.design.widget.dismisses
-import com.pr0gramm.app.*
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
@@ -924,7 +926,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         } catch (error: Exception) {
             logger.warn("Error while showing post", error)
         }
-
     }
 
     /**
