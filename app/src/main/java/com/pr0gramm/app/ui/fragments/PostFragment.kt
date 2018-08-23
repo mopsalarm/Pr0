@@ -209,7 +209,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         adapterComments.updates
                 .observeOnMainThread()
                 .bindToLifecycle()
-                .subscribe { tryAutoScrollToCommentNow() }
+                .subscribe { tryAutoScrollToCommentNow(smoothScroll = false) }
 
         userService.loginStates
                 .observeOnMainThread(firstIsSync = true)
@@ -1029,15 +1029,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun autoScrollToComment(commentId: Long, delayed: Boolean = false) {
+    private fun autoScrollToComment(commentId: Long, delayed: Boolean = false, smoothScroll: Boolean = false) {
         commentRef = CommentRef(feedItem.id, commentId)
 
         if (!delayed) {
-            tryAutoScrollToCommentNow()
+            tryAutoScrollToCommentNow(smoothScroll)
         }
     }
 
-    private fun tryAutoScrollToCommentNow() {
+    private fun tryAutoScrollToCommentNow(smoothScroll: Boolean) {
         val commentId = commentRef?.commentId ?: return
 
         // get the current recycler view and adapter.
@@ -1049,7 +1049,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         if (idx >= 0) {
-            recyclerView.scrollToPosition(idx)
+            if (smoothScroll) {
+                val linearSmoothScroller = OverscrollLinearSmoothScroller(recyclerView.context)
+                linearSmoothScroller.targetPosition = idx
+                recyclerView.layoutManager.startSmoothScroll(linearSmoothScroller)
+
+            } else {
+                recyclerView.scrollToPosition(idx)
+            }
 
             commentTreeHelper.selectComment(commentId)
             commentRef = null
@@ -1230,6 +1237,43 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun onReportCommentClicked(comment: Api.Comment) {
             val dialog = ReportDialog.forComment(feedItem, comment.id)
             dialog.show(fragmentManager, null)
+        }
+
+        override fun itemClicked(ref: Linkify.Item): Boolean {
+            if (ref.item != feedItem.id) {
+                return false
+            }
+
+            // scroll to the top
+            recyclerView?.let { recyclerView ->
+                recyclerView.adapter?.itemCount?.takeIf { it > 0 }?.let {
+                    recyclerView.smoothScrollToPosition(0)
+                }
+            }
+
+            return true
+        }
+
+        override fun commentClicked(ref: Linkify.Comment): Boolean {
+            if (ref.item == feedItem.id) {
+                val hasComment = adapterComments.items.any { item ->
+                    item is PostAdapter.Item.CommentItem && item.commentTreeItem.commentId == ref.comment
+                }
+
+                if (hasComment) {
+                    autoScrollToComment(ref.comment, smoothScroll = true)
+                } else {
+                    val rootView = view ?: return false
+                    Snackbar.make(rootView, R.string.hint_comment_not_found, Snackbar.LENGTH_SHORT)
+                            .configureNewStyle()
+                            .setAction(R.string.doh) { }
+                            .show()
+                }
+
+                return true
+            }
+
+            return false
         }
     }
 

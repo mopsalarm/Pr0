@@ -172,7 +172,7 @@ class CommentView(val parent: ViewGroup,
             actionListener.onCommentAuthorClicked(comment)
         }
 
-        AndroidUtility.linkifyClean(this.content, comment.content)
+        Linkify.linkifyClean(this.content, comment.content, actionListener)
 
         // show the points
         val scoreVisibleThreshold = Instant.now() - Duration.hours(1)
@@ -271,7 +271,7 @@ class CommentView(val parent: ViewGroup,
         return true
     }
 
-    interface Listener {
+    interface Listener : Linkify.Callback {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean
 
         fun onReplyClicked(comment: Api.Comment)

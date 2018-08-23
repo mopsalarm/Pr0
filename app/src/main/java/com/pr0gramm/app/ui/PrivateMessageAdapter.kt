@@ -12,7 +12,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.UsernameView
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.findOptional
 import com.pr0gramm.app.util.visible
@@ -51,7 +51,7 @@ class PrivateMessageAdapter(
                 if (item.message.isSent) R.color.message_text_sent else R.color.message_text_received))
 
         // the text of the message
-        AndroidUtility.linkifyClean(holder.text, item.message.message)
+        Linkify.linkifyClean(holder.text, item.message.message)
 
         // sender info
         holder.sender.setSingleLine(true)

@@ -14,7 +14,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.trace
@@ -34,7 +34,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
         val content = getString(R.string.new_update_available, update.changelog)
 
         return dialog(this) {
-            content(AndroidUtility.linkify(requireContext(), content))
+            content(Linkify.linkify(requireContext(), content))
             positive(R.string.install_update) { activity?.let { UpdateChecker.download(it, update) } }
         }
     }

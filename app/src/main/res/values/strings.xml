@@ -537,5 +537,7 @@
     <string name="pref_sync_backup_summary">Automatically sync and backup seen images</string>
     <string name="error_could_not_load_comments">Could not load comments.\nSwipe down to try again.</string>
     <string name="loading_comments">Loading comments…</string>
+    <string name="hint_comment_not_found">This comment does not exist.</string>
+    <string name="doh">D\'oh!</string>
 </resources>
 

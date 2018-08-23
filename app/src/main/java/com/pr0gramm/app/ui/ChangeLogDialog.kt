@@ -16,6 +16,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
 import com.squareup.moshi.JsonClass
 import okio.Okio
@@ -72,7 +73,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
 
                     if (change.change.contains("://")) {
                         // might contains links that we want to display?
-                        AndroidUtility.linkify(textView, SpannableStringBuilder.valueOf(text))
+                        Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
                     } else {
                         textView.text = text
                     }

@@ -20,22 +20,15 @@ import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.net.ConnectivityManagerCompat
-import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
-import android.text.style.URLSpan
-import android.text.util.Linkify
 import android.util.LruCache
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.TextView
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
-import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.PrivateBrowserSpan
 import com.pr0gramm.app.ui.truss
 import okhttp3.HttpUrl
 import org.slf4j.LoggerFactory
@@ -44,17 +37,12 @@ import rx.util.async.Async
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.regex.Pattern
 
 /**
  * Place to put everything that belongs nowhere. Thanks Obama.
  */
 object AndroidUtility {
     private val logger = LoggerFactory.getLogger("AndroidUtility")
-
-    private val RE_USERNAME = Pattern.compile("(?<![a-zA-Z0-9])@[A-Za-z0-9]+")
-    private val RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
-    private val RE_GENERIC_SHORT_LINK = Pattern.compile("(?<!reddit.com)/((?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
 
     private val EXCEPTION_BLACKLIST = listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
 
@@ -181,57 +169,6 @@ object AndroidUtility {
     fun toFile(uri: Uri): File {
         require("file" == uri.scheme) { "not a file:// uri" }
         return File(uri.path)
-    }
-
-    private val MALICIOUS_COMMENT_CHARS = Pattern.compile("([\\p{Mn}\\p{Mc}\\p{Me}])[\\p{Mn}\\p{Mc}\\p{Me}]+")
-
-    fun linkifyClean(view: TextView, content: String) {
-        var cleanedContent = content.take(1024 * 32)
-        cleanedContent = MALICIOUS_COMMENT_CHARS.matcher(cleanedContent).replaceAll("$1")
-        cleanedContent = RE_GENERIC_LINK.matcher(cleanedContent).replaceAll("$1")
-
-        linkify(view, SpannableStringBuilder.valueOf(cleanedContent))
-    }
-
-    fun linkify(context: Context, originalText: CharSequence): CharSequence {
-        val text = SpannableStringBuilder.valueOf(originalText)
-        val base = UriHelper.of(context).base()
-        val scheme = base.scheme + "://"
-
-        Linkify.addLinks(text, Linkify.WEB_URLS)
-
-        Linkify.addLinks(text, RE_USERNAME, scheme, null) { match, _ ->
-            val user = match.group().substring(1)
-            base.buildUpon().path("/user").appendEncodedPath(user).toString()
-        }
-
-        Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null) { match, _ ->
-            base.buildUpon().appendEncodedPath(match.group(1)).toString()
-        }
-
-        val settings = Settings.get()
-        if (settings.useIncognitoBrowser) {
-            val spans = text.getSpans(0, text.length, URLSpan::class.java)
-            for (span in spans) {
-                val url = span.url
-                if (url.contains("://pr0gramm.com/"))
-                    continue
-
-                val start = text.getSpanStart(span)
-                val end = text.getSpanEnd(span)
-                val flags = text.getSpanFlags(span)
-                text.removeSpan(span)
-
-                text.setSpan(PrivateBrowserSpan(url), start, end, flags)
-            }
-        }
-
-        return text
-    }
-
-    fun linkify(view: TextView, text: SpannableStringBuilder) {
-        view.text = linkify(view.context, text)
-        view.movementMethod = NonCrashingLinkMovementMethod()
     }
 
     fun buildVersionCode(): Int {

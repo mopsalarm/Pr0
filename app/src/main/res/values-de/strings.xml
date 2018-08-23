@@ -515,4 +515,6 @@
     <string name="pref_sync_backup_summary">Automatisch als gesehen markierte Bilder mit anderen Geräten synchronisieren und backupen</string>
     <string name="error_could_not_load_comments">Kommentare konnten nicht geladen werden.</string>
     <string name="loading_comments">Kommentare werden geladen…</string>
+    <string name="hint_comment_not_found">Dieser Kommentar existiert nicht.</string>
+    <string name="doh">Mist</string>
 </resources>
