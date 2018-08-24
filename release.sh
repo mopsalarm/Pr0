@@ -55,7 +55,7 @@ function deploy_upload_apk() {
 }
 
 # compile code and create apks
-rm -rf -- api-kotlin/build/* app/build/*
+rm -rf -- app/build/*
 ./gradlew assembleRelease generateDebugSources "$@"
 
 # verify apk
