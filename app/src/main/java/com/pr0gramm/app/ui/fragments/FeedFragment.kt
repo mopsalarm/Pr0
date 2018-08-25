@@ -637,7 +637,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
 
         val layoutManager = recyclerView.layoutManager as? GridLayoutManager
-        return layoutManager?.let {
+        return layoutManager?.let { _ ->
             // if the first row is visible, skip this stuff.
             val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
             if (firstCompletelyVisible == 0 || firstCompletelyVisible == RecyclerView.NO_POSITION)
@@ -649,7 +649,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             val idx = (lastCompletelyVisible).coerceIn(items.indices)
             items.take(idx)
-                    .mapNotNull { (it as? FeedAdapter.Entry.Item)?.item }
+                    .mapNotNull { item -> (item as? FeedAdapter.Entry.Item)?.item }
                     .lastOrNull { contentType.contains(it.contentType) }
         }
     }

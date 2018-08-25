@@ -238,7 +238,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         debug {
             logger.info("Stack: {}", (0 until supportFragmentManager.backStackEntryCount).joinToString(" -> ") {
-                supportFragmentManager.getBackStackEntryAt(it).name
+                supportFragmentManager.getBackStackEntryAt(it).name ?: "null"
             })
         }
     }
