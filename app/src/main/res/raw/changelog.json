@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Wenn man nach dem Anschauen vieler Posts auf zurück geht, scrollt der Feed zum letzten gesehenen Post."
+      },
+      {
+        "type": "Fix",
         "change": "Verschiedene Abstürzte behoben"
       },
       {
