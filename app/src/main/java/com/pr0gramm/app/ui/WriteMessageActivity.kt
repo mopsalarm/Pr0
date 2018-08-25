@@ -11,7 +11,10 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.parcel.*
+import com.pr0gramm.app.parcel.MessageParceler
+import com.pr0gramm.app.parcel.NewCommentParceler
+import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.BusyDialog
@@ -62,7 +65,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val empty = s.toString().trim().isEmpty()
                 buttonSubmit.isEnabled = !empty
-                supportInvalidateOptionsMenu()
+                invalidateOptionsMenu()
 
                 // cache to restore it later.
                 CACHE.put(messageCacheKey, s.toString())
@@ -83,12 +86,13 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return OptionMenuHelper.dispatch(this, item)
-    }
+        when (item.itemId) {
+            android.R.id.home -> finish()
+            R.id.action_search -> sendMessageNow()
+            else -> super.onOptionsItemSelected(item)
+        }
 
-    @OnOptionsItemSelected(android.R.id.home)
-    override fun finish() {
-        super.finish()
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -107,8 +111,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         finish()
     }
 
-    @OnOptionsItemSelected(R.id.action_send)
-    fun sendMessageNow() {
+    private fun sendMessageNow() {
         val message = getMessageText()
         if (message.isEmpty()) {
             showDialog(this) {
@@ -149,7 +152,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-    internal fun getMessageText(): String {
+    private fun getMessageText(): String {
         return messageText.text.toString().trim()
     }
 

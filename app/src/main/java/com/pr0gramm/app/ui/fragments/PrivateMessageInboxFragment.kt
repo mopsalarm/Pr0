@@ -7,8 +7,6 @@ import android.view.MenuItem
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.ui.OnOptionsItemSelected
-import com.pr0gramm.app.ui.OptionMenuHelper
 import com.pr0gramm.app.ui.PrivateMessageAdapter
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog
 import org.kodein.di.erased.instance
@@ -26,12 +24,16 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
         inflater.inflate(R.menu.menu_private_messages, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_new_message -> showNewMessageDialog()
+            else -> return super.onOptionsItemSelected(item)
+        }
+
+        return true
     }
 
-    @OnOptionsItemSelected(R.id.action_new_message)
-    fun showNewMessageDialog(): Boolean {
+    private fun showNewMessageDialog(): Boolean {
         val dialog = SearchUserDialog()
         dialog.show(childFragmentManager, null)
         return true

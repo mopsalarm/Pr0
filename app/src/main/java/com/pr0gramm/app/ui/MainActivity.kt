@@ -18,10 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
 import android.view.*
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.Settings
-import com.pr0gramm.app.Stats
+import com.pr0gramm.app.*
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*

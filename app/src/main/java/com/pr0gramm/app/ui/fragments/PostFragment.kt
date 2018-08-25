@@ -439,7 +439,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = config.reportItemsActive && userService.isAuthorized
     }
 
-    @OnOptionsItemSelected(R.id.action_zoom)
     fun enterFullscreen() {
         val viewer = viewer ?: return
         val activity = activity ?: return
@@ -563,8 +562,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return fullscreenAnimator != null
     }
 
-    @OnOptionsItemSelected(MainActivity.ID_FAKE_HOME)
-    fun onHomePressed(): Boolean {
+    private fun onHomePressed(): Boolean {
         if (isVideoFullScreen) {
             exitFullscreen()
             return true
@@ -577,29 +575,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val activity = activity ?: return true
 
         when (item.itemId) {
-            R.id.action_search_image ->
-                ShareHelper.searchImage(activity, feedItem)
-
-            R.id.action_share_post ->
-                ShareHelper.sharePost(activity, feedItem)
-
-            R.id.action_share_direct_link ->
-                ShareHelper.shareDirectLink(activity, feedItem)
-
-            R.id.action_share_image ->
-                ShareHelper.shareImage(activity, feedItem)
-
-            R.id.action_copy_link ->
-                ShareHelper.copyLink(context, feedItem)
-
-            else -> return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item)
+            R.id.action_search_image -> ShareHelper.searchImage(activity, feedItem)
+            R.id.action_share_post -> ShareHelper.sharePost(activity, feedItem)
+            R.id.action_share_direct_link -> ShareHelper.shareDirectLink(activity, feedItem)
+            R.id.action_share_image -> ShareHelper.shareImage(activity, feedItem)
+            R.id.action_copy_link -> ShareHelper.copyLink(context, feedItem)
+            R.id.action_refresh -> refreshWithIndicator()
+            R.id.action_download -> downloadPostMedia()
+            R.id.action_delete_item -> showDeleteItemDialog()
+            R.id.action_tags_details -> showTagsDetailsDialog()
+            R.id.action_report -> showReportDialog()
+            R.id.action_zoom -> enterFullscreen()
+            MainActivity.ID_FAKE_HOME -> onHomePressed()
+            else -> return super.onOptionsItemSelected(item)
         }
 
         return true
     }
 
-    @OnOptionsItemSelected(R.id.action_refresh)
-    fun refreshWithIndicator() {
+    private fun refreshWithIndicator() {
         if (swipeRefreshLayout.isRefreshing || isDetached)
             return
 
@@ -608,8 +602,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         swipeRefreshLayout.postDelayed({ this.loadItemDetails() }, 500)
     }
 
-    @OnOptionsItemSelected(R.id.action_download)
-    fun downloadPostMedia() {
+    private fun downloadPostMedia() {
         (activity as PermissionHelperActivity)
                 .requirePermission(WRITE_EXTERNAL_STORAGE)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY))
@@ -702,20 +695,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .subscribe { onPostReceived(it) }
     }
 
-    @OnOptionsItemSelected(R.id.action_delete_item)
-    fun showDeleteItemDialog() {
+    private fun showDeleteItemDialog() {
         val dialog = ItemUserAdminDialog.forItem(feedItem)
         dialog.show(fragmentManager, null)
     }
 
-    @OnOptionsItemSelected(R.id.action_tags_details)
-    fun showTagsDetailsDialog() {
+    private fun showTagsDetailsDialog() {
         val dialog = TagsDetailsDialog.newInstance(feedItem.id)
         dialog.show(fragmentManager, null)
     }
 
-    @OnOptionsItemSelected(R.id.action_report)
-    fun showReportDialog() {
+    private fun showReportDialog() {
         val dialog = ReportDialog.forItem(feedItem)
         dialog.show(fragmentManager, null)
     }

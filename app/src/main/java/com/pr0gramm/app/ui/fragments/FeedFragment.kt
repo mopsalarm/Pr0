@@ -10,9 +10,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import com.jakewharton.rxbinding.support.design.widget.dismisses
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
@@ -782,25 +780,36 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return true
         }
 
-        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.action_feedtype -> switchFeedType()
+            R.id.action_refresh -> refreshFeed()
+            R.id.action_pin -> pinCurrentFeedFilter()
+            R.id.action_preload -> preloadCurrentFeed()
+            R.id.action_follow -> onFollowClicked()
+            R.id.action_unfollow -> onUnfollowClicked()
+            R.id.action_block_user -> onBlockUserClicked()
+            R.id.action_search -> resetAndShowSearchContainer()
+
+            else -> return super.onOptionsItemSelected(item)
+        }
+
+        // was handled
+        return true
     }
 
-    @OnOptionsItemSelected(R.id.action_feedtype)
-    fun switchFeedType() {
+    private fun switchFeedType() {
         var filter = currentFilter
         filter = filter.withFeedType(switchFeedTypeTarget(filter))
         (activity as MainActionHandler).onFeedFilterSelected(filter, initialSearchViewState())
     }
 
-    @OnOptionsItemSelected(R.id.action_refresh)
-    fun refreshFeed() {
+    private fun refreshFeed() {
         resetToolbar()
         loader.reset()
         loader.restart()
     }
 
-    @OnOptionsItemSelected(R.id.action_pin)
-    fun pinCurrentFeedFilter() {
+    private fun pinCurrentFeedFilter() {
         // not bookmarkable anymore.
         onBookmarkableStateChanged(false)
 
@@ -809,8 +818,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         (activity as MainActionHandler).pinFeedFilter(filter, title)
     }
 
-    @OnOptionsItemSelected(R.id.action_preload)
-    fun preloadCurrentFeed() {
+    private fun preloadCurrentFeed() {
         if (AndroidUtility.isOnMobile(activity)) {
             showDialog(this) {
                 content(R.string.preload_not_on_mobile)
@@ -842,8 +850,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    @OnOptionsItemSelected(R.id.action_follow)
-    fun onFollowClicked() {
+    private fun onFollowClicked() {
         activeUsername?.let { name ->
             followService.follow(name)
                     .subscribeOn(BackgroundScheduler.instance())
@@ -851,8 +858,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    @OnOptionsItemSelected(R.id.action_unfollow)
-    fun onUnfollowClicked() {
+    private fun onUnfollowClicked() {
         activeUsername?.let { name ->
             followService.unfollow(name)
                     .subscribeOn(BackgroundScheduler.instance())
@@ -860,8 +866,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    @OnOptionsItemSelected(R.id.action_block_user)
-    fun onBlockUserClicked() {
+    private fun onBlockUserClicked() {
         activeUsername?.let { name ->
             val dialog = ItemUserAdminDialog.forUser(name)
             dialog.show(fragmentManager, "BlockUserDialog")
@@ -1126,8 +1131,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         errorLoadingFeedView.visible = visible
     }
 
-    @OnOptionsItemSelected(R.id.action_search)
-    fun resetAndShowSearchContainer() {
+    private fun resetAndShowSearchContainer() {
         searchView.applyState(initialSearchViewState())
         showSearchContainer(true)
     }

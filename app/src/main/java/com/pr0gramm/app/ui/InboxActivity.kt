@@ -81,12 +81,14 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item) || OptionMenuHelper.dispatch(this, item)
-    }
+        return super.onOptionsItemSelected(item) || when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
 
-    @OnOptionsItemSelected(android.R.id.home)
-    override fun finish() {
-        super.finish()
+            else -> false
+        }
     }
 
     override fun onResume() {
