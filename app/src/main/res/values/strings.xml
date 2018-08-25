@@ -539,5 +539,6 @@
     <string name="loading_comments">Loading comments…</string>
     <string name="hint_comment_not_found">This comment does not exist.</string>
     <string name="doh">D\'oh!</string>
+    <string name="hint_loading">Loading…</string>
 </resources>
 

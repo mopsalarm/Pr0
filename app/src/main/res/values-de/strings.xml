@@ -517,4 +517,5 @@
     <string name="loading_comments">Kommentare werden geladen…</string>
     <string name="hint_comment_not_found">Dieser Kommentar existiert nicht.</string>
     <string name="doh">Mist</string>
+    <string name="hint_loading">Wird geladen…</string>
 </resources>

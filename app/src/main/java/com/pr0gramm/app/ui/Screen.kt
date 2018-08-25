@@ -9,8 +9,8 @@ import android.view.Surface
 object Screen {
     private const val LANDSCAPE = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     private const val PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    private const val REVERSE_LANDSCAPE = 8 // ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-    private const val REVERSE_PORTRAIT = 9 // ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+    private const val REVERSE_LANDSCAPE = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+    private const val REVERSE_PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
     private const val UNSPECIFIED = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
     @JvmStatic
