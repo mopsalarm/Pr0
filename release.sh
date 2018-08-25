@@ -16,11 +16,6 @@ if [ -n "$(git status --porcelain)" ] ; then
   exit 1
 fi
 
-if ! grep -q 'android.enableR8=false' gradle.properties ; then
-    echo "enableR8=false not set."
-    exit 1
-fi
-
 echo "Release steps:"
 echo " * Start release of version $VERSION (current beta is $VERSION_PREVIOUS)"
 echo " * Upload apk to the update manager using auth $CREDENTIALS_UPDATE'"

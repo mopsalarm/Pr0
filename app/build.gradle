@@ -31,7 +31,6 @@ buildscript {
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '28.0.1'
 
     defaultConfig {
         minSdkVersion 15
