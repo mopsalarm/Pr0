@@ -574,7 +574,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val activity = activity ?: return true
 
-        when (item.itemId) {
+        return true == when (item.itemId) {
             R.id.action_search_image -> ShareHelper.searchImage(activity, feedItem)
             R.id.action_share_post -> ShareHelper.sharePost(activity, feedItem)
             R.id.action_share_direct_link -> ShareHelper.shareDirectLink(activity, feedItem)
@@ -587,10 +587,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             R.id.action_report -> showReportDialog()
             R.id.action_zoom -> enterFullscreen()
             MainActivity.ID_FAKE_HOME -> onHomePressed()
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
-
-        return true
     }
 
     private fun refreshWithIndicator() {

@@ -20,11 +20,6 @@
 # keep exception names
 -keepnames class * extends java.lang.Throwable
 
-# this is for dispatching menu clicks via reflection
--keepclassmembers class * {
-    @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
-}
-
 # Keep api names for metrics
 -keepnames interface com.pr0gramm.app.api.pr0gramm.Api
 

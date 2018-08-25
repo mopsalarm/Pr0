@@ -25,12 +25,10 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_new_message -> showNewMessageDialog()
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
-
-        return true
     }
 
     private fun showNewMessageDialog(): Boolean {

@@ -780,7 +780,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return true
         }
 
-        when (item.itemId) {
+        return true == when (item.itemId) {
             R.id.action_feedtype -> switchFeedType()
             R.id.action_refresh -> refreshFeed()
             R.id.action_pin -> pinCurrentFeedFilter()
@@ -790,11 +790,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
 
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
-
-        // was handled
-        return true
     }
 
     private fun switchFeedType() {
