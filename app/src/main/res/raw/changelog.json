@@ -1,11 +1,16 @@
 [
   {
-    "version": 149,
+    "version": 141,
     "changes": [
       {
-        "type": "Fix",
+        "type": "Neu",
         "change": "Wenn man nach dem Anschauen vieler Posts auf zurück geht, scrollt der Feed zum letzten gesehenen Post."
-      },
+      }
+    ]
+  },
+  {
+    "version": 149,
+    "changes": [
       {
         "type": "Fix",
         "change": "Verschiedene Abstürzte behoben"
