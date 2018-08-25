@@ -107,6 +107,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val preloadedCount: Int = 0,
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
+            val firstLoadFinished: Boolean = false,
             val adsVisible: Boolean = false,
             val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
             val userInfoCommentsOpen: Boolean = false,
@@ -123,7 +124,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             logger.debug("Feed after update: {} items, oldest={}, newest={}",
                     new.size, new.oldest?.id, new.newest?.id)
 
-            state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
+            state = state.copy(
+                    feedItems = feed.items,
+                    feedFilter = feed.filter,
+                    firstLoadFinished = state.firstLoadFinished || feed.isNotEmpty())
         }
 
         if (new.isNotEmpty()) {
@@ -347,8 +351,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         state.ownUsername != null && state.ownUsername.equals(filter.likes
                                 ?: filter.username, ignoreCase = true))
 
+                val adsVisible = state.adsVisible && state.firstLoadFinished
+
                 // always show at least one ad banner - e.g. during load
-                if (state.adsVisible && state.feedItems.isEmpty()) {
+                if (adsVisible && state.feedItems.isEmpty()) {
                     entries += FeedAdapter.Entry.Ad(0)
                 }
 
@@ -359,7 +365,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     val preloaded = preloadManager.exists(id)
 
                     // show an ad banner every ~50 lines
-                    if (state.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
+                    if (adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
                         entries += FeedAdapter.Entry.Ad(idx.toLong())
                     }
 
@@ -951,7 +957,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 fragment.setPreviewInfo(info)
             }
 
-            fragment.setTargetFragment(this, 0)
+            // Only set the target fragment if we are using the same fragment manager
+            // to replace the current fragment. This is not the case, if we were started
+            // from the Favorites page.
+            if (fragmentManager === activity.supportFragmentManager) {
+                fragment.setTargetFragment(this, 0)
+            }
 
             activity.supportFragmentManager.beginTransaction()
                     .replace(R.id.content, fragment)
