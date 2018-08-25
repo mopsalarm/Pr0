@@ -4,6 +4,8 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -38,8 +40,8 @@ import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import java.net.ConnectException
 import java.util.*
@@ -81,6 +83,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private var bookmarkable: Boolean = false
     private var autoScrollOnLoad: Long? = null
     private var autoOpenOnLoad: CommentRef? = null
+    private var resumeFromFeedItemRef: FeedItemRef? = null
 
     private var lastCheckForNewItemsTime = Instant(0)
 
@@ -547,12 +550,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             state = state.copy(ownUsername = userService.name)
         }
 
-        // we might want to check for new items on reload, but only once every two minutes.
-        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
-        val threshold = Instant.now().minus(checkForNewItemInterval)
-        if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
-            lastCheckForNewItemsTime = Instant.now()
-            checkForNewItems()
+        if (resumeFromFeedItemRef != null) {
+            scrollToResumeFromFeedItem()
+
+        } else {
+            // we might want to check for new items on reload, but only once every two minutes.
+            val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
+            val threshold = Instant.now().minus(checkForNewItemInterval)
+            if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
+                lastCheckForNewItemsTime = Instant.now()
+                checkForNewItems()
+            }
         }
 
         // Observe all preloaded items to get them into the cache and to show the
@@ -562,6 +570,29 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .bindToLifecycleAsync()
                 .ignoreError()
                 .subscribe { state = state.copy(preloadedCount = it.size) }
+
+
+    }
+
+    private fun scrollToResumeFromFeedItem() {
+        val ref = resumeFromFeedItemRef ?: return
+        resumeFromFeedItemRef = null
+
+        // scroll to the item once it is visible
+        feedAdapter.updates
+                .startWith(feedAdapter.latestEntries)
+                .bindToLifecycle()
+                .debounce(250, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .takeFirst { entries -> entries.any { entry -> entry is FeedAdapter.Entry.Item && entry.item == ref.item } }
+                .subscribe { scrollToItem(ref.item.id, smoothScroll = true) }
+
+        // apply the updated feed reference
+        this.feed = feed.mergeIfPossible(ref.feed) ?: ref.feed
+    }
+
+    fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
+        logger.info("Want to resume from {}", item)
+        resumeFromFeedItemRef = FeedItemRef(feed, item)
     }
 
     private fun checkForNewItems() {
@@ -920,6 +951,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 fragment.setPreviewInfo(info)
             }
 
+            fragment.setTargetFragment(this, 0)
+
             activity.supportFragmentManager.beginTransaction()
                     .replace(R.id.content, fragment)
                     .addToBackStack(null)
@@ -1220,15 +1253,34 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         autoScrollOnLoad = null
     }
 
-    private fun scrollToItem(itemId: Long) {
+    private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
+        logger.debug("Checking if we can scroll to item {}", itemId)
         val idx = feedAdapter.latestEntries
                 .indexOfFirst { it is FeedAdapter.Entry.Item && it.item.id == itemId }
                 .takeIf { it >= 0 } ?: return
 
-        logger.debug("Found item at idx={}", idx)
+        logger.debug("Found item at idx={}, will scroll now", idx)
 
-        // over scroll a bit
-        recyclerView.scrollToPosition(idx + thumbnailColumCount)
+        val recyclerView = recyclerView
+        if (smoothScroll) {
+            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+            val idxFirst = layoutManager.findFirstCompletelyVisibleItemPosition()
+            val idxLast = layoutManager.findLastCompletelyVisibleItemPosition()
+
+            if (idx in idxFirst..idxLast) {
+                logger.debug("No smooth scroll needed, item already visible")
+                return
+            }
+
+            // smooth scroll to the target position
+            val scroller = LinearSmoothScroller(recyclerView.context)
+            scroller.targetPosition = idx
+            layoutManager.startSmoothScroll(scroller)
+
+        } else {
+            // over scroll a bit
+            recyclerView.scrollToPosition(idx + thumbnailColumCount)
+        }
     }
 
     private fun isSelfInfo(info: Api.Info): Boolean {
@@ -1281,7 +1333,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     companion object {
-        internal val logger = LoggerFactory.getLogger("FeedFragment")
+        internal val logger = logger("FeedFragment")
 
         private const val ARG_FEED = "FeedFragment.feed"
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
@@ -1323,6 +1375,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         private fun extractFeedItemHolder(view: View): FeedItemViewHolder? {
             return view.tag as? FeedItemViewHolder?
         }
-
     }
+
+    private class FeedItemRef(val feed: Feed, val item: FeedItem)
 }

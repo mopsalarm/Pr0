@@ -5,13 +5,21 @@ import android.support.v7.widget.LinearSmoothScroller
 import android.view.View
 import com.pr0gramm.app.util.AndroidUtility
 
-class OverscrollLinearSmoothScroller(private val context: Context) : LinearSmoothScroller(context) {
-    val offset = AndroidUtility.getActionBarContentOffset(context)
+class OverscrollLinearSmoothScroller(
+        context: Context,
+        private val baseOffset: Int = AndroidUtility.dp(context, 32),
+        private val verticalSnapPreference: Int? = null) : LinearSmoothScroller(context) {
+
+    private val offset = AndroidUtility.getActionBarContentOffset(context)
 
     override fun calculateDyToMakeVisible(view: View?, snapPreference: Int): Int {
         val dy = super.calculateDyToMakeVisible(view, snapPreference)
-        return dy + offset + AndroidUtility.dp(context, 32)
+
+        val offset = if (snapPreference == SNAP_TO_START) baseOffset + offset else -baseOffset
+        return dy + offset
     }
 
-    override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+    override fun getVerticalSnapPreference(): Int {
+        return verticalSnapPreference ?: super.getVerticalSnapPreference()
+    }
 }
