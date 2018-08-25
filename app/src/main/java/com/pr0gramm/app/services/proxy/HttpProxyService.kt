@@ -6,8 +6,8 @@ import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BoundedInputStream
+import com.pr0gramm.app.util.logger
 import fi.iki.elonen.NanoHTTPD
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
 import java.lang.System.currentTimeMillis
@@ -152,7 +152,7 @@ class HttpProxyService(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("HttpProxyService")
+        private val logger = logger("HttpProxyService")
 
         private val ERROR_RESPONSE = NanoHTTPD.newFixedLengthResponse(
                 NanoHTTPD.Response.Status.INTERNAL_ERROR, "text/plain", null)

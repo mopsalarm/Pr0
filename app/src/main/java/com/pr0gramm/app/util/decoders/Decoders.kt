@@ -7,8 +7,8 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
+import com.pr0gramm.app.util.logger
 import com.squareup.picasso.Downloader
-import org.slf4j.LoggerFactory
 
 object Decoders {
     @JvmStatic
@@ -27,7 +27,7 @@ object Decoders {
     }
 
     private fun adapt(dec: Decoder): ImageRegionDecoder {
-        val logger = LoggerFactory.getLogger("Decoder")
+        val logger = logger("Decoder")
 
         return object : ImageRegionDecoder {
             @Volatile

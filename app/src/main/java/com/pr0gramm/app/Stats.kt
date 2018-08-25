@@ -1,17 +1,17 @@
 package com.pr0gramm.app
 
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import com.timgroup.statsd.NoOpStatsDClient
 import com.timgroup.statsd.NonBlockingStatsDClient
 import com.timgroup.statsd.StatsDClient
-import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Statsd client helper
  */
 object Stats {
-    private val logger = LoggerFactory.getLogger("Stats")
+    private val logger = logger("Stats")
 
     private val CLIENT = AtomicReference<StatsDClient>()
 

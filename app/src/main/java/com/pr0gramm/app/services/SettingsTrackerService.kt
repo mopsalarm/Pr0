@@ -3,8 +3,8 @@ package com.pr0gramm.app.services
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import okhttp3.OkHttpClient
-import org.slf4j.LoggerFactory
 import proguard.annotation.KeepPublicClassMemberNames
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -14,7 +14,7 @@ import retrofit2.http.POST
 
 
 class SettingsTrackerService(httpClient: OkHttpClient) {
-    private val logger = LoggerFactory.getLogger("SettingsTrackerService")
+    private val logger = logger("SettingsTrackerService")
 
     private val settings: Settings = Settings.get()
 

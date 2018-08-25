@@ -10,7 +10,7 @@ import android.support.v4.util.LongSparseArray
 import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.view.ViewGroup
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import java.util.*
 
 /**
@@ -206,6 +206,6 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("IdFragmentStatePagerAdapter")
+        private val logger = logger("IdFragmentStatePagerAdapter")
     }
 }

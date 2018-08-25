@@ -3,8 +3,8 @@ package com.pr0gramm.app.ui
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
-import org.slf4j.LoggerFactory
 import java.util.*
 
 /**
@@ -168,6 +168,6 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
     private class Config(val width: Int, val height: Int, val rows: Int)
 
     companion object {
-        private val logger = LoggerFactory.getLogger("TagCloudLayoutManager")
+        private val logger = logger("TagCloudLayoutManager")
     }
 }

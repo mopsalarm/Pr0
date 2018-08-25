@@ -24,7 +24,6 @@ import okhttp3.Request
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -324,7 +323,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("PreloadService")
+        private val logger = logger("PreloadService")
         private const val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
         private const val EXTRA_CANCEL = "PreloadService.cancel"
         private const val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"

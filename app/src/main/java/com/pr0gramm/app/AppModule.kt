@@ -8,13 +8,13 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Databases
 import com.pr0gramm.app.util.Holder
+import com.pr0gramm.app.util.logger
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
-import org.slf4j.LoggerFactory
 import rx.Single
 
 /**
@@ -39,7 +39,7 @@ fun appModule(app: Application) = Kodein.Module("app") {
     }
 
     bind<BriteDatabase>() with singleton {
-        val logger = LoggerFactory.getLogger("SqlBrite")
+        val logger = logger("SqlBrite")
         SqlBrite.Builder()
                 .logger { logger.info("{}", it) }
                 .build()

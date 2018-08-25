@@ -24,7 +24,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.*
-import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 
 typealias DialogClickListener = (Dialog) -> Unit
@@ -45,7 +44,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
                 Context.MODE_PRIVATE)
     }
 
-    private val logger = LoggerFactory.getLogger("DialogBuilder")
+    private val logger = logger("DialogBuilder")
 
     private var buttonPositiveText: String? = null
     private var buttonPositiveClick: DialogClickListener? = null

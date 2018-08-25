@@ -6,10 +6,10 @@ import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.directKodein
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStreamReader
@@ -17,7 +17,7 @@ import java.io.InputStreamReader
 /**
  */
 object TagInputView {
-    private val logger = LoggerFactory.getLogger("TagInputView")
+    private val logger = logger("TagInputView")
 
     /**
      * Parses the list of tags. It is provided as one tag per line in utf8 encoding.

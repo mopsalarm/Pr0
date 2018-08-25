@@ -16,14 +16,13 @@ import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
         RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger("AdViewHolder")
+        private val logger = logger("AdViewHolder")
 
         fun new(context: Context): AdViewHolder {
             trace { "newContainerView" }

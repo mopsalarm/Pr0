@@ -12,12 +12,8 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -86,7 +82,7 @@ class UpdateChecker {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("UpdateChecker")
+        private val logger = logger("UpdateChecker")
 
         /**
          * Returns the Endpoint-URL that is to be queried

@@ -8,7 +8,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import rx.functions.Action1
 import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
@@ -29,7 +29,7 @@ class ErrorDialogFragment : DialogFragment() {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("ErrorDialogFragment")
+        private val logger = logger("ErrorDialogFragment")
 
         private var GlobalErrorDialogHandler: WeakReference<OnErrorDialogHandler?> = WeakReference(null)
         private var PreviousError = WeakReference<Throwable>(null)

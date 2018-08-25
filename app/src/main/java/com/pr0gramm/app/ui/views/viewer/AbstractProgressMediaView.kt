@@ -11,7 +11,7 @@ import android.widget.SeekBar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.hideViewEndAction
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 
 /**
  */
@@ -212,6 +212,6 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("AbstractProgressMediaView")
+        private val logger = logger("AbstractProgressMediaView")
     }
 }

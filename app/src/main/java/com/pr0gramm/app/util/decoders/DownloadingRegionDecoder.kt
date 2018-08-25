@@ -6,8 +6,8 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
 import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.logger
 import com.squareup.picasso.Downloader
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -92,6 +92,6 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("DownloadingRegionDecoder")
+        private val logger = logger("DownloadingRegionDecoder")
     }
 }

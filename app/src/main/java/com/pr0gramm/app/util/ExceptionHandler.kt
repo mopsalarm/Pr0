@@ -1,7 +1,5 @@
 package com.pr0gramm.app.util
 
-import org.slf4j.LoggerFactory
-
 class ExceptionHandler private constructor(val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(thread: Thread, err: Throwable) {
         if (err is IllegalStateException) {
@@ -18,7 +16,7 @@ class ExceptionHandler private constructor(val delegate: Thread.UncaughtExceptio
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("ExceptionHandler")
+        private val logger = logger("ExceptionHandler")
 
         fun install() {
             logger.info("Install uncaught exception handler")

@@ -10,15 +10,16 @@ import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
-import org.slf4j.LoggerFactory
 import rx.Observable
 import java.io.File
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.io.use
 
 
 /**
@@ -153,7 +154,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("DatabasePreloadManager")
+        private val logger = logger("DatabasePreloadManager")
 
         private val TABLE_NAME = "preload_2"
         private val QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME

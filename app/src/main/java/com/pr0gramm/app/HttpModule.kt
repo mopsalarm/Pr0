@@ -21,7 +21,6 @@ import org.kodein.di.erased.eagerSingleton
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.xbill.DNS.*
 import rx.Observable
 import rx.Scheduler
@@ -119,7 +118,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
         Async.start({
             checkNotMainThread()
 
-            val logger = LoggerFactory.getLogger("ProxyServiceFactory")
+            val logger = logger("ProxyServiceFactory")
             repeat(10) {
                 val port = HttpProxyService.randomPort()
                 logger.debug("Trying port {}", port)
@@ -170,7 +169,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 }
 
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
-    val logger = LoggerFactory.getLogger("Picasso.Downloader")
+    val logger: Logger = logger("Picasso.Downloader")
 
     private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
@@ -265,7 +264,7 @@ private class UpdateServerTimeInterceptor : Interceptor {
 }
 
 private class DebugInterceptor : Interceptor {
-    private val logger = LoggerFactory.getLogger("DebugInterceptor")
+    private val logger = logger("DebugInterceptor")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         checkNotMainThread()
@@ -301,7 +300,7 @@ private class UserAgentInterceptor(val userAgent: String) : Interceptor {
 }
 
 private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
-    private val logger = LoggerFactory.getLogger("DoNotCacheInterceptor")
+    private val logger = logger("DoNotCacheInterceptor")
     private val domains: Set<String> = domains.toSet()
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -318,7 +317,7 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
 }
 
 private class LoggingInterceptor : Interceptor {
-    val okLogger = LoggerFactory.getLogger("OkHttpClient")
+    val okLogger: Logger = logger("OkHttpClient")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val watch = Stopwatch.createStarted()
@@ -400,7 +399,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 }
 
 private class FallbackDns : Dns {
-    val logger: Logger = LoggerFactory.getLogger("FallbackDns")
+    val logger: Logger = logger("FallbackDns")
 
     val resolver = SimpleResolver("8.8.8.8")
     val cache = org.xbill.DNS.Cache()

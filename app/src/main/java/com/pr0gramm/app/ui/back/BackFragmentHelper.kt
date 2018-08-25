@@ -4,10 +4,10 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.SupportV4App
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 
 object BackFragmentHelper {
-    private val logger = LoggerFactory.getLogger("BackFragmentHelper")
+    private val logger = logger("BackFragmentHelper")
 
     @JvmStatic
     fun dispatchOnBackAction(activity: FragmentActivity): Boolean {

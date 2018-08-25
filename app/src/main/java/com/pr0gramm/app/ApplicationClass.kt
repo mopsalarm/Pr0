@@ -13,11 +13,8 @@ import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
-import com.pr0gramm.app.util.ExceptionHandler
-import com.pr0gramm.app.util.LogHandler
-import com.pr0gramm.app.util.SimpleJobLogger
-import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import org.kodein.di.Kodein
@@ -25,7 +22,6 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import pl.brightinventions.slf4android.LogLevel
 import pl.brightinventions.slf4android.LoggerConfiguration
 import java.util.concurrent.TimeUnit
@@ -38,7 +34,7 @@ import java.util.logging.LogManager
 open class ApplicationClass : Application(), KodeinAware {
     private val startup = System.currentTimeMillis()
 
-    private val logger = LoggerFactory.getLogger("Pr0grammApplication")
+    private val logger = logger("Pr0grammApplication")
 
     init {
         if (BuildConfig.DEBUG) {

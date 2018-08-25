@@ -16,14 +16,13 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import java.util.*
 
 /**
  */
 
 object BrowserHelper {
-    private val logger = LoggerFactory.getLogger("BrowserHelper")
+    private val logger = logger("BrowserHelper")
 
     private const val CHROME_STABLE_PACKAGE = "com.android.chrome"
     private const val CHROME_BETA_PACKAGE = "com.chrome.beta"

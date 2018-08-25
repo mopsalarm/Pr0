@@ -15,10 +15,10 @@ import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.logger
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -127,7 +127,7 @@ class ShareProvider : ContentProvider(), KodeinAware {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("ShareProvider")
+        private val logger = logger("ShareProvider")
 
         /**
          * Returns an uri for the given item to share that item with other apps.

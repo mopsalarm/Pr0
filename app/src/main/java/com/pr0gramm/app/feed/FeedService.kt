@@ -8,7 +8,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.Reducer
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import rx.Observable
 
 /**
@@ -35,7 +35,7 @@ class FeedServiceImpl(private val api: Api,
                       private val extraCategories: ExtraCategories,
                       private val configService: ConfigService) : FeedService {
 
-    private val logger = LoggerFactory.getLogger("FeedService")
+    private val logger = logger("FeedService")
 
     override fun load(query: FeedService.FeedQuery): Observable<Api.Feed> {
         val feedFilter = query.filter

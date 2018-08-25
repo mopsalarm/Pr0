@@ -7,8 +7,8 @@ import com.evernote.android.job.util.support.PersistableBundleCompat
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class SyncJob : Job() {
@@ -38,7 +38,7 @@ class SyncJob : Job() {
 
         private val DEFAULT_SYNC_DELAY_MS = TimeUnit.MINUTES.toMillis(5)
 
-        private val logger = LoggerFactory.getLogger("SyncJob")
+        private val logger = logger("SyncJob")
 
         fun syncNow() {
             // start normal sync cycle now.

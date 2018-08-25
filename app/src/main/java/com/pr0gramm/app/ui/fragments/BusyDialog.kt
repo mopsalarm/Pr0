@@ -9,7 +9,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import rx.*
 
 /**
@@ -83,7 +83,7 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("BusyDialogFragment")
+        private val logger = logger("BusyDialogFragment")
 
         @JvmStatic
         @JvmOverloads

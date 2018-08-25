@@ -25,7 +25,6 @@ import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.removeFromParent
 import com.pr0gramm.app.util.time
 import gnu.trove.map.TLongObjectMap
-import org.slf4j.LoggerFactory
 import java.util.*
 
 
@@ -42,9 +41,7 @@ private enum class Offset(val offset: Long, val type: Class<out PostAdapter.Item
 class PostAdapter(
         private val commentViewListener: CommentView.Listener,
         private val postActions: PostActions)
-    : AsyncListAdapter<PostAdapter.Item, RecyclerView.ViewHolder>(ItemCallback()) {
-
-    private val logger = LoggerFactory.getLogger("PostAdapter")
+    : AsyncListAdapter<PostAdapter.Item, RecyclerView.ViewHolder>(ItemCallback(), name = "PostAdapter") {
 
     init {
         setHasStableIds(true)

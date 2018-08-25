@@ -12,7 +12,6 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.squareup.moshi.JsonClass
-import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -32,7 +31,7 @@ class UserService(private val api: Api,
                   private val database: Holder<SQLiteDatabase>,
                   private val config: Config) {
 
-    private val logger = LoggerFactory.getLogger("UserService")
+    private val logger = logger("UserService")
 
     private val lock = Any()
 

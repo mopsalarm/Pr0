@@ -19,12 +19,8 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.SenderDrawableProvider
-import com.pr0gramm.app.util.getColorCompat
-import com.pr0gramm.app.util.lruCache
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
@@ -38,7 +34,7 @@ class NotificationService(private val context: Application,
                           private val picasso: Picasso,
                           private val userService: UserService) {
 
-    private val logger = LoggerFactory.getLogger("NotificationService")
+    private val logger = logger("NotificationService")
 
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)

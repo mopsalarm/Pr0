@@ -5,8 +5,8 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.LogHandler
+import com.pr0gramm.app.util.logger
 import okhttp3.OkHttpClient
-import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -149,6 +149,6 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("FeedbackService")
+        private val logger = logger("FeedbackService")
     }
 }

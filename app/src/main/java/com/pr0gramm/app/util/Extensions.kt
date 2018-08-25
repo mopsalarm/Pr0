@@ -33,7 +33,6 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import rx.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
@@ -347,7 +346,7 @@ fun Completable.decoupleSubscribe(): Observable<Unit> {
 
 fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {
     debug {
-        val log = logger ?: LoggerFactory.getLogger("Rx")
+        val log = logger ?: logger("Rx")
         return this
                 .doOnSubscribe { log.info("$key: onSubscribe") }
                 .doOnUnsubscribe { log.info("$key: onUnsubscribe") }
@@ -553,7 +552,7 @@ inline fun <reified T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
     return result
 }
 
-val traceLogger: Logger = LoggerFactory.getLogger("Trace")
+val traceLogger: Logger = logger("Trace")
 
 inline fun <reified T> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {

@@ -31,7 +31,6 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.truss
 import okhttp3.HttpUrl
-import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.util.async.Async
 import java.io.File
@@ -42,7 +41,7 @@ import java.io.StringWriter
  * Place to put everything that belongs nowhere. Thanks Obama.
  */
 object AndroidUtility {
-    private val logger = LoggerFactory.getLogger("AndroidUtility")
+    private val logger = logger("AndroidUtility")
 
     private val EXCEPTION_BLACKLIST = listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
 

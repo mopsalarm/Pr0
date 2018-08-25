@@ -9,14 +9,10 @@ import android.provider.Settings
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
-import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.edit
-import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -140,7 +136,7 @@ class ConfigService(context: Application,
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("ConfigService")
+        private val logger = logger("ConfigService")
         private val PREF_DATA_KEY = "ConfigService.data"
         private val PREF_ID_KEY = "ConfigService.id"
 

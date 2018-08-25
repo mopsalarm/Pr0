@@ -30,10 +30,10 @@ import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.hideViewEndAction
+import com.pr0gramm.app.util.logger
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 
@@ -321,7 +321,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("VideoMediaView")
+        private val logger = logger("VideoMediaView")
 
         private val seekToCache = LruCache<Long, ExpiringTimestamp>(16)
 

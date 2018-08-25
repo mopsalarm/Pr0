@@ -8,7 +8,7 @@ import rx.subjects.PublishSubject
  * This is a base for [VideoPlayer]s with some rx features.
  */
 abstract class RxVideoPlayer : VideoPlayer {
-    protected val detaches = PublishSubject.create<Void>()
+    protected val detaches: PublishSubject<Unit> = PublishSubject.create()
 
     override var videoCallbacks: VideoPlayer.Callbacks? = null
 
@@ -18,7 +18,7 @@ abstract class RxVideoPlayer : VideoPlayer {
         return buffering
     }
 
-    fun detaches(): Observable<Void> {
+    fun detaches(): Observable<Unit> {
         return detaches
     }
 

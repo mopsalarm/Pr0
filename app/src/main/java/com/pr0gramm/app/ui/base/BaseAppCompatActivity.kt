@@ -8,6 +8,7 @@ import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
@@ -16,7 +17,6 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscription
 
@@ -25,7 +25,7 @@ import rx.Subscription
  */
 abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), KodeinAware {
     @JvmField
-    protected val logger: Logger = LoggerFactory.getLogger(name)
+    protected val logger: Logger = logger(name)
 
     override val kodein: Kodein by lazy { (this as Context).kodein }
     override val kodeinTrigger = KodeinTrigger()

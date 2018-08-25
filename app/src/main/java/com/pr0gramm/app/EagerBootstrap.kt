@@ -8,17 +8,17 @@ import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import org.kodein.di.DKodein
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Completable
 
 /**
  * Bootstraps a few instances in some other thread.
  */
 object EagerBootstrap {
-    private val logger = LoggerFactory.getLogger("EagerBootstrap")
+    private val logger = logger("EagerBootstrap")
 
     fun initEagerSingletons(kodein: () -> DKodein): Completable {
         return doInBackground {

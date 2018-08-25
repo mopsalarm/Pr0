@@ -4,10 +4,10 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.Stopwatch
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.sleepUninterruptibly
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -184,6 +184,6 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("ApiProvider")
+        private val logger = logger("ApiProvider")
     }
 }

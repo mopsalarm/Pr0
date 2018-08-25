@@ -2,8 +2,8 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.trace
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -12,7 +12,7 @@ import rx.subjects.Subject
 import rx.subscriptions.Subscriptions
 
 class FeedManager(val feedService: FeedService, private var feed: Feed) {
-    private val logger = LoggerFactory.getLogger("FeedService")
+    private val logger = logger("FeedService")
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
     private var subscription: Subscription = Subscriptions.unsubscribed()

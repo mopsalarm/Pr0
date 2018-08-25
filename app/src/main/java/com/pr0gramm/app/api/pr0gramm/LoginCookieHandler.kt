@@ -6,11 +6,11 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
+import com.pr0gramm.app.util.logger
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
-import org.slf4j.LoggerFactory
 import java.net.URLDecoder
 import java.util.Arrays.asList
 import java.util.concurrent.TimeUnit
@@ -205,7 +205,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
     class LoginRequiredException internal constructor() : IllegalStateException()
 
     companion object {
-        private val logger = LoggerFactory.getLogger("LoginCookieHandler")
+        private val logger = logger("LoginCookieHandler")
         private const val PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue"
 
         private fun isTruthValue(value: Any?): Boolean {

@@ -10,10 +10,10 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.CountingInputStream
 import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.readStream
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.slf4j.LoggerFactory
 import rx.Emitter
 import rx.Observable
 import java.io.File
@@ -157,6 +157,6 @@ class DownloadService(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("DownloadService")
+        private val logger = logger("DownloadService")
     }
 }

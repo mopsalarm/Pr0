@@ -6,7 +6,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.edit
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -116,7 +116,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("InboxService")
+        private val logger = logger("InboxService")
         private val KEY_MAX_READ_MESSAGE_ID = "InboxService.maxReadMessageId"
     }
 }

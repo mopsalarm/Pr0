@@ -28,7 +28,6 @@ import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import kotlin.math.absoluteValue
@@ -39,7 +38,7 @@ import kotlin.reflect.KProperty
 /**
  */
 abstract class CommentTreeHelper : CommentView.Listener {
-    private val logger = LoggerFactory.getLogger("CommentTreeHelper")
+    private val logger = logger("CommentTreeHelper")
 
     private var state: CommentTree.Input by StateProperty()
     private var stateUpdateSync = false

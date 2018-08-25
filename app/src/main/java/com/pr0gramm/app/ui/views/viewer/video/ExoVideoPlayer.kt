@@ -31,7 +31,6 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.*
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 
 /**
  * Stripped down version of [android.widget.VideoView].
@@ -99,7 +98,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         exo.addListener(this)
 
         RxView.detaches(videoView).subscribe {
-            detaches.onNext(null)
+            detaches.onNext(Unit)
 
             pause()
 
@@ -342,7 +341,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     companion object {
         private const val MAX_DROPPED_FRAMES = 75
-        private val logger = LoggerFactory.getLogger("ExoVideoPlayer")
+        private val logger = logger("ExoVideoPlayer")
 
         private fun bestMatchingCodec(codecs: List<MediaCodecInfo>, videoCodecName: String): MediaCodecInfo? {
             return when (videoCodecName) {

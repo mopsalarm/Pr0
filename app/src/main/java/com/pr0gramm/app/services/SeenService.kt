@@ -1,11 +1,7 @@
 package com.pr0gramm.app.services
 
 import android.content.Context
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.readStream
-import com.pr0gramm.app.util.time
-import com.pr0gramm.app.util.unsigned
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -192,6 +188,6 @@ class SeenService(context: Context) {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("SeenService")
+        private val logger = logger("SeenService")
     }
 }

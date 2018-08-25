@@ -33,7 +33,15 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         val isAtEnd = isAtEnd or feed.isAtEnd
         val isAtStart = isAtStart or feed.isAtStart or !feedType.sortable
 
-        val newItems = mergeItems(feed.items)
+        val newItems = mergeItems(feed.items.map { FeedItem(it) })
+        return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
+    }
+
+    private fun mergeWith(other: Feed): Feed {
+        val isAtEnd = isAtEnd or other.isAtEnd
+        val isAtStart = isAtStart or other.isAtStart or !feedType.sortable
+
+        val newItems = mergeItems(other.items)
         return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
     }
 
@@ -41,9 +49,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
      * Adds the api feed to the items of this feed and returns
      * a list of items.
      */
-    private fun mergeItems(feedItems: List<Api.Feed.Item>): List<FeedItem> {
-        val newItems = feedItems.mapTo(mutableListOf(), ::FeedItem)
-
+    private fun mergeItems(newItems: List<FeedItem>): List<FeedItem> {
         // merge them in the correct order.
         val target = ArrayList<FeedItem>(items.size + newItems.size)
 
@@ -54,11 +60,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
             while (new.hasNext() && old.hasNext()) {
                 val cmp = itemComparator.compare(new.peek(), old.peek())
-                if (cmp > 0) {
-                    target.add(old.next())
-                } else {
-                    target.add(new.next())
-                }
+                target.add(if (cmp > 0) old.next() else new.next())
             }
 
             // just add the rest
@@ -129,6 +131,17 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 isAtStart = isAtStart && start == 0,
                 isAtEnd = false,
                 items = this.items.subList(start, stop).toList()))
+    }
+
+    /**
+     * Merges both feeds
+     */
+    fun mergeIfPossible(other: Feed): Feed? {
+        if (filter != other.filter || contentType != other.contentType)
+            return null
+
+        val overlap = other.any { it in this }
+        return if (overlap) mergeWith(other) else null
     }
 
     class FeedParcel(val feed: Feed) : Freezable {

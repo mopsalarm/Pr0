@@ -5,17 +5,17 @@ import android.app.Application
 import android.graphics.*
 import android.net.Uri
 import com.pr0gramm.app.R
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
 import okhttp3.Request
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 
 
 /**
  */
 class FancyExifThumbnailGenerator(context: Application, private val downloader: Downloader) {
-    private val logger = LoggerFactory.getLogger("FancyExifThumbnailGenerator")
+    private val logger = logger("FancyExifThumbnailGenerator")
 
     private val maskV = BitmapFactory.decodeResource(context.resources, R.raw.mask_v)
     private val maskH = BitmapFactory.decodeResource(context.resources, R.raw.mask_h)

@@ -6,18 +6,14 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.Databases.withTransaction
-import com.pr0gramm.app.util.Stopwatch
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.subscribeOnBackground
-import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import okio.Okio
-import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import java.io.ByteArrayInputStream
@@ -225,7 +221,7 @@ class VoteService(private val api: Api,
     companion object {
         val NO_VOTES: TLongObjectMap<Vote> = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())
 
-        private val logger = LoggerFactory.getLogger("VoteService")
+        private val logger = logger("VoteService")
 
         private val VOTE_ACTIONS = mapOf(
                 1 to VoteAction(CachedVote.Type.ITEM, Vote.DOWN),

@@ -8,10 +8,10 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.logger
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Completable
 
 /**
@@ -82,7 +82,7 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("MessageReplyReceiver")
+        private val logger = logger("MessageReplyReceiver")
 
         fun makeIntent(context: Context, message: Api.Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)

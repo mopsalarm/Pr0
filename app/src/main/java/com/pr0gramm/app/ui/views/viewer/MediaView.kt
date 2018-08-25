@@ -31,7 +31,6 @@ import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
@@ -42,9 +41,9 @@ import rx.subjects.ReplaySubject
  */
 abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin {
     private val logger = if (BuildConfig.DEBUG) {
-        LoggerFactory.getLogger("MediaView[${config.mediaUri.id}]")
+        logger("MediaView[${config.mediaUri.id}]")
     } else {
-        LoggerFactory.getLogger("MediaView")
+        logger("MediaView")
     }
 
     private val previewTarget = PreviewTarget(logger, this)
@@ -453,7 +452,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         private val watch = Stopwatch.createStarted()
 
         override fun call(bitmap: Bitmap) {
-            bitmap ?: return
+            bitmap
 
             logger.debug("Got a preview image after {}", watch)
 

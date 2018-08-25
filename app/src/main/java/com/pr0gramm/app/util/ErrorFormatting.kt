@@ -8,7 +8,6 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
-import org.slf4j.LoggerFactory
 import java.io.EOFException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -40,7 +39,7 @@ object ErrorFormatting {
          * if [.handles] returned true before.
          */
         fun getMessage(context: Context, thr: Throwable): String {
-            LoggerFactory.getLogger("ErrorFormatting").info("Formatting error:", thr)
+            logger("ErrorFormatting").info("Formatting error:", thr)
             return message(thr, context)
         }
 

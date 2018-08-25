@@ -5,14 +5,14 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import okio.*
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 
-private val logger = LoggerFactory.getLogger("Freezer")
+private val logger = logger("Freezer")
 
 /**
  * Very simple re-implementation of the Parcelable framework.

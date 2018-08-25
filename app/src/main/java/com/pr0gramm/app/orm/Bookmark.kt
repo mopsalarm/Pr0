@@ -4,8 +4,8 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.mapToList
-import org.slf4j.LoggerFactory
 
 /**
  */
@@ -23,7 +23,7 @@ data class Bookmark(val title: String, private val filterTags: String?, private 
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("Bookmark")
+        private val logger = logger("Bookmark")
 
         fun of(filter: FeedFilter, title: String): Bookmark {
             val filterTags = filter.tags

@@ -15,9 +15,9 @@ import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.RxPicasso
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
@@ -35,7 +35,7 @@ class NavigationProvider(
         private val extraCategories: ExtraCategories,
         private val picasso: Picasso) {
 
-    private val logger = LoggerFactory.getLogger("NavigationProvider")
+    private val logger = logger("NavigationProvider")
 
     private val iconBookmark = drawable(R.drawable.ic_black_action_bookmark)
     private val iconFavorites = drawable(R.drawable.ic_black_action_favorite)

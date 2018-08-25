@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.TypeToken
 import com.pr0gramm.app.util.edit
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import java.util.*
 
 
@@ -74,7 +74,7 @@ class RecentSearchesServices(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("RecentSearchesServices")
+        private val logger = logger("RecentSearchesServices")
 
         private const val KEY = "RecentSearchesServices.terms"
 

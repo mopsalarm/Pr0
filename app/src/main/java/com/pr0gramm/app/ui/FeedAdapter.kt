@@ -41,7 +41,8 @@ private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entr
 class FeedAdapter(private val picasso: Picasso,
                   private val userHintClickedListener: OnUserClickedListener,
                   private val userActionListener: UserInfoView.UserActionListener)
-    : AsyncListAdapter<FeedAdapter.Entry, RecyclerView.ViewHolder>(ItemCallback()) {
+
+    : AsyncListAdapter<FeedAdapter.Entry, RecyclerView.ViewHolder>(ItemCallback(), name = "FeedAdapter") {
 
     private var lastSeenAdview: AdView? = null
 
@@ -55,6 +56,9 @@ class FeedAdapter(private val picasso: Picasso,
             throw IllegalArgumentException("Error in Offset() mapping")
     }
 
+    /**
+     * The list of entries that is currently displayed.
+     */
     @Volatile
     var latestEntries: List<Entry> = listOf()
         private set

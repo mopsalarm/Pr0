@@ -4,8 +4,8 @@ import android.net.Uri
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.readStream
-import org.slf4j.LoggerFactory
 import pl.droidsonroids.gif.GifDrawable
 import rx.Emitter
 import rx.Observable
@@ -96,10 +96,10 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
     data class DownloadStatus(val drawable: GifDrawable? = null,
                               val progress: Float = 1.0f) {
 
-        val finished get() = drawable != null;
+        val finished get() = drawable != null
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("GifLoader")
+        private val logger = logger("GifLoader")
     }
 }

@@ -3,19 +3,16 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.observeOnMainThread
-import com.pr0gramm.app.util.subscribeOnBackground
-import com.pr0gramm.app.util.withIf
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.*
 import rx.Observable
 import rx.subjects.PublishSubject
 
 abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T>,
-        private val detectMoves: Boolean = false) : RecyclerView.Adapter<V>() {
+        private val detectMoves: Boolean = false,
+        name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
 
-    private val logger = LoggerFactory.getLogger("AsyncListAdapter")
+    internal val logger = logger(name)
 
     private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
     val updates = updateSubject as Observable<List<T>>
@@ -91,6 +88,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
     }
 
     private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {
+        logger.debug("Applying update to recyclerView now.")
         this.items = items
         dispatch()
         updateSubject.onNext(items)

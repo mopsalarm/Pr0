@@ -5,16 +5,12 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.readStream
-import com.pr0gramm.app.util.subscribeOnBackground
-import com.pr0gramm.app.util.toInt
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okio.BufferedSink
-import org.slf4j.LoggerFactory
 import retrofit2.HttpException
 import rx.Observable
 import rx.lang.kotlin.ofType
@@ -208,7 +204,7 @@ class UploadService(private val api: Api,
         }
 
         if (posted.error != null) {
-            return State.Error(posted.error!!, posted.report)
+            return State.Error(posted.error, posted.report)
         }
 
         if (posted.itemId > 0) {
@@ -307,7 +303,7 @@ class UploadService(private val api: Api,
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("UploadService")
+        private val logger = logger("UploadService")
 
     }
 }

@@ -25,7 +25,7 @@ import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.views.AspectLayout
-import org.slf4j.LoggerFactory
+import com.pr0gramm.app.util.logger
 import java.io.IOException
 
 /**
@@ -99,7 +99,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
         parentView.addView(view)
 
         // forward events
-        RxView.detaches(view).subscribe(detaches)
+        RxView.detaches(view).map { Unit }.subscribe(detaches)
     }
 
     override val progress: Float get() {
@@ -235,7 +235,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
 
     private val mCompletionListener = MediaPlayer.OnCompletionListener { mp ->
         // Workaround for samsung devices to enable looping.
-        if (mp.isLooping()) {
+        if (mp.isLooping) {
             mp.pause()
             mp.seekTo(0)
             mp.start()
@@ -290,26 +290,23 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
         }
 
         var kind: VideoPlayer.ErrorKind = VideoPlayer.ErrorKind.UNKNOWN
-        @StringRes val errorMessage: Int
-        when (what) {
+        @StringRes
+        val errorMessage: Int = when (what) {
             MediaPlayer.MEDIA_ERROR_IO -> {
-                errorMessage = R.string.media_error_io
                 kind = VideoPlayer.ErrorKind.NETWORK
+                R.string.media_error_io
             }
 
-            MediaPlayer.MEDIA_ERROR_MALFORMED -> errorMessage = R.string.media_error_malformed
+            MediaPlayer.MEDIA_ERROR_MALFORMED -> R.string.media_error_malformed
+            MediaPlayer.MEDIA_ERROR_SERVER_DIED -> R.string.media_error_server_died
+            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> R.string.media_error_timed_out
+            MediaPlayer.MEDIA_ERROR_UNKNOWN -> R.string.media_error_unknown
+            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> R.string.media_error_unsupported
 
-            MediaPlayer.MEDIA_ERROR_SERVER_DIED -> errorMessage = R.string.media_error_server_died
+            MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK ->
+                R.string.media_error_not_valid_for_progressive_playback
 
-            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> errorMessage = R.string.media_error_timed_out
-
-            MediaPlayer.MEDIA_ERROR_UNKNOWN -> errorMessage = R.string.media_error_unknown
-
-            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> errorMessage = R.string.media_error_unsupported
-
-            MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK -> errorMessage = R.string.media_error_not_valid_for_progressive_playback
-
-            else -> errorMessage = R.string.could_not_play_video
+            else -> R.string.could_not_play_video
         }
 
         // show this error.
@@ -381,7 +378,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
             mCurrentState != STATE_PREPARING
 
     companion object {
-        internal val logger = LoggerFactory.getLogger("CustomVideoView")
+        internal val logger = logger("CustomVideoView")
 
         // all possible internal states
         private val STATE_ERROR = -1

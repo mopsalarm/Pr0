@@ -113,6 +113,18 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         makeItemCurrent(start)
     }
 
+    override fun onStop() {
+        activePostFragment?.feedItem?.let { feedItem ->
+            val feed = adapter.feed
+            if (feedItem in feed) {
+                val target = targetFragment as? FeedFragment ?: return@let
+                target.updateFeedItemTarget(adapter.feed, feedItem)
+            }
+        }
+
+        super.onStop()
+    }
+
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 

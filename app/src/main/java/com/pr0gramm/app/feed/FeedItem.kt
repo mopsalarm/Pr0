@@ -93,6 +93,8 @@ class FeedItem : Freezable, HasThumbnail {
         return other is FeedItem && other._id == _id
     }
 
+    override fun toString(): String = "FeedItem(id=$id)"
+
     override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
         sink.writeInt(_id)
         sink.writeInt(_promotedId)

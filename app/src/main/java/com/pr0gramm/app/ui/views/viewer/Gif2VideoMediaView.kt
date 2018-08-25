@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
+import com.pr0gramm.app.util.logger
 import org.kodein.di.erased.instance
-import org.slf4j.LoggerFactory
 import rx.Observable
 
 /**
@@ -54,6 +54,6 @@ class Gif2VideoMediaView internal constructor(config: MediaView.Config) : ProxyM
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("Gif2VideoMediaView")
+        private val logger = logger("Gif2VideoMediaView")
     }
 }

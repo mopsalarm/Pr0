@@ -6,7 +6,6 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.*
-import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,7 +20,7 @@ class SyncService(private val userService: UserService,
                   private val seenService: SeenService,
                   private val kvService: KVService) {
 
-    private val logger = LoggerFactory.getLogger("SyncService")
+    private val logger = logger("SyncService")
 
     private val settings = Settings.get()
     private val seenSyncLock = AtomicBoolean()

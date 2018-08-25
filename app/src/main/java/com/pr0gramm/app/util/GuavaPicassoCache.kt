@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.support.v4.graphics.BitmapCompat
 import android.support.v4.util.LruCache
 import com.squareup.picasso.Cache
-import org.slf4j.LoggerFactory
 import kotlin.concurrent.timer
 
 /**
@@ -59,7 +58,7 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("GuavaPicassoCache")
+        private val logger = logger("GuavaPicassoCache")
         private const val MAX_CACHE_ITEM_SIZE = (128 * 128 * 4).toLong()
 
         @JvmStatic
