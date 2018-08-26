@@ -107,7 +107,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val preloadedCount: Int = 0,
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
-            val firstLoadFinished: Boolean = false,
             val adsVisible: Boolean = false,
             val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
             val userInfoCommentsOpen: Boolean = false,
@@ -124,10 +123,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             logger.debug("Feed after update: {} items, oldest={}, newest={}",
                     new.size, new.oldest?.id, new.newest?.id)
 
-            state = state.copy(
-                    feedItems = feed.items,
-                    feedFilter = feed.filter,
-                    firstLoadFinished = state.firstLoadFinished || feed.isNotEmpty())
+            state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
         }
 
         if (new.isNotEmpty()) {
@@ -351,7 +347,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         state.ownUsername != null && state.ownUsername.equals(filter.likes
                                 ?: filter.username, ignoreCase = true))
 
-                val adsVisible = state.adsVisible && state.firstLoadFinished
+                val adsVisible = state.adsVisible
 
                 // always show at least one ad banner - e.g. during load
                 if (adsVisible && state.feedItems.isEmpty()) {
