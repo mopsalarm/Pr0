@@ -588,8 +588,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         feedAdapter.updates
                 .startWith(feedAdapter.latestEntries)
                 .bindToLifecycle()
+                .filter { entries -> entries.any { entry -> entry is FeedAdapter.Entry.Item && entry.item == ref.item } }
                 .debounce(250, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-                .takeFirst { entries -> entries.any { entry -> entry is FeedAdapter.Entry.Item && entry.item == ref.item } }
+                .take(1)
                 .subscribe { scrollToItem(ref.item.id, smoothScroll = true) }
 
         // apply the updated feed reference
