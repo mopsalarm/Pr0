@@ -7,6 +7,7 @@ import android.os.Parcelable
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
+import com.pr0gramm.app.util.timeWithExtraOutput
 import okio.*
 import java.io.ByteArrayInputStream
 import java.util.zip.Deflater
@@ -92,7 +93,7 @@ interface Freezable : Parcelable {
 
 object Freezer {
     fun freeze(f: Freezable): ByteArray {
-        logger.time("Freezing object of type ${f.javaClass.simpleName}") {
+        logger.timeWithExtraOutput("Freezing object of type ${f.javaClass.simpleName}") { extraOutput ->
             val buffer = Buffer()
             try {
                 DeflaterSink(buffer, Deflater(Deflater.BEST_SPEED)).use {
@@ -101,7 +102,10 @@ object Freezer {
                     }
                 }
 
-                return buffer.readByteArray()
+                val bytes = buffer.readByteArray()
+                extraOutput("(${bytes.size} bytes")
+
+                return bytes
 
             } finally {
                 buffer.clear()

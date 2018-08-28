@@ -41,7 +41,6 @@ import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
 import org.kodein.di.erased.instance
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import java.net.ConnectException
 import java.util.*
@@ -81,9 +80,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
     private var bookmarkable: Boolean = false
-    private var autoScrollOnLoad: Long? = null
+    private var autoScrollRef: ScrollRef? = null
     private var autoOpenOnLoad: CommentRef? = null
-    private var resumeFromFeedItemRef: FeedItemRef? = null
 
     private var lastCheckForNewItemsTime = Instant(0)
 
@@ -146,23 +144,22 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle().subscribe { logger.info("Fragment lifecycle: $it") }
 
         // initialize auto opening (only on first start)
         if (savedInstanceState == null) {
             val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
             if (start != null) {
                 logger.debug("Requested to open item {} on load", start)
-                autoScrollOnLoad = start.itemId
+                autoScrollRef = ScrollRef(start.itemId)
                 autoOpenOnLoad = start
             }
         }
 
         // initialize auto scroll if we got restored
-        savedInstanceState?.getLong(ARG_FEED_SCROLL, 0).takeIf { it != 0L }?.let { id ->
-            logger.debug("Requested to scroll to item {} on load", id)
-            autoScrollOnLoad = id
-        }
+        // savedInstanceState?.getLong(ARG_FEED_SCROLL, 0).takeIf { it != 0L }?.let { id ->
+        //     logger.debug("Requested to scroll to item {} on load", id)
+        //     autoScrollRef = ScrollRef(id)
+        // }
 
         this.scrollToolbar = useToolbarTopMargin()
 
@@ -171,7 +168,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         loader = FeedManager(feedService, feed)
 
         if (previousFeed == null) {
-            loader.restart(around = autoScrollOnLoad)
+            loader.restart(around = autoScrollRef?.itemId)
         }
     }
 
@@ -369,7 +366,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
 
-            feedAdapter.submitList(entries)
+            if (entries == feedAdapter.latestEntries) {
+                logger.debug("Skip submit of feed items, no change in state.")
+                return
+            }
+
+            val forceSyncUpdate = autoScrollRef != null
+            feedAdapter.submitList(entries, forceSyncUpdate)
         }
     }
 
@@ -381,9 +384,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val lastVisibleIndex = lastVisibleItem?.let { feed.indexById(it.id) }
 
             if (lastVisibleItem != null && lastVisibleIndex != null) {
-                logger.debug("Store feed around item {} ({})", lastVisibleItem.id, feed)
-                outState.putParcelable(ARG_FEED, feed.parcelAround(lastVisibleIndex))
-                outState.putLong(ARG_FEED_SCROLL, lastVisibleItem.id)
+                outState.putParcelable(ARG_FEED, feed.parcelAll())
             }
 
             outState.putBoolean("searchContainerVisible", searchContainerIsVisible())
@@ -552,7 +553,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             state = state.copy(ownUsername = userService.name)
         }
 
-        if (resumeFromFeedItemRef != null) {
+        if (autoScrollRef != null) {
             scrollToResumeFromFeedItem()
 
         } else {
@@ -572,30 +573,37 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .bindToLifecycleAsync()
                 .ignoreError()
                 .subscribe { state = state.copy(preloadedCount = it.size) }
-
-
     }
 
     private fun scrollToResumeFromFeedItem() {
-        val ref = resumeFromFeedItemRef ?: return
-        resumeFromFeedItemRef = null
+        val ref = autoScrollRef ?: return
 
         // scroll to the item once it is visible
         feedAdapter.updates
                 .startWith(feedAdapter.latestEntries)
                 .bindToLifecycle()
-                .filter { entries -> entries.any { entry -> entry is FeedAdapter.Entry.Item && entry.item == ref.item } }
-                .debounce(250, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-                .take(1)
-                .subscribe { scrollToItem(ref.item.id, smoothScroll = true) }
+                .takeFirst { entries ->
+                    entries.any { entry ->
+                        entry is FeedAdapter.Entry.Item && entry.item.id == ref.itemId
+                    }
+                }
+                .subscribe {
+                    if (autoScrollRef === ref) {
+                        // only scroll + reset if not changed
+                        autoScrollRef = null
+                        scrollToItem(ref.itemId, ref.smoothScroll)
+                    }
+                }
 
-        // apply the updated feed reference
-        this.feed = feed.mergeIfPossible(ref.feed) ?: ref.feed
+        ref.feed?.let { feedUpdate ->
+            // apply the updated feed reference
+            this.feed = feed.mergeIfPossible(feedUpdate) ?: feedUpdate
+        }
     }
 
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
-        logger.info("Want to resume from {}", item)
-        resumeFromFeedItemRef = FeedItemRef(feed, item)
+        // logger.info("Want to resume from {}", item)
+        // autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
     }
 
     private fun checkForNewItems() {
@@ -649,13 +657,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun replaceFeedFilter(feedFilter: FeedFilter, newContentType: Set<ContentType>, item: Long? = null) {
-        autoScrollOnLoad = item ?: autoOpenOnLoad?.itemId
+        val startAtItemId = item
+                ?: autoOpenOnLoad?.itemId
                 ?: findLastVisibleFeedItem(newContentType)?.id
+
+        autoScrollRef = startAtItemId?.let { ScrollRef(it) }
 
         // set a new adapter if we have a new content type
         // this clears the current feed immediately
         loader.reset(Feed(feedFilter, newContentType))
-        loader.restart(around = autoScrollOnLoad)
+        loader.restart(around = autoScrollRef?.itemId)
 
         activity?.invalidateOptionsMenu()
     }
@@ -1252,22 +1263,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 onItemClicked(feed[idx], autoLoad)
             }
         }
-
-        autoScrollOnLoad?.let { autoScroll ->
-            logger.info("Trying to do auto scroll to {}", autoScroll)
-            scrollToItem(autoScroll)
-        }
-
-        autoScrollOnLoad = null
     }
 
     private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
+        trace { "scrollToItem($itemId, smooth=$smoothScroll)" }
+
         logger.debug("Checking if we can scroll to item {}", itemId)
         val idx = feedAdapter.latestEntries
                 .indexOfFirst { it is FeedAdapter.Entry.Item && it.item.id == itemId }
                 .takeIf { it >= 0 } ?: return
 
-        logger.debug("Found item at idx={}, will scroll now", idx)
+        logger.debug("Found item at idx={}, will scroll now (smooth={})", idx, smoothScroll)
 
         val recyclerView = recyclerView
         if (smoothScroll) {
@@ -1346,7 +1352,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         private const val ARG_FEED = "FeedFragment.feed"
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
         private const val ARG_FEED_START = "FeedFragment.start"
-        private const val ARG_FEED_SCROLL = "FeedFragment.scroll"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
         private const val ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState"
 
@@ -1385,5 +1390,5 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private class FeedItemRef(val feed: Feed, val item: FeedItem)
+    private class ScrollRef(val itemId: Long, val feed: Feed? = null, val smoothScroll: Boolean = false)
 }

@@ -304,15 +304,23 @@ fun <T : Any> T?.justObservable(): Observable<T> {
 
 
 inline fun <T> Logger.time(name: String, supplier: () -> T): T {
+    return timeWithExtraOutput(name) { _ -> supplier() }
+}
+
+inline fun <T> Logger.timeWithExtraOutput(name: String, supplier: (extraOutput: (String) -> Unit) -> T): T {
     if (BuildConfig.DEBUG) {
+        var extraString = ""
+
+        val consumeExtraOutput = { extra: String -> extraString = extra }
+
         val watch = Stopwatch.createStarted()
         try {
-            return supplier()
+            return supplier(consumeExtraOutput)
         } finally {
-            this.info("{} took {}", name, watch)
+            this.info("{} $extraString took {}", name, watch)
         }
     } else {
-        return supplier()
+        return supplier {}
     }
 }
 
@@ -554,9 +562,9 @@ inline fun <reified T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
 
 val traceLogger: Logger = logger("Trace")
 
-inline fun <reified T> T.trace(msg: () -> String) {
+inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
-        val type = T::class.java.simpleName
+        val type = this.javaClass.simpleName
         traceLogger.debug("[${Thread.currentThread().name}] $type.${msg()}")
     }
 }

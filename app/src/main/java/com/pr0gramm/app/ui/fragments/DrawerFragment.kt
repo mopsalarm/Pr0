@@ -308,7 +308,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 dispatchItemClick(item)
             }
 
-            holder.itemView.setOnLongClickListener {
+            holder.itemView.setOnLongClickListener { _ ->
                 item.bookmark?.let { showDialogToRemoveBookmark(it) }
                 true
             }

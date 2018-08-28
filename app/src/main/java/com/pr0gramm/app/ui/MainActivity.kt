@@ -167,7 +167,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .bindToLifecycle()
                     .onErrorResumeEmpty()
                     .filter { !userService.isPremiumUser }
-                    .subscribe {
+                    .subscribe { _ ->
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
                                 .configureNewStyle()
                                 .setAction("pr0mium") {

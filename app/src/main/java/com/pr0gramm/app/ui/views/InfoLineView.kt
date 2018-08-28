@@ -231,9 +231,9 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
             RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
 
-        override fun submitList(newList: List<VotedTag>) {
+        override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
             val dummyTag = VotedTag(Api.Tag(-2L, 0f, "dummy"), Vote.NEUTRAL, false)
-            super.submitList(listOf(dummyTag) + newList)
+            super.submitList(listOf(dummyTag) + newList, forceSync)
         }
 
         override fun getItemViewType(position: Int): Int {

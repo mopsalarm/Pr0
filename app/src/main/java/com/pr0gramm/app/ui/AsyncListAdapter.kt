@@ -10,7 +10,7 @@ import rx.subjects.PublishSubject
 abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T>,
         private val detectMoves: Boolean = false,
-        name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
+        private val name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
 
     internal val logger = logger(name)
 
@@ -40,7 +40,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
      *
      * @param newList The new List.
      */
-    open fun submitList(newList: List<T>) {
+    open fun submitList(newList: List<T>, forceSync: Boolean = false) {
         AndroidUtility.checkMainThread()
 
         val oldList = items
@@ -50,7 +50,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
             return
         }
 
-        logger.debug("Submitting items to adapter. new={}, old={}", newList.size, oldList.size)
+        trace { "submitList(new=${newList.size} items, old=${oldList.size})" }
 
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
@@ -74,7 +74,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         }
 
         Observable.fromCallable { calculateDiff(oldList, newList) }
-                .withIf(oldList.size > 32 || newList.size > 32) {
+                .withIf(!forceSync && (oldList.size > 32 || newList.size > 32)) {
                     logger.debug("Calculate diff in background")
                     subscribeOnBackground().observeOnMainThread()
                 }
@@ -88,13 +88,16 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
     }
 
     private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {
-        logger.debug("Applying update to recyclerView now.")
+        trace { "applyNewItems(${items.size} items)" }
+
         this.items = items
         dispatch()
         updateSubject.onNext(items)
     }
 
     private fun calculateDiff(oldList: List<T>, newList: List<T>): DiffUtil.DiffResult {
+        trace { "calculateDiff(...)" }
+
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize(): Int {
                 return oldList.size

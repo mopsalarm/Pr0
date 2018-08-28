@@ -72,9 +72,9 @@ class FeedAdapter(private val picasso: Picasso,
         lastSeenAdview = null
     }
 
-    override fun submitList(newList: List<Entry>) {
-        super.submitList(newList)
+    override fun submitList(newList: List<Entry>, forceSync: Boolean) {
         latestEntries = newList
+        super.submitList(newList, forceSync)
     }
 
     override fun getItemViewType(position: Int): Int {
