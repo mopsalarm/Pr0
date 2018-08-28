@@ -86,13 +86,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return true == when (item.itemId) {
             android.R.id.home -> finish()
-            R.id.action_search -> sendMessageNow()
+            R.id.action_send -> sendMessageNow()
             else -> super.onOptionsItemSelected(item)
         }
-
-        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
