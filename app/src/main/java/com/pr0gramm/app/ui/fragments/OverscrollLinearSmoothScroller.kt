@@ -2,24 +2,30 @@ package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
 import android.support.v7.widget.LinearSmoothScroller
-import android.view.View
-import com.pr0gramm.app.util.AndroidUtility
+import kotlin.math.absoluteValue
 
 class OverscrollLinearSmoothScroller(
-        context: Context,
-        private val baseOffset: Int = AndroidUtility.dp(context, 32),
-        private val verticalSnapPreference: Int? = null) : LinearSmoothScroller(context) {
+        context: Context, idx: Int,
+        private val offsetTop: Int,
+        private val offsetBottom: Int) : LinearSmoothScroller(context) {
 
-    private val offset = AndroidUtility.getActionBarContentOffset(context)
-
-    override fun calculateDyToMakeVisible(view: View?, snapPreference: Int): Int {
-        val dy = super.calculateDyToMakeVisible(view, snapPreference)
-
-        val offset = if (snapPreference == SNAP_TO_START) baseOffset + offset else -baseOffset
-        return dy + offset
+    init {
+        targetPosition = idx
     }
 
-    override fun getVerticalSnapPreference(): Int {
-        return verticalSnapPreference ?: super.getVerticalSnapPreference()
+    override fun calculateDtToFit(viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int): Int {
+        val dTop = boxStart - (viewStart - offsetTop)
+        val dBot = boxEnd - (viewEnd + offsetBottom)
+        return if (dTop.absoluteValue < dBot.absoluteValue) dTop else dBot
+    }
+}
+
+class CenterLinearSmoothScroller(ctx: Context, idx: Int) : LinearSmoothScroller(ctx) {
+    init {
+        targetPosition = idx
+    }
+
+    override fun calculateDtToFit(viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int): Int {
+        return boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
     }
 }

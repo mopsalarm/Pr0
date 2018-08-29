@@ -91,7 +91,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
     private class Version(val formatted: String, val current: Boolean) {
         companion object {
             fun of(number: Int, current: Boolean): Version {
-                return Version("Version 1." + number, current)
+                return Version("Version 1.$number", current)
             }
         }
     }

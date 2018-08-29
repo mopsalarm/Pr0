@@ -15,7 +15,6 @@ import android.support.v4.view.ViewCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.ViewGroup.LayoutParams
@@ -1039,11 +1038,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         if (idx >= 0) {
             if (smoothScroll) {
-                val linearSmoothScroller = OverscrollLinearSmoothScroller(
-                        recyclerView.context, LinearSmoothScroller.SNAP_TO_START)
-
-                linearSmoothScroller.targetPosition = idx
-                recyclerView.layoutManager.startSmoothScroll(linearSmoothScroller)
+                val scroller = CenterLinearSmoothScroller(recyclerView.context, idx)
+                recyclerView.layoutManager.startSmoothScroll(scroller)
 
             } else {
                 recyclerView.scrollToPosition(idx)

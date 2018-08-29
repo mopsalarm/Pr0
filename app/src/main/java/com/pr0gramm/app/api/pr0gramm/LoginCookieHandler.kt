@@ -88,7 +88,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
     }
 
     private fun isNoApiRequest(uri: HttpUrl): Boolean {
-        return !uri.host().equals("pr0gramm.com", ignoreCase = true) && !uri.host().contains(Debug.MOCK_API_HOST)
+        return !uri.host().equals("pr0gramm.com", ignoreCase = true) && !uri.host().contains(Debug.mockApiHost)
     }
 
     private fun isLoginCookie(cookie: okhttp3.Cookie): Boolean {

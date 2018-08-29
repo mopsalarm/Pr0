@@ -97,7 +97,9 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 
                 .apply {
                     debug {
-                        addInterceptor(DebugInterceptor())
+                        if (Debug.debugInterceptor) {
+                            addInterceptor(DebugInterceptor())
+                        }
                     }
                 }
 
@@ -274,7 +276,7 @@ private class DebugInterceptor : Interceptor {
         val watch = Stopwatch.createStarted()
         try {
             if ("pr0gramm.com" in request.url().toString()) {
-                TimeUnit.MILLISECONDS.sleep(750)
+                TimeUnit.MILLISECONDS.sleep(250)
             } else {
                 TimeUnit.MILLISECONDS.sleep(500)
             }

@@ -28,6 +28,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Debug
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.truss
 import okhttp3.HttpUrl
@@ -171,11 +172,7 @@ object AndroidUtility {
     }
 
     fun buildVersionCode(): Int {
-        if (BuildConfig.DEBUG) {
-            return 100
-        } else {
-            return BuildConfig.VERSION_CODE
-        }
+        return Debug.versionOverride ?: BuildConfig.VERSION_CODE
     }
 
     fun hideSoftKeyboard(view: View?) {

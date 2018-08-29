@@ -1,11 +1,11 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -155,12 +155,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        // initialize auto scroll if we got restored
-        // savedInstanceState?.getLong(ARG_FEED_SCROLL, 0).takeIf { it != 0L }?.let { id ->
-        //     logger.debug("Requested to scroll to item {} on load", id)
-        //     autoScrollRef = ScrollRef(id)
-        // }
-
         this.scrollToolbar = useToolbarTopMargin()
 
         val previousFeed = savedInstanceState?.getParcelable(ARG_FEED, Feed.FeedParcel)?.feed
@@ -187,7 +181,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val spanCount = thumbnailColumCount
         recyclerView.itemAnimator = null
         recyclerView.adapter = feedAdapter
-        recyclerView.layoutManager = GridLayoutManager(activity, spanCount).apply {
+        recyclerView.layoutManager = InternalGridLayoutManager(activity, spanCount).apply {
             spanSizeLookup = feedAdapter.SpanSizeLookup(spanCount)
         }
 
@@ -553,17 +547,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             state = state.copy(ownUsername = userService.name)
         }
 
-        if (autoScrollRef != null) {
-            scrollToResumeFromFeedItem()
-
-        } else {
-            // we might want to check for new items on reload, but only once every two minutes.
-            val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
-            val threshold = Instant.now().minus(checkForNewItemInterval)
-            if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
-                lastCheckForNewItemsTime = Instant.now()
-                checkForNewItems()
-            }
+        // we might want to check for new items on reload, but only once every two minutes.
+        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
+        val threshold = Instant.now().minus(checkForNewItemInterval)
+        if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
+            lastCheckForNewItemsTime = Instant.now()
+            checkForNewItems()
         }
 
         // Observe all preloaded items to get them into the cache and to show the
@@ -578,32 +567,26 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun scrollToResumeFromFeedItem() {
         val ref = autoScrollRef ?: return
 
-        // scroll to the item once it is visible
-        feedAdapter.updates
-                .startWith(feedAdapter.latestEntries)
-                .bindToLifecycle()
-                .takeFirst { entries ->
-                    entries.any { entry ->
-                        entry is FeedAdapter.Entry.Item && entry.item.id == ref.itemId
-                    }
-                }
-                .subscribe {
-                    if (autoScrollRef === ref) {
-                        // only scroll + reset if not changed
-                        autoScrollRef = null
-                        scrollToItem(ref.itemId, ref.smoothScroll)
-                    }
-                }
+        val containsRef = feedAdapter.latestEntries.any { entry ->
+            entry is FeedAdapter.Entry.Item && entry.item.id == ref.itemId
+        }
 
-        ref.feed?.let { feedUpdate ->
+        if (containsRef) {
+            autoScrollRef = null
+            scrollToItem(ref.itemId, ref.smoothScroll)
+
+        } else if (ref.feed != null) {
+            // mark the feed as applied
+            autoScrollRef = ref.copy(feed = null)
+
             // apply the updated feed reference
-            this.feed = feed.mergeIfPossible(feedUpdate) ?: feedUpdate
+            this.feed = feed.mergeIfPossible(ref.feed) ?: ref.feed
         }
     }
 
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
-        // logger.info("Want to resume from {}", item)
-        // autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
+        logger.info("Want to resume from {}", item)
+        autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
     }
 
     private fun checkForNewItems() {
@@ -666,7 +649,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // set a new adapter if we have a new content type
         // this clears the current feed immediately
         loader.reset(Feed(feedFilter, newContentType))
-        loader.restart(around = autoScrollRef?.itemId)
+        loader.restart(around = startAtItemId)
 
         activity?.invalidateOptionsMenu()
     }
@@ -951,6 +934,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val feed = feed
 
         val idx = feed.indexById(item.id) ?: return
+        trace { "onItemClicked(feedIndex=$idx, id=${item.id})" }
 
         try {
             val generator: FancyExifThumbnailGenerator by instance()
@@ -1287,9 +1271,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
 
             // smooth scroll to the target position
-            val scroller = LinearSmoothScroller(recyclerView.context)
-            scroller.targetPosition = idx
-            layoutManager.startSmoothScroll(scroller)
+            val context = recyclerView.context
+            layoutManager.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + AndroidUtility.dp(context, 32),
+                    offsetBottom = AndroidUtility.dp(context, 32)))
 
         } else {
             // over scroll a bit
@@ -1299,6 +1284,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun isSelfInfo(info: Api.Info): Boolean {
         return info.user.name.equals(userService.name, ignoreCase = true)
+    }
+
+    inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
+        override fun onLayoutCompleted(state: RecyclerView.State?) {
+            super.onLayoutCompleted(state)
+            scrollToResumeFromFeedItem()
+        }
     }
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
@@ -1317,17 +1309,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                 if (dy > 0 && !feed.isAtEnd) {
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-                    if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        logger.info("Request next page now (last visible is {} of {}", lastVisibleItem, totalItemCount)
-                        loader.next()
+                    if (lastVisibleItem >= 0) {
+                        if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
+                            logger.info("Request next page now (last visible is {} of {}", lastVisibleItem, totalItemCount)
+                            loader.next()
+                        }
                     }
                 }
 
                 if (dy < 0 && !feed.isAtStart) {
                     val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-                    if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        logger.info("Request previous page now (first visible is {} of {})", firstVisibleItem, totalItemCount)
-                        loader.previous()
+                    if (firstVisibleItem >= 0) {
+                        if (totalItemCount > 12 && firstVisibleItem < 12) {
+                            logger.info("Request previous page now (first visible is {} of {})", firstVisibleItem, totalItemCount)
+                            loader.previous()
+                        }
                     }
                 }
             }
@@ -1390,5 +1386,5 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private class ScrollRef(val itemId: Long, val feed: Feed? = null, val smoothScroll: Boolean = false)
+    private data class ScrollRef(val itemId: Long, val feed: Feed? = null, val smoothScroll: Boolean = false)
 }
