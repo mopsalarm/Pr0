@@ -102,7 +102,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private data class State(
             val feedItems: List<FeedItem>,
             val feedFilter: FeedFilter,
-            val preloadedCount: Int = 0,
+            val preloadedItemIds: Set<Long> = emptySet(),
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
             val adsVisible: Boolean = false,
@@ -349,7 +349,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     val id = item.id
                     val seen = markAsSeen && seenService.isSeen(id)
                     val repost = inMemoryCacheService.isRepost(id)
-                    val preloaded = preloadManager.exists(id)
+                    val preloaded = id in state.preloadedItemIds
 
                     // show an ad banner every ~50 lines
                     if (adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
@@ -557,11 +557,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // Observe all preloaded items to get them into the cache and to show the
         // correct state in the ui once they are loaded
-        preloadManager.all()
-                .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler.instance())
-                .bindToLifecycleAsync()
-                .ignoreError()
-                .subscribe { state = state.copy(preloadedCount = it.size) }
+        preloadManager.all().share().let { preloadItems ->
+            preloadItems
+                    .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                    .startWith(preloadItems.first())
+                    .bindToLifecycleAsync()
+                    .ignoreError()
+                    .subscribe { items ->
+                        state = state.copy(preloadedItemIds = items.mapTo(hashSetOf()) { it.itemId })
+                    }
+        }
     }
 
     private fun performAutoScroll() {

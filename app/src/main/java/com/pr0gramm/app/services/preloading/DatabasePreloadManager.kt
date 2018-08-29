@@ -156,17 +156,17 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     companion object {
         private val logger = logger("DatabasePreloadManager")
 
-        private val TABLE_NAME = "preload_2"
-        private val QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME
+        private const val TABLE_NAME = "preload_2"
+        private const val QUERY_ALL_ITEM_IDS = "SELECT * FROM $TABLE_NAME"
 
         fun onCreate(db: SQLiteDatabase) {
             logger.info("initializing sqlite database")
-            db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "itemId INT NOT NULL UNIQUE," +
-                    "creation INT NOT NULL," +
-                    "media TEXT NOT NULL," +
-                    "thumbnail TEXT NOT NULL)")
+            db.execSQL("""CREATE TABLE IF NOT EXISTS $TABLE_NAME (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    itemId INT NOT NULL UNIQUE,
+                    creation INT NOT NULL,
+                    media TEXT NOT NULL,
+                    thumbnail TEXT NOT NULL)""")
         }
     }
 }

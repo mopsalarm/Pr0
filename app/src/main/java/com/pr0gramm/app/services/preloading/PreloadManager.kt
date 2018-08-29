@@ -20,5 +20,11 @@ interface PreloadManager {
     /**
      * A item that was preloaded.
      */
-    class PreloadItem(val itemId: Long, val creation: Instant, val media: File, val thumbnail: File)
+    class PreloadItem(val itemId: Long, val creation: Instant, val media: File, val thumbnail: File) {
+        override fun hashCode(): Int = itemId.hashCode()
+
+        override fun equals(other: Any?): Boolean {
+            return other is PreloadItem && other.itemId == itemId
+        }
+    }
 }
