@@ -540,5 +540,7 @@
     <string name="hint_comment_not_found">This comment does not exist.</string>
     <string name="doh">D\'oh!</string>
     <string name="hint_loading">Loading…</string>
+    <string name="pref_feed_scroll_on_back_title">Sync feed scroll</string>
+    <string name="pref_feed_scroll_on_back_sumary">Sync scroll of the feed to the current thumbnail when you come back from a post to the feed.</string>
 </resources>
 

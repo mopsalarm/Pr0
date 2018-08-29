@@ -518,4 +518,6 @@
     <string name="hint_comment_not_found">Dieser Kommentar existiert nicht.</string>
     <string name="doh">Mist</string>
     <string name="hint_loading">Wird geladen…</string>
+    <string name="pref_feed_scroll_on_back_title">Feed automatisch scrollen</string>
+    <string name="pref_feed_scroll_on_back_sumary">Wenn du von einem Post zum Feed zurückkehrst, scrollt der Feed zu eben diesem Vorschaubildchen.</string>
 </resources>

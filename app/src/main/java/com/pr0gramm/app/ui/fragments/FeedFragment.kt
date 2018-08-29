@@ -564,7 +564,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .subscribe { state = state.copy(preloadedCount = it.size) }
     }
 
-    private fun scrollToResumeFromFeedItem() {
+    private fun performAutoScroll() {
         val ref = autoScrollRef ?: return
 
         val containsRef = feedAdapter.latestEntries.any { entry ->
@@ -585,8 +585,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
-        logger.info("Want to resume from {}", item)
-        autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
+        if (settings.feedScrollOnBack) {
+            logger.info("Want to resume from {}", item)
+            autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
+        }
     }
 
     private fun checkForNewItems() {
@@ -1262,17 +1264,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val recyclerView = recyclerView
         if (smoothScroll) {
             val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
-            val idxFirst = layoutManager.findFirstCompletelyVisibleItemPosition()
-            val idxLast = layoutManager.findLastCompletelyVisibleItemPosition()
-
-            if (idx in idxFirst..idxLast) {
-                logger.debug("No smooth scroll needed, item already visible")
-                return
-            }
 
             // smooth scroll to the target position
             val context = recyclerView.context
             layoutManager.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
+                    dontScrollIfVisible = true,
                     offsetTop = AndroidUtility.getActionBarContentOffset(context) + AndroidUtility.dp(context, 32),
                     offsetBottom = AndroidUtility.dp(context, 32)))
 
@@ -1289,7 +1285,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
         override fun onLayoutCompleted(state: RecyclerView.State?) {
             super.onLayoutCompleted(state)
-            scrollToResumeFromFeedItem()
+            performAutoScroll()
         }
     }
 

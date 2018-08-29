@@ -204,6 +204,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
 
+    val feedScrollOnBack: Boolean
+        get() = preferences.getBoolean("pref_feed_scroll_on_back", true)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit {
