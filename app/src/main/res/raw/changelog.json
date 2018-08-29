@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Wenn man nach dem Anschauen vieler Posts auf zurück geht, scrollt der Feed zum letzten gesehenen Post."
+        "change": "Wenn Du nach dem Anschauen vieler Posts auf zurück gehst, scrollt der Feed zur Vorschau dieses Posts. Abschaltbar in den Einstellungen."
       }
     ]
   },
