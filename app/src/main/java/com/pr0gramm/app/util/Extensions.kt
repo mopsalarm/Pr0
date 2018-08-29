@@ -564,7 +564,13 @@ val traceLogger: Logger = logger("Trace")
 
 inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
-        val type = this.javaClass.simpleName
+        // jump to parent class if inside a companion object.
+        var clazz: Class<*> = javaClass
+        if (clazz.simpleName == "Companion") {
+            clazz = clazz.enclosingClass
+        }
+
+        val type = clazz.simpleName
         traceLogger.debug("[${Thread.currentThread().name}] $type.${msg()}")
     }
 }

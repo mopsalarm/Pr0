@@ -172,7 +172,8 @@ object AndroidUtility {
     }
 
     fun buildVersionCode(): Int {
-        return Debug.versionOverride ?: BuildConfig.VERSION_CODE
+        return Debug.versionOverride.takeIf { BuildConfig.DEBUG }
+                ?: BuildConfig.VERSION_CODE
     }
 
     fun hideSoftKeyboard(view: View?) {

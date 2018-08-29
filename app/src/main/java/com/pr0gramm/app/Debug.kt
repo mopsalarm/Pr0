@@ -5,7 +5,7 @@ package com.pr0gramm.app
  */
 object Debug {
     const val mockApiHost = "10.1.1.55"
-    const val debugInterceptor = false
+    const val debugInterceptor = true
 
-    val versionOverride: Int? = null
+    val versionOverride: Int? = 100
 }

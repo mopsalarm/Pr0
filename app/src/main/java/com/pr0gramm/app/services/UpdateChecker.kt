@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -53,16 +54,17 @@ class UpdateChecker {
                         apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString()
                     }
 
-                    logger.info("Got new update at url " + apk)
+                    logger.info("Got new update at url {}", apk)
                     update.copy(apk = apk)
                 }
     }
 
     fun check(): Observable<Update> {
-        val updates = Observable.from(endpoints).flatMap { endpoint ->
+        val updates = Observable.from(endpoints).concatMap { endpoint ->
             check(endpoint)
                     .doOnError { err -> logger.warn("Could not check for update at {}: {}", endpoint, err.toString()) }
                     .onErrorResumeEmpty()
+                    .subscribeOn(BackgroundScheduler.instance())
         }
 
         return updates.take(1)
@@ -137,6 +139,7 @@ class UpdateChecker {
             notificationService.cancelForUpdate()
         }
 
+        @SuppressLint("SdCardPath")
         private fun install(context: Context, apk: File) {
             val uri: Uri
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {

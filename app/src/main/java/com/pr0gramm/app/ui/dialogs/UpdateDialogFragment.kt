@@ -87,7 +87,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     .doAfterTerminate(storeCheckTime)
                     .compose(activity.bindUntilEventAsync<Update?>(ActivityEvent.STOP))
                     .run { busyOperator?.let { lift(it) } ?: this }
-                    .subscribeWithErrorHandling(activity.supportFragmentManager) { update ->
+                    .subscribeWithErrorHandling(activity.supportFragmentManager) { update: Update? ->
                         if (interactive || update != null) {
                             trace { "showUpdateDialog" }
                             newInstance(update).show(activity.supportFragmentManager, null)
@@ -95,6 +95,6 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     }
         }
 
-        private val KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck"
+        private const val KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck"
     }
 }
