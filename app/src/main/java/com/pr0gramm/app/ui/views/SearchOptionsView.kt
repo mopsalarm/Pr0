@@ -176,14 +176,14 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         }
 
         // empty or actually simple search?
-        if (terms.all { it.all { it.isWhitespace() || it.isLetterOrDigit() } }) {
+        if (terms.all { term -> term.all { it.isWhitespace() || it.isLetterOrDigit() } }) {
             extendedSearch = false
         }
 
         // combine everything together
         var searchTerm = terms.joinToString(" & ")
         if (extendedSearch || terms.size > 1) {
-            searchTerm = "? " + searchTerm
+            searchTerm = "? $searchTerm"
         }
 
         // replace all new line characters (why would you add a new line?)
@@ -213,7 +213,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
         // add custom tags
         customExcludesView.text.toString().toLowerCase()
-                .split("\\w".toPattern())
+                .split("\\s+".toPattern())
                 .filterTo(withoutTags) { it != "" }
 
         return withoutTags
