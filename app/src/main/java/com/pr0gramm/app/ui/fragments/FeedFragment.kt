@@ -572,6 +572,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun performAutoScroll() {
         val ref = autoScrollRef ?: return
 
+        // if we currently scroll the view, lets just do this later.
+        if(recyclerView.isComputingLayout) {
+            recyclerView.post { performAutoScroll() }
+            return
+        }
+
         val containsRef = feedAdapter.latestEntries.any { entry ->
             entry is FeedAdapter.Entry.Item && entry.item.id == ref.itemId
         }
