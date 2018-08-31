@@ -574,7 +574,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // if we currently scroll the view, lets just do this later.
         if(recyclerView.isComputingLayout) {
-            recyclerView.post { performAutoScroll() }
+            Observable.just(Unit)
+                    .observeOnMainThread()
+                    .bindToLifecycle()
+                    .subscribe { performAutoScroll() }
+
             return
         }
 
@@ -1250,6 +1254,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun performAutoOpen() {
+        if (autoScrollRef?.smoothScroll == false) {
+            performAutoScroll()
+        }
+
         autoOpenOnLoad?.let { autoLoad ->
             logger.info("Trying to do auto load of {}", autoLoad)
 
