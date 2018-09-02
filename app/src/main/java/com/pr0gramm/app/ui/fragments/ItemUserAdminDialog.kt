@@ -28,16 +28,25 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     private val reasonListView: ListView by bindView(R.id.reason)
     private val customReasonText: EditText by bindView(R.id.custom_reason)
-    private val blockUser: CheckBox by bindView(R.id.block_user)
-    private val blockUserForDays: EditText by bindView(R.id.block_user_days)
-    private val blockTreeup: CheckBox by bindView(R.id.block_treeup)
+
+    private val blockUser: CheckBox? by bindOptionalView(R.id.block_user)
+    private val blockUserForDays: EditText? by bindOptionalView(R.id.block_user_days)
+    private val blockTreeup: CheckBox? by bindOptionalView(R.id.block_treeup)
+
+    private val deleteSoft: CheckBox? by bindOptionalView(R.id.soft_delete)
 
     // one of those must be set.
     private val user: String? by lazy { arguments?.getString(KEY_USER) }
     private val item: FeedItem? by lazy { arguments?.getFreezable(KEY_FEED_ITEM, FeedItem) }
+    private val comment: Long? by lazy { arguments?.getLong(KEY_COMMENT)?.takeIf { it > 0 } }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val layout = if (user != null) R.layout.admin_ban_user else R.layout.admin_delete_item
+        val layout = when {
+            user != null -> R.layout.admin_ban_user
+            item != null -> R.layout.admin_delete_item
+            comment != null -> R.layout.admin_delete_comment
+            else -> throw IllegalArgumentException()
+        }
 
         return dialog(requireContext()) {
             layout(layout)
@@ -51,13 +60,15 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         reasonListView.adapter = ArrayAdapter(dialog.context,
                 android.R.layout.simple_list_item_1, REASONS)
 
-        if (user != null) {
-            blockUser.isChecked = true
-            blockUser.isEnabled = false
-        }
+        blockUser?.let { blockUser ->
+            if (user != null) {
+                blockUser.isChecked = true
+                blockUser.isEnabled = false
+            }
 
-        blockUser.checkedChanges().subscribe { checked ->
-            blockTreeup.isEnabled = checked
+            blockUser.checkedChanges().subscribe { checked ->
+                blockTreeup?.isEnabled = checked
+            }
         }
 
         reasonListView.itemClicks().subscribe { index ->
@@ -74,6 +85,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         val completable = null
                 ?: item?.let { deleteItem(it, reason) }
                 ?: user?.let { blockUser(it, reason) }
+                ?: comment?.let { deleteComment(it, reason) }
                 ?: throw IllegalStateException("Either item or user must be set.")
 
         completable
@@ -84,20 +96,26 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     }
 
     private fun deleteItem(item: FeedItem, reason: String): Completable {
-        val ban = blockUser.isChecked
-        val banUserDays = if (ban) blockUserForDays.text.toString().toFloatOrNull() else null
+        val ban = blockUser?.isChecked ?: false
+        val banUserDays = if (ban) blockUserForDays?.text?.toString()?.toFloatOrNull() else null
         return adminService.deleteItem(item, reason, banUserDays)
     }
 
     private fun blockUser(user: String, reason: String): Completable {
-        val treeup = blockTreeup.isChecked
-        val banUserDays = blockUserForDays.text.toString().toFloatOrNull() ?: 0f
+        val treeup = blockTreeup?.isChecked ?: false
+        val banUserDays = blockUserForDays?.text?.toString()?.toFloatOrNull() ?: 0f
         return adminService.banUser(user, reason, banUserDays, treeup)
+    }
+
+    private fun deleteComment(commentId: Long, reason: String): Completable {
+        val deleteHard = !(deleteSoft?.isChecked ?: false)
+        return adminService.deleteComment(deleteHard, commentId, reason)
     }
 
     companion object {
         private const val KEY_USER = "userId"
         private const val KEY_FEED_ITEM = "feedItem"
+        private const val KEY_COMMENT = "commentId"
 
         val REASONS = listOf(
                 "Repost",
@@ -127,6 +145,10 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
         fun forUser(name: String) = ItemUserAdminDialog().arguments {
             putString(KEY_USER, name)
+        }
+
+        fun forComment(commentId: Long) = ItemUserAdminDialog().arguments {
+            putLong(KEY_COMMENT, commentId)
         }
     }
 }

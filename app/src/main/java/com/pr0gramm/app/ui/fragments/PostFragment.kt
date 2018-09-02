@@ -35,7 +35,6 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.dialogs.DeleteCommentDialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.dialogs.ignoreError
@@ -1216,7 +1215,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {
-            val dialog = DeleteCommentDialog.newInstance(comment.id)
+            val dialog = ItemUserAdminDialog.forComment(comment.id)
             dialog.show(fragmentManager, null)
             return true
         }
