@@ -21,7 +21,7 @@
         app:spacing="4sp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
 
-    <TextView
+    <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
         android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
