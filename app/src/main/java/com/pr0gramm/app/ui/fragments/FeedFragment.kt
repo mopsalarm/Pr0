@@ -122,10 +122,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
         }
-
-        if (new.isNotEmpty()) {
-            performAutoOpen()
-        }
     }
 
     private var state by observeChange(State(feed.items, feed.filter)) {
@@ -149,7 +145,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
             if (start != null) {
                 logger.debug("Requested to open item {} on load", start)
-                autoScrollRef = ScrollRef(start)
+                autoScrollRef = ScrollRef(start, autoOpen = true)
             }
         }
 
@@ -235,6 +231,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         subscribeToFeedUpdates()
 
         queryForUserInfo()
+
+        if (autoScrollRef?.autoOpen == true) {
+            // perform auto open if needed.
+//            feedAdapter.updates.startWith(feedAdapter.latestEntries)
+//                    .bindToLifecycle()
+//                    .subscribe { performAutoOpen() }
+        }
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
@@ -363,8 +366,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 return
             }
 
-            val forceSyncUpdate = autoScrollRef != null
+            val ref = autoScrollRef
+
+            val forceSyncUpdate = ref != null
             feedAdapter.submitList(entries, forceSyncUpdate)
+
+            if (ref?.autoOpen == true) {
+                performAutoOpen(ref.ref)
+            }
         }
     }
 
@@ -569,6 +578,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun performAutoScroll() {
         val ref = autoScrollRef ?: return
+
+        if (ref.autoOpen) {
+            return
+        }
 
         // if we currently scroll the view, lets just do this later.
         if(recyclerView.isComputingLayout) {
@@ -1253,23 +1266,26 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         AndroidUtility.hideSoftKeyboard(searchView)
     }
 
-    private fun performAutoOpen() {
-        autoScrollRef?.let { ref ->
-            if (!ref.smoothScroll) {
-                performAutoScroll()
-            }
+    private fun performAutoOpen(ref: CommentRef) {
+        logger.info("Trying to do auto load of {}", ref)
+        val idx = feed.indexById(ref.itemId) ?: return
 
-            if (ref.autoOpen) {
-                logger.info("Trying to do auto load of {}", ref)
+        logger.debug("Found item at idx={}", idx)
 
-                feed.indexById(ref.itemId)?.let { idx ->
-                    logger.debug("Found item at idx={}", idx)
+        // scroll to item now and click
+        scrollToItem(ref.itemId)
+        onItemClicked(feed[idx], ref)
 
-                    // scroll to item now and click
-                    onItemClicked(feed[idx], ref.ref)
-                }
-            }
-        }
+        // reset auto open/scroll reference, so we won't scroll again
+        resetAutoScroll()
+
+        // prevent flickering of items before executing the child
+        // fragment transaction.
+        recyclerView.visibility = View.INVISIBLE
+    }
+
+    private fun resetAutoScroll() {
+        autoScrollRef = null
     }
 
     private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
