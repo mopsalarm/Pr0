@@ -81,7 +81,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private var bookmarkable: Boolean = false
     private var autoScrollRef: ScrollRef? = null
-    private var autoOpenOnLoad: CommentRef? = null
 
     private var lastCheckForNewItemsTime = Instant(0)
 
@@ -150,8 +149,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
             if (start != null) {
                 logger.debug("Requested to open item {} on load", start)
-                autoScrollRef = ScrollRef(start.itemId)
-                autoOpenOnLoad = start
+                autoScrollRef = ScrollRef(start)
             }
         }
 
@@ -162,7 +160,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         loader = FeedManager(feedService, feed)
 
         if (previousFeed == null) {
-            loader.restart(around = autoScrollRef?.itemId)
+            loader.restart(around = autoScrollRef?.ref?.itemId)
         }
     }
 
@@ -602,7 +600,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
         if (settings.feedScrollOnBack) {
             logger.info("Want to resume from {}", item)
-            autoScrollRef = ScrollRef(item.id, feed, smoothScroll = true)
+            autoScrollRef = ScrollRef(CommentRef(item), feed, smoothScroll = true)
         }
     }
 
@@ -658,10 +656,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun replaceFeedFilter(feedFilter: FeedFilter, newContentType: Set<ContentType>, item: Long? = null) {
         val startAtItemId = item
-                ?: autoOpenOnLoad?.itemId
+                ?: autoScrollRef?.ref?.itemId
                 ?: findLastVisibleFeedItem(newContentType)?.id
 
-        autoScrollRef = startAtItemId?.let { ScrollRef(it) }
+        if (autoScrollRef == null) {
+            autoScrollRef = startAtItemId?.let { id -> ScrollRef(CommentRef(id)) }
+        }
 
         // set a new adapter if we have a new content type
         // this clears the current feed immediately
@@ -946,7 +946,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val activity = activity ?: return
 
         // reset auto open.
-        autoOpenOnLoad = null
+        autoScrollRef = null
 
         val feed = feed
 
@@ -1109,7 +1109,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             content(R.string.error_feed_not_found)
             positive {
                 // open top instead
-                autoOpenOnLoad = null
+                autoScrollRef = null
                 replaceFeedFilter(FeedFilter(), selectedContentType)
             }
         }
@@ -1118,7 +1118,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun showFeedNotPublicError() {
         val username = currentFilter.likes ?: "???"
 
-        val targetItem = autoOpenOnLoad
+        val targetItem = autoScrollRef
 
         if (targetItem != null) {
             showDialog(this) {
@@ -1254,18 +1254,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun performAutoOpen() {
-        if (autoScrollRef?.smoothScroll == false) {
-            performAutoScroll()
-        }
+        autoScrollRef?.let { ref ->
+            if (!ref.smoothScroll) {
+                performAutoScroll()
+            }
 
-        autoOpenOnLoad?.let { autoLoad ->
-            logger.info("Trying to do auto load of {}", autoLoad)
+            if (ref.autoOpen) {
+                logger.info("Trying to do auto load of {}", ref)
 
-            feed.indexById(autoLoad.itemId)?.let { idx ->
-                logger.debug("Found item at idx={}", idx)
+                feed.indexById(ref.itemId)?.let { idx ->
+                    logger.debug("Found item at idx={}", idx)
 
-                // scroll to item now and click
-                onItemClicked(feed[idx], autoLoad)
+                    // scroll to item now and click
+                    onItemClicked(feed[idx], ref.ref)
+                }
             }
         }
     }
@@ -1401,5 +1403,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private data class ScrollRef(val itemId: Long, val feed: Feed? = null, val smoothScroll: Boolean = false)
+    private data class ScrollRef(val ref: CommentRef, val feed: Feed? = null,
+                                 val autoOpen: Boolean = false,
+                                 val smoothScroll: Boolean = false) {
+
+        val itemId: Long get() = ref.itemId
+    }
 }

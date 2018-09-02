@@ -3,11 +3,14 @@ package com.pr0gramm.app.ui.fragments
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.creator
 
 /**
  */
 data class CommentRef(val itemId: Long, val commentId: Long? = null, val notificationTime: Instant? = null) : Parcelable {
+    constructor(item: FeedItem) : this(item.id)
+
     override fun describeContents(): Int {
         return 0
     }
