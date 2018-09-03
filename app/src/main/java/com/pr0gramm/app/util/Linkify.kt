@@ -2,18 +2,24 @@ package com.pr0gramm.app.util
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Parcel
 import android.text.SpannableStringBuilder
+import android.text.style.ClickableSpan
 import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.FilterParser
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.PrivateBrowserSpan
+import java.io.File
+import java.io.FileInputStream
 import java.util.regex.Pattern
 import android.text.util.Linkify as AndroidLinkify
 
@@ -55,6 +61,11 @@ object Linkify {
         }
 
         val settings = Settings.get()
+
+
+        if (";base64," in originalText) {
+            VoiceMessageSpan.addToText(text)
+        }
 
         loop@ for (span in text.getSpans(0, text.length, URLSpan::class.java)) {
             val url = span.url
@@ -178,5 +189,62 @@ private class CommentSpan(val callback: Linkify.Callback?, url: String, val ref:
             val ref = Linkify.Comment(p.readLong(), p.readLong())
             CommentSpan(null, url, ref)
         }
+    }
+}
+
+private class VoiceMessageSpan(val content: ByteArray) : ClickableSpan() {
+    override fun onClick(widget: View) {
+        doInBackground { play() }
+    }
+
+    private fun play() {
+        // clear the previous player instance if available
+        previousInstance?.release()
+        previousInstance?.reset()
+
+        val mp = MediaPlayer().also { previousInstance = it }
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC)
+
+        // handle events
+        mp.setOnCompletionListener {
+            previousInstance = null
+            mp.release()
+        }
+
+        mp.setOnPreparedListener { mp.start() }
+
+        // set input data
+        val temp = File.createTempFile("audio", ".ogg").apply {
+            deleteOnExit()
+            writeBytes(content)
+        }
+
+        FileInputStream(temp).use { stream ->
+            mp.setDataSource(stream.fd)
+        }
+
+        // and start playback
+        mp.prepareAsync()
+    }
+
+    companion object {
+        private val mimeTypes = listOf("audio/mpeg", "audio/mp3", "audio/mp4", "audio/ogg", "media/ogg").joinToString("|")
+        private val regex = "data:(?:$mimeTypes);base64,([a-zA-Z0-9/+]+)=*".toRegex()
+
+        private var previousInstance: MediaPlayer? by weakref(null)
+
+        fun addToText(text: SpannableStringBuilder) {
+            regex.findAll(text).toList().reversed().forEach { match ->
+                val (encoded) = match.destructured
+                val bytes = encoded.decodeBase64(urlSafe = false)
+
+                val replacement = "\u25B6 Sprachnachricht"
+                text.replace(match.range.start, match.range.last + 1, replacement)
+                text.setSpan(VoiceMessageSpan(bytes),
+                        match.range.start, match.range.start + replacement.length,
+                        SpannableStringBuilder.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        }
+
     }
 }
