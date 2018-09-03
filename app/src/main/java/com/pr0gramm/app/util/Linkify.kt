@@ -200,7 +200,6 @@ private class VoiceMessageSpan(val content: ByteArray) : ClickableSpan() {
     private fun play() {
         // clear the previous player instance if available
         ignoreException {
-            previousInstance?.stop()
             previousInstance?.reset()
         }
 
