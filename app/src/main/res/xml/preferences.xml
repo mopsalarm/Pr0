@@ -238,11 +238,13 @@
                     android:summary="@string/pref_show_refresh_button_summary"
                     android:title="@string/pref_show_refresh_button"/>
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_show_google_image_button"
-                    android:summary="@string/pref_show_google_image_button_summary"
-                    android:title="@string/pref_show_google_image_button_title"/>
+                <ListPreference
+                    android:defaultValue="TINEYE"
+                    android:key="pref_image_search_engine"
+                    android:entries="@array/pref_image_search_engine_human"
+                    android:entryValues="@array/pref_image_search_engine_values"
+                    android:summary="@string/pref_image_search_engine_summary"
+                    android:title="@string/pref_image_search_engine_title"/>
             </PreferenceCategory>
 
             <PreferenceCategory

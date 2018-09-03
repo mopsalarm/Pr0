@@ -426,7 +426,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = true
 
         menu.findItem(R.id.action_search_image)
-                ?.isVisible = isImage && settings.showGoogleImageButton
+                ?.isVisible = isImage && settings.imageSearchEngine != ShareHelper.ImageSearchEngine.NONE
 
         menu.findItem(R.id.action_delete_item)
                 ?.isVisible = adminMode

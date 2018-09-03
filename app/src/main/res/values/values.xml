@@ -33,6 +33,18 @@
         <!-- <item>ALPHA</item> -->
     </string-array>
 
+    <string-array name="pref_image_search_engine_values">
+        <item>TINEYE</item>
+        <item>GOOGLE</item>
+        <item>NONE</item>
+    </string-array>
+
+    <string-array name="pref_image_search_engine_human">
+        <item>TinEye</item>
+        <item>Google Images</item>
+        <item>@string/search_engine_none</item>
+    </string-array>
+
     <string name="pref_seen_indicator_style_default" translatable="false">NONE</string>
 
     <!-- Values for the confirm play on mobile preference -->
@@ -98,6 +110,7 @@
     </string-array>
 
     <string name="pref_volume_navigation_default" translatable="false">disabled</string>
+    <string name="search_engine_none">None</string>
 
     <string-array name="pref_volume_navigation_values">
         <item>disabled</item>

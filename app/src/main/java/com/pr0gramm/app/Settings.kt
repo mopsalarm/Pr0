@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.services.ShareHelper
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.edit
@@ -116,9 +117,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val tagCloudView: Boolean
         get() = preferences.getBoolean("pref_tag_cloud_view", false)
 
-    val showGoogleImageButton: Boolean
-        get() = preferences.getBoolean("pref_show_google_image_button", true)
-
     val feedStartAtNew: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_new", false)
 
@@ -179,8 +177,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val volumeNavigation: VolumeNavigationType
         get() {
             val pref = preferences.getString("pref_volume_navigation", "disabled")
-            return tryEnumValueOf<VolumeNavigationType>(pref.toUpperCase())
-                    ?: VolumeNavigationType.DISABLED
+            val value = tryEnumValueOf<VolumeNavigationType>(pref.toUpperCase())
+            return value ?: VolumeNavigationType.DISABLED
         }
 
     val showCategoryText: Boolean
@@ -206,6 +204,13 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val feedScrollOnBack: Boolean
         get() = preferences.getBoolean("pref_feed_scroll_on_back", true)
+
+    val imageSearchEngine: ShareHelper.ImageSearchEngine
+        get() {
+            val pref = preferences.getString("pref_image_search_engine", "TINEYE")
+            val value = tryEnumValueOf<ShareHelper.ImageSearchEngine>(pref.toUpperCase())
+            return value ?: ShareHelper.ImageSearchEngine.TINEYE
+        }
 
     fun resetContentTypeSettings() {
         // reset settings.

@@ -8,6 +8,7 @@ import android.net.Uri
 import android.support.v4.app.ShareCompat
 import android.widget.Toast
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
@@ -19,17 +20,12 @@ import com.pr0gramm.app.util.BrowserHelper
 object ShareHelper {
     @JvmStatic
     fun searchImage(activity: Activity, feedItem: FeedItem) {
-        val imageUri = UriHelper.of(activity).media(feedItem).toString().replace("http://", "https://")
+        val imageUri = UriHelper
+                .of(activity).media(feedItem).toString()
+                .replace("http://", "https://")
 
-        val uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
-                .appendQueryParameter("hl", "en")
-                .appendQueryParameter("safe", "off")
-                .appendQueryParameter("site", "search")
-                .appendQueryParameter("image_url", imageUri)
-                .build()
-
+        val uri = Settings.get().imageSearchEngine.searchUri(imageUri) ?: return
         Track.searchImage()
-
         BrowserHelper.open(activity, uri.toString())
     }
 
@@ -88,5 +84,34 @@ object ShareHelper {
 
         clipboardManager.primaryClip = ClipData.newPlainText(text, text)
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+    }
+
+    enum class ImageSearchEngine {
+        NONE {
+            override fun searchUri(url: String): Uri? {
+                return null
+            }
+        },
+
+        GOOGLE {
+            override fun searchUri(url: String): Uri? {
+                return Uri.parse("https://www.google.com/searchbyimage").buildUpon()
+                        .appendQueryParameter("hl", "en")
+                        .appendQueryParameter("safe", "off")
+                        .appendQueryParameter("site", "search")
+                        .appendQueryParameter("image_url", url)
+                        .build()
+            }
+        },
+
+        TINEYE {
+            override fun searchUri(url: String): Uri? {
+                return Uri.parse("https://tineye.com/search").buildUpon()
+                        .appendQueryParameter("url", url)
+                        .build()
+            }
+        };
+
+        abstract fun searchUri(url: String): Uri?
     }
 }

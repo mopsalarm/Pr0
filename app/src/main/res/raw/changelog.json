@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Wenn Du nach dem Anschauen vieler Posts auf zurück gehst, scrollt der Feed zur Vorschau dieses Posts. Abschaltbar in den Einstellungen."
+      },
+      {
+        "type": "Neu",
+        "change": "TinEye als Service für die Rückwärtssuche von Bildern."
       }
     ]
   },
