@@ -199,8 +199,10 @@ private class VoiceMessageSpan(val content: ByteArray) : ClickableSpan() {
 
     private fun play() {
         // clear the previous player instance if available
-        previousInstance?.stop()
-        previousInstance?.reset()
+        ignoreException {
+            previousInstance?.stop()
+            previousInstance?.reset()
+        }
 
         val mp = MediaPlayer().also { previousInstance = it }
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC)
