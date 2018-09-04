@@ -422,26 +422,28 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val isImage = isStaticImage(feedItem)
         val adminMode = userService.userIsAdmin
 
+        val alive = !feedItem.deleted
+
         menu.findItem(R.id.action_refresh)
                 ?.isVisible = settings.showRefreshButton && !isVideoFullScreen
 
         menu.findItem(R.id.action_zoom)
-                ?.isVisible = !isVideoFullScreen && (!isTabletMode || isImage)
+                ?.isVisible = !isVideoFullScreen && (!isTabletMode || isImage) && alive
 
         menu.findItem(R.id.action_share_image)
-                ?.isVisible = true
+                ?.isVisible = alive
 
         menu.findItem(R.id.action_search_image)
-                ?.isVisible = isImage && settings.imageSearchEngine != ShareHelper.ImageSearchEngine.NONE
+                ?.isVisible = isImage && settings.imageSearchEngine != ShareHelper.ImageSearchEngine.NONE && alive
 
         menu.findItem(R.id.action_delete_item)
-                ?.isVisible = adminMode
+                ?.isVisible = adminMode && alive
 
         menu.findItem(R.id.action_tags_details)
-                ?.isVisible = adminMode
+                ?.isVisible = adminMode && alive
 
         menu.findItem(R.id.action_report)
-                ?.isVisible = config.reportItemsActive && userService.isAuthorized
+                ?.isVisible = config.reportItemsActive && userService.isAuthorized && alive
     }
 
     fun enterFullscreen() {
