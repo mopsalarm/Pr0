@@ -306,17 +306,23 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val isOurPost = userService.name.equals(state.item.user, ignoreCase = true)
         items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost)
-        items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes)
-        items += PostAdapter.Item.CommentInputItem(text = "")
 
-        if (state.commentsVisible) {
-            if (state.commentsLoadError) {
-                items += PostAdapter.Item.LoadErrorItem
-            } else {
-                items += state.comments.map { PostAdapter.Item.CommentItem(it) }
+        if (state.item.deleted) {
+            items += PostAdapter.Item.PostIsDeletedItem
 
-                if (state.commentsLoading && state.comments.isEmpty()) {
-                    items += PostAdapter.Item.CommentsLoadingItem
+        } else {
+            items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes)
+            items += PostAdapter.Item.CommentInputItem(text = "")
+
+            if (state.commentsVisible) {
+                if (state.commentsLoadError) {
+                    items += PostAdapter.Item.LoadErrorItem
+                } else {
+                    items += state.comments.map { PostAdapter.Item.CommentItem(it) }
+
+                    if (state.commentsLoading && state.comments.isEmpty()) {
+                        items += PostAdapter.Item.CommentsLoadingItem
+                    }
                 }
             }
         }
@@ -666,6 +672,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun loadItemDetails(firstLoad: Boolean = false, bust: Boolean = false) {
         // postDelayed could execute this if it is not added anymore
         if (!isAdded || isDetached) {
+            return
+        }
+
+        if (feedItem.deleted) {
+            // that can be handled quickly...
+            swipeRefreshLayout.isRefreshing = false
             return
         }
 

@@ -35,6 +35,7 @@ private enum class Offset(val offset: Long, val type: Class<out PostAdapter.Item
     CommentInputItem(3, PostAdapter.Item.CommentInputItem::class.java),
     CommentsLoadingItem(4, PostAdapter.Item.CommentsLoadingItem::class.java),
     LoadErrorItem(5, PostAdapter.Item.LoadErrorItem::class.java),
+    PostIsDeletedItem(6, PostAdapter.Item.PostIsDeletedItem::class.java),
     CommentItem(1000, PostAdapter.Item.CommentItem::class.java)
 }
 
@@ -90,6 +91,9 @@ class PostAdapter(
 
                 Offset.LoadErrorItem ->
                     StaticViewHolder(parent, R.layout.comments_load_err)
+
+                Offset.PostIsDeletedItem ->
+                    StaticViewHolder(parent, R.layout.comments_item_deleted)
             }
         }
     }
@@ -143,6 +147,9 @@ class PostAdapter(
 
         object LoadErrorItem
             : Item(Offset.LoadErrorItem.offset)
+
+        object PostIsDeletedItem
+            : Item(Offset.PostIsDeletedItem.offset)
     }
 
     private class ItemCallback : DiffUtil.ItemCallback<Item>() {

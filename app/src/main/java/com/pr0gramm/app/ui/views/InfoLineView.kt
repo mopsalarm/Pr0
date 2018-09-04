@@ -111,6 +111,12 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private fun updateViewState(vote: Vote) {
         val feedItem = this.feedItem ?: return
 
+        val viewVisibility = if (feedItem.deleted) View.INVISIBLE else View.VISIBLE
+
+        // also hide the vote view.
+        voteView.visibility = viewVisibility
+        voteFavoriteView.visibility = viewVisibility
+
         if (isOneHourOld || isSelfPost || admin) {
             val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
             ratingView.text = rating.toString()
@@ -122,11 +128,11 @@ class InfoLineView(context: Context) : LinearLayout(context) {
                 true
             }
 
-            ratingView.visibility = View.VISIBLE
+            ratingView.visibility = viewVisibility
             ratingUnknownView.visibility = View.GONE
 
         } else {
-            ratingUnknownView.visibility = View.VISIBLE
+            ratingUnknownView.visibility = viewVisibility
             ratingView.visibility = View.GONE
             ratingView.setOnLongClickListener(null)
         }

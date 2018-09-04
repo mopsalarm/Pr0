@@ -28,6 +28,7 @@ class FeedItem : Freezable, HasThumbnail {
     private val _flags: Byte
 
     val audio: Boolean
+    val deleted: Boolean
 
     constructor(item: Api.Feed.Item) {
         _id = item.id.toInt()
@@ -42,7 +43,8 @@ class FeedItem : Freezable, HasThumbnail {
         _flags = item.flags.toByte()
         width = item.width ?: 0
         height = item.height ?: 0
-        audio = item.audio ?: false
+        audio = item.audio
+        deleted = item.deleted
     }
 
     val up: Int
@@ -112,6 +114,7 @@ class FeedItem : Freezable, HasThumbnail {
         sink.writeByte(_mark.toInt())
         sink.writeByte(_flags.toInt())
         sink.writeByte(audio.toInt())
+        sink.writeByte(deleted.toInt())
     }
 
     constructor(source: Freezable.Source) {
@@ -131,6 +134,7 @@ class FeedItem : Freezable, HasThumbnail {
         _mark = source.readByte()
         _flags = source.readByte()
         audio = source.readByte() != 0.toByte()
+        deleted = source.readByte() != 0.toByte()
     }
 
     companion object : Unfreezable<FeedItem> {

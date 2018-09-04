@@ -109,6 +109,22 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
                     textColor = Color.BLACK)
         }
 
+        if (info.user.itemDeleteCount > 0) {
+            val count = info.user.itemDeleteCount
+            appendBadgeView(
+                    "itemdelete.png",
+                    context.getString(R.string.badge_deleted_items, count),
+                    text = "$count", textColor = Color.WHITE)
+        }
+
+        if (info.user.commentDeleteCount > 0) {
+            val count = info.user.commentDeleteCount
+            appendBadgeView(
+                    "commentdelete.png",
+                    context.getString(R.string.badge_deleted_comments, count),
+                    text = "$count", textColor = Color.WHITE)
+        }
+
         // add badge for "x years on pr0gramm"
         val years = Duration.between(Instant.now(), info.user.registered).convertTo(TimeUnit.DAYS) / 365
         if (years > 0) {
@@ -163,7 +179,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         if (!isInEditMode) {
             val picasso = context.directKodein.instance<Picasso>()
 
-            val localImageId = knownImages.get(image)
+            val localImageId = knownImages[image]
             if (localImageId != null) {
                 imageView.setImageResource(localImageId)
             } else {
@@ -193,5 +209,8 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             "contract.png" to R.drawable.badge_contract,
             "connect4-red.png" to R.drawable.badge_connect4_red,
             "connect4-blue.png" to R.drawable.badge_connect4_blue,
-            "krebs-donation.png" to R.drawable.badge_krebs)
+            "krebs-donation.png" to R.drawable.badge_krebs,
+            "itemdelete.png" to R.drawable.deleted_item,
+            "commentdelete.png" to R.drawable.deleted_comment
+    )
 }

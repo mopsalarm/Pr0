@@ -298,7 +298,8 @@ interface Api {
                 val flags: Int,
                 val width: Int?,
                 val height: Int?,
-                val audio: Boolean?,
+                val audio: Boolean,
+                val deleted: Boolean,
                 val created: Instant)
     }
 
@@ -329,7 +330,9 @@ interface Api {
                 val name: String,
                 val registered: Instant,
                 val banned: Int = 0,
-                val bannedUntil: Instant?)
+                val bannedUntil: Instant?,
+                @Json(name = "commentDelete") val commentDeleteCount: Int,
+                @Json(name = "itemDelete") val itemDeleteCount: Int)
     }
 
     @JsonClass(generateAdapter = true)

@@ -520,4 +520,8 @@
     <string name="hint_loading">Wird geladen…</string>
     <string name="pref_feed_scroll_on_back_title">Feed automatisch scrollen</string>
     <string name="pref_feed_scroll_on_back_sumary">Wenn du von einem Post zum Feed zurückkehrst, scrollt der Feed zu eben diesem Vorschaubildchen.</string>
+    <string name="search_engine_none">Keine</string>
+    <string name="error_item_was_deleted">Kommentare deaktiviert, Hochlad wurde vom Nutzer gelöscht.</string>
+    <string name="badge_deleted_comments">Hat %d eigene Kommentare löschen lassen</string>
+    <string name="badge_deleted_items">Hat %d eigene Hochlads löschen lassen</string>
 </resources>

@@ -419,6 +419,8 @@
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
     <string name="badge_comments">More than %sk comments</string>
+    <string name="badge_deleted_items">Requested deletion of %d of his own items</string>
+    <string name="badge_deleted_comments">Requested deletion of %d of his own comments</string>
     <string name="badge_time">More than %s years on pr0gramm</string>
 
     <string name="dt_for_few_second">a few seconds</string>
@@ -542,5 +544,6 @@
     <string name="hint_loading">Loading…</string>
     <string name="pref_feed_scroll_on_back_title">Sync feed scroll</string>
     <string name="pref_feed_scroll_on_back_sumary">Sync scroll of the feed to the current thumbnail when you come back from a post to the feed.</string>
+    <string name="error_item_was_deleted">Comments are disabled, this upload was deleted by its original poster.</string>
 </resources>
 
