@@ -887,6 +887,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * @param viewer The viewer to register the tap listener to.
      */
     private fun registerTapListener(viewer: MediaView) {
+        if (feedItem.deleted)
+            return
+
         viewer.tapListener = object : MediaView.TapListener {
             val isImage = isStaticImage(feedItem)
 
