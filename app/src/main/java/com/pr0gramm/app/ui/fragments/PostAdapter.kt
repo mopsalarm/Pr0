@@ -28,7 +28,7 @@ import gnu.trove.map.TLongObjectMap
 import java.util.*
 
 
-private enum class Offset(val offset: Long, val type: Class<out PostAdapter.Item>) {
+private enum class Type(val offset: Long, val type: Class<out PostAdapter.Item>) {
     Placeholder(0, PostAdapter.Item.PlaceholderItem::class.java),
     Info(1, PostAdapter.Item.InfoItem::class.java),
     Tags(2, PostAdapter.Item.TagsItem::class.java),
@@ -36,6 +36,7 @@ private enum class Offset(val offset: Long, val type: Class<out PostAdapter.Item
     CommentsLoadingItem(4, PostAdapter.Item.CommentsLoadingItem::class.java),
     LoadErrorItem(5, PostAdapter.Item.LoadErrorItem::class.java),
     PostIsDeletedItem(6, PostAdapter.Item.PostIsDeletedItem::class.java),
+    NoCommentsWithoutAccount(7, PostAdapter.Item.NoCommentsWithoutAccount::class.java),
     CommentItem(1000, PostAdapter.Item.CommentItem::class.java)
 }
 
@@ -47,15 +48,15 @@ class PostAdapter(
     init {
         setHasStableIds(true)
 
-        if (Offset.values().size != Offset.values().map { it.offset }.distinct().size)
+        if (Type.values().size != Type.values().map { it.offset }.distinct().size)
             throw IllegalArgumentException("Error in Offset() mapping")
 
-        if (Offset.values().size != Offset.values().map { it.type }.distinct().size)
+        if (Type.values().size != Type.values().map { it.type }.distinct().size)
             throw IllegalArgumentException("Error in Offset() mapping")
     }
 
-    private val viewTypesByType = IdentityHashMap(Offset.values().associateBy { it.type })
-    private val viewTypesByIndex = Offset.values()
+    private val viewTypesByType = IdentityHashMap(Type.values().associateBy { it.type })
+    private val viewTypesByIndex = Type.values()
 
     override fun getItemViewType(position: Int): Int {
         val type = items[position].javaClass
@@ -71,29 +72,32 @@ class PostAdapter(
 
         return logger.time("Inflating layout for ${viewTypesByIndex[viewType]}") {
             when (viewTypesByIndex[viewType]) {
-                Offset.Placeholder ->
+                Type.Placeholder ->
                     PlaceholderHolder(PlaceholderView(context))
 
-                Offset.Info ->
+                Type.Info ->
                     InfoLineViewHolder(postActions, InfoLineView(context))
 
-                Offset.Tags ->
+                Type.Tags ->
                     TagsViewHolder(TagsView(context, postActions))
 
-                Offset.CommentInputItem ->
+                Type.CommentInputItem ->
                     CommentPostLineHolder(postActions, CommentPostLine(context))
 
-                Offset.CommentItem ->
+                Type.CommentItem ->
                     CommentView(parent, commentViewListener)
 
-                Offset.CommentsLoadingItem ->
+                Type.CommentsLoadingItem ->
                     StaticViewHolder(parent, R.layout.comments_are_loading)
 
-                Offset.LoadErrorItem ->
+                Type.LoadErrorItem ->
                     StaticViewHolder(parent, R.layout.comments_load_err)
 
-                Offset.PostIsDeletedItem ->
+                Type.PostIsDeletedItem ->
                     StaticViewHolder(parent, R.layout.comments_item_deleted)
+
+                Type.NoCommentsWithoutAccount ->
+                    StaticViewHolder(parent, R.layout.comments_no_account)
             }
         }
     }
@@ -122,7 +126,7 @@ class PostAdapter(
     sealed class Item(val id: Long) {
         class PlaceholderItem(val height: Int,
                               val viewer: View,
-                              val mediaControlsContainer: View?) : Item(Offset.Placeholder.offset) {
+                              val mediaControlsContainer: View?) : Item(Type.Placeholder.offset) {
 
             override fun hashCode(): Int = height
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
@@ -131,25 +135,28 @@ class PostAdapter(
         data class InfoItem(
                 val item: FeedItem,
                 val vote: Vote,
-                val isOurPost: Boolean) : Item(Offset.Info.offset)
+                val isOurPost: Boolean) : Item(Type.Info.offset)
 
         data class TagsItem(val tags: List<Api.Tag>, val votes: TLongObjectMap<Vote>)
-            : Item(Offset.Tags.offset)
+            : Item(Type.Tags.offset)
 
         data class CommentInputItem(val text: String)
-            : Item(Offset.CommentInputItem.offset)
+            : Item(Type.CommentInputItem.offset)
 
         data class CommentItem(val commentTreeItem: CommentTree.Item)
-            : Item(Offset.CommentItem.offset + commentTreeItem.comment.id)
+            : Item(Type.CommentItem.offset + commentTreeItem.comment.id)
 
         object CommentsLoadingItem
-            : Item(Offset.CommentsLoadingItem.offset)
+            : Item(Type.CommentsLoadingItem.offset)
 
         object LoadErrorItem
-            : Item(Offset.LoadErrorItem.offset)
+            : Item(Type.LoadErrorItem.offset)
 
         object PostIsDeletedItem
-            : Item(Offset.PostIsDeletedItem.offset)
+            : Item(Type.PostIsDeletedItem.offset)
+
+        object NoCommentsWithoutAccount
+            : Item(Type.NoCommentsWithoutAccount.offset)
     }
 
     private class ItemCallback : DiffUtil.ItemCallback<Item>() {

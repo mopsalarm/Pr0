@@ -16,6 +16,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="256dp"
         android:text="@string/error_could_not_load_comments"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
 </LinearLayout>

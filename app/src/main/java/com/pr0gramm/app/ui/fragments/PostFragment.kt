@@ -324,6 +324,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                         items += PostAdapter.Item.CommentsLoadingItem
                     }
                 }
+            } else {
+                items += PostAdapter.Item.NoCommentsWithoutAccount
             }
         }
 

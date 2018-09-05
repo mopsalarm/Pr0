@@ -524,4 +524,5 @@
     <string name="error_item_was_deleted">Kommentare deaktiviert, Hochlad wurde vom Nutzer gelöscht.</string>
     <string name="badge_deleted_comments">Hat %d eigene Kommentare löschen lassen</string>
     <string name="badge_deleted_items">Hat %d eigene Hochlads löschen lassen</string>
+    <string name="error_no_comments_without_account">Du benötigst einen Account um die Kommentare auf pr0gramm zu sehen.</string>
 </resources>
