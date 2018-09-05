@@ -546,5 +546,7 @@
     <string name="pref_feed_scroll_on_back_sumary">Sync scroll of the feed to the current thumbnail when you come back from a post to the feed.</string>
     <string name="error_item_was_deleted">Comments are disabled, this upload was deleted by its original poster.</string>
     <string name="error_no_comments_without_account">You need an account to see the comments on pr0gramm.</string>
+    <string name="pref_private_input_title">Incognito keyboard</string>
+    <string name="pref_private_input_summary">Enable incognito keyboard if possible. Works with the gboard and others. May require you to restart the app.</string>
 </resources>
 

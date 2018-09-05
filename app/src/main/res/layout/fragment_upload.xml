@@ -102,7 +102,8 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
-        <MultiAutoCompleteTextView
+        <com.pr0gramm.app.ui.views.PlainMultiTextAutoCompleteTextView
+            style="@style/Widget.AppCompat.AutoCompleteTextView"
             android:id="@+id/tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

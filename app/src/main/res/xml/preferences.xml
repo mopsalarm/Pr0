@@ -175,7 +175,7 @@
 
             <PreferenceCategory
                 android:key="prefcat_incognito"
-                android:title="Incognito Browser">
+                android:title="Incognito">
 
                 <CheckBoxPreference
                     android:defaultValue="false"
@@ -189,6 +189,12 @@
                     android:key="pref_override_youtube_links"
                     android:summary="@string/pref_override_youtube_links_summary"
                     android:title="@string/pref_override_youtube_links_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_private_input"
+                    android:summary="@string/pref_private_input_summary"
+                    android:title="@string/pref_private_input_title"/>
 
             </PreferenceCategory>
 

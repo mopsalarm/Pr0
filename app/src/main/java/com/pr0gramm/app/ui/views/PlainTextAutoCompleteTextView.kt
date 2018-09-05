@@ -3,15 +3,22 @@ package com.pr0gramm.app.ui.views
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
+import android.support.v13.view.inputmethod.EditorInfoCompat
 import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.support.v7.widget.AppCompatEditText
+import android.support.v7.widget.AppCompatMultiAutoCompleteTextView
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.TextView
+import com.pr0gramm.app.Settings
 
-class PlainTextAutoCompleteTextView @JvmOverloads constructor(
+class PlainEditText @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : AppCompatAutoCompleteTextView(context, attrs, defStyleAttr) {
+    : AppCompatEditText(context, attrs, defStyleAttr) {
+
+    init {
+        adjustImeOptions(this)
+    }
 
     // Intercept and modify the paste event.
     // Let everything else through unchanged.
@@ -24,9 +31,32 @@ class PlainTextAutoCompleteTextView @JvmOverloads constructor(
     }
 }
 
-class PlainEditText @JvmOverloads constructor(
+class PlainTextAutoCompleteTextView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : AppCompatEditText(context, attrs, defStyleAttr) {
+    : AppCompatAutoCompleteTextView(context, attrs, defStyleAttr) {
+
+    init {
+        adjustImeOptions(this)
+    }
+
+    // Intercept and modify the paste event.
+    // Let everything else through unchanged.
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        return if (id == android.R.id.paste) {
+            handlePlainTextPaste(this) { super.onTextContextMenuItem(it) }
+        } else {
+            super.onTextContextMenuItem(id)
+        }
+    }
+}
+
+class PlainMultiTextAutoCompleteTextView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+    : AppCompatMultiAutoCompleteTextView(context, attrs, defStyleAttr) {
+
+    init {
+        adjustImeOptions(this)
+    }
 
     // Intercept and modify the paste event.
     // Let everything else through unchanged.
@@ -85,4 +115,10 @@ inline fun handlePlainTextPaste(view: EditText, superCall: (id: Int) -> Boolean)
     view.setSelection(selectionStart, selectionEnd)
 
     return result
+}
+
+fun adjustImeOptions(view: EditText) {
+    if (Settings.get().privateInput) {
+        view.imeOptions = view.imeOptions or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+    }
 }

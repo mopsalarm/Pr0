@@ -212,6 +212,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return value ?: ShareHelper.ImageSearchEngine.TINEYE
         }
 
+    val privateInput: Boolean
+        get() = preferences.getBoolean("pref_private_input", false)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit {

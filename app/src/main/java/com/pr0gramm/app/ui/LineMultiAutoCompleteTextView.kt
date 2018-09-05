@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import com.pr0gramm.app.ui.views.adjustImeOptions
 import com.pr0gramm.app.ui.views.handlePlainTextPaste
 import com.pr0gramm.app.util.AndroidUtility
 
@@ -23,6 +24,8 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
         // fix auto complete
         val inputType = inputType and EditorInfo.TYPE_TEXT_FLAG_AUTO_COMPLETE.inv()
         setRawInputType(inputType)
+
+        adjustImeOptions(this)
 
         addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
