@@ -296,11 +296,11 @@ interface Api {
                 val down: Int,
                 val mark: Int,
                 val flags: Int,
-                val width: Int?,
-                val height: Int?,
-                val audio: Boolean,
-                val deleted: Boolean,
-                val created: Instant)
+                val width: Int = 0,
+                val height: Int = 0,
+                val created: Instant,
+                val audio: Boolean = false,
+                val deleted: Boolean = false)
     }
 
 

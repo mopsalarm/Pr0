@@ -18,65 +18,47 @@ class FeedItem : Freezable, HasThumbnail {
     val image: String
     val fullsize: String
     val user: String
+    override val id: Long
+    val promotedId: Long
     val width: Int
     val height: Int
-
-    private val _id: Int
-    private val _promotedId: Int
-    private val _rating: Int
-    private val _mark: Byte
-    private val _flags: Byte
-
+    val up: Int
+    val down: Int
+    val mark: Int
+    val flags: Int
     val audio: Boolean
     val deleted: Boolean
 
     constructor(item: Api.Feed.Item) {
-        _id = item.id.toInt()
-        _promotedId = item.promoted.toInt()
+        id = item.id
+        promotedId = item.promoted
         thumbnail = item.thumb
         image = item.image
         fullsize = item.fullsize
         user = item.user
-        _rating = ((item.up shl 16) and 0xffff0000.toInt()) or (item.down and 0xffff)
-        _mark = item.mark.toByte()
+        up = item.up
+        down = item.down
+        mark = item.mark
         created = item.created
-        _flags = item.flags.toByte()
-        width = item.width ?: 0
-        height = item.height ?: 0
+        flags = item.flags
+        width = item.width
+        height = item.height
         audio = item.audio
         deleted = item.deleted
     }
-
-    val up: Int
-        get() = (_rating shr 16) and 0xffff
-
-    val down: Int
-        get() = _rating and 0xffff
 
     /**
      * Returns the content type of this Item, falling back to [ContentType.SFW]
      * if no type is available.
      */
     val contentType: ContentType
-        get() = ContentType.valueOf(_flags.toInt()) ?: ContentType.SFW
+        get() = ContentType.valueOf(flags) ?: ContentType.SFW
 
     val isVideo: Boolean
         get() = image.endsWith(".webm") || image.endsWith(".mp4")
 
-    override val id: Long
-        get() = this._id.toLong()
-
-    val promotedId: Long
-        get() = _promotedId.toLong()
-
-    val mark: Int
-        get() = _mark.toInt()
-
-    val flags: Int
-        get() = _flags.toInt()
-
     val isPinned: Boolean
-        get() = _promotedId > 1_000_000_000
+        get() = promotedId > 1_000_000_000
 
     /**
      * Gets the id of this feed item depending on the type of the feed..
@@ -88,51 +70,53 @@ class FeedItem : Freezable, HasThumbnail {
     }
 
     override fun hashCode(): Int {
-        return _id
+        return id.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is FeedItem && other._id == _id
+        return other is FeedItem && other.id == id
     }
 
     override fun toString(): String = "FeedItem(id=$id)"
 
     override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
-        sink.writeInt(_id)
-        sink.writeInt(_promotedId)
+        sink.writeLong(id)
+        sink.writeLong(promotedId)
 
         sink.writeString(thumbnail)
         sink.writeString(image)
         sink.writeString(fullsize)
         sink.writeString(user)
 
-        sink.writeInt(_rating)
+        sink.writeShort(up)
+        sink.writeShort(down)
         sink.writeInt((created.millis / 1000).toInt())
         sink.writeInt(width)
         sink.writeInt(height)
 
-        sink.writeByte(_mark.toInt())
-        sink.writeByte(_flags.toInt())
+        sink.writeByte(mark)
+        sink.writeByte(flags)
         sink.writeByte(audio.toInt())
         sink.writeByte(deleted.toInt())
     }
 
     constructor(source: Freezable.Source) {
-        _id = source.readInt()
-        _promotedId = source.readInt()
+        id = source.readLong()
+        promotedId = source.readLong()
 
         thumbnail = source.readString()
         image = source.readString()
         fullsize = source.readString()
         user = source.readString()
 
-        _rating = source.readInt()
+        up = source.readShort().toInt()
+        down = source.readShort().toInt()
         created = Instant(1000L * source.readInt())
         width = source.readInt()
         height = source.readInt()
 
-        _mark = source.readByte()
-        _flags = source.readByte()
+        mark = source.readByte().toInt()
+        flags = source.readByte().toInt()
         audio = source.readByte() != 0.toByte()
         deleted = source.readByte() != 0.toByte()
     }
