@@ -6,11 +6,11 @@ import android.support.v7.widget.RecyclerView
  * Scroll listener that does nothing
  */
 internal class NoopOnScrollListener : RecyclerView.OnScrollListener() {
-    override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
         // empty
     }
 
-    override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         // do nothing
     }
 }

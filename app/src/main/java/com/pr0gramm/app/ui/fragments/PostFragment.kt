@@ -1057,7 +1057,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (idx >= 0) {
             if (smoothScroll) {
                 val scroller = CenterLinearSmoothScroller(recyclerView.context, idx)
-                recyclerView.layoutManager.startSmoothScroll(scroller)
+                recyclerView.layoutManager?.startSmoothScroll(scroller)
 
             } else {
                 recyclerView.scrollToPosition(idx)

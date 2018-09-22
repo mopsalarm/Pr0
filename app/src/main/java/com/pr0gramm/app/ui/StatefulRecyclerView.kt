@@ -37,8 +37,7 @@ class StatefulRecyclerView @JvmOverloads constructor(
             savedHierarchyState?.let { container ->
                 for (idx in 0 until childCount) {
                     val child = getChildAt(idx)
-
-                    child.restoreHierarchyState(container)
+                    child?.restoreHierarchyState(container)
                 }
             }
 

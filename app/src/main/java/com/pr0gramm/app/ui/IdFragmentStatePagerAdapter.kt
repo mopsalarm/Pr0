@@ -99,7 +99,9 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
             mFragments.remove(id)
 
             mSavedState.remove(id)
-            mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment))
+            mFragmentManager.saveFragmentInstanceState(fragment)?.let { state ->
+                mSavedState.put(id, state)
+            }
         } catch (ignored: Exception) {
             // looks like this sometimes happen during save if the fragment is not in the
             // fragment manager. We will ignore it.

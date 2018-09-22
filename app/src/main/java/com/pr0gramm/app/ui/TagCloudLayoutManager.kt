@@ -50,7 +50,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         offsetChildrenHorizontal(-scrollOffset)
     }
 
-    override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State?, widthSpec: Int, heightSpec: Int) {
+    override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         val parentWidth = View.MeasureSpec.getSize(widthSpec)
 
         this.config = logger.time("measure tag sizes") {
@@ -116,7 +116,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return true
     }
 
-    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler?, state: RecyclerView.State?): Int {
+    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler?, state: RecyclerView.State): Int {
         var scroll = dx
 
         val maxScroll = computeHorizontalScrollRange(state)
@@ -133,15 +133,15 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return scroll
     }
 
-    override fun computeHorizontalScrollOffset(state: RecyclerView.State?): Int {
+    override fun computeHorizontalScrollOffset(state: RecyclerView.State): Int {
         return Math.min(scrollOffset, computeHorizontalScrollRange(state))
     }
 
-    override fun computeHorizontalScrollRange(state: RecyclerView.State?): Int {
+    override fun computeHorizontalScrollRange(state: RecyclerView.State): Int {
         return Math.max(0, config.width - width)
     }
 
-    override fun computeHorizontalScrollExtent(state: RecyclerView.State?): Int {
+    override fun computeHorizontalScrollExtent(state: RecyclerView.State): Int {
         return Math.max(1, computeHorizontalScrollRange(state) / 10)
     }
 

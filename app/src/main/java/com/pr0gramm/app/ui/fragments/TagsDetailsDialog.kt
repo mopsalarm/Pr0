@@ -99,7 +99,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
                         }
 
                         if (changed && adapterPosition != -1) {
-                            tagsView.adapter.notifyItemChanged(adapterPosition)
+                            tagsView.adapter?.notifyItemChanged(adapterPosition)
                         }
                     }
                 }

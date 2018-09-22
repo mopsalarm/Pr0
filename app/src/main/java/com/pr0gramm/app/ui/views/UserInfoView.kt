@@ -211,6 +211,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             "connect4-blue.png" to R.drawable.badge_connect4_blue,
             "krebs-donation.png" to R.drawable.badge_krebs,
             "itemdelete.png" to R.drawable.deleted_item,
-            "commentdelete.png" to R.drawable.deleted_comment
+            "commentdelete.png" to R.drawable.deleted_comment,
+            "art13.png" to R.drawable.badge_art13
     )
 }

@@ -1327,7 +1327,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (scrollToolbar && activity is ToolbarActivity) {
                 val activity = activity as ToolbarActivity
                 activity.scrollHideToolbarListener.onScrolled(dy)
