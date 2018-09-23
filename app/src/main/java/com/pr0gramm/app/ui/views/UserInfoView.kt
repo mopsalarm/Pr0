@@ -166,7 +166,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         override fun onBindViewHolder(holder: BadgeViewHolder, idx: Int) {
-            holder.set(badges[idx])
+            holder.set(badges[idx], idx == 0)
         }
 
         override fun getItemCount(): Int {
@@ -178,7 +178,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         private val imageView: ImageView = view.find(R.id.image)
         private val textView: TextView = view.find(R.id.text)
 
-        fun set(badge: BadgeInfo) {
+        fun set(badge: BadgeInfo, firstItem: Boolean) {
             if (badge.text == null) {
                 textView.visible = false
             } else {
@@ -203,6 +203,10 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
                     picasso.load(url).into(imageView)
                 }
             }
+
+            // hack, if it is the first item, we need to add 12dp of left margin
+            val margin = if (firstItem) AndroidUtility.dp(itemView.context, 12) else 0
+            (itemView.layoutParams as? MarginLayoutParams)?.leftMargin = margin
         }
 
         companion object {
