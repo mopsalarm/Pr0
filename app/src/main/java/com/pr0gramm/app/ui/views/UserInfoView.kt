@@ -130,8 +130,11 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         badgesContainer.isHorizontalFadingEdgeEnabled = true
         badgesContainer.setFadingEdgeLength(AndroidUtility.dp(context, 24))
 
-        // scroll to the end after a short delay.
-        badgesContainer.postDelayed({ badgesContainer.smoothScrollToPosition(badges.size - 1) }, 500)
+        if (badges.isNotEmpty()) {
+            // scroll to the end after a short delay.
+            val r = { badgesContainer.smoothScrollToPosition(badges.size - 1) }
+            badgesContainer.postDelayed(r, 500)
+        }
 
         // info about banned/register date
         if (user.banned != 0) {
