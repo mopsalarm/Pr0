@@ -62,7 +62,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val downloadLocation: String
         get() {
             val def = app.getString(R.string.pref_downloadLocation_default)
-            return preferences.getString("pref_downloadLocation", def)
+            return preferences.getString("pref_downloadLocation", def)!!
         }
 
     val seenIndicatorStyle: IndicatorStyle
@@ -137,7 +137,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val bestOfBenisThreshold: Int
         get() {
-            val value = preferences.getString("pref_bestof_threshold", "2000")
+            val value = preferences.getString("pref_bestof_threshold", "2000")!!
             return value.toIntOrNull() ?: 0
         }
 
@@ -148,7 +148,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         get() = preferences.getBoolean("pref_override_youtube_links", false)
 
     val themeName: String
-        get() = preferences.getString("pref_theme", Themes.ORANGE.name)
+        get() = preferences.getString("pref_theme", Themes.ORANGE.name)!!
 
     val showCategoryBestOf: Boolean
         get() = bestOfBenisThreshold > 0
@@ -163,10 +163,10 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         get() = preferences.getBoolean("pref_use_exo_player", true)
 
     val videoCodec: String
-        get() = preferences.getString("pref_video_codec", "hardware")
+        get() = preferences.getString("pref_video_codec", "hardware")!!
 
     val audioCodec: String
-        get() = preferences.getString("pref_audio_codec", "hardware")
+        get() = preferences.getString("pref_audio_codec", "hardware")!!
 
     val disableAudio: Boolean
         get() = preferences.getBoolean("pref_disable_audio", false)
@@ -176,7 +176,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val volumeNavigation: VolumeNavigationType
         get() {
-            val pref = preferences.getString("pref_volume_navigation", "disabled")
+            val pref = preferences.getString("pref_volume_navigation", null) ?: ""
             val value = tryEnumValueOf<VolumeNavigationType>(pref.toUpperCase())
             return value ?: VolumeNavigationType.DISABLED
         }
@@ -207,9 +207,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val imageSearchEngine: ShareHelper.ImageSearchEngine
         get() {
-            val pref = preferences.getString("pref_image_search_engine", "TINEYE")
+            val pref = preferences.getString("pref_image_search_engine", null) ?: ""
             val value = tryEnumValueOf<ShareHelper.ImageSearchEngine>(pref.toUpperCase())
-            return value ?: ShareHelper.ImageSearchEngine.TINEYE
+            return value ?: ShareHelper.ImageSearchEngine.GOOGLE
         }
 
     val privateInput: Boolean

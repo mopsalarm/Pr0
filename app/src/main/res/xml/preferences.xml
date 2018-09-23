@@ -245,7 +245,7 @@
                     android:title="@string/pref_show_refresh_button"/>
 
                 <ListPreference
-                    android:defaultValue="TINEYE"
+                    android:defaultValue="GOOGLE"
                     android:key="pref_image_search_engine"
                     android:entries="@array/pref_image_search_engine_human"
                     android:entryValues="@array/pref_image_search_engine_values"
