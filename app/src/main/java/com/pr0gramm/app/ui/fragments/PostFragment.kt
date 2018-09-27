@@ -627,9 +627,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .subscribeBy(onError = { err ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
                         showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
+                    } else {
+                        AndroidUtility.logToCrashlytics(DownloadException(err))
                     }
                 })
     }
+
+    private class DownloadException(cause: Throwable) : Exception(cause)
 
     override fun onResume() {
         super.onResume()
