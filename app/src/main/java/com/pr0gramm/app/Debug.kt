@@ -8,3 +8,4 @@ object Debug {
     const val debugInterceptor = true
 
     val versionOverride: Int? = null
+}
