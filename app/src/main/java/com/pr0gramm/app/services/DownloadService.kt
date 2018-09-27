@@ -3,17 +3,13 @@ package com.pr0gramm.app.services
 import android.app.Application
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Environment
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.services.proxy.ProxyService
-import com.pr0gramm.app.util.CountingInputStream
-import com.pr0gramm.app.util.createObservable
-import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.readStream
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.util.*
 import rx.Emitter
 import rx.Observable
 import java.io.File
@@ -28,8 +24,7 @@ import java.util.*
 class DownloadService(
         private val context: Application,
         private val notificationService: NotificationService,
-        private val proxyService: ProxyService,
-        private val okHttpClient: OkHttpClient) {
+        private val cache: Cache) {
 
     private val settings: Settings = Settings.get()
 
@@ -39,7 +34,7 @@ class DownloadService(
      */
     fun downloadWithNotification(feedItem: FeedItem, preview: Bitmap? = null): Observable<Status> = Observable.defer {
         // download over proxy to use caching
-        val url = proxyService.proxy(UriHelper.of(context).media(feedItem, true))
+        val uri = UriHelper.of(context).media(feedItem, true)
 
         val external = when (settings.downloadLocation) {
             context.getString(R.string.pref_downloadLocation_value_downloads) ->
@@ -66,7 +61,7 @@ class DownloadService(
 
         val targetFile = File(targetDirectory, prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType)
 
-        downloadToFile(url.toString(), targetFile)
+        downloadToFile(uri, targetFile)
                 .startWith(Status(0f, null))
                 .doOnNext { status ->
                     // update download notification
@@ -79,7 +74,7 @@ class DownloadService(
                 }
     }
 
-    fun downloadUpdateFile(uri: String): Observable<Status> {
+    fun downloadUpdateFile(uri: Uri): Observable<Status> {
         val directory = File(context.cacheDir, "updates")
         if (!directory.exists() && !directory.mkdirs()) {
             logger.warn("Could not create download directory: {}", directory)
@@ -100,27 +95,26 @@ class DownloadService(
         return downloadToFile(uri, tempFile)
     }
 
-    fun downloadToFile(uri: String, target: File): Observable<Status> {
+    fun downloadToFile(uri: Uri, target: File): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
-                FileOutputStream(target).use { output ->
-                    // now do the request
-                    val request = Request.Builder().url(uri).build()
-                    val call = okHttpClient.newCall(request)
-                    emitter.setCancellation { call.cancel() }
+                val entry = cache.get(uri)
+                val totalSize = entry.totalSize
 
-                    val response = call.execute()
+                FileOutputStream(target).use { output ->
                     val interval = Interval(250)
 
-                    response.body()?.let { body ->
-                        CountingInputStream(body.byteStream()).use { input ->
+                    entry.inputStreamAt(0).use { body ->
+                        emitter.setCancellation { body.closeQuietly() }
+
+                        CountingInputStream(body).use { input ->
                             readStream(input) { buffer, count ->
                                 output.write(buffer, 0, count)
 
                                 // only give status if we know the size of the file
-                                if (body.contentLength() >= 0L) {
+                                if (totalSize > 0L) {
                                     interval.doIfTime {
-                                        val progress = input.count / body.contentLength().toFloat()
+                                        val progress = input.count / totalSize.toFloat()
                                         emitter.onNext(Status(progress, null))
                                     }
                                 }

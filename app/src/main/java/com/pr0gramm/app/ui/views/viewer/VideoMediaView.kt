@@ -57,12 +57,12 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private var droppedFramesShown: Boolean = false
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
+        videoPlayer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
             logger.info("Using exo player to play videos.")
-            videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
+            ExoVideoPlayer(context, config.audio, videoPlayerParent)
         } else {
             logger.info("Falling back on simple android video player.")
-            videoPlayer = AndroidVideoPlayer(context, videoPlayerParent)
+            AndroidVideoPlayer(context, videoPlayerParent)
         }
 
         muteButtonView = LayoutInflater

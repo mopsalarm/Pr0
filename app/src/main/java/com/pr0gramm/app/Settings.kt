@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareHelper
@@ -160,7 +161,14 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         get() = preferences.getBoolean("pref_enable_quick_peek", true)
 
     val useExoPlayer: Boolean
-        get() = preferences.getBoolean("pref_use_exo_player", true)
+        get() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN || Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // old player is not supported anymore.
+                return false
+            }
+
+            return preferences.getBoolean("pref_use_exo_player", true)
+        }
 
     val videoCodec: String
         get() = preferences.getString("pref_video_codec", "hardware")!!

@@ -99,6 +99,16 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             if (!userService.userIsAdmin) {
                 hidePreferenceByName("pref_show_content_type_flag")
             }
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                // only allowed on newer versions
+                hidePreferenceByName("pref_use_exo_player")
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // only allowed on older versions
+                hidePreferenceByName("pref_use_exo_player")
+            }
         }
 
         private fun hidePreferenceByName(name: String) {

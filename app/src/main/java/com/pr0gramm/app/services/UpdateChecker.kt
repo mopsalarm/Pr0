@@ -111,7 +111,7 @@ class UpdateChecker {
             val notificationService = instance<NotificationService>()
 
             val progress = downloadService
-                    .downloadUpdateFile(update.apk)
+                    .downloadUpdateFile(Uri.parse(update.apk))
                     .subscribeOn(BackgroundScheduler.instance())
                     .unsubscribeOn(BackgroundScheduler.instance())
                     .observeOn(AndroidSchedulers.mainThread())

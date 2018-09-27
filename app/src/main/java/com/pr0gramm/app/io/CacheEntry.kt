@@ -25,10 +25,14 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
     private val refCount = AtomicInteger()
 
-    @Volatile private var fp: RandomAccessFile? = null
+    @Volatile
+    private var fp: RandomAccessFile? = null
+
     @Volatile
     private var totalSizeField: Int = 0
-    @Volatile private var written: Int = 0
+
+    @Volatile
+    private var written: Int = 0
 
     @Volatile
     private var cacheWriter: CacheWriter? = null
