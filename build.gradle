@@ -21,10 +21,6 @@ plugins {
 
 allprojects {
     repositories {
-        maven {
-            url "/home/oliver/Applications/android-studio-3.2/gradle/m2repository/"
-        }
-
         jcenter()
         google()
     }
