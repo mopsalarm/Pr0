@@ -8,7 +8,7 @@ val MoshiInstance: Moshi = run {
     removeClassJsonAdapter()
 
     Moshi.Builder()
-            .adapter(InstantAdapter)
+            .adapter(InstantAdapter.nullSafe())
             .adapter(NothingAdapter)
             .adapter(Base64ByteArrayAdapter)
             .adapter(BooleanAdapter)
