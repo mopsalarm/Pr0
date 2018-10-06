@@ -32,7 +32,6 @@ import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
 import org.slf4j.Logger
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
@@ -165,9 +164,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     protected fun <T> backgroundBindView(): Observable.Transformer<T, T> {
         return Observable.Transformer {
-            it.subscribeOn(BackgroundScheduler.instance())
-                    .unsubscribeOn(BackgroundScheduler.instance())
-                    .observeOn(AndroidSchedulers.mainThread())
+            it.subscribeOn(BackgroundScheduler)
+                    .unsubscribeOn(BackgroundScheduler)
+                    .observeOn(MainThreadScheduler)
                     .compose(RxLifecycleAndroid.bindView<T>(this))
         }
     }
@@ -205,7 +204,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         val rxFancyPreviewImage = info.fancy?.asObservable() ?: Observable.fromCallable {
             logger.debug("Requesting fancy thumbnail on background thread now.")
             fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
-        }.subscribeOn(BackgroundScheduler.instance())
+        }.subscribeOn(BackgroundScheduler)
 
         rxFancyPreviewImage
                 .onErrorResumeNext { err ->

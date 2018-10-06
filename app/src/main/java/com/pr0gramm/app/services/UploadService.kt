@@ -232,7 +232,7 @@ class UploadService(private val api: Api,
                 .retryWhen { errObservable ->
                     errObservable
                             .doOnNext { err -> logger.warn("Error polling queue", err) }
-                            .delay(2, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                            .delay(2, TimeUnit.SECONDS, BackgroundScheduler)
                 }
 
                 .flatMap { value ->
@@ -243,7 +243,7 @@ class UploadService(private val api: Api,
                     }
                 }
 
-                .delaySubscription(2, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                .delaySubscription(2, TimeUnit.SECONDS, BackgroundScheduler)
     }
 
     sealed class State {

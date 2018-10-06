@@ -1,12 +1,12 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.edit
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,16 +26,16 @@ class SingleShotService(internal val preferences: SharedPreferences) {
 
     fun isFirstTime(action: String): Boolean {
         synchronized(lock) {
-            val actions = preferences.getStringSet(keySetActions, emptySet()).toMutableSet()
+            val actions = (preferences.getStringSet(keySetActions, null) ?: setOf()).toMutableSet()
 
-            if (actions.add(action)) {
+            return if (actions.add(action)) {
                 preferences.edit {
                     putStringSet(keySetActions, actions)
                 }
 
-                return true
+                true
             } else {
-                return false
+                false
             }
         }
     }

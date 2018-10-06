@@ -6,11 +6,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.preference.PreferenceManager
+import androidx.core.content.edit
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareHelper
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
-import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.tryEnumValueOf
 import rx.Observable
 import rx.subjects.PublishSubject

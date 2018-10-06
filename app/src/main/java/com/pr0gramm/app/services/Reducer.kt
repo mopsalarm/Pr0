@@ -30,24 +30,5 @@ object Reducer {
                 emitter.onError(err)
             }
         }
-//
-//
-//        fun iterate(key: K): Observable<T> {
-//            return block(key).flatMapObservable { step ->
-//                var oValue = Observable.just(step.value)
-//
-//                if (step.next != null) {
-//                    // iterate if needed. We need to use subscribeOn here to avoid a real recursion
-//                    // by starting the next call in a another thread.
-//                    oValue = oValue.concatWith(iterate(step.next)
-//                            .subscribeOn(BackgroundScheduler.instance())
-//                            .observeOn(BackgroundScheduler.instance()))
-//                }
-//
-//                oValue
-//            }
-//        }
-//
-//        return iterate(seed)
     }
 }

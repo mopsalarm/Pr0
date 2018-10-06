@@ -32,7 +32,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     init {
         // initialize in background.
         queryAllItems()
-                .subscribeOn(BackgroundScheduler.instance())
+                .subscribeOn(BackgroundScheduler)
                 .subscribe { setPreloadCache(it) }
     }
 

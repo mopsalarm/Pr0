@@ -6,10 +6,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.provider.Settings
+import androidx.core.content.edit
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.directKodein
+import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kodein.di.erased.instance

@@ -33,7 +33,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
 
     init {
         // schedule periodic cache clean up.
-        Observable.interval(10, 60, TimeUnit.SECONDS, BackgroundScheduler.instance()).subscribe {
+        Observable.interval(10, 60, TimeUnit.SECONDS, BackgroundScheduler).subscribe {
             try {
                 cleanupCache()
             } catch(err: Exception) {
@@ -44,7 +44,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         // print cache every few seconds for debugging
         if (BuildConfig.DEBUG) {
             Observable
-                    .interval(5, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                    .interval(5, TimeUnit.SECONDS, BackgroundScheduler)
                     .subscribe { printCache() }
         }
 

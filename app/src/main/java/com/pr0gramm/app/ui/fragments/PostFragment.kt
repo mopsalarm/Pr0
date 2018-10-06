@@ -761,7 +761,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             MediaViews.newInstance(viewerConfig).also { this.viewer = it }
         }
 
-        viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
+        viewer.viewed().observeOn(BackgroundScheduler).subscribe {
             //  mark this item seen. We do that in a background thread
             seenService.markAsSeen(feedItem.id)
         }

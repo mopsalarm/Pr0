@@ -2,11 +2,11 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.trace
 import rx.Observable
 import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 import rx.subscriptions.Subscriptions
@@ -25,7 +25,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
     private val feedType: FeedType get() = feed.feedType
 
     val updates: Observable<Update> get() = subject
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(MainThreadScheduler)
             .startWith(Update.NewFeed(feed))
 
     /**
@@ -77,8 +77,8 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
 
         subscription.unsubscribe()
         subscription = observable
-                .subscribeOn(BackgroundScheduler.instance())
-                .unsubscribeOn(BackgroundScheduler.instance())
+                .subscribeOn(BackgroundScheduler)
+                .unsubscribeOn(BackgroundScheduler)
                 .doOnSubscribe { subject.onNext(Update.LoadingStarted) }
                 .doOnUnsubscribe { subject.onNext(Update.LoadingStopped) }
                 .subscribe({ handleFeedUpdate(it) }, { publishError(it) })

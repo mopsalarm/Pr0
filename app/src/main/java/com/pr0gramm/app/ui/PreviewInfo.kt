@@ -28,7 +28,7 @@ class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val
     fun preloadFancyPreviewImage(service: FancyExifThumbnailGenerator) {
         fancy = Holder.ofObservable(Observable
                 .fromCallable { service.fancyThumbnail(previewUri, aspect) }
-                .subscribeOn(BackgroundScheduler.instance()))
+                .subscribeOn(BackgroundScheduler))
     }
 
     companion object {

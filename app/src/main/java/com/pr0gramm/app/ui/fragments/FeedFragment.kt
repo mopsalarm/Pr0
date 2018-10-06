@@ -564,7 +564,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // correct state in the ui once they are loaded
         preloadManager.all().share().let { preloadItems ->
             preloadItems
-                    .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                    .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler)
                     .startWith(preloadItems.first())
                     .bindToLifecycleAsync()
                     .ignoreError()
@@ -906,7 +906,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun onFollowClicked() {
         activeUsername?.let { name ->
             followService.follow(name)
-                    .subscribeOn(BackgroundScheduler.instance())
+                    .subscribeOn(BackgroundScheduler)
                     .subscribe({}, {})
         }
     }
@@ -914,7 +914,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun onUnfollowClicked() {
         activeUsername?.let { name ->
             followService.unfollow(name)
-                    .subscribeOn(BackgroundScheduler.instance())
+                    .subscribeOn(BackgroundScheduler)
                     .subscribe({}, {})
         }
     }

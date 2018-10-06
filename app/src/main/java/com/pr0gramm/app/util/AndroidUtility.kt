@@ -316,7 +316,7 @@ fun doInBackground(action: () -> Unit): Completable {
         }
 
         null
-    }, BackgroundScheduler.instance())
+    }, BackgroundScheduler)
 
     return o.toCompletable()
 }

@@ -23,7 +23,7 @@ class RulesService(okHttpClient: OkHttpClient) {
                 }
 
                 // do this in background
-                .subscribeOn(BackgroundScheduler.instance())
+            .subscribeOn(BackgroundScheduler)
 
                 // but skip errors
             .filter { responseText -> !responseText.isNullOrBlank() }

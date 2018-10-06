@@ -1,11 +1,11 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.logger
 import rx.Completable
 import rx.Observable

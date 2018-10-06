@@ -2,10 +2,10 @@ package com.pr0gramm.app.api.pr0gramm
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.logger
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

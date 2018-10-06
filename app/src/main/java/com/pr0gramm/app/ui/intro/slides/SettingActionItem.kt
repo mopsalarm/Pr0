@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.intro.slides
 
+import androidx.core.content.edit
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.util.edit
 
 /**
  * Configures settings.

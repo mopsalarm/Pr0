@@ -2,6 +2,7 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler

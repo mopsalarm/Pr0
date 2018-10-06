@@ -6,19 +6,19 @@ import com.jakewharton.rxbinding.view.ViewAttachEvent
 import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.util.MainThreadScheduler
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 object ViewUpdater {
     private val tickerSeconds: Observable<Unit> = Observable
-            .interval(1, 1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+            .interval(1, 1, TimeUnit.SECONDS, MainThreadScheduler)
             .map { Unit }
             .share()
 
     private val tickerMinute: Observable<Unit> = Observable
-            .interval(1, 1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
+            .interval(1, 1, TimeUnit.MINUTES, MainThreadScheduler)
             .map { Unit }
             .share()
 

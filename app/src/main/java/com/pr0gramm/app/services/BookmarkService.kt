@@ -56,7 +56,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     }
 
     fun get(): Observable<List<Bookmark>> {
-        return onChange.observeOn(BackgroundScheduler.instance()).map { list() }
+        return onChange.observeOn(BackgroundScheduler).map { list() }
     }
 
     /**

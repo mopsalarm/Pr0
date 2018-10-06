@@ -1,9 +1,9 @@
 package com.pr0gramm.app.ui.fragments
 
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.MainThreadScheduler
 import rx.Observable
 import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action0
 import rx.functions.Action1
 
@@ -69,9 +69,9 @@ abstract class LoaderHelper<T> {
 
         subscription = newObservable()
                 .take(1)
-                .subscribeOn(BackgroundScheduler.instance())
-                .unsubscribeOn(BackgroundScheduler.instance())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(BackgroundScheduler)
+                .unsubscribeOn(BackgroundScheduler)
+                .observeOn(MainThreadScheduler)
                 .subscribe({ value -> this@LoaderHelper.onNext(value) }, { error -> this@LoaderHelper.onError(error) })
     }
 

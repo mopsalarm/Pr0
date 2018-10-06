@@ -58,7 +58,7 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
         }
 
         // and handle the result.
-        result.subscribeOn(BackgroundScheduler.instance()).onErrorComplete().subscribe {
+        result.subscribeOn(BackgroundScheduler).onErrorComplete().subscribe {
             notificationService.showSendSuccessfulNotification(receiverName)
             markMessageAsRead(context, messageCreated)
         }

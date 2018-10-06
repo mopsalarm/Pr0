@@ -35,7 +35,7 @@ fun appModule(app: Application) = Kodein.Module("app") {
     bind<Holder<SQLiteDatabase>>() with singleton {
         val helper: SQLiteOpenHelper = instance()
         val db = Single.fromCallable { helper.writableDatabase }
-        Holder.ofSingle(db.subscribeOn(BackgroundScheduler.instance()))
+        Holder.ofSingle(db.subscribeOn(BackgroundScheduler))
     }
 
     bind<BriteDatabase>() with singleton {
@@ -43,6 +43,6 @@ fun appModule(app: Application) = Kodein.Module("app") {
         SqlBrite.Builder()
                 .logger { logger.info("{}", it) }
                 .build()
-                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), BackgroundScheduler.instance())
+                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), BackgroundScheduler)
     }
 }

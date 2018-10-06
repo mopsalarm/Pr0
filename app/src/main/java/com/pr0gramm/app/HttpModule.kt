@@ -160,7 +160,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .build()
     }
 
-    bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler.instance()))
+    bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler))
 
     bind<Api>() with singleton {
         val base = instance<String>(TagApiURL)

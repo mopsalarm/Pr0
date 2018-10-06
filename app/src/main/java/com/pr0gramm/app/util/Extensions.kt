@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ContentProvider
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Resources
 import android.content.res.TypedArray
 import android.database.Cursor
@@ -32,7 +31,6 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import org.slf4j.Logger
 import rx.*
-import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -56,7 +54,7 @@ inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.Backpre
 
 fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = ignoreError()
 
-fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler.instance())
+fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler)
 
 fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observable<T> {
     if (firstIsSync) {
@@ -64,7 +62,7 @@ fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observa
         return shared.take(1).concatWith(shared.skip(1).observeOnMainThread())
     }
 
-    return observeOn(AndroidSchedulers.mainThread())
+    return observeOn(MainThreadScheduler)
 }
 
 
@@ -126,12 +124,6 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (Byt
 
         fn(buffer, read)
     }
-}
-
-inline fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit) {
-    val editor = edit()
-    editor.fn()
-    editor.apply()
 }
 
 inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn: () -> R): R {
@@ -378,17 +370,6 @@ fun Context.getColorCompat(@ColorRes id: Int): Int {
 fun Context.dip2px(dpValue: Float): Float {
     val density = resources.displayMetrics.density
     return dpValue * density
-}
-
-inline fun androidx.fragment.app.FragmentManager.transaction(now: Boolean = false, block: androidx.fragment.app.FragmentTransaction.() -> Unit) {
-    val tr = beginTransaction()
-    tr.block()
-
-    if (now) {
-        tr.commitNow()
-    } else {
-        tr.commit()
-    }
 }
 
 /**

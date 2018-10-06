@@ -4,14 +4,10 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.services.config.Config
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.time
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import org.kodein.di.erased.instance
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStreamReader
 
 /**
@@ -52,12 +48,12 @@ object TagInputView {
     fun initialize(context: Context) {
         TAGS = Observable
                 .fromCallable { loadTagJson(context.applicationContext) }
-                .subscribeOn(BackgroundScheduler.instance())
+                .subscribeOn(BackgroundScheduler)
                 .cache()
     }
 
     fun setup(tagInput: MultiAutoCompleteTextView) {
-        TAGS.first().observeOn(AndroidSchedulers.mainThread()).bindToLifecycle(tagInput).subscribe { tags ->
+        TAGS.first().observeOnMainThread().bindToLifecycle(tagInput).subscribe { tags ->
             val adapter = ArrayAdapter(tagInput.context,
                     android.R.layout.simple_dropdown_item_1line,
                     tags)
