@@ -12,7 +12,6 @@ open class Config(
         val adType: AdType = AdType.NONE,
         val trackItemView: Boolean = false,
         val trackVotes: Boolean = false,
-        val questionableTags: List<String> = defaultQuestionableTags,
         val commentsMaxLevels: Int = 18,
         val reportReasons: List<String> = defaultReportReasons,
         val syncVersion: Int = 1,
@@ -32,11 +31,6 @@ open class Config(
     data class MenuItem(val name: String, val icon: String, val link: String)
 
     companion object {
-        private val defaultQuestionableTags = listOf(
-                "0815", "kann weg", "heil hitler", "ban pls", "deshalb",
-                "ab ins gas", "und weiter", "alles ist", "hure", "da drückste",
-                "pr0paganda", "pr0gida", "für mehr", "dein scheiß", "kann ich auch")
-
         private val defaultReportReasons = listOf(
                 "Repost",
                 "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
@@ -49,8 +43,8 @@ open class Config(
                 "Regel #8 - Ähnliche Bilder in Reihe",
                 "Regel #12 - Warez/Logins zu Pay Sites",
                 "Regel #14 - Screamer/Sound-getrolle",
-                "Regel #15 - Reiner Musikupload",
-                "Regel #18 - Hetze/Aufruf zur Gewalt",
+                "Regel #15 - reiner Musikupload",
+                "Regel #18 - Hetze/Aufruf zu Gewalt",
                 "Verstoß in den Tags",
                 "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben")
     }

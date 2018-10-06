@@ -8,6 +8,12 @@
     <application
         android:name="com.pr0gramm.app.DebugApplicationClass"
         android:label="pr0gramm dev"
-        tools:replace="android:name,android:label"/>
+        tools:replace="android:name,android:label">
+
+        <meta-data
+            tools:replace="android:value"
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+    </application>
 
 </manifest>

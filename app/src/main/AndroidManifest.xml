@@ -30,6 +30,10 @@
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2308657767126505~4138045673"/>
+
         <!-- activate multi window for samsung -->
         <uses-library
             android:name="com.sec.android.app.multiwindow"
