@@ -58,6 +58,9 @@ interface Api {
             @Field("itemId") lastId: Long,
             @Field("tags") tags: String): Observable<NewTag>
 
+    @GET("/api/tags/top")
+    fun topTags(): Observable<TagTopList>
+
     @FormUrlEncoded
     @POST("/api/comments/post")
     fun postComment(
@@ -537,6 +540,11 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class Names(val users: List<String> = listOf())
+
+    @JsonClass(generateAdapter = true)
+    data class TagTopList(
+            val tags: List<String> = listOf(),
+            val blacklist: List<String> = listOf())
 }
 
 

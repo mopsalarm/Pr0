@@ -7,7 +7,7 @@ import android.widget.MultiAutoCompleteTextView
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
-import com.pr0gramm.app.ui.TagInputView
+import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
@@ -21,6 +21,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val opinionHint: View by bindView(R.id.opinion_hint)
 
     private val config: Config by instance()
+    private val tagSuggestions: TagSuggestionService by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(this) {
@@ -32,11 +33,10 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     }
 
     override fun onDialogViewCreated() {
-        TagInputView.setup(tagInput)
+        tagSuggestions.setupView(tagInput)
 
         tagInput.textChanges().subscribe { text ->
-            val lower = text.toString().toLowerCase()
-            opinionHint.visible = config.questionableTags.any { lower.contains(it) }
+            opinionHint.visible = tagSuggestions.containsQuestionableTag(text)
         }
     }
 
@@ -44,8 +44,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
         val text = tagInput.text.toString()
 
         // split text into tags.
-        val tags = text.split(',')
-                .mapNotNull { it.trim().takeIf { it.isNotEmpty() } }
+        val tags = text.split(',', '#').map { it.trim() }.filter { it.isNotEmpty() }
 
         // do nothing if the user had not typed any tags
         if (tags.isEmpty())

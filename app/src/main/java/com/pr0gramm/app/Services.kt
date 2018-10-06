@@ -14,6 +14,7 @@ import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
+import com.pr0gramm.app.ui.TagSuggestionService
 import org.kodein.di.Kodein
 import org.kodein.di.erased.*
 import java.io.File
@@ -49,6 +50,7 @@ fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }
+    bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
 
     bind<KVService>() with singleton { KVService(instance()) }
 
