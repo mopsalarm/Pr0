@@ -1,14 +1,13 @@
 package com.pr0gramm.app.ui.intro.slides
 
 import android.os.Bundle
-import android.support.annotation.ColorRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
-
+import androidx.annotation.ColorRes
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.util.find

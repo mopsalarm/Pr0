@@ -1,7 +1,7 @@
 package com.pr0gramm.app
 
 import android.os.StrictMode
-import android.support.test.espresso.IdlingRegistry
+import androidx.test.espresso.IdlingRegistry
 import com.jakewharton.espresso.OkHttp3IdlingResource
 import okhttp3.mockwebserver.MockWebServer
 import org.kodein.di.Kodein

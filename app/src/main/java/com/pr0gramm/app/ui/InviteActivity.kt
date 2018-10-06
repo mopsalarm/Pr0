@@ -2,13 +2,11 @@ package com.pr0gramm.app.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InviteService
@@ -32,7 +30,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     private val inviteService: InviteService by instance()
 
     private val mailField: EditText by bindView(R.id.mail)
-    private val invites: RecyclerView by bindView(R.id.invites)
+    private val invites: androidx.recyclerview.widget.RecyclerView by bindView(R.id.invites)
     private val remainingInvites: TextView by bindView(R.id.remaining)
     private val invitesEmptyHint: View by bindView(R.id.invites_empty)
 
@@ -46,7 +44,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         setContentView(R.layout.activity_invite)
         disableInputViews()
 
-        invites.layoutManager = LinearLayoutManager(this)
+        invites.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
         requeryInvites()
 

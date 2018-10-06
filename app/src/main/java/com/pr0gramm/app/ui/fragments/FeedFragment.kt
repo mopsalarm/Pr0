@@ -3,14 +3,12 @@ package com.pr0gramm.app.ui.fragments
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.support.design.widget.dismisses
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -65,7 +63,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val adService: AdService by instance()
     private val config: Config by instance()
 
-    private val recyclerView: RecyclerView by bindView(R.id.list)
+    private val recyclerView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
     private val noResultsView: View by bindView(R.id.empty)
     private val errorLoadingFeedView: View by bindView(R.id.error)
@@ -694,15 +692,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
 
-        val layoutManager = recyclerView.layoutManager as? GridLayoutManager
+        val layoutManager = recyclerView.layoutManager as? androidx.recyclerview.widget.GridLayoutManager
         return layoutManager?.let { _ ->
             // if the first row is visible, skip this stuff.
             val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
-            if (firstCompletelyVisible == 0 || firstCompletelyVisible == RecyclerView.NO_POSITION)
+            if (firstCompletelyVisible == 0 || firstCompletelyVisible == androidx.recyclerview.widget.RecyclerView.NO_POSITION)
                 return null
 
             val lastCompletelyVisible = layoutManager.findLastCompletelyVisibleItemPosition()
-            if (lastCompletelyVisible == RecyclerView.NO_POSITION)
+            if (lastCompletelyVisible == androidx.recyclerview.widget.RecyclerView.NO_POSITION)
                 return null
 
             val idx = (lastCompletelyVisible).coerceIn(items.indices)
@@ -1300,7 +1298,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val recyclerView = recyclerView
         if (smoothScroll) {
-            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+            val layoutManager = recyclerView.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager
+                    ?: return
 
             // smooth scroll to the target position
             val context = recyclerView.context
@@ -1319,15 +1318,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return info.user.name.equals(userService.name, ignoreCase = true)
     }
 
-    inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
-        override fun onLayoutCompleted(state: RecyclerView.State?) {
+    inner class InternalGridLayoutManager(context: Context, spanCount: Int) : androidx.recyclerview.widget.GridLayoutManager(context, spanCount) {
+        override fun onLayoutCompleted(state: androidx.recyclerview.widget.RecyclerView.State?) {
             super.onLayoutCompleted(state)
             performAutoScroll()
         }
     }
 
-    private val onScrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+    private val onScrollListener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
             if (scrollToolbar && activity is ToolbarActivity) {
                 val activity = activity as ToolbarActivity
                 activity.scrollHideToolbarListener.onScrolled(dy)
@@ -1336,8 +1335,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             if (loader.isLoading)
                 return
 
-            val layoutManager = recyclerView?.layoutManager
-            if (layoutManager is GridLayoutManager) {
+            val layoutManager = recyclerView.layoutManager
+            if (layoutManager is androidx.recyclerview.widget.GridLayoutManager) {
                 val totalItemCount = layoutManager.itemCount
 
                 if (dy > 0 && !feed.isAtEnd) {
@@ -1362,8 +1361,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+        override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
+            if (newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE) {
                 if (activity is ToolbarActivity) {
                     val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
                             ?: Integer.MAX_VALUE

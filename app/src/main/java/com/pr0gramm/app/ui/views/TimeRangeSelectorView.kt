@@ -1,11 +1,11 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.support.annotation.IdRes
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.IdRes
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.observeChange

@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.views
 
-import android.support.v4.view.ViewCompat
 import android.view.View
+import androidx.core.view.ViewCompat
 import com.jakewharton.rxbinding.view.ViewAttachEvent
 import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.Duration

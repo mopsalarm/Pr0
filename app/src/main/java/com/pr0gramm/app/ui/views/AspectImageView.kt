@@ -1,8 +1,8 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatImageView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.use
 

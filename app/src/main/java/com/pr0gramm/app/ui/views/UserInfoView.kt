@@ -3,15 +3,13 @@ package com.pr0gramm.app.ui.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import com.jakewharton.rxbinding.view.clicks
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -40,7 +38,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
     private val extraInfo: TextView = find(R.id.user_extra_info)
     private val writeNewMessage: View = find(R.id.action_new_message)
     private val writeNewMessageTitle: View = find(R.id.action_new_message_title)
-    private val badgesContainer: RecyclerView = find(R.id.badges_container)
+    private val badgesContainer: androidx.recyclerview.widget.RecyclerView = find(R.id.badges_container)
     private val userTypeName: TextView = find(R.id.user_type_name)
     private val showCommentsContainer: View = comments.parent as View
 
@@ -126,7 +124,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         badgesContainer.adapter = BadgeAdapter(badges)
-        badgesContainer.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        badgesContainer.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
         badgesContainer.isHorizontalFadingEdgeEnabled = true
         badgesContainer.setFadingEdgeLength(AndroidUtility.dp(context, 24))
 
@@ -162,7 +160,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
                                  val text: String? = null,
                                  val textColor: Int = Color.WHITE)
 
-    private class BadgeAdapter(val badges: List<BadgeInfo>) : RecyclerView.Adapter<BadgeViewHolder>() {
+    private class BadgeAdapter(val badges: List<BadgeInfo>) : androidx.recyclerview.widget.RecyclerView.Adapter<BadgeViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, idx: Int): BadgeViewHolder {
             val view = parent.layoutInflater.inflate(R.layout.badge, parent, false)
             return BadgeViewHolder(view)
@@ -177,7 +175,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
     }
 
-    private class BadgeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private class BadgeViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.find(R.id.image)
         private val textView: TextView = view.find(R.id.text)
 
@@ -190,7 +188,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
                 textView.setTextColor(badge.textColor)
             }
 
-            itemView.clicks().subscribe {
+            itemView.setOnClickListener {
                 Toast.makeText(itemView.context, badge.description, Toast.LENGTH_SHORT).show()
             }
 

@@ -6,8 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.FileProvider
+import androidx.core.content.FileProvider
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
@@ -106,7 +105,7 @@ class UpdateChecker {
         }
 
 
-        fun download(activity: FragmentActivity, update: Update) = with(activity.directKodein) {
+        fun download(activity: androidx.fragment.app.FragmentActivity, update: Update) = with(activity.directKodein) {
             val downloadService = instance<DownloadService>()
             val notificationService = instance<NotificationService>()
 

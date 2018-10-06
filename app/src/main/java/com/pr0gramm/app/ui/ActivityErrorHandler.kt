@@ -3,13 +3,10 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
-
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.util.ErrorFormatting
 import java.io.PrintWriter
 import java.io.StringWriter
-
 import java.lang.ref.WeakReference
 
 /**
@@ -46,7 +43,7 @@ class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErr
     }
 
     override fun onActivityResumed(activity: Activity) {
-        if (activity is FragmentActivity) {
+        if (activity is androidx.fragment.app.FragmentActivity) {
             current = WeakReference(activity)
 
             if (pendingError != null && pendingFormatter != null) {
@@ -80,7 +77,7 @@ class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErr
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle?) {}
 
     companion object {
-        private val NULL = WeakReference<FragmentActivity>(null)
+        private val NULL = WeakReference<androidx.fragment.app.FragmentActivity>(null)
     }
 
 }

@@ -1,15 +1,14 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.annotation.SuppressLint
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.PopupMenu
-import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -138,7 +137,7 @@ abstract class CommentTreeHelper : CommentView.Listener {
 }
 
 class CommentView(val parent: ViewGroup,
-                  private val actionListener: Listener) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
+                  private val actionListener: Listener) : androidx.recyclerview.widget.RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
 
     private val maxLevels = ConfigService.get(itemView.context).commentsMaxLevels
 

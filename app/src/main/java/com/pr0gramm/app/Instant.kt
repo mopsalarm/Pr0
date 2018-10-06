@@ -2,7 +2,6 @@ package com.pr0gramm.app
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v4.util.CircularArray
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
@@ -90,7 +89,7 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
 object TimeFactory {
     private val logger: Logger = logger("TimeFactory")
 
-    private val buffer = CircularArray<Long>(16)
+    private val buffer = androidx.collection.CircularArray<Long>(16)
     private val deltaInMillis = AtomicLong(0)
 
     fun updateServerTime(serverTime: Instant) {

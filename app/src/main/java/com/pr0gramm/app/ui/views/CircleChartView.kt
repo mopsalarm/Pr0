@@ -2,10 +2,10 @@ package com.pr0gramm.app.ui.views
 
 import android.content.Context
 import android.graphics.*
-import android.support.annotation.ColorInt
-import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.BaseDrawable
 import com.pr0gramm.app.ui.paint

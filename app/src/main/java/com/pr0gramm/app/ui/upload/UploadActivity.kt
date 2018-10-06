@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -83,7 +82,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         show(fragment, addToBackstack)
     }
 
-    private fun show(fragment: Fragment, addToBackstack: Boolean) {
+    private fun show(fragment: androidx.fragment.app.Fragment, addToBackstack: Boolean) {
         @SuppressLint("CommitTransaction")
         val transaction = supportFragmentManager
                 .beginTransaction()
@@ -109,19 +108,19 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         showUploadFragment(type, addToBackstack = true)
     }
 
-    class CheckUploadAllowedFragment : Fragment() {
+    class CheckUploadAllowedFragment : androidx.fragment.app.Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_check, container, false)
         }
     }
 
-    class UploadLimitReachedFragment : Fragment() {
+    class UploadLimitReachedFragment : androidx.fragment.app.Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_limit_reached, container, false)
         }
     }
 
-    class SomethingWentWrongFragment : Fragment() {
+    class SomethingWentWrongFragment : androidx.fragment.app.Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_something_went_wrong, container, false)
         }

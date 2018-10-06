@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
 import android.util.Patterns
 import android.view.MenuItem
 import android.view.View
@@ -12,6 +10,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.jakewharton.rxbinding.widget.checkedChanges
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R

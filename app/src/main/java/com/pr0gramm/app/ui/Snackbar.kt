@@ -1,8 +1,8 @@
 package com.pr0gramm.app.ui
 
-import android.support.design.widget.Snackbar
-import android.support.v4.view.ViewCompat
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.dip2px
 

@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -41,7 +40,7 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
         return LoaderHelper.of { inboxService.privateMessages }
     }
 
-    override fun displayMessages(recyclerView: RecyclerView, messages: List<Api.PrivateMessage>) {
+    override fun displayMessages(recyclerView: androidx.recyclerview.widget.RecyclerView, messages: List<Api.PrivateMessage>) {
         val activity = activity ?: return
         recyclerView.adapter = PrivateMessageAdapter(activity, messages, actionListener)
     }

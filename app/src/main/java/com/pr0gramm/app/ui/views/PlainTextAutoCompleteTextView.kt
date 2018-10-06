@@ -3,13 +3,13 @@ package com.pr0gramm.app.ui.views
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
-import android.support.v13.view.inputmethod.EditorInfoCompat
-import android.support.v7.widget.AppCompatAutoCompleteTextView
-import android.support.v7.widget.AppCompatEditText
-import android.support.v7.widget.AppCompatMultiAutoCompleteTextView
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
+import androidx.core.view.inputmethod.EditorInfoCompat
 import com.pr0gramm.app.Settings
 
 class PlainEditText @JvmOverloads constructor(

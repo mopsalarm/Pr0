@@ -2,7 +2,6 @@ package com.pr0gramm.app
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v4.util.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
@@ -30,7 +29,6 @@ import rx.schedulers.Schedulers
 import rx.util.async.Async
 import java.io.File
 import java.io.IOException
-import java.lang.UnsupportedOperationException
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
@@ -173,7 +171,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
     val logger: Logger = logger("Picasso.Downloader")
 
-    private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
+    private val memoryCache = object : androidx.collection.LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
     }
 

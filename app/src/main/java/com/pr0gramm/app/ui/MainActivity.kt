@@ -9,15 +9,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.view.menu.ActionMenuItem
-import android.support.v7.widget.Toolbar
 import android.view.*
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.view.menu.ActionMenuItem
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -51,7 +49,7 @@ import kotlin.properties.Delegates
  */
 class MainActivity : BaseAppCompatActivity("MainActivity"),
         DrawerFragment.OnFeedFilterSelected,
-        FragmentManager.OnBackStackChangedListener,
+        androidx.fragment.app.FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler,
         PermissionHelperActivity,
@@ -304,7 +302,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val currentFeedFilter: FeedFilter?
         get() = (currentFragment as? FilterFragment)?.currentFilter
 
-    private val currentFragment: Fragment?
+    private val currentFragment: androidx.fragment.app.Fragment?
         get() = supportFragmentManager?.findFragmentById(R.id.content)
 
     private val shouldClearOnIntent: Boolean
@@ -547,7 +545,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)
     }
 
-    private fun moveToFragment(fragment: Fragment, clear: Boolean) {
+    private fun moveToFragment(fragment: androidx.fragment.app.Fragment, clear: Boolean) {
         if (isFinishing)
             return
 
@@ -577,7 +575,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun clearBackStack() {
         try {
-            supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            supportFragmentManager.popBackStackImmediate(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         } catch (err: Exception) {
             AndroidUtility.logToCrashlytics(RuntimeException(
                     "Ignoring exception from popBackStackImmediate:", err))
@@ -590,7 +588,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
      * @param uri The uri to handle
      */
     private fun handleIntent(intent: Intent) {
-        val uri = intent.data
+        val uri = intent.data ?: return
         if (uri.toString().matches(".*/user/[^/]+/resetpass/[^/]+".toRegex())) {
             val openIntent = Intent(this, PasswordRecoveryActivity::class.java)
             openIntent.putExtra("url", uri.toString())

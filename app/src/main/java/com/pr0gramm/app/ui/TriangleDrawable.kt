@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui
 
 import android.graphics.*
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import com.pr0gramm.app.feed.ContentType
 
 /**

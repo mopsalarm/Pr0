@@ -1,16 +1,13 @@
 package com.pr0gramm.app.ui.back
 
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.SupportV4App
+import androidx.fragment.app.SupportV4App
 import com.pr0gramm.app.util.logger
 
 object BackFragmentHelper {
     private val logger = logger("BackFragmentHelper")
 
     @JvmStatic
-    fun dispatchOnBackAction(activity: FragmentActivity): Boolean {
+    fun dispatchOnBackAction(activity: androidx.fragment.app.FragmentActivity): Boolean {
         val fragments = listAllFragments(activity.supportFragmentManager)
         logger.debug("Got {} fragments to dispatch action to", fragments.size)
 
@@ -24,12 +21,12 @@ object BackFragmentHelper {
         return false
     }
 
-    private fun listAllFragments(fm: FragmentManager?): List<BackAwareFragment> {
+    private fun listAllFragments(fm: androidx.fragment.app.FragmentManager?): List<BackAwareFragment> {
         if (fm == null) {
             return emptyList()
         }
 
-        val allFragments = fm.fragments ?: return emptyList()
+        val allFragments = fm.fragments
 
         val fragments = mutableListOf<BackAwareFragment>()
         for (fragment in allFragments) {
@@ -49,7 +46,7 @@ object BackFragmentHelper {
         return fragments
     }
 
-    private fun childFragmentManagerOf(fragment: Fragment): FragmentManager? {
+    private fun childFragmentManagerOf(fragment: androidx.fragment.app.Fragment): androidx.fragment.app.FragmentManager? {
         return SupportV4App.fragmentChildFragmentManager(fragment)
     }
 }

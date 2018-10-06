@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.support.v4.util.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
@@ -20,8 +19,8 @@ import java.util.concurrent.atomic.AtomicReference
  * deltas might arise because of cha0s own caching.
  */
 class InMemoryCacheService {
-    private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
-    private val userInfoCache = LruCache<String, ExpiringValue<UserInfo>>(24)
+    private val tagsCache = androidx.collection.LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
+    private val userInfoCache = androidx.collection.LruCache<String, ExpiringValue<UserInfo>>(24)
     private val repostCache = AtomicReference(TLongHashSet())
 
     /**

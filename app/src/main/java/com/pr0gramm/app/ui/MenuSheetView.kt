@@ -6,12 +6,12 @@ import android.content.Context
 import android.graphics.Outline
 import android.graphics.PorterDuff
 import android.os.Build
-import android.support.annotation.MenuRes
-import android.support.annotation.StringRes
-import android.support.v4.view.ViewCompat
 import android.text.TextUtils
 import android.view.*
 import android.widget.*
+import androidx.annotation.MenuRes
+import androidx.annotation.StringRes
+import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import java.util.*

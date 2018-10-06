@@ -1,9 +1,9 @@
 package com.pr0gramm.app.ui
 
 import android.os.Bundle
-import android.support.v4.util.PatternsCompat
 import android.widget.Button
 import android.widget.EditText
+import androidx.core.util.PatternsCompat
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper

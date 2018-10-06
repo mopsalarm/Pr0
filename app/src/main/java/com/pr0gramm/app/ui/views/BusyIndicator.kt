@@ -1,11 +1,9 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
-
+import androidx.core.content.ContextCompat
 import com.pnikosis.materialishprogress.ProgressWheel
-
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 
 /**

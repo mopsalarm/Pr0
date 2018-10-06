@@ -2,9 +2,8 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.content.Context
-import android.support.annotation.StringRes
-import android.support.v4.app.Fragment
 import android.widget.TextView
+import androidx.annotation.StringRes
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.showDialog
@@ -99,7 +98,7 @@ fun Completable.withBusyDialog(context: Context, text: Int = 0): Completable {
     return lift(BusyDialog.busyDialog<Any>(context, text).forCompletable())
 }
 
-fun Completable.withBusyDialog(fragment: Fragment, text: Int = 0): Completable {
+fun Completable.withBusyDialog(fragment: androidx.fragment.app.Fragment, text: Int = 0): Completable {
     val context = fragment.activity ?: fragment.context
     return context?.let { withBusyDialog(it, text) } ?: this
 }
@@ -108,7 +107,7 @@ fun <T> Observable<T>.withBusyDialog(context: Context, text: Int = 0): Observabl
     return lift(BusyDialog.busyDialog(context, text))
 }
 
-fun <T> Observable<T>.withBusyDialog(fragment: Fragment, text: Int = 0): Observable<T> {
+fun <T> Observable<T>.withBusyDialog(fragment: androidx.fragment.app.Fragment, text: Int = 0): Observable<T> {
     val context = fragment.activity ?: fragment.context
     return context?.let { withBusyDialog(it, text) } ?: this
 }

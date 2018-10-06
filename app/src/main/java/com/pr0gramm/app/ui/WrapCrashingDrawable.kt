@@ -2,8 +2,8 @@ package com.pr0gramm.app.ui
 
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorInt
-import android.support.v7.graphics.drawable.DrawableWrapper
+import androidx.annotation.ColorInt
+import androidx.appcompat.graphics.drawable.DrawableWrapper
 
 /**
  * There is a bug on some Samsung devices. Those devices are crashing if they are

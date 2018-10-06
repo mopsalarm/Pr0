@@ -10,15 +10,12 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.view.ViewCompat
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -75,7 +72,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
 
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
-    private var scrollHandler: RecyclerView.OnScrollListener = NoopScrollHandler()
+    private var scrollHandler: androidx.recyclerview.widget.RecyclerView.OnScrollListener = NoopScrollHandler()
 
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
@@ -94,11 +91,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
 
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
+    private val swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout by bindView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
     private val recyclerView: StatefulRecyclerView? by bindOptionalView(R.id.post_content)
-    private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
-    private val recyclerViewComments: RecyclerView? by bindOptionalView(R.id.post_content__comments)
+    private val recyclerViewInfo: androidx.recyclerview.widget.RecyclerView? by bindOptionalView(R.id.post_content__info)
+    private val recyclerViewComments: androidx.recyclerview.widget.RecyclerView? by bindOptionalView(R.id.post_content__comments)
     private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
@@ -191,13 +188,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         recyclerViewInfo?.let { recyclerView ->
             recyclerView.itemAnimator = null
-            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(getActivity())
             recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
         }
 
         recyclerViewComments?.let { recyclerView ->
-            recyclerView.itemAnimator = DefaultItemAnimator().apply { supportsChangeAnimations = false }
-            recyclerView.layoutManager = LinearLayoutManager(getActivity())
+            recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply { supportsChangeAnimations = false }
+            recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(getActivity())
             recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
         }
 
@@ -1085,10 +1082,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return false
     }
 
-    private class NoopScrollHandler : RecyclerView.OnScrollListener()
+    private class NoopScrollHandler : androidx.recyclerview.widget.RecyclerView.OnScrollListener()
 
-    private inner class ScrollHandler : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+    private inner class ScrollHandler : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
                 return
 
@@ -1137,8 +1134,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             voteAnimationIndicator.translationY = voteIndicatorY
         }
 
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
+        override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
+            if (!isVideoFullScreen && newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE) {
                 val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
@@ -1360,6 +1357,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
+        private val androidx.recyclerview.widget.RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
     }
 }

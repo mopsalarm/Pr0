@@ -2,12 +2,12 @@ package com.pr0gramm.app.ui.views
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper.accentColor
@@ -138,7 +138,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         if (voteState === Vote.DOWN) {
             viewRateUp.setTextColor(defaultColor)
-            viewRateDown.setTextColor(markedColorDown ?: markedColor)
+            viewRateDown.setTextColor(markedColorDown)
             viewRateUp.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()
             viewRateDown.animate().rotation(360f).alpha(1f).setDuration(duration.toLong()).start()
         }

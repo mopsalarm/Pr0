@@ -92,7 +92,7 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
     private fun exifThumbnail(bytes: ByteArray): Bitmap? {
         ByteArrayInputStream(bytes).use { inputStream ->
-            val exif = android.support.media.ExifInterface(inputStream)
+            val exif = androidx.exifinterface.media.ExifInterface(inputStream)
             return exif.thumbnailBitmap
         }
     }

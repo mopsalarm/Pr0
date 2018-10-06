@@ -1,9 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +25,7 @@ import org.kodein.di.erased.instance
 class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
-    private val viewPager: ViewPager by bindView(R.id.pager)
+    private val viewPager: androidx.viewpager.widget.ViewPager by bindView(R.id.pager)
 
     private lateinit var adapter: PostAdapter
 
@@ -69,7 +66,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             val activity = activity as ToolbarActivity
             activity.scrollHideToolbarListener.reset()
 
-            viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            viewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
                     activePostFragment?.exitFullscreen()
@@ -79,7 +76,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         val fancyScroll = Settings.get().useTextureView
         if (fancyScroll) {
-            viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            viewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                     if (position >= 0 && position + 1 < adapter.count) {
                         val prev = adapter.getFragment(position)
@@ -254,7 +251,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             }
         }
 
-        override fun getItem(position: Int): Fragment {
+        override fun getItem(position: Int): androidx.fragment.app.Fragment {
             if (!manager.isLoading) {
                 if (position > feed.size - 12) {
                     logger.info("Requested pos=$position, load next page")
@@ -287,7 +284,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         override fun getItemPosition(`object`: Any): Int {
             val item = (`object` as PostFragment).feedItem
-            return feed.indexById(item.id) ?: PagerAdapter.POSITION_NONE
+            return feed.indexById(item.id) ?: androidx.viewpager.widget.PagerAdapter.POSITION_NONE
         }
 
         override fun getItemId(position: Int): Long {

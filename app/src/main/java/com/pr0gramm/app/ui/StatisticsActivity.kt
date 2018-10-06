@@ -3,10 +3,10 @@ package com.pr0gramm.app.ui
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
@@ -63,7 +63,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         setContentView(R.layout.activity_statistics)
 
         // setup toolbar as actionbar
-        val tb = find <Toolbar>(R.id.toolbar)
+        val tb = find<Toolbar>(R.id.toolbar)
         setSupportActionBar(tb)
 
         // and show back button

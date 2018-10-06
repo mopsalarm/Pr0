@@ -2,15 +2,13 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.DiffUtil
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -196,7 +194,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     init {
         View.inflate(context, R.layout.post_tags, this)
 
-        val recyclerView = find<RecyclerView>(R.id.tags)
+        val recyclerView = find<androidx.recyclerview.widget.RecyclerView>(R.id.tags)
         recyclerView.adapter = adapter
 
         if (Settings.get().tagCloudView) {
@@ -206,7 +204,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
         } else {
             recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
 
-            recyclerView.itemAnimator = DefaultItemAnimator().apply {
+            recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply {
                 supportsChangeAnimations = false
             }
 
@@ -235,7 +233,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     private data class VotedTag(val tag: Api.Tag, val vote: Vote, val selected: Boolean)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
-            RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
+            androidx.recyclerview.widget.RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
 
         override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
             val dummyTag = VotedTag(Api.Tag(-2L, 0f, "dummy"), Vote.NEUTRAL, false)
@@ -246,7 +244,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
             return if (position == 0) 0 else 1
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
             return when (viewType) {
                 0 -> ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false))
                 1 -> TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
@@ -254,20 +252,20 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
             }
         }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
             when (holder) {
                 is TagViewHolder -> holder.set(items[position])
             }
         }
     }
 
-    private inner class ButtonHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class ButtonHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener { onDetailClickedListener.writeNewTagClicked() }
         }
     }
 
-    private inner class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class TagViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         private val id = ValueHolder<Long>()
         private val tagView: TextView = itemView.find(R.id.tag_text)
         private val voteView: VoteView = itemView.find(R.id.tag_vote)

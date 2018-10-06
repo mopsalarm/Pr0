@@ -43,7 +43,7 @@
 
     </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -56,5 +56,5 @@
             android:focusableInTouchMode="true"
             tools:listitem="@layout/comment_layout"
             android:overScrollMode="never"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </FrameLayout>

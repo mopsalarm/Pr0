@@ -3,14 +3,13 @@ package com.pr0gramm.app.ui.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.support.annotation.LayoutRes
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.DiffUtil
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -43,7 +42,7 @@ private enum class Type(val offset: Long, val type: Class<out PostAdapter.Item>)
 class PostAdapter(
         private val commentViewListener: CommentView.Listener,
         private val postActions: PostActions)
-    : AsyncListAdapter<PostAdapter.Item, RecyclerView.ViewHolder>(ItemCallback(), name = "PostAdapter") {
+    : AsyncListAdapter<PostAdapter.Item, androidx.recyclerview.widget.RecyclerView.ViewHolder>(ItemCallback(), name = "PostAdapter") {
 
     init {
         setHasStableIds(true)
@@ -67,7 +66,7 @@ class PostAdapter(
         return items[position].id
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         val context = parent.context
 
         return logger.time("Inflating layout for ${viewTypesByIndex[viewType]}") {
@@ -102,7 +101,7 @@ class PostAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         val item = items[position]
 
         when (holder) {
@@ -170,7 +169,7 @@ class PostAdapter(
     }
 }
 
-private class PlaceholderHolder(val pv: PlaceholderView) : RecyclerView.ViewHolder(pv) {
+private class PlaceholderHolder(val pv: PlaceholderView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(pv) {
     fun set(item: PostAdapter.Item.PlaceholderItem) {
         pv.viewer = item.viewer
         pv.fixedHeight = item.height
@@ -195,7 +194,7 @@ private class PlaceholderHolder(val pv: PlaceholderView) : RecyclerView.ViewHold
     }
 }
 
-private class TagsViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView) {
+private class TagsViewHolder(val tagsView: TagsView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(tagsView) {
     fun set(item: PostAdapter.Item.TagsItem) {
         tagsView.updateTags(item.tags, item.votes)
     }
@@ -203,7 +202,7 @@ private class TagsViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(t
 
 private class InfoLineViewHolder(
         val onDetailClickedListener: PostActions,
-        val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
+        val infoView: InfoLineView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(infoView) {
 
     init {
         infoView.layoutParams = ViewGroup.LayoutParams(
@@ -220,7 +219,7 @@ private class InfoLineViewHolder(
 
 private class CommentPostLineHolder(
         val onDetailClickedListener: PostActions,
-        val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
+        val line: CommentPostLine) : androidx.recyclerview.widget.RecyclerView.ViewHolder(line) {
 
     var latestText: String? = null
 
@@ -272,4 +271,4 @@ class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(
 }
 
 class StaticViewHolder(parent: ViewGroup, @LayoutRes layout: Int)
-    : RecyclerView.ViewHolder(parent.layoutInflater.inflate(layout, parent, false))
+    : androidx.recyclerview.widget.RecyclerView.ViewHolder(parent.layoutInflater.inflate(layout, parent, false))

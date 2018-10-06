@@ -2,8 +2,6 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.FragmentManager
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
@@ -16,7 +14,7 @@ import java.util.concurrent.CancellationException
 /**
  * This dialog fragment shows and error to the user.
  */
-class ErrorDialogFragment : DialogFragment() {
+class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
     interface OnErrorDialogHandler {
         fun showErrorDialog(error: Throwable, formatter: ErrorFormatting.Formatter)
     }
@@ -79,7 +77,7 @@ class ErrorDialogFragment : DialogFragment() {
         }
 
         @JvmStatic
-        fun showErrorString(fragmentManager: FragmentManager?, message: String) {
+        fun showErrorString(fragmentManager: androidx.fragment.app.FragmentManager?, message: String) {
             logger.info(message)
 
             fragmentManager ?: return
@@ -103,10 +101,10 @@ class ErrorDialogFragment : DialogFragment() {
         /**
          * Dismisses any previously shown error dialog.
          */
-        private fun dismissErrorDialog(fm: FragmentManager) {
+        private fun dismissErrorDialog(fm: androidx.fragment.app.FragmentManager) {
             try {
                 val previousFragment = fm.findFragmentByTag("ErrorDialog")
-                (previousFragment as? DialogFragment)?.dismissAllowingStateLoss()
+                (previousFragment as? androidx.fragment.app.DialogFragment)?.dismissAllowingStateLoss()
 
             } catch (error: Throwable) {
                 logger.warn("Error removing previous dialog", error)

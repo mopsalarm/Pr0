@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.dialogs
 
-import android.support.v4.app.FragmentManager
 import com.pr0gramm.app.util.logger
 import rx.Observable
 import rx.Subscriber
@@ -12,7 +11,7 @@ typealias OnComplete = () -> Unit
 
 
 fun <T> Observable<T>.subscribeWithErrorHandling(
-        fm: FragmentManager, onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
+        fm: androidx.fragment.app.FragmentManager, onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
 
     return subscribe(object : Subscriber<T>() {
         override fun onNext(value: T) {

@@ -2,8 +2,7 @@ package com.pr0gramm.app.ui.intro
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.github.paolorotolo.appintro.AppIntro
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
@@ -50,7 +49,7 @@ class IntroActivity : AppIntro(), KodeinAware {
         setFadeAnimation()
     }
 
-    override fun onDonePressed(currentFragment: Fragment?) {
+    override fun onDonePressed(currentFragment: androidx.fragment.app.Fragment?) {
         super.onDonePressed(currentFragment)
         finish()
     }

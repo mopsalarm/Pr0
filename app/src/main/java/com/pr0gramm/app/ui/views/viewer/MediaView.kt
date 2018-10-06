@@ -9,12 +9,12 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import android.support.annotation.LayoutRes
-import android.support.v4.content.ContextCompat
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.annotation.LayoutRes
+import androidx.core.content.ContextCompat
 import com.jakewharton.rxbinding.view.attachEvents
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.BuildConfig

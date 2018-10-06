@@ -8,8 +8,8 @@ import android.preference.ListPreference
 import android.preference.Preference
 import android.preference.PreferenceGroup
 import android.preference.PreferenceScreen
-import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant

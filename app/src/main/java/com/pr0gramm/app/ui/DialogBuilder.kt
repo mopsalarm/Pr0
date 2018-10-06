@@ -3,15 +3,6 @@ package com.pr0gramm.app.ui
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.annotation.LayoutRes
-import android.support.annotation.StringRes
-import android.support.annotation.StyleRes
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.BottomSheetDialog
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
-import android.support.v7.view.ContextThemeWrapper
-import android.support.v7.widget.AppCompatCheckBox
 import android.text.SpannableString
 import android.text.util.Linkify
 import android.util.TypedValue
@@ -22,6 +13,14 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
+import androidx.annotation.StyleRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.AppCompatCheckBox
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -239,7 +238,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
             }
 
             if (dialog is BottomSheetDialog) {
-                val bottomSheet = dialog.findViewById<View>(android.support.design.R.id.design_bottom_sheet)
+                val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 if (bottomSheet is FrameLayout) {
                     ignoreException {
                         BottomSheetBehavior
@@ -317,7 +316,7 @@ private fun resolveDialogTheme(context: Context, @StyleRes resid: Int): Int {
         resid
     } else {
         val outValue = TypedValue()
-        context.theme.resolveAttribute(android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true)
+        context.theme.resolveAttribute(androidx.appcompat.R.attr.alertDialogTheme, outValue, true)
         outValue.resourceId
     }
 }
@@ -380,7 +379,7 @@ private class BottomSheetAlertDialog(ctx: Context, theme: Int = R.style.MyBottom
     }
 }
 
-inline fun dialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+inline fun dialog(fragment: androidx.fragment.app.Fragment, configure: DialogBuilder.() -> Unit): Dialog {
     return dialog(fragment.requireContext(), configure)
 }
 
@@ -388,7 +387,7 @@ inline fun dialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog
     return DialogBuilder(context).apply(configure).build()
 }
 
-inline fun bottomSheet(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+inline fun bottomSheet(fragment: androidx.fragment.app.Fragment, configure: DialogBuilder.() -> Unit): Dialog {
     return bottomSheet(fragment.requireContext(), configure)
 }
 
@@ -396,7 +395,7 @@ inline fun bottomSheet(context: Context, configure: DialogBuilder.() -> Unit): D
     return DialogBuilder(context, bottomSheet = true).apply(configure).build()
 }
 
-inline fun showDialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+inline fun showDialog(fragment: androidx.fragment.app.Fragment, configure: DialogBuilder.() -> Unit): Dialog {
     return showDialog(fragment.requireContext(), configure)
 }
 
@@ -404,7 +403,7 @@ inline fun showDialog(context: Context, configure: DialogBuilder.() -> Unit): Di
     return DialogBuilder(context).apply(configure).show()
 }
 
-inline fun showBottomSheet(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+inline fun showBottomSheet(fragment: androidx.fragment.app.Fragment, configure: DialogBuilder.() -> Unit): Dialog {
     return showBottomSheet(fragment.requireContext(), configure)
 }
 

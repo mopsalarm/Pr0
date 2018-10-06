@@ -8,13 +8,12 @@ import android.media.AudioManager
 import android.media.AudioManager.AUDIOFOCUS_LOSS
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
 import android.os.Build
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -323,7 +322,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     companion object {
         private val logger = logger("VideoMediaView")
 
-        private val seekToCache = LruCache<Long, ExpiringTimestamp>(16)
+        private val seekToCache = androidx.collection.LruCache<Long, ExpiringTimestamp>(16)
 
         private const val KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo"
     }

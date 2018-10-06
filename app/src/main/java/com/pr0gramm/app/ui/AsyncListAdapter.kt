@@ -1,16 +1,15 @@
 package com.pr0gramm.app.ui
 
-import android.support.v7.util.DiffUtil
-import android.support.v7.util.ListUpdateCallback
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
 import com.pr0gramm.app.util.*
 import rx.Observable
 import rx.subjects.PublishSubject
 
-abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
+abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T>,
         private val detectMoves: Boolean = false,
-        private val name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
+        private val name: String = "AsyncListAdapter") : androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
 
     internal val logger = logger(name)
 

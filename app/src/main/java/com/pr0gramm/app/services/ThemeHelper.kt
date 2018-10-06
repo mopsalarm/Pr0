@@ -1,6 +1,6 @@
 package com.pr0gramm.app.services
 
-import android.support.annotation.ColorRes
+import androidx.annotation.ColorRes
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.util.tryEnumValueOf

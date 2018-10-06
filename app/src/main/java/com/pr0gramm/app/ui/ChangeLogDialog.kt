@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.widget.TextView
 import com.pr0gramm.app.MoshiInstance
@@ -26,7 +24,7 @@ import java.io.IOException
 /**
  */
 class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
-    private val recyclerView: RecyclerView by bindView(R.id.changelog)
+    private val recyclerView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.changelog)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(requireContext()) {
@@ -38,7 +36,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
     override fun onDialogViewCreated() {
         val changes = loadChangelog(requireContext())
         recyclerView.adapter = changeAdapter(changes)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
     }
 
     private fun changeAdapter(changeGroups: List<ChangeGroup>): SimpleAdapter<Any> {

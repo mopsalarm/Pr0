@@ -1,12 +1,11 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
@@ -21,7 +20,7 @@ import com.pr0gramm.app.util.visible
  */
 class PrivateMessageAdapter(
         private val context: Context, messages: List<Api.PrivateMessage>,
-        private val actionListener: MessageActionListener?) : RecyclerView.Adapter<PrivateMessageAdapter.MessageViewHolder>() {
+        private val actionListener: MessageActionListener?) : androidx.recyclerview.widget.RecyclerView.Adapter<PrivateMessageAdapter.MessageViewHolder>() {
 
     private val messages: List<MessageItem> = groupAndSort(messages)
 
@@ -77,7 +76,7 @@ class PrivateMessageAdapter(
         return messages.size
     }
 
-    class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MessageViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         val text: TextView = find(R.id.message_text)
         val sender: SenderInfoView = find(R.id.sender_info)
         val senderName: UsernameView = find(R.id.sender_name)

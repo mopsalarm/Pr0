@@ -106,7 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/drawer_nav_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,13 +129,13 @@
             android:drawableLeft="@drawable/ic_grey_action_settings"
             android:text="@string/action_settings"/>
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/action_contact"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_grey_action_feedback"
             android:text="@string/action_contact"/>
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/action_invite"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_contact_mail_black_24dp"

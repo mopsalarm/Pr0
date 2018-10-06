@@ -8,14 +8,13 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.DrawableRes
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.view.ViewCompat
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -199,7 +198,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         startActivity(intent)
     }
 
-    class DoIfAuthorizedHelper(private val fragment: Fragment) {
+    class DoIfAuthorizedHelper(private val fragment: androidx.fragment.app.Fragment) {
         private var retry: Runnable? = null
 
         fun onActivityResult(requestCode: Int, resultCode: Int) {
@@ -251,6 +250,6 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          * Executes the given runnable if a user is signed in. If not, this method
          * will show a login screen.
          */
-        fun helper(fragment: Fragment) = DoIfAuthorizedHelper(fragment)
+        fun helper(fragment: androidx.fragment.app.Fragment) = DoIfAuthorizedHelper(fragment)
     }
 }

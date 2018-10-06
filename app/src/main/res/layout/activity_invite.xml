@@ -89,7 +89,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/invites_no_invites_sent"/>
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/invites"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

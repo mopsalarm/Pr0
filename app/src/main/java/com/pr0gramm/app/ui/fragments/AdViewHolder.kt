@@ -2,12 +2,11 @@ package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
 import android.net.Uri
-import android.support.graphics.drawable.VectorDrawableCompat
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
@@ -19,7 +18,7 @@ import org.kodein.di.erased.instance
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
+        androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
 
     companion object {
         private val logger = logger("AdViewHolder")

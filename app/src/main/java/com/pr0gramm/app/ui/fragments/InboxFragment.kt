@@ -3,9 +3,6 @@ package com.pr0gramm.app.ui.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,10 +34,10 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     private val picasso: Picasso by instance()
 
     private val viewNothingHere: View by bindView(android.R.id.empty)
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
+    private val swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout by bindView(R.id.refresh)
 
     // views we can reset.
-    private var messagesView: RecyclerView? = null
+    private var messagesView: androidx.recyclerview.widget.RecyclerView? = null
     private var viewBusyIndicator: View? = null
 
     private lateinit var loader: LoaderHelper<List<T>>
@@ -64,9 +61,9 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
 
         viewBusyIndicator = view.find(R.id.busy_indicator)
 
-        messagesView = view.find<RecyclerView>(R.id.messages).apply {
+        messagesView = view.find<androidx.recyclerview.widget.RecyclerView>(R.id.messages).apply {
             itemAnimator = null
-            layoutManager = LinearLayoutManager(activity)
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
@@ -143,7 +140,7 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
             showNothingHereIndicator()
     }
 
-    protected abstract fun displayMessages(recyclerView: RecyclerView, messages: List<T>)
+    protected abstract fun displayMessages(recyclerView: androidx.recyclerview.widget.RecyclerView, messages: List<T>)
 
     protected val inboxType: InboxType get() {
         var type = InboxType.ALL

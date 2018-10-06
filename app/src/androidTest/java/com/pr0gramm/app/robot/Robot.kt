@@ -1,15 +1,13 @@
 package com.pr0gramm.app.robot
 
-import android.support.annotation.IdRes
-import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.ViewAction
-import android.support.test.espresso.ViewInteraction
-import android.support.test.espresso.action.ViewActions
-import android.support.test.espresso.assertion.ViewAssertions.matches
-import android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
-import android.support.test.espresso.matcher.ViewMatchers.*
-import android.support.v7.widget.RecyclerView
 import android.view.View
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.pr0gramm.app.R
 import org.hamcrest.Matcher
 
@@ -93,7 +91,7 @@ class ScopedViewInteraction(val perform: ViewInteractionConsumer) {
 
         // now execute actions
         recordedActions.forEach { recordedAction ->
-            perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(index, recordedAction))
+            perform(actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(index, recordedAction))
         }
     }
 

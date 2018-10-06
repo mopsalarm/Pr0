@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.NotificationService
@@ -26,7 +25,7 @@ abstract class AbstractMessageInboxFragment(name: String) : InboxFragment<Api.Me
         }
     }
 
-    override fun displayMessages(recyclerView: RecyclerView, messages: List<Api.Message>) {
+    override fun displayMessages(recyclerView: androidx.recyclerview.widget.RecyclerView, messages: List<Api.Message>) {
         val adapter = recyclerView.adapter
         if (adapter is MessageAdapter) {
             adapter.setMessages(messages)

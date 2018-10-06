@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.base
 
-import android.support.annotation.IdRes
 import android.view.View
+import androidx.annotation.IdRes
 import gnu.trove.map.TIntObjectMap
 import gnu.trove.map.hash.TIntObjectHashMap
 import kotlin.properties.ReadOnlyProperty

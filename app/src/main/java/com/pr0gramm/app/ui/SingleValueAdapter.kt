@@ -1,14 +1,13 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 
 /**
  */
 abstract class SingleValueAdapter<T, V : View>(private val value: T) :
-        RecyclerView.Adapter<SingleValueAdapter.Holder<V>>() {
+        androidx.recyclerview.widget.RecyclerView.Adapter<SingleValueAdapter.Holder<V>>() {
 
     init {
         setHasStableIds(true)
@@ -35,5 +34,5 @@ abstract class SingleValueAdapter<T, V : View>(private val value: T) :
     protected abstract fun bindView(view: V, value: T)
 
 
-    class Holder<out V : View>(internal val view: V) : RecyclerView.ViewHolder(view)
+    class Holder<out V : View>(internal val view: V) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view)
 }

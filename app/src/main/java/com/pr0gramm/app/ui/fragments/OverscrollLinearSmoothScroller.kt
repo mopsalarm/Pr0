@@ -1,14 +1,13 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
-import android.support.v7.widget.LinearSmoothScroller
 import kotlin.math.absoluteValue
 
 class OverscrollLinearSmoothScroller(
         context: Context, idx: Int,
         private val dontScrollIfVisible: Boolean,
         private val offsetTop: Int,
-        private val offsetBottom: Int) : LinearSmoothScroller(context) {
+        private val offsetBottom: Int) : androidx.recyclerview.widget.LinearSmoothScroller(context) {
 
     init {
         targetPosition = idx
@@ -25,7 +24,7 @@ class OverscrollLinearSmoothScroller(
     }
 }
 
-class CenterLinearSmoothScroller(ctx: Context, idx: Int) : LinearSmoothScroller(ctx) {
+class CenterLinearSmoothScroller(ctx: Context, idx: Int) : androidx.recyclerview.widget.LinearSmoothScroller(ctx) {
     init {
         targetPosition = idx
     }

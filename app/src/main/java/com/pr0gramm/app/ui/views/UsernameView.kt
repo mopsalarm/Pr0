@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.widget.AppCompatTextView
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatTextView
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.ui.truss
 import com.pr0gramm.app.util.getColorCompat

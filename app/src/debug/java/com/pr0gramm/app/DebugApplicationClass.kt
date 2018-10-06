@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Debug
 import android.os.StrictMode
-import android.support.multidex.MultiDex
+import androidx.multidex.MultiDex
 import com.github.anrwatchdog.ANRWatchDog
 import com.pr0gramm.app.util.subscribeOnBackground
 import rx.Observable

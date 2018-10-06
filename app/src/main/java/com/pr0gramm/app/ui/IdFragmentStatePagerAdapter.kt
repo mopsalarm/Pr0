@@ -3,11 +3,6 @@ package com.pr0gramm.app.ui
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v4.util.LongSparseArray
-import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.view.ViewGroup
 import com.pr0gramm.app.util.logger
@@ -19,23 +14,23 @@ import java.util.*
 
  * @see android.support.v4.app.FragmentStatePagerAdapter
  */
-abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: FragmentManager) : PagerAdapter() {
+abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: androidx.fragment.app.FragmentManager) : androidx.viewpager.widget.PagerAdapter() {
 
     // we only cache the most recent few saved states.
-    private val mSavedState = object : LinkedHashMap<Long, Fragment.SavedState>() {
-        override fun removeEldestEntry(eldest: Map.Entry<Long, Fragment.SavedState>): Boolean {
+    private val mSavedState = object : LinkedHashMap<Long, androidx.fragment.app.Fragment.SavedState>() {
+        override fun removeEldestEntry(eldest: Map.Entry<Long, androidx.fragment.app.Fragment.SavedState>): Boolean {
             return size > 5
         }
     }
 
-    private val mFragments = LongSparseArray<Fragment>()
-    private var mCurTransaction: FragmentTransaction? = null
-    private var mCurrentPrimaryItem: Fragment? = null
+    private val mFragments = androidx.collection.LongSparseArray<androidx.fragment.app.Fragment>()
+    private var mCurTransaction: androidx.fragment.app.FragmentTransaction? = null
+    private var mCurrentPrimaryItem: androidx.fragment.app.Fragment? = null
 
     /**
      * Return the Fragment associated with a specified position.
      */
-    abstract fun getItem(position: Int): Fragment
+    abstract fun getItem(position: Int): androidx.fragment.app.Fragment
 
     override fun startUpdate(container: ViewGroup) {
         if (container.id == View.NO_ID) {
@@ -48,7 +43,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
 
      * @param position The position of the fragment to get
      */
-    fun getFragment(position: Int): Fragment? {
+    fun getFragment(position: Int): androidx.fragment.app.Fragment? {
         val itemId = getItemId(position)
         return mFragments.get(itemId)
     }
@@ -88,7 +83,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
 
     @SuppressLint("CommitTransaction")
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        val fragment = `object` as Fragment
+        val fragment = `object` as androidx.fragment.app.Fragment
 
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction()
@@ -111,7 +106,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     }
 
     override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-        val fragment = `object` as Fragment
+        val fragment = `object` as androidx.fragment.app.Fragment
         if (fragment !== mCurrentPrimaryItem) {
             mCurrentPrimaryItem?.let {
                 it.setMenuVisibility(false)
@@ -140,7 +135,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     }
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return (`object` as Fragment).view === view
+        return (`object` as androidx.fragment.app.Fragment).view === view
     }
 
     override fun saveState(): Parcelable? {
@@ -187,7 +182,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
             mFragments.clear()
             if (fss != null) {
                 for (i in fss.indices) {
-                    mSavedState.put(ids[i], fss[i] as Fragment.SavedState)
+                    mSavedState.put(ids[i], fss[i] as androidx.fragment.app.Fragment.SavedState)
                 }
             }
 

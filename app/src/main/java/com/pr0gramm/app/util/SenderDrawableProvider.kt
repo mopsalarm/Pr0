@@ -3,7 +3,7 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.pr0gramm.app.R

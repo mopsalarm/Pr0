@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer
 
-import android.support.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -8,6 +7,7 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
+import androidx.annotation.LayoutRes
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.hideViewEndAction

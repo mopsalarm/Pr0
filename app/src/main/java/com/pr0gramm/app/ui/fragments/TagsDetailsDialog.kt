@@ -2,11 +2,10 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
@@ -31,7 +30,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
     private val itemId: Long by fragmentArgument(name = KEY_FEED_ITEM_ID)
 
-    private val tagsView: RecyclerView by bindView(R.id.tags)
+    private val tagsView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.tags)
     private val busyView: View by bindView(R.id.busy_indicator)
     private val blockUser: CheckBox by bindView(R.id.block_user)
     private val blockUserDays: TextView by bindView(R.id.block_user_days)
@@ -48,8 +47,8 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     override fun onDialogViewCreated() {
-        tagsView.layoutManager = LinearLayoutManager(
-                dialog.context, LinearLayoutManager.VERTICAL, false)
+        tagsView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(
+                dialog.context, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false)
 
         adminService.tagsDetails(itemId)
                 .bindToLifecycleAsync()

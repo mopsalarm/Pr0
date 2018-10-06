@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -12,7 +11,7 @@ import com.pr0gramm.app.util.inflate
 open class MessageAdapter(private val itemLayout: Int,
                           private val actionListener: MessageActionListener,
                           private val currentUsername: String?,
-                          messages: List<Api.Message>) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
+                          messages: List<Api.Message>) : androidx.recyclerview.widget.RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
     protected val messages = messages.toMutableList()
 
@@ -47,7 +46,7 @@ open class MessageAdapter(private val itemLayout: Int,
         return messages.size
     }
 
-    open class MessageViewHolder(private val view: MessageView) : RecyclerView.ViewHolder(view) {
+    open class MessageViewHolder(private val view: MessageView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
         open fun bindTo(message: Api.Message, actionListener: MessageActionListener?, currentUsername: String? = null) {
             view.update(message, currentUsername)
 

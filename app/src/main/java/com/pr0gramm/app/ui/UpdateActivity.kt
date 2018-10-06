@@ -2,8 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
@@ -31,7 +29,7 @@ class UpdateActivity : BaseAppCompatActivity("UpdateActivity"), DialogDismissLis
         }
     }
 
-    override fun onDialogDismissed(dialog: DialogFragment) {
+    override fun onDialogDismissed(dialog: androidx.fragment.app.DialogFragment) {
         finish()
     }
 

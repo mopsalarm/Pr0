@@ -2,14 +2,13 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.os.Parcelable
-import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.util.SparseArray
 import com.pr0gramm.app.ui.views.TagsView
 
 class StatefulRecyclerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : RecyclerView(context, attrs, defStyleAttr) {
+) : androidx.recyclerview.widget.RecyclerView(context, attrs, defStyleAttr) {
 
     private var savedHierarchyState: SparseArray<Parcelable>? = null
 
@@ -30,7 +29,7 @@ class StatefulRecyclerView @JvmOverloads constructor(
         savedHierarchyState = container
     }
 
-    inner class LinearLayoutManager(context: Context?) : android.support.v7.widget.LinearLayoutManager(context) {
+    inner class LinearLayoutManager(context: Context?) : androidx.recyclerview.widget.LinearLayoutManager(context) {
         override fun onLayoutCompleted(state: State?) {
             super.onLayoutCompleted(state)
 

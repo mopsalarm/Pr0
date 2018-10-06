@@ -3,10 +3,9 @@ package com.pr0gramm.app.ui.upload
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.widget.ImageView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
@@ -24,12 +23,12 @@ import org.kodein.di.erased.instance
 /**
  */
 class SimilarImageView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr), KodeinViewMixin {
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : androidx.recyclerview.widget.RecyclerView(context, attrs, defStyleAttr), KodeinViewMixin {
 
     private val picasso: Picasso by instance()
 
     init {
-        layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
     }
 
     var items: List<Api.Posted.SimilarItem> by observeChange(listOf()) {
@@ -48,7 +47,7 @@ class SimilarImageView @JvmOverloads constructor(
                             .placeholder(ColorDrawable(0xff333333.toInt()))
                             .into(imageView)
 
-                    imageView.setOnClickListener {
+                    imageView.setOnClickListener { _ ->
                         handleItemClicked(item)
                     }
                 }

@@ -6,14 +6,12 @@ import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClasses
@@ -65,7 +63,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val inviteView: TextView by bindView(R.id.action_invite)
     private val userImageView: View by bindView(R.id.user_image)
 
-    private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
+    private val navItemsRecyclerView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.drawer_nav_list)
 
     private val navigationAdapter = NavigationAdapter()
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
@@ -94,7 +92,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         // initialize the top navigation items
         navItemsRecyclerView.adapter = navigationAdapter
-        navItemsRecyclerView.layoutManager = LinearLayoutManager(activity)
+        navItemsRecyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
         navItemsRecyclerView.isNestedScrollingEnabled = false
 
         // add the static items to the navigation
@@ -276,7 +274,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         return activity as OnFeedFilterSelected
     }
 
-    private inner class NavigationAdapter : RecyclerView.Adapter<NavigationItemViewHolder>() {
+    private inner class NavigationAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<NavigationItemViewHolder>() {
         private val allItems = ArrayList<NavigationItem>()
         private var currentFilter: FeedFilter? = null
         private var selected: NavigationItem? = null
@@ -434,7 +432,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
     }
 
-    private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private class NavigationItemViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         val text: TextView = (itemView as? TextView ?: itemView.find(R.id.title))
         val unread: TextView? = itemView.findOptional(R.id.unread_count)
     }

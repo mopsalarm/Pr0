@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui
 
-import android.support.v4.app.ActivityCompat
+import androidx.core.app.ActivityCompat
 
 import rx.Observable
 

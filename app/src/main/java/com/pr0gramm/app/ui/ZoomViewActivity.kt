@@ -6,9 +6,9 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.ColorRes
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.ColorRes
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.BuildConfig

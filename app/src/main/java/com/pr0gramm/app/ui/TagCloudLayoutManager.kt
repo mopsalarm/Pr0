@@ -1,8 +1,8 @@
 package com.pr0gramm.app.ui
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import java.util.*
@@ -11,17 +11,17 @@ import java.util.*
  * Tries to display tags in multiple line using a defined spacing.
  * It "works" but it is not nice, I guess.
  */
-class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, private val maxNumberOfRows: Int) : RecyclerView.LayoutManager() {
+class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, private val maxNumberOfRows: Int) : androidx.recyclerview.widget.RecyclerView.LayoutManager() {
     private var config = Config(0, 0, 0)
     private var scrollOffset: Int = 0
 
-    override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
-        return RecyclerView.LayoutParams(
-                RecyclerView.LayoutParams.WRAP_CONTENT,
-                RecyclerView.LayoutParams.WRAP_CONTENT)
+    override fun generateDefaultLayoutParams(): androidx.recyclerview.widget.RecyclerView.LayoutParams {
+        return androidx.recyclerview.widget.RecyclerView.LayoutParams(
+                androidx.recyclerview.widget.RecyclerView.LayoutParams.WRAP_CONTENT,
+                androidx.recyclerview.widget.RecyclerView.LayoutParams.WRAP_CONTENT)
     }
 
-    override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
+    override fun onLayoutChildren(recycler: androidx.recyclerview.widget.RecyclerView.Recycler, state: androidx.recyclerview.widget.RecyclerView.State) {
         detachAndScrapAttachedViews(recycler)
         if (config.width <= 0) {
             logger.warn("onLayoutChildren called before onMeasure")
@@ -50,7 +50,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         offsetChildrenHorizontal(-scrollOffset)
     }
 
-    override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
+    override fun onMeasure(recycler: androidx.recyclerview.widget.RecyclerView.Recycler, state: androidx.recyclerview.widget.RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         val parentWidth = View.MeasureSpec.getSize(widthSpec)
 
         this.config = logger.time("measure tag sizes") {
@@ -94,7 +94,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return Config(width, height, rows)
     }
 
-    private fun measureElements(recycler: RecyclerView.Recycler): List<Size> {
+    private fun measureElements(recycler: androidx.recyclerview.widget.RecyclerView.Recycler): List<Size> {
         val sizes = ArrayList<Size>()
         for (idx in 0 until itemCount) {
             val view = recycler.getViewForPosition(idx)
@@ -108,7 +108,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return sizes
     }
 
-    override fun onAdapterChanged(oldAdapter: RecyclerView.Adapter<*>?, newAdapter: RecyclerView.Adapter<*>?) {
+    override fun onAdapterChanged(oldAdapter: androidx.recyclerview.widget.RecyclerView.Adapter<*>?, newAdapter: androidx.recyclerview.widget.RecyclerView.Adapter<*>?) {
         removeAllViews()
     }
 
@@ -116,7 +116,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return true
     }
 
-    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler?, state: RecyclerView.State): Int {
+    override fun scrollHorizontallyBy(dx: Int, recycler: androidx.recyclerview.widget.RecyclerView.Recycler?, state: androidx.recyclerview.widget.RecyclerView.State): Int {
         var scroll = dx
 
         val maxScroll = computeHorizontalScrollRange(state)
@@ -133,15 +133,15 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
         return scroll
     }
 
-    override fun computeHorizontalScrollOffset(state: RecyclerView.State): Int {
+    override fun computeHorizontalScrollOffset(state: androidx.recyclerview.widget.RecyclerView.State): Int {
         return Math.min(scrollOffset, computeHorizontalScrollRange(state))
     }
 
-    override fun computeHorizontalScrollRange(state: RecyclerView.State): Int {
+    override fun computeHorizontalScrollRange(state: androidx.recyclerview.widget.RecyclerView.State): Int {
         return Math.max(0, config.width - width)
     }
 
-    override fun computeHorizontalScrollExtent(state: RecyclerView.State): Int {
+    override fun computeHorizontalScrollExtent(state: androidx.recyclerview.widget.RecyclerView.State): Int {
         return Math.max(1, computeHorizontalScrollRange(state) / 10)
     }
 
@@ -155,7 +155,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
     private fun measureChildUnspecified(view: View): Size {
         val spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
 
-        val p = view.layoutParams as RecyclerView.LayoutParams
+        val p = view.layoutParams as androidx.recyclerview.widget.RecyclerView.LayoutParams
         val childWidthSpec = ViewGroup.getChildMeasureSpec(spec, 0, p.width)
         val childHeightSpec = ViewGroup.getChildMeasureSpec(spec, 0, p.height)
         view.measure(childWidthSpec, childHeightSpec)

@@ -1,6 +1,5 @@
 package com.pr0gramm.app.util
 
-import android.support.v4.util.CircularArray
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
@@ -62,7 +61,7 @@ class LogHandler : Handler() {
     companion object {
         private const val MESSAGE_LIMIT = 4096
 
-        private val BUFFER = CircularArray<LogEntry>(MESSAGE_LIMIT)
+        private val BUFFER = androidx.collection.CircularArray<LogEntry>(MESSAGE_LIMIT)
 
         /**
          * Returns a list of the recent messages

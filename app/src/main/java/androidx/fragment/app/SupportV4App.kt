@@ -1,4 +1,4 @@
-package android.support.v4.app
+package androidx.fragment.app
 
 /**
  * We need this to access some internal properties of the support library.
@@ -7,7 +7,7 @@ package android.support.v4.app
  */
 object SupportV4App {
     @JvmStatic
-    fun fragmentChildFragmentManager(fragment: Fragment): FragmentManager? {
+    fun fragmentChildFragmentManager(fragment: androidx.fragment.app.Fragment): androidx.fragment.app.FragmentManager? {
         return fragment.mChildFragmentManager
     }
 }

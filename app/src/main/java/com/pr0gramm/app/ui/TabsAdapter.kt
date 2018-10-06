@@ -2,17 +2,14 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import androidx.annotation.StringRes
 
 /**
  */
-class TabsAdapter(private val context: Context, fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+class TabsAdapter(private val context: Context, fragmentManager: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(fragmentManager) {
     private val tabs: MutableList<TabInfo> = mutableListOf()
 
-    fun <T : Fragment> addTab(@StringRes titleId: Int, cls: Class<T>, args: Bundle? = null) {
+    fun <T : androidx.fragment.app.Fragment> addTab(@StringRes titleId: Int, cls: Class<T>, args: Bundle? = null) {
         val title = context.getString(titleId)
         val info = TabInfo(title, cls, args)
         tabs.add(info)
@@ -28,10 +25,10 @@ class TabsAdapter(private val context: Context, fragmentManager: FragmentManager
         return tabs.size
     }
 
-    override fun getItem(position: Int): Fragment {
+    override fun getItem(position: Int): androidx.fragment.app.Fragment {
         val info = tabs[position]
-        return Fragment.instantiate(context, info.cls.name, info.args)
+        return androidx.fragment.app.Fragment.instantiate(context, info.cls.name, info.args)
     }
 
-    private class TabInfo(val title: String, val cls: Class<out Fragment>, val args: Bundle?)
+    private class TabInfo(val title: String, val cls: Class<out androidx.fragment.app.Fragment>, val args: Bundle?)
 }

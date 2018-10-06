@@ -2,7 +2,6 @@ package com.pr0gramm.app.util
 
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.app.Fragment
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.putFreezable
 import java.util.*
@@ -15,29 +14,29 @@ import kotlin.reflect.KProperty
  *
  * Inspired by Jake Wharton, he mentioned it during his IO/17 talk about Kotlin
  */
-private class FragmentArgumentDelegate<T : Any>(val nameOverride: String?, val defaultValue: T?) : ReadWriteProperty<Fragment, T> {
+private class FragmentArgumentDelegate<T : Any>(val nameOverride: String?, val defaultValue: T?) : ReadWriteProperty<androidx.fragment.app.Fragment, T> {
     @Suppress("UNCHECKED_CAST")
-    override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+    override operator fun getValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>): T {
         val name = nameOverride ?: property.name
         val value = thisRef.arguments?.get(name) as T?
         return value ?: defaultValue ?: throw IllegalStateException("Property $name is not set")
     }
 
-    override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+    override operator fun setValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>, value: T) {
         val args = thisRef.arguments ?: Bundle().also { thisRef.arguments = it }
         setArgumentValue(args, nameOverride ?: property.name, value)
     }
 }
 
-private class OptionalFragmentArgumentDelegate<T : Any>(val nameOverride: String?, val default: T?) : ReadWriteProperty<Fragment, T?> {
+private class OptionalFragmentArgumentDelegate<T : Any>(val nameOverride: String?, val default: T?) : ReadWriteProperty<androidx.fragment.app.Fragment, T?> {
     @Suppress("UNCHECKED_CAST")
-    override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T? {
+    override operator fun getValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>): T? {
         val name = nameOverride ?: property.name
         val value = thisRef.arguments?.get(name) as T?
         return value ?: default
     }
 
-    override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T?) {
+    override operator fun setValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>, value: T?) {
         val args = thisRef.arguments ?: Bundle().also { thisRef.arguments = it }
         setArgumentValue(args, nameOverride ?: property.name, value)
     }
@@ -68,29 +67,29 @@ private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
     }
 }
 
-fun <T : Any> fragmentArgument(name: String? = null): ReadWriteProperty<Fragment, T> {
+fun <T : Any> fragmentArgument(name: String? = null): ReadWriteProperty<androidx.fragment.app.Fragment, T> {
     return FragmentArgumentDelegate(name, null)
 }
 
-fun <T : Any> fragmentArgumentWithDefault(defaultValue: T, name: String? = null): ReadWriteProperty<Fragment, T> {
+fun <T : Any> fragmentArgumentWithDefault(defaultValue: T, name: String? = null): ReadWriteProperty<androidx.fragment.app.Fragment, T> {
     return FragmentArgumentDelegate(name, defaultValue)
 }
 
-fun <T : Any> optionalFragmentArgument(default: T? = null, name: String? = null): ReadWriteProperty<Fragment, T?> {
+fun <T : Any> optionalFragmentArgument(default: T? = null, name: String? = null): ReadWriteProperty<androidx.fragment.app.Fragment, T?> {
     return OptionalFragmentArgumentDelegate(name, default)
 }
 
-inline fun <reified T : Enum<T>> enumFragmentArgument(): ReadWriteProperty<Fragment, T> {
+inline fun <reified T : Enum<T>> enumFragmentArgument(): ReadWriteProperty<androidx.fragment.app.Fragment, T> {
     val delegate = fragmentArgument<Int>()
     val values = EnumSet.allOf(T::class.java).sortedBy { it.ordinal }.toTypedArray()
 
-    return object : ReadWriteProperty<Fragment, T> {
-        override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+    return object : ReadWriteProperty<androidx.fragment.app.Fragment, T> {
+        override fun getValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>): T {
             val o = delegate.getValue(thisRef, property)
             return values[o]
         }
 
-        override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        override fun setValue(thisRef: androidx.fragment.app.Fragment, property: KProperty<*>, value: T) {
             delegate.setValue(thisRef, property, value.ordinal)
         }
     }

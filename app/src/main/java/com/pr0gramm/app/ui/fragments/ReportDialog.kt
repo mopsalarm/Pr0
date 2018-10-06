@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.appcompat.app.AlertDialog
 import com.jakewharton.rxbinding.widget.itemClickEvents
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem

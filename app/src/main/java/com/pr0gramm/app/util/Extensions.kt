@@ -12,20 +12,18 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
-import android.support.annotation.ColorInt
-import android.support.annotation.ColorRes
-import android.support.annotation.LayoutRes
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.LruCache
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.LayoutRes
+import androidx.collection.LruCache
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.kodein.di.DKodein
@@ -382,7 +380,7 @@ fun Context.dip2px(dpValue: Float): Float {
     return dpValue * density
 }
 
-inline fun FragmentManager.transaction(now: Boolean = false, block: FragmentTransaction.() -> Unit) {
+inline fun androidx.fragment.app.FragmentManager.transaction(now: Boolean = false, block: androidx.fragment.app.FragmentTransaction.() -> Unit) {
     val tr = beginTransaction()
     tr.block()
 

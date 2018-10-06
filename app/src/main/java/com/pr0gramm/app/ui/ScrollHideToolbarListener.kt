@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewPropertyAnimator
 import com.pr0gramm.app.util.endAction
@@ -131,7 +130,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
          * @param recyclerView The recycler view to estimate scrolling of
          */
         @JvmStatic
-        fun estimateRecyclerViewScrollY(recyclerView: RecyclerView): Int? {
+        fun estimateRecyclerViewScrollY(recyclerView: androidx.recyclerview.widget.RecyclerView): Int? {
             var scrollY: Int? = null
             val view = recyclerView.layoutManager?.findViewByPosition(0)
             if (view != null) {

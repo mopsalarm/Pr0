@@ -1,10 +1,9 @@
 package com.pr0gramm.app.ui.views
 
-import android.support.v7.recyclerview.extensions.ListAdapter
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import com.pr0gramm.app.util.layoutInflater
 
 private class Mapping<T>(val predicate: TypePredicate<T>, val newView: NewViewHolder<T>)
@@ -38,7 +37,7 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
         return viewType
     }
 
-    class ViewHolder<T>(v: View, private val bind: ViewHolder<T>.(T) -> Unit) : RecyclerView.ViewHolder(v) {
+    class ViewHolder<T>(v: View, private val bind: ViewHolder<T>.(T) -> Unit) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
         fun bind(value: T) = this.bind.invoke(this, value)
     }
 
@@ -97,9 +96,9 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
         }
 
         class ViewHolderBinder<T>(private val view: View) {
-            private var bind: RecyclerView.ViewHolder.(value: T) -> Unit = {}
+            private var bind: androidx.recyclerview.widget.RecyclerView.ViewHolder.(value: T) -> Unit = {}
 
-            fun bind(bind: RecyclerView.ViewHolder.(value: T) -> Unit) {
+            fun bind(bind: androidx.recyclerview.widget.RecyclerView.ViewHolder.(value: T) -> Unit) {
                 this.bind = bind
             }
 

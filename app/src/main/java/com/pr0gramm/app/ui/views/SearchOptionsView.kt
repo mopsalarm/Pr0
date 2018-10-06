@@ -4,13 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v7.widget.AppCompatCheckBox
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.appcompat.widget.AppCompatCheckBox
 import com.jakewharton.rxbinding.widget.changes
 import com.jakewharton.rxbinding.widget.editorActions
 import com.pr0gramm.app.R

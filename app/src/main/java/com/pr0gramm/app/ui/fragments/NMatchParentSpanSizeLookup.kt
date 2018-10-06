@@ -1,11 +1,9 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.support.v7.widget.GridLayoutManager
-
 /**
  */
 class NMatchParentSpanSizeLookup(private val skipItems: Int, private val spanCount: Int) :
-        GridLayoutManager.SpanSizeLookup() {
+        androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
 
     override fun getSpanSize(position: Int): Int {
         return if (position >= skipItems) 1 else spanCount

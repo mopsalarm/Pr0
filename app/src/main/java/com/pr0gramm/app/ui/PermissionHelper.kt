@@ -2,16 +2,15 @@ package com.pr0gramm.app.ui
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.ArrayMap
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import rx.Observable
 import rx.subjects.ReplaySubject
 
 /**
  */
 class PermissionHelper(private val activity: Activity) : ActivityCompat.OnRequestPermissionsResultCallback {
-    private val requests = ArrayMap<Int, ReplaySubject<Void>>()
+    private val requests = androidx.collection.ArrayMap<Int, ReplaySubject<Void>>()
 
     fun requirePermission(permission: String): Observable<Void> {
         val subject = ReplaySubject.create<Void>()

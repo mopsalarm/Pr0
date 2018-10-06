@@ -1,16 +1,14 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.support.v7.widget.RecyclerView
-
 /**
  * Scroll listener that does nothing
  */
-internal class NoopOnScrollListener : RecyclerView.OnScrollListener() {
-    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+internal class NoopOnScrollListener : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+    override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
         // empty
     }
 
-    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+    override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
         // do nothing
     }
 }
