@@ -4,6 +4,7 @@ import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.subscribeOnBackground
 import okio.ByteString
 import rx.Observable
 import java.util.concurrent.TimeUnit
@@ -21,6 +22,7 @@ class TagSuggestionService(api: Api) {
     init {
         logger.info("Query for tag top- and blacklist")
         api.topTags()
+                .subscribeOnBackground()
                 .retryWhen { attempts ->
                     attempts.take(5).flatMap {
                         Observable.timer(1, TimeUnit.MINUTES)

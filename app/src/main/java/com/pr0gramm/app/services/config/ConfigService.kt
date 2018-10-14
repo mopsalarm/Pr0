@@ -10,10 +10,7 @@ import androidx.core.content.edit
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
-import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.ignoreException
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kodein.di.erased.instance
@@ -44,7 +41,7 @@ class ConfigService(context: Application,
     init {
         this.deviceHash = makeUniqueIdentifier(context, preferences)
 
-        val jsonCoded = preferences.getString(PREF_DATA_KEY, "{}")
+        val jsonCoded = preferences.getString(PREF_DATA_KEY) ?: "{}"
         this.configState = loadState(jsonCoded)
 
         publishState()
@@ -118,7 +115,7 @@ class ConfigService(context: Application,
      * Observes the config. The config changes are not observed on any particual thread.
      */
     fun observeConfig(): Observable<Config> {
-        return configSubject
+        return configSubject.observeOn(BackgroundScheduler)
     }
 
     fun config(): Config {

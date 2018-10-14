@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ContentProvider
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.content.res.TypedArray
 import android.database.Cursor
@@ -560,4 +561,8 @@ fun Closeable?.closeQuietly() {
     } catch (err: Exception) {
         // ignored
     }
+}
+
+inline fun SharedPreferences.getString(key: String): String? {
+    return getString(key, null)
 }
