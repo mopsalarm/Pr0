@@ -23,13 +23,13 @@ import java.io.FileInputStream
 import java.util.regex.Pattern
 import android.text.util.Linkify as AndroidLinkify
 
-
 object Linkify {
     private val MALICIOUS_COMMENT_CHARS = Pattern.compile("([\\p{Mn}\\p{Mc}\\p{Me}])[\\p{Mn}\\p{Mc}\\p{Me}]+")
 
     private val RE_USERNAME = Pattern.compile("(?<![a-zA-Z0-9])@[A-Za-z0-9]+")
     private val RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
     private val RE_GENERIC_SHORT_LINK = Pattern.compile("(?<!reddit.com)/((?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
+    private val RE_WEB_LINK = Pattern.compile("\\bhttps?://[^<>\\s]+")
 
     fun linkifyClean(view: TextView, content: String, callback: Callback? = null) {
         var cleanedContent = content.take(1024 * 32)
@@ -47,9 +47,9 @@ object Linkify {
     fun linkify(context: Context, originalText: CharSequence, callback: Callback? = null): CharSequence {
         val text = SpannableStringBuilder.valueOf(originalText)
         val base = UriHelper.of(context).base()
-        val scheme = base.scheme + "://"
+        val scheme = "https://"
 
-        AndroidLinkify.addLinks(text, AndroidLinkify.WEB_URLS)
+        AndroidLinkify.addLinks(text, RE_WEB_LINK, null)
 
         AndroidLinkify.addLinks(text, RE_USERNAME, scheme, null) { match, _ ->
             val user = match.group().substring(1)
@@ -160,7 +160,7 @@ private class ItemSpan(val callback: Linkify.Callback?, url: String, val ref: Li
     companion object {
         @JvmField
         val CREATOR = creator { p ->
-            val url = p.readString()
+            val url = p.readString()!!
             val ref = Linkify.Item(p.readLong())
             ItemSpan(null, url, ref)
         }
@@ -185,7 +185,7 @@ private class CommentSpan(val callback: Linkify.Callback?, url: String, val ref:
     companion object {
         @JvmField
         val CREATOR = creator { p ->
-            val url = p.readString()
+            val url = p.readString()!!
             val ref = Linkify.Comment(p.readLong(), p.readLong())
             CommentSpan(null, url, ref)
         }

@@ -9,10 +9,12 @@ import com.pr0gramm.app.ui.fragments.CommentRef
 
 object FilterParser {
     fun parse(uri: Uri, notificationTime: Instant? = null): FeedFilterWithStart? {
-        val commentId = extractCommentId(uri.path)
+        val uriPath = uri.path!!
+
+        val commentId = extractCommentId(uriPath)
 
         // get the path without optional comment link
-        val path = uri.path.replaceFirst(":.*$".toRegex(), "")
+        val path = uriPath.replaceFirst(":comment[0-9]+$".toRegex(), "")
 
         for (pattern in patterns) {
             val matcher = pattern.matcher(path)
