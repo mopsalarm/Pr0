@@ -5,6 +5,14 @@
       {
         "type": "Fix",
         "change": "Bugfixes und Updates"
+      },
+      {
+        "type": "Fix",
+        "change": "Probleme beim Starten der App behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Links zur neuen Suche können nun vernünftig angeklickt werden"
       }
     ]
   },
