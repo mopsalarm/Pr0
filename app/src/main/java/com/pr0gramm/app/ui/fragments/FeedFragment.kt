@@ -1067,11 +1067,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // add 'repost' to query
         val queryTerm = filter.tags?.let { term ->
-            if (term.trim().startsWith("?")) {
-                val baseQueryTerm = term.trimStart('?', ' ')
-                "? ($baseQueryTerm) repost"
-            } else {
-                "$term repost"
+            when {
+                term.trim().startsWith("?") -> {
+                    val baseQueryTerm = term.trimStart('?', ' ')
+                    "! ($baseQueryTerm) repost"
+                }
+
+                term.trim().startsWith("!") -> {
+                    val baseQueryTerm = term.trimStart('!', ' ')
+                    "! ($baseQueryTerm) repost"
+                }
+
+                else -> "$term repost"
             }
         }
 

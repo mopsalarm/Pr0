@@ -24,13 +24,13 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
             val f = FeedFilter().withFeedType(FeedType.PROMOTED)
 
             return listOf(
-                    BookmarkActionItem(bookmarkService, "Kein Ton", f.withTags("? -f:sound")),
-                    BookmarkActionItem(bookmarkService, "Nur Bilder", f.withTags("? -webm -gif")),
-                    BookmarkActionItem(bookmarkService, "Original Content", f.withTags("original content")),
-                    BookmarkActionItem(bookmarkService, "0815 & Süßvieh", f.withTags("? 0815|süßvieh|(ficken halt)|(aber schicks keinem)")),
-                    BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("? (-f:sound | (untertitel & -404))")),
-                    BookmarkActionItem(bookmarkService, "Keine Videos", f.withTags("? -webm")),
-                    BookmarkActionItem(bookmarkService, "Reposts in Top", f.withTags("? repost & f:top")),
-                    BookmarkActionItem(bookmarkService, "Nur Schrott", f.withFeedType(FeedType.NEW).withTags("? s:shit")))
+                    BookmarkActionItem(bookmarkService, "Kein Ton", f.withTags("! -f:sound")),
+                    BookmarkActionItem(bookmarkService, "Nur Bilder", f.withTags("! -webm -gif")),
+                    BookmarkActionItem(bookmarkService, "Original Content", f.withTags("'original content'")),
+                    BookmarkActionItem(bookmarkService, "0815 & Süßvieh", f.withTags("! 0815|süßvieh|'ficken halt'|'aber schicks keinem'")),
+                    BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("! (-f:sound | (untertitel & -404))")),
+                    BookmarkActionItem(bookmarkService, "Keine Videos", f.withTags("! -webm")),
+                    BookmarkActionItem(bookmarkService, "Reposts in Top", f.withTags("! 'repost' & f:top")),
+                    BookmarkActionItem(bookmarkService, "Nur Schrott", f.withFeedType(FeedType.NEW).withTags("! s:shit")))
         }
 }

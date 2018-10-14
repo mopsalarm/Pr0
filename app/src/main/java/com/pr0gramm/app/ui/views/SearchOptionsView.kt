@@ -152,7 +152,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
         // get the base search-term
         var baseTerm = searchTermView.text.toString().trim()
-        if (baseTerm.startsWith("?")) {
+        if (baseTerm.startsWith("?") || baseTerm.startsWith("!")) {
             extendedSearch = true
             baseTerm = baseTerm.substring(1).trim()
         }
@@ -183,7 +183,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         // combine everything together
         var searchTerm = terms.joinToString(" & ")
         if (extendedSearch || terms.size > 1) {
-            searchTerm = "? $searchTerm"
+            searchTerm = "! $searchTerm"
         }
 
         // replace all new line characters (why would you add a new line?)

@@ -34,16 +34,6 @@ interface ExtraCategoryApi {
             @Query("older") older: Long?,
             @Query("score") benisScore: Int): Observable<Api.Feed>
 
-    @GET("general")
-    fun general(
-            @Query("promoted") promoted: Int?,
-            @Query("tags") tags: String?,
-            @Query("user") user: String?,
-            @Query("flags") flags: Int,
-            @Query("older") older: Long?,
-            @Query("newer") newer: Long?,
-            @Query("around") around: Long?): Observable<Api.Feed>
-
     @HEAD("ping")
     fun ping(): Observable<Void>
 }

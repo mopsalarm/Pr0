@@ -6,9 +6,6 @@ import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.Reducer
-import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.logger
 import rx.Observable
 
 /**
@@ -32,10 +29,7 @@ interface FeedService {
 }
 
 class FeedServiceImpl(private val api: Api,
-                      private val extraCategories: ExtraCategories,
-                      private val configService: ConfigService) : FeedService {
-
-    private val logger = logger("FeedService")
+                      private val extraCategories: ExtraCategories) : FeedService {
 
     override fun load(query: FeedService.FeedQuery): Observable<Api.Feed> {
         val feedFilter = query.filter
@@ -56,43 +50,25 @@ class FeedServiceImpl(private val api: Api,
         // statistics
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
 
-        // get extended tag query
-        val q = SearchQuery(feedFilter.tags)
+        val tags = feedFilter.tags?.replaceFirst("^\\s*\\?\\s*".toRegex(), "!")
 
         return when (feedType) {
             FeedType.RANDOM -> extraCategories.api
-                    .random(q.tags, flags)
+                    .random(tags, flags)
                     .map { feed -> feed.copy(_items = feed.items.shuffled()) }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold
-                extraCategories.api.bestof(q.tags, user, flags, query.older, benisScore)
+                extraCategories.api.bestof(tags, user, flags, query.older, benisScore)
             }
 
-            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(q.tags, flags, query.older)
+            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(tags, flags, query.older)
 
-            FeedType.TEXT -> extraCategories.api.text(q.tags, flags, query.older)
+            FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older)
 
             else -> {
-                // prepare the call to the official api. The call is only made on subscription.
-                val officialCall = api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, q.tags, likes, self, user)
-
-                if (likes == null && configService.config().searchUsingTagService) {
-                    extraCategories.api
-                            .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
-                            .onErrorResumeNext(officialCall)
-
-                } else if (query.around == null && query.newer == null && q.advanced) {
-                    // track the advanced search
-                    Track.advancedSearch(q.tags)
-
-                    logger.info("Using general search api, but falling back on old one in case of an error.")
-                    extraCategories.api
-                                .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
-                                .onErrorResumeNext(officialCall)
-                } else {
-                    officialCall
-                }
+                // replace old search with a new one.
+                api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, tags, likes, self, user)
             }
         }
     }
@@ -126,18 +102,5 @@ class FeedServiceImpl(private val api: Api,
         }
     }
 
-    private class SearchQuery internal constructor(tags: String?) {
-        val advanced: Boolean
-        val tags: String?
-
-        init {
-            if (tags == null || !tags.trim().startsWith("?")) {
-                this.advanced = false
-                this.tags = tags
-            } else {
-                this.advanced = true
-                this.tags = tags.replaceFirst("\\s*\\?\\s*".toRegex(), "")
-            }
-        }
-    }
+    private class SearchQuery(val tags: String?)
 }
