@@ -73,7 +73,7 @@ android {
         debug {
             minifyEnabled false
             shrinkResources false
-            proguardFiles 'proguard-rules-base.pro', 'proguard-extra-moshi.pro', 'proguard-rules-debug.pro'
+            proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
 
             multiDexEnabled true
 
@@ -84,7 +84,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles 'proguard-rules-base.pro', 'proguard-extra-moshi.pro', 'proguard-rules-release.pro'
+            proguardFiles 'proguard-rules-base.pro', 'proguard-rules-release.pro'
 
             multiDexEnabled false
 
