@@ -279,6 +279,9 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
                 onDetailClickedListener.onTagClicked(tag)
             }
 
+            // mark tags based on their confidence.
+            itemView.alpha = if (votedTag.tag.confidence < 0.2) 0.8f else 1.0f
+
             if (selected) {
                 voteView.setVoteState(vote, !holderChanged)
                 voteView.visibility = View.VISIBLE
