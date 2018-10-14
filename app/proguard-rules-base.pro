@@ -1,4 +1,5 @@
 -verbose
+-printconfiguration proguard-final.pro
 
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers

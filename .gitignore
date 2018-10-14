@@ -94,3 +94,5 @@ droid.js
 
 upload_auth
 mount.sh
+
+proguard-final.pro
