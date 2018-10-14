@@ -44,7 +44,7 @@ fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance()) }
     bind<FeedbackService>() with singleton { FeedbackService(instance()) }
-    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance()) }
+    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance()) }
     bind<GifDrawableLoader>() with singleton { GifDrawableLoader(instance("cache"), instance()) }
     bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
