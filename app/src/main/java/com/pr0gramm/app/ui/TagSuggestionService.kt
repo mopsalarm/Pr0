@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.subscribeOnBackground
 import okio.ByteString
@@ -25,7 +26,7 @@ class TagSuggestionService(api: Api) {
                 .subscribeOnBackground()
                 .retryWhen { attempts ->
                     attempts.take(5).flatMap {
-                        Observable.timer(1, TimeUnit.MINUTES)
+                        Observable.timer(1, TimeUnit.MINUTES, BackgroundScheduler)
                     }
                 }
                 .subscribe { result ->

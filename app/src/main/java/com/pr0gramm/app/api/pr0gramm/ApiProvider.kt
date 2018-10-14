@@ -3,9 +3,7 @@ package com.pr0gramm.app.api.pr0gramm
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.util.Stopwatch
-import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.sleepUninterruptibly
+import com.pr0gramm.app.util.*
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -67,6 +65,7 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                 var result = invoke()
                 if (result is Observable<*>) {
                     result = result
+                            .doOnSubscribe { debug { AndroidUtility.checkNotMainThread(method.name) } }
                             .onErrorResumeNext { err -> Observable.error(convertErrorIfNeeded(err)) }
                             .doOnError { measureApiCall(watch, method, false) }
                             .doOnNext { measureApiCall(watch, method, true) }

@@ -295,10 +295,10 @@ object AndroidUtility {
         }
     }
 
-    fun checkNotMainThread() {
+    fun checkNotMainThread(msg: String? = null) {
         if (Looper.getMainLooper().thread === Thread.currentThread()) {
-            logger.error("Expected not to be on main thread")
-            throw IllegalStateException("Must not be called from the main thread.")
+            logger.error("Expected not to be on main thread: {}", msg)
+            throw IllegalStateException("Must not be called from the main thread: $msg")
         }
     }
 }
