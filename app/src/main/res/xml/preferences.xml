@@ -15,25 +15,18 @@
 
     <PreferenceCategory
         android:key="prefcat_settings"
-        android:persistent="false"
         android:title="@string/prefcat_settings_title">
 
         <PreferenceScreen
             android:key="prefcat_behaviour"
-            android:persistent="true"
             android:summary="@string/prefcat_behaviour_summary"
             android:title="@string/prefcat_behaviour">
-
-            <intent
-                android:action="preference://prefcat_behaviour"
-                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:targetPackage="@string/app_id"/>
 
             <PreferenceCategory
                 android:key="prefcat_behaviour__datausage"
                 android:title="@string/prefcat_behaviour__datausage_title">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_convert_gif_to_webm"
                     android:summaryOn="@string/pref_convert_gif_to_webm"
@@ -47,7 +40,7 @@
                     android:summary="@string/pref_confirm_play_on_mobile_summary"
                     android:title="@string/pref_confirm_play_on_mobile_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_load_hq_image_in_zoomview"
                     android:summary="@string/pref_load_hq_image_in_zoomview_summary"
@@ -59,25 +52,25 @@
                 android:key="prefcat_behaviour__feed"
                 android:title="@string/prefcat_behaviour__feed_title">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_enable_quick_peek"
                     android:summary="@string/pref_enable_quick_peek_summary"
                     android:title="@string/pref_enable_quick_peek_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_feed_start_at_new"
                     android:summary="@string/pref_feed_start_at_new_summary"
                     android:title="@string/pref_feed_start_at_new_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_feed_start_at_sfw"
                     android:summary="@string/pref_feed_start_at_sfw_summary"
                     android:title="@string/pref_feed_start_at_sfw_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_feed_scroll_on_back"
                     android:summary="@string/pref_feed_scroll_on_back_sumary"
@@ -97,25 +90,25 @@
                     android:summary="@string/pref_bestof_threshold_summary"
                     android:title="@string/pref_bestof_threshold_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_category_random"
                     android:summary="@string/pref_show_category_random_summary"
                     android:title="@string/pref_show_category_random_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_category_text"
                     android:summary="@string/pref_show_category_text_summary"
                     android:title="@string/pref_show_category_text_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_category_controversial"
                     android:summary="@string/pref_show_category_controversial_summary"
                     android:title="@string/pref_show_category_controversial_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_category_premium"
                     android:summary="@string/pref_show_category_premium_summary"
@@ -134,31 +127,31 @@
                     android:summary="@string/pref_volume_navigation_summary"
                     android:title="@string/pref_volume_navigation_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_single_tap_for_fullscreen"
                     android:summary="@string/pref_single_tap_for_fullscreen_summary"
                     android:title="@string/pref_single_tap_for_fullscreen_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_rotate_in_fullscreen"
                     android:summary="@string/pref_rotate_in_fullscreen_summary"
                     android:title="@string/pref_rotate_in_fullscreen_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_double_tap_to_upvote"
                     android:summary="@string/pref_double_tap_to_upvote_summary"
                     android:title="@string/pref_double_tap_to_upvote"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_keep_screen_on"
                     android:summary="@string/pref_keep_screen_on_summary"
                     android:title="@string/pref_keep_screen_on"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_audiofocus_transient"
                     android:summary="@string/pref_audiofocus_transient_summary"
@@ -177,20 +170,20 @@
                 android:key="prefcat_incognito"
                 android:title="Incognito">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_use_incognito_browser"
                     android:summary="@string/pref_use_incognito_browser_summary"
                     android:title="@string/pref_use_incognito_browser_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:dependency="pref_use_incognito_browser"
                     android:key="pref_override_youtube_links"
                     android:summary="@string/pref_override_youtube_links_summary"
                     android:title="@string/pref_override_youtube_links_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_private_input"
                     android:summary="@string/pref_private_input_summary"
@@ -202,7 +195,7 @@
                 android:key="prefcat_behaviour__notifications"
                 android:title="@string/prefcat_behaviour__notificatons_title">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_notifications"
                     android:summary="@string/pref_show_notifications_summary"
@@ -217,28 +210,23 @@
             android:summary="@string/prefcat_visual_summary"
             android:title="@string/prefcat_visual_title">
 
-            <intent
-                android:action="preference://prefcat_visual"
-                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:targetPackage="@string/app_id"/>
-
             <PreferenceCategory
                 android:key="prefcat_visual__menu_items"
                 android:title="@string/prefcat_visual__menu_items_title">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_fullscreen_zoom_view"
                     android:summary="@string/pref_fullscreen_zoom_view_summary"
                     android:title="@string/pref_fullscreen_zoom_view"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_pin_button"
                     android:summary="@string/pref_show_pin_button_summary"
                     android:title="@string/pref_show_pin_button"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_show_refresh_button"
                     android:summary="@string/pref_show_refresh_button_summary"
@@ -257,13 +245,13 @@
                 android:key="prefcat_visual__tags"
                 android:title="@string/prefcat_visual__tags">
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_hide_tag_vote_buttons"
                     android:summary="@string/pref_hide_tag_vote_buttons_summary"
                     android:title="@string/pref_hide_tag_vote_buttons_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_tag_cloud_view"
                     android:summary="@string/pref_tag_cloud_view_summary"
@@ -282,7 +270,7 @@
                     android:summary="@string/pref_seen_indicator_style_summary"
                     android:title="@string/pref_seen_indicator_style"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_content_type_flag"
                     android:summary="@string/pref_show_content_type_flag_summary"
@@ -294,13 +282,13 @@
                     android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
                     android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_secure_app"
                     android:summary="@string/pref_secure_app_summary"
                     android:title="@string/pref_secure_app_title"/>
 
-                <CheckBoxPreference
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_always_show_ads"
                     android:summary="@string/pref_always_show_ads_summary"
@@ -311,28 +299,22 @@
 
         <PreferenceScreen
             android:key="prefcat_compatibility"
-            android:persistent="true"
             android:summary="@string/pref_compatibility_summary"
             android:title="@string/pref_compatibility">
 
-            <intent
-                android:action="preference://prefcat_compatibility"
-                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:targetPackage="@string/app_id"/>
-
-            <CheckBoxPreference
+            <SwitchPreferenceCompat
                 android:defaultValue="true"
                 android:key="pref_use_exo_player"
                 android:summary="@string/pref_use_exo_player__summary"
                 android:title="@string/pref_use_exo_player__title"/>
 
-            <CheckBoxPreference
+            <SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_disable_audio"
                 android:summary="@string/pref_disable_audio__summary"
                 android:title="@string/pref_disable_audio__title"/>
 
-            <CheckBoxPreference
+            <SwitchPreferenceCompat
                 android:defaultValue="true"
                 android:dependency="pref_use_exo_player"
                 android:key="pref_use_texture_view_new"
@@ -357,21 +339,15 @@
 
         <PreferenceScreen
             android:key="prefcat_update"
-            android:persistent="false"
             android:summary="@string/prefcat_update_summary"
             android:title="@string/prefcat_update">
-
-            <intent
-                android:action="preference://prefcat_update"
-                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:targetPackage="@string/app_id"/>
 
             <Preference
                 android:key="pref_pseudo_update"
                 android:summary="@string/pref_pseudo_update_summary"
                 android:title="@string/pref_pseudo_update"/>
 
-            <CheckBoxPreference
+            <SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_use_beta_channel"
                 android:summary="@string/pref_use_beta_channel_summary"
@@ -383,16 +359,10 @@
     <!-- This screen is hidden on non debug builds -->
     <PreferenceScreen
         android:key="prefcat_debug"
-        android:persistent="false"
         android:summary="Debug preferences for development"
         android:title="Debug">
 
-        <intent
-            android:action="preference://prefcat_debug"
-            android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-            android:targetPackage="@string/app_id"/>
-
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="pref_debug_mock_api"
             android:summary="Requires full restart of app"
@@ -401,7 +371,6 @@
 
     <PreferenceCategory
         android:key="prefcat_misc"
-        android:persistent="false"
         android:title="@string/prefcat_misc">
 
         <Preference
@@ -431,10 +400,9 @@
 
     <PreferenceCategory
         android:key="pref_privacy"
-        android:persistent="false"
         android:title="@string/pref_privacy">
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_sync_backup"
             android:summary="@string/pref_sync_backup_summary"

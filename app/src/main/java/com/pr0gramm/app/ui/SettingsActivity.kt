@@ -4,12 +4,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceGroup
-import android.preference.PreferenceScreen
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.transaction
+import androidx.preference.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
@@ -20,36 +18,41 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.BasePreferenceFragment
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
-import com.trello.rxlifecycle.components.RxPreferenceFragment
-import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.instance
 
 /**
  */
-class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
+class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        var category: String? = null
-        val action = intent.action
-        if (action != null && action.startsWith("preference://"))
-            category = action.substring("preference://".length).takeIf { it.isNotEmpty() }
-
         if (savedInstanceState == null) {
-            val fragment = SettingsFragment()
-            fragment.arguments = bundle {
-                putString("category", category)
+            val fragment = SettingsFragment().arguments {
+                putString(
+                        PreferenceFragmentCompat.ARG_PREFERENCE_ROOT,
+                        intent?.extras?.getString("rootKey"))
             }
 
-            fragmentManager.beginTransaction()
-                    .replace(android.R.id.content, fragment)
-                    .commit()
+            supportFragmentManager.transaction {
+                replace(android.R.id.content, fragment)
+            }
         }
+    }
+
+    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat?, pref: PreferenceScreen?): Boolean {
+        pref ?: return false
+
+        startActivity(Intent(this, SettingsActivity::class.java).apply {
+            putExtra("rootKey", pref.key)
+        })
+
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -61,10 +64,10 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         return super.onOptionsItemSelected(item)
     }
 
-    class SettingsFragment : RxPreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener, KodeinAware {
-        private val settings = Settings.get()
+    class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
+            SharedPreferences.OnSharedPreferenceChangeListener, KodeinAware {
 
-        override val kodein: Kodein by lazy { activity.kodein }
+        private val settings = Settings.get()
 
         private val userService: UserService by instance()
         private val preloadManager: PreloadManager by instance()
@@ -77,20 +80,13 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                 // reset those content types - better be sure!
                 settings.resetContentTypeSettings()
             }
+        }
 
-            addPreferencesFromResource(R.xml.preferences)
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.preferences, rootKey)
 
             updateCodecPreference("pref_video_codec", "video/avc")
             updateCodecPreference("pref_audio_codec", "audio/mp4a-latm")
-
-            val category = arguments.getString("category")
-            if (category != null) {
-                val root = preferenceManager.findPreference(category)
-                if (root != null) {
-                    activity.title = root.title
-                    preferenceScreen = root as PreferenceScreen
-                }
-            }
 
             if (!BuildConfig.DEBUG) {
                 hidePreferenceByName("prefcat_debug")
@@ -112,25 +108,31 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         }
 
         private fun hidePreferenceByName(name: String) {
-            val pref = preferenceScreen.findPreference(name)
-            if (pref != null) {
-                preferenceScreen.removePreference(pref)
+            removeIf { it.key == name }
+        }
 
-                for (idx in 0 until preferenceScreen.preferenceCount) {
-                    val preference = preferenceScreen.getPreference(idx)
-                    if (preference is PreferenceGroup) {
-                        if (preference.removePreference(pref))
-                            break
+        private fun removeIf(group: PreferenceGroup = preferenceScreen, predicate: (Preference) -> Boolean) {
+            for (idx in (0 until group.preferenceCount).reversed()) {
+                val pref = group.getPreference(idx)
+                when {
+                    predicate(pref) -> {
+                        logger.info("removing preference {}", pref.key)
+                        group.removePreference(pref)
+
+                        // remove all preferences that have this pref as their dependency
+                        removeIf { it.dependency == pref.key }
                     }
+
+                    pref is PreferenceGroup -> removeIf(pref, predicate)
                 }
             }
         }
 
         private fun updateCodecPreference(prefName: String, mimeType: String) {
+            val pref = findPreference(prefName) as ListPreference? ?: return
+
             val entries = mutableListOf<CharSequence>()
             val entryValues = mutableListOf<CharSequence>()
-
-            val pref = findPreference(prefName) as ListPreference? ?: return
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 entries.add("Software")
@@ -190,8 +192,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             super.onPause()
         }
 
-        override fun onPreferenceTreeClick(preferenceScreen: PreferenceScreen, preference: Preference): Boolean {
-            when (preference.key) {
+        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+            when (preference?.key) {
                 "pref_pseudo_update" -> {
                     val activity = activity as BaseAppCompatActivity
                     UpdateDialogFragment.checkForUpdates(activity, true)
@@ -228,16 +230,16 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                     startActivity(Intent(activity, IntroActivity::class.java))
                     return true
                 }
-            }
 
-            return super.onPreferenceTreeClick(preferenceScreen, preference)
+                else -> return super.onPreferenceTreeClick(preference)
+            }
         }
 
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
             // get the correct theme for the app!
             when (key) {
                 "pref_convert_gif_to_webm" -> if (preferences.getBoolean(key, false)) {
-                    showDialog(activity) {
+                    showDialog(this) {
                         content(R.string.gif_as_webm_might_be_buggy)
                         positive()
                     }
@@ -246,7 +248,9 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                 "pref_theme" -> {
                     // get the correct theme for the app!
                     ThemeHelper.updateTheme()
-                    AndroidUtility.recreateActivity(activity)
+
+                    // and apply to parent activity
+                    activity?.let { AndroidUtility.recreateActivity(it) }
                 }
             }
         }
