@@ -1,12 +1,16 @@
 package com.pr0gramm.app.services
 
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.readStream
+import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
+import pl.droidsonroids.gif.GifDrawableBuilder
+import pl.droidsonroids.gif.GifOptions
 import rx.Emitter
 import rx.Observable
 import rx.subscriptions.Subscriptions
@@ -16,12 +20,17 @@ import java.lang.System.identityHashCode
 
 /**
  */
-class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
-    fun load(uri: Uri): Observable<DownloadStatus> {
+class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
+    private val logger = logger("GifLoader")
+
+    fun load(uri: Uri): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
                 if (uri.scheme == "file") {
-                    emitter.onNext(DownloadStatus(GifDrawable(toFile(uri))))
+                    val file = toFile(uri)
+                    val drawable = RandomAccessFile(file, "rb").use { createGifDrawable(it) }
+
+                    emitter.onNext(Status(drawable))
                     emitter.onCompleted()
                 } else {
                     cache.get(uri).use { entry ->
@@ -41,7 +50,7 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
      * loads the gif from this temporary file. The temporary file is removed
      * after loading the gif (or on failure).
      */
-    private fun loadGifUsingTempFile(emitter: Emitter<in DownloadStatus>,
+    private fun loadGifUsingTempFile(emitter: Emitter<in Status>,
                                      entry: Cache.Entry) {
 
         val temporary = File(fileCache, "tmp" + identityHashCode(emitter) + ".gif")
@@ -72,7 +81,7 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
                     }
 
                     iv.doIfTime {
-                        emitter.onNext(DownloadStatus(progress = count / contentLength))
+                        emitter.onNext(Status(progress = count / contentLength))
                     }
                 }
             }
@@ -82,10 +91,9 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
             }
 
             try {
-                val drawable = GifDrawable(storage.fd)
+                val drawable = createGifDrawable(storage)
 
-                // closing is now delegated to the drawable.
-                emitter.onNext(DownloadStatus(drawable))
+                emitter.onNext(Status(drawable))
                 emitter.onCompleted()
             } catch (error: Throwable) {
                 emitter.onError(error)
@@ -93,13 +101,29 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
         }
     }
 
-    data class DownloadStatus(val drawable: GifDrawable? = null,
-                              val progress: Float = 1.0f) {
+    private fun createGifDrawable(storage: RandomAccessFile): GifDrawable? {
+        val meta = ParcelFileDescriptor.dup(storage.fd).use {
+            GifAnimationMetaData(it.fileDescriptor)
+        }
 
-        val finished get() = drawable != null
+        val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it < 768 } ?: 6
+
+        logger.info("Loading gif {}x{} with sampleSize {}", meta.width, meta.height, sampleSize)
+
+        return GifDrawableBuilder()
+                .from(storage.fd)
+                .options(GifOptions().apply {
+                    setInSampleSize(sampleSize)
+                    setInIsOpaque(true)
+                })
+                .setRenderingTriggeredOnDraw(true)
+                .build()
     }
 
-    companion object {
-        private val logger = logger("GifLoader")
+    data class Status(
+            val drawable: GifDrawable? = null,
+            val progress: Float = 1.0f) {
+
+        val finished = drawable != null
     }
 }

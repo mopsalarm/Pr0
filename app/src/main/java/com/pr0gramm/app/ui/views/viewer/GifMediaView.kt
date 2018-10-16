@@ -47,7 +47,7 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
                 .subscribe(Action1 { this.onDownloadStatus(it) }, defaultOnError())
     }
 
-    private fun onDownloadStatus(state: GifDrawableLoader.DownloadStatus) {
+    private fun onDownloadStatus(state: GifDrawableLoader.Status) {
         checkMainThread()
 
         onDownloadProgress(state.progress)
@@ -82,8 +82,9 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
 
     override fun onResume() {
         super.onResume()
-        if (gif != null && isPlaying) {
-            gif!!.start()
+
+        gif.takeIf { isPlaying }?.let { gif ->
+            gif.start()
             onMediaShown()
         }
     }
@@ -103,27 +104,24 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
 
     override fun onPause() {
         super.onPause()
-        if (gif != null && isPlaying)
-            gif!!.pause()
+        gif?.pause()
     }
 
     override fun playMedia() {
         super.playMedia()
-        if (gif != null && isPlaying) {
-            gif!!.start()
+
+        gif.takeIf { isPlaying }?.let { gif ->
+            gif.start()
             onMediaShown()
         }
     }
 
     override fun stopMedia() {
         super.stopMedia()
-        if (gif != null)
-            gif!!.stop()
+        gif?.recycle()
     }
 
     override fun rewind() {
-        if (gif != null && isPlaying) {
-            gif!!.seekTo(0)
-        }
+        gif?.seekTo(0)
     }
 }
