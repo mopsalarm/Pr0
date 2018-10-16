@@ -118,7 +118,7 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
 
     override fun stopMedia() {
         super.stopMedia()
-        gif?.recycle()
+        gif?.stop()
     }
 
     override fun rewind() {
