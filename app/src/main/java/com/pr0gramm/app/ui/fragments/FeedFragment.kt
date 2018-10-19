@@ -489,14 +489,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     override fun onDestroyView() {
         recyclerView.removeOnScrollListener(onScrollListener)
-        super.onDestroyView()
-    }
 
-    override fun onDestroy() {
         // destroy any ad views that might still exist
         feedAdapter.destroyAdView()
 
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     private fun resetToolbar() {
