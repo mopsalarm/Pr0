@@ -28,7 +28,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
             try {
                 if (uri.scheme == "file") {
                     val file = toFile(uri)
-                    val drawable = RandomAccessFile(file, "rb").use { createGifDrawable(it) }
+                    val drawable = RandomAccessFile(file, "r").use { createGifDrawable(it) }
 
                     emitter.onNext(Status(drawable))
                     emitter.onCompleted()
