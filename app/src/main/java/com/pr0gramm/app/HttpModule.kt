@@ -2,6 +2,7 @@ package com.pr0gramm.app
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.collection.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
@@ -34,7 +35,6 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.*
-import kotlin.concurrent.timer
 
 
 const val TagApiURL = "api.baseurl"
@@ -171,16 +171,8 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
     val logger: Logger = logger("Picasso.Downloader")
 
-    private val memoryCache = object : androidx.collection.LruCache<String, ByteArray>(1024 * 1024) {
+    private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
-    }
-
-    init {
-        debug {
-            timer(period = 10000) {
-                logger.info("Cache stats: {}", memoryCache.toString())
-            }
-        }
     }
 
     override fun load(request: Request): Response {

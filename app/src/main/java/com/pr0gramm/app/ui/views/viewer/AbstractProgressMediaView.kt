@@ -29,6 +29,10 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     private val progressView: ProgressBar = LayoutInflater.from(context)
             .inflate(R.layout.player_video_progress, this, false) as ProgressBar
 
+    // keep a reference to the update callback so we can re-use
+    // the instance to schedule and de-schedule it later.
+    private val updateCallback = Runnable { updateTimeline() }
+
     protected abstract val videoProgress: ProgressInfo?
 
     init {
@@ -120,6 +124,12 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         // can be implemented in a subclass.
     }
 
+    private fun updateInfo(view: ProgressBar, info: ProgressInfo) {
+        view.max = 1000
+        view.progress = (1000 * info.progress).toInt()
+        view.secondaryProgress = (1000 * info.buffered).toInt()
+    }
+
     private fun updateTimeline() {
         if (!isPlaying)
             return
@@ -134,11 +144,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
                     progressView.translationY = 0f
                 }
 
-                for (view in arrayOf(progressView, seekBarView)) {
-                    view.max = 1000
-                    view.progress = (1000 * info.progress).toInt()
-                    view.secondaryProgress = (1000 * info.buffered).toInt()
-                }
+                updateInfo(progressView, info)
+                updateInfo(seekBarView, info)
 
                 if (userSeekable() && seekHideTimeoutReached()) {
                     logger.info("Hiding seekbar after idle timeout")
@@ -154,8 +161,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         }
 
         if (progressEnabled || seekCurrentlyVisible()) {
-            removeCallbacks { this.updateTimeline() }
-            postDelayed({ this.updateTimeline() }, 200)
+            removeCallbacks(updateCallback)
+            postDelayed(updateCallback, 200)
         }
     }
 

@@ -2,11 +2,12 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.text.inSpans
 import com.pr0gramm.app.UserClasses
-import com.pr0gramm.app.ui.truss
 import com.pr0gramm.app.util.getColorCompat
 
 
@@ -33,10 +34,13 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
         val symbol = UserClasses.MarkSymbol[mark]
         val color = context.getColorCompat(UserClasses.MarkColors[mark])
 
-        this.text = truss {
+        this.text = SpannableStringBuilder().apply {
             append(name)
             append("\u2009")
-            append(symbol, ForegroundColorSpan(color))
+
+            inSpans(ForegroundColorSpan(color)) {
+                append(symbol)
+            }
         }
     }
 }

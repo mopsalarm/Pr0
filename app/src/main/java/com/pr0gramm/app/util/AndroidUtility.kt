@@ -13,6 +13,7 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Looper
+import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.util.LruCache
@@ -26,11 +27,11 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
+import androidx.core.text.inSpans
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.truss
 import okhttp3.HttpUrl
 import rx.Completable
 import rx.util.async.Async
@@ -152,15 +153,15 @@ object AndroidUtility {
      * @param lines         An array of CharSequences. Each CharSequences will be a separate line/bullet-point.
      */
     fun makeBulletList(leadingMargin: Int, lines: List<CharSequence>): CharSequence {
-        return truss {
+        return SpannableStringBuilder().apply {
             for (idx in lines.indices) {
-                val last = idx == lines.size - 1
-                val line = lines[idx]
+                inSpans(LeadingMarginSpan.Standard(leadingMargin)) {
+                    inSpans(BulletSpan(leadingMargin / 3)) {
+                        append(lines[idx])
+                    }
+                }
 
-                append(line,
-                        BulletSpan(leadingMargin / 3),
-                        LeadingMarginSpan.Standard(leadingMargin))
-
+                val last = idx == lines.lastIndex
                 append(if (last) "" else "\n")
             }
         }

@@ -5,11 +5,11 @@ import android.content.Context
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.widget.TextView
+import androidx.core.text.bold
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.services.ThemeHelper.accentColor
-import com.pr0gramm.app.ui.Truss.Companion.bold
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
@@ -63,11 +63,10 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
                 val textView = view as TextView
 
                 bind { change ->
-                    val text = truss {
-                        append(change.type, bold)
-                        append(" ")
-                        append(change.change)
-                    }
+                    val text = SpannableStringBuilder()
+                            .bold { append(change.type) }
+                            .append(" ")
+                            .append(change.change)
 
                     if (change.change.contains("://")) {
                         // might contains links that we want to display?

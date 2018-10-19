@@ -3,7 +3,6 @@ package com.pr0gramm.app.util
 import android.graphics.Bitmap
 import androidx.core.graphics.BitmapCompat
 import com.squareup.picasso.Cache
-import kotlin.concurrent.timer
 
 /**
  * This is a better cache for [com.squareup.picasso.Picasso].
@@ -18,12 +17,6 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
 
     init {
         logger.info("Initializing cache with about " + maxSize / (1024 * 1024) + "mb")
-
-        debug {
-            timer(period = 10000) {
-                logger.info("Cache stats: {}", cache.toString())
-            }
-        }
     }
 
     private fun bitmapByteCount(bitmap: Bitmap): Int {

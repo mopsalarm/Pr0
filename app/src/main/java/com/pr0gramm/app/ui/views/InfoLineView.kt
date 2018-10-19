@@ -266,7 +266,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     }
 
     private inner class TagViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        private val id = ValueHolder<Long>()
+        private val id = LongValueHolder(0L)
         private val tagView: TextView = itemView.find(R.id.tag_text)
         private val voteView: VoteView = itemView.find(R.id.tag_vote)
 

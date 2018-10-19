@@ -339,7 +339,8 @@ class UserService(private val api: Api,
         // get the values and transform them
         val points = BenisRecord.findValuesLaterThan(database.value, userId, start).map { record ->
             val x = record.time.toDouble()
-            Graph.Point(x, record.benis.toDouble())
+            val y = record.benis.toDouble()
+            Graph.Point(x, y)
         }
 
         logger.info("Loading benis graph took $watch")

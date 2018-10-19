@@ -141,7 +141,7 @@ class CommentView(val parent: ViewGroup,
 
     private val maxLevels = ConfigService.get(itemView.context).commentsMaxLevels
 
-    private val id = ValueHolder(0L)
+    private val id = LongValueHolder(0L)
 
     private val vote: VoteView = itemView.find(R.id.voting)
     private val reply: ImageView = itemView.find(R.id.action_reply)

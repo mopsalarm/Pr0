@@ -409,8 +409,8 @@ fun Context.canStartIntent(intent: Intent): Boolean {
 }
 
 
-class ValueHolder<T>(private var value: T? = null) {
-    fun update(newValue: T?): Boolean {
+class LongValueHolder(private var value: Long) {
+    fun update(newValue: Long): Boolean {
         val changed = value != newValue
         value = newValue
         return changed

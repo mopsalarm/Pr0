@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.view.LayoutInflater
@@ -13,6 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.MainThread
+import androidx.core.text.bold
+import androidx.core.text.inSpans
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.widget.textChanges
@@ -26,10 +29,13 @@ import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.config.Config
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
@@ -470,7 +476,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             else -> R.string.upload_error_unknown
         }
 
-        return truss {
+        return SpannableStringBuilder().apply {
             append(context.getString(textId))
 
             exception.report?.let { report ->
@@ -486,13 +492,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
                 if (videoErrorId != null) {
                     append("\n\n")
-                            .append(context.getString(R.string.upload_error_video), Truss.bold)
+                            .bold { append(context.getString(R.string.upload_error_video)) }
                             .append(" ")
                             .append(context.getString(videoErrorId))
                 }
 
                 append("\n\n")
-                        .append("Info:\n", Truss.bold)
+                        .bold { append("Info:\n") }
                         .append(context.getString(R.string.report_video_summary,
                                 report.width, report.height,
                                 report.format, report.duration))
@@ -503,11 +509,16 @@ class UploadFragment : BaseFragment("UploadFragment") {
                     val streamInfo = context.getString(R.string.report_video_stream,
                             stream.type, stream.codec ?: "null")
 
-                    append(streamInfo,
-                            BulletSpan(offset / 3),
-                            LeadingMarginSpan.Standard(offset)).append("\n")
+                    inSpans(LeadingMarginSpan.Standard(offset)) {
+                        inSpans(BulletSpan(offset / 3)) {
+                            append(streamInfo)
+                            append("\n")
+                        }
+                    }
                 }
             }
+
+            return@apply
         }
     }
 

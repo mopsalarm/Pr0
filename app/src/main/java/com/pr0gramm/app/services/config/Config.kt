@@ -3,7 +3,7 @@ package com.pr0gramm.app.services.config
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-open class Config(
+data class Config(
         val extraCategories: Boolean = true,
         val maxUploadSizeNormal: Long = 6 * 1024 * 1024,
         val maxUploadSizePremium: Long = 12 * 1024 * 1024,

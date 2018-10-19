@@ -2,7 +2,6 @@ package com.pr0gramm.app.io
 
 import android.content.Context
 import android.net.Uri
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.logger
@@ -41,24 +40,8 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             }
         }
 
-        // print cache every few seconds for debugging
-        if (BuildConfig.DEBUG) {
-            Observable
-                    .interval(5, TimeUnit.SECONDS, BackgroundScheduler)
-                    .subscribe { printCache() }
-        }
-
         maxCacheSize = if (root.freeSpace > 1024 * MEGA) 256 * MEGA else 128 * MEGA
         logger.debug("Initialized cache with {}mb of space", maxCacheSize / MEGA.toDouble())
-    }
-
-    private fun printCache() {
-        synchronized(lock) {
-            logger.debug("Cache:")
-            for (entry in cache.values) {
-                logger.debug("  * {}", entry)
-            }
-        }
     }
 
     /**
@@ -111,7 +94,10 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             return
         }
 
-        val files = root.listFiles().sortedByDescending(File::lastModified)
+        val files = root.listFiles().sortedWith(Comparator<File> { lhs, rhs ->
+            lhs.lastModified().compareTo(rhs.lastModified())
+        })
+
         logger.debug("Doing cache cleanup, found {} files", files.size)
 
         var totalSize: Long = 0
@@ -147,14 +133,14 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
     }
 
     private fun isSameFile(lhs: File, rhs: File): Boolean {
-        try {
-            return lhs.canonicalPath == rhs.canonicalPath
+        return try {
+            lhs.canonicalPath == rhs.canonicalPath
         } catch(err: IOException) {
             logger.warn(
                     "Could not check if files are the same: {}, {}, err: {}",
                     lhs, rhs, err.toString())
 
-            return false
+            false
         }
     }
 

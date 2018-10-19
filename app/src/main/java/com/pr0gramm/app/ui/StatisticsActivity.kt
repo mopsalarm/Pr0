@@ -146,7 +146,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         benisGraphLoading.visible = false
         benisGraphTimeSelector.visible = true
 
-        var records = optimizeValuesBy(benisValues) { it.benis }
+        var records = optimizeValuesBy(benisValues) { it.benis.toDouble() }
 
         // dont show if not enough data available
         if (records.size < 2 ||

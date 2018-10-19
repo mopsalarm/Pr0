@@ -120,17 +120,8 @@ class ConfigService(context: Application,
 
     fun config(): Config {
         debug {
-            val adapter = MoshiInstance.adapter<Config>()
-
-            // convert to map to modify
-            val map = adapter.toJsonValue(configState) as? MutableMap<String, Any?>
-                    ?: return configState
-
-            map.put("trackItemView", true)
-            map.put("adType", "FEED")
-
-            // and back to object
-            return adapter.fromJsonValue(map) ?: return configState
+            // update config for development.
+            return configState.copy(trackItemView = true, adType = Config.AdType.FEED)
         }
 
         return configState

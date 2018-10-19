@@ -33,7 +33,7 @@ class Graph(start: Double, end: Double, val points: List<Graph.Point>) {
     class Point(val x: Double, val y: Double)
 
     fun sampleEquidistant(steps: Int, start: Double = range.start, end: Double = range.endInclusive): Graph {
-        return Graph((0..steps - 1).map { idx ->
+        return Graph((0 until steps).map { idx ->
             // the x position that is at the sampling point
             val x = start + (end - start) * idx / (steps - 1)
             val y = valueAt(x)
@@ -67,7 +67,7 @@ class Graph(start: Double, end: Double, val points: List<Graph.Point>) {
     }
 }
 
-fun <T> optimizeValuesBy(values: List<T>, get: (T) -> Any): List<T> {
+fun <T> optimizeValuesBy(values: List<T>, get: (T) -> Double): List<T> {
     return values.filterIndexed { idx, value ->
         val v = get(value)
         idx == 0 || idx == values.size - 1 || get(values[idx - 1]) != v || v != get(values[idx + 1])
