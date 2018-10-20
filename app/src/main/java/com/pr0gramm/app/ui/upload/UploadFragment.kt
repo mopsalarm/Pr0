@@ -509,8 +509,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
                     val streamInfo = context.getString(R.string.report_video_stream,
                             stream.type, stream.codec ?: "null")
 
-                    inSpans(LeadingMarginSpan.Standard(offset)) {
-                        inSpans(BulletSpan(offset / 3)) {
+                    inSpans(BulletSpan(offset / 3)) {
+                        inSpans(LeadingMarginSpan.Standard(offset)) {
                             append(streamInfo)
                             append("\n")
                         }

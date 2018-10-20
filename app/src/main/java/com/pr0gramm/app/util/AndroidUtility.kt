@@ -155,8 +155,8 @@ object AndroidUtility {
     fun makeBulletList(leadingMargin: Int, lines: List<CharSequence>): CharSequence {
         return SpannableStringBuilder().apply {
             for (idx in lines.indices) {
-                inSpans(LeadingMarginSpan.Standard(leadingMargin)) {
-                    inSpans(BulletSpan(leadingMargin / 3)) {
+                inSpans(BulletSpan(leadingMargin / 3)) {
+                    inSpans(LeadingMarginSpan.Standard(leadingMargin)) {
                         append(lines[idx])
                     }
                 }

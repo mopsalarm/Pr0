@@ -5,8 +5,8 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import android.preference.PreferenceManager
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareHelper
 import com.pr0gramm.app.ui.Themes
