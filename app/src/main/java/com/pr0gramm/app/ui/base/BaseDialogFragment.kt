@@ -12,7 +12,6 @@ import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
-import org.slf4j.Logger
 import rx.Observable
 
 /**
@@ -20,7 +19,7 @@ import rx.Observable
  */
 abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache {
     @JvmField
-    protected val logger: Logger = logger(name)
+    protected val logger = logger(name)
 
     override val kodein: Kodein by lazy { requireContext().kodein }
     override val kodeinTrigger = KodeinTrigger()

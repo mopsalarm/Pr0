@@ -30,7 +30,6 @@ import org.kodein.di.DKodein
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.direct
-import org.slf4j.Logger
 import rx.*
 import rx.functions.Action1
 import rx.schedulers.Schedulers
@@ -294,11 +293,11 @@ fun <T : Any> T?.justObservable(): Observable<T> {
 }
 
 
-inline fun <T> Logger.time(name: String, supplier: () -> T): T {
+inline fun <T> KLogger.time(name: String, supplier: () -> T): T {
     return timeWithExtraOutput(name) { _ -> supplier() }
 }
 
-inline fun <T> Logger.timeWithExtraOutput(name: String, supplier: (extraOutput: (String) -> Unit) -> T): T {
+inline fun <T> KLogger.timeWithExtraOutput(name: String, supplier: (extraOutput: (String) -> Unit) -> T): T {
     if (BuildConfig.DEBUG) {
         var extraString = ""
 
@@ -308,7 +307,7 @@ inline fun <T> Logger.timeWithExtraOutput(name: String, supplier: (extraOutput: 
         try {
             return supplier(consumeExtraOutput)
         } finally {
-            this.info("{} $extraString took {}", name, watch)
+            this.info { "$name $extraString took $watch" }
         }
     } else {
         return supplier {}
@@ -343,17 +342,17 @@ fun Completable.decoupleSubscribe(): Observable<Unit> {
     return toObservable<Unit>().decoupleSubscribe()
 }
 
-fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {
+fun <T> Observable<T>.debug(key: String, logger: KLogger? = null): Observable<T> {
     debug {
         val log = logger ?: logger("Rx")
         return this
-                .doOnSubscribe { log.info("$key: onSubscribe") }
-                .doOnUnsubscribe { log.info("$key: onUnsubscribe") }
-                .doOnCompleted { log.info("$key: onCompleted") }
-                .doOnError { log.info("$key: onError({})", it) }
-                .doOnNext { log.info("$key: onNext({})", it) }
-                .doOnTerminate { log.info("$key: onTerminate") }
-                .doAfterTerminate { log.info("$key: onAfterTerminate") }
+                .doOnSubscribe { log.info { "$key: onSubscribe"} }
+                .doOnUnsubscribe { log.info { "$key: onUnsubscribe"} }
+                .doOnCompleted { log.info { "$key: onCompleted"} }
+                .doOnError { log.info { "$key: onError($it)"} }
+                .doOnNext { log.info { "$key: onNext($it)"} }
+                .doOnTerminate { log.info { "$key: onTerminate"} }
+                .doAfterTerminate { log.info { "$key: onAfterTerminate"} }
     }
 
     // do nothing if not in debug build.
@@ -540,7 +539,7 @@ inline fun <reified T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
     return result
 }
 
-val traceLogger: Logger = logger("Trace")
+val traceLogger = logger("Trace")
 
 inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
@@ -551,7 +550,7 @@ inline fun <T : Any> T.trace(msg: () -> String) {
         }
 
         val type = clazz.simpleName
-        traceLogger.debug("[${Thread.currentThread().name}] $type.${msg()}")
+        traceLogger.debug { "[${Thread.currentThread().name}] $type.${msg()}" }
     }
 }
 

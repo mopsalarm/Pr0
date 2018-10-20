@@ -6,7 +6,6 @@ import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.util.logger
-import org.slf4j.Logger
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -87,7 +86,7 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
 }
 
 object TimeFactory {
-    private val logger: Logger = logger("TimeFactory")
+    private val logger = logger("TimeFactory")
 
     private val buffer = androidx.collection.CircularArray<Long>(16)
     private val deltaInMillis = AtomicLong(0)
@@ -100,7 +99,7 @@ object TimeFactory {
 
             val delta = serverTime.millis - System.currentTimeMillis()
 
-            logger.info("Storing time delta of {}ms", this.deltaInMillis)
+            logger.info { "Storing time delta of ${this.deltaInMillis}ms" }
             buffer.addLast(delta)
 
             // calculate average server/client delta

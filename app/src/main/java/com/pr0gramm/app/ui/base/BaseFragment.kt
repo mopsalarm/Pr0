@@ -13,7 +13,6 @@ import com.trello.rxlifecycle.components.support.RxFragment
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
-import org.slf4j.Logger
 import rx.Observable
 import rx.Subscription
 
@@ -21,7 +20,7 @@ import rx.Subscription
  * A fragment that provides lifecycle events as an observable.
  */
 abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAware {
-    protected val logger: Logger = logger(name)
+    protected val logger = logger(name)
 
     override val kodein: Kodein by lazy { requireContext().kodein }
     override val kodeinTrigger = KodeinTrigger()
@@ -31,7 +30,7 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
     init {
         debug {
             lifecycle().subscribe { event ->
-                logger.info("Lifecycle {}: {}", System.identityHashCode(this), event)
+                logger.info { "Lifecycle ${System.identityHashCode(this)}: $event" }
             }
         }
     }

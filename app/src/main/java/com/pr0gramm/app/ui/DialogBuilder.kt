@@ -170,7 +170,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
 
     fun build(): Dialog {
         if (shouldNotShowDialog()) {
-            logger.info("Not showing dialog '{}'.", dontShowAgainKey)
+            logger.info { "Not showing dialog '$dontShowAgainKey'." }
 
             // return a dialog that closes itself whens shown.
             val dialog = Dialog(context)
@@ -303,7 +303,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
         }
 
         dontShowAgainKey.takeIf { dontShowAgain }?.let { key ->
-            logger.info("Never show dialog '{}' again", key)
+            logger.info { "Never show dialog '$key' again" }
             preferences.edit {
                 putBoolean(key, true)
             }

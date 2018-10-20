@@ -192,7 +192,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
         if (mVideoWidth != 0 && mVideoHeight != 0) {
             mBackendView.size = ViewBackend.Size(mVideoWidth, mVideoHeight)
 
-            logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight)
+            logger.info { "set video aspect to ${mVideoWidth}x$mVideoHeight" }
             parentView.aspect = mVideoWidth.toFloat() / mVideoHeight
         }
 
@@ -212,7 +212,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
             seekTo(seekToPosition)
         }
         if (mVideoWidth != 0 && mVideoHeight != 0) {
-            logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight)
+            logger.info { "set video aspect to ${mVideoWidth}x$mVideoHeight" }
             mBackendView.size = ViewBackend.Size(mVideoWidth, mVideoHeight)
             parentView.aspect = mVideoWidth.toFloat() / mVideoHeight
 
@@ -246,7 +246,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
     }
 
     private val mInfoListener = MediaPlayer.OnInfoListener { _, event, _ ->
-        logger.info("Info event: {}", event)
+        logger.info { "Info event: $event" }
 
         if (event == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
             callbacks.onVideoBufferingStarts()
@@ -264,7 +264,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
     }
 
     private val mErrorListener = MediaPlayer.OnErrorListener { _, frameworkErrorCode, implErrorCode ->
-        logger.error("Error: $frameworkErrorCode,$implErrorCode")
+        logger.error { "Error: $frameworkErrorCode,$implErrorCode" }
         mCurrentState = STATE_ERROR
         mTargetState = STATE_ERROR
 
@@ -277,7 +277,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
     }
 
     private fun handleError(what: Int, extra: Int) {
-        logger.error("media player error occurred: {} {}", what, extra)
+        logger.error { "media player error occurred: $what $extra" }
 
         if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
             if (shouldShowIoError) {

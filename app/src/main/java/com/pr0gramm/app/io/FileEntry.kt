@@ -20,7 +20,7 @@ internal class FileEntry(override val file: File) : Cache.Entry {
 
     override fun inputStreamAt(offset: Int): InputStream {
         if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
-            logger.warn("Could not update timestamp on {}", file)
+            logger.warn { "Could not update timestamp on $file" }
         }
 
         val stream = FileInputStream(file)

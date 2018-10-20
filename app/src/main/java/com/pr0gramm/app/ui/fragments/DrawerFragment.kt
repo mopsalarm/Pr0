@@ -335,7 +335,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         private fun merge() {
             checkMainThread()
-            logger.debug("Merging items now")
+            logger.debug { "Merging items now" }
 
             selected = allItems.firstOrNull { it.hasFilter && it.filter == currentFilter }
 

@@ -109,7 +109,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
 
     private fun setLoginCookie(cookie: okhttp3.Cookie) {
         if (BuildConfig.DEBUG) {
-            logger.info("Set login cookie: {}", cookie)
+            logger.info { "Set login cookie: $cookie" }
         }
 
         synchronized(lock) {

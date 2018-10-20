@@ -52,7 +52,7 @@ data class Bookmark(val title: String, private val filterTags: String?, private 
         }
 
         fun prepareDatabase(db: SQLiteDatabase) {
-            logger.info("create table bookmark if not exists")
+            logger.info { "create table bookmark if not exists" }
             db.execSQL("""
                 CREATE TABLE IF NOT EXISTS bookmark (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,

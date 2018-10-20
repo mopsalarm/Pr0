@@ -72,7 +72,7 @@ class ConfigService(context: Application,
                     }
 
                 } else {
-                    logger.warn("Could not update app-config, response code {}", response.code())
+                    logger.warn { "Could not update app-config, response code ${response.code()}" }
                 }
             }
 
@@ -88,7 +88,7 @@ class ConfigService(context: Application,
     }
 
     private fun persistConfigState() {
-        logger.info("Persisting current config state")
+        logger.info { "Persisting current config state" }
         try {
             val jsonCoded = MoshiInstance.adapter<Config>().toJson(configState)
             preferences.edit {
@@ -102,7 +102,7 @@ class ConfigService(context: Application,
     }
 
     private fun publishState() {
-        logger.info("Publishing change in config state")
+        logger.info { "Publishing change in config state" }
         try {
             configSubject.onNext(config())
         } catch (err: Exception) {
@@ -147,7 +147,7 @@ class ConfigService(context: Application,
                 }
 
                 // now cache the new id
-                logger.info("Caching new device id.")
+                logger.info { "Caching new device id." }
                 preferences.edit()
                         .putString(PREF_ID_KEY, cached)
                         .apply()

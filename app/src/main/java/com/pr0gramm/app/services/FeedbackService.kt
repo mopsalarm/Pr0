@@ -4,7 +4,7 @@ import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.LogHandler
+import com.pr0gramm.app.util.Logging
 import com.pr0gramm.app.util.logger
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -53,7 +53,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             // rewrite the logcat.
             val encoded = bytes.encodeBase64()
 
-            logger.info("Sending feedback with {}bytes of logcat", encoded.length)
+            logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
             api.post(name, feedback, version, encoded).toCompletable()
         }
     }
@@ -111,7 +111,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
 
 
     private fun appendLogMessages(result: StringBuilder) {
-        LogHandler.recentMessages().forEach { message ->
+        Logging.recentMessages().forEach { message ->
             result.append(message).append('\n')
         }
     }

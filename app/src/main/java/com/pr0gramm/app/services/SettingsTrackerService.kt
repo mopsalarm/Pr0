@@ -31,7 +31,7 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
 
         doInBackground {
             httpInterface.track(mapOf("settings" to values)).execute()
-            logger.info("Tracked settings successfully.")
+            logger.info { "Tracked settings successfully." }
         }
     }
 

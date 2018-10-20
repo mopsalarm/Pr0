@@ -9,7 +9,7 @@ object BackFragmentHelper {
     @JvmStatic
     fun dispatchOnBackAction(activity: androidx.fragment.app.FragmentActivity): Boolean {
         val fragments = listAllFragments(activity.supportFragmentManager)
-        logger.debug("Got {} fragments to dispatch action to", fragments.size)
+        logger.debug { "Got ${fragments.size} fragments to dispatch action to" }
 
         for (fragment in fragments) {
             val handled = fragment.onBackButton()

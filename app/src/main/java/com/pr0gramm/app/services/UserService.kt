@@ -101,13 +101,13 @@ class UserService(private val api: Api,
     private fun restoreLatestUserInfo() {
         preferences.getString(KEY_LAST_LOGIN_STATE, null)?.let { lastLoginState ->
             debug {
-                logger.info("Found login state: {}", lastLoginState)
+                logger.info { "Found login state: $lastLoginState" }
             }
 
             Observable.fromCallable { MoshiInstance.adapter<LoginState>().fromJson(lastLoginState) }
                     .ofType<LoginState>()
                     .onErrorResumeEmpty()
-                    .doOnNext { info -> logger.info("Restoring login state: {}", info) }
+                    .doOnNext { info -> logger.info { "Restoring login state: $info" } }
 
                     // update once now, and one with recent benis history later.
                     .flatMap { state ->
@@ -292,7 +292,7 @@ class UserService(private val api: Api,
     private fun persistLatestLoginState(state: LoginState) {
         try {
             if (state.authorized) {
-                logger.debug("Persisting login state now.")
+                logger.debug { "Persisting login state now." }
 
                 preferences.edit {
                     val encoded = MoshiInstance.adapter<LoginState>().toJson(state)
@@ -343,7 +343,7 @@ class UserService(private val api: Api,
             Graph.Point(x, y)
         }
 
-        logger.info("Loading benis graph took $watch")
+        logger.info { "Loading benis graph took $watch" }
         return Graph(start.millis.toDouble(), now.millis.toDouble(), optimizeValuesBy(points) { it.y })
     }
 
@@ -388,7 +388,7 @@ class UserService(private val api: Api,
 
     fun resetPassword(name: String, token: String, password: String): Observable<Boolean> {
         return api.resetPassword(name, token, password)
-                .doOnNext { value -> logger.info("Response is {}", value) }
+                .doOnNext { value -> logger.info { "Response is $value" } }
                 .map { response -> response.error == null }
     }
 

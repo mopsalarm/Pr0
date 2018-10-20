@@ -79,7 +79,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         val videoView = surfaceProvider.view
         parentView.addView(videoView)
 
-        logger.info("Create ExoPlayer instance")
+        logger.info { "Create ExoPlayer instance" }
 
         val videoListener = VideoListener(callbacks, parentView)
 
@@ -102,14 +102,14 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
             pause()
 
-            logger.info("Detaching view, releasing exo player now.")
+            logger.info { "Detaching view, releasing exo player now." }
             exo.removeListener(this)
             exo.release()
         }
     }
 
     override fun open(uri: Uri) {
-        logger.info("Opening exo player for uri {}", uri)
+        logger.info { "Opening exo player for uri $uri" }
         this.uri = uri
     }
 
@@ -129,7 +129,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         // apply volume before starting the player
         applyVolumeState()
 
-        logger.info("Preparing exo player now'")
+        logger.info { "Preparing exo player now'" }
 
         exo.prepare(mediaSource, false, false)
         exo.repeatMode = Player.REPEAT_MODE_ONE
@@ -168,7 +168,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun pause() {
-        logger.info("Stopping exo player now")
+        logger.info { "Stopping exo player now" }
         sendSetSurfaceMessage(false, null)
         exo.stop()
         initialized = false
@@ -186,19 +186,19 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun rewind() {
-        logger.info("Rewinding playback to the start.")
+        logger.info { "Rewinding playback to the start." }
         exo.seekTo(0)
     }
 
     override fun seekTo(position: Int) {
-        logger.info("Seeking to position {}", position)
+        logger.info { "Seeking to position $position" }
         exo.seekTo(position.toLong())
     }
 
     private fun applyVolumeState() {
         exoAudioRenderer?.let { exoAudioRenderer ->
             val volume = if (this.muted) 0f else 1f
-            logger.info("Setting volume on exo player to {}", volume)
+            logger.info { "Setting volume on exo player to $volume" }
 
             exo.createMessage(exoAudioRenderer)
                     .setType(C.MSG_SET_VOLUME)
@@ -208,7 +208,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-        logger.info("onLoadingChanged: {}", isLoading)
+        logger.info { "onLoadingChanged: $isLoading" }
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -229,15 +229,15 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-        logger.info("Timeline has changed")
+        logger.info { "Timeline has changed" }
     }
 
     override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
-        logger.info("Tracks have changed, {} tracks available", trackGroups.length)
+        logger.info { "Tracks have changed, ${trackGroups.length} tracks available" }
     }
 
     override fun onRepeatModeChanged(p0: Int) {
-        logger.info("Repeat mode has changed to {}", p0)
+        logger.info { "Repeat mode has changed to $p0" }
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
@@ -275,7 +275,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun onPlaybackParametersChanged(params: PlaybackParameters?) {
-        logger.info("Playback parameters are now: {}", params)
+        logger.info { "Playback parameters are now: $params" }
     }
 
     private class VideoListener(callbacks: VideoPlayer.Callbacks, parentView: AspectLayout) : VideoRendererEventListener {
@@ -286,11 +286,11 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         override fun onVideoDisabled(counters: DecoderCounters) {}
 
         override fun onVideoDecoderInitialized(decoderName: String, initializedTimestampMs: Long, initializationDurationMs: Long) {
-            logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs)
+            logger.info { "Initialized decoder $decoderName after ${initializationDurationMs}ms" }
         }
 
         override fun onVideoInputFormatChanged(format: Format) {
-            logger.info("Video format is now {}", format)
+            logger.info { "Video format is now $format" }
         }
 
         override fun onDroppedFrames(count: Int, elapsed: Long) {
@@ -303,7 +303,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
             if (width > 0 && height > 0) {
                 val scaledWidth = ((width * pixelWidthHeightRatio) + 0.5f).toInt()
 
-                logger.info("Got video track with size {}x{}", scaledWidth, height)
+                logger.info { "Got video track with size ${scaledWidth}x$height" }
 
                 this.parentView?.aspect = scaledWidth.toFloat() / height
                 this.callbacks?.onVideoSizeChanged(scaledWidth, height)

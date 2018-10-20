@@ -122,7 +122,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             // reset to sfw only.
             if (settings.feedStartAtSfw && startedFromLauncher) {
-                logger.info("Force-switch to sfw only.")
+                logger.info { "Force-switch to sfw only." }
                 settings.edit {
                     putBoolean("pref_feed_type_sfw", true)
                     putBoolean("pref_feed_type_nsfw", false)
@@ -234,10 +234,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         drawerFragment?.updateCurrentFilters(currentFeedFilter)
 
-        debug {
-            logger.info("Stack: {}", (0 until supportFragmentManager.backStackEntryCount).joinToString(" -> ") {
+        logger.debug {
+            val stack = (0 until supportFragmentManager.backStackEntryCount).joinToString(" -> ") {
                 supportFragmentManager.getBackStackEntryAt(it).name ?: "null"
-            })
+            }
+            "Stack: $stack"
         }
     }
 
@@ -559,7 +560,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 .replace(R.id.content, fragment)
 
         if (!clear) {
-            logger.info("Adding fragment {} to backstack", fragment.javaClass.name)
+            logger.info { "Adding fragment ${fragment.javaClass.name} to backstack" }
             transaction.addToBackStack("Feed$fragment")
         }
 

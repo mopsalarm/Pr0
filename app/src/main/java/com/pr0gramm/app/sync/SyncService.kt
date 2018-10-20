@@ -31,7 +31,7 @@ class SyncService(private val userService: UserService,
         userService.loginStates
                 .mapNotNull { state -> state.uniqueToken }
                 .distinctUntilChanged()
-                .doOnNext { logger.debug("Unique token is now {}", it) }
+                .doOnNext { logger.debug { "Unique token is now $it" } }
                 .delaySubscription(1, TimeUnit.SECONDS)
                 .subscribe { performSyncSeenService(it) }
     }
@@ -39,7 +39,7 @@ class SyncService(private val userService: UserService,
     fun syncStatistics() {
         Stats.get().incrementCounter("jobs.sync-stats")
 
-        logger.info("Doing some statistics related trackings")
+        logger.info { "Doing some statistics related trackings" }
         Track.statistics()
 
         UpdateChecker().check().ignoreError().subscribe {
@@ -52,11 +52,11 @@ class SyncService(private val userService: UserService,
             Stats.get().incrementCounter("jobs.sync")
 
             if (!userService.isAuthorized) {
-                logger.info("Will not sync now - user is not signed in.")
+                logger.info { "Will not sync now - user is not signed in." }
                 return
             }
 
-            logger.info("Performing a sync operation now")
+            logger.info { "Performing a sync operation now" }
 
             logger.time("Sync operation") {
                 try {
@@ -73,14 +73,14 @@ class SyncService(private val userService: UserService,
 
     private fun syncCachedUserInfo() {
         if (singleShotService.firstTimeToday("update-userInfo")) {
-            logger.info("Update current user info")
+            logger.info { "Update current user info" }
             userService.updateCachedUserInfo()
                     .ignoreError().subscribe()
         }
     }
 
     private fun syncUserState() {
-        logger.info("Sync with pr0gramm api")
+        logger.info { "Sync with pr0gramm api" }
 
         userService.sync().ignoreError().subscribe { sync ->
             // now show results, if any
@@ -107,11 +107,11 @@ class SyncService(private val userService: UserService,
 
     private fun performSyncSeenService(token: String) {
         unless(settings.backup && seenSyncLock.compareAndSet(false, true)) {
-            logger.info("Not starting sync of seen bits.")
+            logger.info { "Not starting sync of seen bits." }
             return
         }
 
-        logger.info("Syncing of seen bits.")
+        logger.info { "Syncing of seen bits." }
 
         kvService
                 .update(token, "seen-bits") { previous ->
@@ -119,10 +119,10 @@ class SyncService(private val userService: UserService,
                     val noChanges = previous != null && seenService.checkEqualAndMerge(previous)
 
                     if (noChanges) {
-                        logger.info("No seen bits changed, so wont push now")
+                        logger.info { "No seen bits changed, so wont push now" }
                         null
                     } else {
-                        logger.info("Seen bits look dirty, pushing now")
+                        logger.info { "Seen bits look dirty, pushing now" }
                         seenService.export().takeIf { it.isNotEmpty() }
                     }
                 }

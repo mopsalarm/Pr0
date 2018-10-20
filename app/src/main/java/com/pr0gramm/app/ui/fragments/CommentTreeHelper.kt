@@ -93,9 +93,11 @@ abstract class CommentTreeHelper : CommentView.Listener {
 
         val targetState = state
 
-        logger.debug("Will run an update for current state {} ({} comments, selected={})",
-                System.identityHashCode(targetState),
-                targetState.allComments.size, targetState.selectedCommentId)
+        logger.debug {
+            "Will run an update for current state ${System.identityHashCode(targetState)} " +
+                    "(${targetState.allComments.size} comments, " +
+                    "selected=${targetState.selectedCommentId})"
+        }
 
         val runThisUpdateAsync = !stateUpdateSync && !targetState.allComments.isEmpty()
         stateUpdateSync = false
@@ -104,22 +106,20 @@ abstract class CommentTreeHelper : CommentView.Listener {
                 .fromCallable { CommentTree(targetState).visibleComments }
                 .ignoreError()
                 .withIf(runThisUpdateAsync) {
-                    logger.info("Running update in background")
+                    logger.info { "Running update in background" }
                     subscribeOnBackground().observeOnMainThread()
                 }
                 .subscribe { visibleComments ->
-                    debug {
-                        logger.debug("About to set state {} (expected={}, ok={})",
-                                System.identityHashCode(targetState),
-                                System.identityHashCode(state),
-                                targetState === state)
+                    logger.debug {
+                        "About to set state ${System.identityHashCode(targetState)} " +
+                                "(expected=${System.identityHashCode(state)}, ok=${targetState === state})"
                     }
 
                     // verify that we still got the right state
                     if (state === targetState) {
                         subject.onNext(visibleComments)
                     } else {
-                        logger.debug("List of comments already stale.")
+                        logger.debug { "List of comments already stale." }
                     }
                 }
     }

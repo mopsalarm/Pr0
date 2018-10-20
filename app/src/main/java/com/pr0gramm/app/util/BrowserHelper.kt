@@ -170,7 +170,7 @@ object BrowserHelper {
                 .compose(activity.bindToLifecycleAsync())
                 .withBusyDialog(activity)
                 .onErrorReturn { err ->
-                    logger.warn("Error getting handover token: {}", err)
+                    logger.warn { "Error getting handover token: $err" }
                     uri
                 }
                 .debug("handovertoken")

@@ -39,8 +39,7 @@ class UpdateChecker {
                 .create(UpdateApi::class.java)
                 .fetchUpdate()
                 .filter { update ->
-                    logger.info("Installed v{}, found update v{} at {}",
-                            currentVersion, update.version, endpoint)
+                    logger.info { "Installed v$currentVersion, found update v${update.version} at $endpoint" }
 
                     // filter out if up to date
                     update.version > currentVersion
@@ -52,7 +51,7 @@ class UpdateChecker {
                         apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString()
                     }
 
-                    logger.info("Got new update at url {}", apk)
+                    logger.info { "Got new update at url $apk" }
                     update.copy(apk = apk)
                 }
     }
@@ -60,7 +59,7 @@ class UpdateChecker {
     fun check(): Observable<Update> {
         val updates = Observable.from(endpoints).concatMap { endpoint ->
             check(endpoint)
-                    .doOnError { err -> logger.warn("Could not check for update at {}: {}", endpoint, err.toString()) }
+                    .doOnError { err -> logger.warn {"Could not check for update at $endpoint: $err" } }
                     .onErrorResumeEmpty()
                     .subscribeOn(BackgroundScheduler)
         }
@@ -154,7 +153,7 @@ class UpdateChecker {
 
                 val file = File(directory, "update.apk")
 
-                logger.info("Copy apk to public space.")
+                logger.info { "Copy apk to public space." }
                 FileInputStream(apk).use { input ->
                     FileOutputStream(file).use { output ->
                         input.copyTo(output)
@@ -163,7 +162,7 @@ class UpdateChecker {
 
                 // make file readable
                 if (!file.setReadable(true)) {
-                    logger.info("Could not make file readable")
+                    logger.info { "Could not make file readable" }
                 }
 
                 uri = Uri.fromFile(file)

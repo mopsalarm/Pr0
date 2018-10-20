@@ -263,7 +263,7 @@ class NotificationService(private val context: Application,
         return try {
             picasso.load(uri).get()
         } catch (ignored: IOException) {
-            logger.warn("Could not load thumbnail for url: {}", uri)
+            logger.warn { "Could not load thumbnail for url: $uri" }
             null
         }
     }

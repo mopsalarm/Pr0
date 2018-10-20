@@ -57,7 +57,7 @@ class RecentSearchesServices(
             val encoded = MoshiInstance.adapter<List<String>>(LIST_OF_STRINGS).toJson(searches)
             sharedPreferences.edit { putString(KEY, encoded) }
         } catch (ignored: Exception) {
-            logger.warn("Could not persist recent searches")
+            logger.warn { "Could not persist recent searches" }
         }
 
     }

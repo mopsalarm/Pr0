@@ -21,7 +21,7 @@ class TagSuggestionService(api: Api) {
     private var questionableTags: List<String> = listOf()
 
     init {
-        logger.info("Query for tag top- and blacklist")
+        logger.info { "Query for tag top- and blacklist" }
         api.topTags()
                 .subscribeOnBackground()
                 .retryWhen { attempts ->
@@ -33,7 +33,7 @@ class TagSuggestionService(api: Api) {
                     tags = result.tags
                     questionableTags = result.blacklist
 
-                    logger.info("Cached ${tags.size} tags and ${questionableTags.size} blacklist items.")
+                    logger.info { "Cached ${tags.size} tags and ${questionableTags.size} blacklist items." }
                 }
     }
 

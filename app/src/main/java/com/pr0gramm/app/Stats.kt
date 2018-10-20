@@ -25,7 +25,7 @@ object Stats {
     fun init(version: Int) {
         doInBackground {
             CLIENT = try {
-                logger.info("Create a new statsd client")
+                logger.info { "Create a new statsd client" }
                 NonBlockingStatsDClient("app", "pr0-metrics.wibbly-wobbly.de",
                         8125, 64, "version:$version", "host:app")
 

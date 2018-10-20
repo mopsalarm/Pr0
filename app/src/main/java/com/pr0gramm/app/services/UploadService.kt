@@ -45,8 +45,9 @@ class UploadService(private val api: Api,
 
     fun downsize(file: File): Observable<File> {
         return Observable.fromCallable {
-            logger.info("Try to scale {}kb image down to max of {}kb",
-                    file.length() / 1024, maxUploadSize / 1024)
+            logger.info {
+                "Try to scale ${file.length() / 1024}kb image down to max of ${maxUploadSize / 1024}kb"
+            }
 
             val bitmap = picasso.load(file)
                     .config(Bitmap.Config.ARGB_8888)
@@ -55,7 +56,7 @@ class UploadService(private val api: Api,
                     .onlyScaleDown()
                     .get()
 
-            logger.info("Image loaded at {}x{}px", bitmap.width, bitmap.height)
+            logger.info { "Image loaded at ${bitmap.width}x${bitmap.height}px" }
 
             // scale down to temp file
             val target = File.createTempFile("upload", "jpg", file.parentFile)
@@ -65,18 +66,18 @@ class UploadService(private val api: Api,
             var quality = 90
             do {
                 FileOutputStream(target).use { output ->
-                    logger.info("Compressing to {} at quality={}", format, quality)
+                    logger.info { "Compressing to $format at quality=$quality" }
                     if (!bitmap.compress(format, quality, output))
                         throw IOException("Could not compress image data")
 
-                    logger.info("Size is now {}kb", target.length() / 1024)
+                    logger.info { "Size is now ${target.length() / 1024}kb" }
                 }
 
                 // decrease quality to shrink even further
                 quality -= 10
             } while (target.length() >= maxUploadSize && quality > 30)
 
-            logger.info("Finished downsizing with an image size of {}kb", target.length() / 1024)
+            logger.info { "Finished downsizing with an image size of ${target.length() / 1024}kb" }
             target
         }
     }

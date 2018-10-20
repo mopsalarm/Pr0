@@ -87,9 +87,9 @@ class NavigationProvider(
                     Observable.just(listOf(uploadNavigationItem)))
 
             val sources = rawSources.map { source ->
-                source.startWith(emptyList<NavigationItem>()).retryWhen { err ->
-                    logger.warn("Could not get category sub-items: ", err)
-                    err.delay(5, TimeUnit.SECONDS)
+                source.startWith(emptyList<NavigationItem>()).retryWhen {
+                    it.doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
+                            .delay(5, TimeUnit.SECONDS)
                 }
             }
 
@@ -238,7 +238,7 @@ class NavigationProvider(
     private fun resolveSpecial(config: Config): Observable<List<NavigationItem>> {
         val item = config.specialMenuItem ?: return just(emptyList())
 
-        logger.info("Loading item {}", item)
+        logger.info { "Loading item $item" }
 
         return Observable.just(item)
                 .flatMap {
@@ -247,7 +247,7 @@ class NavigationProvider(
                             .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight))
                 }
                 .map { bitmap ->
-                    logger.info("Loaded image for {}", item)
+                    logger.info { "Loaded image for $item" }
                     val icon = BitmapDrawable(context.resources, bitmap)
                     val uri = Uri.parse(item.link)
 
@@ -257,7 +257,7 @@ class NavigationProvider(
                 }
                 .retryWhen { err ->
                     err.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
-                        logger.debug("Delay retry by {} second(s)", idx)
+                        logger.debug { "Delay retry by $idx second(s)" }
                         Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }
                 }

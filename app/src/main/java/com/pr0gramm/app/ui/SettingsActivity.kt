@@ -116,7 +116,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 val pref = group.getPreference(idx)
                 when {
                     predicate(pref) -> {
-                        logger.info("removing preference {}", pref.key)
+                        logger.info { "removing preference ${pref.key}" }
                         group.removePreference(pref)
 
                         // remove all preferences that have this pref as their dependency

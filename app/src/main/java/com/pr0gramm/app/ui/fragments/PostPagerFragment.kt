@@ -125,7 +125,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 
-        logger.info("Moving to index: {}", index)
+        logger.info { "Moving to index: $index" }
         viewPager.setCurrentItem(index, false)
     }
 
@@ -134,7 +134,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         if (activePostFragment === newActiveFragment)
             return
 
-        logger.info("Setting feed item activate at $position to $newActiveFragment")
+        logger.info { "Setting feed item activate at $position to $newActiveFragment" }
 
         // deactivate previous item
         activePostFragment?.setActive(false)
@@ -254,12 +254,12 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         override fun getItem(position: Int): androidx.fragment.app.Fragment {
             if (!manager.isLoading) {
                 if (position > feed.size - 12) {
-                    logger.info("Requested pos=$position, load next page")
+                    logger.info { "Requested pos=$position, load next page" }
                     manager.next()
                 }
 
                 if (position < 12) {
-                    logger.info("Requested pos=$position, load prev page")
+                    logger.info { "Requested pos=$position, load prev page" }
                     manager.previous()
                 }
             }

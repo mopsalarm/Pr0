@@ -226,7 +226,6 @@ dependencies {
     implementation "com.jakewharton.rxbinding:rxbinding-design-kotlin:$VersionRxBinding"
     implementation "com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:$VersionRxBinding"
 
-    implementation "com.github.bright:slf4android:0.1.5"
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.5"
 
     // dependency injection using kotlin.

@@ -20,7 +20,6 @@ import org.kodein.di.erased.bind
 import org.kodein.di.erased.eagerSingleton
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
-import org.slf4j.Logger
 import org.xbill.DNS.*
 import rx.Observable
 import rx.Scheduler
@@ -121,7 +120,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
             val logger = logger("ProxyServiceFactory")
             repeat(10) {
                 val port = HttpProxyService.randomPort()
-                logger.debug("Trying port {}", port)
+                logger.debug { "Trying port $port" }
 
                 try {
                     val proxy = HttpProxyService(instance<Cache>(), port)
@@ -131,11 +130,11 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                     return@start proxy
 
                 } catch (ioError: IOException) {
-                    logger.warn("Could not open proxy on port {}: {}", port, ioError.toString())
+                    logger.warn { "Could not open proxy on port $port: $ioError" }
                 }
             }
 
-            logger.warn("Stop trying, using no proxy now.")
+            logger.warn { "Stop trying, using no proxy now." }
             return@start object : ProxyService {
                 override fun proxy(url: Uri): Uri {
                     return url
@@ -169,7 +168,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 }
 
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
-    val logger: Logger = logger("Picasso.Downloader")
+    val logger = logger("Picasso.Downloader")
 
     private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
@@ -207,7 +206,7 @@ private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloade
 
             return response
         } else {
-            logger.debug("Using cache to download image {}", url)
+            logger.debug { "Using cache to download image $url" }
             cache.get(Uri.parse(url.toString())).use { entry ->
                 return entry.toResponse(request)
             }
@@ -272,10 +271,10 @@ private class DebugInterceptor : Interceptor {
             }
 
             val response = chain.proceed(request)
-            logger.debug("Delayed request to ${request.url()} took $watch (status=${response.code()})")
+            logger.debug { "Delayed request to ${request.url()} took $watch (status=${response.code()})" }
             return response
         } catch (err: Throwable) {
-            logger.debug("Delayed request to ${request.url()} took $watch, error $err")
+            logger.debug { "Delayed request to ${request.url()} took $watch, error $err" }
             throw err
         }
     }
@@ -300,7 +299,7 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
         val response = chain.proceed(request)
 
         if (domains.contains(request.url().host())) {
-            logger.debug("Disable caching for {}", request.url())
+            logger.debug { "Disable caching for ${request.url()}" }
             response.header("Cache-Control", "no-store")
         }
 
@@ -309,20 +308,20 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
 }
 
 private class LoggingInterceptor : Interceptor {
-    val okLogger: Logger = logger("OkHttpClient")
+    val okLogger = logger("OkHttpClient")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val watch = Stopwatch.createStarted()
         val request = chain.request()
 
-        okLogger.info("performing {} http request for {}", request.method(), request.url())
+        okLogger.info { "performing ${request.method()} http request for ${request.url()}" }
         try {
             val response = chain.proceed(request)
-            okLogger.info("{} ({}) took {}", request.url(), response.code(), watch)
+            okLogger.info { "${request.url()} (${response.code()}) took $watch" }
             return response
 
         } catch (error: Exception) {
-            okLogger.warn("{} produced error: {}", request.url(), error)
+            okLogger.warn { "${request.url()} produced error: $error" }
             throw error
         }
     }
@@ -391,7 +390,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 }
 
 private class FallbackDns : Dns {
-    val logger: Logger = logger("FallbackDns")
+    val logger = logger("FallbackDns")
 
     val resolver = SimpleResolver("8.8.8.8")
     val cache = org.xbill.DNS.Cache()
@@ -421,7 +420,7 @@ private class FallbackDns : Dns {
 
         if (resolvedFiltered.isNotEmpty()) {
             debug {
-                logger.info("System resolver for {} returned {}", hostname, resolved)
+                logger.info { "System resolver for $hostname returned $resolved" }
             }
 
             return resolved.toMutableList()
@@ -439,7 +438,7 @@ private class FallbackDns : Dns {
             }
 
             debug {
-                logger.info("Fallback resolver for {} returned {}", hostname, fallback)
+                logger.info { "Fallback resolver for $hostname returned $fallback" }
             }
 
             if (fallback.isNotEmpty()) {

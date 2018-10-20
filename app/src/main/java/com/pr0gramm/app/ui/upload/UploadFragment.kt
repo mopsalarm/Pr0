@@ -196,7 +196,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             uploadService.post(uploadInfo, type, tags, false)
         }
 
-        logger.info("Start upload of type {} with tags {}", type, tags)
+        logger.info { "Start upload of type $type with tags $tags" }
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doAfterTerminate { busyContainer.visible = false }
                 .subscribe({ state ->
@@ -205,22 +205,22 @@ class UploadFragment : BaseFragment("UploadFragment") {
                     when (state) {
                         is UploadService.State.Uploading -> {
                             if (state.progress < 0.99) {
-                                logger.info("Uploading, progress is {}", state.progress)
+                                logger.info { "Uploading, progress is ${state.progress}" }
                                 busyIndicator.progress = state.progress
                             } else {
-                                logger.info("Uploading, progress is nearly finished")
+                                logger.info { "Uploading, progress is nearly finished" }
                                 if (!busyIndicator.isSpinning)
                                     busyIndicator.spin()
                             }
                         }
 
                         is UploadService.State.Uploaded -> {
-                            logger.info("Got upload key, storing.")
+                            logger.info { "Got upload key, storing." }
                             this.uploadInfo = state
                         }
 
                         is UploadService.State.SimilarItems -> {
-                            logger.info("Found similar posts. Showing them now")
+                            logger.info { "Found similar posts. Showing them now" }
 
                             showSimilarPosts(state.items)
                             setFormEnabled(true)
@@ -232,13 +232,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
                         }
 
                         is UploadService.State.Success -> {
-                            logger.info("Finished! item id is {}", state.id)
+                            logger.info { "Finished! item id is ${state.id}" }
                             onUploadComplete(state.id)
 
                         }
 
                         else -> {
-                            logger.info("Upload state: {}", state)
+                            logger.info { "Upload state: $state" }
                             busyIndicator.spin()
                         }
                     }
@@ -267,7 +267,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun onUploadComplete(postId: Long) {
-        logger.info("Go to new post now: {}", postId)
+        logger.info { "Go to new post now: $postId" }
         val activity = activity ?: return
 
         val intent = Intent(activity, MainActivity::class.java)
@@ -282,7 +282,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
 
-        logger.info("Got response from image picker: rc={}, intent={}", resultCode, intent)
+        logger.info { "Got response from image picker: rc=$resultCode, intent=$intent" }
         if (requestCode == RequestCodes.SELECT_MEDIA) {
             if (resultCode == Activity.RESULT_OK && intent != null) {
                 val image = intent.data
@@ -300,7 +300,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         busyContainer.visible = true
 
-        logger.info("copy image to private memory")
+        logger.info { "copy image to private memory" }
         copy(activity, image)
                 .bindToLifecycleAsync()
                 .subscribe({ this.onMediaFile(it) }, { this.onError(it) })
@@ -345,7 +345,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         this.file = file
 
-        logger.info("loading file into view.")
+        logger.info { "loading file into view." }
         val uri = MediaUri.of(-1, Uri.fromFile(file))
 
         fileMediaType = uri.mediaType
@@ -449,7 +449,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
                     val maxSize = 1024 * 1024 * 48L
                     val copied = BoundedInputStream(input, maxSize).copyTo(output)
-                    logger.info("Copied {}kb", copied / 1024)
+                    logger.info { "Copied ${ copied / 1024}kb" }
 
                     if (copied == maxSize) {
                         throw IOException("File too large.")

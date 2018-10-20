@@ -24,7 +24,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
     override fun onLayoutChildren(recycler: androidx.recyclerview.widget.RecyclerView.Recycler, state: androidx.recyclerview.widget.RecyclerView.State) {
         detachAndScrapAttachedViews(recycler)
         if (config.width <= 0) {
-            logger.warn("onLayoutChildren called before onMeasure")
+            logger.warn { "onLayoutChildren called before onMeasure" }
             return
         }
 

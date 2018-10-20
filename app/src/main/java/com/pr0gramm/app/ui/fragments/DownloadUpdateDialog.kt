@@ -20,7 +20,7 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
     private val progressBar: ProgressBar by bindView(R.id.progress)
 
     init {
-        logger.info("New instance of DownloadUpdateDialog")
+        logger.info { "New instance of DownloadUpdateDialog" }
         retainInstance = true
     }
 

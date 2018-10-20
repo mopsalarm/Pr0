@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class SyncJob : Job() {
     override fun onRunJob(params: Job.Params): Job.Result {
-        logger.info("Sync job started.")
+        logger.info { "Sync job started." }
 
         // schedule next sync
         scheduleNextSyncIn(nextIntervalInMillis(params), TimeUnit.MILLISECONDS)
@@ -51,7 +51,7 @@ class SyncJob : Job() {
 
         fun scheduleNextSyncIn(delay: Long, unit: TimeUnit) {
             val delayInMilliseconds = unit.toMillis(delay)
-            logger.info("Scheduling sync-job to run in {} seconds", delayInMilliseconds / 1000)
+            logger.info { "Scheduling sync-job to run in ${ delayInMilliseconds / 1000} seconds" }
 
             val extras = PersistableBundleCompat()
             extras.putLong("delay", delayInMilliseconds)

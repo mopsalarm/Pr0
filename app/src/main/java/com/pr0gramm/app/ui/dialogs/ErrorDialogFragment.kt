@@ -54,7 +54,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
             logger.error("An error occurred", error)
 
             if (error is CancellationException) {
-                logger.warn("Ignoring cancellation exception.")
+                logger.warn { "Ignoring cancellation exception." }
                 return
             }
 
@@ -78,7 +78,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
 
         @JvmStatic
         fun showErrorString(fragmentManager: androidx.fragment.app.FragmentManager?, message: String) {
-            logger.info(message)
+            logger.info { message }
 
             fragmentManager ?: return
 

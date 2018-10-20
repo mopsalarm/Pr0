@@ -57,10 +57,10 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     init {
         videoPlayer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
-            logger.info("Using exo player to play videos.")
+            logger.info { "Using exo player to play videos." }
             ExoVideoPlayer(context, config.audio, videoPlayerParent)
         } else {
-            logger.info("Falling back on simple android video player.")
+            logger.info { "Falling back on simple android video player." }
             AndroidVideoPlayer(context, videoPlayerParent)
         }
 
@@ -94,7 +94,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         // restore seek position if known
         val seekTo = seekToCache.get(config.mediaUri.id)
         if (seekTo != null && seekTo.valid) {
-            logger.info("Restoring playback position {}", seekTo)
+            logger.info { "Restoring playback position $seekTo" }
             videoPlayer.seekTo(seekTo.time)
         }
     }
@@ -186,12 +186,12 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
                     AudioManager.STREAM_MUSIC, audioFocusDurationHint)
 
             if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                logger.info("Did not get audio focus, muting now!")
+                logger.info { "Did not get audio focus, muting now!" }
                 muted = true
             }
         }
 
-        logger.info("Setting mute state on video player: {}", muted)
+        logger.info { "Setting mute state on video player: $muted" }
         videoPlayer.muted = muted
 
         val icon: Drawable = if (muted) {
@@ -257,7 +257,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     fun storePlaybackPosition() {
         val currentPosition = videoPlayer.currentPosition
         seekToCache.put(config.mediaUri.id, ExpiringTimestamp(currentPosition))
-        logger.info("Stored current position {}", currentPosition)
+        logger.info { "Stored current position $currentPosition" }
     }
 
     override fun rewind() {
@@ -297,7 +297,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     override fun userSeekTo(fraction: Float) {
-        logger.info("User wants to seek to position {}", fraction)
+        logger.info { "User wants to seek to position $fraction" }
         videoPlayer.seekTo((fraction * videoPlayer.duration).toInt())
     }
 
@@ -305,7 +305,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         override fun onAudioFocusChange(focusChange: Int) {
             if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT || focusChange == AUDIOFOCUS_LOSS) {
                 audioManager.abandonAudioFocus(this)
-                logger.info("Lost audio focus, muting now.")
+                logger.info { "Lost audio focus, muting now." }
                 setMuted(true)
             }
         }

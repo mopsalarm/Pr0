@@ -57,12 +57,12 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     override fun onSingleTap(event: MotionEvent): Boolean {
         if (userSeekable()) {
             if (seekCurrentlyVisible()) {
-                logger.info("Hide seekbar after tap.")
+                logger.info { "Hide seekbar after tap." }
 
                 lastUserInteraction = -1
                 showSeekbar(false)
             } else {
-                logger.info("Show seekbar after tap.")
+                logger.info { "Show seekbar after tap." }
 
                 lastUserInteraction = System.currentTimeMillis()
                 showSeekbar(true)
@@ -148,7 +148,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
                 updateInfo(seekBarView, info)
 
                 if (userSeekable() && seekHideTimeoutReached()) {
-                    logger.info("Hiding seekbar after idle timeout")
+                    logger.info { "Hiding seekbar after idle timeout" }
                     lastUserInteraction = -1
                     showSeekbar(false)
                 }

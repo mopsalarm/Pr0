@@ -66,9 +66,9 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     fun markAsRead(timestamp: Long) {
         val updateRequired = messageIsUnread(timestamp)
         if (updateRequired) {
-            logger.info(
-                    "Mark all messages with timestamp less than or equal to {} as read",
-                    timestamp)
+            logger.info {
+                "Mark all messages with timestamp less than or equal to $timestamp as read"
+            }
 
             preferences.edit {
                 putLong(KEY_MAX_READ_MESSAGE_ID, timestamp)

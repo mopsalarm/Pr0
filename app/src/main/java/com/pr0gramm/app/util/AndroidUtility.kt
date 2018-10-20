@@ -117,7 +117,7 @@ object AndroidUtility {
             logger.warn("Looks like crashlytics was not activated. Here is the error:", error)
 
         } catch (err: Throwable) {
-            logger.info("Could not send error to crashlytics", err)
+            logger.warn("Could not send error to crashlytics", err)
         }
 
     }
@@ -288,9 +288,9 @@ object AndroidUtility {
 
     fun checkMainThread() {
         if (Looper.getMainLooper().thread !== Thread.currentThread()) {
-            logger.error(
-                    "Expected to be in main thread, current thread is: {}",
-                    Thread.currentThread().name)
+            logger.error {
+                "Expected to be in main thread, current thread is: ${Thread.currentThread().name}"
+            }
 
             throw IllegalStateException("Must be called from the main thread.")
         }
@@ -298,7 +298,7 @@ object AndroidUtility {
 
     fun checkNotMainThread(msg: String? = null) {
         if (Looper.getMainLooper().thread === Thread.currentThread()) {
-            logger.error("Expected not to be on main thread: {}", msg)
+            logger.error { "Expected not to be on main thread: $msg" }
             throw IllegalStateException("Must not be called from the main thread: $msg")
         }
     }

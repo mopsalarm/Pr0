@@ -55,7 +55,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val adView = adService.newAdView(context)
             adView.adSize = AdSize(AdSize.FULL_WIDTH, 70)
 
-            logger.info("Starting loading ad now.")
+            logger.info { "Starting loading ad now." }
 
             // now load the ad and show it, once it finishes loading
             adService.load(adView, Config.AdType.FEED)
@@ -66,7 +66,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
                     .subscribe { state ->
                         trace { "adStateChanged($state)" }
                         if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
-                            logger.info("Ad was loaded, showing ad now.")
+                            logger.info { "Ad was loaded, showing ad now." }
                             container.removeView(placeholder)
                             container.addView(adView)
                         }

@@ -41,11 +41,11 @@ class HttpProxyService(
     }
 
     override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
-        logger.info("New request for {}", session.uri)
+        logger.info { "New request for ${session.uri}" }
 
         val uri = Uri.parse(session.uri)
         if (nonce != uri.pathSegments.firstOrNull()) {
-            logger.info("Got request with invalid nonce: {}", uri)
+            logger.info { "Got request with invalid nonce: $uri" }
             return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.FORBIDDEN, "text/plain", "")
         }
 
@@ -53,12 +53,12 @@ class HttpProxyService(
         try {
             val encodedUrl = uri.pathSegments[1]
 
-            logger.info("Decode {} as utf8 string now", encodedUrl)
+            logger.info { "Decode $encodedUrl as utf8 string now" }
             decodedUrl = encodedUrl.decodeBase64String().trim()
 
             val url = decodedUrl
 
-            logger.info("Decoded request to {}", url)
+            logger.info { "Decoded request to $url" }
             return proxyUri(session, url)
 
         } catch (error: Throwable) {
@@ -123,7 +123,7 @@ class HttpProxyService(
                 result.addHeader("Content-Range", String.format("bytes %d-%d/%d", range.start, range.end, totalSize))
             }
 
-            logger.info("Start sending {} ({} kb)", url, totalSize / 1024)
+            logger.info { "Start sending $url (${totalSize / 1024} kb)" }
             return result
         }
     }

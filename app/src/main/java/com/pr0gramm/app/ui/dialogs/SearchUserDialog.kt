@@ -46,7 +46,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
     }
 
     private fun onSearchSuccess(info: Api.Info) {
-        logger.info("Found user info: {} {}", info.user.id, info.user.name)
+        logger.info { "Found user info: ${info.user.id} ${info.user.name}" }
 
         (parentFragment as? Listener)?.onUserInfo(info)
         dismissAllowingStateLoss()

@@ -12,7 +12,7 @@ class SyncStatisticsJob : DailyJob() {
     private val logger = logger("SyncJob")
 
     override fun onRunDailyJob(params: Params): DailyJobResult {
-        logger.info("Sync statistics job started.")
+        logger.info { "Sync statistics job started." }
 
         // get service and sync now.
         val syncService = context.directKodein.instance<SyncService>()

@@ -113,7 +113,7 @@ class ShareProvider : ContentProvider(), KodeinAware {
                     }
 
                 } catch (err: IOException) {
-                    logger.warn("Error trying to close the stream")
+                    logger.warn { "Error trying to close the stream" }
                 }
             }
         }

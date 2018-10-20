@@ -18,12 +18,11 @@ import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
-import org.slf4j.Logger
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
 abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat(), LifecycleProvider<FragmentEvent>, KodeinAware {
-    protected val logger: Logger = logger(name)
+    protected val logger = logger(name)
 
     private val lifecycleSubject = BehaviorSubject.create<FragmentEvent>()
 

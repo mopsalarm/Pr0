@@ -1,6 +1,6 @@
 package com.pr0gramm.app.util
 
-class ExceptionHandler private constructor(val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
+class ExceptionHandler private constructor(private val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(thread: Thread, err: Throwable) {
         if (err is IllegalStateException) {
             // this is an exception happening in gms ads. we'll ignore it.
@@ -19,7 +19,7 @@ class ExceptionHandler private constructor(val delegate: Thread.UncaughtExceptio
         private val logger = logger("ExceptionHandler")
 
         fun install() {
-            logger.info("Install uncaught exception handler")
+            logger.info { "Install uncaught exception handler" }
             val previous = Thread.getDefaultUncaughtExceptionHandler()
             val handler = ExceptionHandler(previous)
             Thread.setDefaultUncaughtExceptionHandler(handler)

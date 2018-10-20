@@ -41,7 +41,7 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
 
         // validate parameters
         if (text.isEmpty() || receiverName.isNullOrEmpty()) {
-            logger.error("No receiver id or message.")
+            logger.error { "No receiver id or message." }
             return
         }
 

@@ -25,7 +25,7 @@ class FallbackRegionDecoder(private val decoder: Decoder,
             return result
 
         } catch (error: Exception) {
-            logger.info("Error initializing primary decoder")
+            logger.info { "Error initializing primary decoder" }
 
             // something went wrong, switch to fallback.
             return switchToFallback().init(context, uri)
@@ -44,7 +44,7 @@ class FallbackRegionDecoder(private val decoder: Decoder,
                 return result
 
         } catch (error: RuntimeException) {
-            logger.info("Error in primary decoder.", error)
+            logger.warn("Error in primary decoder.", error)
         }
 
         // okay, there was an error, lets go to fallback
@@ -75,7 +75,7 @@ class FallbackRegionDecoder(private val decoder: Decoder,
 
         return fallbackSupplier().also {
             this.fallback = it
-            logger.info("Using fallback decoder {} now.", it)
+            logger.info { "Using fallback decoder $it now." }
         }
     }
 

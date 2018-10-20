@@ -24,10 +24,10 @@ data class BenisRecord(val time: Long, val benis: Int) {
         }
 
         fun prepareDatabase(db: SQLiteDatabase) {
-            logger.info("setting up benis_record table")
+            logger.info { "setting up benis_record table" }
             db.execSQL("CREATE TABLE IF NOT EXISTS benis_record (id INTEGER PRIMARY KEY AUTOINCREMENT, benis INTEGER, time INTEGER, owner_id INTEGER)")
 
-            logger.info("create index on benis_record(time) if it does not exist")
+            logger.info { "create index on benis_record(time) if it does not exist" }
             db.execSQL("CREATE INDEX IF NOT EXISTS benis_record__time ON benis_record(time)")
         }
     }

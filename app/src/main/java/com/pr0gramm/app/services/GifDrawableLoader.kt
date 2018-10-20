@@ -55,7 +55,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
 
         val temporary = File(fileCache, "tmp" + identityHashCode(emitter) + ".gif")
 
-        logger.info("storing data into temporary file")
+        logger.info { "storing data into temporary file" }
 
         val subscription = Subscriptions.empty()
         emitter.setSubscription(subscription)
@@ -76,7 +76,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
                     count += length
 
                     if (subscription.isUnsubscribed) {
-                        logger.info("Stopped because the subscriber unsubscribed")
+                        logger.info { "Stopped because the subscriber unsubscribed" }
                         return
                     }
 
@@ -108,7 +108,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
 
         val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it < 768 } ?: 6
 
-        logger.info("Loading gif {}x{} with sampleSize {}", meta.width, meta.height, sampleSize)
+        logger.info { "Loading gif ${meta.width}x${meta.height} with sampleSize $sampleSize" }
 
         return GifDrawableBuilder()
                 .from(storage.fd)

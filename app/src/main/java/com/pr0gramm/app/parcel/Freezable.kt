@@ -25,7 +25,7 @@ interface Freezable : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         debug {
-            logger.debug("Lazy parceling of ${this.javaClass.simpleName}")
+            logger.debug { "Lazy parceling of ${this.javaClass.simpleName}" }
         }
 
         dest.writeByteArray(Freezer.freeze(this))

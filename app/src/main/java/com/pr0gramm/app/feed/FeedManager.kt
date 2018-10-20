@@ -73,7 +73,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
     }
 
     private fun subscribeTo(observable: Observable<Api.Feed>) {
-        logger.info("Subscribing to new load-request now.")
+        logger.info { "Subscribing to new load-request now." }
 
         subscription.unsubscribe()
         subscription = observable

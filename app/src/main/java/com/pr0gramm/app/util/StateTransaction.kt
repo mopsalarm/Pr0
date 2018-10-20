@@ -17,10 +17,10 @@ class StateTransaction<V : Any>(private val valueSupplier: () -> V, private val 
         }
 
         if (dispatch === Dispatch.NEVER) {
-            logger.debug("Not doing state update, cause dispatch=NEVER")
+            logger.debug { "Not doing state update, cause dispatch=NEVER" }
         } else {
             if (dispatch === Dispatch.ALWAYS || (!isActive && previousState != valueSupplier())) {
-                logger.debug("Running deferred state update in transaction")
+                logger.debug { "Running deferred state update in transaction" }
                 applyChange()
             }
         }

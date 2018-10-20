@@ -236,7 +236,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // listen to comment changes
         commentTreeHelper.itemsObservable.subscribe { commentItems ->
-            logger.info("Got new list of {} comments", commentItems.size)
+            logger.info { "Got new list of ${commentItems.size} comments" }
             state = state.copy(comments = commentItems, commentsLoading = false)
         }
 
@@ -283,13 +283,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val state = this.state
 
-        debug {
-            logger.debug("Applying post fragment state: h={}, tags={}, tagVotes={}, comments={} ({}), l={}, viewer={}, mcc={}",
-                    state.viewerBaseHeight,
-                    state.tags.size, state.tagVotes.size(),
-                    state.comments.size, state.comments.hashCode(),
-                    state.commentsLoading,
-                    viewer != null, state.mediaControlsContainer != null)
+        logger.debug {
+            "Applying post fragment state: h=${state.viewerBaseHeight}, " +
+                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size()}, " +
+                    "comments=${state.comments.size} (${state.comments.hashCode()}), " +
+                    "l=${state.commentsLoading}, viewer=${viewer != null}, " +
+                    "mcc=${state.mediaControlsContainer != null}"
         }
 
         val items = mutableListOf<PostAdapter.Item>()
@@ -350,7 +349,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onStart() {
         activeState.bindToLifecycle().subscribe { active ->
-            logger.info("Switching viewer state to {}", active)
+            logger.info { "Switching viewer state to $active" }
             if (active) {
                 playMediaOnViewer()
             } else {
@@ -802,14 +801,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
                 state = state.copy(viewerBaseHeight = expectedViewerHeight)
 
-                logger.debug("Initialized viewer height to {}", expectedViewerHeight)
+                logger.debug { "Initialized viewer height to $expectedViewerHeight" }
             }
 
             viewer.layoutChanges().map { Unit }.subscribe {
                 val newHeight = viewer.measuredHeight
                 if (newHeight != state.viewerBaseHeight) {
-                    logger.debug("Change in viewer height detected, setting height to {} to {}",
-                            state.viewerBaseHeight, newHeight)
+                    logger.debug { "Change in viewer height detected, setting height to ${state.viewerBaseHeight} to $newHeight" }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         state = state.copy(viewerBaseHeight = newHeight)
@@ -832,7 +830,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // add the controls as child of the controls-container.
         viewer.controllerView()
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                .doOnNext { view -> logger.info("Adding view {} to placeholder", view) }
+                .doOnNext { view -> logger.info{"Adding view $view to placeholder" } }
                 .subscribe { mediaControlsContainer.addView(it) }
 
         // show sfw/nsfw as a little flag, if the user is admin
@@ -972,7 +970,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.apiComments.onNext(comments.toList())
 
         // show comments now
-        logger.info("Sending {} comments to tree helper", comments.size)
+        logger.info { "Sending ${comments.size} comments to tree helper" }
         commentTreeHelper.updateComments(comments, updateSync) { state ->
             extraChanges(state.copy(
                     op = feedItem.user,
@@ -1008,7 +1006,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         if (newTags.isNotEmpty()) {
-            logger.info("Adding new tags {} to post", newTags)
+            logger.info { "Adding new tags $newTags to post" }
 
             voteService.tag(feedItem.id, newTags)
                     .bindToLifecycleAsync()

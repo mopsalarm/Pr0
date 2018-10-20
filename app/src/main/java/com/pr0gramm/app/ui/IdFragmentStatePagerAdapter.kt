@@ -164,7 +164,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
                 try {
                     mFragmentManager.putFragment(state, key, f)
                 } catch(err: IllegalStateException) {
-                    logger.info("Could not put fragment into the bundle. Skipping.", err)
+                    logger.warn("Could not put fragment into the bundle. Skipping.", err)
                 }
             }
         }
@@ -195,7 +195,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
                         f.setMenuVisibility(false)
                         mFragments.put(id, f)
                     } else {
-                        logger.warn("Bad fragment at key " + key)
+                        logger.warn { "Bad fragment at key $key" }
                     }
                 }
             }

@@ -34,10 +34,10 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
                 file
 
             } catch (error: IOException) {
-                logger.warn("Could not download image to temp file")
+                logger.warn { "Could not download image to temp file" }
 
                 if (!file.delete())
-                    logger.warn("Could not delete file")
+                    logger.warn { "Could not delete file" }
 
                 // re-raise exception
                 throw IOException("Could not download image to temp file", error)

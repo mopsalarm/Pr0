@@ -69,7 +69,7 @@ class DownloadService(
                 }
                 .doOnCompleted {
                     MediaScannerConnection.scanFile(context, arrayOf(targetFile.toString()), null) { path, uri ->
-                        logger.info("Scanned {} ({})", path, uri)
+                        logger.info { "Scanned $path ($uri)" }
                     }
                 }
     }
@@ -77,7 +77,7 @@ class DownloadService(
     fun downloadUpdateFile(uri: Uri): Observable<Status> {
         val directory = File(context.cacheDir, "updates")
         if (!directory.exists() && !directory.mkdirs()) {
-            logger.warn("Could not create download directory: {}", directory)
+            logger.warn { "Could not create download directory: $directory" }
         }
 
         // clear all previous files
@@ -85,7 +85,7 @@ class DownloadService(
                 .filter { it.name.matches("pr0gramm-update[.].*[.]apk".toRegex()) }
                 .forEach { file ->
                     if (!file.delete()) {
-                        logger.warn("Could not delete file {}", file)
+                        logger.warn { "Could not delete file $file" }
                     }
                 }
 

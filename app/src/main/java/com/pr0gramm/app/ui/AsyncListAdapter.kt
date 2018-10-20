@@ -74,7 +74,7 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
 
         Observable.fromCallable { calculateDiff(oldList, newList) }
                 .withIf(!forceSync && (oldList.size > 32 || newList.size > 32)) {
-                    logger.debug("Calculate diff in background")
+                    logger.debug { "Calculate diff in background" }
                     subscribeOnBackground().observeOnMainThread()
                 }
                 .subscribe { diff ->

@@ -34,7 +34,7 @@ class VoteService(private val api: Api,
      * @param vote The vote to send to the server
      */
     fun vote(item: FeedItem, vote: Vote): Completable {
-        logger.info("Voting feed item {} {}", item.id, vote)
+        logger.info { "Voting feed item ${item.id} $vote" }
         Track.votePost(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
@@ -42,7 +42,7 @@ class VoteService(private val api: Api,
     }
 
     fun vote(comment: Api.Comment, vote: Vote): Completable {
-        logger.info("Voting comment {} {}", comment.id, vote)
+        logger.info { "Voting comment ${comment.id} $vote" }
         Track.voteComment(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
@@ -50,7 +50,7 @@ class VoteService(private val api: Api,
     }
 
     fun vote(tag: Api.Tag, vote: Vote): Completable {
-        logger.info("Voting tag {} {}", tag.id, vote)
+        logger.info { "Voting tag ${tag.id} $vote" }
         Track.voteTag(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
@@ -117,7 +117,7 @@ class VoteService(private val api: Api,
 
         val watch = Stopwatch.createStarted()
         withTransaction(database) {
-            logger.info("Applying {} vote actions", actionCount)
+            logger.info { "Applying $actionCount vote actions" }
             for (idx in 0 until actionCount) {
                 val id = actionStream.readIntLe().toLong()
                 val action = VOTE_ACTIONS[actionStream.readByte().unsigned] ?: continue
@@ -129,7 +129,7 @@ class VoteService(private val api: Api,
             }
         }
 
-        logger.info("Applying vote actions took {}", watch.toString())
+        logger.info { "Applying vote actions took ${watch.toString()}" }
     }
 
     /**
@@ -170,7 +170,7 @@ class VoteService(private val api: Api,
      * Removes all votes from the vote cache.
      */
     fun clear() {
-        logger.info("Removing all items from vote cache")
+        logger.info { "Removing all items from vote cache" }
         CachedVote.clear(database)
     }
 

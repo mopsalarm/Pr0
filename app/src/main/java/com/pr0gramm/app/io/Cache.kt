@@ -41,7 +41,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         }
 
         maxCacheSize = if (root.freeSpace > 1024 * MEGA) 256 * MEGA else 128 * MEGA
-        logger.debug("Initialized cache with {}mb of space", maxCacheSize / MEGA.toDouble())
+        logger.debug { "Initialized cache with ${maxCacheSize / MEGA.toDouble()}mb of space" }
     }
 
     /**
@@ -66,7 +66,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
     }
 
     private fun createEntry(uri: Uri): Entry {
-        logger.debug("Creating a new cache entry for uri {}", uri)
+        logger.debug { "Creating a new cache entry for uri $uri" }
 
         // just open the file directly if it is local.
         if (uri.scheme == "file") {
@@ -98,7 +98,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             lhs.lastModified().compareTo(rhs.lastModified())
         })
 
-        logger.debug("Doing cache cleanup, found {} files", files.size)
+        logger.debug { "Doing cache cleanup, found ${files.size} files" }
 
         var totalSize: Long = 0
         for (file in files) {
@@ -109,16 +109,16 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             }
         }
 
-        logger.debug("Cache took {}mb", totalSize / (1024f * 1024f))
+        logger.debug { "Cache took ${totalSize / (1024f * 1024f)}mb" }
     }
 
     /**
      * Removes the cached entry with the given filename.
      */
     private fun forgetEntryForFile(file: File) {
-        logger.debug("Remove old cache file {}", file)
+        logger.debug { "Remove old cache file $file" }
         if (!file.delete()) {
-            logger.warn("Could not delete cached file {}", file)
+            logger.warn { "Could not delete cached file $file" }
         }
 
         synchronized(lock) {
@@ -136,10 +136,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         return try {
             lhs.canonicalPath == rhs.canonicalPath
         } catch(err: IOException) {
-            logger.warn(
-                    "Could not check if files are the same: {}, {}, err: {}",
-                    lhs, rhs, err.toString())
-
+            logger.warn { "Could not check if files are the same: $lhs, $rhs, err: $err" }
             false
         }
     }

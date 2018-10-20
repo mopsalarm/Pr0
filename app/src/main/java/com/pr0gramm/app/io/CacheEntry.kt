@@ -119,7 +119,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 return fp
             }
 
-            logger.debug("Entry needs to be initialized: {}", this)
+            logger.debug { "Entry needs to be initialized: ${this}" }
             return initialize()
         }
     }
@@ -141,7 +141,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
         val parentFile = file.parentFile
         if (!parentFile.exists()) {
             if (!parentFile.mkdirs()) {
-                logger.warn("Could not create parent directory.")
+                logger.warn { "Could not create parent directory." }
             }
         }
 
@@ -158,7 +158,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             val fileIsValid = length >= 8 && fp.readInt() == expectedChecksum
 
             if (fileIsValid) {
-                logger.debug("Found already cached file, loading metadata.")
+                logger.debug { "Found already cached file, loading metadata." }
 
                 // read the total size from the file now.
                 // We've previously read the first four bytes (checksum).
@@ -177,7 +177,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 }
 
             } else {
-                logger.debug("Entry is new, no data is previously cached.")
+                logger.debug { "Entry is new, no data is previously cached." }
 
                 // write header at the beginning of the file
                 fp.setLength(0)
@@ -192,7 +192,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 fp.writeInt(totalSizeField)
             }
 
-            logger.debug("Initialized entry {}", this)
+            logger.debug { "Initialized entry ${this}" }
             return fp
 
         } catch (err: Exception) {
@@ -207,7 +207,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     }
 
     private fun reset() {
-        logger.debug("Resetting entry {}", this)
+        logger.debug { "Resetting entry ${this}" }
         this.fp = null
         this.written = 0
         this.totalSizeField = 0
@@ -221,7 +221,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
      */
     private fun ensureCaching() {
         if (cacheWriter == null && !fullyCached()) {
-            logger.debug("Caching will start on entry {}", this)
+            logger.debug { "Caching will start on entry ${this}" }
             resumeCaching(written)
         }
     }
@@ -254,7 +254,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
          * This method is called from the caching thread once caching stops.
          */
         private fun cachingStopped() {
-            logger.debug("Caching stopped on entry {}", this)
+            logger.debug { "Caching stopped on entry ${this}" }
             lock.withLock {
                 if (!canceled) {
                     close()
@@ -276,7 +276,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                         .header("Range", String.format("bytes=%d-", offset))
                         .build()
 
-                logger.debug("Resume caching for {} starting at {}", this, offset)
+                logger.debug { "Resume caching for ${this} starting at $offset" }
                 val response = httpClient.newCall(request).execute()
                 try {
                     val body = response.body()!!
@@ -299,7 +299,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 writeResponseToEntry(response)
 
             } catch (err: Exception) {
-                logger.error("Error in caching thread")
+                logger.error { "Error in caching thread" }
                 size.setError(err)
 
             } finally {
@@ -316,12 +316,12 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 readStream(stream) { buffer, byteCount ->
                     lock.withLock {
                         if (canceled) {
-                            logger.info("Caching canceled, stopping now.")
+                            logger.info { "Caching canceled, stopping now." }
                             return
                         }
 
                         if (fp == null) {
-                            logger.warn("Error during caching, the file-handle went away: {}", this)
+                            logger.warn { "Error during caching, the file-handle went away: ${this}" }
                             return
                         }
 
@@ -354,7 +354,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
             // close if ref count is zero.
             if (this.refCount.get() <= 0 && this.fp != null) {
-                logger.debug("Closing cache file for entry {} now.", this)
+                logger.debug { "Closing cache file for entry ${this} now." }
                 fp.closeQuietly()
                 reset()
             }
@@ -366,7 +366,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     override fun inputStreamAt(offset: Int): InputStream {
         // update the time stamp if the cache file already exists.
         if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
-            logger.warn("Could not update timestamp on {}", file)
+            logger.warn { "Could not update timestamp on $file" }
         }
 
         return EntryInputStream(incrementRefCount(), offset)

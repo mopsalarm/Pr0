@@ -40,7 +40,7 @@ class SeenService(context: Context) {
 
         val idx = id.toInt() / 8
         if (idx < 0 || idx >= buffer.limit()) {
-            logger.warn("Id is too large")
+            logger.warn { "Id is too large" }
             return false
         }
 
@@ -53,7 +53,7 @@ class SeenService(context: Context) {
 
         val idx = id.toInt() / 8
         if (idx < 0 || idx >= buffer.limit()) {
-            logger.warn("Id is too large")
+            logger.warn { "Id is too large" }
             return
         }
 
@@ -72,7 +72,7 @@ class SeenService(context: Context) {
         val buffer = this.buffer.get() ?: return
 
         synchronized(lock) {
-            logger.info("Removing all the items")
+            logger.info { "Removing all the items" }
             for (idx in 0 until buffer.limit()) {
                 buffer.put(idx, 0.toByte())
             }
@@ -130,7 +130,7 @@ class SeenService(context: Context) {
 
         }
 
-        logger.info("Changes in {} out of {} bytes in seen cache", diffCount, totalCount)
+        logger.info { "Changes in $diffCount out of $totalCount bytes in seen cache" }
         return diffCount == 0 && totalCount == buffer.limit()
     }
 
@@ -140,7 +140,7 @@ class SeenService(context: Context) {
     fun clearUpTo(n: Int) {
         val buffer = this.buffer.get() ?: return
 
-        logger.info("Setting the first {} bits to zero.", n)
+        logger.info { "Setting the first $n bits to zero." }
 
         synchronized(lock) {
             for (idx in 0 until n.coerceAtMost(buffer.limit())) {
@@ -180,7 +180,7 @@ class SeenService(context: Context) {
         // space for up to a few million posts
         val size = (6000000 / 8).toLong()
 
-        logger.info("Mapping cache: {}", file)
+        logger.info { "Mapping cache: $file" }
         RandomAccessFile(file, "rw").use { raf ->
             raf.setLength(size)
             return raf.channel.map(FileChannel.MapMode.READ_WRITE, 0, size)

@@ -109,14 +109,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private var feed: Feed by observeChangeEx(Feed()) { old, new ->
         if (old == new) {
-            logger.info("No change in feed items.")
+            logger.info { "No change in feed items." }
 
         } else {
-            logger.debug("Feed before update: {} items, oldest={}, newest={}",
-                    old.size, old.oldest?.id, old.newest?.id)
+            logger.debug { "Feed before update: ${old.size} items, oldest=${old.oldest?.id}, newest=${old.newest?.id}" }
 
-            logger.debug("Feed after update: {} items, oldest={}, newest={}",
-                    new.size, new.oldest?.id, new.newest?.id)
+            logger.debug { "Feed after update: ${new.size} items, oldest=${new.oldest?.id}, newest=${new.newest?.id}" }
 
             state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
         }
@@ -142,7 +140,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (savedInstanceState == null) {
             val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
             if (start != null) {
-                logger.debug("Requested to open item {} on load", start)
+                logger.debug { "Requested to open item $start on load" }
                 autoScrollRef = ScrollRef(start, autoOpen = true)
             }
         }
@@ -185,7 +183,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
         swipeRefreshLayout.setOnRefreshListener {
-            logger.debug("onRefresh called for swipe view.")
+            logger.debug { "onRefresh called for swipe view." }
             if (feed.isAtStart) {
                 refreshFeed()
             } else {
@@ -360,7 +358,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
 
             if (entries == feedAdapter.latestEntries) {
-                logger.debug("Skip submit of feed items, no change in state.")
+                logger.debug { "Skip submit of feed items, no change in state." }
                 return
             }
 
@@ -607,18 +605,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
         if (settings.feedScrollOnBack) {
-            logger.info("Want to resume from {}", item)
+            logger.info { "Want to resume from $item" }
             autoScrollRef = ScrollRef(CommentRef(item), feed, smoothScroll = true)
         }
     }
 
     private fun checkForNewItems() {
         if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM || feed.isEmpty()) {
-            logger.info("Not checking for new items as we are not at the beginning of the feed")
+            logger.info { "Not checking for new items as we are not at the beginning of the feed" }
             return
         }
 
-        logger.info("Checking for new items in current feed")
+        logger.info { "Checking for new items in current feed" }
 
         val query = FeedService.FeedQuery(feed.filter, feed.contentType)
         feedService.load(query)
@@ -1088,7 +1086,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .compose(bindToLifecycle<Any>().forCompletable())
                 .doOnCompleted {
                     this@FeedFragment.trace { "repostInfosUpdated" }
-                    logger.debug("Repost info was refreshed, updating state now")
+                    logger.debug { "Repost info was refreshed, updating state now" }
                     state = state.copy(repostRefreshTime = System.currentTimeMillis())
                 }
                 .onErrorComplete()
@@ -1269,10 +1267,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun performAutoOpen(ref: CommentRef) {
-        logger.info("Trying to do auto load of {}", ref)
+        logger.info { "Trying to do auto load of $ref" }
         val idx = feed.indexById(ref.itemId) ?: return
 
-        logger.debug("Found item at idx={}", idx)
+        logger.debug { "Found item at idx=$idx" }
 
         // scroll to item now and click
         scrollToItem(ref.itemId)
@@ -1293,12 +1291,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
         trace { "scrollToItem($itemId, smooth=$smoothScroll)" }
 
-        logger.debug("Checking if we can scroll to item {}", itemId)
+        logger.debug { "Checking if we can scroll to item $itemId" }
         val idx = feedAdapter.latestEntries
                 .indexOfFirst { it is FeedAdapter.Entry.Item && it.item.id == itemId }
                 .takeIf { it >= 0 } ?: return
 
-        logger.debug("Found item at idx={}, will scroll now (smooth={})", idx, smoothScroll)
+        logger.debug { "Found item at idx=$idx, will scroll now (smooth=$smoothScroll)" }
 
         val recyclerView = recyclerView
         if (smoothScroll) {
@@ -1347,7 +1345,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                     if (lastVisibleItem >= 0) {
                         if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                            logger.info("Request next page now (last visible is {} of {}", lastVisibleItem, totalItemCount)
+                            logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount" }
                             loader.next()
                         }
                     }
@@ -1357,7 +1355,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
                     if (firstVisibleItem >= 0) {
                         if (totalItemCount > 12 && firstVisibleItem < 12) {
-                            logger.info("Request previous page now (first visible is {} of {})", firstVisibleItem, totalItemCount)
+                            logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount)" }
                             loader.previous()
                         }
                     }

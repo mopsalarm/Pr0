@@ -21,7 +21,7 @@ class UserSuggestionService(private val api: Api) {
         if (prefix.length <= 1)
             return emptyList()
 
-        logger.info("Looking for users starting with prefix {}", prefix)
+        logger.info { "Looking for users starting with prefix $prefix" }
         try {
             val response = api.suggestUsers(prefix).execute()
             if (!response.isSuccessful)
@@ -29,7 +29,7 @@ class UserSuggestionService(private val api: Api) {
 
             return response.body()?.users.orEmpty()
         } catch (error: Exception) {
-            logger.warn("Could not fetch username suggestions for prefix={}: {}", prefix, error)
+            logger.warn { "Could not fetch username suggestions for prefix=$prefix: $error" }
             return emptyList()
         }
     }

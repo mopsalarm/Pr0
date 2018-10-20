@@ -116,7 +116,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     }
 
     override fun deleteBefore(threshold: Instant) {
-        logger.info("Removing all files preloaded before {}", threshold)
+        logger.info { "Removing all files preloaded before $threshold" }
 
         withTransaction(database) {
             val items = ArrayList<PreloadItem>()
@@ -133,13 +133,13 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
 
     private fun deleteTx(db: BriteDatabase, items: Iterable<PreloadItem>) {
         for (item in items) {
-            logger.info("Removing files for itemId={}", item.itemId)
+            logger.info { "Removing files for itemId=${item.itemId}" }
 
             if (!item.media.delete())
-                logger.warn("Could not delete media file {}", item.media)
+                logger.warn { "Could not delete media file ${item.media}" }
 
             if (!item.thumbnail.delete())
-                logger.warn("Could not delete thumbnail file {}", item.thumbnail)
+                logger.warn { "Could not delete thumbnail file ${item.thumbnail}" }
 
             // delete entry from database
             db.delete(TABLE_NAME, "itemId=?", item.itemId.toString())
@@ -160,7 +160,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
         private const val QUERY_ALL_ITEM_IDS = "SELECT * FROM $TABLE_NAME"
 
         fun onCreate(db: SQLiteDatabase) {
-            logger.info("initializing sqlite database")
+            logger.info { "initializing sqlite database" }
             db.execSQL("""CREATE TABLE IF NOT EXISTS $TABLE_NAME (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     itemId INT NOT NULL UNIQUE,

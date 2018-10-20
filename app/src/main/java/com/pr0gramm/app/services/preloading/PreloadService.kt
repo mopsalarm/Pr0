@@ -66,7 +66,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
 
         preloadCache = File(cacheDir, "preload").apply {
             if (mkdirs()) {
-                logger.info("preload directory created at {}", this)
+                logger.info { "preload directory created at ${this}" }
             }
         }
     }
@@ -110,7 +110,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
         val allowOnlyOnMobile = !intent.getBooleanExtra(EXTRA_ALLOW_ON_MOBILE, false)
 
         try {
-            logger.info("Acquire wake lock for at most 10 minutes")
+            logger.info { "Acquire wake lock for at most 10 minutes" }
             wakeLock.use(10, TimeUnit.MINUTES) {
 
                 var statsFailed = 0
@@ -170,7 +170,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
             notification.setContentTitle(getString(R.string.preload_failed))
 
         } finally {
-            logger.info("Preloading finished")
+            logger.info { "Preloading finished" }
 
             // clear the action button
             notification.mActions.clear()
@@ -226,10 +226,10 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
 
         // if the file exists, we dont need to download it again
         if (targetFile.exists()) {
-            logger.info("File {} already exists", targetFile)
+            logger.info { "File $targetFile already exists" }
 
             if (!targetFile.setLastModified(System.currentTimeMillis()))
-                logger.warn("Could not touch file {}", targetFile)
+                logger.warn { "Could not touch file $targetFile" }
 
             return
         }
@@ -257,7 +257,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
 
         } catch (error: Throwable) {
             if (!tempFile.delete())
-                logger.warn("Could not remove temporary file")
+                logger.warn { "Could not remove temporary file" }
 
             throw error
         }
@@ -275,7 +275,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
     }
 
     private fun download(uri: Uri, targetFile: File, progress: (Float) -> Unit) {
-        logger.info("Start downloading {} to {}", uri, targetFile)
+        logger.info { "Start downloading $uri to $targetFile" }
 
         val request = Request.Builder().get().url(uri.toString()).build()
         val response = httpClient.newCall(request).execute()

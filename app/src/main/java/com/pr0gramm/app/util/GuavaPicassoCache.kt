@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.graphics.Bitmap
+import androidx.collection.LruCache
 import androidx.core.graphics.BitmapCompat
 import com.squareup.picasso.Cache
 
@@ -11,12 +12,14 @@ import com.squareup.picasso.Cache
  * This should prevent further out of memory errors.
  */
 class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
-    private val cache = object : androidx.collection.LruCache<String, Bitmap>(maxSize) {
+    private val logger = logger("GuavaPicassoCache")
+
+    private val cache = object : LruCache<String, Bitmap>(maxSize) {
         override fun sizeOf(key: String, value: Bitmap): Int = bitmapByteCount(value)
     }
 
     init {
-        logger.info("Initializing cache with about " + maxSize / (1024 * 1024) + "mb")
+        logger.info { "Initializing cache with about ${maxSize / (1024 * 1024)}mb" }
     }
 
     private fun bitmapByteCount(bitmap: Bitmap): Int {
@@ -50,7 +53,6 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     }
 
     companion object {
-        private val logger = logger("GuavaPicassoCache")
         private const val MAX_CACHE_ITEM_SIZE = (128 * 128 * 4).toLong()
 
         @JvmStatic

@@ -13,8 +13,11 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
+import com.pr0gramm.app.util.ExceptionHandler
+import com.pr0gramm.app.util.SimpleJobLogger
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.logger
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import org.kodein.di.Kodein
@@ -22,8 +25,6 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
-import pl.brightinventions.slf4android.LogLevel
-import pl.brightinventions.slf4android.LoggerConfiguration
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -80,11 +81,6 @@ open class ApplicationClass : Application(), KodeinAware {
         // also schedule the nightly update job
         SyncStatisticsJob.schedule()
 
-        LoggerConfiguration.configuration()
-                .removeRootLogcatHandler()
-                .setRootLogLevel(if (BuildConfig.DEBUG) LogLevel.DEBUG else LogLevel.INFO)
-                .addHandlerToRootLogger(LogHandler())
-
         // handler to ignore certain exceptions before they reach crashlytics.
         ExceptionHandler.install()
 
@@ -115,7 +111,7 @@ open class ApplicationClass : Application(), KodeinAware {
         eagerSingletons.await()
 
         val bootupTime = System.currentTimeMillis() - startup
-        logger.info("App booted in {}ms", bootupTime)
+        logger.info { "App booted in ${bootupTime}ms" }
 
         Stats.get().incrementCounter("app.booted")
         Stats.get().histogram("app.boot.time", bootupTime)

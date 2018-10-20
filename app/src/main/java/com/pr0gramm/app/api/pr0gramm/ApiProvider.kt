@@ -146,7 +146,7 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                                 // give the server a small grace period before trying again.
                                 sleepUninterruptibly(500, TimeUnit.MILLISECONDS)
 
-                                logger.warn("perform retry, calling method {} again", method)
+                                logger.warn { "perform retry, calling method $method again" }
                                 method.invoke(api, *args) as Observable<Any>
                             } catch (error: Exception) {
                                 Observable.error <Any>(error)
@@ -170,13 +170,12 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
 
     private fun isHttpError(error: Throwable): Boolean {
         if (error is HttpErrorException) {
-            val httpError = error
-            val errorBody = httpError.errorBody
 
-            logger.warn("Got http error {} {}, with body: {}", httpError.cause.code(),
-                    httpError.cause.message(), errorBody)
+            logger.warn {
+                "Got http error ${error.cause.code()} ${error.cause.message()}, with body: ${error.errorBody}"
+            }
 
-            return httpError.cause.code() / 100 == 5
+            return error.cause.code() / 100 == 5
         } else {
             return false
         }
