@@ -2,6 +2,7 @@ package com.pr0gramm.app
 
 import android.app.Application
 import android.os.StrictMode
+import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobConfig
 import com.evernote.android.job.JobManager
@@ -49,6 +50,15 @@ open class ApplicationClass : Application(), KodeinAware {
     override fun onCreate() {
         super.onCreate()
 
+        if (!BuildConfig.DEBUG) {
+            Log.i("pr0gramm", "Initialize fabric/crashlytics in Application::onCreate")
+            Fabric.with(Fabric.Builder(this)
+                    .debuggable(false)
+                    .logger(SilentLogger())
+                    .kits(Crashlytics())
+                    .build())
+        }
+
         Stats.init(buildVersionCode())
 
         Settings.initialize(this)
@@ -69,18 +79,6 @@ open class ApplicationClass : Application(), KodeinAware {
 
         // also schedule the nightly update job
         SyncStatisticsJob.schedule()
-
-        if (BuildConfig.DEBUG) {
-            logger.info("This is a development version.")
-
-        } else {
-            logger.info("Initialize fabric")
-            Fabric.with(Fabric.Builder(this)
-                    .debuggable(false)
-                    .logger(SilentLogger())
-                    .kits(Crashlytics())
-                    .build())
-        }
 
         LoggerConfiguration.configuration()
                 .removeRootLogcatHandler()
