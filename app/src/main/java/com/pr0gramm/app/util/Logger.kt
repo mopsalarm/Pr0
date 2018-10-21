@@ -11,9 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger
 fun logger(name: String): KLogger = KLogger(name)
 
 object Logging {
-    private data class Entry(var time: Long, var level: Int, var name: String, var message: String)
+    private data class Entry(
+            var time: Long = 0,
+            var level: Int = 0,
+            var name: String = "",
+            var message: String = "",
+            var thread: String = "")
 
-    private val entries = Array(4096) { Entry(0, 0, "", "") }
+    private val entries = Array(4096) { Entry() }
     private val entriesIndex = AtomicInteger()
 
     private var cachedCrashlytics: CrashlyticsCore? = null
@@ -27,15 +32,16 @@ object Logging {
             return field
         }
 
-    fun log(level: Int, name: String, text: String) {
-        val message = "[${Thread.currentThread().name}] $text"
+    fun log(level: Int, name: String, message: String) {
+        val thread = Thread.currentThread().name
+        val tag = "[$thread] $name"
 
         if (BuildConfig.DEBUG) {
             // only log to logcat.
-            Log.println(level, name, message)
+            Log.println(level, tag, message)
 
         } else {
-            cachedCrashlytics?.log(level, name, message)
+            cachedCrashlytics?.log(level, tag, message)
         }
 
         // store in buffer. Not 100% thread safe but close enough.
@@ -45,6 +51,7 @@ object Logging {
             this.level = level
             this.name = name
             this.message = message
+            this.thread = thread
         }
     }
 
@@ -59,8 +66,8 @@ object Logging {
             result = entries.indices.reversed().mapNotNullTo(ArrayList(entries.size)) { offset ->
                 val entry = entries[(beginIndex + offset) % entries.size]
                 entry.takeIf { it.time != 0L }?.let {
-                    "%4.3fs [%5s] %s: %s".format(0.001f * (entry.time - now),
-                            levelToString(entry.level), entry.name, entry.message)
+                    "%4.3fs [%16s] [%5s] %s: %s".format(0.001f * (entry.time - now),
+                            entry.thread, levelToString(entry.level), entry.name, entry.message)
                 }
             }
 

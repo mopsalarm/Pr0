@@ -150,7 +150,7 @@ inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
     }
 }
 
-inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R): Unit {
+inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R) {
     return use {
         while (moveToNext()) {
             fn()
@@ -194,7 +194,7 @@ fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
 interface CachedValue<out T> {
     val value: T
 
-    fun invalidate(): Unit
+    fun invalidate()
 }
 
 object EmptyCache
@@ -211,7 +211,7 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
         return _value as T
     }
 
-    override fun invalidate(): Unit {
+    override fun invalidate() {
         _value = EmptyCache
     }
 }
@@ -416,13 +416,6 @@ class LongValueHolder(private var value: Long) {
     }
 }
 
-fun View.updatePadding(
-        left: Int = paddingLeft, top: Int = paddingTop,
-        right: Int = paddingRight, bottom: Int = paddingBottom) {
-
-    setPadding(left, top, right, bottom)
-}
-
 fun <T : Any?, R : Any> Observable<T>.mapNotNull(fn: (T) -> R?): Observable<R> {
     @Suppress("UNCHECKED_CAST")
     return map { fn(it) }.filter { it != null } as Observable<R>
@@ -446,7 +439,7 @@ inline val Context.directKodein: DKodein get() = (applicationContext as KodeinAw
 
 inline val View.kodein: Kodein get() = context.kodein
 
-inline val ContentProvider.kodein: Kodein get() = context.kodein
+inline val ContentProvider.kodein: Kodein get() = context!!.kodein
 
 
 fun sleepUninterruptibly(duration: Long, unit: TimeUnit) {
@@ -546,11 +539,11 @@ inline fun <T : Any> T.trace(msg: () -> String) {
         // jump to parent class if inside a companion object.
         var clazz: Class<*> = javaClass
         if (clazz.simpleName == "Companion") {
-            clazz = clazz.enclosingClass
+            clazz = clazz.enclosingClass!!
         }
 
         val type = clazz.simpleName
-        traceLogger.debug { "[${Thread.currentThread().name}] $type.${msg()}" }
+        traceLogger.debug { "$type.${msg()}" }
     }
 }
 
@@ -562,6 +555,7 @@ fun Closeable?.closeQuietly() {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun SharedPreferences.getString(key: String): String? {
     return getString(key, null)
 }

@@ -60,6 +60,9 @@ open class ApplicationClass : Application(), KodeinAware {
                     .build())
         }
 
+        // handler to ignore certain exceptions before they reach crashlytics.
+        ExceptionHandler.install()
+
         Stats.init(buildVersionCode())
 
         Settings.initialize(this)
@@ -80,9 +83,6 @@ open class ApplicationClass : Application(), KodeinAware {
 
         // also schedule the nightly update job
         SyncStatisticsJob.schedule()
-
-        // handler to ignore certain exceptions before they reach crashlytics.
-        ExceptionHandler.install()
 
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
