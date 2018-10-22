@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.transaction
 import androidx.preference.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
@@ -31,6 +32,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         if (savedInstanceState == null) {
             val fragment = SettingsFragment().arguments {

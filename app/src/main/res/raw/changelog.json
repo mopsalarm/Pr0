@@ -1,5 +1,18 @@
 [
   {
+    "version": 153,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Weitere Anpassungen an die Website."
+      },
+      {
+        "type": "Fix",
+        "change": "Nochmal an der einen oder anderen Stelle etwas schneller."
+      }
+    ]
+  },
+  {
     "version": 152,
     "changes": [
       {

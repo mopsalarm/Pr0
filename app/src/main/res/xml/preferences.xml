@@ -8,6 +8,7 @@
             android:defaultValue="@string/pref_theme_default"
             android:entries="@array/pref_theme_human"
             android:entryValues="@array/pref_theme_values"
+            android:icon="@drawable/ic_settings_theme"
             android:key="pref_theme"
             android:summary="@string/pref_theme_summary"
             android:title="@string/pref_theme_title"/>
@@ -19,6 +20,7 @@
 
         <PreferenceScreen
             android:key="prefcat_behaviour"
+            android:icon="@drawable/ic_settings_behaviour"
             android:summary="@string/prefcat_behaviour_summary"
             android:title="@string/prefcat_behaviour">
 
@@ -207,6 +209,7 @@
         <PreferenceScreen
             android:key="prefcat_visual"
             android:persistent="true"
+            android:icon="@drawable/ic_settings_visual"
             android:summary="@string/prefcat_visual_summary"
             android:title="@string/prefcat_visual_title">
 
@@ -299,6 +302,7 @@
 
         <PreferenceScreen
             android:key="prefcat_compatibility"
+            android:icon="@drawable/ic_settings_compatibility"
             android:summary="@string/pref_compatibility_summary"
             android:title="@string/pref_compatibility">
 
@@ -339,6 +343,7 @@
 
         <PreferenceScreen
             android:key="prefcat_update"
+            android:icon="@drawable/ic_settings_update"
             android:summary="@string/prefcat_update_summary"
             android:title="@string/prefcat_update">
 
@@ -376,23 +381,27 @@
         <Preference
             android:key="pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"
+            android:icon="@drawable/ic_settings_changelog"
             android:title="@string/pref_pseudo_changelog"/>
 
         <Preference
             android:key="pref_pseudo_recommend"
             android:persistent="false"
+            android:icon="@drawable/ic_settings_website"
             android:summary="@string/pref_website_summary"
             android:title="@string/pref_website_title"/>
 
         <Preference
             android:key="pref_pseudo_clean_preloaded"
             android:persistent="false"
+            android:icon="@drawable/ic_settings_cleanup"
             android:summary="@string/pseudo_clean_preloaded_summary"
             android:title="@string/pref_pseudo_clean_preloaded_title"/>
 
 
         <Preference
             android:key="pref_pseudo_onboarding"
+            android:icon="@drawable/ic_settings_welcome"
             android:summary="@string/pref_pseudo_onboarding_summary"
             android:title="@string/pref_pseudo_onboarding_title"/>
 
@@ -404,6 +413,7 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
+            android:icon="@drawable/ic_settings_sync"
             android:key="pref_sync_backup"
             android:summary="@string/pref_sync_backup_summary"
             android:title="@string/perf_sync_backup_title"/>
