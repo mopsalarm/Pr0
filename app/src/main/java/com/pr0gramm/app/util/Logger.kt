@@ -106,8 +106,16 @@ class KLogger(val name: String) {
         Logging.log(Log.WARN, name, block())
     }
 
+    inline fun warn(err: Throwable, block: () -> String) {
+        warn(block(), err)
+    }
+
     inline fun error(block: () -> String) {
         Logging.log(Log.ERROR, name, block())
+    }
+
+    inline fun error(err: Throwable, block: () -> String) {
+        error(block(), err)
     }
 
     fun warn(text: String, err: Throwable) {

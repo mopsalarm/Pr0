@@ -9,7 +9,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -135,7 +134,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         // info about banned/register date
-        if (user.banned != 0) {
+        if (user.banned && !user.inactive) {
             val bannedUntil = user.bannedUntil
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)
@@ -145,7 +144,8 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             }
         } else {
             val dateStr = DurationFormat.timeToPointInTime(context, user.registered)
-            extraInfo.text = context.getString(R.string.user_registered, dateStr)
+            val resId = if (user.inactive) R.string.user_registered_inactive else R.string.user_registered
+            extraInfo.text = context.getString(resId, dateStr)
         }
     }
 

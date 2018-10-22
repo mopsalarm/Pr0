@@ -5,6 +5,7 @@ import android.os.ParcelFileDescriptor
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.legacyUse
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.readStream
 import pl.droidsonroids.gif.GifAnimationMetaData
@@ -102,7 +103,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
     }
 
     private fun createGifDrawable(storage: RandomAccessFile): GifDrawable? {
-        val meta = ParcelFileDescriptor.dup(storage.fd).use {
+        val meta = ParcelFileDescriptor.dup(storage.fd).legacyUse {
             GifAnimationMetaData(it.fileDescriptor)
         }
 

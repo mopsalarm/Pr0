@@ -332,8 +332,9 @@ interface Api {
                 val score: Int,
                 val name: String,
                 val registered: Instant,
-                val banned: Int = 0,
+                val banned: Boolean = false,
                 val bannedUntil: Instant?,
+                val inactive: Boolean = false,
                 @Json(name = "commentDelete") val commentDeleteCount: Int,
                 @Json(name = "itemDelete") val itemDeleteCount: Int)
     }

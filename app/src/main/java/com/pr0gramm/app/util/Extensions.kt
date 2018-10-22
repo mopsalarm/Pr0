@@ -559,3 +559,26 @@ fun Closeable?.closeQuietly() {
 inline fun SharedPreferences.getString(key: String): String? {
     return getString(key, null)
 }
+
+inline fun <T : Any, R> T.legacyUse(block: (T) -> R): R {
+    return asClosable(this).use {
+        block(this)
+    }
+}
+
+fun asClosable(value: Any): Closeable {
+    if (value is Closeable)
+        return value
+
+    return Closeable {
+        try {
+            // expect the close method to be there.
+            value.javaClass.getMethod("close").invoke(value)
+
+        } catch (err: Exception) {
+            logger("Closable").warn(err) {
+                "Error invoking close() method in ${value.javaClass.name}"
+            }
+        }
+    }
+}

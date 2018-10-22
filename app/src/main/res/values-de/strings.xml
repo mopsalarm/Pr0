@@ -233,6 +233,7 @@
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
     <string name="open_website">Website öffnen</string>
     <string name="user_registered">Dabei seit %s</string>
+    <string name="user_registered_inactive">Dabei seit %s, inaktiv</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
     <string name="user_banned">Gebannt für %s</string>
     <string name="notification_update_available">Update verfügbar</string>

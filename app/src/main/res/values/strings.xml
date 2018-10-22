@@ -255,6 +255,7 @@
     <string name="user_banned">Banned for %s</string>
     <string name="user_banned_forever">Banned forever</string>
     <string name="user_registered">Registered %s ago</string>
+    <string name="user_registered_inactive">Registered %s ago, inactive</string>
     <string name="update">Update</string>
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version %s is available.</string>
