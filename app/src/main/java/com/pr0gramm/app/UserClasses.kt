@@ -30,7 +30,9 @@ object UserClasses {
             R.string.user_type_fliesentisch,
             R.string.user_type_legende,
             R.string.user_type_wichtler,
-            R.string.user_type_pr0mium)
+            R.string.user_type_pr0mium,
+            R.string.user_type_medfag,
+            R.string.user_type_oldmod)
 
     @JvmStatic
     val MarkColors: List<Int> = listOf(
@@ -43,5 +45,7 @@ object UserClasses {
             R.color.user_type_fliesentisch,
             R.color.user_type_legende,
             R.color.user_type_wichtler,
-            R.color.user_type_pr0mium)
+            R.color.user_type_pr0mium,
+            R.color.user_type_medfag,
+            R.color.user_type_oldmod)
 }
