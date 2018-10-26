@@ -14,7 +14,10 @@ object UserClasses {
             "\u25CF", // user_type_fliesentisch
             "\u25C6", // user_type_legende
             "\u25A7", // user_type_wichtler
-            "\u25CF") // user_type_pr0mium
+            "\u25CF", // user_type_pr0mium
+            "\u25CF", // user_type_medfag
+            "\u25CF"  // user_type_oldmod
+    )
 
     @JvmStatic
     val MarkStrings: List<Int> = listOf(

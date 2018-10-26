@@ -157,6 +157,8 @@
     <string name="user_type_legende">legende</string>
     <string name="user_type_altschwuchtel">altschwuchtel</string>
     <string name="user_type_neuschwuchtel">neuschwuchtel</string>
+    <string name="user_type_medfag">mittelaltschwuchtel</string>
+    <string name="user_type_oldmod">alt moderator</string>
     <string name="user_type_pr0mium">pr0mium</string>
     <string name="user_type_schwuchtel">schwuchtel</string>
     <string name="user_type_wichtler">wichtler</string>

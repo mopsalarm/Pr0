@@ -79,6 +79,8 @@
     <color name="user_type_gesperrt">#444444</color>
     <color name="user_type_legende">#1cb992</color>
     <color name="user_type_wichtler">#d23c22</color>
+    <color name="user_type_medfag">#addc8d</color>
+    <color name="user_type_oldmod">#7fc7ff</color>
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>

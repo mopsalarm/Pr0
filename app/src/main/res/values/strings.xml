@@ -179,6 +179,8 @@
     <string name="user_type_gesperrt">banned</string>
     <string name="user_type_legende">legend</string>
     <string name="user_type_wichtler">wichtler</string>
+    <string name="user_type_medfag">medfeg</string>
+    <string name="user_type_oldmod">old mod</string>
     <string name="user_type_altschwuchtel">oldfag</string>
     <string name="user_type_neuschwuchtel">newfag</string>
     <string name="all">all</string>
