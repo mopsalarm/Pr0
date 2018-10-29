@@ -15,7 +15,7 @@ data class Config(
         val reportReasons: List<String> = DefaultReportReasons,
         val syncVersion: Int = 1,
         val userClasses: List<UserClass> = DefaultUserClasses,
-        val specialMenuItem: Config.MenuItem? = null) {
+        val specialMenuItems: List<Config.MenuItem> = listOf()) {
 
     val reportItemsActive: Boolean
         get() = reportReasons.isNotEmpty()
@@ -27,7 +27,11 @@ data class Config(
     }
 
     @JsonClass(generateAdapter = true)
-    data class MenuItem(val name: String, val icon: String, val link: String)
+    data class MenuItem(
+            val name: String, val icon: String, val link: String,
+            val requireLogin: Boolean = false,
+            val noHighlight: Boolean = false,
+            val lower: Boolean = false)
 
     @JsonClass(generateAdapter = true)
     data class UserClass(val color: String, val name: String, val symbol: String = "\u25CF")

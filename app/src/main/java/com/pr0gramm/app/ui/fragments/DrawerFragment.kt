@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -94,7 +95,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         // initialize the top navigation items
         navItemsRecyclerView.adapter = navigationAdapter
-        navItemsRecyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+        navItemsRecyclerView.layoutManager = LinearLayoutManager(activity)
         navItemsRecyclerView.isNestedScrollingEnabled = false
 
         // add the static items to the navigation

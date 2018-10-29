@@ -14,13 +14,13 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import rx.Observable
 import rx.Observable.combineLatest
-import rx.Observable.just
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -47,16 +47,18 @@ class NavigationProvider(
     private val iconFeedTypeRandom = drawable(R.drawable.ic_action_random)
     private val iconFeedTypeText = drawable(R.drawable.ic_drawer_text_24)
     private val iconInbox = drawable(R.drawable.ic_action_email)
-    private val iconSecretSanta = drawable(R.drawable.ic_action_wichteln)
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
-
-    private val specialMenuItems = configService.observeConfig()
-            .observeOnMainThread()
-            .distinctUntilChanged()
-            .flatMap { resolveSpecial(it) }
 
     private fun drawable(@DrawableRes id: Int): Drawable {
         return ContextCompat.getDrawable(context, id)!!
+    }
+
+    private fun specialMenuItems(loginState: UserService.LoginState, upper: Boolean): Observable<List<NavigationItem>> {
+        return configService.observeConfig()
+                .observeOnMainThread()
+                .map { config -> config.specialMenuItems }
+                .distinctUntilChanged()
+                .flatMap { item -> resolveSpecial(loginState, upper, item) }
     }
 
     val navigationItems: Observable<List<NavigationItem>>
@@ -71,14 +73,17 @@ class NavigationProvider(
                 return result
             }
 
+            val loginStates = userService.loginStates
             val rawSources = listOf<Observable<List<NavigationItem>>>(
-                    specialMenuItems,
+                    loginStates.switchMap { specialMenuItems(it, upper = true) },
 
                     categoryNavigationItems(),
 
-                    userService.loginStates
+                    loginStates
                             .flatMap { bookmarkService.get() }
                             .map { bookmarksToNavItem(it) },
+
+                    loginStates.switchMap { specialMenuItems(it, upper = false) },
 
                     inboxService.unreadMessagesCount()
                             .startWith(0)
@@ -126,7 +131,6 @@ class NavigationProvider(
             }
 
             if (settings.showCategoryControversial) {
-
                 items.add(NavigationItem(
                         action = ActionType.FILTER,
                         title = getString(R.string.action_feed_type_controversial),
@@ -153,7 +157,6 @@ class NavigationProvider(
 
         if (settings.showCategoryPremium) {
             if (userService.isPremiumUser) {
-
                 items.add(NavigationItem(
                         action = ActionType.FILTER,
                         title = getString(R.string.action_feed_type_premium),
@@ -163,14 +166,6 @@ class NavigationProvider(
         }
 
         if (username != null) {
-            if (configService.config().secretSanta) {
-                items.add(NavigationItem(
-                        action = ActionType.URI,
-                        title = getString(R.string.action_secret_santa),
-                        icon = iconSecretSanta,
-                        uri = Uri.parse("https://pr0gramm.com/secret-santa/iap?iap=true")))
-            }
-
             items.add(NavigationItem(
                     action = ActionType.FAVORITES,
                     title = getString(R.string.action_favorites),
@@ -235,9 +230,22 @@ class NavigationProvider(
      * Resolves the special for the given config and loads the icon,
      * if there is one.
      */
-    private fun resolveSpecial(config: Config): Observable<List<NavigationItem>> {
-        val item = config.specialMenuItem ?: return just(emptyList())
+    private fun resolveSpecial(
+            loginState: UserService.LoginState, upper: Boolean,
+            items: List<Config.MenuItem>): Observable<List<NavigationItem>> {
 
+        return Observable.from(items)
+                .concatMapEager<NavigationItem> { item ->
+                    if (item.requireLogin && !loginState.authorized || item.lower != !upper) {
+                        return@concatMapEager Observable.empty()
+                    }
+
+                    loadMenuItem(item)
+                }
+                .toList()
+    }
+
+    private fun loadMenuItem(item: Config.MenuItem): Observable<NavigationItem> {
         logger.info { "Loading item $item" }
 
         return Observable.just(item)
@@ -251,9 +259,8 @@ class NavigationProvider(
                     val icon = BitmapDrawable(context.resources, bitmap)
                     val uri = Uri.parse(item.link)
 
-                    listOf(NavigationItem(ActionType.URI, item.name, icon,
-                            uri = uri,
-                            layout = R.layout.left_drawer_nav_item_special))
+                    val layout = if (item.noHighlight) R.layout.left_drawer_nav_item else R.layout.left_drawer_nav_item_special
+                    NavigationItem(ActionType.URI, item.name, icon, uri = uri, layout = layout)
                 }
                 .retryWhen { err ->
                     err.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
@@ -261,6 +268,7 @@ class NavigationProvider(
                         Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }
                 }
+                .ignoreError()
     }
 
     class NavigationItem(val action: ActionType,
