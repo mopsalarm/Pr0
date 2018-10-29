@@ -1,5 +1,14 @@
 [
   {
+    "version": 154,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Support für Mittelaltschwuchteln und Community Helfer."
+      }
+    ]
+  },
+  {
     "version": 153,
     "changes": [
       {
