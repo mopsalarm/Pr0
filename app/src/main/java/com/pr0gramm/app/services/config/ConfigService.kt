@@ -4,18 +4,15 @@ import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
 import android.content.SharedPreferences
-import android.net.Uri
 import android.provider.Settings
 import androidx.core.content.edit
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.kodein.di.erased.instance
 import rx.Observable
-import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
@@ -24,65 +21,46 @@ import java.util.concurrent.TimeUnit
  * Simple config service to do remove configuration with local fallback
  */
 class ConfigService(context: Application,
-                    private val okHttpClient: OkHttpClient,
+                    private val api: Api,
                     private val preferences: SharedPreferences) {
 
     private val settings = com.pr0gramm.app.Settings.get()
 
     @Volatile
     private var configState: Config = Config()
+
     private val configSubject = BehaviorSubject.create<Config>(configState).toSerialized()
 
     // We are using a device hash so we can return the same config if
     // the devices asks multiple times. We do this so that we can always derive the same
     // config from the hash without storing anything on the server side.
-    private val deviceHash: String
+    private val deviceHash = makeUniqueIdentifier(context, preferences)
 
     init {
-        this.deviceHash = makeUniqueIdentifier(context, preferences)
-
         val jsonCoded = preferences.getString(PREF_DATA_KEY) ?: "{}"
         this.configState = loadState(jsonCoded)
 
         publishState()
 
         // schedule updates once an hour
-        Observable.interval(0, 1, TimeUnit.HOURS, Schedulers.io()).subscribe {
-            ignoreException {
-                update()
-            }
+        Observable.interval(0, 1, TimeUnit.HOURS, BackgroundScheduler).subscribe {
+            update()
         }
     }
 
     private fun update() {
-        val url = Uri.parse("https://pr0.wibbly-wobbly.de/app-config/v2/").buildUpon()
-                .appendEncodedPath("version").appendPath(BuildConfig.VERSION_CODE.toString())
-                .appendEncodedPath("hash").appendPath(deviceHash)
-                .appendEncodedPath("config.json")
-                .appendQueryParameter("beta", settings.useBetaChannel.toString())
-                .build()
-
-        try {
-            val request = Request.Builder().url(url.toString()).build()
-
-            okHttpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    response.body()?.string()?.let { body ->
-                        updateConfigState(body)
-                    }
-
-                } else {
-                    logger.warn { "Could not update app-config, response code ${response.code()}" }
+        api.remoteConfig(BuildConfig.VERSION_CODE, deviceHash, settings.useBetaChannel)
+                .subscribeOnBackground()
+                .doOnNext { logger.info { "Fetching remote config was successful" } }
+                .onErrorReturn { err ->
+                    logger.warn(err) { "Error fetching current remote config" }
+                    Config()
                 }
-            }
-
-        } catch (err: Exception) {
-            logger.warn("Could not update app-config", err)
-        }
+                .subscribe { updateConfigState(it) }
     }
 
-    private fun updateConfigState(body: String) {
-        configState = loadState(body)
+    private fun updateConfigState(config: Config) {
+        configState = config
         persistConfigState()
         publishState()
     }
@@ -94,18 +72,16 @@ class ConfigService(context: Application,
             preferences.edit {
                 putString(PREF_DATA_KEY, jsonCoded)
             }
-
         } catch (err: Exception) {
             logger.warn("Could not persist config state", err)
         }
-
     }
 
     private fun publishState() {
         logger.info { "Publishing change in config state" }
         try {
             configSubject.onNext(config())
-        } catch (err: Exception) {
+        } catch (err: Throwable) {
             logger.warn("Could not publish the current state Oo", err)
         }
     }
@@ -128,8 +104,8 @@ class ConfigService(context: Application,
 
     companion object {
         private val logger = logger("ConfigService")
-        private val PREF_DATA_KEY = "ConfigService.data"
-        private val PREF_ID_KEY = "ConfigService.id"
+        private const val PREF_DATA_KEY = "ConfigService.data"
+        private const val PREF_ID_KEY = "ConfigService.id"
 
         fun makeUniqueIdentifier(context: Context, preferences: SharedPreferences): String {
             // get a cached version
@@ -157,7 +133,7 @@ class ConfigService(context: Application,
 
         private fun getAndroidId(resolver: ContentResolver?): String? = try {
             Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID)
-        } catch (err: Exception) {
+        } catch (_: Throwable) {
             null
         }
 

@@ -2,6 +2,7 @@ package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.NoValue
+import com.pr0gramm.app.services.config.Config
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.RequestBody
@@ -239,6 +240,12 @@ interface Api {
     @POST("api/user/handoverrequest")
     fun handoverToken(
             @Field("_nonce") nonce: Nonce?): Observable<HandoverToken>
+
+    @GET("api/app/config/version/{version}/hash/{hash}/config.json")
+    fun remoteConfig(
+            @Path("version") version: Int,
+            @Path("hash") hash: String,
+            @Query("beta") beta: Boolean): Observable<Config>
 
     data class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
