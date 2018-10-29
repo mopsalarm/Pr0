@@ -9,14 +9,16 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.UserClasses
+import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
+import org.kodein.di.direct
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
@@ -37,9 +39,11 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
     private val extraInfo: TextView = find(R.id.user_extra_info)
     private val writeNewMessage: View = find(R.id.action_new_message)
     private val writeNewMessageTitle: View = find(R.id.action_new_message_title)
-    private val badgesContainer: androidx.recyclerview.widget.RecyclerView = find(R.id.badges_container)
+    private val badgesContainer: RecyclerView = find(R.id.badges_container)
     private val userTypeName: TextView = find(R.id.user_type_name)
     private val showCommentsContainer: View = comments.parent as View
+
+    private val userClassesService = kodein.direct.instance<UserClassesService>()
 
     fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean) {
         // user info
@@ -52,8 +56,9 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         uploads.text = info.uploadCount.toString()
         this.comments.text = info.commentCount.toString()
 
-        userTypeName.setTextColor(context.getColorCompat(UserClasses.MarkColors[user.mark]))
-        userTypeName.text = context.getString(UserClasses.MarkStrings[user.mark]).toUpperCase()
+        val userClass = userClassesService.get(user.mark)
+        userTypeName.setTextColor(userClass.color)
+        userTypeName.text = userClass.name
 
         showCommentsContainer.visible = comments.isNotEmpty()
 

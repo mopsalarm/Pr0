@@ -5,12 +5,15 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.UserClasses
+import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.visible
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
 class UserInfoLoadingView(context: Context) : FrameLayout(context) {
+    private val userClassesService = kodein.direct.instance<UserClassesService>()
     private val usernameView: UsernameView
     private val usermarkView: TextView
 
@@ -26,12 +29,8 @@ class UserInfoLoadingView(context: Context) : FrameLayout(context) {
     fun update(name: String, mark: Int) {
         usernameView.setUsername(name, mark)
 
-        UserClasses.MarkStrings.getOrNull(mark)?.let {
-            usermarkView.text = context.getString(it)
-        }
-
-        UserClasses.MarkColors.getOrNull(mark)?.let {
-            usermarkView.setTextColor(context.getColorCompat(it))
-        }
+        val userClass = userClassesService.get(mark)
+        usermarkView.text = userClass.name
+        usermarkView.setTextColor(userClass.color)
     }
 }

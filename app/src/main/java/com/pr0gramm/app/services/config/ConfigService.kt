@@ -108,14 +108,13 @@ class ConfigService(context: Application,
         } catch (err: Exception) {
             logger.warn("Could not publish the current state Oo", err)
         }
-
     }
 
     /**
      * Observes the config. The config changes are not observed on any particual thread.
      */
     fun observeConfig(): Observable<Config> {
-        return configSubject.observeOn(BackgroundScheduler)
+        return configSubject
     }
 
     fun config(): Config {

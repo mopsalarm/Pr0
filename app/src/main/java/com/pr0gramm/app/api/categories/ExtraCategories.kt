@@ -2,6 +2,7 @@ package com.pr0gramm.app.api.categories
 
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.subscribeOnBackground
 import okhttp3.OkHttpClient
@@ -30,6 +31,8 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
 
     val categoriesAvailable: Observable<Boolean> get() {
         return configService.observeConfig()
+                .observeOn(BackgroundScheduler)
+
                 .switchMap { config ->
                     if (config.extraCategories) {
                         Observable.interval(0, 1, TimeUnit.MINUTES, Schedulers.io()).flatMap { pingOnce() }

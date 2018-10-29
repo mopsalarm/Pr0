@@ -12,9 +12,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.UserClasses
+import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
@@ -37,6 +38,7 @@ import java.util.*
 class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
+    private val userClassesService: UserClassesService by instance()
 
     private val navigationProvider: NavigationProvider by lazy {
         val k = kodein.direct
@@ -63,7 +65,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val inviteView: TextView by bindView(R.id.action_invite)
     private val userImageView: View by bindView(R.id.user_image)
 
-    private val navItemsRecyclerView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.drawer_nav_list)
+    private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
 
     private val navigationAdapter = NavigationAdapter()
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
@@ -182,14 +184,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun applyAuthorizedUserState(state: UserService.LoginState) {
+        val userClass = userClassesService.get(state.mark)
+
         usernameView.text = state.name
         usernameView.setOnClickListener { callback.onUsernameClicked() }
 
         userTypeView.visible = true
-        userTypeView.setTextColor(ContextCompat.getColor(context,
-                UserClasses.MarkColors[state.mark]))
-
-        userTypeView.text = getString(UserClasses.MarkStrings[state.mark]).toUpperCase()
+        userTypeView.text = userClass.name
+        userTypeView.setTextColor(userClass.color)
         userTypeView.setOnClickListener { callback.onUsernameClicked() }
 
 

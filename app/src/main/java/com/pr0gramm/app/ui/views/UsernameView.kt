@@ -7,8 +7,10 @@ import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.inSpans
-import com.pr0gramm.app.UserClasses
-import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.UserClassesService
+import com.pr0gramm.app.util.kodein
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
 
 /**
@@ -16,30 +18,22 @@ import com.pr0gramm.app.util.getColorCompat
 class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
         AppCompatTextView(context, attrs, defStyleAttr) {
 
+    private val userClassesService = kodein.direct.instance<UserClassesService>()
+
     init {
         maxLines = 1
-
-        if (isInEditMode) {
-            setUsername("Mopsalarm", 2)
-        }
     }
 
     @SuppressLint("SetTextI18n")
     fun setUsername(name: String, mark: Int) {
-        if (mark !in UserClasses.MarkColors.indices) {
-            this.text = name
-            return
-        }
-
-        val symbol = UserClasses.MarkSymbol[mark]
-        val color = context.getColorCompat(UserClasses.MarkColors[mark])
+        val userClass = userClassesService.get(mark)
 
         this.text = SpannableStringBuilder().apply {
             append(name)
             append("\u2009")
 
-            inSpans(ForegroundColorSpan(color)) {
-                append(symbol)
+            inSpans(ForegroundColorSpan(userClass.color)) {
+                append(userClass.symbol)
             }
         }
     }
