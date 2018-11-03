@@ -228,14 +228,14 @@ interface Api {
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
     fun requestPasswordRecovery(
-            @Field("email") email: String): Observable<NoValue>
+            @Field("email") email: String): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")
     fun resetPassword(
             @Field("name") name: String,
             @Field("token") token: String,
-            @Field("password") password: String): Observable<ResetPassword>
+            @Field("password") password: String): Deferred<ResetPassword>
 
     @FormUrlEncoded
     @POST("api/user/handoverrequest")

@@ -9,7 +9,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.util.decoupleSubscribe
+import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.ui.base.withViewDisabled
+import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 
@@ -34,12 +36,18 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
         }
     }
 
-    fun submitButtonClicked() {
+    private fun submitButtonClicked() {
         val email = this.email.text.toString().trim()
-        userService.requestPasswordRecovery(email)
-                .decoupleSubscribe()
-                .compose(bindToLifecycleAsync<Any>())
-                .subscribeWithErrorHandling(onComplete = { requestCompleted() })
+
+        launchWithErrorHandler(busyDialog = true) {
+            withViewDisabled(submit) {
+                withAsyncContext(NonCancellable) {
+                    userService.requestPasswordRecovery(email)
+                }
+            }
+
+            requestCompleted()
+        }
     }
 
     private fun requestCompleted() {

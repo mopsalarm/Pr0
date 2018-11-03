@@ -382,14 +382,13 @@ class UserService(private val api: Api,
         }
     }
 
-    fun requestPasswordRecovery(email: String): Completable {
-        return api.requestPasswordRecovery(email).toCompletable()
+    suspend fun requestPasswordRecovery(email: String) {
+        api.requestPasswordRecovery(email).await()
     }
 
-    fun resetPassword(name: String, token: String, password: String): Observable<Boolean> {
-        return api.resetPassword(name, token, password)
-                .doOnNext { value -> logger.info { "Response is $value" } }
-                .map { response -> response.error == null }
+    suspend fun resetPassword(name: String, token: String, password: String): Boolean {
+        val result = api.resetPassword(name, token, password).await()
+        return result.error == null
     }
 
     @JsonClass(generateAdapter = true)

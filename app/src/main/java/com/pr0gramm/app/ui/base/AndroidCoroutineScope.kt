@@ -22,15 +22,13 @@ interface AndroidCoroutineScope : CoroutineScope {
     fun launchWithErrorHandler(
             context: CoroutineContext = EmptyCoroutineContext,
             start: CoroutineStart = CoroutineStart.DEFAULT,
-            useBusyIndicator: Boolean = false,
+            busyDialog: Boolean = false,
             block: suspend CoroutineScope.() -> Unit
     ): Job {
         return launch(context, start) {
             try {
-                if (useBusyIndicator) {
-                    withBusyDialog {
-                        block()
-                    }
+                if (busyDialog) {
+                    withBusyDialog { block() }
                 } else {
                     block()
                 }
@@ -41,7 +39,7 @@ interface AndroidCoroutineScope : CoroutineScope {
     }
 }
 
-suspend fun <T> withViewDisabled(view: View, block: suspend () -> T): T {
+inline fun <T> withViewDisabled(view: View, block: () -> T): T {
     AndroidUtility.checkMainThread()
 
     view.isEnabled = false
@@ -51,3 +49,14 @@ suspend fun <T> withViewDisabled(view: View, block: suspend () -> T): T {
         view.isEnabled = true
     }
 }
+
+suspend inline fun <T> withAsyncContext(
+        context: CoroutineContext? = null,
+        noinline block: suspend CoroutineScope.() -> T): T {
+
+    val newContext = if (context != null) context + Async else Async
+    return withContext(newContext, block)
+}
+
+val Async = Dispatchers.IO
+val Main = Dispatchers.Main
