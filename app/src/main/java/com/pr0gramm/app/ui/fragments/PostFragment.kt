@@ -15,6 +15,7 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.*
@@ -32,6 +33,8 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.await
+import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.dialogs.ignoreError
@@ -47,6 +50,9 @@ import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.erased.instance
 import rx.Observable
 import rx.Observable.combineLatest
@@ -91,11 +97,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
 
-    private val swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout by bindView(R.id.refresh)
+    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
     private val recyclerView: StatefulRecyclerView? by bindOptionalView(R.id.post_content)
-    private val recyclerViewInfo: androidx.recyclerview.widget.RecyclerView? by bindOptionalView(R.id.post_content__info)
-    private val recyclerViewComments: androidx.recyclerview.widget.RecyclerView? by bindOptionalView(R.id.post_content__comments)
+    private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
+    private val recyclerViewComments: RecyclerView? by bindOptionalView(R.id.post_content__comments)
     private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
@@ -403,7 +409,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
+
+        runBlocking {
+            doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
+        }
 
         if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK && data != null) {
             onNewComments(WriteMessageActivity.getNewComment(data))
@@ -690,22 +699,24 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
                 commentsLoadError = false)
 
-        feedService.post(feedItem.id, bust)
-                .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .doOnError { err ->
-                    if (err.rootCause !is IOException) {
-                        AndroidUtility.logToCrashlytics(err)
-                    }
+        launch {
+            try {
+                onPostReceived(feedService.post(feedItem.id, bust))
 
-                    stateTransaction {
-                        updateComments(emptyList(), updateSync = true)
-                        state = state.copy(commentsLoadError = true, commentsLoading = false)
-                    }
+            } catch (err: Exception) {
+                if (err.rootCause !is IOException) {
+                    AndroidUtility.logToCrashlytics(err)
                 }
 
-                .doAfterTerminate { swipeRefreshLayout.isRefreshing = false }
-                .ignoreError()
-                .subscribe { onPostReceived(it) }
+                stateTransaction {
+                    updateComments(emptyList(), updateSync = true)
+                    state = state.copy(commentsLoadError = true, commentsLoading = false)
+                }
+
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
     }
 
     private fun showDeleteItemDialog() {
@@ -904,7 +915,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             override fun onDoubleTap(): Boolean {
                 if (settings.doubleTapToUpvote) {
-                    doVoteOnDoubleTap()
+                    launch { doVoteOnDoubleTap() }
                 }
 
                 return true
@@ -912,10 +923,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun doVoteOnDoubleTap() {
-        feedItemVote.first().bindToLifecycleAsync().subscribe { currentVote ->
-            doVoteFeedItem(currentVote.nextUpVote)
-        }
+    private suspend fun doVoteOnDoubleTap() {
+        val currentVote = feedItemVote.first().await()
+        doVoteFeedItem(currentVote.nextUpVote)
     }
 
     /**
@@ -995,8 +1005,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        val activity = activity ?: return
-
         val previousTags = this.apiTags.value.orEmpty()
 
         // allow op to tag a more restrictive content type.
@@ -1008,10 +1016,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (newTags.isNotEmpty()) {
             logger.info { "Adding new tags $newTags to post" }
 
-            voteService.tag(feedItem.id, newTags)
-                    .bindToLifecycleAsync()
-                    .lift(BusyDialog.busyDialog(activity))
-                    .subscribeWithErrorHandling { updateTags(it) }
+            launchWithErrorHandler(busyDialog = true) {
+                updateTags(withAsyncContext(NonCancellable) {
+                    voteService.tag(feedItem.id, newTags)
+                })
+            }
         }
     }
 
@@ -1181,16 +1190,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun doVoteFeedItem(vote: Vote): Boolean {
-        val action = Runnable {
+        return doIfAuthorizedHelper.runWithRetry {
             showPostVoteAnimation(vote)
 
-            voteService.vote(feedItem, vote)
-                    .decoupleSubscribe()
-                    .compose(bindToLifecycleAsync<Any>())
-                    .subscribeWithErrorHandling()
+            launchWithErrorHandler {
+                withAsyncContext(NonCancellable) {
+                    voteService.vote(feedItem, vote)
+                }
+            }
         }
-
-        return doIfAuthorizedHelper.run(action, action)
     }
 
     private val adapterComments: PostAdapter
@@ -1198,6 +1206,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?: recyclerViewComments?.postAdapter
                 ?: throw IllegalStateException("no comment adapter set")
 
+    @Suppress("unused")
     private val adapterInfo: PostAdapter
         get() = recyclerView?.postAdapter
                 ?: recyclerViewInfo?.postAdapter
@@ -1205,12 +1214,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     inner class PostFragmentCommentTreeHelper : CommentTreeHelper() {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
-            return doIfAuthorizedHelper.run(Runnable {
-                voteService.vote(comment, vote)
-                        .decoupleSubscribe()
-                        .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                        .subscribeWithErrorHandling()
-            })
+            return runBlocking {
+                doIfAuthorizedHelper.run {
+                    withAsyncContext(NonCancellable) {
+                        voteService.vote(comment, vote)
+                        true
+                    }
+                }
+            }
         }
 
         override fun onReplyClicked(comment: Api.Comment) {
@@ -1283,15 +1294,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private inner class Actions : PostActions {
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
-            // and a vote listener vor voting tags.
-            val action = Runnable {
-                voteService.vote(tag, vote)
-                        .decoupleSubscribe()
-                        .compose(bindToLifecycleAsync<Any>())
-                        .subscribeWithErrorHandling()
+            return doIfAuthorizedHelper.runWithRetry {
+                launchWithErrorHandler {
+                    withAsyncContext(NonCancellable) {
+                        voteService.vote(tag, vote)
+                    }
+                }
             }
-
-            return doIfAuthorizedHelper.run(action, action)
         }
 
         override fun onTagClicked(tag: Api.Tag) {
@@ -1315,15 +1324,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun writeCommentClicked(text: String): Boolean {
             AndroidUtility.hideSoftKeyboard(view)
-
-            val action = Runnable {
-                voteService.postComment(feedItem, 0, text)
-                        .bindToLifecycleAsync()
-                        .lift(BusyDialog.busyDialog(context))
-                        .subscribeWithErrorHandling { onNewComments(it) }
+            return doIfAuthorizedHelper.runWithRetry {
+                launchWithErrorHandler(busyDialog = true) {
+                    onNewComments(withAsyncContext(NonCancellable) {
+                        voteService.postComment(feedItem, 0, text)
+                    })
+                }
             }
-
-            return doIfAuthorizedHelper.run(action, action)
         }
     }
 

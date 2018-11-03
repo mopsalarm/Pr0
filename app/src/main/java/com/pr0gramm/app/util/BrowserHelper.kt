@@ -15,6 +15,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
+import kotlinx.coroutines.launch
 import org.kodein.di.erased.instance
 import java.util.*
 
@@ -148,7 +149,7 @@ object BrowserHelper {
         val activity = AndroidUtility.activityFromContext(context)
 
         // we only want to do handover for pr0gramm urls
-        val externalUri = uri.host.toLowerCase() != "pr0gramm.com"
+        val externalUri = uri.host?.toLowerCase() != "pr0gramm.com"
 
         // the user needs to be signed in for handover to make sense
         val userService = context.directKodein.instance<UserService>()
@@ -159,21 +160,23 @@ object BrowserHelper {
             return
         }
 
-        activity.directKodein.instance<Api>()
-                .handoverToken(null)
-                .map { response ->
-                    Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()
-                            .appendQueryParameter("path", uri.path)
-                            .appendQueryParameter("token", response.token)
-                            .build()
+        val api = activity.directKodein.instance<Api>()
+
+        activity.launch {
+            block(try {
+                val response = activity.withBusyDialog {
+                    api.handoverToken(null).await()
                 }
-                .compose(activity.bindToLifecycleAsync())
-                .withBusyDialog(activity)
-                .onErrorReturn { err ->
-                    logger.warn { "Error getting handover token: $err" }
-                    uri
-                }
-                .debug("handovertoken")
-                .subscribe { block(it) }
+
+                Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()
+                        .appendQueryParameter("path", uri.path)
+                        .appendQueryParameter("token", response.token)
+                        .build()
+
+            } catch (err: Exception) {
+                logger.warn(err) { "Error getting handover token" }
+                return@launch
+            })
+        }
     }
 }

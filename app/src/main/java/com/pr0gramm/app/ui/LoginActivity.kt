@@ -34,6 +34,8 @@ import org.kodein.di.erased.instance
 import retrofit2.HttpException
 import rx.Observable
 
+typealias Callback = () -> Unit
+
 /**
  */
 class LoginActivity : BaseAppCompatActivity("LoginActivity") {
@@ -199,12 +201,12 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     }
 
     class DoIfAuthorizedHelper(private val fragment: androidx.fragment.app.Fragment) {
-        private var retry: Runnable? = null
+        private var retry: Callback? = null
 
-        fun onActivityResult(requestCode: Int, resultCode: Int) {
+        suspend fun onActivityResult(requestCode: Int, resultCode: Int) {
             if (requestCode == RequestCodes.AUTHORIZED_HELPER) {
                 if (resultCode == Activity.RESULT_OK) {
-                    retry?.run()
+                    retry?.invoke()
                 }
 
                 retry = null
@@ -215,12 +217,12 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          * Executes the given runnable if a user is signed in. If not, this method shows
          * the login screen. After a successful login, the given 'retry' runnable will be called.
          */
-        fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
+        fun run(runnable: Callback, retry: Callback? = null): Boolean {
             val context = fragment.context ?: return false
 
             val userService: UserService = context.directKodein.instance()
             return if (userService.isAuthorized) {
-                runnable.run()
+                runnable()
                 true
 
             } else {
@@ -230,6 +232,14 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 startActivityForResult(intent, RequestCodes.AUTHORIZED_HELPER)
                 false
             }
+        }
+
+        fun runWithRetry(runnable: Callback): Boolean {
+            return run(runnable, runnable)
+        }
+
+        fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
+            return run({ runnable.run() }, { retry?.run() })
         }
 
         private fun startActivityForResult(intent: Intent, requestCode: Int) {

@@ -47,7 +47,7 @@ class SyncService(private val userService: UserService,
         }
     }
 
-    fun sync() {
+    suspend fun sync() {
         Stats.get().time("jobs.sync.time", measureTimeMillis {
             Stats.get().incrementCounter("jobs.sync")
 
@@ -59,13 +59,16 @@ class SyncService(private val userService: UserService,
             logger.info { "Performing a sync operation now" }
 
             logger.time("Sync operation") {
-                try {
+                ignoreException {
                     syncCachedUserInfo()
-                    syncUserState()
-                    syncSeenService()
+                }
 
-                } catch (thr: Throwable) {
-                    logger.error("Error while syncing", thr)
+                ignoreException {
+                    syncUserState()
+                }
+
+                ignoreException {
+                    syncSeenService()
                 }
             }
         })
@@ -74,16 +77,16 @@ class SyncService(private val userService: UserService,
     private fun syncCachedUserInfo() {
         if (singleShotService.firstTimeToday("update-userInfo")) {
             logger.info { "Update current user info" }
-            userService.updateCachedUserInfo()
-                    .ignoreError().subscribe()
+            userService.updateCachedUserInfo().ignoreError().subscribe()
         }
     }
 
-    private fun syncUserState() {
+    private suspend fun syncUserState() {
         logger.info { "Sync with pr0gramm api" }
 
-        userService.sync().ignoreError().subscribe { sync ->
-            // now show results, if any
+        ignoreException {
+            val sync = userService.sync() ?: return
+
             if (sync.inboxCount > 0) {
                 notificationService.showForInbox(sync)
             } else {

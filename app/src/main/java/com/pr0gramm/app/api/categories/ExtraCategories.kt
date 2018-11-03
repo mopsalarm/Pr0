@@ -1,13 +1,13 @@
 package com.pr0gramm.app.api.categories
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.subscribeOnBackground
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import rx.Observable
 import rx.schedulers.Schedulers
@@ -23,7 +23,7 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
             .client(httpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/categories/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
             .create(ExtraCategoryApi::class.java)
 
@@ -35,7 +35,9 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
 
                 .switchMap { config ->
                     if (config.extraCategories) {
-                        Observable.interval(0, 1, TimeUnit.MINUTES, Schedulers.io()).flatMap { pingOnce() }
+                        Observable
+                                .interval(0, 1, TimeUnit.MINUTES, Schedulers.io())
+                                .flatMap { toObservable { pingOnce() } }
                     } else {
                         Observable.just(false)
                     }
@@ -48,13 +50,13 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
                 .distinctUntilChanged()
     }
 
-    private fun pingOnce(): Observable<Boolean>? {
-        return api.ping()
-                .subscribeOnBackground()
-                .map { true }
-                .onErrorReturn { err ->
-                    logger.warn("ping failed", err)
-                    false
-                }
+    private suspend fun pingOnce(): Boolean {
+        return try {
+            api.ping().await()
+            true
+        } catch (err: Exception) {
+            logger.warn { "ping failed: $err" }
+            false
+        }
     }
 }

@@ -5,7 +5,9 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.services.Reducer
+import com.pr0gramm.app.util.createObservable
+import kotlinx.coroutines.runBlocking
+import rx.Emitter
 import rx.Observable
 
 /**
@@ -13,9 +15,9 @@ import rx.Observable
  */
 
 interface FeedService {
-    fun load(query: FeedQuery): Observable<Api.Feed>
+    suspend fun load(query: FeedQuery): Api.Feed
 
-    fun post(id: Long, bust: Boolean = false): Observable<Api.Post>
+    suspend fun post(id: Long, bust: Boolean = false): Api.Post
 
     /**
      * Streams feed items - giving one page after the next until
@@ -31,7 +33,7 @@ interface FeedService {
 class FeedServiceImpl(private val api: Api,
                       private val extraCategories: ExtraCategories) : FeedService {
 
-    override fun load(query: FeedService.FeedQuery): Observable<Api.Feed> {
+    override suspend fun load(query: FeedService.FeedQuery): Api.Feed {
         val feedFilter = query.filter
 
         // filter by feed-type
@@ -53,54 +55,63 @@ class FeedServiceImpl(private val api: Api,
         val tags = feedFilter.tags?.replaceFirst("^\\s*\\?\\s*".toRegex(), "!")
 
         return when (feedType) {
-            FeedType.RANDOM -> extraCategories.api
-                    .random(tags, flags)
-                    .map { feed -> feed.copy(_items = feed.items.shuffled()) }
+            FeedType.RANDOM -> {
+                val feed = extraCategories.api.random(tags, flags).await()
+                feed.copy(_items = feed.items.shuffled())
+            }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold
-                extraCategories.api.bestof(tags, user, flags, query.older, benisScore)
+                extraCategories.api.bestof(tags, user, flags, query.older, benisScore).await()
             }
 
-            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(tags, flags, query.older)
+            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(tags, flags, query.older).await()
 
-            FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older)
+            FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older).await()
 
             else -> {
                 // replace old search with a new one.
-                api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, tags, likes, self, user)
+                api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, tags, likes, self, user).await()
             }
         }
     }
 
-    override fun post(id: Long, bust: Boolean): Observable<Api.Post> {
+    override suspend fun post(id: Long, bust: Boolean): Api.Post {
         val buster = if (bust) TimeFactory.currentTimeMillis() else null
-        return api.info(id, bust = buster)
+        return api.info(id, bust = buster).await()
     }
 
     override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {
         // move from low to higher numbers if newer is set.
         val upwards = startQuery.newer != null
 
-        return Reducer.iterate(startQuery) { query ->
-            return@iterate load(query).toSingle().map { feed ->
-                // get the previous (or next) page from the current set of items.
-                val nextQuery = if (upwards) {
-                    feed.items
-                            .takeUnless { feed.isAtStart }
-                            ?.maxBy { it.id }
-                            ?.let { query.copy(newer = it.id) }
-                } else {
-                    feed.items
-                            .takeUnless { feed.isAtEnd }
-                            ?.minBy { it.id }
-                            ?.let { query.copy(older = it.id) }
-                }
+        return createObservable(Emitter.BackpressureMode.BUFFER) { emitter ->
+            runBlocking {
+                try {
+                    var query: FeedService.FeedQuery? = startQuery
 
-                Reducer.Step(feed, nextQuery)
-            }.toBlocking().value()
+                    while (true) {
+                        val currentQuery = query ?: break
+                        val feed = load(currentQuery)
+                        emitter.onNext(feed)
+
+                        // get the previous (or next) page from the current set of items.
+                        query = if (upwards) {
+                            feed.items.takeUnless { feed.isAtStart }?.maxBy { it.id }
+                                    ?.let { currentQuery.copy(newer = it.id) }
+                        } else {
+                            feed.items.takeUnless { feed.isAtEnd }?.minBy { it.id }
+                                    ?.let { currentQuery.copy(older = it.id) }
+                        }
+                    }
+
+                    emitter.onCompleted()
+
+
+                } catch (err: Throwable) {
+                    emitter.onError(err)
+                }
+            }
         }
     }
-
-    private class SearchQuery(val tags: String?)
 }

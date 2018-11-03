@@ -24,28 +24,28 @@ interface Api {
             @Query("tags") tags: String?,
             @Query("likes") likes: String?,
             @Query("self") self: Boolean?,
-            @Query("user") user: String?): Observable<Feed>
+            @Query("user") user: String?): Deferred<Feed>
 
     @FormUrlEncoded
     @POST("/api/items/vote")
     fun vote(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<NoValue>
+            @Field("vote") voteValue: Int): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
     fun voteTag(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<NoValue>
+            @Field("vote") voteValue: Int): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
     fun voteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<NoValue>
+            @Field("vote") voteValue: Int): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("/api/user/login")
@@ -58,10 +58,10 @@ interface Api {
     fun addTags(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") lastId: Long,
-            @Field("tags") tags: String): Observable<NewTag>
+            @Field("tags") tags: String): Deferred<NewTag>
 
     @GET("/api/tags/top")
-    fun topTags(): Observable<TagTopList>
+    fun topTags(): Deferred<TagTopList>
 
     @FormUrlEncoded
     @POST("/api/comments/post")
@@ -69,33 +69,33 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("parentId") parentId: Long,
-            @Field("comment") comment: String): Observable<NewComment>
+            @Field("comment") comment: String): Deferred<NewComment>
 
     @FormUrlEncoded
     @POST("/api/comments/delete")
     fun hardDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Observable<NoValue>
+            @Field("reason") reason: String): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
     fun softDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Observable<NoValue>
+            @Field("reason") reason: String): Deferred<NoValue>
 
     @GET("/api/items/info")
     fun info(
             @Query("itemId") itemId: Long,
-            @Query("bust") bust: Long?): Observable<Post>
+            @Query("bust") bust: Long?): Deferred<Post>
 
     @GET("/api/user/sync")
     fun sync(
-            @Query("offset") offset: Long): Observable<Sync>
+            @Query("offset") offset: Long): Deferred<Sync>
 
     @GET("/api/user/info")
-    fun accountInfo(): Observable<AccountInfo>
+    fun accountInfo(): Deferred<AccountInfo>
 
     @GET("/api/profile/info")
     fun info(
@@ -128,10 +128,10 @@ interface Api {
     fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientId") recipient: Long): Observable<NoValue>
+            @Field("recipientId") recipient: Long): Deferred<NoValue>
 
     @GET("/api/items/ratelimited")
-    fun ratelimited(): Observable<NoValue>
+    fun ratelimited(): Deferred<NoValue>
 
     @POST("/api/items/upload")
     fun upload(
@@ -149,13 +149,13 @@ interface Api {
 
     @GET("/api/items/queue")
     fun queue(
-            @Query("id") id: Long?): Observable<QueueState>
+            @Query("id") id: Long?): Deferred<QueueState>
 
     @FormUrlEncoded
     @POST("/api/user/invite")
     fun invite(
             @Field("_nonce") nonce: Nonce?,
-            @Field("email") email: String): Observable<Invited>
+            @Field("email") email: String): Deferred<Invited>
 
     // Extra stuff for admins
     @FormUrlEncoded
@@ -166,7 +166,7 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("banUser") banUser: String?,
-            @Field("days") days: Float?): Observable<NoValue>
+            @Field("days") days: Float?): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/ban")
@@ -176,11 +176,11 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("days") days: Float,
-            @Field("mode") mode: Int?): Observable<NoValue>
+            @Field("mode") mode: Int?): Deferred<NoValue>
 
     @GET("api/tags/details")
     fun tagDetails(
-            @Query("itemId") itemId: Long): Observable<TagDetails>
+            @Query("itemId") itemId: Long): Deferred<TagDetails>
 
     @FormUrlEncoded
     @POST("api/tags/delete")
@@ -189,26 +189,26 @@ interface Api {
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
             @Field("days") days: Float?,
-            @Field("tags[]") tagId: List<Long> = listOf()): Observable<NoValue>
+            @Field("tags[]") tagId: List<Long> = listOf()): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/profile/follow")
     fun profileFollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Observable<NoValue>
+            @Field("name") username: String): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
     fun profileUnfollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Observable<NoValue>
+            @Field("name") username: String): Deferred<NoValue>
 
     @GET("api/profile/suggest")
     fun suggestUsers(
             @Query("prefix") prefix: String): Call<Names>
 
     @GET("api/user/identifier")
-    fun identifier(): Observable<UserIdentifier>
+    fun identifier(): Deferred<UserIdentifier>
 
     @FormUrlEncoded
     @POST("api/contact/send")
@@ -240,13 +240,13 @@ interface Api {
     @FormUrlEncoded
     @POST("api/user/handoverrequest")
     fun handoverToken(
-            @Field("_nonce") nonce: Nonce?): Observable<HandoverToken>
+            @Field("_nonce") nonce: Nonce?): Deferred<HandoverToken>
 
     @GET("api/app/config/version/{version}/hash/{hash}/config.json")
     fun remoteConfig(
             @Path("version") version: Int,
             @Path("hash") hash: String,
-            @Query("beta") beta: Boolean): Observable<Config>
+            @Query("beta") beta: Boolean): Deferred<Config>
 
     data class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
@@ -293,7 +293,7 @@ interface Api {
             @Json(name = "atEnd") val isAtEnd: Boolean = false) {
 
         @Transient
-        val items = _items ?: listOf()
+        val items = _items.orEmpty()
 
         @JsonClass(generateAdapter = true)
         data class Item(

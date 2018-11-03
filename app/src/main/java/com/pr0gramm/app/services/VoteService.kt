@@ -14,7 +14,6 @@ import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import okio.Okio
-import rx.Completable
 import rx.Observable
 import java.io.ByteArrayInputStream
 
@@ -33,28 +32,28 @@ class VoteService(private val api: Api,
      * @param item The item that is to be voted
      * @param vote The vote to send to the server
      */
-    fun vote(item: FeedItem, vote: Vote): Completable {
+    suspend fun vote(item: FeedItem, vote: Vote) {
         logger.info { "Voting feed item ${item.id} $vote" }
         Track.votePost(vote)
 
-        doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
-        return api.vote(null, item.id, vote.voteValue).toCompletable()
+        doAsync { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
+        api.vote(null, item.id, vote.voteValue).await()
     }
 
-    fun vote(comment: Api.Comment, vote: Vote): Completable {
+    suspend fun vote(comment: Api.Comment, vote: Vote) {
         logger.info { "Voting comment ${comment.id} $vote" }
         Track.voteComment(vote)
 
-        doInBackground { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
-        return api.voteComment(null, comment.id, vote.voteValue).toCompletable()
+        doAsync { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
+        api.voteComment(null, comment.id, vote.voteValue).await()
     }
 
-    fun vote(tag: Api.Tag, vote: Vote): Completable {
+    suspend fun vote(tag: Api.Tag, vote: Vote) {
         logger.info { "Voting tag ${tag.id} $vote" }
         Track.voteTag(vote)
 
-        doInBackground { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
-        return api.voteTag(null, tag.id, vote.voteValue).toCompletable()
+        doAsync { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
+        api.voteTag(null, tag.id, vote.voteValue).await()
     }
 
     /**
@@ -129,40 +128,41 @@ class VoteService(private val api: Api,
             }
         }
 
-        logger.info { "Applying vote actions took ${watch.toString()}" }
+        logger.info { "Applying vote actions took $watch" }
     }
 
     /**
      * Tags the given post. This methods adds the tags to the given post
      * and returns a list of tags.
      */
-    fun tag(itemId: Long, tags: List<String>): Observable<List<Api.Tag>> {
+    suspend fun tag(itemId: Long, tags: List<String>): List<Api.Tag> {
         val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
-        return api.addTags(null, itemId, tagString).map { response ->
-            withTransaction(database) {
-                // auto-apply up-vote to newly created tags
-                for (tagId in response.tagIds) {
-                    storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
-                }
-            }
 
-            response.tags
+        val response = api.addTags(null, itemId, tagString).await()
+
+        withTransaction(database) {
+            // auto-apply up-vote to newly created tags
+            for (tagId in response.tagIds) {
+                storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
+            }
         }
+
+        return response.tags
     }
 
     /**
      * Writes a comment to the given post.
      */
-    fun postComment(itemId: Long, parentId: Long, comment: String): Observable<Api.NewComment> {
-        return api.postComment(null, itemId, parentId, comment)
-                .filter { response -> response.comments.size >= 1 }
-                .doOnNext { response ->
-                    // store the implicit upvote for the comment.
-                    storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)
-                }
+    suspend fun postComment(itemId: Long, parentId: Long, comment: String): Api.NewComment {
+        val response = api.postComment(null, itemId, parentId, comment).await()
+
+        // store the implicit upvote for the comment.
+        storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)
+
+        return response
     }
 
-    fun postComment(item: FeedItem, parentId: Long, comment: String): Observable<Api.NewComment> {
+    suspend fun postComment(item: FeedItem, parentId: Long, comment: String): Api.NewComment {
         return postComment(item.id, parentId, comment)
     }
 

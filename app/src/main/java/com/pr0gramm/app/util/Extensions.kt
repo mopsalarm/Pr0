@@ -41,6 +41,8 @@ import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.properties.Delegates
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
@@ -160,6 +162,10 @@ inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R) {
 
 @Suppress("ConvertTryFinallyToUseCall")
 inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
+    contract {
+        callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+    }
+
     try {
         return fn(this)
     } finally {
@@ -168,6 +174,10 @@ inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
 }
 
 inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+
     try {
         return block(this)
     } finally {

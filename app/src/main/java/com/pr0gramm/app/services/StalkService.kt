@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import com.pr0gramm.app.api.pr0gramm.Api
-import rx.Completable
 import rx.Observable
 import rx.subjects.PublishSubject
 import java.util.*
@@ -15,16 +14,14 @@ class StalkService(private val api: Api) {
     private val following = Collections.synchronizedSet(HashSet<String>())
     private val changes = PublishSubject.create<String>()
 
-    fun follow(username: String): Completable {
-        return api.profileFollow(null, username)
-                .toCompletable()
-                .doOnCompleted { markAsFollowing(username, true) }
+    suspend fun follow(username: String) {
+        api.profileFollow(null, username).await()
+        markAsFollowing(username, true)
     }
 
-    fun unfollow(username: String): Completable {
-        return api.profileUnfollow(null, username)
-                .toCompletable()
-                .doOnCompleted { markAsFollowing(username, false) }
+    suspend fun unfollow(username: String) {
+        api.profileUnfollow(null, username).await()
+        markAsFollowing(username, false)
     }
 
     fun markAsFollowing(username: String, following: Boolean) {

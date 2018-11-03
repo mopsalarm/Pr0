@@ -14,15 +14,19 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.rootCause
+import com.pr0gramm.app.util.visible
+import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import kotterknife.bindViews
 import org.kodein.di.erased.instance
-import rx.lang.kotlin.subscribeBy
 
 /**
  */
@@ -61,19 +65,28 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         // disable all views
         disableInputViews()
 
-        inviteService.send(email)
-                .decoupleSubscribe()
-                .compose(bindToLifecycleAsync<Any>())
-                .doAfterTerminate { this.requeryInvites() }
-                .subscribeBy(onCompleted = { this.onInviteSent() }, onError = { this.onInviteError(it) })
+        launchWithErrorHandler(busyDialog = true) {
+            try {
+                withAsyncContext(NonCancellable) {
+                    inviteService.send(email)
+                }
 
-        Track.inviteSent()
+                onInviteSent()
+
+            } catch (err: Throwable) {
+                onInviteError(err)
+
+            } finally {
+                // re-query invites
+                handleInvites(inviteService.invites())
+            }
+        }
     }
 
     private fun requeryInvites() {
-        inviteService.invites()
-                .bindToLifecycleAsync()
-                .subscribeWithErrorHandling { handleInvites(it) }
+        launchWithErrorHandler {
+            handleInvites(inviteService.invites())
+        }
     }
 
     private fun handleInvites(invites: InviteService.Invites) {
@@ -102,6 +115,8 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     }
 
     private fun onInviteSent() {
+        Track.inviteSent()
+
         Snackbar.make(mailField, R.string.invite_hint_success, Snackbar.LENGTH_SHORT)
                 .configureNewStyle()
                 .setAction(R.string.okay, {})

@@ -4,11 +4,10 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
-import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.util.ignoreException
 import gnu.trove.set.hash.TLongHashSet
-import rx.Completable
-import rx.subjects.PublishSubject
+import kotlinx.coroutines.NonCancellable
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -106,22 +105,16 @@ class InMemoryCacheService {
         enhanceTags(itemId, tags.map { tag -> Api.Tag(0L, 0.5f, tag) })
     }
 
-    fun refreshRepostsCache(feedService: FeedService, query: FeedService.FeedQuery): Completable {
-        val subject = PublishSubject.create<List<Long>>()
+    suspend fun refreshRepostsCache(feedService: FeedService, query: FeedService.FeedQuery): Boolean {
+        ignoreException {
+            return withAsyncContext(NonCancellable) {
+                val feed = feedService.load(query)
+                cacheReposts(feed.items.map { it.id })
+                true
+            }
+        }
 
-        // refresh happens completely in background to let the query run even if the
-        // fragments lifecycle is already destroyed.
-        feedService.load(query)
-                .subscribeOnBackground()
-
-                // forward to subject
-                .doOnError { subject.onError(it) }
-                .doOnCompleted { subject.onCompleted() }
-
-                .ignoreError()
-                .subscribe { items -> cacheReposts(items.items.map { it.id }) }
-
-        return subject.toCompletable()
+        return false
     }
 
     private class ExpiringValue<out T : Any>(value: T, expireTime: Long, timeUnit: TimeUnit) {

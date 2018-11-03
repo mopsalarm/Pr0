@@ -32,6 +32,9 @@ import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.base.AsyncScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
 import rx.Completable
 import rx.util.async.Async
@@ -320,6 +323,17 @@ fun doInBackground(action: () -> Unit): Completable {
     }, BackgroundScheduler)
 
     return o.toCompletable()
+}
+
+fun <T> doAsync(action: suspend () -> T): Job {
+    return AsyncScope.launch {
+        try {
+            action()
+        } catch (err: Throwable) {
+            // log it
+            AndroidUtility.logToCrashlytics(BackgroundThreadException(err))
+        }
+    }
 }
 
 class BackgroundThreadException(cause: Throwable) : RuntimeException(cause)

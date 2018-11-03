@@ -7,7 +7,6 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.logger
-import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
@@ -111,8 +110,8 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Sends a private message to a receiver
      */
-    fun send(receiverId: Long, message: String): Completable {
-        return api.sendMessage(null, message, receiverId).toCompletable()
+    suspend fun send(receiverId: Long, message: String) {
+        api.sendMessage(null, message, receiverId).await()
     }
 
     companion object {

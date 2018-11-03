@@ -6,13 +6,14 @@ import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.util.ignoreException
 import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.logger
+import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.erased.instance
-import rx.Completable
 
 /**
  * Reply directly to a user
@@ -51,25 +52,27 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
         // decide if we are sending a message or a comment
         val isMessage = itemId == 0L || commentId == 0L
 
-        val result = if (isMessage) {
-            sendResponseToMessage(receiverId, text)
-        } else {
-            sendResponseAsComment(itemId, commentId, text)
-        }
+        AsyncScope.launch {
+            ignoreException {
+                if (isMessage) {
+                    sendResponseToMessage(receiverId, text)
+                } else {
+                    sendResponseAsComment(itemId, commentId, text)
+                }
 
-        // and handle the result.
-        result.subscribeOn(BackgroundScheduler).onErrorComplete().subscribe {
-            notificationService.showSendSuccessfulNotification(receiverName)
+                notificationService.showSendSuccessfulNotification(receiverName)
+            }
+
             markMessageAsRead(context, messageCreated)
         }
     }
 
-    private fun sendResponseAsComment(itemId: Long, commentId: Long, text: String): Completable {
-        return voteService.postComment(itemId, commentId, text).toCompletable()
+    private suspend fun sendResponseAsComment(itemId: Long, commentId: Long, text: String) {
+        voteService.postComment(itemId, commentId, text)
     }
 
-    private fun sendResponseToMessage(receiverId: Int, text: String): Completable {
-        return inboxService.send(receiverId.toLong(), text)
+    private suspend fun sendResponseToMessage(receiverId: Int, text: String) {
+        inboxService.send(receiverId.toLong(), text)
     }
 
     private fun markMessageAsRead(context: Context, messageTimestamp: Instant) {

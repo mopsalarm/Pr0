@@ -10,7 +10,9 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.*
+import kotlinx.coroutines.launch
 import org.kodein.di.erased.instance
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -49,14 +51,14 @@ class ConfigService(context: Application,
     }
 
     private fun update() {
-        api.remoteConfig(BuildConfig.VERSION_CODE, deviceHash, settings.useBetaChannel)
-                .subscribeOnBackground()
-                .doOnNext { logger.info { "Fetching remote config was successful" } }
-                .onErrorReturn { err ->
-                    logger.warn(err) { "Error fetching current remote config" }
-                    Config()
-                }
-                .subscribe { updateConfigState(it) }
+        AsyncScope.launch {
+            val config = kotlin.runCatching {
+                api.remoteConfig(BuildConfig.VERSION_CODE, deviceHash, settings.useBetaChannel).await()
+            }
+
+            logger.debug { "Remote config result: $config" }
+            updateConfigState(config.getOrElse { Config() })
+        }
     }
 
     private fun updateConfigState(config: Config) {

@@ -3,12 +3,12 @@ package com.pr0gramm.app.ui
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.retryUpTo
 import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.subscribeOnBackground
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okio.ByteString
-import rx.Observable
-import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -22,19 +22,17 @@ class TagSuggestionService(api: Api) {
 
     init {
         logger.info { "Query for tag top- and blacklist" }
-        api.topTags()
-                .subscribeOnBackground()
-                .retryWhen { attempts ->
-                    attempts.take(5).flatMap {
-                        Observable.timer(1, TimeUnit.MINUTES, BackgroundScheduler)
-                    }
-                }
-                .subscribe { result ->
-                    tags = result.tags
-                    questionableTags = result.blacklist
 
-                    logger.info { "Cached ${tags.size} tags and ${questionableTags.size} blacklist items." }
-                }
+        AsyncScope.launch {
+            retryUpTo(5, { delay(60 * 1000) }) {
+                val result = api.topTags().await()
+
+                tags = result.tags
+                questionableTags = result.blacklist
+
+                logger.info { "Cached ${tags.size} tags and ${questionableTags.size} blacklist items." }
+            }
+        }
     }
 
     fun setupView(tagInput: MultiAutoCompleteTextView) {

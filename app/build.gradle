@@ -269,5 +269,14 @@ dependencyUpdates.resolutionStrategy {
     }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    sourceCompatibility = JavaVersion.VERSION_1_6
+    targetCompatibility = JavaVersion.VERSION_1_6
+
+    kotlinOptions {
+        freeCompilerArgs = ["-Xuse-experimental=kotlin.contracts.ExperimentalContracts"]
+    }
+}
+
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.getkeepsafe.dexcount'

@@ -17,9 +17,10 @@ import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.fragments.BusyDialog
-import com.pr0gramm.app.util.decoupleSubscribe
+import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.visible
+import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import java.util.*
@@ -121,30 +122,40 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
 
         if (isCommentAnswer) {
-            val parentComment = parentCommentId
             val itemId = itemId
+            val parentComment = parentCommentId
 
-            voteService.postComment(itemId, parentComment, message)
-                    .decoupleSubscribe()
-                    .bindToLifecycleAsync()
-                    .lift(BusyDialog.busyDialog(this))
-                    .doOnCompleted { this.finishAfterSending() }
-                    .subscribeWithErrorHandling { newComments ->
+            launchWithErrorHandler(busyDialog = true) {
+                withViewDisabled(buttonSubmit) {
+                    try {
+                        val newComments = withAsyncContext(NonCancellable) {
+                            voteService.postComment(itemId, parentComment, message)
+                        }
+
                         val result = Intent()
                         result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
                         setResult(Activity.RESULT_OK, result)
+
+                    } finally {
+                        finishAfterSending()
                     }
+                }
+            }
 
             Track.writeComment()
 
         } else {
-            // now send message
-            inboxService.send(receiverId, message)
-                    .decoupleSubscribe()
-                    .compose(bindToLifecycleAsync<Any>())
-                    .lift(BusyDialog.busyDialog<Any>(this))
-                    .doOnCompleted { finishAfterSending() }
-                    .subscribeWithErrorHandling()
+            launchWithErrorHandler(busyDialog = true) {
+                withViewDisabled(buttonSubmit) {
+                    try {
+                        withAsyncContext(NonCancellable) {
+                            inboxService.send(receiverId, message)
+                        }
+                    } finally {
+                        finishAfterSending()
+                    }
+                }
+            }
 
             Track.writeMessage()
         }

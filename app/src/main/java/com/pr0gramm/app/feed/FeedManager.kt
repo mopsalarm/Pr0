@@ -1,26 +1,26 @@
 package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.trace
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import rx.Observable
-import rx.Subscription
 import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
-import rx.subscriptions.Subscriptions
 
 class FeedManager(val feedService: FeedService, private var feed: Feed) {
     private val logger = logger("FeedService")
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
-    private var subscription: Subscription = Subscriptions.unsubscribed()
+    private var job: Job = Job()
 
     /**
      * True, if this feed manager is currently performing a load operation.
      */
-    val isLoading: Boolean get() = !subscription.isUnsubscribed
+    val isLoading: Boolean get() = !job.isActive
 
     private val feedType: FeedType get() = feed.feedType
 
@@ -42,7 +42,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
      */
     fun restart(around: Long? = null) {
         stop()
-        subscribeTo(feedService.load(feedQuery().copy(around = around)))
+        load { feedService.load(feedQuery().copy(around = around)) }
     }
 
     /**
@@ -53,7 +53,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
         if (feed.isAtEnd || isLoading || oldest == null)
             return
 
-        subscribeTo(feedService.load(feedQuery().copy(older = oldest.id(feedType))))
+        load { feedService.load(feedQuery().copy(older = oldest.id(feedType))) }
     }
 
     /**
@@ -64,25 +64,26 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
         if (feed.isAtStart || isLoading || newest == null)
             return
 
-        subscribeTo(feedService.load(feedQuery().copy(newer = newest.id(feedType))))
+        load { feedService.load(feedQuery().copy(newer = newest.id(feedType))) }
     }
 
     fun stop() {
         trace { "stop" }
-        subscription.unsubscribe()
+        job.cancel()
     }
 
-    private fun subscribeTo(observable: Observable<Api.Feed>) {
+    private fun load(block: suspend () -> Api.Feed) {
         logger.info { "Subscribing to new load-request now." }
 
-        subscription.unsubscribe()
-        subscription = observable
-                .subscribeOn(BackgroundScheduler)
-                .unsubscribeOn(BackgroundScheduler)
-                .doOnSubscribe { subject.onNext(Update.LoadingStarted) }
-                .doOnUnsubscribe { subject.onNext(Update.LoadingStopped) }
-                .subscribe({ handleFeedUpdate(it) }, { publishError(it) })
+        job.cancel()
 
+        job = AsyncScope.launch {
+            try {
+                handleFeedUpdate(block())
+            } catch (err: Throwable) {
+                publishError(err)
+            }
+        }
     }
 
     private fun handleFeedUpdate(update: Api.Feed) {

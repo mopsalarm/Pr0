@@ -3,48 +3,39 @@ package com.pr0gramm.app.services
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import gnu.trove.set.TLongSet
-import rx.Completable
-import rx.Observable
 
 
 /**
  */
 
 class AdminService(private val api: Api, private val cacheService: InMemoryCacheService) {
-    fun tagsDetails(itemId: Long): Observable<Api.TagDetails> {
-        return api.tagDetails(itemId)
+    suspend fun tagsDetails(itemId: Long): Api.TagDetails {
+        return api.tagDetails(itemId).await()
     }
 
-    fun deleteItem(item: FeedItem, reason: String, blockDays: Float? = null): Completable {
+    suspend fun deleteItem(item: FeedItem, reason: String, blockDays: Float? = null) {
         val blockUser = if (blockDays != null && blockDays >= 0) "on" else null
-
-        return api
-                .deleteItem(null, item.id, "custom", reason, blockUser, blockDays)
-                .toCompletable()
+        api.deleteItem(null, item.id, "custom", reason, blockUser, blockDays).await()
     }
 
-    fun deleteTags(itemId: Long, tagIds: TLongSet, blockDays: Float?): Completable {
+    suspend fun deleteTags(itemId: Long, tagIds: TLongSet, blockDays: Float?) {
         cacheService.invalidate()
 
         val tags = tagIds.toArray().toList()
 
         val pBlockUser = if (blockDays != null) "on" else null
-        return api
-                .deleteTag(null, itemId, pBlockUser, blockDays, tags)
-                .toCompletable()
+        api.deleteTag(null, itemId, pBlockUser, blockDays, tags).await()
     }
 
-    fun banUser(name: String, reason: String, blockDays: Float, treeup: Boolean): Completable {
+    suspend fun banUser(name: String, reason: String, blockDays: Float, treeup: Boolean) {
         cacheService.invalidate()
 
         val mode: Int? = if (treeup) null else 1
-        return api
-                .userBan(null, name, "custom", reason, blockDays, mode)
-                .toCompletable()
+        api.userBan(null, name, "custom", reason, blockDays, mode).await()
     }
 
-    fun deleteComment(hard: Boolean, id: Long, reason: String): Completable {
+    suspend fun deleteComment(hard: Boolean, id: Long, reason: String) {
         val func = if (hard) api::hardDeleteComment else api::softDeleteComment
-        return func(null, id, reason).toCompletable()
+        func(null, id, reason).await()
     }
 }

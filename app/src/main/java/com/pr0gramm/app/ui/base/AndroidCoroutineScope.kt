@@ -6,8 +6,10 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.AndroidUtility
 import kotlinx.coroutines.*
+import rx.Observable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.properties.Delegates
 
 
 interface AndroidCoroutineScope : CoroutineScope {
@@ -59,4 +61,46 @@ suspend inline fun <T> withAsyncContext(
 }
 
 val Async = Dispatchers.IO
+val AsyncScope = CoroutineScope(Async)
+
 val Main = Dispatchers.Main
+val MainScope = CoroutineScope(Main)
+
+suspend fun <T> Observable<T>.await(): T {
+    val def = CompletableDeferred<T>()
+
+    val sub = this.single().subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
+
+    def.invokeOnCompletion {
+        if (def.isCancelled) {
+            sub.unsubscribe()
+        }
+    }
+
+    return def.await()
+}
+
+fun <T> Deferred<T>.toObservable(): Observable<T> {
+    return toObservable { await() }
+}
+
+fun <T> toObservable(block: suspend () -> T): Observable<T> {
+    return Observable.fromCallable {
+        runBlocking { block() }
+    }
+}
+
+inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit, block: () -> T): T? {
+    var error: Throwable by Delegates.notNull()
+
+    repeat(tryCount) {
+        try {
+            return@retryUpTo block()
+        } catch (err: Throwable) {
+            error = err
+            delay()
+        }
+    }
+
+    throw error
+}

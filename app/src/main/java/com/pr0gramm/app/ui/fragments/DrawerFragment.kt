@@ -30,6 +30,7 @@ import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
 import java.util.*
@@ -152,7 +153,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
+        runBlocking {
+            doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
+        }
     }
 
     private fun onBenisGraphClicked() {

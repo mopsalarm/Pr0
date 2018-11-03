@@ -6,12 +6,12 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.find
@@ -20,8 +20,6 @@ import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
 import org.kodein.di.erased.instance
-import rx.functions.Action0
-import rx.functions.Action1
 
 /**
  */
@@ -47,12 +45,12 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     override fun onDialogViewCreated() {
-        tagsView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(
-                dialog.context, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false)
+        tagsView.layoutManager = LinearLayoutManager(
+                dialog.context, RecyclerView.VERTICAL, false)
 
-        adminService.tagsDetails(itemId)
-                .bindToLifecycleAsync()
-                .subscribe(Action1 { this.showTagsDetails(it) }, defaultOnError())
+        launchWithErrorHandler {
+            showTagsDetails(adminService.tagsDetails(itemId))
+        }
     }
 
     private fun showTagsDetails(tagDetails: Api.TagDetails) {
@@ -70,10 +68,10 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         val blockAmountStr = if (blockUser.isChecked) blockUserDays.text.toString() else ""
         val blockAmount = blockAmountStr.toFloatOrNull()
 
-        adminService.deleteTags(itemId, selected, blockAmount)
-                .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .withBusyDialog(this)
-                .subscribe(Action0 { this.dismiss() }, defaultOnError())
+        launchWithErrorHandler(busyDialog = true) {
+            adminService.deleteTags(itemId, selected, blockAmount)
+            dismiss()
+        }
     }
 
     private fun updateTagsAdapter(tags: List<Api.TagDetails.TagInfo>) {

@@ -25,6 +25,7 @@ import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
@@ -37,9 +38,9 @@ import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
+import kotlinx.coroutines.launch
 import org.kodein.di.erased.instance
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers.mainThread
 import java.net.ConnectException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -616,19 +617,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
         }
 
-        logger.info { "Checking for new items in current feed" }
+        launch {
+            logger.info { "Checking for new items in current feed" }
 
-        val query = FeedService.FeedQuery(feed.filter, feed.contentType)
-        feedService.load(query)
-                .map { response ->
-                    // count the number of new ids in the loaded feed items
-                    val previousIds = feed.mapTo(mutableSetOf()) { it.id }
-                    response.items.count { it.id !in previousIds }
+            val query = FeedService.FeedQuery(feed.filter, feed.contentType)
+            ignoreException {
+                val response = feedService.load(query)
+
+                val previousIds = feed.mapTo(mutableSetOf()) { it.id }
+                val itemCount = response.items.count { it.id !in previousIds }
+                if (itemCount > 0 && feed.isNotEmpty() && feed.filter == query.filter) {
+                    newItemsSnackbar(itemCount)
                 }
-                .onErrorResumeEmpty()
-                .bindToLifecycleAsync()
-                .filter { it > 0 && feed.isNotEmpty() && feed.filter == query.filter }
-                .subscribe { itemCount -> newItemsSnackbar(itemCount) }
+
+            }
+        }
     }
 
     private fun newItemsSnackbar(itemCount: Int) {
@@ -900,17 +903,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun onFollowClicked() {
         activeUsername?.let { name ->
-            followService.follow(name)
-                    .subscribeOn(BackgroundScheduler)
-                    .subscribe({}, {})
+            AsyncScope.launch { followService.follow(name) }
         }
     }
 
     private fun onUnfollowClicked() {
         activeUsername?.let { name ->
-            followService.unfollow(name)
-                    .subscribeOn(BackgroundScheduler)
-                    .subscribe({}, {})
+            AsyncScope.launch { followService.unfollow(name) }
         }
     }
 
@@ -1081,16 +1080,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val query = FeedService.FeedQuery(filter.withTags(queryTerm ?: "repost"),
                 contentTypes = new.contentType, older = new.feedTypeId(newestItem))
 
-        inMemoryCacheService.refreshRepostsCache(feedService, query)
-                .observeOn(mainThread())
-                .compose(bindToLifecycle<Any>().forCompletable())
-                .doOnCompleted {
-                    this@FeedFragment.trace { "repostInfosUpdated" }
-                    logger.debug { "Repost info was refreshed, updating state now" }
-                    state = state.copy(repostRefreshTime = System.currentTimeMillis())
-                }
-                .onErrorComplete()
-                .subscribe()
+        launch {
+            if (inMemoryCacheService.refreshRepostsCache(feedService, query)) {
+                logger.debug { "Repost info was refreshed, updating state now" }
+                state = state.copy(repostRefreshTime = System.currentTimeMillis())
+            }
+        }
     }
 
     private fun onFeedError(error: Throwable) {

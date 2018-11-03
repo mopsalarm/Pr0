@@ -14,12 +14,11 @@ import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.arguments
+import kotlinx.coroutines.NonCancellable
 import org.kodein.di.erased.instance
-import rx.Completable
-import rx.functions.Action0
 
 /**
  */
@@ -82,34 +81,30 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
             return
         }
 
-        val completable = null
-                ?: item?.let { deleteItem(it, reason) }
-                ?: user?.let { blockUser(it, reason) }
-                ?: comment?.let { deleteComment(it, reason) }
-                ?: throw IllegalStateException("Either item or user must be set.")
-
-        completable
-                .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .withBusyDialog(this)
-                .subscribe(Action0 { this.dismiss() }, defaultOnError())
-
+        launchWithErrorHandler(busyDialog = true) {
+            withAsyncContext(NonCancellable) {
+                user?.let { blockUser(it, reason) }
+                item?.let { deleteItem(it, reason) }
+                comment?.let { deleteComment(it, reason) }
+            }
+        }
     }
 
-    private fun deleteItem(item: FeedItem, reason: String): Completable {
+    private suspend fun deleteItem(item: FeedItem, reason: String) {
         val ban = blockUser?.isChecked ?: false
         val banUserDays = if (ban) blockUserForDays?.text?.toString()?.toFloatOrNull() else null
-        return adminService.deleteItem(item, reason, banUserDays)
+        adminService.deleteItem(item, reason, banUserDays)
     }
 
-    private fun blockUser(user: String, reason: String): Completable {
+    private suspend fun blockUser(user: String, reason: String) {
         val treeup = blockTreeup?.isChecked ?: false
         val banUserDays = blockUserForDays?.text?.toString()?.toFloatOrNull() ?: 0f
-        return adminService.banUser(user, reason, banUserDays, treeup)
+        adminService.banUser(user, reason, banUserDays, treeup)
     }
 
-    private fun deleteComment(commentId: Long, reason: String): Completable {
+    private suspend fun deleteComment(commentId: Long, reason: String) {
         val deleteHard = !(deleteSoft?.isChecked ?: false)
-        return adminService.deleteComment(deleteHard, commentId, reason)
+        adminService.deleteComment(deleteHard, commentId, reason)
     }
 
     companion object {

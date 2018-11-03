@@ -193,7 +193,7 @@ class NavigationProvider(
         return entries
                 .filter { premium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
                 .map { entry ->
-                    val icon = iconBookmark.constantState.newDrawable()
+                    val icon = iconBookmark.constantState!!.newDrawable()
                     val title = entry.title.toUpperCase()
 
                     NavigationItem(

@@ -9,10 +9,12 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.launch
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -81,8 +83,11 @@ class UserService(private val api: Api,
 
     private fun updateUniqueTokenIfNeeded(state: LoginState) {
         if (state.authorized && state.uniqueToken == null) {
-            api.identifier().ignoreError().subscribeOnBackground().subscribe { result ->
-                updateUniqueToken(result.identifier)
+            AsyncScope.launch {
+                ignoreException {
+                    val result = api.identifier().await()
+                    updateUniqueToken(result.identifier)
+                }
             }
         }
     }
@@ -142,9 +147,7 @@ class UserService(private val api: Api,
                         .doOnTerminate { updateUniqueToken(login.identifier) })
 
                 // perform initial sync in background.
-                sync().subscribeOnBackground()
-                        .ignoreError("Could not perform initial sync during login")
-                        .subscribe()
+                doAsync { sync() }
             }
 
             // wait for sync to complete before emitting login result.
@@ -205,20 +208,22 @@ class UserService(private val api: Api,
      * Performs a sync. This updates the vote cache with all the votes that
      * where performed since the last call to sync.
      */
-    fun sync(): Observable<Api.Sync> {
+    suspend fun sync(): Api.Sync? {
         if (!cookieHandler.hasCookie())
-            return Observable.empty()
+            return null
 
         // tell the sync request where to start
         val lastLogOffset = preferences.getLong(syncOffsetKey(), 0L)
         val fullSync = (lastLogOffset == 0L)
 
         if (fullSync && !fullSyncInProgress.compareAndSet(false, true)) {
-            // fail fast if full sync is in already in progress.
-            return Observable.empty()
+            // fail if full sync is in already in progress.
+            return null
         }
 
-        return api.sync(lastLogOffset).doAfterTerminate { fullSyncInProgress.set(false) }.flatMap { response ->
+        try {
+            val response = api.sync(lastLogOffset).await()
+
             inboxService.publishUnreadMessagesCount(response.inboxCount)
 
             val userId = loginState.id
@@ -234,20 +239,21 @@ class UserService(private val api: Api,
                 }
             }
 
-            try {
-                voteService.applyVoteActions(response.log)
+            voteService.applyVoteActions(response.log)
 
-                // store syncId for next time.
-                if (response.logLength > lastLogOffset) {
-                    preferences.edit {
-                        putLong(syncOffsetKey(), response.logLength)
-                    }
+            // store syncId for next time.
+            if (response.logLength > lastLogOffset) {
+                preferences.edit {
+                    putLong(syncOffsetKey(), response.logLength)
                 }
-            } catch (error: Throwable) {
-                return@flatMap Observable.error<Api.Sync>(error)
             }
 
-            return@flatMap Observable.just(response)
+            return response
+
+        } finally {
+            if (fullSync) {
+                fullSyncInProgress.set(false)
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
@@ -190,7 +191,8 @@ class UploadService(private val api: Api,
                 .flatMap { state ->
                     if (state is State.Success && extraTags.isNotEmpty()) {
                         // try to add the extra parameters.
-                        voteService.tag(state.id, extraTags).ignoreError().ofType<State>()
+                        toObservable { voteService.tag(state.id, extraTags) }
+                                .ignoreError().ofType<State>()
                                 .concatWith(Observable.just(state))
 
                     } else {
@@ -220,7 +222,7 @@ class UploadService(private val api: Api,
     }
 
     private fun waitOnQueue(queue: Long): Observable<State> {
-        return api.queue(queue)
+        return toObservable { api.queue(queue).await() }
                 .map { info ->
                     val itemId = info.item?.id ?: 0
                     when {
@@ -280,23 +282,17 @@ class UploadService(private val api: Api,
      * is not allowed to upload an image right now. Returns false, if the user is
      * allowed to upload an image.
      */
-    fun checkIsRateLimited(): Observable<Boolean> {
-        return api.ratelimited().map { false }.onErrorResumeNext { error ->
-            if (error is HttpException && error.code() == 403) {
-                Observable.just(true)
-            } else {
-                Observable.error(error)
+    suspend fun checkIsRateLimited(): Boolean {
+        try {
+            api.ratelimited().await()
+            return false
+        } catch (err: Throwable) {
+            if (err is HttpException && err.code() == 403) {
+                return true
             }
+
+            throw err
         }
-    }
-
-    class UploadInfo(val key: String? = null,
-                     val similar: List<Api.Posted.SimilarItem> = emptyList(),
-                     val id: Long = 0,
-                     val progress: Float = -1F) {
-
-        val finished = id > 0
-        val hasSimilar = similar.isNotEmpty()
     }
 
     class UploadFailedException(message: String, val report: Api.Posted.VideoReport?) : Exception(message) {

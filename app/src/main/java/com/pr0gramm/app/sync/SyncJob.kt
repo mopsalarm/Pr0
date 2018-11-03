@@ -8,6 +8,7 @@ import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.logger
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +21,10 @@ class SyncJob : Job() {
 
         // get service and sync now.
         val syncService = context.directKodein.instance<SyncService>()
-        syncService.sync()
+
+        runBlocking {
+            syncService.sync()
+        }
 
         return Job.Result.SUCCESS
     }

@@ -13,6 +13,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import kotlinx.coroutines.launch
 import org.kodein.di.erased.instance
 
 /**
@@ -34,17 +35,17 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
                     .replace(R.id.fragment_container, fragment)
                     .commit()
 
-            uploadService.checkIsRateLimited()
-                    .bindToLifecycleAsync()
-                    .subscribe({ limited ->
-                        if (!limited) {
-                            limitCheckPassed()
-                        } else {
-                            showUploadLimitReached()
-                        }
-                    }, {
-                        showSomethingWentWrong()
-                    })
+            launch {
+                try {
+                    if (uploadService.checkIsRateLimited()) {
+                        showUploadLimitReached()
+                    } else {
+                        limitCheckPassed()
+                    }
+                } catch (err: Throwable) {
+                    showSomethingWentWrong()
+                }
+            }
         }
     }
 
