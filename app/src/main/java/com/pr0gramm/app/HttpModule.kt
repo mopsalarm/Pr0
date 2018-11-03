@@ -15,16 +15,14 @@ import com.squareup.picasso.Downloader
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import okhttp3.*
+import okhttp3.internal.Util
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.eagerSingleton
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 import org.xbill.DNS.*
-import rx.Observable
-import rx.Scheduler
 import rx.Single
-import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
 import rx.util.async.Async
 import java.io.File
@@ -33,7 +31,10 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 
 const val TagApiURL = "api.baseurl"
@@ -159,7 +160,9 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .build()
     }
 
-    bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler))
+    bind<ExecutorService>() with instance(ThreadPoolExecutor(
+            0, Integer.MAX_VALUE, 8, TimeUnit.SECONDS,
+            SynchronousQueue(), Util.threadFactory("OkHttp Dispatcher", false)))
 
     bind<Api>() with singleton {
         val base = instance<String>(TagApiURL)
@@ -324,68 +327,6 @@ private class LoggingInterceptor : Interceptor {
             okLogger.warn { "${request.url()} produced error: $error" }
             throw error
         }
-    }
-}
-
-private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorService {
-    override fun shutdown() {
-        // will never shutdown.
-    }
-
-    override fun <T : Any?> submit(task: Callable<T>): Future<T> {
-        return Async.fromCallable(task, scheduler).toBlocking().toFuture()
-    }
-
-    override fun <T : Any?> submit(task: Runnable, result: T): Future<T> {
-        return Async.fromRunnable(task, result, scheduler).toBlocking().toFuture()
-    }
-
-    override fun submit(task: Runnable): Future<*> {
-        return submit(task, null)
-    }
-
-    override fun shutdownNow(): MutableList<Runnable> {
-        // nope
-        return mutableListOf()
-    }
-
-    override fun isShutdown(): Boolean {
-        return false
-    }
-
-    override fun awaitTermination(timeout: Long, unit: TimeUnit?): Boolean {
-        while (true) {
-            sleepUninterruptibly(1, TimeUnit.SECONDS)
-        }
-    }
-
-    override fun <T : Any?> invokeAny(tasks: MutableCollection<out Callable<T>>): T {
-        return invokeAny(tasks, 0L, null)
-    }
-
-    override fun <T : Any?> invokeAny(tasks: MutableCollection<out Callable<T>>, timeout: Long, unit: TimeUnit?): T {
-        return tasks.toObservable()
-                .flatMap { Async.fromCallable(it, scheduler) }
-                .switchIfEmpty(Observable.error(ExecutionException(IllegalStateException("No one finished"))))
-                .apply { if (unit != null) timeout(timeout, unit) }
-                .toBlocking()
-                .first()
-    }
-
-    override fun isTerminated(): Boolean {
-        return false
-    }
-
-    override fun <T : Any?> invokeAll(tasks: MutableCollection<out Callable<T>>): MutableList<Future<T>> {
-        return tasks.map { submit(it) }.toMutableList()
-    }
-
-    override fun <T : Any?> invokeAll(tasks: MutableCollection<out Callable<T>>, timeout: Long, unit: TimeUnit?): MutableList<Future<T>> {
-        throw UnsupportedOperationException()
-    }
-
-    override fun execute(command: Runnable?) {
-        Async.fromRunnable(command, null, scheduler)
     }
 }
 

@@ -2,19 +2,18 @@ package com.pr0gramm.app.services
 
 import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Logging
 import com.pr0gramm.app.util.logger
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
-import rx.Completable
-import rx.Observable
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
@@ -31,31 +30,30 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .validateEagerly(true)
             .build().create(Api::class.java)
 
-    fun post(name: String, feedback: String): Completable {
+    suspend fun post(name: String, feedback: String) {
         val version = AndroidUtility.buildVersionCode().toString()
 
-        return Completable.defer {
-            val logcat = payload()
-            val bytes = ByteArrayOutputStream(logcat.length / 2).use { outputStream ->
-                DeflaterOutputStream(outputStream).use { gzipStream ->
-                    OutputStreamWriter(gzipStream, Charsets.UTF_8).use { writer ->
-                        writer.write(logcat)
-                    }
-                }
+        val logcat = payload()
 
-                outputStream.toByteArray()
+        val bytes = ByteArrayOutputStream(logcat.length / 2).use { outputStream ->
+            DeflaterOutputStream(outputStream).use { gzipStream ->
+                OutputStreamWriter(gzipStream, Charsets.UTF_8).use { writer ->
+                    writer.write(logcat)
+                }
             }
 
-            // rewrite the logcat.
-            val encoded = bytes.encodeBase64()
-
-            logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
-            api.post(name, feedback, version, encoded).toCompletable()
+            outputStream.toByteArray()
         }
+
+        // rewrite the logcat.
+        val encoded = bytes.encodeBase64()
+
+        logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
+        api.post(name, feedback, version, encoded).await()
     }
 
     private inline fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
@@ -71,7 +69,6 @@ class FeedbackService(okHttpClient: OkHttpClient) {
 
     private fun payload(): String {
         val result = StringBuilder()
-
 
         add(result, "device info", this::appendDeviceInfo)
         add(result, "memory info", this::appendMemoryInfo)
@@ -106,7 +103,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         fun post(@Field("name") name: String,
                  @Field("feedback") feedback: String,
                  @Field("version") version: String,
-                 @Field("logcat64") logcat: String): Observable<NoValue>
+                 @Field("logcat64") logcat: String): Deferred<NoValue>
     }
 
 

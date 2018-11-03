@@ -6,15 +6,19 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.base.AndroidCoroutineScope
+import com.pr0gramm.app.ui.fragments.BusyDialogHelper.dismiss
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import rx.*
 
-/**
- */
-class BusyDialog<T> private constructor(val context: Context, val text: String) : Observable.Operator<T, T> {
-    private fun show(): Dialog {
+private object BusyDialogHelper {
+    private val logger = logger("BusyDialog")
+
+    fun show(context: Context, text: String): Dialog {
         return showDialog(context) {
             layout(R.layout.progress_dialog)
             cancelable()
@@ -26,7 +30,7 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
         }
     }
 
-    private fun dismiss(dialog: Dialog) {
+    fun dismiss(dialog: Dialog) {
         try {
             checkMainThread()
             dialog.dismiss()
@@ -38,9 +42,13 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
             }
         }
     }
+}
 
+/**
+ */
+class BusyDialog<T>(val context: Context, val text: String) : Observable.Operator<T, T> {
     override fun call(subscriber: Subscriber<in T>): Subscriber<in T> {
-        val dialog = show()
+        val dialog = BusyDialogHelper.show(context, text)
 
         return object : Subscriber<T>() {
             override fun onCompleted() {
@@ -61,7 +69,7 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
 
     fun forCompletable(): Completable.Operator {
         return Completable.Operator { subscriber ->
-            val dialog = show()
+            val dialog = BusyDialogHelper.show(context, text)
 
             object : CompletableSubscriber {
                 override fun onCompleted() {
@@ -82,8 +90,6 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
     }
 
     companion object {
-        private val logger = logger("BusyDialogFragment")
-
         @JvmStatic
         @JvmOverloads
         fun <T> busyDialog(context: Context, @StringRes textRes: Int = 0): BusyDialog<T> {
@@ -110,4 +116,20 @@ fun <T> Observable<T>.withBusyDialog(context: Context, text: Int = 0): Observabl
 fun <T> Observable<T>.withBusyDialog(fragment: androidx.fragment.app.Fragment, text: Int = 0): Observable<T> {
     val context = fragment.activity ?: fragment.context
     return context?.let { withBusyDialog(it, text) } ?: this
+}
+
+suspend fun <T> AndroidCoroutineScope.withBusyDialog(@StringRes textId: Int? = null, block: suspend () -> T): T {
+    val dialog = withContext(Dispatchers.Main) {
+        val text = androidContext.getString(textId ?: R.string.please_wait)
+        BusyDialogHelper.show(androidContext, text)
+    }
+
+    try {
+        return block()
+
+    } finally {
+        withContext(Dispatchers.Main) {
+            BusyDialogHelper.dismiss(dialog)
+        }
+    }
 }

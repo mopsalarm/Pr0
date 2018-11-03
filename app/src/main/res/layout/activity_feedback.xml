@@ -89,6 +89,14 @@
             android:text="@string/feedback_delete_post_hint"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
+        <TextView
+            android:id="@+id/feedback_type_app_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/feedback_type_app_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
         <Button
             android:id="@+id/submit"
             android:layout_width="wrap_content"

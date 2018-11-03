@@ -12,11 +12,12 @@ import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.optionalFragmentArgument
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.erased.instance
-import rx.functions.Action0
 
 /**
  */
@@ -58,11 +59,11 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     private fun onConfirmClicked() {
         val reason = config.reportReasons.getOrNull(reasonListView.checkedItemPosition) ?: return
 
-        contactService.report(itemId, commentId ?: 0, reason)
-                .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .withBusyDialog(this)
-                .subscribe(Action0 { this.dismiss() }, defaultOnError())
-
+        launch {
+            withContext(NonCancellable) {
+                contactService.report(itemId, commentId ?: 0, reason)
+            }
+        }
     }
 
     companion object {

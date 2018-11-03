@@ -12,7 +12,6 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import com.jakewharton.rxbinding.widget.checkedChanges
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
@@ -20,12 +19,17 @@ import com.pr0gramm.app.services.FeedbackService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.fragments.withBusyDialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.matches
+import com.pr0gramm.app.util.visible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotterknife.bindView
 import kotterknife.bindViews
 import org.kodein.di.erased.instance
-import rx.Observable
 
 /**
  */
@@ -40,13 +44,15 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private val vMail: EditText by bindView(R.id.feedback_email)
     private val vSubject: EditText by bindView(R.id.feedback_subject)
 
-    private val generalFeedbackRadioButton: RadioButton by bindView(R.id.action_feedback_general)
+    private val choiceApp: RadioButton by bindView(R.id.action_feedback_app)
+    private val choiceGeneral: RadioButton by bindView(R.id.action_feedback_general)
 
     private val groupAllTextViews: List<TextView> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_text)
 
-    private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint)
+    private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint, R.id.feedback_type_app_hint)
     private val groupNormalSupport: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_deletion_hint)
-    private val groupAppNotLoggedIn: List<View> by bindViews(R.id.feedback_name)
+    private val groupAppLoggedIn: List<View> by bindViews(R.id.feedback_type_app_hint)
+    private val groupAppNotLoggedIn: List<View> by bindViews(R.id.feedback_name, R.id.feedback_type_app_hint)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
@@ -72,23 +78,22 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
         find<View>(R.id.submit).setOnClickListener { submitClicked() }
 
-        Observable.merge(
-                find<RadioButton>(R.id.action_feedback_app).checkedChanges(),
-                find<RadioButton>(R.id.action_feedback_general).checkedChanges())
-                .subscribe { applyViewVisibility() }
+        listOf(choiceApp, choiceGeneral).forEach { button ->
+            button.setOnCheckedChangeListener { _, _ -> applyViewVisibility() }
+        }
 
         applyViewVisibility()
     }
 
     private val isNormalSupport: Boolean
         get() {
-            return generalFeedbackRadioButton.isChecked
+            return choiceGeneral.isChecked
         }
 
     private fun applyViewVisibility() {
         val activeViews: List<View> = when {
             isNormalSupport -> groupNormalSupport
-            userService.isAuthorized -> emptyList()
+            userService.isAuthorized -> groupAppLoggedIn
             else -> groupAppNotLoggedIn
         }
 
@@ -110,27 +115,36 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private fun submitClicked() {
-        var feedback = vText.text.toString().trim()
+        // hide keyboard when sending
+        AndroidUtility.hideSoftKeyboard(vText)
 
-        val response = if (isNormalSupport) {
+        launchWithErrorHandler(useBusyIndicator = true) {
+            withViewDisabled(buttonSubmit) {
+                sendFeedback()
+                onSubmitSuccess()
+            }
+        }
+    }
+
+    private suspend fun sendFeedback() {
+        var feedback = vText.text.toString().trim()
+        if (isNormalSupport) {
             val email = vMail.text.toString().trim()
             val subject = vSubject.text.toString().trim()
 
             feedback += "\n\nGesendet mit der App v" + BuildConfig.VERSION_NAME
 
-            contactService.post(email, subject, feedback)
+            withContext(Dispatchers.IO + NonCancellable) {
+                contactService.post(email, subject, feedback)
+            }
+
         } else {
             val name = userService.name ?: vName.text.toString().trim()
-            feedbackService.post(name, feedback)
+
+            withContext(Dispatchers.IO + NonCancellable) {
+                feedbackService.post(name, feedback)
+            }
         }
-
-        response.decoupleSubscribe()
-                .compose(bindToLifecycleAsync<Any>())
-                .withBusyDialog(this)
-                .subscribeWithErrorHandling(onComplete = { onSubmitSuccess() })
-
-        // hide keyboard if still open
-        AndroidUtility.hideSoftKeyboard(vText)
     }
 
     private fun onSubmitSuccess() {

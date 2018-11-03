@@ -1,5 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
@@ -110,6 +111,7 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                 .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client)
                 .validateEagerly(true)
                 .build()

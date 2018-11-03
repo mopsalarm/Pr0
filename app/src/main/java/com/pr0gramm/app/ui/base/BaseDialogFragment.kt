@@ -9,6 +9,7 @@ import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
+import kotlinx.coroutines.Job
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
@@ -17,7 +18,7 @@ import rx.Observable
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache {
+abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache, AndroidCoroutineScope {
     @JvmField
     protected val logger = logger(name)
 
@@ -25,6 +26,11 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
     override val kodeinTrigger = KodeinTrigger()
 
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
+
+    override lateinit var job: Job
+
+    override val androidContext: Context
+        get() = requireContext()
 
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
@@ -36,6 +42,8 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.time("Injecting services") { kodeinTrigger.trigger() }
+
+        job = Job()
         super.onCreate(savedInstanceState)
     }
 
@@ -55,6 +63,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
             dialog.setDismissMessage(null)
 
         super.onDestroyView()
+        job.cancel()
         viewCache.reset()
     }
 

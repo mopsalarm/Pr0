@@ -5,6 +5,7 @@ import com.pr0gramm.app.NoValue
 import com.pr0gramm.app.services.config.Config
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -214,7 +215,7 @@ interface Api {
     fun contactSend(
             @Field("subject") subject: String,
             @Field("email") email: String,
-            @Field("message") message: String): Observable<NoValue>
+            @Field("message") message: String): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/contact/report")
@@ -222,7 +223,7 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
-            @Field("reason") reason: String): Observable<NoValue>
+            @Field("reason") reason: String): Deferred<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
