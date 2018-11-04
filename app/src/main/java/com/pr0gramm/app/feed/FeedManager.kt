@@ -11,7 +11,7 @@ import rx.Observable
 import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 
-class FeedManager(val feedService: FeedService, private var feed: Feed) {
+class FeedManager(private val feedService: FeedService, private var feed: Feed) {
     private val logger = logger("FeedService")
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
@@ -20,7 +20,7 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
     /**
      * True, if this feed manager is currently performing a load operation.
      */
-    val isLoading: Boolean get() = !job.isActive
+    val isLoading: Boolean get() = job.isActive
 
     private val feedType: FeedType get() = feed.feedType
 
@@ -79,7 +79,16 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
 
         job = AsyncScope.launch {
             try {
-                handleFeedUpdate(block())
+                publish(Update.LoadingStarted)
+
+                val update = try {
+                    block()
+                } finally {
+                    publish(Update.LoadingStopped)
+                }
+
+                handleFeedUpdate(update)
+
             } catch (err: Throwable) {
                 publishError(err)
             }
@@ -105,16 +114,20 @@ class FeedManager(val feedService: FeedService, private var feed: Feed) {
         publish(merged, remote = true)
     }
 
-    private fun publishError(err: Throwable) {
-        subject.onNext(Update.Error(err))
-    }
-
     /**
      * Update and publish a new feed.
      */
     private fun publish(newFeed: Feed, remote: Boolean) {
         feed = newFeed
-        subject.onNext(Update.NewFeed(newFeed, remote))
+        publish(Update.NewFeed(newFeed, remote))
+    }
+
+    private fun publishError(err: Throwable) {
+        subject.onNext(Update.Error(err))
+    }
+
+    private fun publish(update: Update) {
+        subject.onNext(update)
     }
 
     private fun feedQuery(): FeedService.FeedQuery {

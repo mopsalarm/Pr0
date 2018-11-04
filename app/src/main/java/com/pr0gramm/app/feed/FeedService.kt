@@ -1,5 +1,6 @@
 package com.pr0gramm.app.feed
 
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
@@ -56,16 +57,22 @@ class FeedServiceImpl(private val api: Api,
 
         return when (feedType) {
             FeedType.RANDOM -> {
-                val feed = extraCategories.api.random(tags, flags).await()
-                feed.copy(_items = feed.items.shuffled())
+                val bust = Instant.now().millis / 1000L
+                val tagsQuery = joinTags("!-(x:random | x:$bust)", feedFilter.tags)
+                load(query.copy(
+                        newer = null, older = null, around = null,
+                        filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
             FeedType.BESTOF -> {
-                val benisScore = Settings.get().bestOfBenisThreshold
-                extraCategories.api.bestof(tags, user, flags, query.older, benisScore).await()
+                val tagsQuery = joinTags("!s:${Settings.get().bestOfBenisThreshold}", feedFilter.tags)
+                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
-            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(tags, flags, query.older).await()
+            FeedType.CONTROVERSIAL -> {
+                val tagsQuery = joinTags("!f:controversial", feedFilter.tags)
+                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
+            }
 
             FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older).await()
 
@@ -96,12 +103,10 @@ class FeedServiceImpl(private val api: Api,
                         emitter.onNext(feed)
 
                         // get the previous (or next) page from the current set of items.
-                        query = if (upwards) {
-                            feed.items.takeUnless { feed.isAtStart }?.maxBy { it.id }
-                                    ?.let { currentQuery.copy(newer = it.id) }
-                        } else {
-                            feed.items.takeUnless { feed.isAtEnd }?.minBy { it.id }
-                                    ?.let { currentQuery.copy(older = it.id) }
+                        query = when {
+                            upwards && !feed.isAtStart -> feed.items.maxBy { it.id }?.let { currentQuery.copy(newer = it.id) }
+                            !upwards && !feed.isAtEnd -> feed.items.minBy { it.id }?.let { currentQuery.copy(older = it.id) }
+                            else -> null
                         }
                     }
 
@@ -114,4 +119,27 @@ class FeedServiceImpl(private val api: Api,
             }
         }
     }
+
+    private fun joinTags(lhs: String, rhs: String?): String {
+        if (rhs.isNullOrBlank()) {
+            return lhs
+        }
+
+        val lhsTrimmed = lhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
+        val rhsTrimmed = rhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
+
+        val extendedQuery = isExtendedQuery(lhs) || isExtendedQuery(rhs)
+        if (extendedQuery) {
+            return "! ($lhsTrimmed) ($rhsTrimmed)"
+        } else {
+            return "$lhsTrimmed $rhsTrimmed"
+        }
+    }
+
+    private fun isExtendedQuery(query: String): Boolean {
+        val trimmed = query.trimStart()
+        return trimmed.startsWith('?') || trimmed.startsWith('!')
+    }
 }
+
+

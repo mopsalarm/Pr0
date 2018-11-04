@@ -92,11 +92,11 @@ class UpdateChecker {
             if (betaChannel) {
                 urls.add("https://pr0.wibbly-wobbly.de/beta/")
                 urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/")
-                urls.add("http://pr0.wibbly-wobbly.de/beta/")
+                urls.add("https://app.pr0gramm.com/updates/beta/")
             } else {
                 urls.add("https://pr0.wibbly-wobbly.de/stable/")
                 urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/")
-                urls.add("http://pr0.wibbly-wobbly.de/stable/")
+                urls.add("https://app.pr0gramm.com/updates/stable/")
             }
 
             return urls

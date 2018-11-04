@@ -20,6 +20,7 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
     val logger = logger("ExtraCategories")
 
     val api: ExtraCategoryApi = Retrofit.Builder()
+            .validateEagerly(true)
             .client(httpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/categories/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))

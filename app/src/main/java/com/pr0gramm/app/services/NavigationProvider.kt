@@ -121,31 +121,32 @@ class NavigationProvider(
                 filter = FeedFilter().withFeedType(FeedType.NEW)))
 
         val settings = Settings.get()
+
+        if (settings.showCategoryBestOf) {
+            items.add(NavigationItem(
+                    action = ActionType.FILTER,
+                    title = getString(R.string.action_feed_type_bestof),
+                    icon = iconFeedTypeBestOf,
+                    filter = FeedFilter().withFeedType(FeedType.BESTOF)))
+        }
+
+        if (settings.showCategoryControversial) {
+            items.add(NavigationItem(
+                    action = ActionType.FILTER,
+                    title = getString(R.string.action_feed_type_controversial),
+                    icon = iconFeedTypeControversial,
+                    filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL)))
+        }
+
+        if (settings.showCategoryRandom) {
+            items.add(NavigationItem(
+                    action = ActionType.FILTER,
+                    title = getString(R.string.action_feed_type_random),
+                    icon = iconFeedTypeRandom,
+                    filter = FeedFilter().withFeedType(FeedType.RANDOM)))
+        }
+
         if (extraCategory) {
-            if (settings.showCategoryBestOf) {
-                items.add(NavigationItem(
-                        action = ActionType.FILTER,
-                        title = getString(R.string.action_feed_type_bestof),
-                        icon = iconFeedTypeBestOf,
-                        filter = FeedFilter().withFeedType(FeedType.BESTOF)))
-            }
-
-            if (settings.showCategoryControversial) {
-                items.add(NavigationItem(
-                        action = ActionType.FILTER,
-                        title = getString(R.string.action_feed_type_controversial),
-                        icon = iconFeedTypeControversial,
-                        filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL)))
-            }
-
-            if (settings.showCategoryRandom) {
-                items.add(NavigationItem(
-                        action = ActionType.FILTER,
-                        title = getString(R.string.action_feed_type_random),
-                        icon = iconFeedTypeRandom,
-                        filter = FeedFilter().withFeedType(FeedType.RANDOM)))
-            }
-
             if (settings.showCategoryText) {
                 items.add(NavigationItem(
                         action = ActionType.FILTER,
