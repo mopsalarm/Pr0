@@ -61,7 +61,9 @@ suspend inline fun <T> withAsyncContext(
 }
 
 val Async = Dispatchers.IO
-val AsyncScope = CoroutineScope(Async)
+val AsyncScope = CoroutineScope(Async) + CoroutineExceptionHandler { _, throwable ->
+    ErrorDialogFragment.defaultOnError().call(throwable)
+}
 
 val Main = Dispatchers.Main
 val MainScope = CoroutineScope(Main)

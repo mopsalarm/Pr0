@@ -97,7 +97,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
 
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
+    private val swipeRefreshLayout: SwipeRefreshLayout? by bindOptionalView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
     private val recyclerView: StatefulRecyclerView? by bindOptionalView(R.id.post_content)
     private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
@@ -165,9 +165,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val abHeight = AndroidUtility.getActionBarContentOffset(activity)
 
         // handle swipe to refresh
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
-        swipeRefreshLayout.setOnRefreshListener {
+        swipeRefreshLayout?.setColorSchemeResources(ThemeHelper.accentColor)
+        swipeRefreshLayout?.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
+        swipeRefreshLayout?.setOnRefreshListener {
             if (!isVideoFullScreen) {
                 rewindOnNextLoad = true
                 loadItemDetails()
@@ -481,7 +481,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             repostHint.visible = false
 
             // hide content below
-            swipeRefreshLayout.visible = false
+            swipeRefreshLayout?.visible = false
 
             if (activity is ToolbarActivity) {
                 // hide the toolbar if required necessary
@@ -533,7 +533,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         fullscreenAnimator?.cancel()
         fullscreenAnimator = null
 
-        swipeRefreshLayout.visible = true
+        swipeRefreshLayout?.visible = true
 
         // reset the values correctly
         viewer?.apply {
@@ -606,12 +606,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun refreshWithIndicator() {
-        if (swipeRefreshLayout.isRefreshing || isDetached)
+        if (swipeRefreshLayout?.isRefreshing == true || isDetached)
             return
 
         rewindOnNextLoad = true
-        swipeRefreshLayout.isRefreshing = true
-        swipeRefreshLayout.postDelayed({ this.loadItemDetails() }, 500)
+        swipeRefreshLayout?.isRefreshing = true
+        swipeRefreshLayout?.postDelayed({ this.loadItemDetails() }, 500)
     }
 
     private fun downloadPostMedia() {
@@ -690,7 +690,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         if (feedItem.deleted) {
             // that can be handled quickly...
-            swipeRefreshLayout.isRefreshing = false
+            swipeRefreshLayout?.isRefreshing = false
             return
         }
 
@@ -714,7 +714,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
 
             } finally {
-                swipeRefreshLayout.isRefreshing = false
+                swipeRefreshLayout?.isRefreshing = false
             }
         }
     }
