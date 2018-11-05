@@ -227,29 +227,29 @@ object AdMobWorkaround {
             private var openActivityCount: Int = 0
 
             @SuppressLint("NewApi")
-            override fun onActivityPaused(activity: Activity?) {
+            override fun onActivityStarted(activity: Activity?) {
                 if (--openActivityCount == 0) {
                     pauseAnimationCallbacks()
                 }
             }
 
             @SuppressLint("NewApi")
-            override fun onActivityResumed(activity: Activity?) {
+            override fun onActivityStopped(activity: Activity?) {
                 if (openActivityCount++ == 0) {
                     resumeAnimationCallbacks()
                 }
             }
 
-            override fun onActivityStarted(activity: Activity?) {
+            override fun onActivityPaused(activity: Activity?) {
+            }
+
+            override fun onActivityResumed(activity: Activity?) {
             }
 
             override fun onActivityDestroyed(activity: Activity?) {
             }
 
             override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
-            }
-
-            override fun onActivityStopped(activity: Activity?) {
             }
 
             override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
