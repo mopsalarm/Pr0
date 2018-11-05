@@ -15,12 +15,12 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
     private val logger = logger("FeedService")
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
-    private var job: Job = Job()
+    private var job: Job? = null
 
     /**
      * True, if this feed manager is currently performing a load operation.
      */
-    val isLoading: Boolean get() = job.isActive
+    val isLoading: Boolean get() = job?.isActive == true
 
     private val feedType: FeedType get() = feed.feedType
 
@@ -32,7 +32,6 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
      * Stops all loading operations and resets the feed to the given value.
      */
     fun reset(feed: Feed = this.feed.copy(items = listOf(), isAtStart = false, isAtEnd = false)) {
-        stop()
         publish(feed, remote = false)
     }
 
@@ -41,7 +40,6 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
      * Leave 'around' null to just load from the beginning.
      */
     fun restart(around: Long? = null) {
-        stop()
         load { feedService.load(feedQuery().copy(around = around)) }
     }
 
@@ -69,14 +67,14 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
 
     fun stop() {
         trace { "stop" }
-        job.cancel()
+
+        job?.cancel()
     }
 
     private fun load(block: suspend () -> Api.Feed) {
-        logger.info { "Subscribing to new load-request now." }
+        stop()
 
-        job.cancel()
-
+        logger.info { "Start new load request now." }
         job = AsyncScope.launch {
             try {
                 publish(Update.LoadingStarted)

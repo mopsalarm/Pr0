@@ -44,7 +44,7 @@
 }
 
 # Preserve some attributes that may be required for reflection.
--keepattributes RuntimeVisible*Annotations,InnerClasses,Signature
+-keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,Signature,SourceFile,LineNumberTable
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {
@@ -85,7 +85,6 @@
     !static final <fields>;
     ** m*Helper;
 }
-
 
 # BEGIN moshi rules
 #

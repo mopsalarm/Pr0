@@ -72,7 +72,6 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
     override fun onDestroyView() {
         super.onDestroyView()
         job.cancel()
-
         this.viewCache.reset()
     }
 

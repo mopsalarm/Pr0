@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.base
 
 import android.content.Context
 import android.view.View
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.AndroidUtility
@@ -18,7 +19,7 @@ interface AndroidCoroutineScope : CoroutineScope {
     val androidContext: Context
 
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main
+        get() = job + Dispatchers.Main + LoggingCoroutineExceptionHandler
 
 
     fun launchWithErrorHandler(
@@ -60,10 +61,16 @@ suspend inline fun <T> withAsyncContext(
     return withContext(newContext, block)
 }
 
-val Async = Dispatchers.IO
-val AsyncScope = CoroutineScope(Async) + CoroutineExceptionHandler { _, throwable ->
-    ErrorDialogFragment.defaultOnError().call(throwable)
+val LoggingCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    if (BuildConfig.DEBUG) {
+        ErrorDialogFragment.defaultOnError().call(throwable)
+    } else {
+        AndroidUtility.logToCrashlytics(throwable)
+    }
 }
+
+val Async = Dispatchers.IO
+val AsyncScope = CoroutineScope(Async) + LoggingCoroutineExceptionHandler
 
 val Main = Dispatchers.Main
 val MainScope = CoroutineScope(Main)

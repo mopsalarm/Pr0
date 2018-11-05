@@ -140,3 +140,26 @@ class FeedFilter : Freezable {
         }
     }
 }
+
+object Tags {
+    fun join(lhs: String, rhs: String?): String {
+        if (rhs.isNullOrBlank()) {
+            return lhs
+        }
+
+        val lhsTrimmed = lhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
+        val rhsTrimmed = rhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
+
+        val extendedQuery = isExtendedQuery(lhs) || isExtendedQuery(rhs)
+        if (extendedQuery) {
+            return "! ($lhsTrimmed) ($rhsTrimmed)"
+        } else {
+            return "$lhsTrimmed $rhsTrimmed"
+        }
+    }
+
+    private fun isExtendedQuery(query: String): Boolean {
+        val trimmed = query.trimStart()
+        return trimmed.startsWith('?') || trimmed.startsWith('!')
+    }
+}

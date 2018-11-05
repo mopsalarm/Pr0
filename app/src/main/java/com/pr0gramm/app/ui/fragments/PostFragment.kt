@@ -410,9 +410,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        runBlocking {
-            doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
-        }
+        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
 
         if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK && data != null) {
             onNewComments(WriteMessageActivity.getNewComment(data))
@@ -1216,10 +1214,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
             return runBlocking {
                 doIfAuthorizedHelper.run {
-                    withAsyncContext(NonCancellable) {
-                        voteService.vote(comment, vote)
-                        true
+                    launchWithErrorHandler {
+                        withAsyncContext(NonCancellable) {
+                            voteService.vote(comment, vote)
+                        }
                     }
+
+                    true
                 }
             }
         }

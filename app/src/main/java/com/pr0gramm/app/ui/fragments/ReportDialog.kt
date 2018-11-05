@@ -15,7 +15,6 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.optionalFragmentArgument
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.erased.instance
 
@@ -59,10 +58,12 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     private fun onConfirmClicked() {
         val reason = config.reportReasons.getOrNull(reasonListView.checkedItemPosition) ?: return
 
-        launch {
+        launchWithErrorHandler {
             withContext(NonCancellable) {
                 contactService.report(itemId, commentId ?: 0, reason)
             }
+
+            dismiss()
         }
     }
 

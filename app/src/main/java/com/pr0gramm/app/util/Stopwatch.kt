@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -19,7 +20,7 @@ class Stopwatch {
 
         // Too bad this functionality is not exposed as a regular method call
 
-        return String.format("%1.4f %s", value, abbreviate(unit))
+        return String.format(Locale.ROOT, "%1.4f %s", value, abbreviate(unit))
     }
 
     private fun chooseUnit(nanos: Long): TimeUnit {

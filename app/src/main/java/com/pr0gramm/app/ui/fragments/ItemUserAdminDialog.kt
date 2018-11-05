@@ -87,6 +87,8 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 item?.let { deleteItem(it, reason) }
                 comment?.let { deleteComment(it, reason) }
             }
+
+            dismiss()
         }
     }
 

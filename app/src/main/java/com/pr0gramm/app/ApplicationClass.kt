@@ -12,6 +12,7 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
+import com.pr0gramm.app.ui.AdMobWorkaround
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
@@ -67,6 +68,8 @@ open class ApplicationClass : Application(), KodeinAware {
 
         Settings.initialize(this)
         Track.initialize(this)
+
+        AdMobWorkaround.install(this)
 
         JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
         JobConfig.addLogger(SimpleJobLogger())

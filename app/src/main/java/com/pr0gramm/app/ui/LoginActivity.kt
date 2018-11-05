@@ -203,7 +203,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     class DoIfAuthorizedHelper(private val fragment: androidx.fragment.app.Fragment) {
         private var retry: Callback? = null
 
-        suspend fun onActivityResult(requestCode: Int, resultCode: Int) {
+        fun onActivityResult(requestCode: Int, resultCode: Int) {
             if (requestCode == RequestCodes.AUTHORIZED_HELPER) {
                 if (resultCode == Activity.RESULT_OK) {
                     retry?.invoke()

@@ -58,19 +58,19 @@ class FeedServiceImpl(private val api: Api,
         return when (feedType) {
             FeedType.RANDOM -> {
                 val bust = Instant.now().millis / 1000L
-                val tagsQuery = joinTags("!-(x:random | x:$bust)", feedFilter.tags)
+                val tagsQuery = Tags.join("!-(x:random | x:$bust)", feedFilter.tags)
                 load(query.copy(
                         newer = null, older = null, around = null,
                         filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
             FeedType.BESTOF -> {
-                val tagsQuery = joinTags("!s:${Settings.get().bestOfBenisThreshold}", feedFilter.tags)
+                val tagsQuery = Tags.join("!s:${Settings.get().bestOfBenisThreshold}", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
             FeedType.CONTROVERSIAL -> {
-                val tagsQuery = joinTags("!f:controversial", feedFilter.tags)
+                val tagsQuery = Tags.join("!f:controversial", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
@@ -119,27 +119,4 @@ class FeedServiceImpl(private val api: Api,
             }
         }
     }
-
-    private fun joinTags(lhs: String, rhs: String?): String {
-        if (rhs.isNullOrBlank()) {
-            return lhs
-        }
-
-        val lhsTrimmed = lhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
-        val rhsTrimmed = rhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
-
-        val extendedQuery = isExtendedQuery(lhs) || isExtendedQuery(rhs)
-        if (extendedQuery) {
-            return "! ($lhsTrimmed) ($rhsTrimmed)"
-        } else {
-            return "$lhsTrimmed $rhsTrimmed"
-        }
-    }
-
-    private fun isExtendedQuery(query: String): Boolean {
-        val trimmed = query.trimStart()
-        return trimmed.startsWith('?') || trimmed.startsWith('!')
-    }
 }
-
-

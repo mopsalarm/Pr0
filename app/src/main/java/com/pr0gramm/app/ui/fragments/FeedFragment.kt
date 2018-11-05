@@ -629,7 +629,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 if (itemCount > 0 && feed.isNotEmpty() && feed.filter == query.filter) {
                     newItemsSnackbar(itemCount)
                 }
-
             }
         }
     }
@@ -1060,24 +1059,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val newestItem = (new - old).filter { !it.isPinned }.maxBy { new.feedTypeId(it) } ?: return
 
         // add 'repost' to query
-        val queryTerm = filter.tags?.let { term ->
-            when {
-                term.trim().startsWith("?") -> {
-                    val baseQueryTerm = term.trimStart('?', ' ')
-                    "! ($baseQueryTerm) repost"
-                }
-
-                term.trim().startsWith("!") -> {
-                    val baseQueryTerm = term.trimStart('!', ' ')
-                    "! ($baseQueryTerm) repost"
-                }
-
-                else -> "$term repost"
-            }
-        }
+        val queryTerm = Tags.join("repost", filter.tags)
 
         // load repost info for the new items, starting at the most recent one
-        val query = FeedService.FeedQuery(filter.withTags(queryTerm ?: "repost"),
+        val query = FeedService.FeedQuery(filter.withTags(queryTerm),
                 contentTypes = new.contentType, older = new.feedTypeId(newestItem))
 
         launch {
