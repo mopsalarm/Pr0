@@ -7,7 +7,6 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.support.design.widget.dismisses
 import com.pr0gramm.app.*
@@ -27,7 +26,6 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
@@ -66,8 +64,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val recyclerView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
-    private val noResultsView: View by bindView(R.id.empty)
-    private val errorLoadingFeedView: View by bindView(R.id.error)
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
@@ -106,7 +102,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val adsVisible: Boolean = false,
             val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
             val userInfoCommentsOpen: Boolean = false,
-            val repostRefreshTime: Long = 0)
+            val repostRefreshTime: Long = 0,
+            val empty: Boolean = false,
+            val error: String? = null)
 
     private var feed: Feed by observeChangeEx(Feed()) { old, new ->
         if (old == new) {
@@ -229,13 +227,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         queryForUserInfo()
 
-        if (autoScrollRef?.autoOpen == true) {
-            // perform auto open if needed.
-//            feedAdapter.updates.startWith(feedAdapter.latestEntries)
-//                    .bindToLifecycle()
-//                    .subscribe { performAutoOpen() }
-        }
-
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
                 .bindToLifecycle()
@@ -253,21 +244,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 is FeedManager.Update.NewFeed -> {
                     refreshRepostInfos(feed, update.feed)
 
-                    feed = update.feed
-                    showNoResultsTextView(update.remote && update.feed.isEmpty())
-                    showErrorLoadingFeedView(false)
+                    stateTransaction {
+                        feed = update.feed
+                        state = state.copy(
+                                empty = update.remote && update.feed.isEmpty(),
+                                error = null)
+                    }
                 }
 
                 is FeedManager.Update.Error -> {
                     onFeedError(update.err)
-                    showErrorLoadingFeedView(true)
                 }
 
                 FeedManager.Update.LoadingStarted -> {
                     swipeRefreshLayout.isRefreshing = true
-
-                    showNoResultsTextView(false)
-                    showErrorLoadingFeedView(false)
                 }
 
                 FeedManager.Update.LoadingStopped ->
@@ -356,6 +346,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                     entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)
                 }
+            }
+
+            if (state.error != null) {
+                entries += FeedAdapter.Entry.Error(state.error)
+            }
+
+            if (state.empty) {
+                entries += FeedAdapter.Entry.EmptyHint
             }
 
             if (entries == feedAdapter.latestEntries) {
@@ -1084,16 +1082,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             error is FeedException.NotFoundException -> showFeedNotFoundError()
 
             error is JsonEncodingException -> {
-                ErrorDialogFragment.showErrorString(fragmentManager,
-                        getString(R.string.could_not_load_feed_json))
+                state = state.copy(error = getString(R.string.could_not_load_feed_json))
             }
 
             error.rootCause is ConnectException -> {
-                ErrorDialogFragment.showErrorString(fragmentManager,
-                        getString(R.string.could_not_load_feed_https))
+                state = state.copy(error = getString(R.string.could_not_load_feed_https))
             }
 
-            else -> ErrorDialogFragment.defaultOnError().call(error)
+            else -> {
+                val text = ErrorFormatting.getFormatter(error).getMessage(requireContext(), error)
+                state = state.copy(error = text)
+            }
         }
     }
 
@@ -1164,14 +1163,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 positive()
             }
         }
-    }
-
-    private fun showNoResultsTextView(visible: Boolean) {
-        noResultsView.visible = visible
-    }
-
-    private fun showErrorLoadingFeedView(visible: Boolean) {
-        errorLoadingFeedView.visible = visible
     }
 
     private fun resetAndShowSearchContainer() {

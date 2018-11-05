@@ -4,12 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -30,6 +34,8 @@ private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entr
     UserHint(200, FeedAdapter.Entry.UserHint::class.java),
     UserInfoLoading(201, FeedAdapter.Entry.UserLoading::class.java),
     UserInfo(202, FeedAdapter.Entry.User::class.java),
+    Error(203, FeedAdapter.Entry.Error::class.java),
+    EmptyHint(204, FeedAdapter.Entry.EmptyHint::class.java),
     Spacer(300, FeedAdapter.Entry.Spacer::class.java),
     Item(1000, FeedAdapter.Entry.Item::class.java),
     Ad(900_000_000, FeedAdapter.Entry.Ad::class.java),
@@ -80,7 +86,7 @@ class FeedAdapter(private val picasso: Picasso,
         return viewTypesByType.getValue(type).ordinal
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         trace { "onCreateViewHolder($viewType)" }
 
         val context = parent.context
@@ -92,7 +98,7 @@ class FeedAdapter(private val picasso: Picasso,
 
             Offset.Comments -> {
                 val view = parent.layoutInflater.inflate(R.layout.user_info_comment) as MessageView
-                return CommentViewHolder(view)
+                CommentViewHolder(view)
             }
 
             Offset.Spacer -> SpacerViewHolder(context)
@@ -114,10 +120,20 @@ class FeedAdapter(private val picasso: Picasso,
             Offset.UserInfo -> {
                 UserInfoViewHolder(UserInfoView(context, userActionListener))
             }
+
+            Offset.Error -> {
+                val view = parent.layoutInflater.inflate(R.layout.feed_error) as ViewGroup
+                ErrorViewHolder(view)
+            }
+
+            Offset.EmptyHint -> {
+                val view = parent.layoutInflater.inflate(R.layout.feed_hint_empty)
+                NoopViewHolder(view)
+            }
         }
     }
 
-    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         ignoreException {
             val entry = getItem(position)
             trace { "onBindViewHolder($position, item=${entry.javaClass.simpleName})" }
@@ -140,6 +156,9 @@ class FeedAdapter(private val picasso: Picasso,
 
                 is UserInfoViewHolder ->
                     holder.bindTo(entry as Entry.User)
+
+                is ErrorViewHolder ->
+                    holder.bindTo(entry as Entry.Error)
             }
         }
     }
@@ -177,9 +196,13 @@ class FeedAdapter(private val picasso: Picasso,
         data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id)
 
         data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.UserInfo.offset)
+
+        data class Error(val message: String) : Entry(Offset.Error.offset)
+
+        object EmptyHint : Entry(Offset.EmptyHint.offset)
     }
 
-    inner class SpanSizeLookup(private val spanCount: Int) : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
+    inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {
         init {
             isSpanIndexCacheEnabled = true
         }
@@ -196,7 +219,7 @@ data class UserAndMark(val name: String, val mark: Int)
 /**
  * View holder for one feed item.
  */
-class FeedItemViewHolder(private val container: FrameLayout) : androidx.recyclerview.widget.RecyclerView.ViewHolder(container) {
+class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.ViewHolder(container) {
     val imageView: ImageView = find(R.id.image)
 
     // lazy views
@@ -266,7 +289,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : androidx.recycler
 }
 
 private class UserHintViewHolder(private val hintView: UserHintView)
-    : androidx.recyclerview.widget.RecyclerView.ViewHolder(hintView) {
+    : RecyclerView.ViewHolder(hintView) {
 
     fun bindTo(entry: FeedAdapter.Entry.UserHint, onClick: OnUserClickedListener) {
         hintView.update(entry.user.name, entry.user.mark, onClick)
@@ -274,14 +297,26 @@ private class UserHintViewHolder(private val hintView: UserHintView)
 }
 
 private class UserInfoLoadingViewHolder(private val hintView: UserInfoLoadingView)
-    : androidx.recyclerview.widget.RecyclerView.ViewHolder(hintView) {
+    : RecyclerView.ViewHolder(hintView) {
 
     fun bindTo(entry: FeedAdapter.Entry.UserLoading) {
         hintView.update(entry.user.name, entry.user.mark)
     }
 }
 
-private class SpacerViewHolder(context: Context) : androidx.recyclerview.widget.RecyclerView.ViewHolder(FrameLayout(context)) {
+private class ErrorViewHolder(errorView: ViewGroup)
+    : RecyclerView.ViewHolder(errorView) {
+
+    val textView = errorView.find<TextView>(R.id.error)
+
+    fun bindTo(entry: FeedAdapter.Entry.Error) {
+        textView.text = entry.message
+    }
+}
+
+private class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+private class SpacerViewHolder(context: Context) : RecyclerView.ViewHolder(FrameLayout(context)) {
     private val view = itemView as FrameLayout
 
     @LayoutRes
@@ -317,7 +352,7 @@ private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewH
     }
 }
 
-private class UserInfoViewHolder(private val view: UserInfoView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
+private class UserInfoViewHolder(private val view: UserInfoView) : RecyclerView.ViewHolder(view) {
     fun bindTo(entry: FeedAdapter.Entry.User) {
         view.updateUserInfo(entry.user.info, entry.user.comments, entry.myself)
     }
