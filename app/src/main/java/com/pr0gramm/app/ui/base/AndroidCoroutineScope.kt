@@ -6,8 +6,12 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.*
+import retrofit2.HttpException
 import rx.Observable
+import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.properties.Delegates
@@ -19,7 +23,7 @@ interface AndroidCoroutineScope : CoroutineScope {
     val androidContext: Context
 
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main + LoggingCoroutineExceptionHandler
+        get() = job + Dispatchers.Main + DefaultCoroutineExceptionHandler
 
 
     fun launchWithErrorHandler(
@@ -36,7 +40,9 @@ interface AndroidCoroutineScope : CoroutineScope {
                     block()
                 }
             } catch (err: Throwable) {
-                ErrorDialogFragment.defaultOnError().call(err)
+                if (err !is CancellationException) {
+                    ErrorDialogFragment.defaultOnError().call(err)
+                }
             }
         }
     }
@@ -61,7 +67,19 @@ suspend inline fun <T> withAsyncContext(
     return withContext(newContext, block)
 }
 
-val LoggingCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    if (throwable is CancellationException) {
+        return@CoroutineExceptionHandler
+    }
+
+    if (throwable.rootCause is IOException || throwable.rootCause is HttpException) {
+        logger("Background").warn(throwable) {
+            "Ignoring uncaught exception in background coroutine"
+        }
+
+        return@CoroutineExceptionHandler
+    }
+
     if (BuildConfig.DEBUG) {
         ErrorDialogFragment.defaultOnError().call(throwable)
     } else {
@@ -70,7 +88,7 @@ val LoggingCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable 
 }
 
 val Async = Dispatchers.IO
-val AsyncScope = CoroutineScope(Async) + LoggingCoroutineExceptionHandler
+val AsyncScope = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
 val Main = Dispatchers.Main
 val MainScope = CoroutineScope(Main)
@@ -87,10 +105,6 @@ suspend fun <T> Observable<T>.await(): T {
     }
 
     return def.await()
-}
-
-fun <T> Deferred<T>.toObservable(): Observable<T> {
-    return toObservable { await() }
 }
 
 fun <T> toObservable(block: suspend () -> T): Observable<T> {
@@ -113,3 +127,4 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit, block: () -> T): T? {
 
     throw error
 }
+

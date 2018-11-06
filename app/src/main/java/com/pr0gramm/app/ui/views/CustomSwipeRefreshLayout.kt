@@ -7,10 +7,10 @@ import com.pr0gramm.app.util.AndroidUtility
 /**
  */
 class CustomSwipeRefreshLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : androidx.swiperefreshlayout.widget.SwipeRefreshLayout(context, attrs) {
-    var canSwipeUpPredicate: () -> Boolean = { false }
+    var canScrollUpTest: () -> Boolean = { false }
 
     override fun canChildScrollUp(): Boolean {
-        return canSwipeUpPredicate() || super.canChildScrollUp()
+        return canScrollUpTest() || super.canChildScrollUp()
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {

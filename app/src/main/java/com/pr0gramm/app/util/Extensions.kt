@@ -304,7 +304,7 @@ fun <T : Any> T?.justObservable(): Observable<T> {
 
 
 inline fun <T> KLogger.time(name: String, supplier: () -> T): T {
-    return timeWithExtraOutput(name) { _ -> supplier() }
+    return timeWithExtraOutput(name) { supplier() }
 }
 
 inline fun <T> KLogger.timeWithExtraOutput(name: String, supplier: (extraOutput: (String) -> Unit) -> T): T {

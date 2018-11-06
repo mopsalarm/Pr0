@@ -36,9 +36,11 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
+import retrofit2.HttpException
 import rx.Completable
 import rx.util.async.Async
 import java.io.File
+import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -92,6 +94,11 @@ object AndroidUtility {
     fun logToCrashlytics(error: Throwable?) {
         if (error == null)
             return
+
+        if (error.rootCause is IOException || error.rootCause is HttpException) {
+            logger.warn(error) { "Ignoring network exception" }
+            return
+        }
 
         try {
             val trace = StringWriter().also { error.printStackTrace(PrintWriter(it)) }.toString()
@@ -326,14 +333,7 @@ fun doInBackground(action: () -> Unit): Completable {
 }
 
 fun <T> doAsync(action: suspend () -> T): Job {
-    return AsyncScope.launch {
-        try {
-            action()
-        } catch (err: Throwable) {
-            // log it
-            AndroidUtility.logToCrashlytics(BackgroundThreadException(err))
-        }
-    }
+    return AsyncScope.launch { action() }
 }
 
 class BackgroundThreadException(cause: Throwable) : RuntimeException(cause)

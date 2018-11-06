@@ -36,6 +36,7 @@ private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entr
     UserInfo(202, FeedAdapter.Entry.User::class.java),
     Error(203, FeedAdapter.Entry.Error::class.java),
     EmptyHint(204, FeedAdapter.Entry.EmptyHint::class.java),
+    LoadingHint(205, FeedAdapter.Entry.LoadingHint::class.java),
     Spacer(300, FeedAdapter.Entry.Spacer::class.java),
     Item(1000, FeedAdapter.Entry.Item::class.java),
     Ad(900_000_000, FeedAdapter.Entry.Ad::class.java),
@@ -130,6 +131,11 @@ class FeedAdapter(private val picasso: Picasso,
                 val view = parent.layoutInflater.inflate(R.layout.feed_hint_empty)
                 NoopViewHolder(view)
             }
+
+            Offset.LoadingHint -> {
+                val view = parent.layoutInflater.inflate(R.layout.feed_hint_loading)
+                NoopViewHolder(view)
+            }
         }
     }
 
@@ -200,6 +206,8 @@ class FeedAdapter(private val picasso: Picasso,
         data class Error(val message: String) : Entry(Offset.Error.offset)
 
         object EmptyHint : Entry(Offset.EmptyHint.offset)
+
+        object LoadingHint : Entry(Offset.LoadingHint.offset)
     }
 
     inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {

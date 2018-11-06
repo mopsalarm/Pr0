@@ -23,6 +23,7 @@ import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.rootCause
 import com.pr0gramm.app.util.visible
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import kotterknife.bindViews
@@ -73,12 +74,12 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
                 onInviteSent()
 
-            } catch (err: Throwable) {
-                onInviteError(err)
-
-            } finally {
                 // re-query invites
                 handleInvites(inviteService.invites())
+            } catch (err: Throwable) {
+                if (err !is CancellationException) {
+                    onInviteError(err)
+                }
             }
         }
     }

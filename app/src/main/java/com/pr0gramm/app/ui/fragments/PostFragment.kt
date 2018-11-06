@@ -50,6 +50,7 @@ import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -700,8 +701,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         launch {
             try {
                 onPostReceived(feedService.post(feedItem.id, bust))
+                swipeRefreshLayout?.isRefreshing = false
 
             } catch (err: Exception) {
+                if (err is CancellationException) {
+                    return@launch
+                }
+
+                swipeRefreshLayout?.isRefreshing = false
+
                 if (err.rootCause !is IOException) {
                     AndroidUtility.logToCrashlytics(err)
                 }
@@ -710,9 +718,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     updateComments(emptyList(), updateSync = true)
                     state = state.copy(commentsLoadError = true, commentsLoading = false)
                 }
-
-            } finally {
-                swipeRefreshLayout?.isRefreshing = false
             }
         }
     }

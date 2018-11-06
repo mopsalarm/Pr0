@@ -5,6 +5,7 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.trace
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import rx.Observable
@@ -40,7 +41,10 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
      * Leave 'around' null to just load from the beginning.
      */
     fun restart(around: Long? = null) {
-        load { feedService.load(feedQuery().copy(around = around)) }
+        load {
+            publish(Update.LoadingStarted(LoadingSpace.PREV))
+            feedService.load(feedQuery().copy(around = around))
+        }
     }
 
     /**
@@ -51,7 +55,10 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
         if (feed.isAtEnd || isLoading || oldest == null)
             return
 
-        load { feedService.load(feedQuery().copy(older = oldest.id(feedType))) }
+        load {
+            publish(Update.LoadingStarted(LoadingSpace.NEXT))
+            feedService.load(feedQuery().copy(older = oldest.id(feedType)))
+        }
     }
 
     /**
@@ -62,7 +69,10 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
         if (feed.isAtStart || isLoading || newest == null)
             return
 
-        load { feedService.load(feedQuery().copy(newer = newest.id(feedType))) }
+        load {
+            publish(Update.LoadingStarted(LoadingSpace.PREV))
+            feedService.load(feedQuery().copy(newer = newest.id(feedType)))
+        }
     }
 
     fun stop() {
@@ -77,17 +87,18 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
         logger.info { "Start new load request now." }
         job = AsyncScope.launch {
             try {
-                publish(Update.LoadingStarted)
-
                 val update = try {
                     block()
-                } finally {
-                    publish(Update.LoadingStopped)
+                } catch (_: CancellationException) {
+                    return@launch
                 }
 
+                // loading finished
+                publish(Update.LoadingStopped)
                 handleFeedUpdate(update)
 
             } catch (err: Throwable) {
+                publish(Update.LoadingStopped)
                 publishError(err)
             }
         }
@@ -133,9 +144,13 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
     }
 
     sealed class Update {
-        object LoadingStarted : Update()
         object LoadingStopped : Update()
+        data class LoadingStarted(val where: LoadingSpace = LoadingSpace.NEXT) : Update()
         data class Error(val err: Throwable) : Update()
         data class NewFeed(val feed: Feed, val remote: Boolean = false) : Update()
+    }
+
+    enum class LoadingSpace {
+        NEXT, PREV
     }
 }

@@ -126,8 +126,8 @@ suspend fun <T> AndroidCoroutineScope.withBusyDialog(@StringRes textId: Int? = n
 
     try {
         return block()
-
     } finally {
+        // even run after cancellation, do we want this?
         withContext(Dispatchers.Main) {
             BusyDialogHelper.dismiss(dialog)
         }

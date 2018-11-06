@@ -127,18 +127,15 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
             launchWithErrorHandler(busyDialog = true) {
                 withViewDisabled(buttonSubmit) {
-                    try {
-                        val newComments = withAsyncContext(NonCancellable) {
-                            voteService.postComment(itemId, parentComment, message)
-                        }
-
-                        val result = Intent()
-                        result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
-                        setResult(Activity.RESULT_OK, result)
-
-                    } finally {
-                        finishAfterSending()
+                    val newComments = withAsyncContext(NonCancellable) {
+                        voteService.postComment(itemId, parentComment, message)
                     }
+
+                    val result = Intent()
+                    result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
+                    setResult(Activity.RESULT_OK, result)
+
+                    finishAfterSending()
                 }
             }
 
@@ -147,13 +144,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         } else {
             launchWithErrorHandler(busyDialog = true) {
                 withViewDisabled(buttonSubmit) {
-                    try {
-                        withAsyncContext(NonCancellable) {
-                            inboxService.send(receiverId, message)
-                        }
-                    } finally {
-                        finishAfterSending()
+                    withAsyncContext(NonCancellable) {
+                        inboxService.send(receiverId, message)
                     }
+
+                    finishAfterSending()
                 }
             }
 
