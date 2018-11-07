@@ -6,8 +6,9 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.causalChain
+import com.pr0gramm.app.util.containsType
 import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 import rx.Observable
@@ -72,12 +73,14 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
         return@CoroutineExceptionHandler
     }
 
-    if (throwable.rootCause is IOException || throwable.rootCause is HttpException) {
-        logger("Background").warn(throwable) {
-            "Ignoring uncaught exception in background coroutine"
-        }
+    throwable.causalChain.let { causalChain ->
+        if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
+            logger("Background").warn(throwable) {
+                "Ignoring uncaught IOException in background coroutine"
+            }
 
-        return@CoroutineExceptionHandler
+            return@CoroutineExceptionHandler
+        }
     }
 
     if (BuildConfig.DEBUG) {

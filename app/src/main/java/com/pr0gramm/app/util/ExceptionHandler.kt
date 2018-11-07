@@ -1,7 +1,14 @@
 package com.pr0gramm.app.util
 
+import kotlinx.coroutines.CancellationException
+import java.io.IOException
+
 class ExceptionHandler private constructor(private val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(thread: Thread, err: Throwable) {
+        if (err.causalChain.containsType<CancellationException>()) {
+            return
+        }
+
         if (err is IllegalStateException) {
             // this is an exception happening in gms ads. we'll ignore it.
             if (err.message == "Results have already been set") {
@@ -9,7 +16,11 @@ class ExceptionHandler private constructor(private val delegate: Thread.Uncaught
                     return
                 }
             }
+        }
 
+        if (err is IOException) {
+            logger.warn(err) { "Uncaught IOException" }
+            return
         }
 
         delegate.uncaughtException(thread, err)

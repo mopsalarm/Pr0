@@ -6,7 +6,6 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.*
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -132,11 +131,7 @@ class SyncService(private val userService: UserService,
 
                 .doOnError { err ->
                     Stats.get().incrementCounter("seen.sync.error")
-
-                    // log non IOExceptions
-                    if (err.causalChain.all { it !is IOException }) {
-                        AndroidUtility.logToCrashlytics(err)
-                    }
+                    AndroidUtility.logToCrashlytics(err)
                 }
 
                 .ignoreError()

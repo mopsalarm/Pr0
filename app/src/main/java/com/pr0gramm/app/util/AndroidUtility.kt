@@ -33,6 +33,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.AsyncScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
@@ -95,7 +96,13 @@ object AndroidUtility {
         if (error == null)
             return
 
-        if (error.rootCause is IOException || error.rootCause is HttpException) {
+        val causalChain = error.causalChain
+
+        if (causalChain.containsType<CancellationException>()) {
+            return
+        }
+
+        if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
             logger.warn(error) { "Ignoring network exception" }
             return
         }
@@ -129,7 +136,6 @@ object AndroidUtility {
         } catch (err: Throwable) {
             logger.warn("Could not send error to crashlytics", err)
         }
-
     }
 
     fun dp(context: Context, dpValue: Int): Int {

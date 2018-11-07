@@ -495,6 +495,10 @@ val Throwable.causalChain
         return chain
     }
 
+inline fun <reified T : Throwable> List<Throwable>.containsType(): Boolean {
+    return any { it is T }
+}
+
 val Byte.unsigned: Int get() = this.toInt() and 0xff
 
 
