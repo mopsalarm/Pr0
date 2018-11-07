@@ -484,7 +484,7 @@
     <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
     <string name="not_now">Später</string>
     <string name="play_store">Zum PlayStore</string>
-    <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung \'Incognito Browser\'.</string>
+    <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung \'Inkognito Browser\'.</string>
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>
     <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste und verhindert das Erstellen von Screenshots.</string>
     <string name="error_feed_not_found">Der angefragte Post existiert nicht mehr.</string>
@@ -516,6 +516,6 @@
     <string name="badge_deleted_comments">Hat %d eigene Kommentare löschen lassen</string>
     <string name="badge_deleted_items">Hat %d eigene Hochlads löschen lassen</string>
     <string name="error_no_comments_without_account">Du benötigst einen Account um die Kommentare auf pr0gramm zu sehen.</string>
-    <string name="pref_private_input_title">Incognito Keyboard</string>
-    <string name="pref_private_input_summary">Aktiviert den Incognito Modus deiner Tastatur, z.B. vom gboard. Erfordert möglicherweise einen Neustart der App.</string>
+    <string name="pref_private_input_title">Inkognito Keyboard</string>
+    <string name="pref_private_input_summary">Aktiviert den Inkognito Modus deiner Tastatur, z.B. vom gboard. Erfordert möglicherweise einen Neustart der App.</string>
 </resources>

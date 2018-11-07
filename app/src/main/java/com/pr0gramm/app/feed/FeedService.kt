@@ -57,19 +57,27 @@ class FeedServiceImpl(private val api: Api,
 
         return when (feedType) {
             FeedType.RANDOM -> {
+                // convert to a query including the x:random flag.
                 val bust = Instant.now().millis / 1000L
                 val tagsQuery = Tags.join("!-(x:random | x:$bust)", feedFilter.tags)
-                load(query.copy(
+
+                // and load it directly on 'new'
+                val feed = load(query.copy(
                         newer = null, older = null, around = null,
                         filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
+
+                // then shuffle the result
+                feed.copy(_items = feed._items?.shuffled())
             }
 
             FeedType.BESTOF -> {
+                // add a s:3000 tag to the query.
                 val tagsQuery = Tags.join("!s:${Settings.get().bestOfBenisThreshold}", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
             FeedType.CONTROVERSIAL -> {
+                // just add the f:controversial flag to the query
                 val tagsQuery = Tags.join("!f:controversial", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
@@ -77,8 +85,10 @@ class FeedServiceImpl(private val api: Api,
             FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older).await()
 
             else -> {
-                // replace old search with a new one.
-                api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, tags, likes, self, user).await()
+                // do the normal query as is.
+                api.itemsGet(promoted, following,
+                        query.older, query.newer, query.around,
+                        flags, tags, likes, self, user).await()
             }
         }
     }

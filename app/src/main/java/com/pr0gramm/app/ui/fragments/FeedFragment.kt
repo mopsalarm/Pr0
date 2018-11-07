@@ -269,12 +269,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
 
                 is FeedManager.Update.LoadingStarted -> {
+                    swipeRefreshLayout.isRefreshing = false
                     lastLoadingSpace = update.where
                     state = state.copy(loading = update.where)
                 }
 
                 FeedManager.Update.LoadingStopped -> {
-                    swipeRefreshLayout.isRefreshing = false
                     state = state.copy(loading = null)
                 }
             }
