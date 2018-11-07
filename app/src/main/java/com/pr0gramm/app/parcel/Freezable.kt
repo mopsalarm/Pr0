@@ -7,7 +7,6 @@ import android.os.Parcelable
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
-import com.pr0gramm.app.util.timeWithExtraOutput
 import okio.*
 import java.io.ByteArrayInputStream
 import java.util.zip.Deflater
@@ -93,7 +92,7 @@ interface Freezable : Parcelable {
 
 object Freezer {
     fun freeze(f: Freezable): ByteArray {
-        logger.timeWithExtraOutput("Freezing object of type ${f.javaClass.simpleName}") { extraOutput ->
+        return logger.time({ "Freezing object of type ${f.javaClass.simpleName} (${it?.size} bytes)" }) {
             val buffer = Buffer()
             try {
                 DeflaterSink(buffer, Deflater(Deflater.BEST_SPEED)).use {
@@ -102,10 +101,7 @@ object Freezer {
                     }
                 }
 
-                val bytes = buffer.readByteArray()
-                extraOutput("(${bytes.size} bytes")
-
-                return bytes
+                return@time buffer.readByteArray()
 
             } finally {
                 buffer.clear()
@@ -114,12 +110,12 @@ object Freezer {
     }
 
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
-        logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.simpleName}") {
+        return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.simpleName}") {
             val source = Okio.source(ByteArrayInputStream(data))
 
             InflaterSource(source, Inflater()).use { inflaterSource ->
                 val bufferedSource = Okio.buffer(inflaterSource)
-                return c.unfreeze(Freezable.Source(bufferedSource))
+                c.unfreeze(Freezable.Source(bufferedSource))
             }
         }
     }
@@ -131,24 +127,28 @@ interface Unfreezable<T : Freezable> {
 
 inline fun <reified T : Freezable> Unfreezable<T>.parcelableCreator() = object : Parcelable.Creator<T> {
     override fun createFromParcel(source: Parcel): T {
-        return Freezer.unfreeze(source.createByteArray(), this@parcelableCreator)
+        return Freezer.unfreeze(source.createByteArray()!!, this@parcelableCreator)
     }
 
     override fun newArray(size: Int): Array<T?> = arrayOfNulls(size)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun Bundle.putFreezable(key: String, f: Freezable) {
     putParcelable(key, f)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Freezable> Bundle.getFreezable(key: String, c: Unfreezable<T>): T? {
     return getParcelable(key)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Freezable> Bundle.getParcelable(key: String, c: Unfreezable<T>): T? {
     return getParcelable(key)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Freezable> Intent.getFreezableExtra(key: String, c: Unfreezable<T>): T? {
     return getParcelableExtra(key)
 }

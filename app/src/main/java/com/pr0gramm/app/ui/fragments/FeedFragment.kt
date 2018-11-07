@@ -100,8 +100,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val actionHandler: MainActionHandler get() = activity as MainActionHandler
 
     private data class State(
-            val feedItems: List<FeedItem>,
-            val feedFilter: FeedFilter,
+            val feed: Feed = Feed(),
             val preloadedItemIds: Set<Long> = emptySet(),
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
@@ -113,15 +112,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val loading: FeedManager.LoadingSpace? = null,
             val error: String? = null)
 
-    private var feed: Feed by observeChangeEx(Feed()) { old, new ->
-        if (old == new) {
-            logger.debug { "No change in feed items." }
-        } else {
-            state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
-        }
-    }
+    private val feed: Feed get() = state.feed
 
-    private var state by observeChange(State(feed.items, feed.filter)) {
+    private var state by observeChange(State()) {
         updateAdapterState()
     }
 
@@ -256,12 +249,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         }
                     }
 
-                    stateTransaction {
-                        this.feed = update.feed
-                        state = state.copy(
-                                empty = update.remote && update.feed.isEmpty(),
-                                error = null, loading = null)
-                    }
+                    state = state.copy(
+                            feed = update.feed,
+                            empty = update.remote && update.feed.isEmpty(),
+                            error = null, loading = null)
                 }
 
                 is FeedManager.Update.Error -> {
@@ -295,7 +286,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val state = this.state
 
-        val filter = state.feedFilter
+        val filter = state.feed.filter
 
         val entries = mutableListOf<FeedAdapter.Entry>()
 
@@ -339,7 +330,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
 
             } else if (filter.username != null) {
-                val item = state.feedItems.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
+                val item = state.feed.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
                 if (item != null) {
                     val user = UserAndMark(item.user, item.mark)
                     entries += FeedAdapter.Entry.UserLoading(user)
@@ -356,11 +347,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 val adsVisible = state.adsVisible
 
                 // always show at least one ad banner - e.g. during load
-                if (adsVisible && state.feedItems.isEmpty()) {
+                if (adsVisible && state.feed.isEmpty()) {
                     entries += FeedAdapter.Entry.Ad(0)
                 }
 
-                for ((idx, item) in state.feedItems.withIndex()) {
+                for ((idx, item) in state.feed.withIndex()) {
                     val id = item.id
                     val seen = markAsSeen && seenService.isSeen(id)
                     val repost = inMemoryCacheService.isRepost(id)
@@ -388,7 +379,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             if (entries == feedAdapter.latestEntries) {
                 logger.debug { "Skip submit of feed items, no change in state." }
-                return
+                return@time
             }
 
             val ref = autoScrollRef
@@ -633,7 +624,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             autoScrollRef = ref.copy(feed = null)
 
             // apply the updated feed reference
-            this.feed = feed.mergeIfPossible(ref.feed) ?: ref.feed
+            state = state.copy(feed = feed.mergeIfPossible(ref.feed) ?: ref.feed)
         }
     }
 
@@ -988,8 +979,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // reset auto open.
         autoScrollRef = null
-
-        val feed = feed
 
         val idx = feed.indexById(item.id) ?: return
         trace { "onItemClicked(feedIndex=$idx, id=${item.id})" }

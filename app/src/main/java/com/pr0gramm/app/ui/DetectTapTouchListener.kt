@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 
@@ -11,6 +12,7 @@ class DetectTapTouchListener(private val consumer: () -> Unit) : View.OnTouchLis
     private var firstX: Float = 0.toFloat()
     private var firstY: Float = 0.toFloat()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         if (event.actionIndex == 0) {
             if (event.action == MotionEvent.ACTION_DOWN) {

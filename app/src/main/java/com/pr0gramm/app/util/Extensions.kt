@@ -304,23 +304,24 @@ fun <T : Any> T?.justObservable(): Observable<T> {
 
 
 inline fun <T> KLogger.time(name: String, supplier: () -> T): T {
-    return timeWithExtraOutput(name) { supplier() }
+    return time({ name }, supplier)
 }
 
-inline fun <T> KLogger.timeWithExtraOutput(name: String, supplier: (extraOutput: (String) -> Unit) -> T): T {
-    if (BuildConfig.DEBUG) {
-        var extraString = ""
-
-        val consumeExtraOutput = { extra: String -> extraString = extra }
-
+inline fun <T> KLogger.time(nameSupplier: (T?) -> String, supplier: () -> T): T {
+    return if (BuildConfig.DEBUG) {
         val watch = Stopwatch.createStarted()
+
+        var result: T? = null
         try {
-            return supplier(consumeExtraOutput)
+            result = supplier()
+            return result
         } finally {
-            this.info { "$name $extraString took $watch" }
+            val name = nameSupplier(result)
+            this.info { "$name took $watch" }
         }
+
     } else {
-        return supplier {}
+        supplier()
     }
 }
 
