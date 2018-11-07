@@ -80,14 +80,14 @@
     <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
-    <string name="action_pin">Pin</string>
+    <string name="action_pin">Bookmark</string>
     <string name="do_you_want_to_remove_this_bookmark">Do you want to remove this bookmark?</string>
     <string name="filter_format_tag_by">By</string>
     <string name="filter_format_fav_of">Fav of</string>
     <string name="filter_format_top">Top</string>
     <string name="filter_format_new">New</string>
-    <string name="pref_show_pin_button">Show pin action</string>
-    <string name="pref_show_pin_button_summary">If you disable this option, the pin-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
+    <string name="pref_show_pin_button">Show bookmark action</string>
+    <string name="pref_show_pin_button_summary">If you disable this option, the bookmark-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
     <string name="login_please_wait">Please wait while performing login…</string>
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>

@@ -268,7 +268,7 @@ private class DebugInterceptor : Interceptor {
         val watch = Stopwatch.createStarted()
         try {
             if ("pr0gramm.com" in request.url().toString()) {
-                TimeUnit.MILLISECONDS.sleep(250)
+                TimeUnit.MILLISECONDS.sleep(750)
             } else {
                 TimeUnit.MILLISECONDS.sleep(500)
             }

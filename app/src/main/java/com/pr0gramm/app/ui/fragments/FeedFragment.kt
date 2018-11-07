@@ -251,8 +251,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     if (lastLoadingSpace == FeedManager.LoadingSpace.PREV) {
                         // scroll down a bit so the new items can be inserted
                         // without scrolling to the to of those new items.
-                        feed.getOrNull(0)?.id?.let { id ->
-                            autoScrollRef = ScrollRef(CommentRef(id), smoothScroll = false)
+                        feed.getOrNull(0)?.let { item ->
+                            autoScrollRef = ScrollRef(CommentRef(item), smoothScroll = false)
                         }
                     }
 
@@ -269,12 +269,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
 
                 is FeedManager.Update.LoadingStarted -> {
-                    swipeRefreshLayout.isRefreshing = false
                     lastLoadingSpace = update.where
-                    state = state.copy(loading = update.where)
+
+                    if (!swipeRefreshLayout.isRefreshing) {
+                        state = state.copy(loading = update.where)
+                    }
                 }
 
                 FeedManager.Update.LoadingStopped -> {
+                    swipeRefreshLayout.isRefreshing = false
                     state = state.copy(loading = null)
                 }
             }
@@ -865,7 +868,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         return true == when (item.itemId) {
             R.id.action_feedtype -> switchFeedType()
-            R.id.action_refresh -> refreshFeed()
+            R.id.action_refresh -> refreshFeedWithIndicator()
             R.id.action_pin -> pinCurrentFeedFilter()
             R.id.action_preload -> preloadCurrentFeed()
             R.id.action_follow -> onFollowClicked()
@@ -883,9 +886,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         (activity as MainActionHandler).onFeedFilterSelected(filter, initialSearchViewState())
     }
 
+    private fun refreshFeedWithIndicator() {
+        swipeRefreshLayout.isRefreshing = true
+        refreshFeed()
+    }
+
     private fun refreshFeed() {
         resetToolbar()
-        loader.reset()
         loader.restart()
     }
 

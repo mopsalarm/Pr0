@@ -42,7 +42,7 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
      */
     fun restart(around: Long? = null) {
         load {
-            publish(Update.LoadingStarted(LoadingSpace.PREV))
+            publish(Update.LoadingStarted(LoadingSpace.NEXT))
             feedService.load(feedQuery().copy(around = around))
         }
     }
