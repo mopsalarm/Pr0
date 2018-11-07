@@ -116,7 +116,7 @@ fun <T> toObservable(block: suspend () -> T): Observable<T> {
     }
 }
 
-inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit, block: () -> T): T? {
+inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T): T {
     var error: Throwable by Delegates.notNull()
 
     repeat(tryCount) {

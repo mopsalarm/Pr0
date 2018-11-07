@@ -193,7 +193,9 @@ object Track {
         }
     }
 
-    fun statistics() {
-        settingsTracker.track()
+    suspend fun statistics() {
+        ignoreException {
+            settingsTracker.track()
+        }
     }
 }

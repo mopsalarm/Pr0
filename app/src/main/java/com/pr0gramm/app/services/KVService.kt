@@ -1,20 +1,20 @@
 package com.pr0gramm.app.services
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.util.ofType
+import com.pr0gramm.app.ui.base.retryUpTo
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.Deferred
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import retrofit2.HttpException
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import rx.Observable
 import java.util.*
 
 class KVService(okHttpClient: OkHttpClient) {
@@ -23,62 +23,48 @@ class KVService(okHttpClient: OkHttpClient) {
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/kv/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
             .create(Api::class.java)
 
-    fun update(ident: String, key: String, fn: (previous: ByteArray?) -> ByteArray?): Observable<PutResult.Version> {
-        return get(ident, key)
-                .flatMap { result ->
-                    val empty = Observable.empty<PutResult>()
+    suspend fun update(ident: String, key: String, fn: (previous: ByteArray?) -> ByteArray?): PutResult.Version? {
+        return retryUpTo(3) {
+            val previous = get(ident, key) as? GetResult.Value
 
-                    val putObservable = when (result) {
-                        is GetResult.NoValue -> {
-                            // no previous value, write as 0.
-                            fn(null)?.let { value -> put(ident, key, 0, value) }
-                        }
-                        is GetResult.Value -> {
-                            fn(result.value)?.let { value -> put(ident, key, result.version, value) }
-                        }
-                    }
+            val response = fn(previous?.value)
+                    ?.let { value -> put(ident, key, previous?.version ?: 0, value) }
 
-                    putObservable ?: empty
-                }
-                .flatMap {
-                    if (it === PutResult.Conflict) {
-                        Observable.error(VersionConflictException())
-                    } else {
-                        Observable.just(it)
-                    }
-                }
-                .ofType<PutResult.Version>()
-                .retry(3)
-    }
-
-    fun get(ident: String, key: String): Observable<GetResult> {
-        // hash the ident to generate the token
-        val token = tokenOf(ident)
-
-        return api.getValue(token, key).ofType<GetResult>().onErrorResumeNext { err ->
-            if (err is HttpException && err.code() == 404) {
-                return@onErrorResumeNext Observable.just(GetResult.NoValue)
+            if (response == PutResult.Conflict) {
+                throw VersionConflictException()
             }
 
-            Observable.error(err)
+            response as? PutResult.Version
         }
     }
 
-    fun put(ident: String, key: String, version: Int, value: ByteArray): Observable<PutResult> {
+    suspend fun get(ident: String, key: String): GetResult {
+        return try {
+            api.getValue(tokenOf(ident), key).await()
+        } catch (err: HttpException) {
+            if (err.code() != 404)
+                throw err
+
+            GetResult.NoValue
+        }
+    }
+
+    suspend fun put(ident: String, key: String, version: Int, value: ByteArray): PutResult {
         // hash the ident to generate the token
-        val token = tokenOf(ident)
 
         val body = RequestBody.create(MediaType.parse("application/octet"), value)
-        return api.putValue(token, key, version, body).ofType<PutResult>().onErrorResumeNext { err ->
-            if (err is HttpException && err.code() == 409) {
-                return@onErrorResumeNext Observable.just(PutResult.Conflict)
-            }
 
-            Observable.error(err)
+        return try {
+            api.putValue(tokenOf(ident), key, version, body).await()
+        } catch (err: HttpException) {
+            if (err.code() != 409)
+                throw err
+
+            PutResult.Conflict
         }
     }
 
@@ -88,14 +74,14 @@ class KVService(okHttpClient: OkHttpClient) {
         @GET("token/{token}/key/{key}")
         fun getValue(
                 @Path("token") token: UUID,
-                @Path("key") key: String): Observable<GetResult.Value>
+                @Path("key") key: String): Deferred<GetResult.Value>
 
         @POST("token/{token}/key/{key}/version/{version}")
         fun putValue(
                 @Path("token") token: UUID,
                 @Path("key") key: String,
                 @Path("version") version: Int,
-                @Body body: RequestBody): Observable<PutResult.Version>
+                @Body body: RequestBody): Deferred<PutResult.Version>
     }
 
     sealed class PutResult {
