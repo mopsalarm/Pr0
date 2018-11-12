@@ -7,9 +7,9 @@ import rx.Observable
 import rx.subjects.PublishSubject
 
 abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.RecyclerView.ViewHolder>(
-        private val diffCallback: DiffUtil.ItemCallback<T>,
+        private val diffCallback: DiffUtil.ItemCallback<T> = InstanceDiffCallback(),
         private val detectMoves: Boolean = false,
-        private val name: String = "AsyncListAdapter") : androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
+        name: String = "AsyncListAdapter") : androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
 
     internal val logger = logger(name)
 
@@ -123,4 +123,13 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
         }, detectMoves)
     }
 
+    private class InstanceDiffCallback<T> : DiffUtil.ItemCallback<T>() {
+        override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
+            return oldItem === newItem
+        }
+
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

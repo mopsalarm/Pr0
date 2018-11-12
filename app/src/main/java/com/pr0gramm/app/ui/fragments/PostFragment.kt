@@ -1231,14 +1231,22 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onReplyClicked(comment: Api.Comment) {
-            val retry = Runnable { onReplyClicked(comment) }
+            val byId = apiComments.value.associateBy { it.id }
 
-            doIfAuthorizedHelper.run(Runnable {
+            val parentComments = mutableListOf<WriteMessageActivity.ParentComment>()
+
+            var current: Api.Comment? = comment
+            while (current != null) {
+                parentComments.add(WriteMessageActivity.ParentComment.ofComment(current))
+                current = byId[current.parent]
+            }
+
+            doIfAuthorizedHelper.runWithRetry {
                 startActivityForResult(
-                        WriteMessageActivity.answerToComment(context, feedItem, comment),
+                        WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
                         RequestCodes.WRITE_COMMENT)
 
-            }, retry)
+            }
         }
 
         override fun onCommentAuthorClicked(comment: Api.Comment) {

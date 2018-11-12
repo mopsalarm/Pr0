@@ -538,7 +538,7 @@ fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
     }
 }
 
-inline fun <reified T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
+inline fun <T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
     val result = ArrayList<T>(n)
     for (idx in 0 until n) {
         result.add(initializer(idx))

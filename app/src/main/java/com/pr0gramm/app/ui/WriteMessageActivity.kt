@@ -3,27 +3,43 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckedTextView
+import androidx.core.text.bold
+import androidx.core.text.getSpans
+import androidx.core.text.inSpans
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.parcel.MessageParceler
-import com.pr0gramm.app.parcel.NewCommentParceler
-import com.pr0gramm.app.parcel.getFreezable
-import com.pr0gramm.app.parcel.getFreezableExtra
+import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.listOfSize
+import com.pr0gramm.app.util.observeChangeEx
 import com.pr0gramm.app.util.visible
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import java.util.*
+import kotlin.collections.set
 
 /**
  */
@@ -36,12 +52,19 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     private val buttonSubmit: Button by bindView(R.id.submit)
     private val messageText: LineMultiAutoCompleteTextView by bindView(R.id.new_message_text)
     private val messageView: MessageView by bindView(R.id.message_view)
+    private val parentCommentsView: RecyclerView by bindView(R.id.authors)
 
     private val receiverName: String by lazy { intent.getStringExtra(ARGUMENT_RECEIVER_NAME) }
     private val receiverId: Long by lazy { intent.getLongExtra(ARGUMENT_RECEIVER_ID, 0) }
     private val isCommentAnswer: Boolean by lazy { intent.hasExtra(ARGUMENT_COMMENT_ID) }
     private val parentCommentId: Long by lazy { intent.getLongExtra(ARGUMENT_COMMENT_ID, 0) }
     private val itemId: Long by lazy { intent.getLongExtra(ARGUMENT_ITEM_ID, 0) }
+
+    private val parentComments: List<ParentComment> by lazy {
+        intent.getFreezableExtra(ARGUMENT_EXCERPTS, ParentComments)?.comments ?: listOf()
+    }
+
+    private var selectedUsers by observeChangeEx(setOf<String>()) { _, _ -> updateViewState() }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
@@ -69,7 +92,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                 invalidateOptionsMenu()
 
                 // cache to restore it later.
-                CACHE.put(messageCacheKey, s.toString())
+                CACHE[messageCacheKey] = s.toString()
             }
         })
 
@@ -79,10 +102,82 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
+        if (this.parentComments.isNotEmpty()) {
+            messageText.addTextChangedListener(object : SimpleTextWatcher() {
+                override fun afterTextChanged(s: Editable) {
+                    messageView.removeCallbacks(updateTextRunnable)
+                    messageView.post(updateTextRunnable)
+                }
+            })
+
+            parentCommentsView.adapter = Adapter()
+            parentCommentsView.layoutManager = LinearLayoutManager(this)
+            parentCommentsView.itemAnimator = null
+            updateViewState()
+        }
+
         // restore cached text.
         val cached = CACHE[messageCacheKey]
         if (cached != null) {
             messageText.setText(cached)
+        }
+    }
+
+    val updateTextRunnable = { updateViewState() }
+
+    private fun updateViewState() {
+        val adapter = parentCommentsView.adapter as Adapter
+
+        adapter.submitList(parentComments.map { comment ->
+            SelectedParentComment(comment, selected = comment.user in selectedUsers)
+        })
+
+        // sorted users, or empty if the list has focus
+        val sortedUsers = selectedUsers.sorted()
+
+        val text = messageText.text
+        val allSpans = text.getSpans<Any>()
+
+        val styleSpan = allSpans.filter { span -> span is StyleSpan || span is ForegroundColorSpan }
+        logger.info { "$styleSpan" }
+
+        if (sortedUsers.isEmpty()) {
+            // remove any text that's in there
+            styleSpan.firstOrNull()?.let { span ->
+                val start = text.getSpanStart(span)
+                val end = text.getSpanEnd(span)
+                text.replace(start, end, "")
+            }
+
+            styleSpan.forEach { text.removeSpan(it) }
+
+        } else {
+            val suffix = sortedUsers.joinToString(", ") { "@$it" }
+
+            val firstSpan = styleSpan.firstOrNull()
+
+            if (firstSpan != null) {
+                // replace text in the span with new one
+                val start = text.getSpanStart(firstSpan)
+                val end = text.getSpanEnd(firstSpan)
+
+                if (text.substring(start, end) != suffix) {
+                    text.replace(start, end, suffix)
+                }
+            } else {
+                val builder = text as? SpannableStringBuilder
+
+                builder?.apply {
+                    // add a space if needed
+                    if (!endsWith("\n")) {
+                        append("\n")
+                    }
+
+                    inSpans(StyleSpan(Typeface.ITALIC), ForegroundColorSpan(Color.rgb(0x80, 0x80, 0x80))) {
+                        append(suffix)
+                    }
+                }
+            }
         }
     }
 
@@ -178,7 +273,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             if (isCommentAnswer) {
                 return itemId.toString() + "-" + parentCommentId
             } else {
-                return "msg-" + receiverId
+                return "msg-$receiverId"
             }
         }
 
@@ -188,6 +283,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private const val ARGUMENT_RECEIVER_NAME = "WriteMessageFragment.userName"
         private const val ARGUMENT_COMMENT_ID = "WriteMessageFragment.commentId"
         private const val ARGUMENT_ITEM_ID = "WriteMessageFragment.itemId"
+        private const val ARGUMENT_EXCERPTS = "WriteMessageFragment.excerpts"
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
 
         private var CACHE: MutableMap<String, String> = HashMap()
@@ -205,23 +301,111 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             return intent
         }
 
-        fun answerToComment(context: Context, feedItem: FeedItem, comment: Api.Comment): Intent {
-            return answerToComment(context, MessageConverter.of(feedItem, comment))
+        fun answerToComment(
+                context: Context, feedItem: FeedItem, comment: Api.Comment,
+                parentComments: List<ParentComment>): Intent {
+
+            return answerToComment(context, MessageConverter.of(feedItem, comment), parentComments)
         }
 
-        fun answerToComment(context: Context, message: Api.Message): Intent {
+        fun answerToComment(
+                context: Context, message: Api.Message,
+                parentComments: List<ParentComment> = listOf()): Intent {
+
             val itemId = message.itemId
             val commentId = message.id
 
-            val intent = intent(context, message)
-            intent.putExtra(ARGUMENT_COMMENT_ID, commentId)
-            intent.putExtra(ARGUMENT_ITEM_ID, itemId)
-            return intent
+            return intent(context, message).apply {
+                putExtra(ARGUMENT_COMMENT_ID, commentId)
+                putExtra(ARGUMENT_ITEM_ID, itemId)
+                putExtra(ARGUMENT_EXCERPTS, ParentComments(parentComments))
+            }
         }
 
         fun getNewComment(data: Intent): Api.NewComment {
             val newComment = data.getFreezableExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)?.value
             return newComment ?: throw IllegalArgumentException("no comment found in Intent")
+        }
+    }
+
+    data class ParentComment(val user: String, val excerpt: String) {
+        companion object {
+            fun ofComment(comment: Api.Comment): ParentComment {
+                val content = comment.content.takeIf { it.length < 120 }
+                        ?: (comment.content.take(120) + "…")
+
+                return ParentComment(comment.name, content)
+            }
+        }
+    }
+
+    private data class SelectedParentComment(val comment: ParentComment, val selected: Boolean = false)
+
+    private inner class Adapter : AsyncListAdapter<SelectedParentComment, ViewHolder>(ItemCallback()) {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = parent.layoutInflater.inflate(R.layout.row_comment_excerpt, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.update(getItem(position))
+        }
+    }
+
+    private class ItemCallback : DiffUtil.ItemCallback<SelectedParentComment>() {
+        override fun areItemsTheSame(oldItem: SelectedParentComment, newItem: SelectedParentComment): Boolean {
+            return oldItem.comment === newItem.comment
+        }
+
+        override fun areContentsTheSame(oldItem: SelectedParentComment, newItem: SelectedParentComment): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+    private inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val excerptTextView: CheckedTextView = itemView as CheckedTextView
+
+        fun update(parentComment: SelectedParentComment) {
+            excerptTextView.isChecked = parentComment.selected
+
+            excerptTextView.text = SpannableStringBuilder().apply {
+                bold {
+                    append(parentComment.comment.user)
+                }
+
+                append(" ")
+                append(parentComment.comment.excerpt)
+            }
+
+            excerptTextView.setOnClickListener {
+                val user = parentComment.comment.user
+                if (user in selectedUsers) {
+                    selectedUsers -= user
+                } else {
+                    selectedUsers += user
+                }
+            }
+        }
+    }
+
+    class ParentComments(val comments: List<ParentComment>) : Freezable {
+        override fun freeze(sink: Freezable.Sink) {
+            sink.writeInt(comments.size)
+            comments.forEach {
+                sink.writeString(it.user)
+                sink.writeString(it.excerpt)
+            }
+        }
+
+        companion object : Unfreezable<ParentComments> {
+            @JvmField
+            val CREATOR = parcelableCreator()
+
+            override fun unfreeze(source: Freezable.Source): ParentComments {
+                return ParentComments(comments = listOfSize(source.readInt()) {
+                    ParentComment(user = source.readString(), excerpt = source.readString())
+                })
+            }
         }
     }
 }

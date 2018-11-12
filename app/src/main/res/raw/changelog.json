@@ -1,5 +1,14 @@
 [
   {
+    "version": 155,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Einfaches Markieren von anderen Kellerkindern beim Antworten auf einen Kommentar."
+      }
+    ]
+  },
+  {
     "version": 154,
     "changes": [
       {

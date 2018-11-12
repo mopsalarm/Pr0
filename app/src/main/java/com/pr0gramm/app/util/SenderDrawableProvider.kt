@@ -20,8 +20,12 @@ class SenderDrawableProvider(context: Context) {
             .endConfig()
 
     fun makeSenderDrawable(message: Api.Message): TextDrawable {
-        val color = ColorGenerator.MATERIAL.getColor(message.senderId)
-        return shapes.buildRound(iconText(message.name), color)
+        return makeSenderDrawable(message.senderId, message.name)
+    }
+
+    fun makeSenderDrawable(key: Any, name: String): TextDrawable {
+        val color = ColorGenerator.MATERIAL.getColor(key)
+        return shapes.buildRound(iconText(name), color)
     }
 
     fun makeSenderBitmap(message: Api.Message, width: Int, height: Int): Bitmap {
@@ -36,10 +40,10 @@ class SenderDrawableProvider(context: Context) {
     }
 
     private fun iconText(name: String): String {
-        if (name.length == 1) {
-            return name.substring(0, 1).toUpperCase()
+        return if (name.length == 1) {
+            name.substring(0, 1).toUpperCase()
         } else {
-            return name.substring(0, 1).toUpperCase() + name.substring(1, 2).toLowerCase()
+            name.substring(0, 1).toUpperCase() + name.substring(1, 2).toLowerCase()
         }
     }
 }
