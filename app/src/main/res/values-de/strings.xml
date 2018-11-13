@@ -518,4 +518,5 @@
     <string name="error_no_comments_without_account">Du benötigst einen Account um die Kommentare auf pr0gramm zu sehen.</string>
     <string name="pref_private_input_title">Inkognito Keyboard</string>
     <string name="pref_private_input_summary">Aktiviert den Inkognito Modus deiner Tastatur, z.B. vom gboard. Erfordert möglicherweise einen Neustart der App.</string>
+    <string name="authors_hint">Benachrichtige die Verfasser von einem oder mehreren Elternkommentaren.</string>
 </resources>

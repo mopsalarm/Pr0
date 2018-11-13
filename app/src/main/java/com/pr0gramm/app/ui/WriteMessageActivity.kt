@@ -24,10 +24,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.base.withViewDisabled
-import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.listOfSize
-import com.pr0gramm.app.util.observeChangeEx
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import org.kodein.di.erased.instance
@@ -95,7 +92,16 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
-        if (this.parentComments.isNotEmpty()) {
+        // only show if we can link to someone else
+        val shouldShowParentComments = this.parentComments.any {
+            !it.user.equals(receiverName, ignoreCase = true)
+        }
+
+        if (shouldShowParentComments) {
+            // make the views visible
+            find<View>(R.id.authors_title).visible = true
+            parentCommentsView.visible = true
+
             parentCommentsView.adapter = Adapter()
             parentCommentsView.layoutManager = LinearLayoutManager(this)
             parentCommentsView.itemAnimator = null
@@ -113,7 +119,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         val adapter = parentCommentsView.adapter as Adapter
 
         adapter.submitList(parentComments.map { comment ->
-            SelectedParentComment(comment, selected = comment.user in selectedUsers)
+            val isNotTargetUser = !comment.user.equals(receiverName, ignoreCase = true)
+            SelectedParentComment(comment, enabled = isNotTargetUser, selected = comment.user in selectedUsers)
         })
 
         // sorted users, or empty if the list has focus
@@ -283,7 +290,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-    private data class SelectedParentComment(val comment: ParentComment, val selected: Boolean = false)
+    private data class SelectedParentComment(
+            val comment: ParentComment, val enabled: Boolean, val selected: Boolean)
 
     private inner class Adapter : AsyncListAdapter<SelectedParentComment, ViewHolder>(ItemCallback()) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -311,6 +319,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         fun update(parentComment: SelectedParentComment) {
             excerptTextView.isChecked = parentComment.selected
+            excerptTextView.isEnabled = parentComment.enabled
 
             excerptTextView.text = SpannableStringBuilder().apply {
                 bold {
@@ -322,11 +331,13 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             }
 
             excerptTextView.setOnClickListener {
-                val user = parentComment.comment.user
-                if (user in selectedUsers) {
-                    selectedUsers -= user
-                } else {
-                    selectedUsers += user
+                if (excerptTextView.isEnabled) {
+                    val user = parentComment.comment.user
+                    if (user in selectedUsers) {
+                        selectedUsers -= user
+                    } else {
+                        selectedUsers += user
+                    }
                 }
             }
         }

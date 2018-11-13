@@ -55,16 +55,19 @@
             tools:ignore="UnusedAttribute"/>
 
         <TextView
+            android:id="@+id/authors_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="24dp"
-            android:text="Benachrichtige die Verfasser von einem oder mehreren Elternkommentaren"
+            android:text="@string/authors_hint"
+            android:visibility="gone"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/authors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             tools:listitem="@layout/row_comment_excerpt"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
