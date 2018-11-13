@@ -3,13 +3,8 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
-import android.text.Editable
 import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,8 +12,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckedTextView
 import androidx.core.text.bold
-import androidx.core.text.getSpans
-import androidx.core.text.inSpans
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -103,13 +96,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
         if (this.parentComments.isNotEmpty()) {
-            messageText.addTextChangedListener(object : SimpleTextWatcher() {
-                override fun afterTextChanged(s: Editable) {
-                    messageView.removeCallbacks(updateTextRunnable)
-                    messageView.post(updateTextRunnable)
-                }
-            })
-
             parentCommentsView.adapter = Adapter()
             parentCommentsView.layoutManager = LinearLayoutManager(this)
             parentCommentsView.itemAnimator = null
@@ -123,8 +109,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-    val updateTextRunnable = { updateViewState() }
-
     private fun updateViewState() {
         val adapter = parentCommentsView.adapter as Adapter
 
@@ -134,52 +118,13 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         // sorted users, or empty if the list has focus
         val sortedUsers = selectedUsers.sorted()
-
-        val text = messageText.text
-        val allSpans = text.getSpans<Any>()
-
-        val styleSpan = allSpans.filter { span -> span is StyleSpan || span is ForegroundColorSpan }
-        logger.info { "$styleSpan" }
-
         if (sortedUsers.isEmpty()) {
-            // remove any text that's in there
-            styleSpan.firstOrNull()?.let { span ->
-                val start = text.getSpanStart(span)
-                val end = text.getSpanEnd(span)
-                text.replace(start, end, "")
-            }
-
-            styleSpan.forEach { text.removeSpan(it) }
-
+            messageText.suffix = null
         } else {
-            val suffix = sortedUsers.joinToString(", ") { "@$it" }
-
-            val firstSpan = styleSpan.firstOrNull()
-
-            if (firstSpan != null) {
-                // replace text in the span with new one
-                val start = text.getSpanStart(firstSpan)
-                val end = text.getSpanEnd(firstSpan)
-
-                if (text.substring(start, end) != suffix) {
-                    text.replace(start, end, suffix)
-                }
-            } else {
-                val builder = text as? SpannableStringBuilder
-
-                builder?.apply {
-                    // add a space if needed
-                    if (!endsWith("\n")) {
-                        append("\n")
-                    }
-
-                    inSpans(StyleSpan(Typeface.ITALIC), ForegroundColorSpan(Color.rgb(0x80, 0x80, 0x80))) {
-                        append(suffix)
-                    }
-                }
-            }
+            messageText.suffix = sortedUsers.joinToString(", ") { "@$it" }
         }
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true == when (item.itemId) {
@@ -331,9 +276,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     data class ParentComment(val user: String, val excerpt: String) {
         companion object {
             fun ofComment(comment: Api.Comment): ParentComment {
-                val content = comment.content.takeIf { it.length < 120 }
-                        ?: (comment.content.take(120) + "…")
-
+                val cleaned = comment.content.replace("\\s+".toRegex(), " ")
+                val content = if (cleaned.length < 120) cleaned else cleaned.take(120) + "…"
                 return ParentComment(comment.name, content)
             }
         }
