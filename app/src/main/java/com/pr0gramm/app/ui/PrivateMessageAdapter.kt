@@ -58,6 +58,10 @@ class PrivateMessageAdapter(
         holder.sender.hidePointView()
         holder.sender.setDate(item.message.created)
 
+        holder.header.setOnClickListener {
+            actionListener?.onUserClicked(item.partner.id, item.partner.name)
+        }
+
         if (actionListener != null && !item.message.isSent) {
             holder.sender.setOnSenderClickedListener {
                 actionListener.onUserClicked(item.message.senderId, item.message.senderName)

@@ -14,10 +14,12 @@
         android:orientation="horizontal"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
+        tools:visibility="visible"
         android:id="@+id/header">
 
         <com.pr0gramm.app.ui.views.UsernameView
             android:id="@+id/sender_name"
+            tools:text="Mopsalarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

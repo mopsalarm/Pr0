@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Einfaches Markieren von anderen Kellerkindern beim Antworten auf einen Kommentar."
+      },
+      {
+        "type": "Fix",
+        "change": "Usernamen in den Privaten Nachrichten endlich klickbar."
       }
     ]
   },
