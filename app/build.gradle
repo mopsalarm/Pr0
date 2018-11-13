@@ -176,7 +176,7 @@ dependencies {
 
     implementation "com.google.firebase:firebase-core:16.0.5"
 
-    implementation("com.google.android.gms:play-services-ads-lite:17.0.0@aar") {
+    implementation("com.google.android.gms:play-services-ads-lite:17.1.1@aar") {
         transitive true
     }
 
@@ -190,6 +190,7 @@ dependencies {
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.squareup.moshi:moshi:1.8.0"
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
+    // implementation 'com.github.koral--:android-gif-drawable:3fceb10623'
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"
     implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"

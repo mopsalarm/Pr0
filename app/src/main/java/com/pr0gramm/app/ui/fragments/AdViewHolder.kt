@@ -12,6 +12,7 @@ import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.kodein.di.erased.instance
@@ -52,8 +53,9 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val adService = context.directKodein.instance<AdService>()
 
             trace { "newAdView()" }
-            val adView = adService.newAdView(context)
-            adView.adSize = AdSize(AdSize.FULL_WIDTH, 70)
+            val adView = adService.newAdView(context).apply {
+                adSize = AdSize(AdSize.FULL_WIDTH, 70)
+            }
 
             logger.info { "Starting loading ad now." }
 
@@ -61,14 +63,25 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             adService.load(adView, Config.AdType.FEED)
                     .subscribeOnBackground()
                     .observeOnMainThread()
+                    .ignoreError()
                     .debug("AdService.load")
                     .compose(RxLifecycleAndroid.bindView(container))
                     .subscribe { state ->
                         trace { "adStateChanged($state)" }
                         if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
-                            logger.info { "Ad was loaded, showing ad now." }
-                            container.removeView(placeholder)
-                            container.addView(adView)
+                            if (adView.parent !== placeholder) {
+                                logger.info { "Ad was loaded, showing ad now." }
+                                container.removeView(placeholder)
+                                container.addView(adView)
+                            }
+                        }
+
+                        if (state == AdService.AdLoadState.CLOSED || state == AdService.AdLoadState.FAILURE) {
+                            if (placeholder.parent !== container) {
+                                logger.info { "Ad not loaded: $state" }
+                                container.removeView(adView)
+                                container.addView(placeholder)
+                            }
                         }
                     }
 

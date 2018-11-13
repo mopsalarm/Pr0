@@ -61,7 +61,8 @@ class AdService(private val configService: ConfigService, private val userServic
         view.adListener = listener
 
         view.loadAd(AdRequest.Builder()
-                .setIsDesignedForFamilies(false)
+                .setTagForUnderAgeOfConsent(AdRequest.TAG_FOR_UNDER_AGE_OF_CONSENT_FALSE)
+                .setMaxAdContentRating(AdRequest.MAX_AD_CONTENT_RATING_MA)
                 .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
                 .build())
 
@@ -98,17 +99,19 @@ class AdService(private val configService: ConfigService, private val userServic
 
         override fun onAdLoaded() {
             loadedSubject.onNext(AdLoadState.SUCCESS)
-            loadedSubject.onCompleted()
         }
 
         override fun onAdFailedToLoad(i: Int) {
             loadedSubject.onNext(AdLoadState.FAILURE)
-            loadedSubject.onCompleted()
+        }
+
+        override fun onAdClosed() {
+            loadedSubject.onNext(AdLoadState.CLOSED)
         }
     }
 
     enum class AdLoadState {
-        SUCCESS, FAILURE
+        SUCCESS, FAILURE, CLOSED
     }
 }
 
