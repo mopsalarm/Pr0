@@ -15,7 +15,6 @@ import com.squareup.picasso.Downloader
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import okhttp3.*
-import okhttp3.internal.Util
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.eagerSingleton
@@ -23,7 +22,6 @@ import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 import org.xbill.DNS.*
 import rx.Single
-import rx.schedulers.Schedulers
 import rx.util.async.Async
 import java.io.File
 import java.io.IOException
@@ -31,17 +29,10 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 
 const val TagApiURL = "api.baseurl"
-
-val CommonExecutor: ExecutorService = ThreadPoolExecutor(
-        8, Integer.MAX_VALUE, 8, TimeUnit.SECONDS,
-        SynchronousQueue(), Util.threadFactory("IO Dispatcher", false))
 
 /**
  */
@@ -92,7 +83,6 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
-                .dispatcher(Dispatcher(CommonExecutor))
                 .dns(instance())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
@@ -144,7 +134,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                     return url
                 }
             }
-        }, Schedulers.io()).toSingle()
+        }, BackgroundScheduler).toSingle()
     }
 
     bind<ProxyService>() with singleton {
@@ -162,8 +152,6 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .downloader(instance<Downloader>())
                 .build()
     }
-
-    bind<ExecutorService>() with instance(CommonExecutor)
 
     bind<Api>() with singleton {
         val base = instance<String>(TagApiURL)

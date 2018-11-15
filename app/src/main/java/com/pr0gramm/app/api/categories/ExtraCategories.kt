@@ -10,7 +10,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import rx.Observable
-import rx.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -37,7 +36,7 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
                 .switchMap { config ->
                     if (config.extraCategories) {
                         Observable
-                                .interval(0, 1, TimeUnit.MINUTES, Schedulers.io())
+                                .interval(0, 1, TimeUnit.MINUTES, BackgroundScheduler)
                                 .flatMap { toObservable { pingOnce() } }
                     } else {
                         Observable.just(false)

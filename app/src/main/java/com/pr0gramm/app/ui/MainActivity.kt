@@ -37,7 +37,6 @@ import kotterknife.bindView
 import org.kodein.di.erased.instance
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
-import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -646,13 +645,13 @@ private fun trackMainThreadNotResponding() {
     val anr = AtomicBoolean(true)
     Observable
             .fromCallable { Handler(Looper.getMainLooper()).run { anr.set(false) }; Unit }
-            .delay(2, TimeUnit.SECONDS, Schedulers.io())
+            .delay(2, TimeUnit.SECONDS, BackgroundScheduler)
             .doOnNext {
                 // track metric
                 val name = if (anr.get()) "main.anr" else "main.good"
                 Stats.get().increment(name)
             }
-            .delaySubscription(6, TimeUnit.SECONDS, Schedulers.io())
+            .delaySubscription(6, TimeUnit.SECONDS, BackgroundScheduler)
             .ignoreError()
             .subscribeOnBackground()
             .subscribe {

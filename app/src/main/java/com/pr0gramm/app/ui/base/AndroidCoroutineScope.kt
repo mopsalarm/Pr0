@@ -91,10 +91,10 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 }
 
 val Async = Dispatchers.IO
-val AsyncScope = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
+val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
 val Main = Dispatchers.Main
-val MainScope = CoroutineScope(Main)
+val MainScope get() = CoroutineScope(Main)
 
 suspend fun <T> Observable<T>.await(): T {
     val def = CompletableDeferred<T>()

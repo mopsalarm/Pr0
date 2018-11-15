@@ -32,7 +32,6 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.direct
 import rx.*
 import rx.functions.Action1
-import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
 import java.io.Closeable
@@ -343,7 +342,7 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
-fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Scheduler = Schedulers.io()): Observable<T> {
+fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Scheduler = BackgroundScheduler): Observable<T> {
     val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
     this.subscribeOn(scheduler).subscribe(subject)
     return subject
