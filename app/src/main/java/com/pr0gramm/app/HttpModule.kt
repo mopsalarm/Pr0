@@ -39,6 +39,10 @@ import java.util.concurrent.TimeUnit
 
 const val TagApiURL = "api.baseurl"
 
+val CommonExecutor: ExecutorService = ThreadPoolExecutor(
+        8, Integer.MAX_VALUE, 8, TimeUnit.SECONDS,
+        SynchronousQueue(), Util.threadFactory("IO Dispatcher", false))
+
 /**
  */
 fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
@@ -49,7 +53,6 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
     bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
 
     bind<OkHttpClient>() with singleton {
-        val executor: ExecutorService = instance()
         val cookieHandler: LoginCookieHandler = instance()
 
         val cacheDir = File(app.cacheDir, "imgCache")
@@ -89,7 +92,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
-                .dispatcher(Dispatcher(executor))
+                .dispatcher(Dispatcher(CommonExecutor))
                 .dns(instance())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
@@ -160,9 +163,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .build()
     }
 
-    bind<ExecutorService>() with instance(ThreadPoolExecutor(
-            0, Integer.MAX_VALUE, 8, TimeUnit.SECONDS,
-            SynchronousQueue(), Util.threadFactory("OkHttp Dispatcher", false)))
+    bind<ExecutorService>() with instance(CommonExecutor)
 
     bind<Api>() with singleton {
         val base = instance<String>(TagApiURL)
