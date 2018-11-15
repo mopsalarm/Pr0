@@ -94,7 +94,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         // only show if we can link to someone else
         val shouldShowParentComments = this.parentComments.any {
-            !it.user.equals(receiverName, ignoreCase = true)
+            it.user != receiverName && it.user != userService.loginState.name
         }
 
         if (shouldShowParentComments) {
@@ -119,8 +119,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         val adapter = parentCommentsView.adapter as Adapter
 
         adapter.submitList(parentComments.map { comment ->
-            val isNotTargetUser = !comment.user.equals(receiverName, ignoreCase = true)
-            SelectedParentComment(comment, enabled = isNotTargetUser, selected = comment.user in selectedUsers)
+            val isReceiverUser = receiverName == comment.user
+            val isCurrentUser = receiverName == userService.loginState.name
+            SelectedParentComment(comment,
+                    enabled = !isReceiverUser && !isCurrentUser,
+                    selected = comment.user in selectedUsers)
         })
 
         // sorted users, or empty if the list has focus
@@ -128,7 +131,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         if (sortedUsers.isEmpty()) {
             messageText.suffix = null
         } else {
-            messageText.suffix = sortedUsers.joinToString(", ") { "@$it" }
+            messageText.suffix = sortedUsers.joinToString(" ") { "@$it" }
         }
     }
 
