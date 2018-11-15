@@ -1024,26 +1024,25 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
 
-        listener.itemClicked().subscribe { view ->
+        listener.itemClicked().subscribeIgnoreError { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 onItemClicked(holder.item, preview = holder.imageView)
             }
         }
 
-        listener.itemLongClicked().ignoreError().subscribe { view ->
+        listener.itemLongClicked().subscribeIgnoreError { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 openQuickPeekDialog(holder.item)
             }
         }
 
         listener.itemLongClickEnded()
-                .ignoreError()
-                .subscribe { dismissQuickPeekDialog() }
+                .subscribeIgnoreError { dismissQuickPeekDialog() }
 
         settings.changes()
                 .bindToLifecycleAsync()
                 .startWith("")
-                .subscribe { listener.enableLongClick(settings.enableQuickPeek) }
+                .subscribeIgnoreError { listener.enableLongClick(settings.enableQuickPeek) }
     }
 
     private fun openQuickPeekDialog(item: FeedItem) {
@@ -1059,6 +1058,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun dismissQuickPeekDialog() {
+        // maybe we are already dead?
+        if (view == null) {
+            return
+        }
+
         swipeRefreshLayout.isEnabled = true
 
         quickPeekDialog?.dismiss()

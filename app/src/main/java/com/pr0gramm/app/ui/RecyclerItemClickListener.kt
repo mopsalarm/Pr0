@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import rx.Observable
 import rx.subjects.PublishSubject
 
-class RecyclerItemClickListener(private val recyclerView: androidx.recyclerview.widget.RecyclerView) {
+class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private val mGestureDetector: GestureDetector
 
     private val touchListener = Listener()
@@ -59,9 +59,9 @@ class RecyclerItemClickListener(private val recyclerView: androidx.recyclerview.
         longPressTriggered = longPressTriggered and enabled
     }
 
-    private inner class Listener internal constructor() : androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener() {
+    private inner class Listener internal constructor() : RecyclerView.SimpleOnItemTouchListener() {
 
-        override fun onInterceptTouchEvent(view: androidx.recyclerview.widget.RecyclerView, e: MotionEvent): Boolean {
+        override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
             val childView = view.findChildViewUnder(e.x, e.y)
 
             if (childView != null && mGestureDetector.onTouchEvent(e)) {
@@ -84,7 +84,7 @@ class RecyclerItemClickListener(private val recyclerView: androidx.recyclerview.
             return intercept
         }
 
-        override fun onTouchEvent(view: androidx.recyclerview.widget.RecyclerView, motionEvent: MotionEvent) {
+        override fun onTouchEvent(view: RecyclerView, motionEvent: MotionEvent) {
             when (motionEvent.action) {
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_HOVER_EXIT, MotionEvent.ACTION_POINTER_UP ->
                     itemLongClickedEnded.onNext(null)
@@ -92,13 +92,13 @@ class RecyclerItemClickListener(private val recyclerView: androidx.recyclerview.
         }
     }
 
-    private inner class ScrollListener internal constructor() : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
+    private inner class ScrollListener internal constructor() : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             when (newState) {
-                androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING, androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING ->
+                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
                     recyclerView.removeOnItemTouchListener(touchListener)
 
-                androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE -> {
+                RecyclerView.SCROLL_STATE_IDLE -> {
                     // ensure that the listener is only added once
                     recyclerView.removeOnItemTouchListener(touchListener)
                     recyclerView.addOnItemTouchListener(touchListener)

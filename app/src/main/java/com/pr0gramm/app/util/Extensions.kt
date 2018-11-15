@@ -342,6 +342,10 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
+fun <T> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
+    return subscribe({ onNext(it) }, { err -> AndroidUtility.logToCrashlytics(err) })
+}
+
 fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Scheduler = BackgroundScheduler): Observable<T> {
     val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
     this.subscribeOn(scheduler).subscribe(subject)
