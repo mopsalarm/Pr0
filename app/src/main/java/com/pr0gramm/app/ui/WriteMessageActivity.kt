@@ -119,8 +119,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         val adapter = parentCommentsView.adapter as Adapter
 
         adapter.submitList(parentComments.map { comment ->
-            val isReceiverUser = receiverName == comment.user
-            val isCurrentUser = receiverName == userService.loginState.name
+            val isReceiverUser = comment.user == receiverName
+            val isCurrentUser = comment.user == userService.loginState.name
             SelectedParentComment(comment,
                     enabled = !isReceiverUser && !isCurrentUser,
                     selected = comment.user in selectedUsers)
