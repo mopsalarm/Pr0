@@ -36,6 +36,9 @@ class SimpleRegionDecoder(private val config: Bitmap.Config) : Decoder {
             matrix.setScale(factor, factor)
         }
 
+        val bitmap = this.bitmap
+                ?: throw IllegalStateException("Tried to decode region with bitmap not set.")
+
         return Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height(), matrix, true)
     }
 

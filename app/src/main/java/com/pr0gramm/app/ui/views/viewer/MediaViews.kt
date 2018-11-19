@@ -58,6 +58,7 @@ object MediaViews {
             when (event) {
                 FragmentEvent.RESUME -> view.onResume()
                 FragmentEvent.PAUSE -> view.onPause()
+                else -> Unit
             }
         }
     }

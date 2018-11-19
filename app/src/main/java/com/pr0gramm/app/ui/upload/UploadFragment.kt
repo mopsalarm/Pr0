@@ -285,7 +285,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         logger.info { "Got response from image picker: rc=$resultCode, intent=$intent" }
         if (requestCode == RequestCodes.SELECT_MEDIA) {
             if (resultCode == Activity.RESULT_OK && intent != null) {
-                val image = intent.data
+                val image = intent.data ?: run { activity?.finish(); return }
                 handleImageUri(image)
             } else {
                 activity?.finish()
