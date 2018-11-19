@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_more_vert_white_24dp"
+            app:srcCompat="@drawable/ic_more_vert_vec"
             android:tint="@color/grey_700"/>
 
         <Button
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_favorite_border"
+            app:srcCompat="@drawable/ic_favorite_border_vec"
             android:tint="@color/grey_700"/>
 
         <ImageButton
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_reply"
+            app:srcCompat="@drawable/ic_reply_vec"
             android:tint="?colorAccent"/>
 
     </LinearLayout>
