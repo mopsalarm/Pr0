@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.NoValue
 import com.pr0gramm.app.services.config.Config
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -31,21 +30,21 @@ interface Api {
     fun vote(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<NoValue>
+            @Field("vote") voteValue: Int): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
     fun voteTag(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<NoValue>
+            @Field("vote") voteValue: Int): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
     fun voteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<NoValue>
+            @Field("vote") voteValue: Int): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("/api/user/login")
@@ -76,14 +75,14 @@ interface Api {
     fun hardDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Deferred<NoValue>
+            @Field("reason") reason: String): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
     fun softDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Deferred<NoValue>
+            @Field("reason") reason: String): Deferred<Unit>
 
     @GET("/api/items/info")
     fun info(
@@ -128,10 +127,10 @@ interface Api {
     fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientId") recipient: Long): Deferred<NoValue>
+            @Field("recipientId") recipient: Long): Deferred<Unit>
 
     @GET("/api/items/ratelimited")
-    fun ratelimited(): Deferred<NoValue>
+    fun ratelimited(): Deferred<Unit>
 
     @POST("/api/items/upload")
     fun upload(
@@ -166,7 +165,7 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("banUser") banUser: String?,
-            @Field("days") days: Float?): Deferred<NoValue>
+            @Field("days") days: Float?): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/user/ban")
@@ -176,7 +175,7 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("days") days: Float,
-            @Field("mode") mode: Int?): Deferred<NoValue>
+            @Field("mode") mode: Int?): Deferred<Unit>
 
     @GET("api/tags/details")
     fun tagDetails(
@@ -189,19 +188,19 @@ interface Api {
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
             @Field("days") days: Float?,
-            @Field("tags[]") tagId: List<Long> = listOf()): Deferred<NoValue>
+            @Field("tags[]") tagId: List<Long> = listOf()): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/profile/follow")
     fun profileFollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Deferred<NoValue>
+            @Field("name") username: String): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
     fun profileUnfollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Deferred<NoValue>
+            @Field("name") username: String): Deferred<Unit>
 
     @GET("api/profile/suggest")
     fun suggestUsers(
@@ -215,7 +214,7 @@ interface Api {
     fun contactSend(
             @Field("subject") subject: String,
             @Field("email") email: String,
-            @Field("message") message: String): Deferred<NoValue>
+            @Field("message") message: String): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/contact/report")
@@ -223,12 +222,12 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
-            @Field("reason") reason: String): Deferred<NoValue>
+            @Field("reason") reason: String): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
     fun requestPasswordRecovery(
-            @Field("email") email: String): Deferred<NoValue>
+            @Field("email") email: String): Deferred<Unit>
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")

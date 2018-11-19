@@ -9,7 +9,6 @@ val MoshiInstance: Moshi = run {
 
     Moshi.Builder()
             .adapter(InstantAdapter.nullSafe())
-            .adapter(NothingAdapter)
             .adapter(Base64ByteArrayAdapter)
             .adapter(BooleanAdapter)
             .build()

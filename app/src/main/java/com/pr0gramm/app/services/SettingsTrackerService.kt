@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.NoValue
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.logger
 import kotlinx.coroutines.Deferred
@@ -38,6 +37,6 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
     @KeepPublicClassMemberNames
     private interface HttpInterface {
         @POST("track-settings")
-        fun track(@Body values: Any): Deferred<NoValue>
+        fun track(@Body values: Any): Deferred<Unit>
     }
 }

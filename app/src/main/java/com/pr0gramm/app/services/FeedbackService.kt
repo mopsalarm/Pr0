@@ -3,7 +3,10 @@ package com.pr0gramm.app.services
 import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.Settings
+import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Logging
 import com.pr0gramm.app.util.logger
@@ -103,7 +106,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         fun post(@Field("name") name: String,
                  @Field("feedback") feedback: String,
                  @Field("version") version: String,
-                 @Field("logcat64") logcat: String): Deferred<NoValue>
+                 @Field("logcat64") logcat: String): Deferred<Unit>
     }
 
 
