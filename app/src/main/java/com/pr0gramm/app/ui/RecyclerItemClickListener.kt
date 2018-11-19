@@ -16,7 +16,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
 
     private val itemClicked = PublishSubject.create<View>()
     private val itemLongClicked = PublishSubject.create<View>()
-    private val itemLongClickedEnded = PublishSubject.create<Void>()
+    private val itemLongClickedEnded = PublishSubject.create<Unit>()
     private var longClickEnabled: Boolean = false
 
     private var longPressTriggered: Boolean = false
@@ -50,7 +50,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         return itemLongClicked.asObservable()
     }
 
-    fun itemLongClickEnded(): Observable<Void> {
+    fun itemLongClickEnded(): Observable<Unit> {
         return itemLongClickedEnded.asObservable()
     }
 
@@ -87,7 +87,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         override fun onTouchEvent(view: RecyclerView, motionEvent: MotionEvent) {
             when (motionEvent.action) {
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_HOVER_EXIT, MotionEvent.ACTION_POINTER_UP ->
-                    itemLongClickedEnded.onNext(null)
+                    itemLongClickedEnded.onNext(Unit)
             }
         }
     }

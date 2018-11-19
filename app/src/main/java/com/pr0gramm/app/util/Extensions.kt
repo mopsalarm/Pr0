@@ -342,7 +342,7 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
-fun <T> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
+fun <T : Any?> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
     return subscribe({ onNext(it) }, { err -> AndroidUtility.logToCrashlytics(err) })
 }
 
