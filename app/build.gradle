@@ -53,6 +53,7 @@ android {
 
     aaptOptions {
         cruncherEnabled = false
+        failOnMissingConfigEntry = true
     }
 
     signingConfigs {
@@ -73,6 +74,7 @@ android {
         debug {
             minifyEnabled false
             shrinkResources false
+
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
 
             multiDexEnabled true
@@ -105,7 +107,7 @@ android {
         exclude 'META-INF/rxjava.properties'
         exclude 'META-INF/app_debug.kotlin_module'
         exclude 'META-INF/main.kotlin_module'
-        exclude 'kotlin'
+        exclude '**/*.kotlin_metadata'
     }
 }
 
@@ -234,7 +236,8 @@ dependencies {
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.6"
 
     // dependency injection using kotlin.
-    implementation 'org.kodein.di:kodein-di-erased-jvm:5.3.0'
+    implementation 'org.kodein.di:kodein-di-core-jvm:6.0.0'
+    implementation 'org.kodein.di:kodein-di-erased-jvm:6.0.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.natpryce:hamkrest:1.6.0.0'
