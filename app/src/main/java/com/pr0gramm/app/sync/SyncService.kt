@@ -9,6 +9,7 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.*
 import kotlinx.coroutines.launch
+import rx.lang.kotlin.onErrorReturnNull
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -79,22 +80,20 @@ class SyncService(private val userService: UserService,
     private suspend fun syncCachedUserInfo() {
         if (singleShotService.firstTimeToday("update-userInfo")) {
             logger.info { "Update current user info" }
-            userService.updateCachedUserInfo().await()
+            userService.updateCachedUserInfo().onErrorReturnNull().await()
         }
     }
 
     private suspend fun syncUserState() {
         logger.info { "Sync with pr0gramm api" }
 
-        ignoreException {
-            val sync = userService.sync() ?: return
+        val sync = userService.sync() ?: return
 
-            if (sync.inboxCount > 0) {
-                notificationService.showForInbox(sync)
-            } else {
-                // remove if no messages are found
-                notificationService.cancelForInbox()
-            }
+        if (sync.inboxCount > 0) {
+            notificationService.showForInbox(sync)
+        } else {
+            // remove if no messages are found
+            notificationService.cancelForInbox()
         }
     }
 

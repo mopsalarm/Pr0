@@ -96,7 +96,7 @@ val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 val Main = Dispatchers.Main
 val MainScope get() = CoroutineScope(Main)
 
-suspend fun <T> Observable<T>.await(): T {
+suspend fun <T : Any?> Observable<T>.await(): T {
     val def = CompletableDeferred<T>()
 
     val sub = this.single().subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
