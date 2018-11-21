@@ -449,7 +449,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = adminMode && alive
 
         menu.findItem(R.id.action_report)
-                ?.isVisible = config.reportItemsActive && userService.isAuthorized && alive
+                ?.isVisible = config.reportReasons.isNotEmpty() && userService.isAuthorized && alive
     }
 
     fun enterFullscreen() {

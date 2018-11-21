@@ -17,9 +17,6 @@ data class Config(
         val userClasses: List<UserClass> = DefaultUserClasses,
         val specialMenuItems: List<Config.MenuItem> = listOf()) {
 
-    val reportItemsActive: Boolean
-        get() = reportReasons.isNotEmpty()
-
     enum class AdType {
         NONE,
         FEED,

@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.provider.Settings
 import androidx.core.content.edit
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -52,8 +53,15 @@ class ConfigService(context: Application,
 
     private fun update() {
         AsyncScope.launch {
+            val context = ConfigEvaluator.Context(
+                    version = BuildConfig.VERSION_CODE,
+                    hash = deviceHash,
+                    beta = settings.useBetaChannel)
+
             val config = kotlin.runCatching {
-                api.remoteConfig(BuildConfig.VERSION_CODE, deviceHash, settings.useBetaChannel).await()
+                val bust = Instant.now().millis / (60 * 1000L)
+                val rules = api.remoteConfig(bust).await()
+                ConfigEvaluator.evaluate(context, rules)
             }
 
             logger.debug { "Remote config result: $config" }
