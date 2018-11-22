@@ -7,7 +7,6 @@ data class Config(
         val extraCategories: Boolean = true,
         val maxUploadSizeNormal: Long = 6 * 1024 * 1024,
         val maxUploadSizePremium: Long = 12 * 1024 * 1024,
-        val secretSanta: Boolean = false,
         val adType: AdType = AdType.NONE,
         val trackItemView: Boolean = false,
         val trackVotes: Boolean = false,
