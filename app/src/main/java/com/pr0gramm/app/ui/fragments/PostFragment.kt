@@ -1108,7 +1108,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             val scrollY = scrollEstimate ?: viewer.height
             val viewerHeight = viewer.height
-            val doFancyScroll = viewerHeight < recyclerHeight
+            val doFancyScroll = viewerHeight < recyclerHeight && settings.fancyScrollVertical
 
             val toolbar = (activity as ToolbarActivity).scrollHideToolbarListener
             if (!doFancyScroll || dy < 0 || scrollY > toolbar.toolbarHeight) {

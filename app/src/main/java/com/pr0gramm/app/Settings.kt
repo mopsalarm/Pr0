@@ -78,6 +78,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val fullscreenZoomView: Boolean
         get() = preferences.getBoolean("pref_fullscreen_zoom_view", true)
 
+    val fancyScrollVertical: Boolean
+        get() = preferences.getBoolean("pref_fancy_scroll_vertical", true)
+
+    val fancyScrollHorizontal: Boolean
+        get() = preferences.getBoolean("pref_fancy_scroll_horizontal", true)
+
     val showPinButton: Boolean
         get() = preferences.getBoolean("pref_show_pin_button", true)
 

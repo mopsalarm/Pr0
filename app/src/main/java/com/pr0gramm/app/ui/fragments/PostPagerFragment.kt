@@ -37,6 +37,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
     private var initialCommentRef: CommentRef? = null
 
+    private val settings = Settings.get()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -81,7 +83,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
                     if (position >= 0 && position + 1 < adapter.count) {
                         val prev = adapter.getFragment(position)
                         val next = adapter.getFragment(position + 1)
-                        if (prev is PostFragment && next is PostFragment) {
+                        if (prev is PostFragment && next is PostFragment && settings.fancyScrollHorizontal) {
                             val offset = positionOffsetPixels / 2
                             prev.mediaHorizontalOffset(offset)
                             next.mediaHorizontalOffset(offset - viewPager.width / 2)
