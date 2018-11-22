@@ -69,6 +69,10 @@
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
     <string name="pref_fullscreen_zoom_view_summary">Aktiviere diese Einstellung um Status- und Navigationsleiste in der Zoomansicht zu verstecken.</string>
+    <string name="pref_fancy_scroll_vertical">Vertikales parallaxes Scrollen</string>
+    <string name="pref_fancy_scroll_vertical_summary">Gibt dem Scrollen auf Posts einen schicken Effekt.</string>
+    <string name="pref_fancy_scroll_horizontal">Horizontales parallaxes Scrollen</string>
+    <string name="pref_fancy_scroll_horizontal_summary">Fügt dem Wechsel zwischen Posts einen Übergangseffekt hinzu.</string>
     <string name="pref_pseudo_changelog">Changelog</string>
     <string name="pref_pseudo_changelog_summary">Drücke hier um das Changelog anzuzeigen</string>
     <string name="pref_pseudo_update">Jetzt Updates prüfen</string>

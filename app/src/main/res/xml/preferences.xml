@@ -275,6 +275,18 @@
 
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
+                    android:key="pref_fancy_scroll_vertical"
+                    android:summary="@string/pref_fancy_scroll_vertical_summary"
+                    android:title="@string/pref_fancy_scroll_vertical"/>
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:key="pref_fancy_scroll_horizontal"
+                    android:summary="@string/pref_fancy_scroll_horizontal_summary"
+                    android:title="@string/pref_fancy_scroll_horizontal"/>
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
                     android:key="pref_show_content_type_flag"
                     android:summary="@string/pref_show_content_type_flag_summary"
                     android:title="@string/pref_show_content_type_flag_title"/>

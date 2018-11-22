@@ -75,6 +75,10 @@
     <string name="could_not_load_feed_https">Can not load the feed. Please try again.</string>
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
+    <string name="pref_fancy_scroll_vertical">Vertical parallax scrolling</string>
+    <string name="pref_fancy_scroll_vertical_summary">Enable this for a fancy effect when scrolling down on a post.</string>
+    <string name="pref_fancy_scroll_horizontal">Horizontal parallax scrolling</string>
+    <string name="pref_fancy_scroll_horizontal_summary">Activate this for a parallax transition when swiping between posts.</string>
     <string name="pref_pseudo_changelog">Changelog</string>
     <string name="pref_pseudo_update">Check for updates now</string>
     <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
