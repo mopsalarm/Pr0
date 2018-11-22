@@ -29,6 +29,7 @@
             android:background="@color/input_background"
             android:hint="@string/comment_hint"
             android:padding="8dp"
+            android:inputType="textMultiLine|textCapSentences"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
     </FrameLayout>
 
