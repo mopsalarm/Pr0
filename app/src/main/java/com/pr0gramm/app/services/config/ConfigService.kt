@@ -106,11 +106,13 @@ class ConfigService(context: Application,
     fun config(): Config {
         debug {
             // update config for development.
-            return configState.copy(trackItemView = true, adType = Config.AdType.FEED,
-                    specialMenuItems = listOf(Config.MenuItem(
-                            name = "Wichteln",
-                            icon = "https://materialdesignicons.com/api/download/22D0C782-CD05-4FEB-845F-BBA7126C7326/000000/1/FFFFFF/0/48",
-                            link = "https://pr0gramm.com/new/wichteln")))
+            return configState.copy(
+                    trackItemView = true, adType = Config.AdType.FEED,
+                    specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
+                            ?: listOf(Config.MenuItem(
+                                    name = "Wichteln",
+                                    icon = "https://materialdesignicons.com/api/download/22D0C782-CD05-4FEB-845F-BBA7126C7326/000000/1/FFFFFF/0/48",
+                                    link = "https://pr0gramm.com/new/wichteln")))
         }
 
         return configState
