@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pr0gramm.app.Instant
@@ -21,9 +22,7 @@ import com.pr0gramm.app.ui.MessageActionListener
 import com.pr0gramm.app.ui.WriteMessageActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
-import com.squareup.picasso.Picasso
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
@@ -31,20 +30,13 @@ import java.util.concurrent.TimeUnit
  */
 abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     protected val inboxService: InboxService by instance()
-    private val picasso: Picasso by instance()
 
     private val viewNothingHere: View by bindView(android.R.id.empty)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
-
-    // views we can reset.
-    private var messagesView: RecyclerView? = null
-    private var viewBusyIndicator: View? = null
+    private val messagesView: RecyclerView by bindView(R.id.messages)
+    private val viewBusyIndicator: View by bindView(R.id.busy_indicator)
 
     private var loadStartedTimestamp = Instant(0)
-
-    init {
-        retainInstance = true
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_inbox, container, false)
@@ -53,11 +45,9 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBusyIndicator = view.find(R.id.busy_indicator)
-
-        messagesView = view.find<RecyclerView>(R.id.messages).apply {
+        with(messagesView) {
             itemAnimator = null
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+            layoutManager = LinearLayoutManager(activity)
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
@@ -94,38 +84,27 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     }
 
     private fun showBusyIndicator() {
-        viewBusyIndicator?.visible = true
+        viewBusyIndicator.visible = true
     }
 
     private fun hideBusyIndicator() {
-        if (hasView()) {
-            viewBusyIndicator?.let { busyIndicator ->
-                busyIndicator.visibility = View.GONE
-                val parent = busyIndicator.parent
-                (parent as ViewGroup).removeView(viewBusyIndicator)
-
-                viewBusyIndicator = null
-            }
-
-            swipeRefreshLayout.isRefreshing = false
-        }
-    }
-
-    private fun hasView(): Boolean {
-        return messagesView != null
+        viewBusyIndicator.visible = false
+        swipeRefreshLayout.isRefreshing = false
     }
 
     private fun reloadAsync() {
         loadStartedTimestamp = Instant.now()
 
-        launchWithErrorHandler {
-            showBusyIndicator()
+        showBusyIndicator()
 
+        launchWithErrorHandler {
             try {
                 val messages = loadContent()
                 onMessagesLoaded(messages)
             } finally {
-                hideBusyIndicator()
+                if (job.isActive) {
+                    hideBusyIndicator()
+                }
             }
         }
     }
@@ -135,7 +114,7 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         hideNothingHereIndicator()
 
         // replace previous adapter with new values
-        messagesView?.let { displayMessages(it, messages) }
+        displayMessages(messagesView, messages)
 
         if (messages.isEmpty())
             showNothingHereIndicator()

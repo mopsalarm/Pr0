@@ -28,37 +28,41 @@ import com.pr0gramm.app.ui.views.UserInfoLoadingView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
-import java.util.*
 
-private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entry>) {
-    UserHint(200, FeedAdapter.Entry.UserHint::class.java),
-    UserInfoLoading(201, FeedAdapter.Entry.UserLoading::class.java),
-    UserInfo(202, FeedAdapter.Entry.User::class.java),
-    Error(203, FeedAdapter.Entry.Error::class.java),
-    EmptyHint(204, FeedAdapter.Entry.EmptyHint::class.java),
-    LoadingHint(205, FeedAdapter.Entry.LoadingHint::class.java),
-    Spacer(300, FeedAdapter.Entry.Spacer::class.java),
-    Item(1000, FeedAdapter.Entry.Item::class.java),
-    Ad(900_000_000, FeedAdapter.Entry.Ad::class.java),
-    Comments(1_000_000_000, FeedAdapter.Entry.Comment::class.java)
+private enum class Offset(val offset: Long) {
+    UserHint(200),
+    UserInfoLoading(201),
+    UserInfo(202),
+    Error(203),
+    EmptyHint(204),
+    LoadingHint(205),
+    Spacer(300),
+    Item(1000),
+    Ad(900_000_000),
+    Comments(1_000_000_000)
 }
 
-class FeedAdapter(private val picasso: Picasso,
-                  private val userHintClickedListener: OnUserClickedListener,
-                  private val userActionListener: UserInfoView.UserActionListener)
+class FeedAdapter(picasso: Picasso,
+                  userHintClickedListener: OnUserClickedListener,
+                  userActionListener: UserInfoView.UserActionListener)
 
-    : AsyncListAdapter<FeedAdapter.Entry, androidx.recyclerview.widget.RecyclerView.ViewHolder>(ItemCallback(), name = "FeedAdapter") {
+    : DelegatedAsyncListAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
 
-    private var lastSeenAdview: AdView? = null
+    private val adAdapter = AdViewAdapter()
 
     init {
         setHasStableIds(true)
 
-        if (Offset.values().size != Offset.values().map { it.offset }.distinct().size)
-            throw IllegalArgumentException("Error in Offset() mapping")
-
-        if (Offset.values().size != Offset.values().map { it.type }.distinct().size)
-            throw IllegalArgumentException("Error in Offset() mapping")
+        delegates += FeedItemEntryAdapter(picasso)
+        delegates += CommentEntryAdapter
+        delegates += adAdapter
+        delegates += UserEntryAdapter(userActionListener)
+        delegates += UserHintEntryAdapter(userHintClickedListener)
+        delegates += UserLoadingEntryAdapter
+        delegates += SpacerEntryAdapter
+        delegates += ErrorEntryAdapter
+        delegates += staticLayoutViewHolder(R.layout.feed_hint_empty) { it === Entry.EmptyHint }
+        delegates += staticLayoutViewHolder(R.layout.feed_hint_loading) { it === Entry.LoadingHint }
     }
 
     /**
@@ -68,105 +72,13 @@ class FeedAdapter(private val picasso: Picasso,
     var latestEntries: List<Entry> = listOf()
         private set
 
-    private val viewTypesByType = IdentityHashMap(Offset.values().associateBy { it.type })
-    private val viewTypesByIndex = Offset.values().toList()
-
     fun destroyAdView() {
-        lastSeenAdview?.removeFromParent()
-        lastSeenAdview?.destroy()
-        lastSeenAdview = null
+        adAdapter.destroy()
     }
 
     override fun submitList(newList: List<Entry>, forceSync: Boolean) {
         latestEntries = newList
         super.submitList(newList, forceSync)
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        val type = getItem(position).javaClass
-        return viewTypesByType.getValue(type).ordinal
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        trace { "onCreateViewHolder($viewType)" }
-
-        val context = parent.context
-        
-        return when (viewTypesByIndex[viewType]) {
-            Offset.Item -> {
-                FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view) as FrameLayout)
-            }
-
-            Offset.Comments -> {
-                val view = parent.layoutInflater.inflate(R.layout.user_info_comment) as MessageView
-                CommentViewHolder(view)
-            }
-
-            Offset.Spacer -> SpacerViewHolder(context)
-
-            Offset.Ad -> {
-                val view = AdViewHolder.new(context)
-                lastSeenAdview = view.adView
-                view
-            }
-
-            Offset.UserHint -> {
-                UserHintViewHolder(UserHintView(context))
-            }
-
-            Offset.UserInfoLoading -> {
-                UserInfoLoadingViewHolder(UserInfoLoadingView(context))
-            }
-
-            Offset.UserInfo -> {
-                UserInfoViewHolder(UserInfoView(context, userActionListener))
-            }
-
-            Offset.Error -> {
-                val view = parent.layoutInflater.inflate(R.layout.feed_error) as ViewGroup
-                ErrorViewHolder(view)
-            }
-
-            Offset.EmptyHint -> {
-                val view = parent.layoutInflater.inflate(R.layout.feed_hint_empty)
-                NoopViewHolder(view)
-            }
-
-            Offset.LoadingHint -> {
-                val view = parent.layoutInflater.inflate(R.layout.feed_hint_loading)
-                NoopViewHolder(view)
-            }
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        ignoreException {
-            val entry = getItem(position)
-            trace { "onBindViewHolder($position, item=${entry.javaClass.simpleName})" }
-
-            when (holder) {
-                is FeedItemViewHolder ->
-                    holder.bindTo(picasso, entry as Entry.Item)
-
-                is CommentViewHolder ->
-                    holder.bindTo(entry as Entry.Comment)
-
-                is UserHintViewHolder ->
-                    holder.bindTo(entry as Entry.UserHint, userHintClickedListener)
-
-                is UserInfoLoadingViewHolder ->
-                    holder.bindTo(entry as Entry.UserLoading)
-
-                is SpacerViewHolder ->
-                    holder.bindTo(entry as Entry.Spacer)
-
-                is UserInfoViewHolder ->
-                    holder.bindTo(entry as Entry.User)
-
-                is ErrorViewHolder ->
-                    holder.bindTo(entry as Entry.Error)
-            }
-        }
     }
 
     override fun getItemId(position: Int): Long {
@@ -224,6 +136,46 @@ class FeedAdapter(private val picasso: Picasso,
 data class UserAndMark(val name: String, val mark: Int)
 
 
+private class AdViewAdapter
+    : ItemAdapterDelegate<FeedAdapter.Entry.Ad, FeedAdapter.Entry, AdViewHolder>() {
+
+    private var lastSeenAdview: AdView? = null
+
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.Ad
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): AdViewHolder {
+        val view = AdViewHolder.new(parent.context)
+        lastSeenAdview = view.adView
+        return view
+    }
+
+    override fun onBindViewHolder(holder: AdViewHolder, value: FeedAdapter.Entry.Ad) {
+    }
+
+    fun destroy() {
+        lastSeenAdview?.removeFromParent()
+        lastSeenAdview?.destroy()
+        lastSeenAdview = null
+    }
+}
+
+private class FeedItemEntryAdapter(private val picasso: Picasso)
+    : ItemAdapterDelegate<FeedAdapter.Entry.Item, FeedAdapter.Entry, FeedItemViewHolder>() {
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.Item
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): FeedItemViewHolder {
+        return FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view) as FrameLayout)
+    }
+
+    override fun onBindViewHolder(holder: FeedItemViewHolder, value: FeedAdapter.Entry.Item) {
+        holder.bindTo(picasso, value)
+    }
+}
+
 /**
  * View holder for one feed item.
  */
@@ -238,24 +190,24 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
         private set
 
     private fun ensureFlagView(): ImageView {
-        return flagView ?: (itemView.layoutInflater
-                .inflate(R.layout.feed_item_view_flag, container, false) as ImageView)
-                .also { view ->
-                    flagView = view
-                    container.addView(view)
-                }
+        return flagView ?: inflateView(R.layout.feed_item_view_flag).also { view ->
+            flagView = view
+            container.addView(view)
+        }
     }
 
     private fun ensureOverlayView(): ImageView {
-        return overlayView ?: (itemView.layoutInflater
-                .inflate(R.layout.feed_item_view_overlay, container, false) as ImageView)
-                .also { view ->
-                    overlayView = view
+        return overlayView ?: inflateView(R.layout.feed_item_view_overlay).also { view ->
+            overlayView = view
 
-                    // add view directly above the image view
-                    val idx = container.indexOfChild(imageView) + 1
-                    container.addView(view, idx)
-                }
+            // add view directly above the image view
+            val idx = container.indexOfChild(imageView) + 1
+            container.addView(view, idx)
+        }
+    }
+
+    private fun inflateView(id: Int): ImageView {
+        return itemView.layoutInflater.inflate(id, container, false) as ImageView
     }
 
     private fun setItemFlag(@DrawableRes res: Int) {
@@ -296,72 +248,166 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     }
 }
 
-private class UserHintViewHolder(private val hintView: UserHintView)
-    : RecyclerView.ViewHolder(hintView) {
+private class UserHintEntryAdapter(private val onClick: OnUserClickedListener)
+    : ItemAdapterDelegate<FeedAdapter.Entry.UserHint, FeedAdapter.Entry,
+        UserHintEntryAdapter.ViewHolder>() {
 
-    fun bindTo(entry: FeedAdapter.Entry.UserHint, onClick: OnUserClickedListener) {
-        hintView.update(entry.user.name, entry.user.mark, onClick)
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.UserHint
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(UserHintView(parent.context))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: FeedAdapter.Entry.UserHint) {
+        holder.hintView.update(value.user.name, value.user.mark, onClick)
+    }
+
+    private class ViewHolder(val hintView: UserHintView) : RecyclerView.ViewHolder(hintView)
+}
+
+private object UserLoadingEntryAdapter
+    : ItemAdapterDelegate<FeedAdapter.Entry.UserLoading, FeedAdapter.Entry,
+        UserLoadingEntryAdapter.ViewHolder>() {
+
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.UserLoading
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(UserInfoLoadingView(parent.context))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: FeedAdapter.Entry.UserLoading) {
+        holder.hintView.update(value.user.name, value.user.mark)
+    }
+
+    private class ViewHolder(val hintView: UserInfoLoadingView) : RecyclerView.ViewHolder(hintView)
+}
+
+
+private object ErrorEntryAdapter
+    : ItemAdapterDelegate<FeedAdapter.Entry.Error, FeedAdapter.Entry, ErrorEntryAdapter.ErrorViewHolder>() {
+
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.Error
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): ErrorViewHolder {
+        val view = parent.layoutInflater.inflate(R.layout.feed_error) as ViewGroup
+        return ErrorViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ErrorViewHolder, value: FeedAdapter.Entry.Error) {
+        holder.textView.text = value.message
+    }
+
+    private class ErrorViewHolder(itemView: ViewGroup) : RecyclerView.ViewHolder(itemView) {
+        val textView = itemView.find<TextView>(R.id.error)
     }
 }
 
-private class UserInfoLoadingViewHolder(private val hintView: UserInfoLoadingView)
-    : RecyclerView.ViewHolder(hintView) {
+private fun <E : Any> staticLayoutViewHolder(layout: Int, predicate: (E) -> Boolean): AdapterDelegate<E, RecyclerView.ViewHolder> {
+    class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    fun bindTo(entry: FeedAdapter.Entry.UserLoading) {
-        hintView.update(entry.user.name, entry.user.mark)
-    }
-}
+    return object : ItemAdapterDelegate<E, E, RecyclerView.ViewHolder>() {
+        override fun isForViewType(value: E): Boolean {
+            return predicate(value)
+        }
 
-private class ErrorViewHolder(errorView: ViewGroup)
-    : RecyclerView.ViewHolder(errorView) {
+        override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+            return NoopViewHolder(parent.layoutInflater.inflate(layout, parent, false))
+        }
 
-    val textView = errorView.find<TextView>(R.id.error)
-
-    fun bindTo(entry: FeedAdapter.Entry.Error) {
-        textView.text = entry.message
-    }
-}
-
-private class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
-private class SpacerViewHolder(context: Context) : RecyclerView.ViewHolder(FrameLayout(context)) {
-    private val view = itemView as FrameLayout
-
-    @LayoutRes
-    private var layoutId: Int? = null
-
-    fun bindTo(spacer: FeedAdapter.Entry.Spacer) {
-        itemView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                spacer.height)
-
-        if (spacer.layout != null && layoutId != spacer.layout) {
-            view.removeAllViews()
-            view.layoutInflater.inflate(spacer.layout, view, true)
-            layoutId = spacer.layout
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: E) {
         }
     }
 }
 
-private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewHolder(view) {
-    fun bindTo(entry: FeedAdapter.Entry.Comment) {
-        val message = entry.message
+private object SpacerEntryAdapter
+    : ItemAdapterDelegate<FeedAdapter.Entry.Spacer, FeedAdapter.Entry, SpacerEntryAdapter.SpacerViewHolder>() {
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.Spacer
+    }
 
-        bindTo(message, null, entry.currentUsername)
+    override fun onCreateViewHolder(parent: ViewGroup): SpacerViewHolder {
+        return SpacerViewHolder(parent.context)
+    }
 
-        itemView.setOnClickListener {
-            val context = itemView.context
+    override fun onBindViewHolder(holder: SpacerViewHolder, value: FeedAdapter.Entry.Spacer) {
+        holder.bindTo(value)
+    }
 
-            // open the post in "new"
-            val uri = UriHelper.of(context).post(FeedType.NEW, message.itemId, message.id)
-            val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
-            context.startActivity(intent)
+    private class SpacerViewHolder(context: Context) : RecyclerView.ViewHolder(FrameLayout(context)) {
+        private val view = itemView as FrameLayout
+
+        @LayoutRes
+        private var layoutId: Int? = null
+
+        fun bindTo(spacer: FeedAdapter.Entry.Spacer) {
+            itemView.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    spacer.height)
+
+            if (spacer.layout != null && layoutId != spacer.layout) {
+                view.removeAllViews()
+                view.layoutInflater.inflate(spacer.layout, view, true)
+                layoutId = spacer.layout
+            }
         }
     }
 }
 
-private class UserInfoViewHolder(private val view: UserInfoView) : RecyclerView.ViewHolder(view) {
-    fun bindTo(entry: FeedAdapter.Entry.User) {
-        view.updateUserInfo(entry.user.info, entry.user.comments, entry.myself)
+private object CommentEntryAdapter
+    : ItemAdapterDelegate<FeedAdapter.Entry.Comment, FeedAdapter.Entry, CommentEntryAdapter.CommentViewHolder>() {
+
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.Comment
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): CommentViewHolder {
+        val inflater = parent.layoutInflater
+        return CommentViewHolder(inflater.inflate(R.layout.user_info_comment) as MessageView)
+    }
+
+    override fun onBindViewHolder(holder: CommentViewHolder, value: FeedAdapter.Entry.Comment) {
+        holder.bindTo(value)
+    }
+
+    private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewHolder(view) {
+        fun bindTo(entry: FeedAdapter.Entry.Comment) {
+            val message = entry.message
+
+            bindTo(message, null, entry.currentUsername)
+
+            itemView.setOnClickListener {
+                val context = itemView.context
+
+                // open the post in "new"
+                val uri = UriHelper.of(context).post(FeedType.NEW, message.itemId, message.id)
+                val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
+                context.startActivity(intent)
+            }
+        }
     }
 }
+
+private class UserEntryAdapter(private val userActionListener: UserInfoView.UserActionListener)
+    : ItemAdapterDelegate<FeedAdapter.Entry.User, FeedAdapter.Entry, UserEntryAdapter.UserInfoViewHolder>() {
+
+    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
+        return value is FeedAdapter.Entry.User
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): UserInfoViewHolder {
+        return UserInfoViewHolder(UserInfoView(parent.context, userActionListener))
+    }
+
+    override fun onBindViewHolder(holder: UserInfoViewHolder, value: FeedAdapter.Entry.User) {
+        holder.view.updateUserInfo(value.user.info, value.user.comments, value.myself)
+    }
+
+    private class UserInfoViewHolder(val view: UserInfoView) : RecyclerView.ViewHolder(view)
+}
+

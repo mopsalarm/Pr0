@@ -123,7 +123,7 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
         }, detectMoves)
     }
 
-    private class InstanceDiffCallback<T> : DiffUtil.ItemCallback<T>() {
+    class InstanceDiffCallback<T> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem === newItem
         }

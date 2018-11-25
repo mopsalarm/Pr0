@@ -8,42 +8,38 @@ import com.pr0gramm.app.util.inflate
 
 /**
  */
-open class MessageAdapter(private val itemLayout: Int,
-                          private val actionListener: MessageActionListener,
-                          private val currentUsername: String?,
-                          messages: List<Api.Message>) : androidx.recyclerview.widget.RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
-
-    protected val messages = messages.toMutableList()
+class MessageAdapter(private val itemLayout: Int,
+                     private val actionListener: MessageActionListener,
+                     private val currentUsername: String?,
+                     messages: List<Api.Message>) : DelegatedAsyncListAdapter<Api.Message>() {
 
     init {
-        setHasStableIds(true)
+        delegates += MessageAdapterDelegate()
+
+        submitList(messages)
     }
+
 
     /**
      * Replace all the messages with the new messages from the given iterable.
      */
     fun setMessages(messages: Iterable<Api.Message>) {
-        this.messages.clear()
-        this.messages.addAll(messages)
-        notifyDataSetChanged()
+        this.submitList(messages.toList())
     }
 
-    override fun getItemId(position: Int): Long {
-        return messages[position].id
-    }
+    inner class MessageAdapterDelegate : ItemAdapterDelegate<Api.Message, Api.Message, MessageViewHolder>() {
+        override fun isForViewType(value: Api.Message): Boolean {
+            return true
+        }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
-        return MessageViewHolder(view)
-    }
+        override fun onCreateViewHolder(parent: ViewGroup): MessageViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
+            return MessageViewHolder(view)
+        }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        val message = messages[position]
-        holder.bindTo(message, actionListener, currentUsername)
-    }
-
-    override fun getItemCount(): Int {
-        return messages.size
+        override fun onBindViewHolder(holder: MessageViewHolder, value: Api.Message) {
+            holder.bindTo(value, actionListener, currentUsername)
+        }
     }
 
     open class MessageViewHolder(private val view: MessageView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
