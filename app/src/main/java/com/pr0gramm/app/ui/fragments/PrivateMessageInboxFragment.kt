@@ -36,8 +36,8 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
         return true
     }
 
-    override fun newLoaderHelper(): LoaderHelper<List<Api.PrivateMessage>> {
-        return LoaderHelper.of { inboxService.privateMessages }
+    override suspend fun loadContent(): List<Api.PrivateMessage> {
+        return inboxService.privateMessages()
     }
 
     override fun displayMessages(recyclerView: androidx.recyclerview.widget.RecyclerView, messages: List<Api.PrivateMessage>) {

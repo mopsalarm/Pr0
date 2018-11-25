@@ -48,7 +48,8 @@ class ViewCache(val lookupView: (Int) -> View?) {
 
 interface HasViewCache {
     val viewCache: ViewCache
-
-    fun <T, V : View> bindView(id: Int) = viewCache.bindView<T, V>(id)
-    fun <T, V : View> bindOptionalView(id: Int) = viewCache.bindOptionalView<T, V?>(id)
 }
+
+fun <T, V : View> HasViewCache.bindView(id: Int) = viewCache.bindView<T, V>(id)
+
+fun <T, V : View> HasViewCache.bindOptionalView(id: Int) = viewCache.bindOptionalView<T, V?>(id)

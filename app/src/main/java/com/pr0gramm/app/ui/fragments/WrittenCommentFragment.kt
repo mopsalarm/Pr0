@@ -5,24 +5,18 @@ import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
 import org.kodein.di.erased.instance
-import rx.Observable
 
 /**
  */
 class WrittenCommentFragment : AbstractMessageInboxFragment("WrittenCommentFragment") {
     private val userService: UserService by instance()
 
-    override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {
-        return LoaderHelper.of<List<Api.Message>> {
-            val name = userService.name ?: return@of Observable.empty()
+    override suspend fun loadContent(): List<Api.Message> {
+        val name = userService.name ?: return listOf()
 
-            inboxService
-                    .getUserComments(name, ContentType.AllSet)
-                    .map { userComments ->
-                        userComments.comments.map {
-                            MessageConverter.of(userComments.user, it)
-                        }
-                    }
+        val userComments = inboxService.getUserComments(name, ContentType.AllSet)
+        return userComments.comments.map {
+            MessageConverter.of(userComments.user, it)
         }
     }
 }

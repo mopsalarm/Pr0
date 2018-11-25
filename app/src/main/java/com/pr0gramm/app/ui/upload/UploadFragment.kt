@@ -32,6 +32,7 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog

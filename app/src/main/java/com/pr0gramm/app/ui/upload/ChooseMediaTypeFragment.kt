@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
 
 /**
  */

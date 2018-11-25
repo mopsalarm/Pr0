@@ -102,25 +102,25 @@ interface Api {
             @Query("flags") flags: Int?): Observable<Info>
 
     @GET("/api/inbox/all")
-    fun inboxAll(): Observable<MessageFeed>
+    fun inboxAll(): Deferred<MessageFeed>
 
     @GET("/api/inbox/unread")
-    fun inboxUnread(): Observable<MessageFeed>
+    fun inboxUnread(): Deferred<MessageFeed>
 
     @GET("/api/inbox/messages")
-    fun inboxPrivateMessages(): Observable<PrivateMessageFeed>
+    fun inboxPrivateMessages(): Deferred<PrivateMessageFeed>
 
     @GET("/api/profile/comments")
     fun userComments(
             @Query("name") user: String,
             @Query("before") before: Long,
-            @Query("flags") flags: Int?): Observable<UserComments>
+            @Query("flags") flags: Int?): Deferred<UserComments>
 
     @GET("/api/profile/commentlikes")
     fun userCommentsLike(
             @Query("name") user: String,
             @Query("before") before: Long,
-            @Query("flags") flags: Int?): Observable<FavedUserComments>
+            @Query("flags") flags: Int?): Deferred<FavedUserComments>
 
     @FormUrlEncoded
     @POST("/api/inbox/post")

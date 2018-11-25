@@ -15,13 +15,11 @@ abstract class AbstractMessageInboxFragment(name: String) : InboxFragment<Api.Me
     private val notificationService: NotificationService by instance()
     private val userService: UserService by instance()
 
-    override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {
-        return LoaderHelper.of {
-            when (inboxType) {
-                InboxType.ALL -> inboxService.inbox
-                InboxType.UNREAD -> inboxService.unreadMessages
-                else -> throw IllegalArgumentException()
-            }
+    override suspend fun loadContent(): List<Api.Message> {
+        return when (inboxType) {
+            InboxType.ALL -> inboxService.inbox()
+            InboxType.UNREAD -> inboxService.unreadMessages()
+            else -> throw IllegalArgumentException()
         }
     }
 

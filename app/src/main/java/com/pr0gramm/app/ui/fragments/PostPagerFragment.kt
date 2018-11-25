@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -16,6 +17,7 @@ import com.pr0gramm.app.ui.MainActionHandler
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.observeChange
 import org.kodein.di.erased.instance
@@ -25,7 +27,7 @@ import org.kodein.di.erased.instance
 class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
-    private val viewPager: androidx.viewpager.widget.ViewPager by bindView(R.id.pager)
+    private val viewPager: ViewPager by bindView(R.id.pager)
 
     private lateinit var adapter: PostAdapter
 
@@ -68,7 +70,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             val activity = activity as ToolbarActivity
             activity.scrollHideToolbarListener.reset()
 
-            viewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
+            viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
                     activePostFragment?.exitFullscreen()
@@ -78,7 +80,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         val fancyScroll = Settings.get().useTextureView
         if (fancyScroll) {
-            viewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
+            viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                     if (position >= 0 && position + 1 < adapter.count) {
                         val prev = adapter.getFragment(position)

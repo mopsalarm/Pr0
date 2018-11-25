@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
@@ -13,13 +14,14 @@ import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.TabsAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 
 /**
  */
 class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
-    private val pager: androidx.viewpager.widget.ViewPager by bindView(R.id.favorites_pager)
+    private val pager: ViewPager by bindView(R.id.favorites_pager)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
     private lateinit var feedFilter: FeedFilter

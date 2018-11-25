@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -18,13 +20,11 @@ import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.MessageActionListener
 import com.pr0gramm.app.ui.WriteMessageActivity
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
 import org.kodein.di.erased.instance
-import rx.functions.Action0
-import rx.functions.Action1
 import java.util.concurrent.TimeUnit
 
 /**
@@ -34,22 +34,16 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     private val picasso: Picasso by instance()
 
     private val viewNothingHere: View by bindView(android.R.id.empty)
-    private val swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout by bindView(R.id.refresh)
+    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
 
     // views we can reset.
-    private var messagesView: androidx.recyclerview.widget.RecyclerView? = null
+    private var messagesView: RecyclerView? = null
     private var viewBusyIndicator: View? = null
 
-    private lateinit var loader: LoaderHelper<List<T>>
     private var loadStartedTimestamp = Instant(0)
 
     init {
         retainInstance = true
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        loader = newLoaderHelper().apply { reload() }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -61,7 +55,7 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
 
         viewBusyIndicator = view.find(R.id.busy_indicator)
 
-        messagesView = view.find<androidx.recyclerview.widget.RecyclerView>(R.id.messages).apply {
+        messagesView = view.find<RecyclerView>(R.id.messages).apply {
             itemAnimator = null
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
         }
@@ -72,8 +66,7 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         showBusyIndicator()
 
         // load the messages
-        loadStartedTimestamp = Instant.now()
-        loader.load(Action1 { onMessagesLoaded(it) }, defaultOnError(), Action0 { hideBusyIndicator() })
+        reloadAsync()
     }
 
     override fun onResume() {
@@ -86,13 +79,8 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         }
     }
 
-    override fun onDestroyView() {
-        loader.detach()
-        super.onDestroyView()
-    }
-
     private fun reloadInboxContent() {
-        loader.reload()
+        reloadAsync()
     }
 
     private fun hideNothingHereIndicator() {
@@ -123,10 +111,23 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         }
     }
 
-    protected abstract fun newLoaderHelper(): LoaderHelper<List<T>>
-
     private fun hasView(): Boolean {
         return messagesView != null
+    }
+
+    private fun reloadAsync() {
+        loadStartedTimestamp = Instant.now()
+
+        launchWithErrorHandler {
+            showBusyIndicator()
+
+            try {
+                val messages = loadContent()
+                onMessagesLoaded(messages)
+            } finally {
+                hideBusyIndicator()
+            }
+        }
     }
 
     private fun onMessagesLoaded(messages: List<T>) {
@@ -140,7 +141,9 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
             showNothingHereIndicator()
     }
 
-    protected abstract fun displayMessages(recyclerView: androidx.recyclerview.widget.RecyclerView, messages: List<T>)
+    protected abstract suspend fun loadContent(): List<T>
+
+    protected abstract fun displayMessages(recyclerView: RecyclerView, messages: List<T>)
 
     protected val inboxType: InboxType get() {
         var type = InboxType.ALL

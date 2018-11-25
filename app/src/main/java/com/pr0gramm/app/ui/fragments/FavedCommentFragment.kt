@@ -11,11 +11,8 @@ class FavedCommentFragment : AbstractMessageInboxFragment("FavedCommentFragment"
     private val settings = Settings.get()
     private val favedCommentService: FavedCommentService by instance()
 
-    override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {
-        return LoaderHelper.of {
-            favedCommentService
-                    .list(settings.contentType)
-                    .map { comments -> comments.map { FavedCommentService.commentToMessage(it) } }
-        }
+    override suspend fun loadContent(): List<Api.Message> {
+        return favedCommentService.list(settings.contentType)
+                .map { FavedCommentService.commentToMessage(it) }
     }
 }

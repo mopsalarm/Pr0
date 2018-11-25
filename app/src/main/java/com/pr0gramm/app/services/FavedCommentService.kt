@@ -3,7 +3,6 @@ package com.pr0gramm.app.services
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
-import rx.Observable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -12,17 +11,17 @@ import java.util.concurrent.TimeUnit
  */
 
 class FavedCommentService(private val api: Api, private val userService: UserService) {
-    fun list(contentType: EnumSet<ContentType>): Observable<List<Api.FavedUserComment>> {
+    suspend fun list(contentType: EnumSet<ContentType>): List<Api.FavedUserComment> {
         val username = userService.name
 
         if (!userService.isAuthorized || username == null)
-            return Observable.just(listOf())
+            return listOf()
 
-        val comments = api.userCommentsLike(username,
+        val response = api.userCommentsLike(username,
                 Instant.now().plus(1, TimeUnit.DAYS).millis,
-                ContentType.combine(contentType))
+                ContentType.combine(contentType)).await()
 
-        return comments.map { response -> response.comments }
+        return response.comments
     }
 
     companion object {

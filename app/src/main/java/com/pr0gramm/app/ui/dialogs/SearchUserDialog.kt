@@ -9,6 +9,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import org.kodein.di.erased.instance

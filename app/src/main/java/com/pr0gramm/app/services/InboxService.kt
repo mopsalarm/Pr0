@@ -23,35 +23,37 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets the list of unread messages. You can not call this multiple times, because
      * it will mark the messages as read immediately.
      */
-    val unreadMessages: Observable<List<Api.Message>> get() {
+    suspend fun unreadMessages(): List<Api.Message> {
         publishUnreadMessagesCount(0)
 
-        return api.inboxUnread()
-                .map { it.messages }
-                .doOnNext { messages ->
-                    messages.maxBy { it.creationTime }?.let { markAsRead(it) }
-                }
+        val messages = api.inboxUnread().await().messages
+
+        // update "mark as read" counter to the timestamp of the most recent message.
+        messages.maxBy { it.creationTime }?.let { markAsRead(it) }
+
+        return messages
     }
 
     /**
      * Gets the list of inbox messages
      */
-    val inbox: Observable<List<Api.Message>>
-        get() = api.inboxAll().map { it.messages }
+    suspend fun inbox(): List<Api.Message> {
+        return api.inboxAll().await().messages
+    }
 
     /**
      * Gets the list of private messages.
      */
-    val privateMessages: Observable<List<Api.PrivateMessage>>
-        get() = api.inboxPrivateMessages().map { it.messages }
+    suspend fun privateMessages(): List<Api.PrivateMessage> {
+        return api.inboxPrivateMessages().await().messages
+    }
 
     /**
      * Gets all the comments a user has written
      */
-    fun getUserComments(user: String, contentTypes: Set<ContentType>): Observable<Api.UserComments> {
-        return api.userComments(user,
-                (Instant.now() + Duration.days(1)).millis / 1000L,
-                ContentType.combine(contentTypes))
+    suspend fun getUserComments(user: String, contentTypes: Set<ContentType>): Api.UserComments {
+        val beforeInSeconds = (Instant.now() + Duration.days(1)).millis
+        return api.userComments(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
     }
 
     private fun markAsRead(message: Api.Message) {

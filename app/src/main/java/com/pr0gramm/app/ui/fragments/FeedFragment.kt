@@ -29,6 +29,8 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
@@ -489,8 +491,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     .doOnNext { info -> followService.markAsFollowing(info.user.name, info.following) }
                     .onErrorResumeEmpty()
 
-            val second = inboxService
-                    .getUserComments(queryString, contentTypes)
+            val second = toObservable { inboxService.getUserComments(queryString, contentTypes) }
                     .subscribeOnBackground()
                     .map { it.comments }
                     .onErrorReturn { listOf() }

@@ -25,6 +25,7 @@ import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread

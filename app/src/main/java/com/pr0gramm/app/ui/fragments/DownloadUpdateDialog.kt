@@ -7,6 +7,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.onErrorResumeEmpty

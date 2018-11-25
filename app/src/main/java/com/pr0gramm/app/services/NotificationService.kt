@@ -1,6 +1,9 @@
 package com.pr0gramm.app.services
 
-import android.app.*
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -19,7 +22,10 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.SenderDrawableProvider
+import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.lruCache
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
@@ -134,17 +140,20 @@ class NotificationService(private val context: Application,
         }
     }
 
-    fun showForInbox(sync: Api.Sync) {
+    suspend fun showForInbox(sync: Api.Sync) {
         if (!settings.showNotifications)
             return
 
         // try to get the new messages, ignore all errors.
-        inboxService.inbox.onErrorResumeEmpty().toBlocking().subscribe { messages ->
+        runCatching {
+            val messages = inboxService.inbox()
+
             val unread = messages.take(sync.inboxCount).filter { inboxService.messageIsUnread(it) }
             showInboxNotification(sync, unread)
         }
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun showInboxNotification(sync: Api.Sync, messages: List<Api.Message>) {
         if (messages.isEmpty() || !userService.isAuthorized) {
             cancelForInbox()
@@ -175,7 +184,7 @@ class NotificationService(private val context: Application,
             setCategory(NotificationCompat.CATEGORY_EMAIL)
 
             setLights(context.getColorCompat(ThemeHelper.accentColor), 500, 500)
-            color = context.getColorCompat(ThemeHelper.accentColor)
+            setColor(context.getColorCompat(ThemeHelper.accentColor))
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val replyToUserId = instantReplyToUserId(messages)
@@ -186,7 +195,7 @@ class NotificationService(private val context: Application,
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                setBadgeIconType(Notification.BADGE_ICON_SMALL)
+                setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
             }
         }
 
