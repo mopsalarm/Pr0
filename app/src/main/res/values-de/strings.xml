@@ -27,7 +27,6 @@
     <string name="gif_as_webm_might_be_buggy">Achtung: Du sparst damit sehr viel Datenvolumen, aber es könnte etwas länger dauern.</string>
     <string name="hint_password">Passwort</string>
     <string name="hint_username">Benutzername</string>
-    <string name="ignore">Ignorieren</string>
     <string name="login">Login</string>
     <string name="login_not_successful">Login nicht erfolgreich. Passwort/Benutzer falsch.</string>
     <string name="must_not_be_empty">Darf nicht leer sein</string>
@@ -213,7 +212,6 @@
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
     <string name="pref_show_category_premium_title">Stelz-Kategorie</string>
-    <string name="preloaded">geladen</string>
     <string name="notify_new_message_summary_text">Zum Lesen hier berühren</string>
     <string name="action_feed_type_controversial">KONTROVERS</string>
     <string name="filter_format_controversial">Kontrovers</string>
@@ -225,7 +223,6 @@
     <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
     <string name="action_feed_type_bestof">BEST OF</string>
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
-    <string name="open_website">Website öffnen</string>
     <string name="user_registered">Dabei seit %s</string>
     <string name="user_registered_inactive">Dabei seit %s, inaktiv</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
@@ -235,7 +232,6 @@
     <string name="update">Update</string>
     <string name="action_kfav">KOMMENTARE</string>
     <string name="hint_user_search_dialog">Gib den Namen des Benutzer ein, den du suchst. Wenn es sich um einen aktiven Benutzer handelt, hilft dir eventuell die Autovervollständigung.</string>
-    <string name="info">Info</string>
     <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in einem WLAN ohne Internetzugang.</string>
     <string name="error_json">Die Antwort des pr0gramm konnte nicht verarbeitet werden.</string>
     <string name="pref_pseudo_clear_tag_suggestions_summary">Klicke hier um alle Vorschläge für die Suche zu löschen</string>
@@ -246,7 +242,6 @@
     <string name="action_delete_item">Löschen</string>
     <string name="delete">Löschen</string>
     <string name="hint_block_user_for">User sperren (Tage)</string>
-    <string name="notify_user">User benachrichtigen</string>
     <string name="pref_theme_title">Theme auswählen</string>
     <string name="pref_theme_summary">Du kannst zwischen verschiedenen Themes wählen. Gefällt dir <i>Bewährtes Orange</i> oder stehst du eher auf <i>Angenehmes Grün</i>?</string>
     <string name="prefcat_theme">Theme</string>
@@ -262,7 +257,6 @@
     <string name="down_size">Verkleinern</string>
     <string name="hint_image_too_large">Das Bild, dass du versuchst hochzuladen, ist zu groß. Soll die App es für Dich verkleinern?</string>
     <string name="hint_shrank_successful">Bildgröße ist nun okay.</string>
-    <string name="hint_wrong_content_type">Das Bild kann mit den aktuellen Filtereinstellungen nicht angezeigt werden. </string>
     <string name="hint_upload_something_happen_try_again">Irgendwas komisches ist passiert, bitte probiere es nochmal.</string>
     <string name="hint_choose_media_type">Was möchtest du hochladen?</string>
     <string name="media_type_image">Bild oder GIF</string>
@@ -340,7 +334,6 @@
     <string name="feedback_general">Normaler pr0gramm Support</string>
     <string name="feedback_name">Name</string>
     <string name="feedback_subject">Betreff</string>
-    <string name="action_search_ex">Erweiterte Suche</string>
     <string name="action_change">Ändern</string>
     <string name="hint_email">E-Mail Adresse</string>
     <string name="login_password_recovery">Passwort vergessen</string>
@@ -356,7 +349,6 @@
     <string name="pref_pseudo_onboarding_title">Willkommensbildschirm</string>
     <string name="action_done">FERTIG</string>
     <string name="error_blocked">Dein Internetanbieter blockt das pr0gramm. Benutzt du gerade ein freies WLAN?</string>
-    <string name="action_secret_santa">WICHTELN</string>
     <string name="search_advanced">ERWEITERT</string>
     <string name="search_score">Minimaler Benis: %s</string>
     <string name="search_score_ignored">egal</string>
@@ -388,7 +380,6 @@
     <string name="block_user">Benutzer sperren</string>
     <string name="hint_block_treeup">TreeUp sperren (Einlader)</string>
     <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
-    <string name="error_could_not_write_download_file">Die Datei konnte nicht heruntergeladen werden.</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="action_premium">PR0MIUM</string>
 
@@ -416,7 +407,6 @@
     <string name="dt_for_one_year_1_month">ein Jahr und eine Monat</string>
     <string name="dt_for_one_year_n_month">ein Jahr und $r Monate</string>
     <string name="dt_for_n_years">$d Jahre</string>
-    <string name="dt_for_long_white">eine Ewigkeit</string>
     <string name="dt_for_now">jetzt</string>
 
     <string name="dt_since_few_second">ein paar Sekunden</string>
@@ -443,11 +433,8 @@
     <string name="dt_since_one_year_1_month">einem Jahr und einem Monate</string>
     <string name="dt_since_one_year_n_month">einem Jahr und $r Monaten</string>
     <string name="dt_since_n_years">$d Jahren</string>
-    <string name="dt_since_long_white">einer Ewigkeit</string>
-    <string name="dt_since_now">jetzt</string>
 
     <string name="dt_since_label_past">vor %s</string>
-    <string name="dt_since_label_future">in %s</string>
 
     <string name="invite_redeemed">%1$s, vor %2$s</string>
     <string name="badge_comments">Mehr als %sk Kommentare</string>
@@ -455,17 +442,11 @@
     <string name="add_tags_opinion_hint">Bedenke: Tags sind nicht als Ort für deine Meinung, sondern zur Beschreibung des Bildes gedacht.</string>
     <string name="message">NACHRICHT</string>
     <string name="delete_comment_soft">Durch <i>[gelöscht]</i> ersetzen</string>
-    <string name="benis_graph_title">Benisverlauf</string>
-    <string name="benis_y_title">Benis</string>
-    <string name="benis_x_title">Datum</string>
     <string name="benisgraph_empty">Es sind noch nicht genügend Daten verfügbar,\num deinen Graphen anzuzeigen.</string>
     <string name="could_not_load_feed_content_type__change">Möchtest du %s in deinen Filter mit aufnehmen?</string>
     <string name="could_not_load_feed_content_type__signin">Um Beiträge in %s zu sehen, musst du dich anmelden.</string>
-    <string name="progress_dialog_title">Lade…</string>
-    <string name="progress_dialog_message">Bitte warten…</string>
     <string name="error_feed_not_public__item">Die Favoriten von %s sind nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
     <string name="error_feed_not_public__general">Die Favoriten von %s sind nicht öffentlich.</string>
-    <string name="nothing_there_error">Der Feed konnte nicht geladen werden.</string>
     <string name="stats_title_uploads_favs">Uploads und Favoriten</string>
     <string name="stats_title_votes">Voteverhalten</string>
     <string name="stats_day">TAG</string>
@@ -486,7 +467,6 @@
     <string name="notification_channel_preload">Vorladen</string>
     <string name="pref_audiofocus_transient_title">Musik fortsetzen</string>
     <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
-    <string name="not_now">Später</string>
     <string name="play_store">Zum PlayStore</string>
     <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung \'Inkognito Browser\'.</string>
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>

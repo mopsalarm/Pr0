@@ -30,7 +30,6 @@
     <string name="gif_as_webm_might_be_buggy">You are saving a lot of traffic, but loading of an yet unconverted gif might take a moment longer. If conversion did not work, the app will fall back to loading the gif.</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Your username</string>
-    <string name="ignore">Ignore</string>
     <string name="login">Login</string>
     <string name="login_not_successful">Login not successful. Did you check your password? You might be temporarily banned if you failed to login too often.</string>
     <string name="must_not_be_empty">Must not be empty</string>
@@ -234,7 +233,6 @@
     <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
     <string name="pref_show_category_controversial_summary">Activate this to show the category \'controversial\' in the drawer. This category shows images with a similar number of up/down votes.</string>
     <string name="pref_show_category_premium_summary">Activate this to show the category \'stelz\' in the drawer.</string>
-    <string name="preloaded">loaded</string>
     <string name="notify_new_message_summary_text">Touch to read messages</string>
     <string name="prefcat_behaviour__categories_title">Categories</string>
     <string name="filter_format_bestof">Best of</string>
@@ -244,7 +242,6 @@
     <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
     <string name="pref_bestof_threshold_title">Category \'best of\'</string>
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
-    <string name="open_website">Open website</string>
 
     <string name="user_banned">Banned for %s</string>
     <string name="user_banned_forever">Banned forever</string>
@@ -254,7 +251,6 @@
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version %s is available.</string>
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
-    <string name="info">Info</string>
     <string name="error_json">Could not parse the response from the pr0gramm server.</string>
     <string name="could_not_load_feed_json">Could not load feed. The response looks a bit like as if you are in some wifi that does not allow internet access.</string>
     <string name="pref_pseudo_clear_tag_suggestions_title">Clear search history</string>
@@ -263,7 +259,6 @@
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
     <string name="hint_block_user_for">Ban user for (days)</string>
-    <string name="notify_user">Notify user</string>
     <string name="reason">Reason</string>
     <string name="delete">Delete</string>
     <string name="action_delete_item">Delete item</string>
@@ -281,7 +276,6 @@
     <string name="down_size">Shrink</string>
     <string name="hint_image_too_large">The image you are trying to upload is too large. Do you want the app to shrink the image down?</string>
     <string name="hint_shrank_successful">Image size is now okay.</string>
-    <string name="hint_wrong_content_type">The image can not be displayed using the current filter setting.</string>
     <string name="hint_upload_something_happen_try_again">Something strange happened. Please try again</string>
     <string name="upload_hint_too_large">The media file is too large.</string>
     <string name="hint_choose_media_type">What kind of media do you want to upload?</string>
@@ -364,7 +358,6 @@
     <string name="error_blocked">Looks like your provider is blocking pr0gramm. Are you using some kind of free wifi?</string>
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
     <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Als Uploader des Bildes musst du keine Beweise vorlegen.</string>
-    <string name="action_search_ex">Advanced search</string>
     <string name="login_password_recovery">Forgot password</string>
     <string name="hint_email">Email address</string>
     <string name="submit">Submit</string>
@@ -379,7 +372,6 @@
     <string name="pref_pseudo_onboarding_title">Run Welcome again</string>
     <string name="pref_pseudo_onboarding_summary">Shows the welcome message and settings wizard again.</string>
     <string name="action_done">DONE</string>
-    <string name="action_secret_santa">WICHTELN</string>
     <string name="search_score">Minimum score: %s</string>
     <string name="search_score_ignored">no minimum</string>
     <string name="search_without_custom_tags">Exclude custom tags:</string>
@@ -410,7 +402,6 @@
     <string name="error_generic">An error occurred.</string>
     <string name="hint_block_treeup">Ban TreeUp (inviters)</string>
     <string name="block_user">Ban user</string>
-    <string name="error_could_not_write_download_file">Could not download file.</string>
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
     <string name="badge_comments">More than %sk comments</string>
@@ -442,7 +433,6 @@
     <string name="dt_for_one_year_1_month">1 year and 1 month</string>
     <string name="dt_for_one_year_n_month">1 year and $r months</string>
     <string name="dt_for_n_years">$d years</string>
-    <string name="dt_for_long_white">a long while</string>
     <string name="dt_for_now">now</string>
 
     <string name="dt_since_few_second">a few seconds</string>
@@ -469,24 +459,15 @@
     <string name="dt_since_one_year_1_month">1 year and $r month</string>
     <string name="dt_since_one_year_n_month">1 year and $r months</string>
     <string name="dt_since_n_years">$d years</string>
-    <string name="dt_since_long_white">a long while</string>
-    <string name="dt_since_now">now</string>
 
     <string name="dt_since_label_past">%s ago</string>
-    <string name="dt_since_label_future">in %s</string>
 
     <string name="add_tags_opinion_hint">Please be aware that tags are not a place to voice your opinion but rather to describe the image.</string>
     <string name="message">MESSAGE</string>
     <string name="delete_comment_soft">Soft delete (replace with <i>[gelöscht]</i>)</string>
-    <string name="progress_dialog_title">Loading</string>
-    <string name="progress_dialog_message">Please wait…</string>
-    <string name="benis_graph_title">Benis history</string>
-    <string name="benis_y_title">Benis</string>
-    <string name="benis_x_title">Date</string>
     <string name="benisgraph_empty">There is not yet enough data to\ngenerate a real graph.</string>
     <string name="error_feed_not_public__item">Favorites of %s are not public. Do you want to open the post in /new?</string>
     <string name="error_feed_not_public__general">Favorites of %s are not public.</string>
-    <string name="nothing_there_error">Could not load feed.</string>
     <string name="type_sfw_upper" translatable="false">SFW</string>
     <string name="type_nsfw_upper" translatable="false">NSFW</string>
     <string name="type_nsfl_upper" translatable="false">NSFL</string>
@@ -510,7 +491,6 @@
     <string name="notification_channel_download">Downloads</string>
     <string name="pref_audiofocus_transient_title">Resume music</string>
     <string name="pref_audiofocus_transient_summary">Activate this to resume music or sounds by other apps once the pr0gramm app stops playing sound.</string>
-    <string name="not_now">Not now</string>
     <string name="play_store">PlayStore</string>
     <string name="hint_use_firefox_focus">Please install Firefox Focus or disable the incognito browser setting.</string>
     <string name="pref_secure_app_title">Hide from app switcher</string>

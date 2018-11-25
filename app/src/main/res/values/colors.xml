@@ -2,20 +2,8 @@
 
 <resources>
 
-    <color name="red_50">#FFEBEE</color>
-    <color name="red_100">#FFCDD2</color>
-    <color name="red_200">#EF9A9A</color>
-    <color name="red_300">#E57373</color>
-    <color name="red_400">#EF5350</color>
     <color name="red_500">#F44336</color>
-    <color name="red_600">#E53935</color>
     <color name="red_700">#D32F2F</color>
-    <color name="red_800">#C62828</color>
-    <color name="red_900">#B71C1C</color>
-    <color name="red_A100">#FF8A80</color>
-    <color name="red_A200">#FF5252</color>
-    <color name="red_A400">#FF1744</color>
-    <color name="red_A700">#D50000</color>
 
     <color name="green_500">#259b24</color>
 
@@ -69,18 +57,6 @@
     <color name="message_text_received">@android:color/primary_text_dark</color>
     <color name="message_text_sent">@color/grey_700</color>
 
-    <color name="user_type_admin">#ff9900</color>
-    <color name="user_type_moderator">#008FFF</color>
-    <color name="user_type_pr0mium">#1cb992</color>
-    <color name="user_type_altschwuchtel">#5bb91c</color>
-    <color name="user_type_schwuchtel">#ffffff</color>
-    <color name="user_type_neuschwuchtel">#e108e9</color>
-    <color name="user_type_fliesentisch">#6C432B</color>
-    <color name="user_type_gesperrt">#444444</color>
-    <color name="user_type_legende">#1cb992</color>
-    <color name="user_type_wichtler">#d23c22</color>
-    <color name="user_type_medfag">#addc8d</color>
-    <color name="user_type_oldmod">#7fc7ff</color>
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>
