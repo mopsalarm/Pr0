@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -42,6 +41,11 @@ private enum class Offset(val offset: Long) {
     Comments(1_000_000_000)
 }
 
+@Suppress("NOTHING_TO_INLINE")
+private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
+    return (idOffset shl 8) or cat
+}
+
 class FeedAdapter(picasso: Picasso,
                   userHintClickedListener: OnUserClickedListener,
                   userActionListener: UserInfoView.UserActionListener)
@@ -61,8 +65,8 @@ class FeedAdapter(picasso: Picasso,
         delegates += UserLoadingEntryAdapter
         delegates += SpacerEntryAdapter
         delegates += ErrorEntryAdapter
-        delegates += staticLayoutViewHolder(R.layout.feed_hint_empty) { it === Entry.EmptyHint }
-        delegates += staticLayoutViewHolder(R.layout.feed_hint_loading) { it === Entry.LoadingHint }
+        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty) { it === Entry.EmptyHint }
+        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading) { it === Entry.LoadingHint }
     }
 
     /**
@@ -96,30 +100,35 @@ class FeedAdapter(picasso: Picasso,
     }
 
     sealed class Entry(val id: Long) {
-        data class Item(val item: FeedItem,
-                        val repost: Boolean = false,
-                        val preloaded: Boolean = false,
-                        val seen: Boolean = false) : Entry(Offset.Item.offset + item.id)
+        data class UserHint(val user: UserAndMark)
+            : Entry(idInCategory(0))
 
-        data class Ad(val index: Long = 0) : Entry(Offset.Ad.offset + index)
+        data class UserLoading(val user: UserAndMark)
+            : Entry(idInCategory(1))
 
-        data class UserHint(val user: UserAndMark) : Entry(Offset.UserHint.offset)
+        data class User(val user: UserInfo, val myself: Boolean)
+            : Entry(idInCategory(2))
 
-        data class UserLoading(val user: UserAndMark) : Entry(Offset.UserInfoLoading.offset)
+        data class Error(val message: String)
+            : Entry(idInCategory(3))
 
-        data class Spacer(private val idx: Int,
-                          val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-                          @LayoutRes val layout: Int? = null) : Entry(Offset.Spacer.offset + idx)
+        object EmptyHint
+            : Entry(idInCategory(4))
 
-        data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id)
+        object LoadingHint
+            : Entry(idInCategory(5))
 
-        data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.UserInfo.offset)
+        data class Item(val item: FeedItem, val repost: Boolean = false, val preloaded: Boolean, val seen: Boolean)
+            : Entry(idInCategory(6, item.id))
 
-        data class Error(val message: String) : Entry(Offset.Error.offset)
+        data class Spacer(val idx: Long, val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, @LayoutRes val layout: Int? = null)
+            : Entry(idInCategory(7, idx))
 
-        object EmptyHint : Entry(Offset.EmptyHint.offset)
+        data class Ad(val index: Long)
+            : Entry(idInCategory(8, index))
 
-        object LoadingHint : Entry(Offset.LoadingHint.offset)
+        data class Comment(val message: Api.Message, val currentUsername: String?)
+            : Entry(idInCategory(9, message.id))
     }
 
     inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {
@@ -305,23 +314,6 @@ private object ErrorEntryAdapter
 
     private class ErrorViewHolder(itemView: ViewGroup) : RecyclerView.ViewHolder(itemView) {
         val textView = itemView.find<TextView>(R.id.error)
-    }
-}
-
-private fun <E : Any> staticLayoutViewHolder(layout: Int, predicate: (E) -> Boolean): AdapterDelegate<E, RecyclerView.ViewHolder> {
-    class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
-    return object : ItemAdapterDelegate<E, E, RecyclerView.ViewHolder>() {
-        override fun isForViewType(value: E): Boolean {
-            return predicate(value)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-            return NoopViewHolder(parent.layoutInflater.inflate(layout, parent, false))
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: E) {
-        }
     }
 }
 

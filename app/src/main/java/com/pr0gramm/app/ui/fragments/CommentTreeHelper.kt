@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -137,7 +138,7 @@ abstract class CommentTreeHelper : CommentView.Listener {
 }
 
 class CommentView(val parent: ViewGroup,
-                  private val actionListener: Listener) : androidx.recyclerview.widget.RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
+                  private val actionListener: Listener) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
 
     private val maxLevels = ConfigService.get(itemView.context).commentsMaxLevels
 

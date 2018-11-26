@@ -8,154 +8,80 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.ui.AsyncListAdapter
+import com.pr0gramm.app.ui.DelegatedAsyncListAdapter
+import com.pr0gramm.app.ui.SimpleItemAdapterDelegate
+import com.pr0gramm.app.ui.staticLayoutAdapterDelegate
 import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.removeFromParent
-import com.pr0gramm.app.util.time
 import gnu.trove.map.TLongObjectMap
-import java.util.*
 
-
-private enum class Type(val offset: Long, val type: Class<out PostAdapter.Item>) {
-    Placeholder(0, PostAdapter.Item.PlaceholderItem::class.java),
-    Info(1, PostAdapter.Item.InfoItem::class.java),
-    Tags(2, PostAdapter.Item.TagsItem::class.java),
-    CommentInputItem(3, PostAdapter.Item.CommentInputItem::class.java),
-    CommentsLoadingItem(4, PostAdapter.Item.CommentsLoadingItem::class.java),
-    LoadErrorItem(5, PostAdapter.Item.LoadErrorItem::class.java),
-    PostIsDeletedItem(6, PostAdapter.Item.PostIsDeletedItem::class.java),
-    NoCommentsWithoutAccount(7, PostAdapter.Item.NoCommentsWithoutAccount::class.java),
-    CommentItem(1000, PostAdapter.Item.CommentItem::class.java)
+@Suppress("NOTHING_TO_INLINE")
+private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
+    return (idOffset shl 8) or cat
 }
 
-class PostAdapter(
-        private val commentViewListener: CommentView.Listener,
-        private val postActions: PostActions)
-    : AsyncListAdapter<PostAdapter.Item, androidx.recyclerview.widget.RecyclerView.ViewHolder>(ItemCallback(), name = "PostAdapter") {
+class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostActions)
+    : DelegatedAsyncListAdapter<PostAdapter.Item>(ItemCallback(), name = "PostAdapter") {
 
     init {
         setHasStableIds(true)
 
-        if (Type.values().size != Type.values().map { it.offset }.distinct().size)
-            throw IllegalArgumentException("Error in Offset() mapping")
-
-        if (Type.values().size != Type.values().map { it.type }.distinct().size)
-            throw IllegalArgumentException("Error in Offset() mapping")
-    }
-
-    private val viewTypesByType = IdentityHashMap(Type.values().associateBy { it.type })
-    private val viewTypesByIndex = Type.values()
-
-    override fun getItemViewType(position: Int): Int {
-        val type = items[position].javaClass
-        return viewTypesByType.getValue(type).ordinal
+        delegates += CommentItemAdapterDelegate(commentViewListener)
+        delegates += InfoLineItemAdapterDelegate(postActions)
+        delegates += TagsViewHolderAdapterDelegate(postActions)
+        delegates += CommentPostLineAdapterDelegate(postActions)
+        delegates += PlaceholderItemAdapterDelegate
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading) { it === Item.CommentsLoadingItem }
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err) { it === Item.LoadErrorItem }
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_item_deleted) { it === Item.PostIsDeletedItem }
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_no_account) { it === Item.NoCommentsWithoutAccount }
     }
 
     override fun getItemId(position: Int): Long {
         return items[position].id
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
-        val context = parent.context
-
-        return logger.time("Inflating layout for ${viewTypesByIndex[viewType]}") {
-            when (viewTypesByIndex[viewType]) {
-                Type.Placeholder ->
-                    PlaceholderHolder(PlaceholderView(context))
-
-                Type.Info ->
-                    InfoLineViewHolder(postActions, InfoLineView(context))
-
-                Type.Tags ->
-                    TagsViewHolder(TagsView(context, postActions))
-
-                Type.CommentInputItem ->
-                    CommentPostLineHolder(postActions, CommentPostLine(context))
-
-                Type.CommentItem ->
-                    CommentView(parent, commentViewListener)
-
-                Type.CommentsLoadingItem ->
-                    StaticViewHolder(parent, R.layout.comments_are_loading)
-
-                Type.LoadErrorItem ->
-                    StaticViewHolder(parent, R.layout.comments_load_err)
-
-                Type.PostIsDeletedItem ->
-                    StaticViewHolder(parent, R.layout.comments_item_deleted)
-
-                Type.NoCommentsWithoutAccount ->
-                    StaticViewHolder(parent, R.layout.comments_no_account)
-            }
-        }
-    }
-
-    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
-        val item = items[position]
-
-        when (holder) {
-            is CommentView ->
-                holder.set((item as Item.CommentItem).commentTreeItem)
-
-            is PlaceholderHolder ->
-                holder.set(item as Item.PlaceholderItem)
-
-            is InfoLineViewHolder ->
-                holder.set(item as Item.InfoItem)
-
-            is TagsViewHolder ->
-                holder.set(item as Item.TagsItem)
-
-            is CommentPostLineHolder ->
-                holder.set(item as Item.CommentInputItem)
-        }
-    }
-
     sealed class Item(val id: Long) {
-        class PlaceholderItem(val height: Int,
-                              val viewer: View,
-                              val mediaControlsContainer: View?) : Item(Type.Placeholder.offset) {
+        class PlaceholderItem(val height: Int, val viewer: View, val mediaControlsContainer: View?)
+            : Item(idInCategory(0)) {
 
             override fun hashCode(): Int = height
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
         }
 
-        data class InfoItem(
-                val item: FeedItem,
-                val vote: Vote,
-                val isOurPost: Boolean) : Item(Type.Info.offset)
+        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean)
+            : Item(idInCategory(1))
 
         data class TagsItem(val tags: List<Api.Tag>, val votes: TLongObjectMap<Vote>)
-            : Item(Type.Tags.offset)
+            : Item(idInCategory(2))
 
         data class CommentInputItem(val text: String)
-            : Item(Type.CommentInputItem.offset)
-
-        data class CommentItem(val commentTreeItem: CommentTree.Item)
-            : Item(Type.CommentItem.offset + commentTreeItem.comment.id)
+            : Item(idInCategory(3))
 
         object CommentsLoadingItem
-            : Item(Type.CommentsLoadingItem.offset)
+            : Item(idInCategory(4))
 
         object LoadErrorItem
-            : Item(Type.LoadErrorItem.offset)
+            : Item(idInCategory(5))
 
         object PostIsDeletedItem
-            : Item(Type.PostIsDeletedItem.offset)
+            : Item(idInCategory(6))
 
         object NoCommentsWithoutAccount
-            : Item(Type.NoCommentsWithoutAccount.offset)
+            : Item(idInCategory(7))
+
+        data class CommentItem(val commentTreeItem: CommentTree.Item)
+            : Item(idInCategory(8, commentTreeItem.comment.id))
     }
 
     private class ItemCallback : DiffUtil.ItemCallback<Item>() {
@@ -169,80 +95,142 @@ class PostAdapter(
     }
 }
 
-private class PlaceholderHolder(val pv: PlaceholderView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(pv) {
-    fun set(item: PostAdapter.Item.PlaceholderItem) {
-        pv.viewer = item.viewer
-        pv.fixedHeight = item.height
+private class CommentItemAdapterDelegate(private val commentActionListener: CommentView.Listener)
+    : SimpleItemAdapterDelegate<PostAdapter.Item.CommentItem, CommentView>() {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            pv.requestLayout()
-        } else {
-            // it looks like a requestLayout is not honored on pre kitkat devices
-            // if already in a layout pass.
-            pv.post { pv.requestLayout() }
-        }
+    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.CommentItem
 
-        if (item.mediaControlsContainer != null) {
-            // only move media controls if they are attached to a different placeholder view.
-            // the reason to do so is that we could just have received an update after the
-            // controls were attached to a player in fullscreen.
-            if (pv.parent !== pv && (pv.parent == null || pv.parent is PlaceholderView)) {
-                item.mediaControlsContainer.removeFromParent()
-                pv.addView(item.mediaControlsContainer)
-            }
-        }
+    override fun onCreateViewHolder(parent: ViewGroup): CommentView {
+        return CommentView(parent, commentActionListener)
+    }
+
+    override fun onBindViewHolder(holder: CommentView, value: PostAdapter.Item.CommentItem) {
+        holder.set(value.commentTreeItem)
     }
 }
 
-private class TagsViewHolder(val tagsView: TagsView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(tagsView) {
-    fun set(item: PostAdapter.Item.TagsItem) {
-        tagsView.updateTags(item.tags, item.votes)
+private class TagsViewHolderAdapterDelegate(private val postActions: PostActions)
+    : SimpleItemAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
+
+    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.TagsItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(TagsView(parent.context, postActions))
     }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.TagsItem) {
+        holder.tagsView.updateTags(value.tags, value.votes)
+    }
+
+    private class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView)
 }
 
-private class InfoLineViewHolder(
-        val onDetailClickedListener: PostActions,
-        val infoView: InfoLineView) : androidx.recyclerview.widget.RecyclerView.ViewHolder(infoView) {
 
-    init {
-        infoView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
+private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
+    : SimpleItemAdapterDelegate<PostAdapter.Item.InfoItem, InfoLineItemAdapterDelegate.ViewHolder>() {
+    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.InfoItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(InfoLineView(parent.context))
     }
 
-    fun set(item: PostAdapter.Item.InfoItem) {
+    override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.InfoItem) {
         // display the feed item in the view
-        infoView.setFeedItem(item.item, item.isOurPost, item.vote)
-        infoView.onDetailClickedListener = onDetailClickedListener
+        holder.infoView.setFeedItem(value.item, value.isOurPost, value.vote)
+        holder.infoView.onDetailClickedListener = postActions
+    }
+
+    private class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
+        init {
+            infoView.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
     }
 }
 
-private class CommentPostLineHolder(
-        val onDetailClickedListener: PostActions,
-        val line: CommentPostLine) : androidx.recyclerview.widget.RecyclerView.ViewHolder(line) {
 
-    var latestText: String? = null
+private class CommentPostLineAdapterDelegate(private val postActions: PostActions)
+    : SimpleItemAdapterDelegate<PostAdapter.Item.CommentInputItem, CommentPostLineAdapterDelegate.ViewHolder>() {
+    override fun isForViewType(value: Any): Boolean {
+        return value is PostAdapter.Item.CommentInputItem
+    }
 
-    init {
-        line.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(CommentPostLine(parent.context))
+    }
 
-        line.textChanges().subscribe { text -> latestText = text }
-        line.comments().subscribe { text ->
-            if (onDetailClickedListener.writeCommentClicked(text)) {
-                line.clear()
+    override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.CommentInputItem) {
+        holder.set(value)
+    }
+
+    private inner class ViewHolder(val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
+        var latestText: String? = null
+
+        init {
+            line.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
+
+            line.textChanges().subscribe { text -> latestText = text }
+
+            line.comments().subscribe { text ->
+                if (postActions.writeCommentClicked(text)) {
+                    line.clear()
+                }
+            }
+        }
+
+        fun set(item: PostAdapter.Item.CommentInputItem) {
+            line.setCommentDraft(latestText ?: item.text)
+        }
+    }
+}
+
+private object PlaceholderItemAdapterDelegate
+    : SimpleItemAdapterDelegate<PostAdapter.Item.PlaceholderItem, PlaceholderItemAdapterDelegate.ViewHolder>() {
+
+    override fun isForViewType(value: Any): Boolean {
+        return value is PostAdapter.Item.PlaceholderItem
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(PlaceholderView(parent.context))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.PlaceholderItem) {
+        holder.set(value)
+    }
+
+    private class ViewHolder(val pv: PlaceholderView) : RecyclerView.ViewHolder(pv) {
+        fun set(item: PostAdapter.Item.PlaceholderItem) {
+            pv.viewer = item.viewer
+            pv.fixedHeight = item.height
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                pv.requestLayout()
+            } else {
+                // it looks like a requestLayout is not honored on pre kitkat devices
+                // if already in a layout pass.
+                pv.post { pv.requestLayout() }
+            }
+
+            if (item.mediaControlsContainer != null) {
+                // only move media controls if they are attached to a different placeholder view.
+                // the reason to do so is that we could just have received an update after the
+                // controls were attached to a player in fullscreen.
+                if (pv.parent !== pv && (pv.parent == null || pv.parent is PlaceholderView)) {
+                    item.mediaControlsContainer.removeFromParent()
+                    pv.addView(item.mediaControlsContainer)
+                }
             }
         }
     }
-
-    fun set(item: PostAdapter.Item.CommentInputItem) {
-        line.setCommentDraft(latestText ?: item.text)
-    }
 }
+
 
 @SuppressLint("ViewConstructor")
-class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(context) {
+private class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(context) {
     var fixedHeight = AndroidUtility.dp(context, 150)
 
     init {
@@ -269,6 +257,3 @@ class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(
         return viewer?.onTouchEvent(event) ?: false
     }
 }
-
-class StaticViewHolder(parent: ViewGroup, @LayoutRes layout: Int)
-    : androidx.recyclerview.widget.RecyclerView.ViewHolder(parent.layoutInflater.inflate(layout, parent, false))

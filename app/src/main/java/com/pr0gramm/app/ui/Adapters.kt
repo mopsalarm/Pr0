@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R.id.value
+import com.pr0gramm.app.util.layoutInflater
 
 interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
     fun isForViewType(values: List<E>, idx: Int): Boolean
@@ -26,6 +28,8 @@ abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder>
 
     abstract fun onBindViewHolder(holder: VH, value: E)
 }
+
+typealias SimpleItemAdapterDelegate<T, VH> = ItemAdapterDelegate<T, Any, VH>
 
 class AdapterDelegateManager<T : Any>(
         private val delegates: List<AdapterDelegate<in T, RecyclerView.ViewHolder>>) {
@@ -71,5 +75,24 @@ abstract class DelegatedAsyncListAdapter<T : Any>(
 
     final override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         manager.onBindViewHolder(holder, items, position)
+    }
+}
+
+fun <E : Any> staticLayoutAdapterDelegate(layout: Int, predicate: (E) -> Boolean)
+        : AdapterDelegate<E, RecyclerView.ViewHolder> {
+
+    class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    return object : ItemAdapterDelegate<E, E, RecyclerView.ViewHolder>() {
+        override fun isForViewType(value: E): Boolean {
+            return predicate(value)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+            return NoopViewHolder(parent.layoutInflater.inflate(layout, parent, false))
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: E) {
+        }
     }
 }
