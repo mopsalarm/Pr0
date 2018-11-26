@@ -178,8 +178,9 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
         get() {
             val cookie = cookie
             if (cookie?.id == null) {
-                if (cookie != null)
+                if (cookie != null) {
                     clearLoginCookie(true)
+                }
 
                 throw LoginRequiredException()
             }
@@ -202,7 +203,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
 
     /**
      */
-    class LoginRequiredException internal constructor() : IllegalStateException()
+    class LoginRequiredException : IllegalStateException()
 
     companion object {
         private val logger = logger("LoginCookieHandler")

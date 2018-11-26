@@ -8,7 +8,6 @@ import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
-import rx.Observable
 
 @Suppress("MemberVisibilityCanBePrivate")
 interface Api {
@@ -50,7 +49,7 @@ interface Api {
     @POST("/api/user/login")
     fun login(
             @Field("name") username: String,
-            @Field("password") password: String): Observable<Login>
+            @Field("password") password: String): Deferred<Login>
 
     @FormUrlEncoded
     @POST("/api/tags/add")
@@ -99,7 +98,7 @@ interface Api {
     @GET("/api/profile/info")
     fun info(
             @Query("name") name: String,
-            @Query("flags") flags: Int?): Observable<Info>
+            @Query("flags") flags: Int?): Deferred<Info>
 
     @GET("/api/inbox/all")
     fun inboxAll(): Deferred<MessageFeed>
@@ -134,7 +133,7 @@ interface Api {
 
     @POST("/api/items/upload")
     fun upload(
-            @Body body: RequestBody): Observable<Upload>
+            @Body body: RequestBody): Deferred<Upload>
 
     @FormUrlEncoded
     @POST("/api/items/post")
@@ -144,7 +143,7 @@ interface Api {
             @Field("tags") tags: String,
             @Field("checkSimilar") checkSimilar: Int,
             @Field("key") key: String,
-            @Field("processAsync") processAsync: Int?): Observable<Posted>
+            @Field("processAsync") processAsync: Int?): Deferred<Posted>
 
     @GET("/api/items/queue")
     fun queue(

@@ -4,113 +4,37 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Stopwatch
+import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.GET
-import rx.Observable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 
-/**
- */
-class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookieHandler,
+class ApiProvider(base: String, client: OkHttpClient,
+                  private val cookieHandler: LoginCookieHandler,
                   private val singleShotService: SingleShotService) {
 
-    val api = newProxyWrapper(newRestAdapter(base, client), cookieHandler)
+    val api by lazy { proxy(restAdapter(base, client)) }
 
-    private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
-        // proxy to add the nonce if not provided
-        val proxy = Proxy.newProxyInstance(Api::class.java.classLoader, arrayOf(Api::class.java)) { _, method, nullableArguments ->
-            var args: Array<Any?> = nullableArguments ?: emptyArray()
-            val watch = Stopwatch.createStarted()
-
-            val params = method.parameterTypes
-            if (params.isNotEmpty() && params[0] == Api.Nonce::class.java) {
-                if (args.isNotEmpty() && args[0] == null) {
-
-                    // inform about failure.
-                    try {
-                        args = args.copyOf()
-                        args[0] = cookieHandler.nonce
-
-                    } catch (error: Throwable) {
-                        if (method.returnType === Observable::class.java) {
-                            // don't fail during call but fail in the resulting observable.
-                            return@newProxyInstance Observable.error<Any>(error)
-
-                        } else {
-                            throw error
-                        }
-                    }
-                }
-            }
-
-            var invoke = { method.invoke(backend, *args) }
-
-            // wrap invoke into a retry for GET calls.
-            if (method.returnType === Observable::class.java) {
-                // only retry a get method, and only do it once.
-                val retryCount = 1
-                if (method.getAnnotation(GET::class.java) != null) {
-                    invoke = { invokeWithRetry(backend, method, args, { isHttpError(it) }, retryCount) }
-                }
-            }
-
-            try {
-                var result = invoke()
-                if (result is Observable<*>) {
-                    result = result
-                            .doOnSubscribe { debug { AndroidUtility.checkNotMainThread(method.name) } }
-                            .onErrorResumeNext { err -> Observable.error(convertErrorIfNeeded(err)) }
-                            .doOnError { measureApiCall(watch, method, false) }
-                            .doOnNext { measureApiCall(watch, method, true) }
-
-                } else {
-                    measureApiCall(watch, method, true)
-                }
-
-                result
-            } catch (targetError: InvocationTargetException) {
-                measureApiCall(watch, method, false)
-                throw targetError.cause ?: targetError
-            }
-        }
-
-        return proxy as Api
-    }
-
-    private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
-        Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
-                "method:${method.name}", "success:$success")
-
-        if ("sync".equals(method.name, ignoreCase = true) && singleShotService.firstTimeInHour("track-time:sync")) {
-            // track only sync calls.
-            Track.trackSyncCall(watch, success)
-        }
-    }
-
-
-    private fun newRestAdapter(base: String, client: OkHttpClient): Api {
+    private fun restAdapter(base: String, client: OkHttpClient): Api {
         val settings = Settings.get()
 
-        val baseUrl: HttpUrl
-        if (BuildConfig.DEBUG && settings.mockApi) {
+        val baseUrl = if (BuildConfig.DEBUG && settings.mockApi) {
             // activate this to use a mock
-            baseUrl = HttpUrl.parse("http://" + Debug.mockApiHost + ":8888")!!
+            HttpUrl.get("http://" + Debug.mockApiHost + ":8888")
         } else {
-            baseUrl = HttpUrl.parse(base)!!
+            HttpUrl.get(base)
         }
 
         return Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client)
                 .validateEagerly(true)
@@ -118,72 +42,66 @@ class ApiProvider(base: String, client: OkHttpClient, cookieHandler: LoginCookie
                 .create(Api::class.java)
     }
 
-    internal fun convertErrorIfNeeded(err: Throwable): Throwable {
-        if (err is retrofit2.HttpException) {
-            val httpErr = err
-            if (!httpErr.response().isSuccessful) {
-                try {
-                    val body = httpErr.response().errorBody()?.string() ?: ""
-                    return HttpErrorException(httpErr, body)
-                } catch (ignored: Exception) {
+    private fun proxy(backend: Api): Api {
+        val apiClass = Api::class.java
+        val proxy = Proxy.newProxyInstance(apiClass.classLoader, arrayOf(apiClass), InvocationHandler(backend))
+        return proxy as Api
+    }
+
+    private inner class InvocationHandler(private val backend: Api) : java.lang.reflect.InvocationHandler {
+        private fun doInvoke(method: Method, args: Array<out Any?>?): Any? {
+            return try {
+                if (args.isNullOrEmpty()) {
+                    method.invoke(backend)
+                } else {
+                    method.invoke(backend, *args)
                 }
+            } catch (err: InvocationTargetException) {
+                throw err.cause ?: err
             }
         }
 
-        return err
-    }
+        override fun invoke(proxy: Any, method: Method, args_: Array<Any?>?): Any? {
+            var args = args_
 
-    @Suppress("UNCHECKED_CAST")
-    private fun invokeWithRetry(
-            api: Api, method: Method, args: Array<Any?>,
-            shouldRetryTest: (Throwable) -> Boolean, retryCount: Int): Observable<Any> {
+            if (!args.isNullOrEmpty()) {
+                if (method.parameterTypes[0] == Api.Nonce::class.java) {
+                    args = args.copyOf()
+                    args[0] = cookieHandler.nonce
+                }
+            }
 
-        var result = method.invoke(api, *args) as Observable<Any>
-        for (i in 0 until retryCount) {
-            result = result.onErrorResumeNext { err ->
-                try {
-                    convertErrorIfNeeded(err).let { err ->
-                        if (shouldRetryTest(err)) {
-                            try {
-                                // give the server a small grace period before trying again.
-                                sleepUninterruptibly(500, TimeUnit.MILLISECONDS)
+            val watch = Stopwatch.createStarted()
 
-                                logger.warn { "perform retry, calling method $method again" }
-                                method.invoke(api, *args) as Observable<Any>
-                            } catch (error: Exception) {
-                                Observable.error <Any>(error)
-                            }
-
-                        } else {
-                            // forward error if it is not a network problem
-                            Observable.error <Any>(err)
+            try {
+                val result = doInvoke(method, args)
+                if (result is Deferred<*>) {
+                    result.invokeOnCompletion { err ->
+                        if (err !is CancellationException) {
+                            measureApiCall(watch, method, err == null)
                         }
                     }
-                } catch (error: Throwable) {
-                    // error while handling an error? oops!
-                    Observable.error<Any>(error)
+                } else {
+                    measureApiCall(watch, method, true)
                 }
+
+                return result
+
+            } catch (err: Exception) {
+                measureApiCall(watch, method, false)
+                throw err
             }
-        }
-
-        return result
-    }
-
-
-    private fun isHttpError(error: Throwable): Boolean {
-        if (error is HttpErrorException) {
-
-            logger.warn {
-                "Got http error ${error.cause.code()} ${error.cause.message()}, with body: ${error.errorBody}"
-            }
-
-            return error.cause.code() / 100 == 5
-        } else {
-            return false
         }
     }
 
-    companion object {
-        private val logger = logger("ApiProvider")
+    private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
+        val millis = watch.elapsed(TimeUnit.MILLISECONDS)
+
+        Stats.get().time("api.call", millis, "method:${method.name}", "success:$success")
+
+        // track only sync calls.
+        if (method.name == "sync" && singleShotService.firstTimeInHour("track-time:sync")) {
+            Track.trackSyncCall(millis, success)
+        }
     }
 }

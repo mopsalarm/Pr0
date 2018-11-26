@@ -127,7 +127,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         userService.login(username, password)
                 .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
                 .withBusyDialog(this, R.string.login_please_wait)
-                .flatMap { progress -> progress.login.justObservable() }
+                .flatMap { progress -> observableOrEmpty(progress.login) }
                 .interceptLoginFailures()
                 .doOnSubscribe { enableView(false) }
                 .doOnError { enableView(true) }

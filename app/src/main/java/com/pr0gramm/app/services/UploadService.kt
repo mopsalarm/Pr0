@@ -140,7 +140,7 @@ class UploadService(private val api: Api,
         val size = file.length()
 
         // perform the upload!
-        api.upload(body)
+        toObservable { api.upload(body).await() }
                 .doOnEach { Track.upload(size) }
                 .map { response -> State.Uploaded(response.key) }
                 .subscribeOnBackground()
@@ -169,8 +169,7 @@ class UploadService(private val api: Api,
             extraTags = tags.drop(4)
         }
 
-        return api
-                .post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1)
+        return toObservable { api.post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1).await() }
                 .map { postedToState(key, it) }
 
                 .flatMap { state ->
@@ -227,7 +226,7 @@ class UploadService(private val api: Api,
                     val itemId = info.item?.id ?: 0
                     when {
                         info.status == "done" && itemId > 0 -> State.Success(itemId)
-                        info.status == "processing" -> State.Processing()
+                        info.status == "processing" -> State.Processing
                         else -> State.Pending(queue, info.position)
                     }
                 }
@@ -255,7 +254,7 @@ class UploadService(private val api: Api,
         class Uploaded(val key: String) : State()
         class Success(val id: Long) : State()
         class Pending(val queue: Long, val position: Long) : State()
-        class Processing : State()
+        object Processing : State()
         class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
     }
 

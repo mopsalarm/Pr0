@@ -3,11 +3,11 @@ package com.pr0gramm.app.util
 import android.content.Context
 import androidx.annotation.StringRes
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
+import retrofit2.HttpException
 import java.io.EOFException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -122,51 +122,51 @@ object ErrorFormatting {
     private fun makeErrorFormatters(): List<Formatter> {
         val formatters = FormatterList()
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 403 && "cloudflare" in errorBody }
+            check { code() == 403 && "cloudflare" in bodyContent }
             string(R.string.error_cloudflare)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 403 && "<html>" in errorBody }
+            check { code() == 403 && "<html>" in bodyContent }
             string(R.string.error_blocked)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code in listOf(401, 403) }
+            check { code() in listOf(401, 403) }
             string(R.string.error_not_authorized)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 429 }
+            check { code() == 429 }
             string(R.string.error_rate_limited)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 404 }
+            check { code() == 404 }
             string(R.string.error_not_found)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 504 }
+            check { code() == 504 }
             string(R.string.error_proxy_timeout)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code == 522 }
+            check { code() == 522 }
             string(R.string.error_origin_timeout_ddos)
         }
 
-        formatters.add<HttpErrorException> {
+        formatters.add<HttpException> {
             silence()
-            check { code / 100 == 5 }
+            check { code() / 100 == 5 }
             string(R.string.error_service_unavailable)
         }
 
@@ -297,3 +297,9 @@ object ErrorFormatting {
 
     private val formatters = makeErrorFormatters()
 }
+
+private val HttpException.bodyContent: String
+    get() {
+        val body = this.response().errorBody() ?: return ""
+        return kotlin.runCatching { body.string() }.getOrDefault("")
+    }

@@ -11,13 +11,11 @@ import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.Stopwatch
 import com.pr0gramm.app.util.ignoreException
 import com.pr0gramm.app.util.kodein
 import org.kodein.di.LateInitKodein
 import org.kodein.di.erased.instance
 import rx.Observable
-import java.util.concurrent.TimeUnit
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
@@ -186,10 +184,10 @@ object Track {
         fa.setUserProperty(GA_CUSTOM_ADS, adType.toString())
     }
 
-    fun trackSyncCall(watch: Stopwatch, success: Boolean) {
+    fun trackSyncCall(millis: Long, success: Boolean) {
         send("sync_api") {
             putBoolean("success", success)
-            putLong("duration", watch.elapsed(TimeUnit.MILLISECONDS))
+            putLong("duration", millis)
         }
     }
 

@@ -297,11 +297,6 @@ fun View?.removeFromParent() {
     parent?.removeView(this)
 }
 
-fun <T : Any> T?.justObservable(): Observable<T> {
-    return this?.let { Observable.just(it) } ?: Observable.empty()
-}
-
-
 inline fun <T> KLogger.time(name: String, supplier: () -> T): T {
     return time({ name }, supplier)
 }
@@ -599,4 +594,8 @@ fun asClosable(value: Any): Closeable {
             }
         }
     }
+}
+
+fun <T : Any> observableOrEmpty(value: T?): Observable<T> {
+    return if (value == null) Observable.empty() else Observable.just(value)
 }

@@ -10,6 +10,7 @@ import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
@@ -139,7 +140,7 @@ class UserService(private val api: Api,
     }
 
     fun login(username: String, password: String): Observable<LoginProgress> {
-        return api.login(username, password).flatMap { login ->
+        return toObservable { api.login(username, password).await() }.flatMap { login ->
             val observables = ArrayList<Observable<*>>()
 
             if (login.success) {
@@ -263,14 +264,14 @@ class UserService(private val api: Api,
      * Retrieves the user data and stores part of the data in the database.
      */
     fun info(username: String): Observable<Api.Info> {
-        return api.info(username, null)
+        return toObservable { api.info(username, null).await() }
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
     fun info(username: String, contentTypes: Set<ContentType>): Observable<Api.Info> {
-        return api.info(username, ContentType.combine(contentTypes))
+        return toObservable { api.info(username, ContentType.combine(contentTypes)).await() }
     }
 
     /**
@@ -279,7 +280,7 @@ class UserService(private val api: Api,
      * @return The info, if the user is currently signed in.
      */
     fun info(): Observable<Api.Info> {
-        return name.justObservable().flatMap { info(it) }
+        return observableOrEmpty(name).flatMap { info(it) }
     }
 
     /**
