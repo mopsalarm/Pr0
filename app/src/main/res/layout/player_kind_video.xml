@@ -12,4 +12,5 @@
         android:layout_centerHorizontal="true"/>
 
     <include layout="@layout/player_progress"/>
+    <include layout="@layout/player_video_skipper"/>
 </merge>

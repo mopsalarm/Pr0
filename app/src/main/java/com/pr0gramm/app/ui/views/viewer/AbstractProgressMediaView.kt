@@ -54,6 +54,11 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         updateTimeline()
     }
 
+
+    override fun onDoubleTap(event: MotionEvent): Boolean {
+        return super.onDoubleTap(event)
+    }
+
     override fun onSingleTap(event: MotionEvent): Boolean {
         if (userSeekable()) {
             if (seekCurrentlyVisible()) {
