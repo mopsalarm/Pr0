@@ -1,13 +1,13 @@
 package com.pr0gramm.app.services
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.MoshiInstance
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
-import rx.Observable
 
 
 /**
@@ -20,21 +20,18 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .validateEagerly(true)
             .build()
             .create(Api::class.java)
 
-    /**
-     * Returns an observable that might produce a message, if one is available.
-     */
-    fun fetch(): Observable<Message> {
-        return api.get()
+    suspend fun fetch(): Message {
+        return api.get().await()
     }
 
     private interface Api {
         @GET("info-message.json")
-        fun get(): Observable<Message>
+        fun get(): Deferred<Message>
     }
 
     @JsonClass(generateAdapter = true)

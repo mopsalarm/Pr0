@@ -78,8 +78,8 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 .socketFactory(SmallBufferSocketFactory())
 
                 .cookieJar(cookieHandler)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)

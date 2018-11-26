@@ -5,7 +5,6 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.await
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.*
 import kotlinx.coroutines.launch
@@ -45,8 +44,10 @@ class SyncService(private val userService: UserService,
         logger.info { "Doing some statistics related trackings" }
         Track.statistics()
 
-        UpdateChecker().check().ignoreError().subscribe {
-            notificationService.showUpdateNotification(it)
+        UpdateChecker().queryAll().let { response ->
+            if (response is UpdateChecker.Response.UpdateAvailable) {
+                notificationService.showUpdateNotification(response.update)
+            }
         }
     }
 

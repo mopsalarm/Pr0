@@ -32,6 +32,7 @@ import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
+import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import org.kodein.di.erased.instance
@@ -182,10 +183,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun checkForInfoMessage() {
-        infoMessageService.fetch()
-                .onErrorResumeEmpty()
-                .bindToLifecycleAsync()
-                .subscribe { showInfoMessage(it) }
+        launch {
+            ignoreException {
+                val message = infoMessageService.fetch()
+                showInfoMessage(message)
+            }
+        }
     }
 
     private fun shouldShowFeedbackReminder(): Boolean {
@@ -455,7 +458,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                         .delay((if (updateCheckDelay) 10 else 0).toLong(), TimeUnit.SECONDS, mainThread())
                         .bindToLifecycle(this)
                         .subscribe {
-                            UpdateDialogFragment.checkForUpdates(this, false)
+                            UpdateDialogFragment.checkForUpdatesInBackground(this)
                         }
             }
         }

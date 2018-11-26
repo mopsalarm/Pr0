@@ -199,7 +199,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
             when (preference?.key) {
                 "pref_pseudo_update" -> {
                     val activity = activity as BaseAppCompatActivity
-                    UpdateDialogFragment.checkForUpdates(activity, true)
+                    UpdateDialogFragment.checkForUpdatesInteractive(activity)
                     return true
                 }
 

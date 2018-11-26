@@ -7,100 +7,104 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
 import com.pr0gramm.app.util.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.supervisorScope
 import org.kodein.di.erased.instance
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.GET
+import retrofit2.http.Url
 import rx.Observable
 import rx.functions.Action1
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
 
 /**
  * Class to perform an update check.
  */
 class UpdateChecker {
     private val currentVersion = AndroidUtility.buildVersionCode()
-    private val endpoints = updateUrls(Settings.get().useBetaChannel)
-    private val converterFactory = MoshiConverterFactory.create(MoshiInstance)
 
-    private fun check(endpoint: String): Observable<Update> {
-        return newRestAdapter(endpoint)
-                .create(UpdateApi::class.java)
-                .fetchUpdate()
-                .filter { update ->
-                    logger.info { "Installed v$currentVersion, found update v${update.version} at $endpoint" }
+    private val updateApi = Retrofit.Builder()
+            .baseUrl("https://example.com")
+            .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .validateEagerly(true)
+            .build().create<UpdateApi>()
 
-                    // filter out if up to date
-                    update.version > currentVersion
-                }
-                .map { update ->
-                    // rewrite url to make it absolute
-                    var apk = update.apk
-                    if (!apk.startsWith("http")) {
-                        apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString()
-                    }
-
-                    logger.info { "Got new update at url $apk" }
-                    update.copy(apk = apk)
-                }
+    private val endpoints: List<String> = mutableListOf<String>().also { urls ->
+        if (Settings.get().useBetaChannel) {
+            urls += "https://pr0.wibbly-wobbly.de/beta/update.json"
+            urls += "https://github.com/mopsalarm/pr0gramm-updates/raw/beta/update.json"
+            urls += "https://app.pr0gramm.com/updates/beta/update.json"
+        } else {
+            urls += "https://pr0.wibbly-wobbly.de/stable/update.json"
+            urls += "https://github.com/mopsalarm/pr0gramm-updates/raw/master/update.json"
+            urls += "https://app.pr0gramm.com/updates/stable/update.json"
+        }
     }
 
-    fun check(): Observable<Update> {
-        val updates = Observable.from(endpoints).concatMap { endpoint ->
-            check(endpoint)
-                    .doOnError { err -> logger.warn {"Could not check for update at $endpoint: $err" } }
-                    .onErrorResumeEmpty()
-                    .subscribeOn(BackgroundScheduler)
+    private suspend fun queryOne(endpoint: String): Update {
+        val update = updateApi.fetchUpdate(endpoint).await()
+
+        // make path absolute if needed
+        var apk = update.apk
+        if (!apk.startsWith("http")) {
+            apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString()
         }
 
-        return updates.take(1)
+        // use this one as our update.
+        return update.copy(apk = apk)
     }
 
-    private fun newRestAdapter(endpoint: String): Retrofit {
-        return Retrofit.Builder()
-                .baseUrl(endpoint)
-                .addConverterFactory(converterFactory)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(BackgroundScheduler))
-                .build()
+    suspend fun queryAll(): Response {
+        // start all jobs in parallel
+        val tasks = supervisorScope {
+            endpoints.map { async { queryOne(it) } }
+        }
+
+        // wait for them to finish
+        val results = tasks.map { kotlin.runCatching { it.await() } }
+
+        if (results.all { it.isFailure }) {
+            val err = results.first().exceptionOrNull() ?: return Response.NoUpdate
+            return Response.Error(err)
+        }
+
+        val update = results
+                .mapNotNull { it.getOrNull() }.maxBy { it.version }
+                ?.takeIf { it.version > currentVersion }
+                ?: return Response.NoUpdate
+
+        return Response.UpdateAvailable(update)
+    }
+
+    sealed class Response {
+        object NoUpdate : Response()
+
+        class Error(val err: Throwable) : Response()
+
+        class UpdateAvailable(val update: Update) : Response()
     }
 
     private interface UpdateApi {
-        @GET("update.json")
-        fun fetchUpdate(): Observable<Update>
+        @GET
+        fun fetchUpdate(@Url url: String): Deferred<Update>
     }
 
     companion object {
         private val logger = logger("UpdateChecker")
-
-        /**
-         * Returns the Endpoint-URL that is to be queried
-         */
-        private fun updateUrls(betaChannel: Boolean): List<String> {
-            val urls = ArrayList<String>()
-
-            if (betaChannel) {
-                urls.add("https://pr0.wibbly-wobbly.de/beta/")
-                urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/")
-                urls.add("https://app.pr0gramm.com/updates/beta/")
-            } else {
-                urls.add("https://pr0.wibbly-wobbly.de/stable/")
-                urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/")
-                urls.add("https://app.pr0gramm.com/updates/stable/")
-            }
-
-            return urls
-        }
 
 
         fun download(activity: androidx.fragment.app.FragmentActivity, update: Update) = with(activity.directKodein) {
