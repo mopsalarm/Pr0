@@ -278,7 +278,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
-            return this@MediaView.onDoubleTap()
+            return this@MediaView.onDoubleTap(e)
         }
 
         override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
@@ -286,8 +286,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
     }
 
-    protected fun onDoubleTap(): Boolean {
-        return tapListener?.onDoubleTap() ?: false
+    protected open fun onDoubleTap(event: MotionEvent): Boolean {
+        return tapListener?.onDoubleTap(event) ?: false
 
     }
 
@@ -442,7 +442,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     interface TapListener {
         fun onSingleTap(event: MotionEvent): Boolean
 
-        fun onDoubleTap(): Boolean
+        fun onDoubleTap(event: MotionEvent): Boolean
     }
 
     private class PreviewTarget(private val logger: KLogger, mediaView: MediaView) : Action1<Bitmap> {

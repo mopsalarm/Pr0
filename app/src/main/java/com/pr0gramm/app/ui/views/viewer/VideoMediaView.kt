@@ -9,6 +9,7 @@ import android.media.AudioManager.AUDIOFOCUS_LOSS
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
 import android.os.Build
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -35,6 +36,10 @@ import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
+import android.view.WindowManager
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.graphics.Point
 
 @SuppressLint("ViewConstructor")
 class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(config, R.layout.player_kind_video), VideoPlayer.Callbacks {
@@ -101,6 +106,43 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     override fun userSeekable(): Boolean {
         return true
+    }
+
+    override fun onDoubleTap(event: MotionEvent): Boolean {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = wm.defaultDisplay
+        val size = Point()
+        display.getSize(size)
+
+        val tapPosition = event.getX() / size.x
+
+        val skipFraction = if (videoPlayer.duration > 4500) 0.05f else 0.1f
+
+        if (tapPosition < 0.25) {
+            userSeekTo(videoPlayer.progress - skipFraction)
+            animateMediaControls(findViewById(R.id.rewind))
+
+        } else if (tapPosition > 0.75) {
+            userSeekTo(videoPlayer.progress + skipFraction)
+            animateMediaControls(findViewById(R.id.fast_forward))
+        } else {
+            return super.onDoubleTap(event)
+        }
+
+        return false
+    }
+
+    fun animateMediaControls(imageView: ImageView) {
+        imageView.visibility = View.VISIBLE
+        ObjectAnimator.ofPropertyValuesHolder(imageView,
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 0.6f, 0.7f, 0.6f, 0f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 0.9f, 1.3f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.9f, 1.3f)).setDuration(500).apply {
+
+            start()
+
+            addListener(hideViewEndAction(imageView))
+        }
     }
 
     override fun playMedia() {

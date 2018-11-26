@@ -137,8 +137,8 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
             return tapListener?.onSingleTap(event) ?: false
         }
 
-        override fun onDoubleTap(): Boolean {
-            return tapListener?.onDoubleTap() ?: false
+        override fun onDoubleTap(event: MotionEvent): Boolean {
+            return tapListener?.onDoubleTap(event) ?: false
         }
     }
 }

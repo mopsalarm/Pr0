@@ -916,7 +916,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 return true
             }
 
-            override fun onDoubleTap(): Boolean {
+            override fun onDoubleTap(event: MotionEvent): Boolean {
                 if (settings.doubleTapToUpvote) {
                     launch { doVoteOnDoubleTap() }
                 }
