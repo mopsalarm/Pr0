@@ -7,8 +7,6 @@ import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.services.gif.GifToVideoService
-import com.pr0gramm.app.services.gif.MyGifToVideoService
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
@@ -46,7 +44,6 @@ fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<FeedbackService>() with singleton { FeedbackService(instance()) }
     bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance()) }
     bind<GifDrawableLoader>() with singleton { GifDrawableLoader(instance("cache"), instance()) }
-    bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }

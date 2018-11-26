@@ -28,12 +28,6 @@
                 android:key="prefcat_behaviour__datausage"
                 android:title="@string/prefcat_behaviour__datausage_title">
 
-                <SwitchPreferenceCompat
-                    android:defaultValue="false"
-                    android:key="pref_convert_gif_to_webm"
-                    android:summaryOn="@string/pref_convert_gif_to_webm"
-                    android:title="@string/pref_convert_gif_to_webm"/>
-
                 <ListPreference
                     android:defaultValue="@string/pref_confirm_play_on_mobile_default"
                     android:entries="@array/pref_confirm_play_on_mobile_human"

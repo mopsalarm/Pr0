@@ -36,21 +36,13 @@ object MediaViews {
             VideoMediaView(config)
 
         } else if (uri.mediaType == MediaUri.MediaType.GIF) {
-            if (shouldUseGifToWebm(uri, settings)) {
-                Gif2VideoMediaView(config)
-            } else {
-                GifMediaView(config)
-            }
+            GifMediaView(config)
 
         } else {
             ImageMediaView(config)
         }
     }
 
-
-    private fun shouldUseGifToWebm(uri: MediaUri, settings: Settings): Boolean {
-        return !uri.isLocal && settings.convertGifToWebm
-    }
 
     @JvmStatic
     fun adaptFragmentLifecycle(lifecycle: Observable<FragmentEvent>, view: MediaView) {

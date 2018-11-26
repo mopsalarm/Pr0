@@ -57,9 +57,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return result
         }
 
-    val convertGifToWebm: Boolean
-        get() = preferences.getBoolean("pref_convert_gif_to_webm", false)
-
     val downloadLocation: String
         get() {
             val def = app.getString(R.string.pref_downloadLocation_default)
