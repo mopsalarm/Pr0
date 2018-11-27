@@ -1258,8 +1258,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (!searchContainerIsVisible())
             return
 
-        searchContainer.animateCompat()
-                .withEndAction { searchContainer.visible = false }
+        val containerView = this.searchContainer
+        containerView.animateCompat()
+                .withEndAction { containerView.visible = false }
                 .alpha(0f)
 
         val height = view?.height ?: 0
