@@ -106,7 +106,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     override fun onDoubleTap(event: MotionEvent): Boolean {
-        if (userSeekable()) {
+        if (userSeekable() && settings.doubleTapToSeek) {
             val tapPosition = event.x / width
 
             // always seek 10 seconds or 25%, whatever is less
@@ -136,12 +136,11 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_X, -xTrans, xTrans)).apply {
 
             duration = 300
-
             interpolator = AccelerateDecelerateInterpolator()
 
-            start()
-
             doOnEnd { imageView.visible = false }
+
+            start()
         }
     }
 

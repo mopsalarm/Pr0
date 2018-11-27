@@ -72,6 +72,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val doubleTapToUpvote: Boolean
         get() = preferences.getBoolean("pref_double_tap_to_upvote", true)
 
+    val doubleTapToSeek: Boolean
+        get() = preferences.getBoolean("pref_double_tap_to_seek", true)
+
     val fullscreenZoomView: Boolean
         get() = preferences.getBoolean("pref_fullscreen_zoom_view", true)
 

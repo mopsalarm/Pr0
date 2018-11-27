@@ -62,8 +62,10 @@
     <string name="logout">Abmelden</string>
     <string name="post_comment">Absenden</string>
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
-    <string name="pref_double_tap_to_upvote">Doppelklick für Upvote</string>
+    <string name="pref_double_tap_to_upvote">Doppelttap für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltap auf ein Bild oder Video führt einen Upvote aus</string>
+    <string name="pref_double_tap_to_seek">Doppelttap zum vorspulen</string>
+    <string name="pref_double_tap_to_seek_summary">Doppelttap auf den Rand eines Videos spult zehn Sekunden vor oder zurück.</string>
     <string name="could_not_load_feed_https">Kann den Feed nicht laden.</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>

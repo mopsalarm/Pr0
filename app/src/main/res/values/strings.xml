@@ -67,8 +67,11 @@
     <string name="logout">Logout</string>
     <string name="are_you_sure_to_logout">Are you sure to logout on this device?</string>
     <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past seven days.</string>
+
     <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
-    <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
+    <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote.</string>
+    <string name="pref_double_tap_to_seek">Seek with double tap</string>
+    <string name="pref_double_tap_to_seek_summary">Double tap on the side of a video to seek the video ~10s.</string>
 
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed_https">Can not load the feed. Please try again.</string>
