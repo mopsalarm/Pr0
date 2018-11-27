@@ -108,9 +108,9 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.visible = true
 
         if (imageView.alpha == 0f) {
-            imageView.animate().alpha(1f)
-                    .setDuration(MediaView.ANIMATION_DURATION.toLong())
-                    .setListener(endAction { super.onMediaShown() })
+            imageView.animateCompat().alpha(1f)
+                    .setDuration(MediaView.ANIMATION_DURATION)
+                    .withEndAction { super.onMediaShown() }
                     .start()
         } else {
             super.onMediaShown()

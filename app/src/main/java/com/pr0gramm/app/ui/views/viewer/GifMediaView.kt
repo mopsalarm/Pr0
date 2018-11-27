@@ -9,7 +9,7 @@ import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.endAction
+import com.pr0gramm.app.util.animateCompat
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import pl.droidsonroids.gif.GifDrawable
@@ -59,9 +59,9 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
                 viewAspect = gif.intrinsicWidth.toFloat() / gif.intrinsicHeight
 
                 if (isPlaying) {
-                    imageView.animate().alpha(1f)
-                            .setListener(endAction { onMediaShown() })
-                            .setDuration(MediaView.ANIMATION_DURATION.toLong())
+                    imageView.animateCompat().alpha(1f)
+                            .withEndAction { onMediaShown() }
+                            .setDuration(MediaView.ANIMATION_DURATION)
                             .start()
                 } else {
                     imageView.alpha = 1f

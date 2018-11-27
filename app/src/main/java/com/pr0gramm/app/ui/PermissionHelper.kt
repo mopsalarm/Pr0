@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.collection.ArrayMap
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 
 /**
  */
@@ -42,9 +43,17 @@ class PermissionHelper(private val activity: Activity) : ActivityCompat.OnReques
             callback()
 
         } else if (permissions.isNotEmpty()) {
-            // permission not granted. do nothing
+            val index = grantResults.indexOfFirst { it == PackageManager.PERMISSION_DENIED }
+            val permission = permissions.getOrNull(index)
+
+            // show error dialog
+            if (permission != null) {
+                ErrorDialogFragment.defaultOnError().call(PermissionNotGranted(permission))
+            }
         }
     }
+
+    class PermissionNotGranted(val permission: String) : RuntimeException()
 
     companion object {
         private var nextId = 0

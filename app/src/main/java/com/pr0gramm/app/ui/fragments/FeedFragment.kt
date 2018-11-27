@@ -1223,8 +1223,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (animated) {
             searchContainer.alpha = 0f
 
-            searchContainer.animate()
-                    .setListener(endAction(searchView) { it.requestSearchFocus() })
+            searchContainer.animateCompat()
+                    .withEndAction { searchView.requestSearchFocus() }
                     .alpha(1f)
 
             searchView.translationY = (-(0.1 * view.height).toInt()).toFloat()
@@ -1258,8 +1258,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (!searchContainerIsVisible())
             return
 
-        searchContainer.animate()
-                .setListener(hideViewEndAction(searchContainer))
+        searchContainer.animateCompat()
+                .withEndAction { searchContainer.visible = false }
                 .alpha(0f)
 
         val height = view?.height ?: 0

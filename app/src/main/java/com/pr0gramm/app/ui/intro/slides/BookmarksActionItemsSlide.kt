@@ -26,7 +26,7 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
             return listOf(
                     BookmarkActionItem(bookmarkService, "Kein Ton", f.withTags("! -f:sound")),
                     BookmarkActionItem(bookmarkService, "Nur Bilder", f.withTags("! -webm -gif")),
-                    BookmarkActionItem(bookmarkService, "Original Content", f.withTags("'original content'")),
+                    BookmarkActionItem(bookmarkService, "Original Content", f.withTags("! 'original content'")),
                     BookmarkActionItem(bookmarkService, "0815 & Süßvieh", f.withTags("! 0815|süßvieh|'ficken halt'|'aber schicks keinem'")),
                     BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("! (-f:sound | (untertitel & -404))")),
                     BookmarkActionItem(bookmarkService, "Keine Videos", f.withTags("! -webm")),

@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -11,9 +13,11 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.jakewharton.rxbinding.view.detaches
@@ -28,18 +32,11 @@ import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.MainThreadScheduler
-import com.pr0gramm.app.util.hideViewEndAction
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
-import android.view.WindowManager
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.graphics.Point
 
 @SuppressLint("ViewConstructor")
 class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(config, R.layout.player_kind_video), VideoPlayer.Callbacks {
@@ -109,39 +106,42 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     override fun onDoubleTap(event: MotionEvent): Boolean {
-        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = wm.defaultDisplay
-        val size = Point()
-        display.getSize(size)
+        if (userSeekable()) {
+            val tapPosition = event.x / width
 
-        val tapPosition = event.getX() / size.x
+            // always seek 10 seconds or 25%, whatever is less
+            val skipFraction = (10000 / videoPlayer.duration.toFloat()).coerceAtMost(0.25f)
 
-        val skipFraction = if (videoPlayer.duration > 4500) 0.05f else 0.1f
+            if (tapPosition < 0.25) {
+                userSeekTo(videoPlayer.progress - skipFraction)
+                animateMediaControls(find(R.id.rewind), direction = -1)
+                return true
 
-        if (tapPosition < 0.25) {
-            userSeekTo(videoPlayer.progress - skipFraction)
-            animateMediaControls(findViewById(R.id.rewind))
-
-        } else if (tapPosition > 0.75) {
-            userSeekTo(videoPlayer.progress + skipFraction)
-            animateMediaControls(findViewById(R.id.fast_forward))
-        } else {
-            return super.onDoubleTap(event)
+            } else if (tapPosition > 0.75) {
+                userSeekTo(videoPlayer.progress + skipFraction)
+                animateMediaControls(find(R.id.fast_forward), direction = +1)
+                return true
+            }
         }
 
-        return false
+        return super.onDoubleTap(event)
     }
 
-    fun animateMediaControls(imageView: ImageView) {
-        imageView.visibility = View.VISIBLE
+    private fun animateMediaControls(imageView: ImageView, direction: Int) {
+        imageView.visible = true
+
+        val xTrans = imageView.width * 0.25f * direction
         ObjectAnimator.ofPropertyValuesHolder(imageView,
-                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 0.6f, 0.7f, 0.6f, 0f),
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 0.9f, 1.3f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.9f, 1.3f)).setDuration(500).apply {
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 0.7f, 0f),
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_X, -xTrans, xTrans)).apply {
+
+            duration = 300
+
+            interpolator = AccelerateDecelerateInterpolator()
 
             start()
 
-            addListener(hideViewEndAction(imageView))
+            doOnEnd { imageView.visible = false }
         }
     }
 
@@ -180,10 +180,10 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         muteButtonView.animate().cancel()
 
         if (show) {
-            muteButtonView.animate()
+            muteButtonView.animateCompat()
                     .alpha(0f)
                     .translationY(muteButtonView.height.toFloat())
-                    .setListener(hideViewEndAction(muteButtonView))
+                    .withEndAction { muteButtonView.visible = false }
                     .setInterpolator(AccelerateInterpolator())
                     .start()
         } else {
@@ -340,7 +340,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     override fun userSeekTo(fraction: Float) {
         logger.info { "User wants to seek to position $fraction" }
-        videoPlayer.seekTo((fraction * videoPlayer.duration).toInt())
+        videoPlayer.seekTo((fraction.coerceIn(0f, 1f) * videoPlayer.duration).toInt())
     }
 
     private val afChangeListener = object : AudioManager.OnAudioFocusChangeListener {

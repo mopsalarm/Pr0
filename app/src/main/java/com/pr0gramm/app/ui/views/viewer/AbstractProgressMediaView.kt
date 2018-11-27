@@ -10,8 +10,9 @@ import android.widget.SeekBar
 import androidx.annotation.LayoutRes
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.hideViewEndAction
+import com.pr0gramm.app.util.animateCompat
 import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.visible
 
 /**
  */
@@ -55,10 +56,6 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
 
-    override fun onDoubleTap(event: MotionEvent): Boolean {
-        return super.onDoubleTap(event)
-    }
-
     override fun onSingleTap(event: MotionEvent): Boolean {
         if (userSeekable()) {
             if (seekCurrentlyVisible()) {
@@ -95,10 +92,10 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
 
         if (viewToHide.visibility == View.VISIBLE) {
             viewToHide.translationY = 0f
-            viewToHide.animate()
+            viewToHide.animateCompat()
                     .alpha(0f)
                     .translationY(deltaY.toFloat())
-                    .setListener(hideViewEndAction(viewToHide))
+                    .withEndAction { viewToHide.visible = false }
                     .setInterpolator(AccelerateInterpolator())
                     .start()
 

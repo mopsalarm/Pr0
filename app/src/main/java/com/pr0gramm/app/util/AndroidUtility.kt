@@ -1,7 +1,5 @@
 package com.pr0gramm.app.util
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -28,6 +26,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
+import androidx.core.view.ViewCompat
+import androidx.core.view.ViewPropertyAnimatorCompat
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
@@ -36,7 +36,6 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl
 import retrofit2.HttpException
 import rx.Completable
 import rx.util.async.Async
@@ -373,28 +372,6 @@ fun Throwable.getMessageWithCauses(): String {
     }
 }
 
-fun endAction(action: () -> Unit): Animator.AnimatorListener {
-    return object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator) {
-            action()
-        }
-    }
+fun View.animateCompat(): ViewPropertyAnimatorCompat {
+    return ViewCompat.animate(this)
 }
-
-inline fun <T : View> endAction(view: T, crossinline action: (T) -> Unit): Animator.AnimatorListener {
-    return object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator?) {
-            action(view)
-        }
-    }
-}
-
-fun hideViewEndAction(view: View): Animator.AnimatorListener {
-    return object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator?) {
-            view.visible = false
-        }
-    }
-}
-
-fun Uri.toHttpUrl(): HttpUrl = HttpUrl.parse(this.toString())!!

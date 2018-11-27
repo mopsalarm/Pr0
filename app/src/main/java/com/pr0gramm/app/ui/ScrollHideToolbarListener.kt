@@ -1,15 +1,15 @@
 package com.pr0gramm.app.ui
 
 import android.view.View
-import android.view.ViewPropertyAnimator
-import com.pr0gramm.app.util.endAction
+import androidx.core.view.ViewPropertyAnimatorCompat
+import com.pr0gramm.app.util.animateCompat
 import com.pr0gramm.app.util.visible
 
 /**
  */
 class ScrollHideToolbarListener(private val toolbar: View) {
     private var toolbarMarginOffset: Int = 0
-    private var animation: ViewPropertyAnimator? = null
+    private var animation: ViewPropertyAnimatorCompat? = null
     private var hidden: Boolean = false
 
     init {
@@ -40,17 +40,15 @@ class ScrollHideToolbarListener(private val toolbar: View) {
                 toolbar.visible = true
             }
 
-            animation = toolbar.animate()
+            animation = toolbar.animateCompat()
                     .translationY(y.toFloat())
                     .setDuration(250)
-                    .setListener(endAction(toolbar) {
+                    .withEndAction {
                         if (!targetVisible) {
-                            it.visible = false
+                            toolbar.visible = false
                         }
-                    })
-                    .apply {
-                        start()
                     }
+                    .apply { start() }
         } else {
             toolbar.translationY = y.toFloat()
             toolbar.visible = targetVisible

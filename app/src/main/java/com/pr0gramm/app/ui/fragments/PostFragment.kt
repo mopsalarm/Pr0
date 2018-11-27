@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
+import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -754,9 +755,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ofFloat(View.SCALE_X, 0.7f, 1.3f),
                 ofFloat(View.SCALE_Y, 0.7f, 1.3f)).apply {
 
+            doOnEnd { voteAnimationIndicator.visible = false }
             start()
-
-            addListener(hideViewEndAction(voteAnimationIndicator))
         }
     }
 

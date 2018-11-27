@@ -480,9 +480,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     }
 
     companion object {
-        private val MIN_PREVIEW_ASPECT = 1 / 30.0f
+        private const val MIN_PREVIEW_ASPECT = 1 / 30.0f
 
-        internal const val ANIMATION_DURATION = 500
+        internal const val ANIMATION_DURATION = 500L
 
         private val DEFAULT_PARAMS = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

@@ -65,11 +65,21 @@ data class Bookmark(val title: String, private val filterTags: String?, private 
 
         fun all(database: SQLiteDatabase): List<Bookmark> {
             val query = "SELECT title, filter_tags, filter_username, filter_feed_type FROM bookmark ORDER BY title ASC"
-            return database.rawQuery(query, null).mapToList {
+
+            val bookmarks = database.rawQuery(query, null).mapToList {
                 Bookmark(title = getString(0),
                         filterTags = getString(1),
                         filterUsername = getString(2),
                         filterFeedType = getString(3))
+            }
+
+            return bookmarks.map { bookmark ->
+                // i fucked up, so lets add hacky code to fix my mistake
+                if (bookmark.filterTags == "'original content'") {
+                    bookmark.copy(filterTags = "! 'original content'")
+                }
+
+                bookmark
             }
         }
     }
