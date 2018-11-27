@@ -612,15 +612,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostMedia() {
-        (activity as PermissionHelperActivity)
-                .requirePermission(WRITE_EXTERNAL_STORAGE)
-                .compose(bindUntilEventAsync(FragmentEvent.DESTROY))
-                .subscribeWithErrorHandling { downloadPostWithPermissionGranted() }
+        (activity as PermissionHelperActivity).requirePermission(WRITE_EXTERNAL_STORAGE) {
+            downloadPostWithPermissionGranted()
+        }
     }
 
     private fun downloadPostWithPermissionGranted() {
-        val preview = previewInfo.preview?.let { it as? BitmapDrawable }?.bitmap
-                ?: previewInfo.fancy?.valueOrNull
+        val bitmapDrawable = previewInfo.preview as? BitmapDrawable
+        val preview = bitmapDrawable?.bitmap ?: previewInfo.fancy?.valueOrNull
 
         downloadService
                 .downloadWithNotification(feedItem, preview)

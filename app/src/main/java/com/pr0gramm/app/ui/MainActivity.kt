@@ -619,8 +619,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun requirePermission(permission: String): Observable<Void> {
-        return permissionHelper.requirePermission(permission)
+    override fun requirePermission(permission: String, callback: () -> Unit) {
+        return permissionHelper.requirePermission(permission, callback)
     }
 
     override fun showUploadBottomSheet() {
