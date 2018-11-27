@@ -1,5 +1,26 @@
 [
   {
+    "version": 156,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Zweifaches Tippen am Rand eines Videos springt ~10sek vor oder zurück (Danke @VladimirObama)"
+      },
+      {
+        "type": "Neu",
+        "change": "Parallaxscrolling kann nun abgeschaltet werden (@VladimirObama)"
+      },
+      {
+        "type": "Fix",
+        "change": "Fehlermeldungen werden wieder korrekt angezeigt"
+      },
+      {
+        "type": "Fix",
+        "change": "Diverse Bugfixes und Geschwindigkeitsverbesserungen"
+      }
+    ]
+  },
+  {
     "version": 155,
     "changes": [
       {
