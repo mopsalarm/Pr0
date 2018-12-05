@@ -44,7 +44,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         fixViewTopOffset(view)
         resetToolbar()
 
-        val feedFragmentArguments = FeedFragment.newArguments(feedFilter, false, null, null)
+        val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
 
         pager.adapter = TabsAdapter(context, childFragmentManager).apply {
             addTab(R.string.action_favorites, FeedFragment::class.java, feedFragmentArguments)

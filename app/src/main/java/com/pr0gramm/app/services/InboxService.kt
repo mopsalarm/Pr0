@@ -16,6 +16,7 @@ import rx.subjects.BehaviorSubject
  * as well as the combined inbox (comments and private messages)
  */
 class InboxService(private val api: Api, private val preferences: SharedPreferences) {
+    private val logger = logger("InboxService")
 
     private val unreadMessagesCount = BehaviorSubject.create(0).toSerialized()
 
@@ -37,15 +38,15 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Gets the list of inbox messages
      */
-    suspend fun inbox(): List<Api.Message> {
-        return api.inboxAll().await().messages
+    suspend fun inbox(olderThan: Instant? = null): List<Api.Message> {
+        return api.inboxAll(olderThan?.millis).await().messages
     }
 
     /**
      * Gets the list of private messages.
      */
-    suspend fun privateMessages(): List<Api.PrivateMessage> {
-        return api.inboxPrivateMessages().await().messages
+    suspend fun privateMessages(olderThan: Instant? = null): List<Api.PrivateMessage> {
+        return api.inboxPrivateMessages(olderThan?.millis).await().messages
     }
 
     /**
@@ -116,8 +117,15 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         api.sendMessage(null, message, receiverId).await()
     }
 
+    suspend fun listConversations(olderThan: Instant? = null): Api.Conversations {
+        return api.listConversations(olderThan?.epochSeconds).await()
+    }
+
+    suspend fun messagesInConversation(name: String, olderThan: Instant? = null): Api.ConversationMessages {
+        return api.messagesWith(name, olderThan?.epochSeconds).await()
+    }
+
     companion object {
-        private val logger = logger("InboxService")
         private val KEY_MAX_READ_MESSAGE_ID = "InboxService.maxReadMessageId"
     }
 }

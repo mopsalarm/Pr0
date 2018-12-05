@@ -54,6 +54,8 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
             return millis < TimeFactory.currentTimeMillis()
         }
 
+    val epochSeconds: Long get() = millis / 1000
+
     constructor(parcel: Parcel) : this(parcel.readLong())
 
     override fun compareTo(other: Instant): Int {

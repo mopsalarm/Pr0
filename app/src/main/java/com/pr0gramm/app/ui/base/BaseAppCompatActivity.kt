@@ -24,7 +24,6 @@ import rx.Subscription
  * A [android.support.v7.app.AppCompatActivity] with dagger injection and stuff.
  */
 abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), KodeinAware, AndroidCoroutineScope {
-    @JvmField
     protected val logger = logger(name)
 
     override val kodein: Kodein by lazy { (this as Context).kodein }

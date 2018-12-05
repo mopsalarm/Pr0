@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -200,6 +201,11 @@ val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 
 fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
 
+fun <V : View> ViewGroup.inflateDetachedChild(@LayoutRes res: Int): V {
+    @Suppress("UNCHECKED_CAST")
+    return layoutInflater.inflate(res, this, false) as V
+}
+
 interface CachedValue<out T> {
     val value: T
 
@@ -211,14 +217,15 @@ object EmptyCache
 inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : CachedValue<T> {
     private var _value: Any? = EmptyCache
 
-    override val value: T get() {
-        if (_value === EmptyCache) {
-            _value = fn()
-        }
+    override val value: T
+        get() {
+            if (_value === EmptyCache) {
+                _value = fn()
+            }
 
-        @Suppress("UNCHECKED_CAST")
-        return _value as T
-    }
+            @Suppress("UNCHECKED_CAST")
+            return _value as T
+        }
 
     override fun invalidate() {
         _value = EmptyCache
@@ -355,13 +362,13 @@ fun <T> Observable<T>.debug(key: String, logger: KLogger? = null): Observable<T>
     debug {
         val log = logger ?: logger("Rx")
         return this
-                .doOnSubscribe { log.info { "$key: onSubscribe"} }
-                .doOnUnsubscribe { log.info { "$key: onUnsubscribe"} }
-                .doOnCompleted { log.info { "$key: onCompleted"} }
-                .doOnError { log.info { "$key: onError($it)"} }
-                .doOnNext { log.info { "$key: onNext($it)"} }
-                .doOnTerminate { log.info { "$key: onTerminate"} }
-                .doAfterTerminate { log.info { "$key: onAfterTerminate"} }
+                .doOnSubscribe { log.info { "$key: onSubscribe" } }
+                .doOnUnsubscribe { log.info { "$key: onUnsubscribe" } }
+                .doOnCompleted { log.info { "$key: onCompleted" } }
+                .doOnError { log.info { "$key: onError($it)" } }
+                .doOnNext { log.info { "$key: onNext($it)" } }
+                .doOnTerminate { log.info { "$key: onTerminate" } }
+                .doAfterTerminate { log.info { "$key: onAfterTerminate" } }
     }
 
     // do nothing if not in debug build.

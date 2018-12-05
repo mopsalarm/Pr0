@@ -1,22 +1,35 @@
 package com.pr0gramm.app.ui.fragments
 
-import com.pr0gramm.app.api.pr0gramm.Api
+import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.ui.MessageAdapter
+import com.pr0gramm.app.ui.Pagination
 import org.kodein.di.erased.instance
 
 /**
  */
-class WrittenCommentFragment : AbstractMessageInboxFragment("WrittenCommentFragment") {
+class WrittenCommentFragment : InboxFragment("WrittenCommentFragment") {
     private val userService: UserService by instance()
 
-    override suspend fun loadContent(): List<Api.Message> {
-        val name = userService.name ?: return listOf()
-
-        val userComments = inboxService.getUserComments(name, ContentType.AllSet)
-        return userComments.comments.map {
-            MessageConverter.of(userComments.user, it)
+    override fun getContentAdapter(): RecyclerView.Adapter<*> {
+        val loader = apiMessageLoader { olderThan ->
+            // TODO use olderThan parameter.
+            val name = userService.name ?: return@apiMessageLoader listOf()
+            val userComments = inboxService.getUserComments(name, ContentType.AllSet)
+            userComments.comments.map {
+                MessageConverter.of(userComments.user, it)
+            }
         }
+
+        val pagination = Pagination(this, loader, Pagination.State.hasMoreState(listOf(), 0))
+
+        // create and initialize the adapter
+        val adapter = MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, pagination)
+        adapter.initialize()
+
+        return adapter
     }
 }

@@ -101,13 +101,24 @@ interface Api {
             @Query("flags") flags: Int?): Deferred<Info>
 
     @GET("/api/inbox/all")
-    fun inboxAll(): Deferred<MessageFeed>
+    fun inboxAll(
+            @Query("older") older: Long?): Deferred<MessageFeed>
 
     @GET("/api/inbox/unread")
     fun inboxUnread(): Deferred<MessageFeed>
 
     @GET("/api/inbox/messages")
-    fun inboxPrivateMessages(): Deferred<PrivateMessageFeed>
+    fun inboxPrivateMessages(
+            @Query("older") older: Long?): Deferred<PrivateMessageFeed>
+
+    @GET("/api/inbox/conversations")
+    fun listConversations(
+            @Query("older") older: Long?): Deferred<Conversations>
+
+    @GET("/api/inbox/messages")
+    fun messagesWith(
+            @Query("with") name: String,
+            @Query("older") older: Long?): Deferred<ConversationMessages>
 
     @GET("/api/profile/comments")
     fun userComments(
@@ -282,7 +293,7 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class Feed(
-            val error: String?,
+            val error: String? = null,
             @Json(name = "items") val _items: List<Item>? = null,
             @Json(name = "atStart") val isAtStart: Boolean = false,
             @Json(name = "atEnd") val isAtEnd: Boolean = false) {
@@ -349,7 +360,7 @@ interface Api {
     data class Login(
             val success: Boolean,
             val identifier: String?,
-            @Json(name = "ban") val banInfo: BanInfo?) {
+            @Json(name = "ban") val banInfo: BanInfo? = null) {
 
         @JsonClass(generateAdapter = true)
         data class BanInfo(
@@ -549,6 +560,31 @@ interface Api {
     data class TagTopList(
             val tags: List<String> = listOf(),
             val blacklist: List<String> = listOf())
+
+    @JsonClass(generateAdapter = true)
+    data class Conversations(
+            val conversations: List<Conversation>,
+            val atEnd: Boolean)
+
+    @JsonClass(generateAdapter = true)
+    data class Conversation(
+            val lastMessage: Instant,
+            val mark: Int,
+            val name: String,
+            val unreadCount: Int)
+
+    @JsonClass(generateAdapter = true)
+    data class ConversationMessages(
+            val atEnd: Boolean,
+            val messages: List<ConversationMessage>)
+
+    @JsonClass(generateAdapter = true)
+    data class ConversationMessage(
+            val id: Long,
+            @Json(name="created") val creationTime: Instant,
+            val message: String,
+            val sent: Boolean,
+            val read: Boolean,
+            val name: String,
+            val mark: Int)
 }
-
-

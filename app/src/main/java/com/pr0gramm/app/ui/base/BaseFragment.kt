@@ -3,6 +3,8 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
@@ -79,5 +81,10 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
             onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
 
         return subscribeWithErrorHandling(childFragmentManager, onComplete, onNext)
+    }
+
+    fun setTitle(title: String) {
+        val activity = activity as? AppCompatActivity ?: return
+        activity.title = title
     }
 }

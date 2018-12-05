@@ -12,7 +12,8 @@ class FavedCommentFragment : AbstractMessageInboxFragment("FavedCommentFragment"
     private val favedCommentService: FavedCommentService by instance()
 
     override suspend fun loadContent(): List<Api.Message> {
-        return favedCommentService.list(settings.contentType)
-                .map { FavedCommentService.commentToMessage(it) }
+        return favedCommentService.list(settings.contentType).map {
+            FavedCommentService.commentToMessage(it)
+        }
     }
 }

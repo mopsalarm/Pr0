@@ -14,8 +14,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.ui.DelegatedAsyncListAdapter
-import com.pr0gramm.app.ui.SimpleItemAdapterDelegate
+import com.pr0gramm.app.ui.DelegateAdapter
+import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
 import com.pr0gramm.app.ui.staticLayoutAdapterDelegate
 import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
@@ -31,7 +31,7 @@ private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
 }
 
 class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostActions)
-    : DelegatedAsyncListAdapter<PostAdapter.Item>(ItemCallback(), name = "PostAdapter") {
+    : DelegateAdapter<PostAdapter.Item>(ItemCallback(), name = "PostAdapter") {
 
     init {
         setHasStableIds(true)
@@ -41,10 +41,10 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
         delegates += TagsViewHolderAdapterDelegate(postActions)
         delegates += CommentPostLineAdapterDelegate(postActions)
         delegates += PlaceholderItemAdapterDelegate
-        delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading) { it === Item.CommentsLoadingItem }
-        delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err) { it === Item.LoadErrorItem }
-        delegates += staticLayoutAdapterDelegate(R.layout.comments_item_deleted) { it === Item.PostIsDeletedItem }
-        delegates += staticLayoutAdapterDelegate(R.layout.comments_no_account) { it === Item.NoCommentsWithoutAccount }
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading, Item.CommentsLoadingItem)
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err, Item.LoadErrorItem)
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_item_deleted, Item.PostIsDeletedItem)
+        delegates += staticLayoutAdapterDelegate(R.layout.comments_no_account, Item.NoCommentsWithoutAccount)
     }
 
     override fun getItemId(position: Int): Long {
@@ -96,9 +96,7 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
 }
 
 private class CommentItemAdapterDelegate(private val commentActionListener: CommentView.Listener)
-    : SimpleItemAdapterDelegate<PostAdapter.Item.CommentItem, CommentView>() {
-
-    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.CommentItem
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, CommentView>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentView {
         return CommentView(parent, commentActionListener)
@@ -110,9 +108,7 @@ private class CommentItemAdapterDelegate(private val commentActionListener: Comm
 }
 
 private class TagsViewHolderAdapterDelegate(private val postActions: PostActions)
-    : SimpleItemAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
-
-    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.TagsItem
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(TagsView(parent.context, postActions))
@@ -127,8 +123,7 @@ private class TagsViewHolderAdapterDelegate(private val postActions: PostActions
 
 
 private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
-    : SimpleItemAdapterDelegate<PostAdapter.Item.InfoItem, InfoLineItemAdapterDelegate.ViewHolder>() {
-    override fun isForViewType(value: Any): Boolean = value is PostAdapter.Item.InfoItem
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, InfoLineItemAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(InfoLineView(parent.context))
@@ -151,10 +146,7 @@ private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
 
 
 private class CommentPostLineAdapterDelegate(private val postActions: PostActions)
-    : SimpleItemAdapterDelegate<PostAdapter.Item.CommentInputItem, CommentPostLineAdapterDelegate.ViewHolder>() {
-    override fun isForViewType(value: Any): Boolean {
-        return value is PostAdapter.Item.CommentInputItem
-    }
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentInputItem, CommentPostLineAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(CommentPostLine(parent.context))
@@ -188,11 +180,7 @@ private class CommentPostLineAdapterDelegate(private val postActions: PostAction
 }
 
 private object PlaceholderItemAdapterDelegate
-    : SimpleItemAdapterDelegate<PostAdapter.Item.PlaceholderItem, PlaceholderItemAdapterDelegate.ViewHolder>() {
-
-    override fun isForViewType(value: Any): Boolean {
-        return value is PostAdapter.Item.PlaceholderItem
-    }
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.PlaceholderItem, PlaceholderItemAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(PlaceholderView(parent.context))
@@ -253,6 +241,7 @@ private class PlaceholderView(context: Context, var viewer: View? = null) : Fram
                 MeasureSpec.makeMeasureSpec(fixedHeight, MeasureSpec.EXACTLY))
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return viewer?.onTouchEvent(event) ?: false
     }

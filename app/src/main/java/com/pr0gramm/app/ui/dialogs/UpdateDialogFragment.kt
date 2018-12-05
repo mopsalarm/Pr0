@@ -14,6 +14,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.*
+import kotlinx.coroutines.Job
 import org.kodein.di.erased.instance
 
 /**
@@ -72,6 +73,9 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     logger.warn(update.err) { "Ignoring error during update" }
                     return@launchWithErrorHandler
                 }
+
+                if (coroutineContext[Job]?.isCompleted == true)
+                    return@launchWithErrorHandler
 
                 if (update is UpdateChecker.Response.UpdateAvailable) {
                     newInstance(update.update).show(activity.supportFragmentManager, null)
