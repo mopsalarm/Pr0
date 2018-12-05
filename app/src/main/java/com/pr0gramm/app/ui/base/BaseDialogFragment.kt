@@ -19,7 +19,6 @@ import rx.Observable
  * A robo fragment that provides lifecycle events as an observable.
  */
 abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache, AndroidCoroutineScope {
-    @JvmField
     protected val logger = logger(name)
 
     override val kodein: Kodein by lazy { requireContext().kodein }

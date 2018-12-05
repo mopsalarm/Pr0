@@ -31,7 +31,7 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.toObservable
-import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
+import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
@@ -603,7 +603,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         // if we currently scroll the view, lets just do this later.
-        if(recyclerView.isComputingLayout) {
+        if (recyclerView.isComputingLayout) {
             Observable.just(Unit)
                     .observeOnMainThread()
                     .bindToLifecycle()
@@ -885,6 +885,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun refreshFeed() {
         resetToolbar()
+        loader.reset()
         loader.restart()
     }
 
@@ -1025,49 +1026,28 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
 
-        listener.itemClicked().subscribeIgnoreError { view ->
+        listener.itemClicked.subscribeIgnoreError { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 onItemClicked(holder.item, preview = holder.imageView)
             }
         }
 
-        listener.itemLongClicked().subscribeIgnoreError { view ->
-            extractFeedItemHolder(view)?.let { holder ->
-                openQuickPeekDialog(holder.item)
-            }
+        listener.itemLongClicked.subscribeIgnoreError { view ->
+            val holder = extractFeedItemHolder(view) ?: return@subscribeIgnoreError
+            val activity = this.activity ?: return@subscribeIgnoreError
+            PopupPlayer.open(activity, holder.item)
+            swipeRefreshLayout.isEnabled = false
         }
 
-        listener.itemLongClickEnded()
-                .subscribeIgnoreError { dismissQuickPeekDialog() }
+        listener.itemLongClickEnded.subscribeIgnoreError {
+            PopupPlayer.close(activity ?: return@subscribeIgnoreError)
+            swipeRefreshLayout.isEnabled = true
+        }
 
         settings.changes()
                 .bindToLifecycleAsync()
                 .startWith("")
                 .subscribeIgnoreError { listener.enableLongClick(settings.enableQuickPeek) }
-    }
-
-    private fun openQuickPeekDialog(item: FeedItem) {
-        dismissQuickPeekDialog()
-
-        // check that the activity is not zero. Might happen, as this method might
-        // get called shortly after detaching the activity - which sucks. thanks android.
-        val activity = activity
-        if (activity != null) {
-            quickPeekDialog = PopupPlayerFactory.newInstance(activity, item)
-            swipeRefreshLayout.isEnabled = false
-        }
-    }
-
-    private fun dismissQuickPeekDialog() {
-        // maybe we are already dead?
-        if (view == null) {
-            return
-        }
-
-        swipeRefreshLayout.isEnabled = true
-
-        quickPeekDialog?.dismiss()
-        quickPeekDialog = null
     }
 
     private fun refreshRepostInfos(old: Feed, new: Feed) {
@@ -1324,6 +1304,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return info.user.name.equals(userService.name, ignoreCase = true)
     }
 
+    private fun extractFeedItemHolder(view: View): FeedItemViewHolder? {
+        return view.tag as? FeedItemViewHolder
+    }
+
     inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
         override fun onLayoutCompleted(state: RecyclerView.State?) {
             super.onLayoutCompleted(state)
@@ -1333,8 +1317,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            if (scrollToolbar && activity is ToolbarActivity) {
-                val activity = activity as ToolbarActivity
+            val activity = activity as? ToolbarActivity
+            if (scrollToolbar && activity != null) {
                 activity.scrollHideToolbarListener.onScrolled(dy)
             }
 
@@ -1373,11 +1357,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                if (activity is ToolbarActivity) {
+                val activity = activity as? ToolbarActivity
+                if (activity != null) {
                     val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
                             ?: Integer.MAX_VALUE
 
-                    val activity = activity as ToolbarActivity
                     activity.scrollHideToolbarListener.onScrollFinished(y)
                 }
             }
@@ -1393,38 +1377,23 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
         private const val ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState"
 
-        /**
-         * Creates a new [FeedFragment] for the given feed type.
-
-         * @param feedFilter A query to use for getting data
-         * *
-         * @return The type new fragment that can be shown now.
-         */
         fun newInstance(feedFilter: FeedFilter,
                         start: CommentRef?,
                         searchQueryState: Bundle?): FeedFragment {
 
-            val arguments = newArguments(feedFilter, true, start, searchQueryState)
-
-            val fragment = FeedFragment()
-            fragment.arguments = arguments
-            return fragment
-        }
-
-        fun newArguments(feedFilter: FeedFilter, normalMode: Boolean,
-                         start: CommentRef?,
-                         searchQueryState: Bundle?): Bundle {
-
-            return bundle {
-                putFreezable(ARG_FEED_FILTER, feedFilter)
-                putParcelable(ARG_FEED_START, start)
-                putBoolean(ARG_NORMAL_MODE, normalMode)
-                putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
+            return FeedFragment().apply {
+                arguments = bundle {
+                    putFreezable(ARG_FEED_FILTER, feedFilter)
+                    putParcelable(ARG_FEED_START, start)
+                    putBoolean(ARG_NORMAL_MODE, true)
+                    putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
+                }
             }
         }
 
-        private fun extractFeedItemHolder(view: View): FeedItemViewHolder? {
-            return view.tag as? FeedItemViewHolder?
+        fun newEmbedArguments(filter: FeedFilter) = bundle {
+            putFreezable(ARG_FEED_FILTER, filter)
+            putBoolean(ARG_NORMAL_MODE, false)
         }
     }
 

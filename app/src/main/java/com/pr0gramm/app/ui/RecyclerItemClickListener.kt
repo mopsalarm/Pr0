@@ -14,12 +14,16 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private val touchListener = Listener()
     private val scrollListener = ScrollListener()
 
-    private val itemClicked = PublishSubject.create<View>()
-    private val itemLongClicked = PublishSubject.create<View>()
-    private val itemLongClickedEnded = PublishSubject.create<Unit>()
-    private var longClickEnabled: Boolean = false
+    private val itemClickedSubject = PublishSubject.create<View>()
+    private val itemLongClickedSubject = PublishSubject.create<View>()
+    private val itemLongClickEndedSubject = PublishSubject.create<Unit>()
 
+    private var longClickEnabled: Boolean = false
     private var longPressTriggered: Boolean = false
+
+    val itemClicked = itemClickedSubject as Observable<View>
+    val itemLongClicked = itemLongClickedSubject as Observable<View>
+    val itemLongClickEnded = itemLongClickEndedSubject as Observable<Unit>
 
     init {
         mGestureDetector = GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
@@ -32,7 +36,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
                     val childView = recyclerView.findChildViewUnder(e.x, e.y)
                     if (childView != null) {
                         longPressTriggered = true
-                        itemLongClicked.onNext(childView)
+                        itemLongClickedSubject.onNext(childView)
                     }
                 }
             }
@@ -42,30 +46,17 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         recyclerView.addOnScrollListener(scrollListener)
     }
 
-    fun itemClicked(): Observable<View> {
-        return itemClicked.asObservable()
-    }
-
-    fun itemLongClicked(): Observable<View> {
-        return itemLongClicked.asObservable()
-    }
-
-    fun itemLongClickEnded(): Observable<Unit> {
-        return itemLongClickedEnded.asObservable()
-    }
-
     fun enableLongClick(enabled: Boolean) {
         longClickEnabled = enabled
         longPressTriggered = longPressTriggered and enabled
     }
 
-    private inner class Listener internal constructor() : RecyclerView.SimpleOnItemTouchListener() {
-
+    private inner class Listener() : RecyclerView.SimpleOnItemTouchListener() {
         override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
             val childView = view.findChildViewUnder(e.x, e.y)
 
             if (childView != null && mGestureDetector.onTouchEvent(e)) {
-                itemClicked.onNext(childView)
+                itemClickedSubject.onNext(childView)
             }
 
             // a long press might have been triggered between the last touch event
@@ -86,13 +77,16 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
 
         override fun onTouchEvent(view: RecyclerView, motionEvent: MotionEvent) {
             when (motionEvent.action) {
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_HOVER_EXIT, MotionEvent.ACTION_POINTER_UP ->
-                    itemLongClickedEnded.onNext(Unit)
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL,
+                MotionEvent.ACTION_HOVER_EXIT,
+                MotionEvent.ACTION_POINTER_UP ->
+                    itemLongClickEndedSubject.onNext(Unit)
             }
         }
     }
 
-    private inner class ScrollListener internal constructor() : RecyclerView.OnScrollListener() {
+    private inner class ScrollListener() : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             when (newState) {
                 RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->

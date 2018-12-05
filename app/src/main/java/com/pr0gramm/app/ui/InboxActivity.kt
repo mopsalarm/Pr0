@@ -4,14 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.fragments.AbstractMessageInboxFragment
+import com.pr0gramm.app.ui.fragments.ConversationsFragment
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment
-import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
+import com.pr0gramm.app.util.find
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 
@@ -19,13 +20,13 @@ import org.kodein.di.erased.instance
 /**
  * The activity that displays the inbox.
  */
-class InboxActivity : BaseAppCompatActivity("InboxActivity"), androidx.viewpager.widget.ViewPager.OnPageChangeListener {
+class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageChangeListener {
     private val userService: UserService by instance()
     private val inboxService: InboxService by instance()
     private val notificationService: NotificationService by instance()
 
     private val tabLayout: TabLayout by bindView(R.id.tabs)
-    private val viewPager: androidx.viewpager.widget.ViewPager by bindView(R.id.pager)
+    private val viewPager: ViewPager by bindView(R.id.pager)
 
     private lateinit var tabsAdapter: TabsAdapter
 
@@ -41,7 +42,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), androidx.viewpager
 
         setContentView(R.layout.activity_inbox)
 
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
+        setSupportActionBar(find(R.id.toolbar))
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)
@@ -49,17 +50,15 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), androidx.viewpager
         }
 
         tabsAdapter = TabsAdapter(this, this.supportFragmentManager)
-        tabsAdapter.addTab(R.string.inbox_type_unread, MessageInboxFragment::class.java,
-                AbstractMessageInboxFragment.buildArguments(InboxType.UNREAD))
 
-        tabsAdapter.addTab(R.string.inbox_type_all, MessageInboxFragment::class.java,
-                AbstractMessageInboxFragment.buildArguments(InboxType.ALL))
+        tabsAdapter.addTab(R.string.inbox_type_all, MessageInboxFragment::class.java)
 
-        tabsAdapter.addTab(R.string.inbox_type_private, PrivateMessageInboxFragment::class.java, null)
+        tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
 
-        tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment::class.java, null)
+        tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment::class.java)
 
         viewPager.adapter = tabsAdapter
+
         viewPager.addOnPageChangeListener(this)
 
         tabLayout.setupWithViewPager(viewPager)
@@ -133,6 +132,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), androidx.viewpager
      */
     private fun trackScreen(index: Int) {
         when (index) {
+            // TODO adjust
             0 -> Track.screen(this, "InboxUnread")
             1 -> Track.screen(this, "InboxOverview")
             2 -> Track.screen(this, "InboxPrivate")
@@ -158,8 +158,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), androidx.viewpager
     }
 
     companion object {
-        val EXTRA_INBOX_TYPE = "InboxActivity.inboxType"
-        val EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification"
-        val EXTRA_MESSAGE_TIMESTAMP = "InboxActivity.maxMessageId"
+        const val EXTRA_INBOX_TYPE = "InboxActivity.inboxType"
+        const val EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification"
+        const val EXTRA_MESSAGE_TIMESTAMP = "InboxActivity.maxMessageId"
     }
 }

@@ -5,16 +5,17 @@ import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.widget.ImageView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
+import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
-import com.pr0gramm.app.ui.views.viewer.MediaUri
-import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
@@ -56,11 +57,14 @@ class SimilarImageView @JvmOverloads constructor(
     }
 
     private fun handleItemClicked(item: Api.Posted.SimilarItem) {
-        val activity = AndroidUtility.activityFromContext(context)!!
+        val activity = AndroidUtility.activityFromContext(context) as? FragmentActivity ?: return
 
-        val uri = UriHelper.of(context).media(item.image)
-        val mediaUri = MediaUri.of(item.id, uri)
-        val config = Config(activity, mediaUri)
-        PopupPlayerFactory.newInstance(config).show()
+        val fakeItem = FeedItem(Api.Feed.Item(
+                id = item.id, image = item.image, thumb = item.thumbnail,
+                promoted = 0L, audio = false, created = Instant.now(),
+                up = 0, down = 0, fullsize = "", width = 0, height = 0, user = "",
+                mark = 0, deleted = false, flags = 0))
+
+        PopupPlayer.open(activity, fakeItem)
     }
 }

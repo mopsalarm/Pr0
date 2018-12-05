@@ -22,19 +22,16 @@ import com.pr0gramm.app.ui.MessageActionListener
 import com.pr0gramm.app.ui.WriteMessageActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.util.visible
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 /**
  */
-abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
+abstract class InboxFragment(name: String) : BaseFragment(name) {
     protected val inboxService: InboxService by instance()
 
-    private val viewNothingHere: View by bindView(android.R.id.empty)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val messagesView: RecyclerView by bindView(R.id.messages)
-    private val viewBusyIndicator: View by bindView(R.id.busy_indicator)
 
     private var loadStartedTimestamp = Instant(0)
 
@@ -48,15 +45,11 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         with(messagesView) {
             itemAnimator = null
             layoutManager = LinearLayoutManager(activity)
+            adapter = getContentAdapter()
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
-
-        showBusyIndicator()
-
-        // load the messages
-        reloadAsync()
     }
 
     override fun onResume() {
@@ -70,69 +63,21 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     }
 
     private fun reloadInboxContent() {
-        reloadAsync()
+        // TODO
     }
 
-    private fun hideNothingHereIndicator() {
-        viewNothingHere.visible = false
-    }
+    abstract fun getContentAdapter(): RecyclerView.Adapter<*>
 
-    private fun showNothingHereIndicator() {
-        viewNothingHere.visible = true
-        viewNothingHere.alpha = 0f
-        viewNothingHere.animate().alpha(1f).start()
-    }
-
-    private fun showBusyIndicator() {
-        viewBusyIndicator.visible = true
-    }
-
-    private fun hideBusyIndicator() {
-        viewBusyIndicator.visible = false
-        swipeRefreshLayout.isRefreshing = false
-    }
-
-    private fun reloadAsync() {
-        loadStartedTimestamp = Instant.now()
-
-        showBusyIndicator()
-
-        launchWithErrorHandler {
-            try {
-                val messages = loadContent()
-                onMessagesLoaded(messages)
-            } finally {
-                if (job.isActive) {
-                    hideBusyIndicator()
-                }
+    protected val inboxType: InboxType
+        get() {
+            var type = InboxType.ALL
+            val args = arguments
+            if (args != null) {
+                type = InboxType.values()[args.getInt(ARG_INBOX_TYPE, InboxType.ALL.ordinal)]
             }
+
+            return type
         }
-    }
-
-    private fun onMessagesLoaded(messages: List<T>) {
-        hideBusyIndicator()
-        hideNothingHereIndicator()
-
-        // replace previous adapter with new values
-        displayMessages(messagesView, messages)
-
-        if (messages.isEmpty())
-            showNothingHereIndicator()
-    }
-
-    protected abstract suspend fun loadContent(): List<T>
-
-    protected abstract fun displayMessages(recyclerView: RecyclerView, messages: List<T>)
-
-    protected val inboxType: InboxType get() {
-        var type = InboxType.ALL
-        val args = arguments
-        if (args != null) {
-            type = InboxType.values()[args.getInt(ARG_INBOX_TYPE, InboxType.ALL.ordinal)]
-        }
-
-        return type
-    }
 
     protected val actionListener: MessageActionListener = object : MessageActionListener {
         override fun onAnswerToPrivateMessage(message: Api.Message) {

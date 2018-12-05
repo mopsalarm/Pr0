@@ -91,7 +91,7 @@ object Logging {
     }
 }
 
-class KLogger(val name: String) {
+inline class KLogger(val name: String) {
     inline fun debug(block: () -> String) {
         if (BuildConfig.DEBUG) {
             Logging.log(Log.DEBUG, name, block())

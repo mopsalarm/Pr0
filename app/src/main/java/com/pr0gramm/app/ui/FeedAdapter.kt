@@ -50,7 +50,7 @@ class FeedAdapter(picasso: Picasso,
                   userHintClickedListener: OnUserClickedListener,
                   userActionListener: UserInfoView.UserActionListener)
 
-    : DelegatedAsyncListAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
+    : DelegateAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
 
     private val adAdapter = AdViewAdapter()
 
@@ -64,9 +64,9 @@ class FeedAdapter(picasso: Picasso,
         delegates += UserHintEntryAdapter(userHintClickedListener)
         delegates += UserLoadingEntryAdapter
         delegates += SpacerEntryAdapter
-        delegates += ErrorEntryAdapter
-        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty) { it === Entry.EmptyHint }
-        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading) { it === Entry.LoadingHint }
+        delegates += ErrorAdapterDelegate(R.layout.feed_error)
+        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, Entry.EmptyHint)
+        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Entry.LoadingHint)
     }
 
     /**
@@ -109,8 +109,8 @@ class FeedAdapter(picasso: Picasso,
         data class User(val user: UserInfo, val myself: Boolean)
             : Entry(idInCategory(2))
 
-        data class Error(val message: String)
-            : Entry(idInCategory(3))
+        data class Error(override val errorText: String)
+            : Entry(idInCategory(3)), ErrorAdapterDelegate.Value
 
         object EmptyHint
             : Entry(idInCategory(4))
@@ -146,13 +146,9 @@ data class UserAndMark(val name: String, val mark: Int)
 
 
 private class AdViewAdapter
-    : ItemAdapterDelegate<FeedAdapter.Entry.Ad, FeedAdapter.Entry, AdViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Ad, AdViewHolder>() {
 
     private var lastSeenAdview: AdView? = null
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.Ad
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup): AdViewHolder {
         val view = AdViewHolder.new(parent.context)
@@ -171,10 +167,7 @@ private class AdViewAdapter
 }
 
 private class FeedItemEntryAdapter(private val picasso: Picasso)
-    : ItemAdapterDelegate<FeedAdapter.Entry.Item, FeedAdapter.Entry, FeedItemViewHolder>() {
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.Item
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Item, FeedItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): FeedItemViewHolder {
         return FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view) as FrameLayout)
@@ -258,12 +251,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
 }
 
 private class UserHintEntryAdapter(private val onClick: OnUserClickedListener)
-    : ItemAdapterDelegate<FeedAdapter.Entry.UserHint, FeedAdapter.Entry,
-        UserHintEntryAdapter.ViewHolder>() {
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.UserHint
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserHint, UserHintEntryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(UserHintView(parent.context))
@@ -277,12 +265,7 @@ private class UserHintEntryAdapter(private val onClick: OnUserClickedListener)
 }
 
 private object UserLoadingEntryAdapter
-    : ItemAdapterDelegate<FeedAdapter.Entry.UserLoading, FeedAdapter.Entry,
-        UserLoadingEntryAdapter.ViewHolder>() {
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.UserLoading
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserLoading, UserLoadingEntryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(UserInfoLoadingView(parent.context))
@@ -296,32 +279,8 @@ private object UserLoadingEntryAdapter
 }
 
 
-private object ErrorEntryAdapter
-    : ItemAdapterDelegate<FeedAdapter.Entry.Error, FeedAdapter.Entry, ErrorEntryAdapter.ErrorViewHolder>() {
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.Error
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup): ErrorViewHolder {
-        val view = parent.layoutInflater.inflate(R.layout.feed_error) as ViewGroup
-        return ErrorViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ErrorViewHolder, value: FeedAdapter.Entry.Error) {
-        holder.textView.text = value.message
-    }
-
-    private class ErrorViewHolder(itemView: ViewGroup) : RecyclerView.ViewHolder(itemView) {
-        val textView = itemView.find<TextView>(R.id.error)
-    }
-}
-
 private object SpacerEntryAdapter
-    : ItemAdapterDelegate<FeedAdapter.Entry.Spacer, FeedAdapter.Entry, SpacerEntryAdapter.SpacerViewHolder>() {
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.Spacer
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Spacer, SpacerEntryAdapter.SpacerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): SpacerViewHolder {
         return SpacerViewHolder(parent.context)
@@ -352,11 +311,7 @@ private object SpacerEntryAdapter
 }
 
 private object CommentEntryAdapter
-    : ItemAdapterDelegate<FeedAdapter.Entry.Comment, FeedAdapter.Entry, CommentEntryAdapter.CommentViewHolder>() {
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.Comment
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Comment, CommentEntryAdapter.CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentViewHolder {
         val inflater = parent.layoutInflater
@@ -386,11 +341,7 @@ private object CommentEntryAdapter
 }
 
 private class UserEntryAdapter(private val userActionListener: UserInfoView.UserActionListener)
-    : ItemAdapterDelegate<FeedAdapter.Entry.User, FeedAdapter.Entry, UserEntryAdapter.UserInfoViewHolder>() {
-
-    override fun isForViewType(value: FeedAdapter.Entry): Boolean {
-        return value is FeedAdapter.Entry.User
-    }
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.User, UserEntryAdapter.UserInfoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): UserInfoViewHolder {
         return UserInfoViewHolder(UserInfoView(parent.context, userActionListener))

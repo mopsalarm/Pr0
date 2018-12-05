@@ -2,9 +2,13 @@ package com.pr0gramm.app.ui
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.value
+import com.pr0gramm.app.TypeToken
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 
 interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
@@ -29,7 +33,25 @@ abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder>
     abstract fun onBindViewHolder(holder: VH, value: E)
 }
 
-typealias SimpleItemAdapterDelegate<T, VH> = ItemAdapterDelegate<T, Any, VH>
+abstract class ListItemValueAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>(private val itemValue: Any)
+    : ItemAdapterDelegate<E, Any, VH>() {
+
+    final override fun isForViewType(value: Any): Boolean {
+        @Suppress("SuspiciousEqualsCombination")
+        return itemValue === value || itemValue == value
+    }
+}
+
+abstract class ListItemTypeAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>()
+    : ItemAdapterDelegate<E, Any, VH>() {
+
+    @Suppress("UNCHECKED_CAST")
+    private val typeToken = object : TypeToken<E>() {}.type as Class<E>
+
+    final override fun isForViewType(value: Any): Boolean {
+        return typeToken.isInstance(value)
+    }
+}
 
 class AdapterDelegateManager<T : Any>(
         private val delegates: List<AdapterDelegate<in T, RecyclerView.ViewHolder>>) {
@@ -54,7 +76,7 @@ class AdapterDelegateManager<T : Any>(
     }
 }
 
-abstract class DelegatedAsyncListAdapter<T : Any>(
+abstract class DelegateAdapter<T : Any>(
         diffCallback: DiffUtil.ItemCallback<T> = AsyncListAdapter.InstanceDiffCallback(),
         detectMoves: Boolean = false,
         name: String = "AsyncListAdapter") : AsyncListAdapter<T, RecyclerView.ViewHolder>(diffCallback, detectMoves, name) {
@@ -73,15 +95,15 @@ abstract class DelegatedAsyncListAdapter<T : Any>(
         return manager.onCreateViewHolder(parent, viewType)
     }
 
-    final override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         manager.onBindViewHolder(holder, items, position)
     }
 }
 
-fun <E : Any> staticLayoutAdapterDelegate(layout: Int, predicate: (E) -> Boolean)
-        : AdapterDelegate<E, RecyclerView.ViewHolder> {
+class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)
+inline fun <E : Any> staticLayoutAdapterDelegate(layout: Int, crossinline predicate: (E) -> Boolean)
+        : AdapterDelegate<E, RecyclerView.ViewHolder> {
 
     return object : ItemAdapterDelegate<E, E, RecyclerView.ViewHolder>() {
         override fun isForViewType(value: E): Boolean {
@@ -94,5 +116,41 @@ fun <E : Any> staticLayoutAdapterDelegate(layout: Int, predicate: (E) -> Boolean
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: E) {
         }
+    }
+}
+
+inline fun <reified E : Any> staticLayoutAdapterDelegate(layout: Int)
+        : AdapterDelegate<Any, RecyclerView.ViewHolder> {
+
+    return staticLayoutAdapterDelegate(layout) { it is E }
+}
+
+fun staticLayoutAdapterDelegate(layout: Int, itemValue: Any)
+        : AdapterDelegate<Any, RecyclerView.ViewHolder> {
+
+    return staticLayoutAdapterDelegate(layout) {
+        @Suppress("SuspiciousEqualsCombination")
+        it === itemValue || it == itemValue
+    }
+}
+
+
+class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_hint_loading)
+    : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, ErrorAdapterDelegate.ViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(parent.layoutInflater.inflate(layout, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: Value) {
+        holder.errorView.text = value.errorText
+    }
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val errorView = find<TextView>(R.id.error)
+    }
+
+    interface Value {
+        val errorText: String
     }
 }
