@@ -43,8 +43,6 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false
 
-    private var updateSubscription by replaceableSubscription()
-
     var onDetailClickedListener: PostActions? = null
 
     init {
@@ -86,12 +84,9 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         // update the views!
         usernameView.setUsername(item.user, item.mark)
 
-        updateSubscription = ViewUpdater.ofView(dateView, item.created)
-                .map {
-                    context.getString(R.string.dt_since_label_past, DurationFormat
-                            .timeToPointInTime(context, item.created, short = true))
-                }
-                .subscribe(updateTextView(dateView))
+        ViewUpdater.replaceText(dateView, item.created) {
+            DurationFormat.timeSincePastPointInTime(context, item.created, short = true)
+        }
 
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)

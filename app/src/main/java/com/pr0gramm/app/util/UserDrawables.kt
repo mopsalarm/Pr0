@@ -12,28 +12,28 @@ import com.pr0gramm.app.api.pr0gramm.Api
 /**
  * Creates drawables for users based on their name and id.
  */
-class SenderDrawableProvider(context: Context) {
+class UserDrawables(context: Context) {
     private val shapes = TextDrawable.builder().beginConfig()
             .textColor(ContextCompat.getColor(context, R.color.feed_background))
-            .fontSize(AndroidUtility.dp(context, 24))
+            .fontSize(AndroidUtility.dp(context, 20))
             .bold()
             .endConfig()
 
-    fun makeSenderDrawable(message: Api.Message): TextDrawable {
-        return makeSenderDrawable(message.senderId, message.name)
+    fun drawable(message: Api.Message): TextDrawable {
+        return drawable(message.senderId, message.name)
     }
 
-    fun makeSenderDrawable(name: String): TextDrawable {
-        return makeSenderDrawable(name, name)
+    fun drawable(name: String): TextDrawable {
+        return drawable(name, name)
     }
 
-    private fun makeSenderDrawable(key: Any, name: String): TextDrawable {
+    private fun drawable(key: Any, name: String): TextDrawable {
         val color = ColorGenerator.MATERIAL.getColor(key)
         return shapes.buildRound(iconText(name), color)
     }
 
     fun makeSenderBitmap(message: Api.Message, width: Int, height: Int): Bitmap {
-        val drawable = makeSenderDrawable(message)
+        val drawable = drawable(message)
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)

@@ -4,14 +4,15 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
+import rx.Observable
 
-class UserClassesService(configService: ConfigService) {
+class UserClassesService(configObservable: Observable<Config>) {
     class UserClass(val name: String, val symbol: String, @get:ColorInt val color: Int)
 
     private var userClasses: List<UserClass> = listOf()
 
     init {
-        configService.observeConfig()
+        configObservable
                 .map { config -> config.userClasses.map { parseClass(it) } }
                 .subscribe { userClasses = it }
     }
@@ -28,5 +29,9 @@ class UserClassesService(configService: ConfigService) {
 
     fun get(mark: Int): UserClass {
         return userClasses.getOrNull(mark) ?: UserClass("User", "?", Color.WHITE)
+    }
+
+    companion object {
+        operator fun invoke(configService: ConfigService) = UserClassesService(configService.observeConfig())
     }
 }

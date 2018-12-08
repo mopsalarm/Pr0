@@ -11,6 +11,7 @@ import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.util.kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
+import rx.Observable
 
 
 /**
@@ -18,7 +19,11 @@ import org.kodein.di.erased.instance
 class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
         AppCompatTextView(context, attrs, defStyleAttr) {
 
-    private val userClassesService = kodein.direct.instance<UserClassesService>()
+    private val userClassesService = if (isInEditMode) {
+        UserClassesService(Observable.empty())
+    } else {
+        kodein.direct.instance<UserClassesService>()
+    }
 
     init {
         maxLines = 1

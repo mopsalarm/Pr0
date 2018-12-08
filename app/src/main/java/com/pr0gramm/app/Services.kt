@@ -48,7 +48,7 @@ fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
-    bind<UserClassesService>() with singleton { UserClassesService(instance()) }
+    bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
 
     bind<KVService>() with singleton { KVService(instance()) }
 

@@ -133,8 +133,24 @@ object DurationFormat {
      *   * (the comment was written) 20 minutes ago
      *   * (der kommentar wurde) vor 20 Minuten (geschrieben)
      */
-    fun timeToPointInTime(ctx: Context, time: Instant, short: Boolean = false): String {
+    fun timeToPointInTime(ctx: Context, time: Instant, short: Boolean): String {
         val duration = Duration.between(time, Instant.now())
         return format(ctx, duration, TimeMode.POINT_IN_TIME, short)
+    }
+
+    /**
+     * Formats the time to a point in time in the past and adds 'ago' or 'vor'.
+     * Use this to format the time of a comment or message.
+     *   * 'vor 20 Minuten'
+     *   * '20 minutes ago'
+     */
+    fun timeSincePastPointInTime(ctx: Context, date: Instant, short: Boolean): String {
+        val now = (Instant.now().millis - date.millis) / 1000 < 30
+        return if (now) {
+            ctx.getString(R.string.dt_for_now)
+        } else {
+            ctx.getString(R.string.dt_since_label_past,
+                    DurationFormat.timeToPointInTime(ctx, date, short))
+        }
     }
 }

@@ -8,7 +8,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.visible
 
 /**
  */
@@ -19,8 +21,6 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     private val dateView: TextView
     private val answerView: View
     private val badgeOpView: View
-
-    private var updateSubscription by replaceableSubscription()
 
     init {
         View.inflate(getContext(), R.layout.sender_info, this)
@@ -75,17 +75,9 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun setDate(date: Instant) {
-        updateSubscription = ViewUpdater.ofView(dateView, date)
-                .map {
-                    val now = (Instant.now().millis - date.millis) / 1000 < 30
-                    if (now) {
-                        context.getString(R.string.dt_for_now)
-                    } else {
-                        context.getString(R.string.dt_since_label_past,
-                                DurationFormat.timeToPointInTime(context, date, short = true))
-                    }
-                }
-                .subscribe(updateTextView(dateView))
+        ViewUpdater.replaceText(dateView, date) {
+            DurationFormat.timeSincePastPointInTime(context, date, short = true)
+        }
     }
 
     fun setBadgeOpVisible(visible: Boolean) {

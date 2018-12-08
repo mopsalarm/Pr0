@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -383,9 +382,9 @@ fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
 }
 
-fun Context.dip2px(dpValue: Float): Float {
-    val density = resources.displayMetrics.density
-    return dpValue * density
+@Suppress("NOTHING_TO_INLINE")
+inline fun Context.dip2px(dpValue: Float): Float {
+    return dpValue * resources.displayMetrics.density
 }
 
 /**

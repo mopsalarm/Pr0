@@ -21,7 +21,7 @@ import org.kodein.di.erased.instance
 /**
  */
 class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
-    private val senderDrawableProvider: SenderDrawableProvider = SenderDrawableProvider(context)
+    private val userDrawables: UserDrawables = UserDrawables(context)
     private val admin: Boolean
 
     private val text: TextView
@@ -86,7 +86,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             picasso?.cancelRequest(image)
 
             // set a colored drawable with the first two letters of the user
-            image.setImageDrawable(senderDrawableProvider.makeSenderDrawable(message))
+            image.setImageDrawable(userDrawables.drawable(message))
         }
 
         // show the points

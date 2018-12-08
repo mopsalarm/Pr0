@@ -165,7 +165,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
             is LoginResult.Banned -> {
                 val date = response.ban.endTime?.let { date ->
-                    DurationFormat.timeToPointInTime(this, date)
+                    DurationFormat.timeToPointInTime(this, date, short = false)
                 }
 
                 val reason = response.ban.reason

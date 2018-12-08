@@ -160,7 +160,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
                 bind { invite ->
                     val context = itemView.context
 
-                    val date = DurationFormat.timeToPointInTime(context, invite.created)
+                    val date = DurationFormat.timeToPointInTime(context, invite.created, short = false)
                     val name = invite.name
                     if (name != null) {
                         email.visibility = View.GONE

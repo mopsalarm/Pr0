@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,9 +19,8 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.views.UsernameView
-import com.pr0gramm.app.util.SenderDrawableProvider
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.ui.views.ViewUpdater
+import com.pr0gramm.app.util.*
 import org.kodein.di.erased.instance
 
 /**
@@ -41,6 +41,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         with(listView) {
             itemAnimator = null
             layoutManager = LinearLayoutManager(activity)
+            addItemDecoration(SpacingItemDecoration(dp = 8))
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadConversations() }
@@ -50,6 +51,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 
     private fun reloadConversations() {
+        swipeRefreshLayout.isRefreshing = false
         listView.adapter = ConversationsAdapter()
     }
 
@@ -125,7 +127,7 @@ private class ConversationAdapterDelegate(
         private val conversationClicked: (Api.Conversation) -> Unit)
     : ListItemTypeAdapterDelegate<Api.Conversation, ConversationAdapterDelegate.ViewHolder>() {
 
-    private val userIconService = SenderDrawableProvider(context)
+    private val userIconService = UserDrawables(context)
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(parent.inflateDetachedChild(R.layout.item_conversation))
@@ -133,12 +135,23 @@ private class ConversationAdapterDelegate(
 
     override fun onBindViewHolder(holder: ViewHolder, value: Api.Conversation) {
         holder.name.setUsername(value.name, value.mark)
-        holder.image.setImageDrawable(userIconService.makeSenderDrawable(value.name))
+        holder.image.setImageDrawable(userIconService.drawable(value.name))
         holder.itemView.setOnClickListener { conversationClicked(value) }
+
+        holder.unreadCount.visible = value.unreadCount > 0
+        holder.unreadCount.text = value.unreadCount.toString()
+
+        ViewUpdater.replaceText(holder.date, value.lastMessage) {
+            DurationFormat.timeSincePastPointInTime(
+                    holder.itemView.context, value.lastMessage, short = true)
+        }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name = find<UsernameView>(R.id.name)
         val image = find<ImageView>(R.id.image)
+        val date = find<TextView>(R.id.date)
+        val unreadCount = find<TextView>(R.id.unread_count)
     }
 }
+

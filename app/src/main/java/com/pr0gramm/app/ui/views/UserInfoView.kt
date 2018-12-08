@@ -148,7 +148,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
                 extraInfo.text = context.getString(R.string.user_banned, durationStr)
             }
         } else {
-            val dateStr = DurationFormat.timeToPointInTime(context, user.registered)
+            val dateStr = DurationFormat.timeToPointInTime(context, user.registered, short = false)
             val resId = if (user.inactive) R.string.user_registered_inactive else R.string.user_registered
             extraInfo.text = context.getString(resId, dateStr)
         }

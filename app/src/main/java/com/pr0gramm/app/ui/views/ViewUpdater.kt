@@ -1,13 +1,17 @@
 package com.pr0gramm.app.ui.views
 
 import android.view.View
+import android.widget.TextView
 import androidx.core.view.ViewCompat
 import com.jakewharton.rxbinding.view.ViewAttachEvent
 import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
 import com.pr0gramm.app.util.MainThreadScheduler
+import com.pr0gramm.app.util.updateTextView
 import rx.Observable
+import rx.Subscription
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
@@ -50,5 +54,13 @@ object ViewUpdater {
         }
 
         return ofView(view, ticker)
+    }
+
+    fun replaceText(view: TextView, instant: Instant, text: () -> CharSequence) {
+        val previousSubscription = view.getTag(R.id.date) as? Subscription
+        previousSubscription?.unsubscribe()
+
+        val subscription = ofView(view, instant).map { text() }.subscribe(updateTextView(view))
+        view.setTag(R.id.date, subscription)
     }
 }

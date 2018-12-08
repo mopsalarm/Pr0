@@ -22,7 +22,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.SenderDrawableProvider
+import com.pr0gramm.app.util.UserDrawables
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.lruCache
@@ -260,7 +260,7 @@ class NotificationService(private val context: Application,
             val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
 
-            val provider = SenderDrawableProvider(context)
+            val provider = UserDrawables(context)
             return provider.makeSenderBitmap(message, width, height)
         }
 
