@@ -6,7 +6,7 @@ import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.util.logger
-import java.text.SimpleDateFormat
+import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -70,7 +70,7 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         return other is Instant && other.millis == millis
     }
 
-    fun toString(format: SimpleDateFormat): String {
+    fun toString(format: DateFormat): String {
         return format.format(Date(millis))
     }
 

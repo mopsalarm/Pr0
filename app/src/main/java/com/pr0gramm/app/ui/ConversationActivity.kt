@@ -4,22 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
-import androidx.core.app.TaskStackBuilder
-import androidx.core.content.IntentCompat
 import androidx.fragment.app.transaction
-import androidx.viewpager.widget.ViewPager
-import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.ConversationFragment
-import com.pr0gramm.app.ui.fragments.ConversationsFragment
-import com.pr0gramm.app.ui.fragments.MessageInboxFragment
-import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
 import com.pr0gramm.app.util.find
-import kotterknife.bindView
-import org.kodein.di.erased.instance
 
 
 /**

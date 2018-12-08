@@ -120,6 +120,10 @@ interface Api {
             @Query("with") name: String,
             @Query("older") older: Long?): Deferred<ConversationMessages>
 
+    @GET("/api/inbox/comments")
+    fun inboxComments(
+            @Query("older") older: Long?): Deferred<MessageFeed>
+
     @GET("/api/profile/comments")
     fun userComments(
             @Query("name") user: String,

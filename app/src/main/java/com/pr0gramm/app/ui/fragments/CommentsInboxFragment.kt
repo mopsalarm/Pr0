@@ -11,12 +11,12 @@ import com.pr0gramm.app.ui.Pagination
 import com.pr0gramm.app.ui.StateTransform
 import org.kodein.di.erased.instance
 
-open class MessageInboxFragment : InboxFragment("MessageInboxFragment") {
+open class CommentsInboxFragment : InboxFragment("MessageInboxFragment") {
     private val userService: UserService by instance()
     private val notificationService: NotificationService by instance()
 
     override fun getContentAdapter(): RecyclerView.Adapter<*> {
-        val loader = apiMessageLoader { inboxService.inbox(it) }
+        val loader = apiMessageLoader { inboxService.comments(it) }
         val pagination = Pagination(this, loader, Pagination.State.hasMoreState())
 
         notificationService.cancelForInbox()

@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.LinearLayout
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.pr0gramm.app.Instant
@@ -14,7 +14,7 @@ import com.pr0gramm.app.util.visible
 
 /**
  */
-class SenderInfoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+class SenderInfoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     private val nameView: UsernameView
     private val pointsView: TextView
     private val pointsUnknownView: View
@@ -34,8 +34,6 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
         setBadgeOpVisible(false)
         setOnAnswerClickedListener(null)
         hidePointView()
-
-        setSingleLine(false)
     }
 
     fun setPoints(points: Int) {
@@ -95,9 +93,5 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     fun setOnSenderClickedListener(onClickListener: () -> Unit) {
         nameView.setOnClickListener { onClickListener() }
-    }
-
-    fun setSingleLine(singleLine: Boolean) {
-        orientation = if (singleLine) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
     }
 }

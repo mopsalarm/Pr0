@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/message"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -15,8 +14,31 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="4dp"
-        android:background="@color/grey_800"
-        android:padding="8dp"
-        tools:text="Hallo cha0s, schön dass du das pr0gramm entwickelt hast. Deine Benutzer freuen sich jeden Tag." />
+        android:background="#222">
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+            android:textColor="#888"
+            tools:text="Hallo cha0s, schön dass du das pr0gramm entwickelt hast. Deine Benutzer freuen sich jeden Tag."/>
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textColor="#888"
+            android:textSize="10sp"
+            tools:text="12:34"/>
+    </FrameLayout>
 
 </FrameLayout>

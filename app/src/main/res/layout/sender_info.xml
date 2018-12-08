@@ -3,17 +3,15 @@
        xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:app="http://schemas.android.com/apk/res-auto"
        android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:orientation="vertical"
-       tools:showIn="@layout/comment_layout">
+       android:layout_height="32dp"
+       tools:parentTag="android.widget.FrameLayout">
 
     <LinearLayout
         android:id="@+id/username_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="16dp"
         android:orientation="horizontal"
-        android:layout_marginRight="8dp"
-        android:layout_gravity="bottom">
+        android:layout_gravity="top">
 
         <TextView
             style="@style/OpBadge"
@@ -22,17 +20,17 @@
             />
 
         <com.pr0gramm.app.ui.views.UsernameView
-            style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/username"
+            style="@style/Base.TextAppearance.AppCompat.Caption"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="16dp"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 

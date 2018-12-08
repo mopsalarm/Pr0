@@ -19,14 +19,18 @@ import rx.Observable
 class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
         AppCompatTextView(context, attrs, defStyleAttr) {
 
-    private val userClassesService = if (isInEditMode) {
+    private val userClassesService: UserClassesService = if (isInEditMode) {
         UserClassesService(Observable.empty())
     } else {
-        kodein.direct.instance<UserClassesService>()
+        kodein.direct.instance()
     }
 
     init {
         maxLines = 1
+
+        if (isInEditMode) {
+            setUsername("Mopsalarm", 1)
+        }
     }
 
     @SuppressLint("SetTextI18n")

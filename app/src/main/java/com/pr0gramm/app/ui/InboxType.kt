@@ -5,5 +5,6 @@ package com.pr0gramm.app.ui
  */
 enum class InboxType {
     // TODO adjust
-    UNREAD, ALL, PRIVATE, COMMENTS
+    PRIVATE,
+    COMMENTS
 }

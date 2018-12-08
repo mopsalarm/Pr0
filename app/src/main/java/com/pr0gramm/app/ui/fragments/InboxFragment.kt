@@ -16,7 +16,6 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.MessageActionListener
 import com.pr0gramm.app.ui.WriteMessageActivity
@@ -68,17 +67,6 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
     abstract fun getContentAdapter(): RecyclerView.Adapter<*>
 
-    protected val inboxType: InboxType
-        get() {
-            var type = InboxType.ALL
-            val args = arguments
-            if (args != null) {
-                type = InboxType.values()[args.getInt(ARG_INBOX_TYPE, InboxType.ALL.ordinal)]
-            }
-
-            return type
-        }
-
     protected val actionListener: MessageActionListener = object : MessageActionListener {
         override fun onAnswerToPrivateMessage(message: Api.Message) {
             startActivity(WriteMessageActivity.intent(context, message))
@@ -106,9 +94,5 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         override fun onUserClicked(userId: Int, username: String) {
             open(UriHelper.of(context).uploads(username))
         }
-    }
-
-    companion object {
-        const val ARG_INBOX_TYPE = "InboxFragment.inboxType"
     }
 }

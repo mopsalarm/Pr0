@@ -390,7 +390,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun showInboxActivity(unreadCount: Int) {
-        showInboxActivity(if (unreadCount == 0) InboxType.ALL else InboxType.UNREAD)
+        showInboxActivity(InboxType.PRIVATE)
     }
 
     private fun showInboxActivity(inboxType: InboxType) {

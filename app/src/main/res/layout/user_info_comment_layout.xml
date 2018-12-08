@@ -2,32 +2,33 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:tools="http://schemas.android.com/tools"
        android:layout_width="match_parent"
-       android:layout_height="wrap_content">
+       android:layout_height="wrap_content"
+       tools:parentTag="android.widget.FrameLayout">
 
     <ImageView
         android:id="@+id/message_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_below="@id/message_type"
-        android:scaleType="centerCrop"
-        />
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
 
-    <TextView
+    <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
         android:id="@+id/message_text"
         style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="56dp"
+        android:layout_marginBottom="40dp"
         android:singleLine="false"
         tools:text="@string/dummy_text"
-        />
+        android:layout_marginStart="56dp"/>
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/message_sender_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/message_text"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="56dp"
         android:layout_below="@+id/message_text"
+        android:layout_marginStart="56dp"
         android:layout_marginTop="4dp"/>
 
 </merge>

@@ -3,14 +3,13 @@ package com.pr0gramm.app.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
-import com.pr0gramm.app.ui.fragments.MessageInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
 import com.pr0gramm.app.util.find
 import kotterknife.bindView
@@ -51,9 +50,9 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         tabsAdapter = TabsAdapter(this, this.supportFragmentManager)
 
-        tabsAdapter.addTab(R.string.inbox_type_all, MessageInboxFragment::class.java)
-
         tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
+
+        tabsAdapter.addTab(R.string.inbox_type_comments, CommentsInboxFragment::class.java)
 
         tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment::class.java)
 
@@ -102,10 +101,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
     }
 
     private fun handleNewIntent(intent: Intent?) {
-        if (intent != null && intent.extras != null) {
-            val extras = intent.extras
-            showInboxType(InboxType.values()[extras.getInt(EXTRA_INBOX_TYPE, 0)])
-        }
+        val extras = intent?.extras ?: return
+        showInboxType(InboxType.values()[extras.getInt(EXTRA_INBOX_TYPE, 0)])
     }
 
     private fun showInboxType(type: InboxType?) {
@@ -133,10 +130,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
     private fun trackScreen(index: Int) {
         when (index) {
             // TODO adjust
-            0 -> Track.screen(this, "InboxUnread")
-            1 -> Track.screen(this, "InboxOverview")
-            2 -> Track.screen(this, "InboxPrivate")
-            3 -> Track.screen(this, "InboxComments")
+            0 -> Track.screen(this, "InboxPrivate")
+            1 -> Track.screen(this, "InboxComments")
         }
     }
 

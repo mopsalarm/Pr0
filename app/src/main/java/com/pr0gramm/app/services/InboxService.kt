@@ -43,6 +43,13 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     /**
+     * Gets the list of inbox comments
+     */
+    suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
+        return api.inboxComments(olderThan?.epochSeconds).await().messages
+    }
+
+    /**
      * Gets the list of private messages.
      */
     suspend fun privateMessages(olderThan: Instant? = null): List<Api.PrivateMessage> {

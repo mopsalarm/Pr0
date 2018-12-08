@@ -171,7 +171,7 @@ class NotificationService(private val context: Application,
         val maxMessageTimestamp = messages.maxBy { it.creationTime }!!.creationTime
 
         notify(Types.NewMessage) {
-            setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
+            setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE))
             setContentTitle(title)
             setContentText(context.getString(R.string.notify_new_message_summary_text))
             setStyle(inboxStyle)

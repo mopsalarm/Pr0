@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.View.OnClickListener
+import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -20,14 +20,13 @@ import org.kodein.di.erased.instance
 
 /**
  */
-class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
+class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     private val userDrawables: UserDrawables = UserDrawables(context)
     private val admin: Boolean
 
     private val text: TextView
     private val image: ImageView
     private val sender: SenderInfoView
-    private val type: TextView?
 
     private val picasso: Picasso?
 
@@ -42,7 +41,6 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         text = find(R.id.message_text)
         image = find(R.id.message_image)
         sender = find(R.id.message_sender_info)
-        type = findOptional(R.id.message_type)
 
         if (!isInEditMode) {
             picasso = kodein.direct.instance()
@@ -67,13 +65,6 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun update(message: Api.Message, name: String? = null) {
         // set the type. if we have an item, we  have a comment
         val isComment = message.itemId != 0L
-        type?.let { type ->
-            type.text = if (isComment) {
-                context.getString(R.string.inbox_message_comment)
-            } else {
-                context.getString(R.string.inbox_message_private)
-            }
-        }
 
         // the text of the message
         Linkify.linkifyClean(text, message.message)
