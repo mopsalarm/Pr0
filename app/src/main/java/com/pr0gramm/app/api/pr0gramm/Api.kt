@@ -102,7 +102,7 @@ interface Api {
 
     @GET("/api/inbox/all")
     fun inboxAll(
-            @Query("older") older: Long?): Deferred<MessageFeed>
+            @Query("before") older: Long?): Deferred<MessageFeed>
 
     @GET("/api/inbox/unread")
     fun inboxUnread(): Deferred<MessageFeed>
@@ -123,7 +123,7 @@ interface Api {
     @GET("/api/profile/comments")
     fun userComments(
             @Query("name") user: String,
-            @Query("before") before: Long,
+            @Query("before") before: Long?,
             @Query("flags") flags: Int?): Deferred<UserComments>
 
     @GET("/api/profile/commentlikes")

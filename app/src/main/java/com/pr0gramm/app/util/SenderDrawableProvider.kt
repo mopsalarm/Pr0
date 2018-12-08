@@ -23,7 +23,11 @@ class SenderDrawableProvider(context: Context) {
         return makeSenderDrawable(message.senderId, message.name)
     }
 
-    fun makeSenderDrawable(key: Any, name: String): TextDrawable {
+    fun makeSenderDrawable(name: String): TextDrawable {
+        return makeSenderDrawable(name, name)
+    }
+
+    private fun makeSenderDrawable(key: Any, name: String): TextDrawable {
         val color = ColorGenerator.MATERIAL.getColor(key)
         return shapes.buildRound(iconText(name), color)
     }

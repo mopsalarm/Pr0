@@ -18,18 +18,14 @@ class WrittenCommentFragment : InboxFragment("WrittenCommentFragment") {
         val loader = apiMessageLoader { olderThan ->
             // TODO use olderThan parameter.
             val name = userService.name ?: return@apiMessageLoader listOf()
-            val userComments = inboxService.getUserComments(name, ContentType.AllSet)
+            val userComments = inboxService.getUserComments(name, ContentType.AllSet, olderThan)
             userComments.comments.map {
                 MessageConverter.of(userComments.user, it)
             }
         }
 
-        val pagination = Pagination(this, loader, Pagination.State.hasMoreState(listOf(), 0))
-
         // create and initialize the adapter
-        val adapter = MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, pagination)
-        adapter.initialize()
-
-        return adapter
+        val pagination = Pagination(this, loader, Pagination.State.hasMoreState(listOf()))
+        return MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, pagination)
     }
 }

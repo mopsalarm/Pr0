@@ -8,29 +8,27 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.inflate
 
-
 /**
  */
 class MessageAdapter(private val itemLayout: Int,
                      private val actionListener: MessageActionListener,
                      private val currentUsername: String?,
-                     pagination: Pagination<List<Api.Message>>)
+                     pagination: Pagination<Api.Message>)
 
-    : PaginationRecyclerViewAdapter<List<Api.Message>, Any>(pagination, DiffCallback()) {
+    : PaginationRecyclerViewAdapter<Api.Message, Any>(pagination, DiffCallback()) {
 
     init {
         delegates += MessageAdapterDelegate()
-        delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Loading)
+        delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
     }
 
-    override fun updateAdapterValues(state: Pagination.State<List<Api.Message>>) {
-        val values = state.value.mapTo(mutableListOf<Any>()) { it }
+    override fun translateState(state: Pagination.State<Api.Message>): List<Any> {
+        val values = state.values.toMutableList<Any>()
         if (state.tailState.hasMore)
-            values += Loading
+            values += Loading()
 
-        submitList(values)
+        return values
     }
-
 
     class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
@@ -46,8 +44,8 @@ class MessageAdapter(private val itemLayout: Int,
         }
     }
 
-    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Api.Message, MessageViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup): MessageViewHolder {
+    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Api.Message, MessageAdapter.MessageViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup): MessageAdapter.MessageViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
             return MessageViewHolder(view)
         }
@@ -88,4 +86,4 @@ class MessageAdapter(private val itemLayout: Int,
     }
 }
 
-object Loading
+class Loading

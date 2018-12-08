@@ -5,6 +5,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/image"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="start|center_vertical"

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import rx.Observable
 import rx.subjects.PublishSubject
 
@@ -89,10 +90,16 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
     private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {
         trace { "applyNewItems(${items.size} items)" }
 
+        checkMainThread()
+
+        preApplyNewItems(items)
+
         this.items = items
         dispatch()
         updateSubject.onNext(items)
     }
+
+    protected open fun preApplyNewItems(items: List<T>) {}
 
     private fun calculateDiff(oldList: List<T>, newList: List<T>): DiffUtil.DiffResult {
         trace { "calculateDiff(...)" }

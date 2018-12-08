@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,7 @@ import org.kodein.di.erased.instance
 /**
  */
 class ConversationFragment : BaseFragment("ConversationFragment") {
-    protected val inboxService: InboxService by instance()
+    private val inboxService: InboxService by instance()
 
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val listView: RecyclerView by bindView(R.id.messages)
@@ -53,39 +52,36 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     }
 
     private fun reloadConversation() {
-        val adapter = ConversationAdapter()
-        adapter.initialize()
-
-        listView.adapter = adapter
+        listView.adapter = ConversationAdapter()
     }
 
-    private fun makeConversationsPagination(): Pagination<List<Api.ConversationMessage>> {
+    private fun makeConversationsPagination(): Pagination<Api.ConversationMessage> {
         return Pagination(this, ConversationLoader(conversationName, inboxService), Pagination.State.hasMoreState())
     }
 
-    inner class ConversationAdapter : PaginationRecyclerViewAdapter<List<Api.ConversationMessage>, Any>(
+    inner class ConversationAdapter : PaginationRecyclerViewAdapter<Api.ConversationMessage, Any>(
             makeConversationsPagination(),
             ConversationItemDiffCallback()) {
 
         init {
             delegates += MessageAdapterDelegate(sentValue = true)
             delegates += MessageAdapterDelegate(sentValue = false)
-            delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Loading)
+            delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
             delegates += ErrorAdapterDelegate()
         }
 
-        override fun updateAdapterValues(state: Pagination.State<List<Api.ConversationMessage>>) {
-            val values = state.value.mapTo(mutableListOf<Any>()) { it }
+        override fun translateState(state: Pagination.State<Api.ConversationMessage>): List<Any> {
+            val values = state.values.toMutableList<Any>()
 
             if (state.tailState.error != null) {
                 values += LoadError(state.tailState.error.toString())
             }
 
             if (state.tailState.loading) {
-                values += Loading
+                values += Loading()
             }
 
-            submitList(values)
+            return values
         }
     }
 }
@@ -107,15 +103,14 @@ private class ConversationItemDiffCallback : DiffUtil.ItemCallback<Any>() {
 
 }
 
-private class ConversationLoader(private val name: String, private val inboxService: InboxService) : Pagination.Loader<List<Api.ConversationMessage>>() {
-    override suspend fun loadAfter(currentValue: List<Api.ConversationMessage>): StateTransform<List<Api.ConversationMessage>> {
-        val olderThan = currentValue.lastOrNull()?.creationTime
+private class ConversationLoader(private val name: String, private val inboxService: InboxService) : Pagination.Loader<Api.ConversationMessage>() {
+    override suspend fun loadAfter(currentValues: List<Api.ConversationMessage>): StateTransform<Api.ConversationMessage> {
+        val olderThan = currentValues.lastOrNull()?.creationTime
 
         val response = inboxService.messagesInConversation(name, olderThan)
         return { state ->
             state.copy(
-                    value = state.value + response.messages,
-                    valueCount = state.valueCount + response.messages.size,
+                    values = state.values + response.messages,
                     tailState = state.tailState.copy(hasMore = !response.atEnd))
         }
     }

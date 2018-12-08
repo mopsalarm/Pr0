@@ -52,8 +52,8 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Gets all the comments a user has written
      */
-    suspend fun getUserComments(user: String, contentTypes: Set<ContentType>): Api.UserComments {
-        val beforeInSeconds = (Instant.now() + Duration.days(1)).millis
+    suspend fun getUserComments(user: String, contentTypes: Set<ContentType>, olderThan: Instant? = null): Api.UserComments {
+        val beforeInSeconds = (olderThan ?: Instant.now().plus(Duration.days(1))).epochSeconds
         return api.userComments(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
     }
 

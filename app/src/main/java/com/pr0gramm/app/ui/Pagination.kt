@@ -7,13 +7,16 @@ import com.pr0gramm.app.util.observeChange
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
-class Pagination<E>(private val scope: CoroutineScope, private val loader: Loader<E>, initialState: State<E>) {
-    private val logger = logger("Pagination")
+class Pagination<E : Any>(private val scope: CoroutineScope, private val loader: Loader<E>, initialState: State<E>) {
+    private val logger = logger("Pagination(${loader.javaClass.simpleName})")
 
     private var state: State<E> by observeChange(initialState) {
         onStateChanged(state)
     }
+
 
     val currentState get() = state
 
@@ -27,15 +30,17 @@ class Pagination<E>(private val scope: CoroutineScope, private val loader: Loade
      */
     fun initialize() {
         val tailState = state.tailState
-        if (tailState.hasMore && !tailState.loading && state.valueCount == 0) {
+        if (tailState.hasMore && !tailState.loading && state.size == 0) {
             this.loadAtTail()
         }
     }
 
-    fun hit(idx: Int) {
+    fun hit(value: Any) {
         val state = this.state
         val headState = state.headState
         val tailState = state.tailState
+
+        val idx = state.lookupTable[value] ?: return
 
         // check if we need to and are allowed to load at the head
         if (headState.hasMore && !headState.loading && idx < 12) {
@@ -43,7 +48,7 @@ class Pagination<E>(private val scope: CoroutineScope, private val loader: Loade
         }
 
         // check if we need to and are allowed to load at the tail
-        if (tailState.hasMore && !tailState.loading && idx > state.valueCount - 12) {
+        if (tailState.hasMore && !tailState.loading && idx > state.size - 12) {
             this.loadAtTail()
         }
     }
@@ -63,59 +68,62 @@ class Pagination<E>(private val scope: CoroutineScope, private val loader: Loade
     }
 
     private fun load(
-            loadCallback: suspend (previousValue: E) -> StateTransform<E>,
-            updateEndState: (State<E>, (EndState<E>) -> (EndState<E>)) -> State<E>) {
-
-        // update state first
-        state = updateEndState(state) { it.copy(loading = true, error = null) }
+            loadCallback: suspend (previousValues: List<E>) -> StateTransform<E>,
+            updateEndState: (State<E>, (EndState) -> (EndState)) -> State<E>) {
 
         scope.launch {
-            try {
+            // update state first
+            state = updateEndState(state) { it.copy(loading = true, error = null) }
+
+            state = try {
                 logger.warn { "Start loading" }
-                val updatedState = loadCallback(state.value)(state)
+                val updatedState = loadCallback(state.values)(state)
 
                 logger.info { "Loading finished, updating state" }
-                state = updateEndState(updatedState) { it.copy(loading = false, error = null) }
+                updateEndState(updatedState) { it.copy(loading = false, error = null) }
 
             } catch (err: CancellationException) {
                 logger.warn { "Loading was canceled." }
-                state = updateEndState(state) { it.copy(loading = false, error = null) }
+                updateEndState(state) { it.copy(loading = false, error = null) }
 
             } catch (err: Exception) {
                 logger.warn { "Loading failed" }
-                state = updateEndState(state) { it.copy(loading = false, error = err) }
+                updateEndState(state) { it.copy(loading = false, error = err) }
             }
         }
     }
 
     data class State<E>(
-            val value: E,
-            val valueCount: Int = 0,
-            val headState: EndState<E> = EndState(),
-            val tailState: EndState<E> = EndState()) {
+            val values: List<E>,
+            val headState: EndState = EndState(),
+            val tailState: EndState = EndState()) {
+
+        val size = values.size
+
+        val lookupTable by lazy(LazyThreadSafetyMode.PUBLICATION) {
+            IdentityHashMap<E, Int>(size).also { map ->
+                values.forEachIndexed { index, value -> map[value] = index }
+            }
+        }
 
         companion object {
-            fun <E> hasMoreState(value: List<E> = listOf()): State<List<E>> {
-                return hasMoreState(value, valueCount = value.size)
-            }
-
-            fun <E> hasMoreState(value: E, valueCount: Int): State<E> {
-                return State(value, valueCount, tailState = EndState(hasMore = true))
+            fun <E> hasMoreState(values: List<E> = listOf()): State<E> {
+                return State(values, tailState = EndState(hasMore = true))
             }
         }
     }
 
-    data class EndState<E>(
+    data class EndState(
             val error: Exception? = null,
             val loading: Boolean = false,
             val hasMore: Boolean = false)
 
     abstract class Loader<E> {
-        open suspend fun loadAfter(currentValue: E): StateTransform<E> {
+        open suspend fun loadAfter(currentValues: List<E>): StateTransform<E> {
             return { state -> state.copy(tailState = EndState()) }
         }
 
-        open suspend fun loadBefore(currentValue: E): StateTransform<E> {
+        open suspend fun loadBefore(currentValues: List<E>): StateTransform<E> {
             return { state -> state.copy(headState = EndState()) }
         }
     }
@@ -124,27 +132,58 @@ class Pagination<E>(private val scope: CoroutineScope, private val loader: Loade
 typealias StateTransform<E> = (Pagination.State<E>) -> Pagination.State<E>
 
 
-abstract class PaginationRecyclerViewAdapter<S : Any, E : Any>(
-        private val pagination: Pagination<S>,
+@Suppress("UNCHECKED_CAST")
+abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
+        private val pagination: Pagination<P>,
         diffCallback: DiffUtil.ItemCallback<E>) : DelegateAdapter<E>(diffCallback) {
 
-    /**
-     * Initializes the connection to the pagination.
-     */
-    fun initialize() {
-        updateAdapterValues(pagination.currentState)
+    private var initialized = false
+    private var lookupTable = emptyMap<E, P>()
 
-        pagination.onStateChanged = this::updateAdapterValues
-        pagination.initialize()
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        if (!initialized) {
+            initialized = true
+
+            updateAdapterValues(pagination.currentState)
+
+            pagination.onStateChanged = this::updateAdapterValues
+            pagination.initialize()
+        }
+
+        super.onAttachedToRecyclerView(recyclerView)
     }
+
+    private fun updateAdapterValues(state: Pagination.State<P>) {
+        val values = translateState(state)
+
+        val adapterValues = ArrayList<E>(values.size)
+        val lookupTable = IdentityHashMap<E, P>(values.size)
+
+        values.forEach { value ->
+            if (value is Translation<*, *>) {
+                @Suppress("UNCHECKED_CAST")
+                lookupTable[value.adapterValue as E] = value.stateValue as P
+
+                adapterValues += value.adapterValue
+            } else {
+                adapterValues += value as E
+            }
+        }
+
+        submitList(adapterValues)
+    }
+
+    abstract fun translateState(state: Pagination.State<P>): List<Any>
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
-        // tell the pagination that we might need updates
-        pagination.hit(position)
-
-        return super.onBindViewHolder(holder, position)
+        hitValue(position)
+        super.onBindViewHolder(holder, position)
     }
 
-    abstract fun updateAdapterValues(state: Pagination.State<S>)
+    private fun hitValue(position: Int) {
+        val stateValue = lookupTable[items[position]] ?: items[position] ?: return
+        pagination.hit(stateValue)
+    }
+
+    class Translation<E : Any, P : Any>(val adapterValue: E, val stateValue: P)
 }

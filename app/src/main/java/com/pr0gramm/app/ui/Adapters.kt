@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.value
-import com.pr0gramm.app.TypeToken
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
+import java.lang.reflect.ParameterizedType
 
 interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
     fun isForViewType(values: List<E>, idx: Int): Boolean
@@ -42,14 +42,15 @@ abstract class ListItemValueAdapterDelegate<E : Any, VH : RecyclerView.ViewHolde
     }
 }
 
-abstract class ListItemTypeAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>()
+abstract class ListItemTypeAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>
     : ItemAdapterDelegate<E, Any, VH>() {
 
+    // Get the actual type for E.
     @Suppress("UNCHECKED_CAST")
-    private val typeToken = object : TypeToken<E>() {}.type as Class<E>
+    private val type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<E>
 
     final override fun isForViewType(value: Any): Boolean {
-        return typeToken.isInstance(value)
+        return type.isInstance(value)
     }
 }
 
