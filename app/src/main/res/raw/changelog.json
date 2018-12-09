@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Erste Version der neuen Nachrichtenansicht. Bitte Fehler melden!"
+      },
+      {
+        "type": "Neu",
         "change": "Zweifaches Tippen am Rand eines Videos springt ~10sek vor oder zurück (Danke @VladimirObama)"
       },
       {
