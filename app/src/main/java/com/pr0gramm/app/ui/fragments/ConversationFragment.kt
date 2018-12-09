@@ -138,7 +138,7 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
         val dates = state.values.map { message -> message.creationTime.toString(f) }
 
         state.values.forEachIndexed { index, message ->
-            if (index > 0 && dates[index - 1] != dates[index]) {
+            if (index == 0 || dates[index - 1] != dates[index]) {
                 values += DateDividerValue(dates[index])
             }
 
@@ -217,7 +217,8 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
         val context = holder.message.context
 
         holder.message.text = buildSpannedString {
-            append(value.message)
+            append(Linkify.linkify(context, value.message))
+
             inSpans(SpaceSpan(context.dip2px(32f).toInt())) {
                 append(" ")
             }

@@ -71,14 +71,18 @@ class ConversationActivity : BaseAppCompatActivity("ConversationActivity") {
         const val EXTRA_FROM_NOTIFICATION = "ConversationActivity.fromNotification"
         const val EXTRA_CONVERSATION_NAME = "ConversationActivity.name"
 
-        fun start(context: Context, name: String) {
-            val intent = activityIntent<ConversationActivity>(context) {
+        fun start(context: Context, name: String, skipInbox: Boolean = false) {
+            val activities = mutableListOf<Intent>()
+
+            if (!skipInbox) {
+                activities += activityIntent<InboxActivity>(context)
+            }
+
+            activities += activityIntent<ConversationActivity>(context) {
                 putExtra(EXTRA_CONVERSATION_NAME, name)
             }
 
-            context.startActivities(arrayOf(
-                    activityIntent<InboxActivity>(context),
-                    intent))
+            context.startActivities(activities.toTypedArray())
         }
     }
 }

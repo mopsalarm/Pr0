@@ -86,7 +86,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
 
     private fun handleConversationClicked(conversation: Api.Conversation) {
         val context = context
-        ConversationActivity.start(context, conversation.name)
+        ConversationActivity.start(context, conversation.name, skipInbox = true)
     }
 }
 
