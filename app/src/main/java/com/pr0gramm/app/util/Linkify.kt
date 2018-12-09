@@ -41,7 +41,7 @@ object Linkify {
 
     fun linkify(view: TextView, text: SpannableStringBuilder, callback: Callback? = null) {
         view.text = linkify(view.context, text, callback)
-        view.movementMethod = NonCrashingLinkMovementMethod()
+        view.movementMethod = NonCrashingLinkMovementMethod
     }
 
     fun linkify(context: Context, originalText: CharSequence, callback: Callback? = null): CharSequence {

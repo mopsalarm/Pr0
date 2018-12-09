@@ -104,6 +104,9 @@ interface Api {
     fun inboxAll(
             @Query("before") older: Long?): Deferred<MessageFeed>
 
+    @GET("/api/inbox/pending")
+    fun inboxPending(): Deferred<MessageFeed>
+
     @GET("/api/inbox/unread")
     fun inboxUnread(): Deferred<MessageFeed>
 
@@ -397,7 +400,6 @@ interface Api {
         val commentId: Long get() = id
     }
 
-
     @JsonClass(generateAdapter = true)
     data class MessageFeed(val messages: List<Message> = listOf())
 
@@ -478,7 +480,16 @@ interface Api {
             val logLength: Long,
             val log: String,
             val score: Int,
-            val inboxCount: Int)
+            val inbox: InboxCounts = InboxCounts()) {
+
+        val inboxCount get() = inbox.comments + inbox.mentions + inbox.messages
+    }
+
+    @JsonClass(generateAdapter = true)
+    data class InboxCounts(
+            val comments: Int = 0,
+            val mentions: Int = 0,
+            val messages: Int = 0)
 
     @JsonClass(generateAdapter = true)
     data class Tag(

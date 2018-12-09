@@ -91,7 +91,7 @@ class SyncService(private val userService: UserService,
         val sync = userService.sync() ?: return
 
         if (sync.inboxCount > 0) {
-            notificationService.showForInbox(sync)
+            notificationService.showUnreadMessagesNotification()
         } else {
             // remove if no messages are found
             notificationService.cancelForInbox()

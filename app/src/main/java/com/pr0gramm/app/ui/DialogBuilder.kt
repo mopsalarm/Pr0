@@ -220,7 +220,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
             val messageView: View? = dialog.findViewById(android.R.id.message)
 
             if (messageView is TextView) {
-                messageView.movementMethod = NonCrashingLinkMovementMethod()
+                messageView.movementMethod = NonCrashingLinkMovementMethod
             }
 
             val dontShowAgainClicked = setupDontShowAgainView(messageView)

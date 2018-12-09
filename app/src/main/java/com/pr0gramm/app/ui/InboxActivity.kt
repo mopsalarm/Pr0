@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -74,7 +75,9 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
             Track.inboxNotificationClosed("clicked")
         }
 
-        inboxService.markAsRead(intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0))
+        intent.getParcelableExtra<Instant>(EXTRA_MESSAGE_TIMESTAMP)?.let { timestamp ->
+            inboxService.markAsRead(timestamp)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

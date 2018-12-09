@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InboxService
@@ -135,11 +136,14 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
         val values = mutableListOf<Any>()
 
         val f = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val today = Instant.now().toString(f)
         val dates = state.values.map { message -> message.creationTime.toString(f) }
 
         state.values.forEachIndexed { index, message ->
             if (index == 0 || dates[index - 1] != dates[index]) {
-                values += DateDividerValue(dates[index])
+                if (dates[index] != today) {
+                    values += DateDividerValue(dates[index])
+                }
             }
 
             values += message
@@ -215,6 +219,8 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
 
     override fun onBindViewHolder(holder: ViewHolder, value: Api.ConversationMessage) {
         val context = holder.message.context
+
+        holder.message.movementMethod = NonCrashingLinkMovementMethod
 
         holder.message.text = buildSpannedString {
             append(Linkify.linkify(context, value.message))

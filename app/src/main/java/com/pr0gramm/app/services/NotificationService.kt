@@ -140,29 +140,28 @@ class NotificationService(private val context: Application,
         }
     }
 
-    suspend fun showForInbox(sync: Api.Sync) {
+    suspend fun showUnreadMessagesNotification() {
         if (!settings.showNotifications)
             return
 
         // try to get the new messages, ignore all errors.
         runCatching {
-            val messages = inboxService.inbox()
-
-            val unread = messages.take(sync.inboxCount).filter { inboxService.messageIsUnread(it) }
-            showInboxNotification(sync, unread)
+            val messages = inboxService.pending()
+            val unread = messages.filter { inboxService.messageIsUnread(it) }
+            showInboxNotification(unread)
         }
     }
 
     @Suppress("UsePropertyAccessSyntax")
-    private fun showInboxNotification(sync: Api.Sync, messages: List<Api.Message>) {
+    private fun showInboxNotification(messages: List<Api.Message>) {
         if (messages.isEmpty() || !userService.isAuthorized) {
             cancelForInbox()
             return
         }
 
         val title = when {
-            sync.inboxCount == 1 -> context.getString(R.string.notify_new_message_title)
-            else -> context.getString(R.string.notify_new_messages_title, sync.inboxCount)
+            messages.size == 1 -> context.getString(R.string.notify_new_message_title)
+            else -> context.getString(R.string.notify_new_messages_title, messages.size)
         }
 
         val inboxStyle = formatMessages(messages)
@@ -281,7 +280,7 @@ class NotificationService(private val context: Application,
         val intent = Intent(context, InboxActivity::class.java)
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal)
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true)
-        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, timestamp.millis)
+        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, timestamp)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)

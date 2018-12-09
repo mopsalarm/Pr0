@@ -20,6 +20,7 @@
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textIsSelectable="true"
             android:padding="8dp"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
             tools:text="Hallo cha0s, schön dass du das pr0gramm entwickelt hast. Deine Benutzer freuen sich jeden Tag."/>

@@ -12,7 +12,7 @@ import android.widget.TextView
 /**
  * Found it on stack overflow. Translated to kotlin.
  */
-class NonCrashingLinkMovementMethod : LinkMovementMethod() {
+object NonCrashingLinkMovementMethod : LinkMovementMethod() {
     override fun initialize(widget: TextView, text: Spannable) {
         setSelection(text)
     }

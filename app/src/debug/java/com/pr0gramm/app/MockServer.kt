@@ -66,7 +66,7 @@ fun mockServer(block: MockServerSetup.() -> Unit): MockServer {
     return MockServer(MockServerSetup().apply(block).resources)
 }
 
-class MockServerSetup() {
+class MockServerSetup {
     internal val resources = mutableListOf<Resource>()
 
     fun get(path: String, handler: Handler) {
@@ -101,7 +101,7 @@ fun handleUserLogin(): Any {
 }
 
 fun handleUserSync(): Any {
-    return Api.Sync(logLength = 0L, log = "", score = 123, inboxCount = 0)
+    return Api.Sync(logLength = 0L, log = "", score = 123)
 }
 
 fun handleItemsGet(): Any {

@@ -43,6 +43,13 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     /**
+     * Gets unread messages
+     */
+    suspend fun pending(): List<Api.Message> {
+        return api.inboxPending().await().messages
+    }
+
+    /**
      * Gets the list of inbox comments
      */
     suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
@@ -65,14 +72,14 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     private fun markAsRead(message: Api.Message) {
-        markAsRead(message.creationTime.millis)
+        markAsRead(message.creationTime)
     }
 
     /**
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from [.unreadMessagesCount].
      */
-    fun markAsRead(timestamp: Long) {
+    fun markAsRead(timestamp: Instant) {
         val updateRequired = messageIsUnread(timestamp)
         if (updateRequired) {
             logger.info {
@@ -80,7 +87,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
             }
 
             preferences.edit {
-                putLong(KEY_MAX_READ_MESSAGE_ID, timestamp)
+                putLong(KEY_MAX_READ_MESSAGE_ID, timestamp.millis)
             }
         }
     }
@@ -99,11 +106,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * according to [.markAsRead].
      */
     fun messageIsUnread(message: Api.Message): Boolean {
-        return messageIsUnread(message.creationTime.millis)
+        return messageIsUnread(message.creationTime)
     }
 
-    fun messageIsUnread(timestamp: Long): Boolean {
-        return timestamp > preferences.getLong(KEY_MAX_READ_MESSAGE_ID, 0)
+    fun messageIsUnread(timestamp: Instant): Boolean {
+        return timestamp.millis > preferences.getLong(KEY_MAX_READ_MESSAGE_ID, 0)
     }
 
     /**
