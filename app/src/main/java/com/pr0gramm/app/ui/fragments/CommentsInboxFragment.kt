@@ -21,7 +21,8 @@ open class CommentsInboxFragment : InboxFragment("MessageInboxFragment") {
 
         notificationService.cancelForInbox()
 
-        return MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, pagination)
+        return MessageAdapter(requireContext(),
+                R.layout.row_inbox_message, actionListener, userService.name, pagination)
     }
 }
 

@@ -435,9 +435,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private inner class UserActionListener : UserInfoView.UserActionListener {
-        override fun onWriteMessageClicked(userId: Int, name: String) {
+        override fun onWriteMessageClicked(name: String) {
             doIfAuthorizedHelper.run {
-                startActivity(WriteMessageActivity.intent(context, userId.toLong(), name))
+                ConversationActivity.start(requireContext(), name)
             }
         }
 

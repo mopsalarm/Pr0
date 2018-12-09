@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.value
+import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import java.lang.reflect.ParameterizedType
@@ -136,7 +138,7 @@ fun staticLayoutAdapterDelegate(layout: Int, itemValue: Any)
 }
 
 
-class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_hint_loading)
+class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_error)
     : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, ErrorAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -153,5 +155,13 @@ class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_hint_loading)
 
     interface Value {
         val errorText: String
+    }
+
+    companion object {
+        fun errorValueOf(context: Context, err: Exception): Value {
+            return object : Value {
+                override val errorText: String = ErrorFormatting.format(context, err)
+            }
+        }
     }
 }

@@ -8,9 +8,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:maxWidth="256dp"
-        android:text="@string/nothing_there"
         android:gravity="center"
+        android:maxWidth="256dp"
+        android:text="@string/conversation_empty"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="?colorAccent"/>
 </LinearLayout>

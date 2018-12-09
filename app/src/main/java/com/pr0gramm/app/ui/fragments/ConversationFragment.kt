@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Bundle
@@ -7,9 +8,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.TextPaint
 import android.text.style.ReplacementSpan
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
@@ -24,10 +24,8 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.util.dip2px
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.fragmentArgument
-import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.*
 import org.kodein.di.erased.instance
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,6 +38,12 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     private val refreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val listView: RecyclerView by bindView(R.id.messages)
 
+    private val messageText: TextView by bindView(R.id.message_input)
+    private val buttonSend: ImageButton by bindView(R.id.action_send)
+
+    // the pagination thats backing the list view
+    private lateinit var pagination: Pagination<Api.ConversationMessage>
+
     var conversationName: String by fragmentArgument()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -51,67 +55,116 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
         with(listView) {
             itemAnimator = null
-            layoutManager = LinearLayoutManager(activity)
+            layoutManager = LinearLayoutManager(activity).apply { stackFromEnd = true }
             addItemDecoration(SpacingItemDecoration(dp = 8))
         }
+
+        setTitle(conversationName)
+        setHasOptionsMenu(true)
 
         refreshLayout.setOnRefreshListener { reloadConversation() }
         refreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
-        setTitle(conversationName)
+        buttonSend.setOnClickListener {
+            sendInboxMessage()
+        }
 
         reloadConversation()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_conversation, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_refresh -> reloadConversation() == Unit
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun sendInboxMessage() {
+        val message = messageText.text.toString()
+
+        launchWithErrorHandler {
+            withViewDisabled(messageText, buttonSend) {
+                // do the real posting
+                val messages = inboxService.send(conversationName, message)
+
+                // convert to pagination state
+                val state = Pagination.State(values = messages.messages,
+                        tailState = Pagination.EndState(hasMore = messages.atEnd))
+
+                // clear the input field
+                messageText.text = ""
+
+                // and reset the conversationtoll!
+                resetConversation(state)
+            }
+        }
+    }
+
     private fun reloadConversation() {
+        resetConversation(Pagination.State.hasMoreState())
+    }
+
+    private fun resetConversation(initialState: Pagination.State<Api.ConversationMessage>) {
         refreshLayout.isRefreshing = false
-        listView.adapter = ConversationAdapter()
+
+        val pagination = Pagination(this, ConversationLoader(conversationName, inboxService), initialState)
+        listView.adapter = ConversationAdapter(requireContext(), pagination)
+
+        this.pagination = pagination
+    }
+}
+
+private class ConversationAdapter(private val context: Context, pagination: Pagination<Api.ConversationMessage>)
+    : PaginationRecyclerViewAdapter<Api.ConversationMessage, Any>(pagination, ConversationItemDiffCallback()) {
+
+    init {
+        delegates += MessageAdapterDelegate(sentValue = true)
+        delegates += MessageAdapterDelegate(sentValue = false)
+        delegates += DateDividerAdapterDelegate()
+        delegates += ErrorAdapterDelegate()
+        delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
+        delegates += staticLayoutAdapterDelegate(R.layout.item_conversation_empty, NoConversationsValue)
     }
 
-    private fun makeConversationsPagination(): Pagination<Api.ConversationMessage> {
-        return Pagination(this, ConversationLoader(conversationName, inboxService), Pagination.State.hasMoreState())
-    }
+    override fun translateState(state: Pagination.State<Api.ConversationMessage>): List<Any> {
+        val values = mutableListOf<Any>()
 
-    inner class ConversationAdapter : PaginationRecyclerViewAdapter<Api.ConversationMessage, Any>(
-            makeConversationsPagination(),
-            ConversationItemDiffCallback()) {
+        val f = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val dates = state.values.map { message -> message.creationTime.toString(f) }
 
-        init {
-            delegates += MessageAdapterDelegate(sentValue = true)
-            delegates += MessageAdapterDelegate(sentValue = false)
-            delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
-            delegates += ErrorAdapterDelegate()
-            delegates += DateDividerAdapterDelegate()
+        state.values.forEachIndexed { index, message ->
+            if (index > 0 && dates[index - 1] != dates[index]) {
+                values += DateDividerValue(dates[index])
+            }
+
+            values += message
         }
 
-        override fun translateState(state: Pagination.State<Api.ConversationMessage>): List<Any> {
-            val values = mutableListOf<Any>()
-
-            val f = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-            val dates = state.values.map { message -> message.creationTime.toString(f) }
-
-            state.values.forEachIndexed { index, message ->
-                if (index > 0 && dates[index - 1] != dates[index]) {
-                    values += DateDividerValue(dates[index])
-                }
-
-                values += message
-            }
-
-            if (state.tailState.error != null) {
-                values += LoadError(state.tailState.error.toString())
-            }
-
-            if (state.tailState.loading) {
-                values += Loading()
-            }
-
-            return values
+        if (state.tailState.error != null) {
+            val error = ErrorFormatting.format(context, state.tailState.error)
+            values += LoadError(error)
         }
+
+        if (state.tailState.loading) {
+            values += Loading()
+        }
+
+        if (values.isEmpty()) {
+            values += NoConversationsValue
+        }
+
+        return values.reversed()
     }
 }
 
 private data class DateDividerValue(val date: String)
+
+private object NoConversationsValue
 
 private class ConversationItemDiffCallback : DiffUtil.ItemCallback<Any>() {
     override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {

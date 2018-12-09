@@ -143,6 +143,13 @@ interface Api {
             @Field("comment") text: String,
             @Field("recipientId") recipient: Long): Deferred<Unit>
 
+    @FormUrlEncoded
+    @POST("/api/inbox/post")
+    fun sendMessage(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("comment") text: String,
+            @Field("recipientName") recipient: String): Deferred<ConversationMessages>
+
     @GET("/api/items/ratelimited")
     fun ratelimited(): Deferred<Unit>
 
@@ -587,8 +594,5 @@ interface Api {
             val id: Long,
             @Json(name="created") val creationTime: Instant,
             val message: String,
-            val sent: Boolean,
-            val read: Boolean,
-            val name: String,
-            val mark: Int)
+            val sent: Boolean)
 }

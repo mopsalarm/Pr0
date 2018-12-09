@@ -10,6 +10,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.ConversationFragment
+import com.pr0gramm.app.util.activityIntent
 import com.pr0gramm.app.util.find
 
 
@@ -71,9 +72,13 @@ class ConversationActivity : BaseAppCompatActivity("ConversationActivity") {
         const val EXTRA_CONVERSATION_NAME = "ConversationActivity.name"
 
         fun start(context: Context, name: String) {
-            context.startActivity(Intent(context, ConversationActivity::class.java).apply {
+            val intent = activityIntent<ConversationActivity>(context) {
                 putExtra(EXTRA_CONVERSATION_NAME, name)
-            })
+            }
+
+            context.startActivities(arrayOf(
+                    activityIntent<InboxActivity>(context),
+                    intent))
         }
     }
 }

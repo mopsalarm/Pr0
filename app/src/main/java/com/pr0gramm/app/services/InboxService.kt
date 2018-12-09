@@ -124,6 +124,13 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         api.sendMessage(null, message, receiverId).await()
     }
 
+    /**
+     * Sends a private message to a receiver
+     */
+    suspend fun send(recipient: String, message: String): Api.ConversationMessages {
+        return api.sendMessage(null, message, recipient).await()
+    }
+
     suspend fun listConversations(olderThan: Instant? = null): Api.Conversations {
         return api.listConversations(olderThan?.epochSeconds).await()
     }

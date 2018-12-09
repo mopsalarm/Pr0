@@ -67,7 +67,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
-            userActionListener.onWriteMessageClicked(user.id, user.name)
+            userActionListener.onWriteMessageClicked(user.name)
         }
 
         (this.comments.parent as View).setOnClickListener {
@@ -155,7 +155,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
     }
 
     interface UserActionListener {
-        fun onWriteMessageClicked(userId: Int, name: String)
+        fun onWriteMessageClicked(name: String)
         fun onUserFavoritesClicked(name: String)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)

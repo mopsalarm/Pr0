@@ -592,11 +592,27 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
      */
     private fun handleIntent(intent: Intent) {
         val uri = intent.data ?: return
-        if (uri.toString().matches(".*/user/[^/]+/resetpass/[^/]+".toRegex())) {
+        val uriString = uri.toString()
+        if (uriString.matches(".*/user/[^/]+/resetpass/[^/]+".toRegex())) {
             val openIntent = Intent(this, PasswordRecoveryActivity::class.java)
-            openIntent.putExtra("url", uri.toString())
+            openIntent.putExtra("url", uriString)
             startActivity(openIntent)
             return
+        }
+
+        if (uriString.endsWith("/inbox/messages")) {
+            startActivity(activityIntent<InboxActivity>(this))
+            if (!this.shouldClearOnIntent) {
+                return
+            }
+        }
+
+        "/inbox/messages/([^/]+)$".toRegex().find(uriString)?.let { match ->
+            val conversationName = match.groupValues[1]
+            ConversationActivity.start(this, conversationName)
+            if (!this.shouldClearOnIntent) {
+                return
+            }
         }
 
         val notificationTime: Instant? = intent.getParcelableExtra("MainActivity.NOTIFICATION_TIME")

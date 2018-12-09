@@ -62,7 +62,8 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     }
 
     private fun reloadInboxContent() {
-        // TODO
+        swipeRefreshLayout.isRefreshing = false
+        messagesView.adapter = getContentAdapter()
     }
 
     abstract fun getContentAdapter(): RecyclerView.Adapter<*>

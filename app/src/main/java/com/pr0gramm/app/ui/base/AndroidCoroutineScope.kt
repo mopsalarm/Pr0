@@ -49,14 +49,14 @@ interface AndroidCoroutineScope : CoroutineScope {
     }
 }
 
-inline fun <T> withViewDisabled(view: View, block: () -> T): T {
+inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
     AndroidUtility.checkMainThread()
 
-    view.isEnabled = false
+    views.forEach { it.isEnabled = false }
     try {
         return block()
     } finally {
-        view.isEnabled = true
+        views.forEach { it.isEnabled = true }
     }
 }
 

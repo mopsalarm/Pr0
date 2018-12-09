@@ -2,8 +2,8 @@ package com.pr0gramm.app.ui
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.logger
-import com.pr0gramm.app.util.observeChange
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -13,12 +13,9 @@ import kotlin.collections.ArrayList
 class Pagination<E : Any>(private val scope: CoroutineScope, private val loader: Loader<E>, initialState: State<E>) {
     private val logger = logger("Pagination(${loader.javaClass.simpleName})")
 
-    private var state: State<E> by observeChange(initialState) {
-        onStateChanged(state)
-    }
+    var state: State<E> = initialState
+        private set
 
-
-    val currentState get() = state
 
     /**
      * Directly called with the current state if set.
@@ -33,6 +30,18 @@ class Pagination<E : Any>(private val scope: CoroutineScope, private val loader:
         if (tailState.hasMore && !tailState.loading && state.size == 0) {
             this.loadAtTail()
         }
+    }
+
+    /**
+     * Modifies the paginations state using a custom function
+     */
+    fun updateState(state: State<E>) {
+        checkMainThread()
+
+        this.state = state
+
+        // and publish updated state value
+        onStateChanged(state)
     }
 
     fun hit(value: Any) {
@@ -73,9 +82,9 @@ class Pagination<E : Any>(private val scope: CoroutineScope, private val loader:
 
         scope.launch {
             // update state first
-            state = updateEndState(state) { it.copy(loading = true, error = null) }
+            updateState(updateEndState(state) { it.copy(loading = true, error = null) })
 
-            state = try {
+            val newState = try {
                 logger.warn { "Start loading" }
                 val updatedState = loadCallback(state.values)(state)
 
@@ -90,6 +99,8 @@ class Pagination<E : Any>(private val scope: CoroutineScope, private val loader:
                 logger.warn { "Loading failed" }
                 updateEndState(state) { it.copy(loading = false, error = err) }
             }
+
+            updateState(newState)
         }
     }
 
@@ -144,7 +155,7 @@ abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
         if (!initialized) {
             initialized = true
 
-            updateAdapterValues(pagination.currentState)
+            updateAdapterValues(pagination.state)
 
             pagination.onStateChanged = this::updateAdapterValues
             pagination.initialize()

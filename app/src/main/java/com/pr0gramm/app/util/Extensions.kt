@@ -387,6 +387,11 @@ inline fun Context.dip2px(dpValue: Float): Float {
     return dpValue * resources.displayMetrics.density
 }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun Context.dip2px(dpValue: Int): Int {
+    return dip2px(dpValue.toFloat()).toInt()
+}
+
 /**
  * Converts a boolean to either 'one' or 'zero'.
  */
@@ -604,4 +609,10 @@ fun asClosable(value: Any): Closeable {
 
 fun <T : Any> observableOrEmpty(value: T?): Observable<T> {
     return if (value == null) Observable.empty() else Observable.just(value)
+}
+
+inline fun <reified T : Activity> activityIntent(
+        context: Context, uri: Uri? = null, configure: Intent.() -> Unit = {}): Intent {
+
+    return Intent(context, T::class.java).apply { this.data = uri }.apply(configure)
 }

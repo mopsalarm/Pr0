@@ -4,16 +4,14 @@
               android:layout_height="wrap_content"
               android:gravity="center"
               android:orientation="horizontal"
-              android:paddingBottom="48dp"
-              android:paddingTop="48dp">
+              android:minHeight="144dp">
 
     <com.pr0gramm.app.ui.views.BusyIndicator
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginRight="8dp"/>
+        android:layout_margin="8dp"/>
 
     <TextView
-        android:id="@+id/error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="256dp"

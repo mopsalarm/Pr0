@@ -528,5 +528,6 @@
     <string name="pref_private_input_summary">Enable incognito keyboard if possible. Works with the gboard and others. May require you to restart the app.</string>
     <string name="feedback_type_app_hint">Hier nur Feedback zur App. Normale Supportanfragen zum pr0gramm werden ignoriert. Bitte treffe die richtige Auswahl.</string>
     <string name="authors_hint">Link to one or more of the parent commenters directly.</string>
+    <string name="conversation_empty">No messages yet\n¯\\_(ツ)_/¯</string>
 </resources>
 

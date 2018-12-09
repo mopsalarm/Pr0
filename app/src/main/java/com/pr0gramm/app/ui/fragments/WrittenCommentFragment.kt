@@ -26,6 +26,7 @@ class WrittenCommentFragment : InboxFragment("WrittenCommentFragment") {
 
         // create and initialize the adapter
         val pagination = Pagination(this, loader, Pagination.State.hasMoreState(listOf()))
-        return MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, pagination)
+        return MessageAdapter(requireContext(),
+                R.layout.row_inbox_message, actionListener, userService.name, pagination)
     }
 }

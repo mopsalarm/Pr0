@@ -11,12 +11,12 @@ class SpacingItemDecoration(private val dp: Int) : RecyclerView.ItemDecoration()
 
         val index = parent.getChildAdapterPosition(view)
         if (index == 0) {
-            outRect.top = parent.context.dip2px(dp.toFloat()).toInt()
+            outRect.top = parent.context.dip2px(dp)
         }
 
         val itemCount = parent.adapter?.itemCount ?: 0
         if (index == itemCount - 1) {
-            outRect.bottom = parent.context.dip2px(dp.toFloat()).toInt()
+            outRect.bottom = parent.context.dip2px(dp)
         }
     }
 }

@@ -25,6 +25,7 @@ class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
 
         // create and initialize the adapter
         val pagination = Pagination(this, loader, Pagination.State.hasMoreState())
-        return MessageAdapter(R.layout.row_inbox_message, actionListener, null, pagination)
+        return MessageAdapter(requireContext(),
+                R.layout.row_inbox_message, actionListener, null, pagination)
     }
 }

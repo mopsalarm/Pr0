@@ -295,6 +295,10 @@ object ErrorFormatting {
         return getCauseOfType<T>() != null
     }
 
+    fun format(context: Context, error: Throwable): String {
+        return getFormatter(error).getMessage(context, error)
+    }
+
     private val formatters = makeErrorFormatters()
 }
 
