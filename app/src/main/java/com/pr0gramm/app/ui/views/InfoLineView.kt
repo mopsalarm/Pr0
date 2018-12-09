@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -33,8 +31,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private val ratingView: TextView by bindView(R.id.rating)
     private val dateView: TextView by bindView(R.id.date)
     private val usernameView: UsernameView by bindView(R.id.username)
-    private val voteFavoriteView: Pr0grammIconView by bindView(R.id.action_favorite)
-    private val ratingUnknownView: View by bindView(R.id.rating_hidden)
+    private val voteFavoriteView: ImageView by bindView(R.id.action_favorite)
 
     private val voteView: VoteView by bindView(R.id.voting)
 
@@ -101,6 +98,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
      * @param vote The vote that is currently selected.
      */
+    @SuppressLint("SetTextI18n")
     private fun updateViewState(vote: Vote) {
         val feedItem = this.feedItem ?: return
 
@@ -122,16 +120,14 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             }
 
             ratingView.visibility = viewVisibility
-            ratingUnknownView.visibility = View.GONE
 
         } else {
-            ratingUnknownView.visibility = viewVisibility
-            ratingView.visibility = View.GONE
+            ratingView.text = "\u2022\u2022\u2022"
             ratingView.setOnLongClickListener(null)
         }
 
-        voteFavoriteView.setTextColor(
-                if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor)
+        val color = if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor
+        ImageViewCompat.setImageTintList(voteFavoriteView, color)
     }
 
     private val isOneHourOld: Boolean

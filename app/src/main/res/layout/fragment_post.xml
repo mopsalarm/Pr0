@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
@@ -10,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.pr0gramm.app.ui.views.Pr0grammIconView
+        <ImageView
             android:id="@+id/vote_indicator"
             android:layout_width="160dp"
             android:layout_height="160dp"
@@ -19,9 +18,9 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:visibility="gone"
-            app:iv_text="M"
-            app:iv_textColor="?colorAccent"
-            app:iv_textSize="150dp"
+            android:tint="?colorAccent"
+            tools:srcCompat="@drawable/ic_vote_fav"
+            tools:visibility="visible"
             tools:ignore="NegativeMargin"/>
 
         <TextView

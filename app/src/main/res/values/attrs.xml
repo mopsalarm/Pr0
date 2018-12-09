@@ -18,17 +18,11 @@
             <enum name="vertical" value="1"/>
         </attr>
 
-        <attr name="spacing" format="dimension"/>
         <attr name="markedColor" format="color|reference"/>
         <attr name="markedColorDown" format="color|reference"/>
         <attr name="defaultColor" format="color|reference"/>
         <attr name="textSize" format="dimension"/>
-    </declare-styleable>
-
-    <declare-styleable name="IconView">
-        <attr name="iv_textSize" format="dimension"/>
-        <attr name="iv_textColor" format="color"/>
-        <attr name="iv_text" format="string"/>
+        <attr name="spacing" format="dimension"/>
     </declare-styleable>
 
     <declare-styleable name="CommentSpacerView">
@@ -36,11 +30,6 @@
         <attr name="lineWidth" format="dimension"/>
         <attr name="lineColor" format="color"/>
         <attr name="depth" format="integer"/>
-    </declare-styleable>
-
-    <declare-styleable name="ScoreUnknownView">
-        <attr name="radius" format="dimension"/>
-        <attr name="fillColor" format="color|reference"/>
     </declare-styleable>
 
     <declare-styleable name="AspectView">

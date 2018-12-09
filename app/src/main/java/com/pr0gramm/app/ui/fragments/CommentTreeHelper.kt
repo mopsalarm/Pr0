@@ -213,11 +213,11 @@ class CommentView(val parent: ViewGroup,
             if (isFavorite) {
                 val color = ContextCompat.getColor(context, ThemeHelper.accentColor)
                 fav.setColorFilter(color)
-                fav.setImageResource(R.drawable.ic_favorite)
+                fav.setImageResource(R.drawable.ic_vote_fav)
             } else {
                 val color = ContextCompat.getColor(context, R.color.grey_700)
                 fav.setColorFilter(color)
-                fav.setImageResource(R.drawable.ic_favorite_border)
+                fav.setImageResource(R.drawable.ic_vote_fav_outline)
             }
 
             fav.visible = true

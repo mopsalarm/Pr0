@@ -32,43 +32,38 @@
         android:layout_width="match_parent"
         android:layout_height="16dp"
         android:orientation="horizontal"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:gravity="top">
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/points"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="16dp"
             android:layout_marginRight="8dp"
             android:textSize="10sp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            app:firstBaselineToTopHeight="12dp"
             tools:text="15"/>
-
-        <com.pr0gramm.app.ui.views.ScoreUnknownView
-            android:id="@+id/points_unknown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="4sp"
-            android:layout_marginRight="8dp"
-            app:fillColor="?android:textColorSecondary"
-            app:radius="3sp"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="16dp"
             android:textSize="10sp"
+            app:firstBaselineToTopHeight="12dp"
             tools:text="@string/dummy_post_date"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/answer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="16dp"
             android:layout_marginLeft="8dp"
             android:textColor="?colorAccent"
-            android:singleLine="true"
+            app:firstBaselineToTopHeight="12dp"
             android:text="@string/action_answer"/>
 
     </LinearLayout>

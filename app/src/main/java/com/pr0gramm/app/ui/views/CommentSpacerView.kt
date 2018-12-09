@@ -6,7 +6,7 @@ import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.widget.RelativeLayout
+import android.widget.FrameLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.dip2px
@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 /**
  */
-class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : RelativeLayout(context, attrs) {
+class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
     private val basePaddingLeft = paddingLeft
 
     private val lineWidth = context.dip2px(1f)

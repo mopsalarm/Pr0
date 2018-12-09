@@ -6,7 +6,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
@@ -14,38 +14,30 @@
         <com.pr0gramm.app.ui.views.VoteView
             android:id="@+id/voting"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="8dp"
             app:defaultColor="?android:textColorSecondary"
             app:markedColor="?colorAccent"
             app:orientation="horizontal"
-            app:spacing="8dp"
-            app:textSize="28sp"/>
+            android:padding="4dp"
+            app:textSize="28dp"/>
 
         <TextView
             android:id="@+id/rating"
             style="@style/Base.TextAppearance.AppCompat.Display1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginLeft="12dp"
             tools:text="-315"/>
 
-        <com.pr0gramm.app.ui.views.ScoreUnknownView
-            android:id="@+id/rating_hidden"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            app:fillColor="?android:textColorSecondary"
-            app:radius="6sp"/>
-
-        <com.pr0gramm.app.ui.views.Pr0grammIconView
+        <ImageView
             android:id="@+id/action_favorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
             android:layout_marginLeft="8dp"
-            app:iv_text="*"
-            app:iv_textColor="?android:textColorSecondary"
-            app:iv_textSize="28sp"/>
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:tint="?android:textColorSecondary"
+            app:srcCompat="@drawable/ic_vote_fav"/>
 
         <LinearLayout
             android:layout_width="0dp"

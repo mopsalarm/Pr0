@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +39,6 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.PostActions
-import com.pr0gramm.app.ui.views.Pr0grammIconView
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
@@ -102,7 +102,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val recyclerView: StatefulRecyclerView? by bindOptionalView(R.id.post_content)
     private val recyclerViewInfo: RecyclerView? by bindOptionalView(R.id.post_content__info)
     private val recyclerViewComments: RecyclerView? by bindOptionalView(R.id.post_content__comments)
-    private val voteAnimationIndicator: Pr0grammIconView by bindView(R.id.vote_indicator)
+    private val voteAnimationIndicator: ImageView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
     private var viewer: MediaView? = null
@@ -742,8 +742,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // quickly center the vote button
         simulateScroll()
 
-        val text = if (vote === Vote.UP) "+" else (if (vote === Vote.DOWN) "-" else "*")
-        voteAnimationIndicator.text = text
+        voteAnimationIndicator.setImageResource(when (vote) {
+            Vote.UP -> R.drawable.ic_vote_up
+            Vote.DOWN -> R.drawable.ic_vote_down
+            else -> R.drawable.ic_vote_fav
+        })
 
         voteAnimationIndicator.visibility = View.VISIBLE
         voteAnimationIndicator.alpha = 0f

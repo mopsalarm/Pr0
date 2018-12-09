@@ -6,9 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="4dp"
-    android:paddingRight="16dp"
     android:paddingLeft="8dp"
-    android:paddingTop="4dp">
+    android:paddingRight="16dp"
+    android:paddingTop="4dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="16dp">
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/voting"
@@ -18,50 +20,52 @@
         app:defaultColor="@color/grey_700"
         app:markedColor="?colorAccent"
         app:orientation="vertical"
-        app:spacing="4sp"
-        app:textSize="@dimen/normal_comment_vote_view_size"/>
+        app:spacing="2dp"
+        app:textSize="24dp"/>
 
     <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
         android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_marginLeft="8dp"
-        android:layout_toRightOf="@+id/voting"
+        android:layout_marginLeft="32dp"
+        android:layout_marginBottom="36dp"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
-        tools:text="@string/dummy_text"/>
+        tools:text="@string/dummy_text"
+        android:layout_marginStart="32dp"/>
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/sender_info"
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_alignLeft="@+id/comment"
+        android:layout_marginLeft="32dp"
         android:layout_below="@+id/comment"
-        android:layout_marginTop="4dp"/>
+        android:layout_gravity="bottom"
+        android:layout_marginStart="32dp"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
         android:layout_alignBottom="@id/sender_info"
         android:layout_alignParentRight="true"
-        android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="4dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/action_more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_more_vert_vec"
-            android:tint="@color/grey_700"/>
+            android:tint="@color/grey_700"
+            app:srcCompat="@drawable/ic_more_vert_vec"/>
 
         <Button
             android:id="@+id/action_expand"
-            android:layout_gravity="center_vertical"
-            android:background="?attr/roundedCornerBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/roundedCornerBackground"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:paddingBottom="2dp"
@@ -76,21 +80,21 @@
 
         <ImageButton
             android:id="@+id/action_kfav"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_favorite_border_vec"
-            android:tint="@color/grey_700"/>
+            android:tint="@color/grey_700"
+            app:srcCompat="@drawable/ic_vote_fav_outline"/>
 
         <ImageButton
             android:id="@+id/action_reply"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_reply_vec"
-            android:tint="?colorAccent"/>
+            android:tint="?colorAccent"
+            app:srcCompat="@drawable/ic_reply_vec"/>
 
     </LinearLayout>
 

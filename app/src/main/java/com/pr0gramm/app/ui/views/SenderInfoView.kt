@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
@@ -14,22 +15,26 @@ import com.pr0gramm.app.util.visible
 
 /**
  */
-class SenderInfoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
+class SenderInfoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+    : FrameLayout(context, attrs, defStyleAttr), View.OnLongClickListener {
+
     private val nameView: UsernameView
     private val pointsView: TextView
-    private val pointsUnknownView: View
     private val dateView: TextView
     private val answerView: View
     private val badgeOpView: View
+
+    private var score: CommentScore? = null
 
     init {
         View.inflate(getContext(), R.layout.sender_info, this)
         nameView = find(R.id.username)
         pointsView = find(R.id.points)
-        pointsUnknownView = find(R.id.points_unknown)
         dateView = find(R.id.date)
         answerView = find(R.id.answer)
         badgeOpView = find(R.id.badge_op)
+
+        pointsView.setOnLongClickListener(this)
 
         setBadgeOpVisible(false)
         setOnAnswerClickedListener(null)
@@ -48,28 +53,30 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
         pointsView.text = context.getString(R.string.points, points)
         pointsView.visible = true
 
-        if (score != null) {
-            pointsView.setOnLongClickListener {
-                val msg = String.format("%d up, %d down", score.up, score.down)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                true
-            }
-        } else {
-            pointsView.isLongClickable = false
-        }
-
-        pointsUnknownView.visible = false
+        this.score = score
     }
 
+    override fun onLongClick(v: View?): Boolean {
+        if (v === pointsView) {
+            val score = this.score ?: return false
+            val msg = String.format("%d up, %d down", score.up, score.down)
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            return true
+        }
+
+        return false
+    }
 
     fun hidePointView() {
         pointsView.visible = false
-        pointsUnknownView.visible = false
+        this.score = null
     }
 
+    @SuppressLint("SetTextI18n")
     fun setPointsUnknown() {
-        pointsView.visible = false
-        pointsUnknownView.visible = true
+        pointsView.text = "\u25CF\u25CF\u25CF"
+        pointsView.visible = true
+        this.score = null
     }
 
     fun setDate(date: Instant) {
