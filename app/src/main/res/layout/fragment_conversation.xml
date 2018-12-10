@@ -34,7 +34,7 @@
             android:layout_marginRight="48dp"
             android:background="@android:color/transparent"
             android:gravity="center_vertical"
-            android:maxLines="3"
+            android:maxLines="6"
             android:hint="@string/write_message_placeholder"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"

@@ -392,6 +392,7 @@ interface Api {
             val name: String,
             val score: Int,
             val senderId: Int,
+            val read: Boolean = true,
             @Json(name = "created") val creationTime: Instant,
             @Json(name = "thumb") override val thumbnail: String?) : HasThumbnail {
 

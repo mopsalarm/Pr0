@@ -11,7 +11,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
-import com.pr0gramm.app.ui.fragments.WrittenCommentFragment
+import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.find
 import kotterknife.bindView
 import org.kodein.di.erased.instance
@@ -53,9 +53,9 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
 
-        tabsAdapter.addTab(R.string.inbox_type_comments, CommentsInboxFragment::class.java)
+        tabsAdapter.addTab(R.string.inbox_type_comments_in, CommentsInboxFragment::class.java)
 
-        tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment::class.java)
+        tabsAdapter.addTab(R.string.inbox_type_comments_out, WrittenCommentsFragment::class.java)
 
         viewPager.adapter = tabsAdapter
 

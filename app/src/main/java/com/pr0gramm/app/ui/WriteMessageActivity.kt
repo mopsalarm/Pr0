@@ -28,7 +28,6 @@ import com.pr0gramm.app.util.*
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import org.kodein.di.erased.instance
-import java.util.*
 import kotlin.collections.set
 
 /**
@@ -241,7 +240,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private const val ARGUMENT_EXCERPTS = "WriteMessageFragment.excerpts"
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
 
-        private var CACHE: MutableMap<String, String> = HashMap()
+        private val CACHE = mutableMapOf<String, String>()
 
         fun intent(context: Context, message: Api.Message): Intent {
             val intent = intent(context, message.senderId.toLong(), message.name)

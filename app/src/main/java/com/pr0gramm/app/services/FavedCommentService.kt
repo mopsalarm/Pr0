@@ -11,14 +11,14 @@ import java.util.concurrent.TimeUnit
  */
 
 class FavedCommentService(private val api: Api, private val userService: UserService) {
-    suspend fun list(contentType: EnumSet<ContentType>): List<Api.FavedUserComment> {
+    suspend fun list(contentType: EnumSet<ContentType>, olderThan: Instant? = null): List<Api.FavedUserComment> {
         val username = userService.name
 
         if (!userService.isAuthorized || username == null)
             return listOf()
 
         val response = api.userCommentsLike(username,
-                Instant.now().plus(1, TimeUnit.DAYS).millis,
+                (olderThan ?: Instant.now().plus(1, TimeUnit.DAYS)).epochSeconds,
                 ContentType.combine(contentType)).await()
 
         return response.comments
@@ -29,6 +29,7 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
 
         fun commentToMessage(comment: Api.FavedUserComment): Api.Message {
             val thumbnail = comment.thumb.replaceFirst(regex, "/")
+
             return Api.Message(
                     id = comment.id,
                     itemId = comment.itemId,

@@ -125,7 +125,8 @@
     <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
-    <string name="inbox_type_comments">Kommentare</string>
+    <string name="inbox_type_comments_in">Kommentare</string>
+    <string name="inbox_type_comments_out">Eigene Kommentare</string>
     <string name="pref_load_hq_image_in_zoomview_title">HD in Zoom-Ansicht</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Zeige automatisch die HD Version von Bildern in der Zoom-Ansicht, falls vorhanden</string>
     <string name="pref_downloadLocation_title">Download Ordner</string>

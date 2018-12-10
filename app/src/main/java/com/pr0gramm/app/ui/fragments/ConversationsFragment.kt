@@ -51,17 +51,14 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 
     private fun reloadConversations() {
+        val pagination = Pagination(this, ConversationsLoader(inboxService))
+
         swipeRefreshLayout.isRefreshing = false
-        listView.adapter = ConversationsAdapter()
+        listView.adapter = ConversationsAdapter(pagination)
     }
 
-    private fun makeConversationsPagination(): Pagination<Api.Conversation> {
-        return Pagination(this, ConversationsLoader(inboxService), Pagination.State.hasMoreState())
-    }
-
-    inner class ConversationsAdapter : PaginationRecyclerViewAdapter<Api.Conversation, Any>(
-            makeConversationsPagination(),
-            ConversationsItemDiffCallback()) {
+    inner class ConversationsAdapter(pagination: Pagination<Api.Conversation>)
+        : PaginationRecyclerViewAdapter<Api.Conversation, Any>(pagination, ConversationsItemDiffCallback()) {
 
         init {
             delegates += ConversationAdapterDelegate(requireContext()) { handleConversationClicked(it) }
@@ -72,13 +69,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         override fun translateState(state: Pagination.State<Api.Conversation>): List<Any> {
             val values = state.values.toMutableList<Any>()
 
-            if (state.tailState.error != null) {
-                values += LoadError(state.tailState.error.toString())
-            }
-
-            if (state.tailState.loading) {
-                values += Loading()
-            }
+            addEndStateToValues(requireContext(), values, state.tailState)
 
             return values
         }
@@ -90,8 +81,6 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 }
 
-data class LoadError(override val errorText: String) : ErrorAdapterDelegate.Value
-
 private class ConversationsItemDiffCallback : DiffUtil.ItemCallback<Any>() {
     override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
         return when {
@@ -99,7 +88,7 @@ private class ConversationsItemDiffCallback : DiffUtil.ItemCallback<Any>() {
                 oldItem.name == newItem.name
 
             else ->
-                newItem === oldItem
+                newItem == oldItem
         }
     }
 

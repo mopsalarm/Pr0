@@ -66,6 +66,19 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         refreshLayout.setOnRefreshListener { reloadConversation() }
         refreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
+        // restore backup if available
+        messageText.text = BACKUP[conversationName] ?: ""
+
+        messageText.addTextChangedListener(object : SimpleTextWatcher() {
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                buttonSend.isEnabled = s.toString().isNotBlank()
+
+                // backup to restore it later.
+                BACKUP[conversationName] = s.toString()
+            }
+        })
+
+
         buttonSend.setOnClickListener {
             sendInboxMessage()
         }
@@ -100,6 +113,9 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
                 // clear the input field
                 messageText.text = ""
 
+                // remove backup value
+                BACKUP.remove(conversationName)
+
                 // and reset the conversationtoll!
                 resetConversation(state)
             }
@@ -118,6 +134,10 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
         this.pagination = pagination
     }
+
+    companion object {
+        private val BACKUP = mutableMapOf<String, String>()
+    }
 }
 
 private class ConversationAdapter(private val context: Context, pagination: Pagination<Api.ConversationMessage>)
@@ -126,7 +146,7 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
     init {
         delegates += MessageAdapterDelegate(sentValue = true)
         delegates += MessageAdapterDelegate(sentValue = false)
-        delegates += DateDividerAdapterDelegate()
+        delegates += DividerAdapterDelegate()
         delegates += ErrorAdapterDelegate()
         delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
         delegates += staticLayoutAdapterDelegate(R.layout.item_conversation_empty, NoConversationsValue)
@@ -142,21 +162,14 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
         state.values.forEachIndexed { index, message ->
             if (index == 0 || dates[index - 1] != dates[index]) {
                 if (dates[index] != today) {
-                    values += DateDividerValue(dates[index])
+                    values += DividerAdapterDelegate.Value(dates[index])
                 }
             }
 
             values += message
         }
 
-        if (state.tailState.error != null) {
-            val error = ErrorFormatting.format(context, state.tailState.error)
-            values += LoadError(error)
-        }
-
-        if (state.tailState.loading) {
-            values += Loading()
-        }
+        addEndStateToValues(context, values, state.tailState)
 
         if (values.isEmpty()) {
             values += NoConversationsValue
@@ -166,8 +179,6 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
     }
 }
 
-private data class DateDividerValue(val date: String)
-
 private object NoConversationsValue
 
 private class ConversationItemDiffCallback : DiffUtil.ItemCallback<Any>() {
@@ -176,18 +187,17 @@ private class ConversationItemDiffCallback : DiffUtil.ItemCallback<Any>() {
             oldItem is Api.ConversationMessage && newItem is Api.ConversationMessage ->
                 oldItem.id == newItem.id
 
-            oldItem is DateDividerValue && newItem is DateDividerValue ->
-                oldItem.date == newItem.date
+            oldItem is DividerAdapterDelegate.Value && newItem is DividerAdapterDelegate.Value ->
+                oldItem.text == newItem.text
 
             else ->
-                newItem === oldItem
+                newItem == oldItem
         }
     }
 
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
         return oldItem == newItem
     }
-
 }
 
 private class ConversationLoader(private val name: String, private val inboxService: InboxService) : Pagination.Loader<Api.ConversationMessage>() {
@@ -239,20 +249,22 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
     }
 }
 
-private class DateDividerAdapterDelegate
-    : ListItemTypeAdapterDelegate<DateDividerValue, DateDividerAdapterDelegate.ViewHolder>() {
+class DividerAdapterDelegate
+    : ListItemTypeAdapterDelegate<DividerAdapterDelegate.Value, DividerAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(parent.inflateDetachedChild(R.layout.item_date_divider))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, value: DateDividerValue) {
-        holder.date.text = value.date
+    override fun onBindViewHolder(holder: ViewHolder, value: Value) {
+        holder.textView.text = value.text
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val date = find<TextView>(R.id.date)
+        val textView = find<TextView>(R.id.text)
     }
+
+    data class Value(val text: String)
 }
 
 private class SpaceSpan(private val width: Int) : ReplacementSpan(), Parcelable {

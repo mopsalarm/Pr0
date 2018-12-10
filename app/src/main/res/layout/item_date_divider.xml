@@ -15,7 +15,7 @@
         app:srcCompat="@drawable/date_divider"/>
 
     <TextView
-        android:id="@+id/date"
+        android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"

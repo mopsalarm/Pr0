@@ -122,6 +122,8 @@
     <string name="inbox_type_private">Private</string>
     <string name="inbox_type_all">Inbox</string>
     <string name="inbox_type_unread">Unread</string>
+    <string name="inbox_type_comments_in">Comments</string>
+    <string name="inbox_type_comments_out">My Comments</string>
     <string name="inbox_nothing_here">No messages\n¯\\_(ツ)_/¯</string>
     <string name="action_send">Send</string>
     <string name="prefcat_visual_title">Visual</string>
@@ -132,7 +134,6 @@
     <string name="pref_confirm_play_on_mobile_summary">Confirm playback on mobile to conserve bandwidth.</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Configure updates and betas here</string>
-    <string name="inbox_type_comments">Comments</string>
     <string name="pref_load_hq_image_in_zoomview_title">High quality in zoom view</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Automatically load hq version of image in zoom view, if available.</string>
     <string name="share">Share</string>

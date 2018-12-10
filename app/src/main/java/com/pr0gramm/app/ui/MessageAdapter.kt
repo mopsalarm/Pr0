@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.ui.fragments.DividerAdapterDelegate
 import com.pr0gramm.app.util.inflate
 
 /**
@@ -22,20 +23,24 @@ class MessageAdapter(
 
     init {
         delegates += MessageAdapterDelegate()
-        delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
         delegates += ErrorAdapterDelegate()
+        delegates += DividerAdapterDelegate()
+        delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, EmptyValue)
     }
 
     override fun translateState(state: Pagination.State<Api.Message>): List<Any> {
         val values = state.values.toMutableList<Any>()
-        if (state.tailState.hasMore) {
-            values += Loading()
+
+        // add the divider above the first read message, but only
+        // if we have at least one unread message
+        val dividerIndex = state.values.indexOfFirst { it.read }
+        if (dividerIndex > 0) {
+            val divider = DividerAdapterDelegate.Value(context.getString(R.string.inbox_type_unread))
+            values.add(dividerIndex, divider)
         }
 
-        if (state.tailState.error != null) {
-            values += ErrorAdapterDelegate.errorValueOf(context, state.tailState.error)
-        }
+        addEndStateToValues(context, values, state.tailState)
 
         if (values.isEmpty()) {
             values += EmptyValue
@@ -50,7 +55,7 @@ class MessageAdapter(
                 return oldItem.id == newItem.id
             }
 
-            return oldItem === newItem
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {

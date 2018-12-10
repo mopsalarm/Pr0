@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
@@ -10,7 +11,11 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Pagination<E : Any>(private val scope: CoroutineScope, private val loader: Loader<E>, initialState: State<E>) {
+class Pagination<E : Any>(
+        private val scope: CoroutineScope,
+        private val loader: Loader<E>,
+        initialState: State<E> = State.hasMoreState()) {
+
     private val logger = logger("Pagination(${loader.javaClass.simpleName})")
 
     var state: State<E> = initialState
@@ -197,4 +202,16 @@ abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
     }
 
     class Translation<E : Any, P : Any>(val adapterValue: E, val stateValue: P)
+
+    companion object {
+        fun addEndStateToValues(context: Context, values: MutableList<in Any>, tailState: Pagination.EndState) {
+            when {
+                tailState.error != null ->
+                    values += ErrorAdapterDelegate.errorValueOf(context, tailState.error)
+
+                tailState.hasMore ->
+                    values += Loading()
+            }
+        }
+    }
 }

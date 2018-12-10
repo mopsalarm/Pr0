@@ -17,8 +17,7 @@ class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
 
     override fun getContentAdapter(): RecyclerView.Adapter<*> {
         val loader = apiMessageLoader { olderThan ->
-            // TODO use olderThan parameter.
-            favedCommentService.list(settings.contentType).map {
+            favedCommentService.list(settings.contentType, olderThan).map {
                 FavedCommentService.commentToMessage(it)
             }
         }

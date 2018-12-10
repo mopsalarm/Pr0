@@ -11,7 +11,7 @@ import org.kodein.di.erased.instance
 
 /**
  */
-class WrittenCommentFragment : InboxFragment("WrittenCommentFragment") {
+class WrittenCommentsFragment : InboxFragment("WrittenCommentFragment") {
     private val userService: UserService by instance()
 
     override fun getContentAdapter(): RecyclerView.Adapter<*> {
