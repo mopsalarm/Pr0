@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
@@ -43,10 +42,6 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
                 logger.info { "Lifecycle ${System.identityHashCode(this)}: $event" }
             }
         }
-    }
-
-    override fun getContext(): Context {
-        return super.getContext()!!
     }
 
     fun <T> bindUntilEventAsync(event: FragmentEvent): AsyncLifecycleTransformer<T> {

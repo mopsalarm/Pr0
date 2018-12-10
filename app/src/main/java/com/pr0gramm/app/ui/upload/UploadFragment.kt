@@ -115,7 +115,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         intent.type = mediaTypeArgument
 
         // check if someone can handle this intent
-        if (!context.canStartIntent(intent)) {
+        if (context?.canStartIntent(intent) == false) {
             showDialog(this) {
                 content(R.string.error_no_gallery_app)
                 positive { activity?.finish() }

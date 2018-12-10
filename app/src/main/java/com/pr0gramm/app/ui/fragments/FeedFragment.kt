@@ -281,7 +281,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         trace { "updateAdapterState()" }
         checkMainThread()
 
-        if (this.activity == null) {
+        val context = context
+        if (this.activity == null || context == null) {
             logger.warn { "updateAdapterState called with activity alredy null." }
             return
         }
@@ -993,7 +994,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 // pass pixels info to target fragment.
                 val image = preview.drawable
 
-                val info = PreviewInfo.of(context, item, image)
+                val info = PreviewInfo.of(requireContext(), item, image)
                 info.preloadFancyPreviewImage(generator)
                 fragment.setPreviewInfo(info)
             }
@@ -1110,7 +1111,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun showFeedNotFoundError() {
-        showDialog(context) {
+        showDialog(context ?: return) {
             content(R.string.error_feed_not_found)
             positive {
                 // open top instead
@@ -1171,7 +1172,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
         } else {
-            showDialog(context) {
+            showDialog(context ?: return) {
                 content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__signin, requiredType.name))
                 positive()
             }
@@ -1184,6 +1185,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun showSearchContainer(animated: Boolean) {
+        val context = context ?: return
+
         if (searchContainerIsVisible())
             return
 
@@ -1203,6 +1206,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (animated) {
             searchContainer.alpha = 0f
 
+            val searchView = searchView
             searchContainer.animateCompat()
                     .withEndAction { searchView.requestSearchFocus() }
                     .alpha(1f)

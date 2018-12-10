@@ -591,7 +591,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             R.id.action_share_post -> ShareHelper.sharePost(activity, feedItem)
             R.id.action_share_direct_link -> ShareHelper.shareDirectLink(activity, feedItem)
             R.id.action_share_image -> ShareHelper.shareImage(activity, feedItem)
-            R.id.action_copy_link -> ShareHelper.copyLink(context, feedItem)
+            R.id.action_copy_link -> ShareHelper.copyLink(activity, feedItem)
             R.id.action_refresh -> refreshWithIndicator()
             R.id.action_download -> downloadPostMedia()
             R.id.action_delete_item -> showDeleteItemDialog()
@@ -850,7 +850,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show sfw/nsfw as a little flag, if the user is admin
         if (userService.userIsAdmin && settings.showContentTypeFlag) {
             // show the little admin triangle
-            val size = AndroidUtility.dp(context, 16)
+            val size = AndroidUtility.dp(requireContext(), 16)
             ViewCompat.setBackground(mediaControlsContainer,
                     TriangleDrawable(feedItem.contentType, size))
 
@@ -860,7 +860,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun buildMediaUri(): MediaUri {
         // initialize a new viewer fragment
-        val uri = MediaUri.of(context, feedItem)
+        val uri = MediaUri.of(requireContext(), feedItem)
 
         if (!uri.isLocal && AndroidUtility.isOnMobile(context)) {
             val confirmAll = settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.ALL
@@ -881,7 +881,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             parent.previewInfoFor(feedItem)?.let { return@lazy it }
         }
 
-        return@lazy PreviewInfo.of(context, feedItem)
+        return@lazy PreviewInfo.of(requireContext(), feedItem)
     }
 
     private fun simulateScroll() {
@@ -1242,6 +1242,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
 
             doIfAuthorizedHelper.runWithRetry {
+                val context = context ?: return@runWithRetry
                 startActivityForResult(
                         WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
                         RequestCodes.WRITE_COMMENT)
@@ -1254,7 +1255,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onCopyCommentLink(comment: Api.Comment) {
-            ShareHelper.copyLink(context, feedItem, comment)
+            ShareHelper.copyLink(context ?: return, feedItem, comment)
         }
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
@@ -236,14 +237,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         updateBenisDelta(delta)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateBenisDelta(delta: Int) {
-        benisDeltaView.visible = true
-        benisDeltaView.setTextColor(if (delta < 0)
-            ContextCompat.getColor(context, R.color.benis_delta_negative)
-        else
-            ContextCompat.getColor(context, R.color.benis_delta_positive))
+        val context = context ?: return
 
-        benisDeltaView.text = String.format("%s%d", if (delta < 0) "↓" else "↑", delta)
+        val color = if (delta < 0) R.color.benis_delta_negative else R.color.benis_delta_positive
+        benisDeltaView.setTextColor(ContextCompat.getColor(context, color))
+        benisDeltaView.text = (if (delta < 0) "↓" else "↑") + delta
+        benisDeltaView.visible = true
     }
 
     fun updateCurrentFilters(current: FeedFilter?) {
@@ -386,7 +387,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             return
         }
 
-        BrowserHelper.openCustomTab(context, uri)
+        BrowserHelper.openCustomTab(context ?: return, uri)
     }
 
     private fun showInboxActivity(unreadCount: Int) {

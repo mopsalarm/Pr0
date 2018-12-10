@@ -70,19 +70,19 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
     protected val actionListener: MessageActionListener = object : MessageActionListener {
         override fun onAnswerToPrivateMessage(message: Api.Message) {
-            startActivity(WriteMessageActivity.intent(context, message))
+            startActivity(WriteMessageActivity.intent(context ?: return, message))
         }
 
         override fun onAnswerToCommentClicked(comment: Api.Message) {
-            startActivity(WriteMessageActivity.answerToComment(context, comment))
+            startActivity(WriteMessageActivity.answerToComment(context ?: return, comment))
         }
 
         override fun onNewPrivateMessage(userId: Long, name: String) {
-            startActivity(WriteMessageActivity.intent(context, userId, name))
+            startActivity(WriteMessageActivity.intent(context ?: return, userId, name))
         }
 
         override fun onCommentClicked(comment: Api.Message) {
-            val uri = UriHelper.of(context).post(FeedType.NEW, comment.itemId, comment.id)
+            val uri = UriHelper.of(context ?: return).post(FeedType.NEW, comment.itemId, comment.id)
             open(uri, comment.creationTime)
         }
 
@@ -93,7 +93,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         }
 
         override fun onUserClicked(userId: Int, username: String) {
-            open(UriHelper.of(context).uploads(username))
+            open(UriHelper.of(context ?: return).uploads(username))
         }
     }
 }

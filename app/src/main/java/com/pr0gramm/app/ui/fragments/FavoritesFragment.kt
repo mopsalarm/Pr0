@@ -46,7 +46,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
 
         val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
 
-        pager.adapter = TabsAdapter(context, childFragmentManager).apply {
+        pager.adapter = TabsAdapter(requireContext(), childFragmentManager).apply {
             addTab(R.string.action_favorites, FeedFragment::class.java, feedFragmentArguments)
             addTab(R.string.action_kfav, FavedCommentFragment::class.java)
         }
@@ -69,7 +69,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
     private fun fixViewTopOffset(view: View) {
         val params = view.layoutParams
         if (params is ViewGroup.MarginLayoutParams) {
-            params.topMargin = AndroidUtility.getActionBarContentOffset(context)
+            params.topMargin = AndroidUtility.getActionBarContentOffset(view.context)
             view.layoutParams = params
         }
     }

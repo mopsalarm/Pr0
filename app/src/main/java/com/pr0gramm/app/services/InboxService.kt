@@ -4,8 +4,10 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.util.StringException
 import com.pr0gramm.app.util.logger
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -19,21 +21,6 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     private val logger = logger("InboxService")
 
     private val unreadMessagesCount = BehaviorSubject.create(0).toSerialized()
-
-    /**
-     * Gets the list of unread messages. You can not call this multiple times, because
-     * it will mark the messages as read immediately.
-     */
-    suspend fun unreadMessages(): List<Api.Message> {
-        publishUnreadMessagesCount(0)
-
-        val messages = api.inboxUnread().await().messages
-
-        // update "mark as read" counter to the timestamp of the most recent message.
-        messages.maxBy { it.creationTime }?.let { markAsRead(it) }
-
-        return messages
-    }
 
     /**
      * Gets the list of inbox messages
@@ -135,7 +122,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Sends a private message to a receiver
      */
     suspend fun send(recipient: String, message: String): Api.ConversationMessages {
-        return api.sendMessage(null, message, recipient).await()
+        val response = api.sendMessage(null, message, recipient).await()
+        if (response.error == "senderIsRecipient") {
+            throw StringException(R.string.error_senderIsRecipient)
+        }
+        return response
     }
 
     suspend fun listConversations(olderThan: Instant? = null): Api.Conversations {

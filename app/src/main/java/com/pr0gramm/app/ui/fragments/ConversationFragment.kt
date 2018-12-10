@@ -205,6 +205,10 @@ private class ConversationLoader(private val name: String, private val inboxServ
         val olderThan = currentValues.lastOrNull()?.creationTime
 
         val response = inboxService.messagesInConversation(name, olderThan)
+        if (response.error != null) {
+            throw StringException { context -> context.getString(R.string.conversation_load_error) }
+        }
+
         return { state ->
             state.copy(
                     values = state.values + response.messages,

@@ -19,7 +19,7 @@ class ThemeActionItemsSlide : ActionItemsSlide("ThemeActionItemsSlide") {
 
     override val introBackgroundResource: Int = ThemeHelper.theme.accentColor
 
-    private inner class ThemeActionItem(val theme: Themes) : ActionItem(theme.title(context)) {
+    private inner class ThemeActionItem(val theme: Themes) : ActionItem(theme.title(requireContext())) {
         private val settings = Settings.get()
 
         override fun enabled(): Boolean {

@@ -245,6 +245,11 @@ object ErrorFormatting {
             format { getString(R.string.error_json_mapping, it.message) }
         }
 
+        formatters.add<StringException> {
+            silence()
+            format { it.messageProvider(this) }
+        }
+
         formatters.add<PermissionHelper.PermissionNotGranted> {
             format {
                 var permissionName: CharSequence = it.permission
@@ -307,3 +312,7 @@ private val HttpException.bodyContent: String
         val body = this.response().errorBody() ?: return ""
         return kotlin.runCatching { body.string() }.getOrDefault("")
     }
+
+class StringException(val messageProvider: (Context) -> String) : RuntimeException() {
+    constructor(id: Int) : this({ it.getString(id) })
+}

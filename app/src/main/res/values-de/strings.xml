@@ -507,4 +507,6 @@
     <string name="pref_private_input_summary">Aktiviert den Inkognito Modus deiner Tastatur, z.B. vom gboard. Erfordert möglicherweise einen Neustart der App.</string>
     <string name="authors_hint">Benachrichtige die Verfasser von einem oder mehreren Elternkommentaren.</string>
     <string name="conversation_empty">Noch keine Nachrichten\n¯\\_(ツ)_/¯</string>
+    <string name="conversation_load_error">Unterhaltung kann nicht geladen werden.</string>
+    <string name="error_senderIsRecipient">Du kannst dir selbst keine Nachrichten schicken.</string>
 </resources>

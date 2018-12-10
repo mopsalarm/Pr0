@@ -427,7 +427,6 @@ fun Context.canStartIntent(intent: Intent): Boolean {
     return packageManager.resolveActivity(intent, 0) != null
 }
 
-
 class LongValueHolder(private var value: Long) {
     fun update(newValue: Long): Boolean {
         val changed = value != newValue

@@ -598,8 +598,9 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class ConversationMessages(
-            val atEnd: Boolean,
-            val messages: List<ConversationMessage>)
+            val atEnd: Boolean = true,
+            val error: String? = null,
+            val messages: List<ConversationMessage> = listOf())
 
     @JsonClass(generateAdapter = true)
     data class ConversationMessage(
