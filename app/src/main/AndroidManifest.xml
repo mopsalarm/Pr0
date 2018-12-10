@@ -90,10 +90,52 @@
 
                 <data
                     android:host="pr0gramm.com"
+                    android:path="/"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:path="/"
+                    android:scheme="https"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/new"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/new"
+                    android:scheme="https"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/top"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/top"
+                    android:scheme="https"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/stalk"
                     android:scheme="http" />
                 <data
                     android:host="pr0gramm.com"
+                    android:pathPrefix="/stalk"
+                    android:scheme="https"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/user"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/user"
                     android:scheme="https" />
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/inbox"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/inbox"
+                    android:scheme="https"/>
             </intent-filter>
 
             <meta-data
