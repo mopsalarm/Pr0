@@ -168,11 +168,11 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
         val dates = state.values.map { message -> message.creationTime.toString(f) }
 
         state.values.forEachIndexed { index, message ->
+            values += message
+
             if (index > 0 && dates[index] != dates.getOrNull(index + 1)) {
                 values += DividerAdapterDelegate.Value(dates[index])
             }
-
-            values += message
         }
 
         addEndStateToValues(context, values, state.tailState,
