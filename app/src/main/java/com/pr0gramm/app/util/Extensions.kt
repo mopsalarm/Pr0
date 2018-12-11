@@ -615,3 +615,7 @@ inline fun <reified T : Activity> activityIntent(
 
     return Intent(context, T::class.java).apply { this.data = uri }.apply(configure)
 }
+
+inline fun <reified T : Activity> Context.startActivity(configureIntent: (Intent) -> Unit = {}) {
+    startActivity(Intent(this, T::class.java).also(configureIntent))
+}

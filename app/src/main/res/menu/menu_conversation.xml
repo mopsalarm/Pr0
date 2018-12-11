@@ -3,8 +3,15 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_profile"
+        android:icon="@drawable/ic_white_user"
+        android:title="@string/action_profile"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_white_action_refresh"
         android:title="@string/action_refresh"
         app:showAsAction="always"/>
+
 </menu>

@@ -13,6 +13,7 @@ import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.startActivity
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 
@@ -35,7 +36,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         super.onCreate(savedInstanceState)
 
         if (!userService.isAuthorized) {
-            MainActivity.open(this)
+            startActivity<MainActivity>()
             finish()
             return
         }
@@ -51,11 +52,14 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         tabsAdapter = TabsAdapter(this, this.supportFragmentManager)
 
-        tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
-
-        tabsAdapter.addTab(R.string.inbox_type_comments_in, CommentsInboxFragment::class.java)
-
-        tabsAdapter.addTab(R.string.inbox_type_comments_out, WrittenCommentsFragment::class.java)
+        InboxType.values().forEach { type ->
+            when (type) {
+                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
+                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in, CommentsInboxFragment::class.java)
+                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out, WrittenCommentsFragment::class.java)
+                else -> Unit
+            }
+        }
 
         viewPager.adapter = tabsAdapter
 
@@ -77,6 +81,10 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         intent.getParcelableExtra<Instant>(EXTRA_MESSAGE_TIMESTAMP)?.let { timestamp ->
             inboxService.markAsRead(timestamp)
+        }
+
+        intent.getStringExtra(EXTRA_CONVERSATION_NAME)?.let { name ->
+            ConversationActivity.start(this, name, skipInbox = true)
         }
     }
 
@@ -159,5 +167,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         const val EXTRA_INBOX_TYPE = "InboxActivity.inboxType"
         const val EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification"
         const val EXTRA_MESSAGE_TIMESTAMP = "InboxActivity.maxMessageId"
+        const val EXTRA_CONVERSATION_NAME = "InboxActivity.conversationName"
     }
 }

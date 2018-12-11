@@ -21,6 +21,7 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.ViewUpdater
 import com.pr0gramm.app.util.*
+import kotlinx.coroutines.launch
 import org.kodein.di.erased.instance
 
 /**
@@ -30,6 +31,8 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
 
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val listView: RecyclerView by bindView(R.id.conversations)
+
+    private lateinit var pagination: Pagination<Api.Conversation>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_conversations, container, false)
@@ -50,11 +53,44 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         reloadConversations()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateConversationsUnreadCount()
+    }
+
     private fun reloadConversations() {
-        val pagination = Pagination(this, ConversationsLoader(inboxService))
+        pagination = Pagination(this, ConversationsLoader(inboxService))
 
         swipeRefreshLayout.isRefreshing = false
         listView.adapter = ConversationsAdapter(pagination)
+    }
+
+    private fun handleConversationClicked(conversation: Api.Conversation) {
+        val context = context ?: return
+        ConversationActivity.start(context, conversation.name, skipInbox = true)
+        markConversationAsRead(conversation)
+    }
+
+    private fun markConversationAsRead(conversation: Api.Conversation) {
+        // mark the conversation directly as unread
+        val updatedValues = pagination.state.values.map {
+            if (it.name == conversation.name) it.copy(unreadCount = 0) else it
+        }
+
+        // publish change
+        pagination.updateState(pagination.state.copy(values = updatedValues))
+    }
+
+    private fun updateConversationsUnreadCount() {
+        launch {
+            ignoreException {
+                // get the most recent conversations, and replace them in the
+                // pagination with their updated state.
+                val conversations = inboxService.listConversations()
+                val merged = conversations.conversations + pagination.state.values
+                pagination.updateState(pagination.state.copy(values = merged.distinctBy { it.name }))
+            }
+        }
     }
 
     inner class ConversationsAdapter(pagination: Pagination<Api.Conversation>)
@@ -68,16 +104,9 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
 
         override fun translateState(state: Pagination.State<Api.Conversation>): List<Any> {
             val values = state.values.toMutableList<Any>()
-
             addEndStateToValues(requireContext(), values, state.tailState)
-
             return values
         }
-    }
-
-    private fun handleConversationClicked(conversation: Api.Conversation) {
-        val context = context ?: return
-        ConversationActivity.start(context, conversation.name, skipInbox = true)
     }
 }
 

@@ -204,7 +204,8 @@ abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
     class Translation<E : Any, P : Any>(val adapterValue: E, val stateValue: P)
 
     companion object {
-        fun addEndStateToValues(context: Context, values: MutableList<in Any>, tailState: Pagination.EndState) {
+        fun addEndStateToValues(context: Context, values: MutableList<in Any>, tailState: Pagination.EndState,
+                                ifEmptyValue: Any? = null) {
             when {
                 tailState.error != null ->
                     values += ErrorAdapterDelegate.errorValueOf(context, tailState.error)
@@ -212,6 +213,9 @@ abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
                 tailState.hasMore ->
                     values += Loading()
             }
+
+            if (ifEmptyValue != null && values.isEmpty())
+                values += ifEmptyValue
         }
     }
 }

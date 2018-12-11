@@ -1,8 +1,10 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -17,7 +19,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InboxService
@@ -57,7 +58,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         with(listView) {
             itemAnimator = null
             layoutManager = LinearLayoutManager(activity).apply { stackFromEnd = true }
-            addItemDecoration(SpacingItemDecoration(dp = 8))
+            addItemDecoration(SpacingItemDecoration(dp = 16))
         }
 
         setTitle(conversationName)
@@ -78,7 +79,6 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
             }
         })
 
-
         buttonSend.setOnClickListener {
             sendInboxMessage()
         }
@@ -92,11 +92,20 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_refresh -> reloadConversation() == Unit
+        return false != when (item.itemId) {
+            R.id.action_refresh -> reloadConversation()
+            R.id.action_profile -> openUserProfile()
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    private fun openUserProfile() {
+        requireContext().startActivity<MainActivity> { intent ->
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse("https://pr0gramm.com/user/$conversationName")
+        }
+    }
+
 
     private fun sendInboxMessage() {
         val message = messageText.text.toString()
@@ -156,24 +165,18 @@ private class ConversationAdapter(private val context: Context, pagination: Pagi
         val values = mutableListOf<Any>()
 
         val f = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        val today = Instant.now().toString(f)
         val dates = state.values.map { message -> message.creationTime.toString(f) }
 
         state.values.forEachIndexed { index, message ->
-            if (index == 0 || dates[index - 1] != dates[index]) {
-                if (dates[index] != today) {
-                    values += DividerAdapterDelegate.Value(dates[index])
-                }
+            if (index > 0 && dates[index] != dates.getOrNull(index + 1)) {
+                values += DividerAdapterDelegate.Value(dates[index])
             }
 
             values += message
         }
 
-        addEndStateToValues(context, values, state.tailState)
-
-        if (values.isEmpty()) {
-            values += NoConversationsValue
-        }
+        addEndStateToValues(context, values, state.tailState,
+                ifEmptyValue = NoConversationsValue)
 
         return values.reversed()
     }

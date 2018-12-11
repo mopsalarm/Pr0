@@ -9,10 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.RemoteInput
-import androidx.core.app.TaskStackBuilder
+import androidx.core.app.*
 import androidx.core.content.FileProvider
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
@@ -169,8 +166,20 @@ class NotificationService(private val context: Application,
         val minMessageTimestamp = messages.minBy { it.creationTime }!!.creationTime
         val maxMessageTimestamp = messages.maxBy { it.creationTime }!!.creationTime
 
+        val inboxIntent = when {
+            messages.size == 1 && messages.first().isComment ->
+                inboxActivityIntent(maxMessageTimestamp, InboxType.COMMENTS_IN)
+
+            messages.size == 1 && !messages.first().isComment ->
+                inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE,
+                        conversationName = messages.first().name)
+
+            else ->
+                inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE)
+        }
+
         notify(Types.NewMessage) {
-            setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE))
+            setContentIntent(inboxIntent)
             setContentTitle(title)
             setContentText(context.getString(R.string.notify_new_message_summary_text))
             setStyle(inboxStyle)
@@ -202,9 +211,11 @@ class NotificationService(private val context: Application,
     }
 
     private fun formatMessages(messages: List<Api.Message>): NotificationCompat.MessagingStyle {
-        val inboxStyle = NotificationCompat.MessagingStyle("Me")
+        val inboxStyle = NotificationCompat.MessagingStyle(Person.Builder().setName("Me").build())
         messages.take(5).forEach { msg ->
-            inboxStyle.addMessage(msg.message, msg.creationTime.millis, msg.name)
+            val p = Person.Builder().setName(msg.name).build()
+            val m = NotificationCompat.MessagingStyle.Message(msg.message, msg.creationTime.millis, p)
+            inboxStyle.addMessage(m)
         }
 
         return inboxStyle
@@ -212,7 +223,7 @@ class NotificationService(private val context: Application,
 
     fun showSendSuccessfulNotification(receiver: String) {
         notify(Types.NewMessage) {
-            setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE))
+            setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE, receiver))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
             setSmallIcon(R.drawable.ic_notify_new_message)
@@ -276,11 +287,16 @@ class NotificationService(private val context: Application,
         }
     }
 
-    private fun inboxActivityIntent(timestamp: Instant, inboxType: InboxType): PendingIntent {
+    private fun inboxActivityIntent(timestamp: Instant, inboxType: InboxType, conversationName: String? = null): PendingIntent {
         val intent = Intent(context, InboxActivity::class.java)
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal)
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true)
         intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, timestamp)
+
+        if (conversationName != null) {
+            intent.putExtra(InboxActivity.EXTRA_CONVERSATION_NAME, conversationName)
+        }
+
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)

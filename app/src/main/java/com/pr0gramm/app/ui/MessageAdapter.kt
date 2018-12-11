@@ -40,11 +40,8 @@ class MessageAdapter(
             values.add(dividerIndex, divider)
         }
 
-        addEndStateToValues(context, values, state.tailState)
-
-        if (values.isEmpty()) {
-            values += EmptyValue
-        }
+        addEndStateToValues(context, values, state.tailState,
+                ifEmptyValue = EmptyValue)
 
         return values
     }

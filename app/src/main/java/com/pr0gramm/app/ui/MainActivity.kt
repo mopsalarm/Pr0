@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
@@ -646,10 +645,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     companion object {
         // we use this to propagate a fake-home event to the fragments.
         const val ID_FAKE_HOME = android.R.id.list
-
-        fun open(context: Context) {
-            context.startActivity(Intent(context, MainActivity::class.java))
-        }
     }
 }
 
