@@ -23,7 +23,6 @@
             android:textIsSelectable="true"
             android:padding="8dp"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-            android:textColor="#888"
             tools:text="Hallo cha0s, schön dass du das pr0gramm entwickelt hast. Deine Benutzer freuen sich jeden Tag."/>
 
         <TextView
