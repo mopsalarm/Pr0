@@ -5,14 +5,14 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Config(
         val extraCategories: Boolean = true,
-        val maxUploadSizeNormal: Long = 6 * 1024 * 1024,
-        val maxUploadSizePremium: Long = 12 * 1024 * 1024,
+        val maxUploadSizeNormal: Long = 10 * 1024 * 1024,
+        val maxUploadSizePremium: Long = 20 * 1024 * 1024,
         val adType: AdType = AdType.NONE,
         val trackItemView: Boolean = false,
         val trackVotes: Boolean = false,
         val commentsMaxLevels: Int = 18,
         val reportReasons: List<String> = DefaultReportReasons,
-        val syncVersion: Int = 1,
+        val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
         val specialMenuItems: List<Config.MenuItem> = listOf()) {
 
