@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@color/grey_800"
     android:orientation="vertical"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <include
         layout="@layout/user_info_head"
@@ -68,7 +68,7 @@
             android:padding="4dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_action_email"
-            android:tint="@color/white"/>
+            app:tint="@color/white"/>
     </LinearLayout>
 
     <LinearLayout

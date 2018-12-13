@@ -57,7 +57,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:tint="@color/grey_700"
+            app:tint="@color/grey_700"
             app:srcCompat="@drawable/ic_more_vert_vec"/>
 
         <Button
@@ -84,7 +84,7 @@
             android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:tint="@color/grey_700"
+            app:tint="@color/grey_700"
             app:srcCompat="@drawable/ic_vote_fav_outline"/>
 
         <ImageButton
@@ -93,7 +93,7 @@
             android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:tint="?colorAccent"
+            app:tint="?colorAccent"
             app:srcCompat="@drawable/ic_reply_vec"/>
 
     </LinearLayout>

@@ -11,7 +11,7 @@
     <ImageView
         android:layout_width="48dp"
         android:layout_height="8dp"
-        android:tint="#555"
+        app:tint="#555"
         app:srcCompat="@drawable/date_divider"/>
 
     <TextView
@@ -26,6 +26,6 @@
     <ImageView
         android:layout_width="48dp"
         android:layout_height="8dp"
-        android:tint="#555"
+        app:tint="#555"
         app:srcCompat="@drawable/date_divider"/>
 </LinearLayout>

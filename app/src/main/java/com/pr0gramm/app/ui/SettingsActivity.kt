@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
@@ -108,6 +109,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 // only allowed on older versions
                 hidePreferenceByName("pref_use_exo_player")
             }
+
+            tintPreferenceIcons(color = 0xffd0d0d0.toInt())
         }
 
         private fun hidePreferenceByName(name: String) {
@@ -127,6 +130,19 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                     }
 
                     pref is PreferenceGroup -> removeIf(pref, predicate)
+                }
+            }
+        }
+
+        private fun tintPreferenceIcons(color: Int, group: PreferenceGroup = preferenceScreen) {
+            for (idx in (0 until group.preferenceCount).reversed()) {
+                val pref = group.getPreference(idx)
+                if (pref is PreferenceGroup) {
+                    tintPreferenceIcons(color, pref)
+                }
+
+                pref.icon?.let { icon ->
+                    DrawableCompat.setTint(icon, color)
                 }
             }
         }

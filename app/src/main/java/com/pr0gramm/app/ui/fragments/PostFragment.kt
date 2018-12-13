@@ -742,6 +742,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // quickly center the vote button
         simulateScroll()
 
+        val voteAnimationIndicator = voteAnimationIndicator
+
         voteAnimationIndicator.setImageResource(when (vote) {
             Vote.UP -> R.drawable.ic_vote_up
             Vote.DOWN -> R.drawable.ic_vote_down
@@ -789,7 +791,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         playerContainer.addView(viewer, idx)
 
         // Add a container for the children
-        val mediaControlsContainer = FrameLayout(context)
+        val mediaControlsContainer = FrameLayout(requireContext())
         mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
                 LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
 

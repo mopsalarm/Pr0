@@ -10,7 +10,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginRight="8dp"
-        android:tint="@color/red_700"
+        app:tint="@color/red_700"
         app:srcCompat="@drawable/deleted_item"/>
 
     <TextView

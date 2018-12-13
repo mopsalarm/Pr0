@@ -8,6 +8,7 @@
     android:layout_gravity="end|top"
     android:paddingRight="2dp"
     android:paddingTop="2dp"
-    android:tint="?colorAccent"
+    app:tint="?colorAccent"
     tools:showIn="@layout/feed_item_view"
-    tools:srcCompat="@drawable/feed_pinned"/>
+    tools:srcCompat="@drawable/feed_pinned"
+    xmlns:app="http://schemas.android.com/apk/res-auto"/>

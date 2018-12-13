@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             android:layout_height="match_parent"
+             xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
         android:id="@+id/player_container"
@@ -18,7 +19,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:visibility="gone"
-            android:tint="?colorAccent"
+            app:tint="?colorAccent"
             tools:srcCompat="@drawable/ic_vote_fav"
             tools:visibility="visible"
             tools:ignore="NegativeMargin"/>
