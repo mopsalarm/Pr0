@@ -197,7 +197,7 @@ class UserService(private val api: Api,
 
             // no more read messages.
             inboxService.forgetReadMessage()
-            inboxService.publishUnreadMessagesCount(0)
+            inboxService.publishUnreadMessagesCount(Api.InboxCounts())
 
             // and reset the content user, because only signed in users can
             // see the nsfw and nsfl stuff.
@@ -225,7 +225,7 @@ class UserService(private val api: Api,
         try {
             val response = api.sync(lastLogOffset).await()
 
-            inboxService.publishUnreadMessagesCount(response.inboxCount)
+            inboxService.publishUnreadMessagesCount(response.inbox)
 
             val userId = loginState.id
             if (userId > 0) {

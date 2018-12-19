@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.categories.ExtraCategories
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Bookmark
@@ -86,7 +87,7 @@ class NavigationProvider(
                     loginStates.switchMap { specialMenuItems(it, upper = false) },
 
                     inboxService.unreadMessagesCount()
-                            .startWith(0)
+                            .startWith(Api.InboxCounts())
                             .map { listOf(inboxNavigationItem(it)) },
 
                     Observable.just(listOf(uploadNavigationItem)))
@@ -180,13 +181,13 @@ class NavigationProvider(
     /**
      * Returns the menu item that takes the user to the inbox.
      */
-    private fun inboxNavigationItem(unreadCount: Int): NavigationItem {
+    private fun inboxNavigationItem(unreadCounts: Api.InboxCounts): NavigationItem {
         return NavigationItem(
                 action = ActionType.MESSAGES,
                 title = getString(R.string.action_inbox),
                 icon = iconInbox,
                 layout = R.layout.left_drawer_nav_item_inbox,
-                unreadCount = unreadCount)
+                unreadCount = unreadCounts)
     }
 
     private fun bookmarksToNavItem(entries: List<Bookmark>): List<NavigationItem> {
@@ -278,7 +279,7 @@ class NavigationProvider(
                          val layout: Int = R.layout.left_drawer_nav_item,
                          val filter: FeedFilter? = null,
                          val bookmark: Bookmark? = null,
-                         val unreadCount: Int = 0,
+                         val unreadCount: Api.InboxCounts = Api.InboxCounts(),
                          val uri: Uri? = null) {
 
         private val hashCode by lazy { listOf(action, title, layout, filter, bookmark, unreadCount, uri).hashCode() }

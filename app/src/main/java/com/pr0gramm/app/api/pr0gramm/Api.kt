@@ -100,19 +100,8 @@ interface Api {
             @Query("name") name: String,
             @Query("flags") flags: Int?): Deferred<Info>
 
-    @GET("/api/inbox/all")
-    fun inboxAll(
-            @Query("before") older: Long?): Deferred<MessageFeed>
-
     @GET("/api/inbox/pending")
     fun inboxPending(): Deferred<MessageFeed>
-
-    @GET("/api/inbox/unread")
-    fun inboxUnread(): Deferred<MessageFeed>
-
-    @GET("/api/inbox/messages")
-    fun inboxPrivateMessages(
-            @Query("older") older: Long?): Deferred<PrivateMessageFeed>
 
     @GET("/api/inbox/conversations")
     fun listConversations(
@@ -481,16 +470,16 @@ interface Api {
             val logLength: Long,
             val log: String,
             val score: Int,
-            val inbox: InboxCounts = InboxCounts()) {
-
-        val inboxCount get() = inbox.comments + inbox.mentions + inbox.messages
-    }
+            val inbox: InboxCounts = InboxCounts())
 
     @JsonClass(generateAdapter = true)
     data class InboxCounts(
             val comments: Int = 0,
             val mentions: Int = 0,
-            val messages: Int = 0)
+            val messages: Int = 0) {
+
+        val total: Int get() = comments + mentions + messages
+    }
 
     @JsonClass(generateAdapter = true)
     data class Tag(

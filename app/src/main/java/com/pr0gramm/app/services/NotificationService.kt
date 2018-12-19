@@ -57,7 +57,7 @@ class NotificationService(private val context: Application,
         // update the icon to show the current inbox count.
         this.inboxService.unreadMessagesCount().subscribe { unreadCount ->
             if (settings.showNotifications) {
-                BadgeService().update(context, unreadCount)
+                BadgeService().update(context, unreadCount.total)
             }
         }
     }

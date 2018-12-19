@@ -20,14 +20,7 @@ import rx.subjects.BehaviorSubject
 class InboxService(private val api: Api, private val preferences: SharedPreferences) {
     private val logger = logger("InboxService")
 
-    private val unreadMessagesCount = BehaviorSubject.create(0).toSerialized()
-
-    /**
-     * Gets the list of inbox messages
-     */
-    suspend fun inbox(olderThan: Instant? = null): List<Api.Message> {
-        return api.inboxAll(olderThan?.millis).await().messages
-    }
+    private val unreadMessagesCount = BehaviorSubject.create<Api.InboxCounts>().toSerialized()!!
 
     /**
      * Gets unread messages
@@ -44,22 +37,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     /**
-     * Gets the list of private messages.
-     */
-    suspend fun privateMessages(olderThan: Instant? = null): List<Api.PrivateMessage> {
-        return api.inboxPrivateMessages(olderThan?.millis).await().messages
-    }
-
-    /**
      * Gets all the comments a user has written
      */
     suspend fun getUserComments(user: String, contentTypes: Set<ContentType>, olderThan: Instant? = null): Api.UserComments {
         val beforeInSeconds = (olderThan ?: Instant.now().plus(Duration.days(1))).epochSeconds
         return api.userComments(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
-    }
-
-    private fun markAsRead(message: Api.Message) {
-        markAsRead(message.creationTime)
     }
 
     /**
@@ -103,11 +85,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Returns an observable that produces the number of unread messages.
      */
-    fun unreadMessagesCount(): Observable<Int> {
-        return unreadMessagesCount.asObservable()
+    fun unreadMessagesCount(): Observable<Api.InboxCounts> {
+        return unreadMessagesCount
     }
 
-    fun publishUnreadMessagesCount(unreadCount: Int) {
+    fun publishUnreadMessagesCount(unreadCount: Api.InboxCounts) {
         unreadMessagesCount.onNext(unreadCount)
     }
 

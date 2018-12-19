@@ -19,6 +19,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.categories.ExtraCategories
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.*
@@ -317,8 +318,10 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             }
 
             if (item.action === NavigationProvider.ActionType.MESSAGES) {
-                holder.unread?.text = (item.unreadCount).toString()
-                holder.unread?.visibility = if (item.unreadCount > 0) View.VISIBLE else View.GONE
+                holder.unread?.apply {
+                    text = item.unreadCount.total.toString()
+                    visible = item.unreadCount.total > 0
+                }
             }
         }
 
@@ -390,8 +393,12 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         BrowserHelper.openCustomTab(context ?: return, uri)
     }
 
-    private fun showInboxActivity(unreadCount: Int) {
-        showInboxActivity(InboxType.PRIVATE)
+    private fun showInboxActivity(unreadCounts: Api.InboxCounts) {
+        if (unreadCounts.comments > 0 || unreadCounts.mentions > 0) {
+            showInboxActivity(InboxType.COMMENTS_IN)
+        } else {
+            showInboxActivity(InboxType.PRIVATE)
+        }
     }
 
     private fun showInboxActivity(inboxType: InboxType) {
