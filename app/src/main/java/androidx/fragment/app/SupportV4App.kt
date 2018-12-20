@@ -6,7 +6,6 @@ package androidx.fragment.app
  * this might totally fail.
  */
 object SupportV4App {
-    @JvmStatic
     fun fragmentChildFragmentManager(fragment: androidx.fragment.app.Fragment): androidx.fragment.app.FragmentManager? {
         return fragment.mChildFragmentManager
     }
