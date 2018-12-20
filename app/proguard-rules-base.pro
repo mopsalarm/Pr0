@@ -86,6 +86,12 @@
     ** m*Helper;
 }
 
+# Assume that we run on android 14 and up. This is an r8 config to improve
+# dead code elimination on old devices.
+-assumevalues class android.os.Build$VERSION {
+    int SDK_INT return 14..2147483647;
+}
+
 # BEGIN moshi rules
 #
 # JSR 305 annotations are for embedding nullability information.
