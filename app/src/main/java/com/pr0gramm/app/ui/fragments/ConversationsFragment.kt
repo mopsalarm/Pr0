@@ -45,6 +45,8 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
             itemAnimator = null
             layoutManager = LinearLayoutManager(activity)
             addItemDecoration(SpacingItemDecoration(dp = 8))
+            addItemDecoration(MarginDividerItemDecoration(
+                    requireContext(), marginLeftDp = 72))
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadConversations() }
@@ -172,4 +174,5 @@ private class ConversationAdapterDelegate(
         val unreadCount = find<TextView>(R.id.unread_count)
     }
 }
+
 

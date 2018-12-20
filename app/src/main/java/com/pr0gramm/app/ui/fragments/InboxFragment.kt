@@ -17,6 +17,7 @@ import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.MarginDividerItemDecoration
 import com.pr0gramm.app.ui.MessageActionListener
 import com.pr0gramm.app.ui.WriteMessageActivity
 import com.pr0gramm.app.ui.base.BaseFragment
@@ -45,6 +46,8 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
             itemAnimator = null
             layoutManager = LinearLayoutManager(activity)
             adapter = getContentAdapter()
+
+            addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
         }
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }

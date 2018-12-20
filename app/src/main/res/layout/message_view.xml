@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="56dp"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="36dp"
         android:singleLine="false"
         tools:text="@string/dummy_text"
         android:layout_marginStart="56dp"/>
@@ -26,19 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="8dp"
-        android:layout_below="@+id/message_text"
         android:layout_marginLeft="56dp"
         android:layout_marginStart="56dp"
         android:layout_marginTop="4dp"/>
-
-    <View
-        android:id="@+id/message_divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="56dp"
-        android:layout_marginStart="56dp"
-        android:background="?secondaryBackground"/>
-
 </merge>

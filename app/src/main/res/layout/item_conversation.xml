@@ -53,5 +53,4 @@
         android:gravity="center"
         android:maxLines="1"
         tools:text="12"/>
-
 </FrameLayout>
