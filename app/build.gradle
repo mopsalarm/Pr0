@@ -32,7 +32,7 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 28
         applicationId "com.pr0gramm.app"
 
@@ -190,7 +190,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:3.12.0"
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.squareup.moshi:moshi:1.8.0"
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.16"
     // implementation 'com.github.koral--:android-gif-drawable:3fceb10623'
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"

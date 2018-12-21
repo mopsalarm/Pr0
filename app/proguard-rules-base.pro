@@ -89,7 +89,7 @@
 # Assume that we run on android 14 and up. This is an r8 config to improve
 # dead code elimination on old devices.
 -assumevalues class android.os.Build$VERSION {
-    int SDK_INT return 16..2147483647;
+    int SDK_INT return 17..2147483647;
 }
 
 # BEGIN moshi rules
