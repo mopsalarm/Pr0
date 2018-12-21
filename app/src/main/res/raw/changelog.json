@@ -1,5 +1,26 @@
 [
   {
+    "version": 157,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Der Ladebalken fängt nicht jedesmal wieder von vorne an."
+      },
+      {
+        "type": "Fix",
+        "change": "Cache für die pr0gramm App vergrößert."
+      },
+      {
+        "type": "Fix",
+        "change": "Diverse Bugfixes, Designoptimierungen und Geschwindigkeitsverbesserungen."
+      },
+      {
+        "type": "Entfernt",
+        "change": "Support für Android 4.0 und 4.1 eingestellt."
+      }
+    ]
+  },
+  {
     "version": 156,
     "changes": [
       {

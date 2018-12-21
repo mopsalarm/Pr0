@@ -252,10 +252,6 @@ inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
             "View ${itemView.resources.getResourceName(id)} not found")
 }
 
-inline fun <reified T : View> RecyclerView.ViewHolder.findOptional(id: Int): T? {
-    return itemView.findViewById(id)
-}
-
 inline var View.visible: Boolean
     inline get() = visibility == View.VISIBLE
     inline set(v) {
