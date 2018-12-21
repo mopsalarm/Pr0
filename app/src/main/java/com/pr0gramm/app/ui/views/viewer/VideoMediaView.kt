@@ -258,7 +258,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             }
         }
 
-    override val videoProgress: AbstractProgressMediaView.ProgressInfo? get() {
+    override fun currentVideoProgress(): AbstractProgressMediaView.ProgressInfo? {
         if (videoViewInitialized && isPlaying) {
             return AbstractProgressMediaView.ProgressInfo(videoPlayer.progress, videoPlayer.buffered)
         }

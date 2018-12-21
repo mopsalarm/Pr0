@@ -34,7 +34,9 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     // the instance to schedule and de-schedule it later.
     private val updateCallback = Runnable { updateTimeline() }
 
-    protected abstract val videoProgress: ProgressInfo?
+    private var maxBufferedValue = 0.0f
+
+    protected abstract fun currentVideoProgress(): ProgressInfo?
 
     init {
         publishControllerView(progressView)
@@ -127,9 +129,13 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     private fun updateInfo(view: ProgressBar, info: ProgressInfo) {
+        // do not step back in buffering
+        val buffered = info.buffered.coerceAtLeast(maxBufferedValue)
+        this.maxBufferedValue = buffered
+
         view.max = 1000
         view.progress = (1000 * info.progress).toInt()
-        view.secondaryProgress = (1000 * info.buffered).toInt()
+        view.secondaryProgress = (1000 * buffered).toInt()
     }
 
     private fun updateTimeline() {
@@ -137,11 +143,11 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             return
 
         if (!progressTouched) {
-            val info = videoProgress
+            val info = currentVideoProgress()
             if (info != null && shouldShowView(info)) {
                 if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false
-                    progressView.visibility = View.VISIBLE
+                    progressView.visible = false
                     progressView.alpha = 1f
                     progressView.translationY = 0f
                 }
@@ -157,8 +163,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             } else {
                 lastUserInteraction = -1
                 firstTimeProgressValue = true
-                seekBarView.visibility = View.GONE
-                progressView.visibility = View.GONE
+                seekBarView.visible = false
+                progressView.visible = false
             }
         }
 
@@ -175,7 +181,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     private fun shouldShowView(info: ProgressInfo): Boolean {
-        return (progressEnabled || seekCurrentlyVisible()) && (info.progress >= 0 && info.progress <= 1 || info.buffered >= 0 && info.buffered <= 1)
+        return (progressEnabled || seekCurrentlyVisible()) && (info.progress in 0.0..1.0 || info.buffered in 0.0..1.0)
     }
 
     /**
@@ -193,8 +199,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
 
         lastUserInteraction = -1
         firstTimeProgressValue = true
-        seekBarView.visibility = View.GONE
-        progressView.visibility = View.GONE
+        seekBarView.visible = false
+        progressView.visible = false
     }
 
     class ProgressInfo(val progress: Float, val buffered: Float)

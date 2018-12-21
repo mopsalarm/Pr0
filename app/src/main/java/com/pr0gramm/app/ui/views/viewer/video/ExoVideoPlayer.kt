@@ -1,9 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer.video
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
@@ -35,7 +33,6 @@ import org.kodein.di.erased.instance
 /**
  * Stripped down version of [android.widget.VideoView].
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayout) :
         RxVideoPlayer(), VideoPlayer, Player.EventListener {
 

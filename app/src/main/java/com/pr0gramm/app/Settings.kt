@@ -168,11 +168,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val useExoPlayer: Boolean
         get() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                // new player is not yet supported
-                return false
-            }
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // old player is not supported anymore.
                 return true

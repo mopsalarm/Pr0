@@ -107,18 +107,19 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
 
         logger.debug { "Doing cache cleanup, maxCacheSize=${formatSpace(maxCacheSize)}, found ${files.size} files using ${formatSpace(usedCacheSpace)}" }
 
-        var totalSize: Long = 0
+        var usedSpace: Long = 0
         for (file in files) {
-            totalSize += file.length()
+            usedSpace += file.length()
 
-            if (totalSize > maxCacheSize) {
+            if (usedSpace > maxCacheSize) {
                 forgetEntryForFile(file)
             }
         }
 
         // do some tracking of cache sizes
         Stats().histogram("cache.maxSize", maxCacheSize)
-        Stats().histogram("cache.usedSize", totalSize)
+        Stats().histogram("cache.usedSize", usedSpace)
+        Stats().histogram("cache.usage", usedSpace.toDouble() / maxCacheSize)
     }
 
     /**

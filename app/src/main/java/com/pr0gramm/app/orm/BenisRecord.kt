@@ -14,7 +14,8 @@ data class BenisRecord(val time: Long, val benis: Int) {
 
         fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: Instant): List<BenisRecord> {
             return db
-                    .query("benis_record", arrayOf("time", "benis"), "time >= ? and owner_id=?", arrayOfStrings(time.millis, ownerId), null, null, "time ASC")
+                    .query("benis_record", arrayOf("time", "benis"), "time >= ? and owner_id=?",
+                            arrayOfStrings(time.millis, ownerId), null, null, "time ASC")
                     .mapToList { BenisRecord(getLong(0), getInt(1)) }
         }
 

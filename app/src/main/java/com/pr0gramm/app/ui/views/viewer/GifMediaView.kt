@@ -89,7 +89,7 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         }
     }
 
-    override val videoProgress: AbstractProgressMediaView.ProgressInfo? get() {
+    override fun currentVideoProgress(): AbstractProgressMediaView.ProgressInfo? {
         gif?.takeIf { isPlaying }?.let { gif ->
             val position = gif.currentFrameIndex
             val duration = gif.numberOfFrames

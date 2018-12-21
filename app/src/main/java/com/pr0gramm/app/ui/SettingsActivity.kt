@@ -11,7 +11,6 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -100,11 +99,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 hidePreferenceByName("pref_show_content_type_flag")
             }
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                // only allowed on newer versions
-                hidePreferenceByName("pref_use_exo_player")
-            }
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // only allowed on older versions
                 hidePreferenceByName("pref_use_exo_player")
@@ -153,21 +147,19 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
             val entries = mutableListOf<CharSequence>()
             val entryValues = mutableListOf<CharSequence>()
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                entries.add("Software")
-                entryValues.add("software")
+            entries.add("Software")
+            entryValues.add("software")
 
-                entries.add("Hardware")
-                entryValues.add("hardware")
+            entries.add("Hardware")
+            entryValues.add("hardware")
 
-                try {
-                    val codecs = MediaCodecUtil.getDecoderInfos(mimeType, false)
-                    for (codec in codecs) {
-                        entries.add(codec.name.toLowerCase())
-                        entryValues.add(codec.name)
-                    }
-                } catch (ignored: MediaCodecUtil.DecoderQueryException) {
+            try {
+                val codecs = MediaCodecUtil.getDecoderInfos(mimeType, false)
+                for (codec in codecs) {
+                    entries.add(codec.name.toLowerCase())
+                    entryValues.add(codec.name)
                 }
+            } catch (ignored: MediaCodecUtil.DecoderQueryException) {
             }
 
             if (entries.size > 3) {

@@ -24,7 +24,6 @@ import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.kodein.di.DKodein
 import org.kodein.di.Kodein
@@ -53,9 +52,11 @@ inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.Backpre
     return Observable.create({ block(it) }, mode)
 }
 
-fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = ignoreError()
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = ignoreError()
 
-fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler)
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler)
 
 fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observable<T> {
     if (firstIsSync) {
@@ -196,9 +197,10 @@ inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit):
     return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 
-val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
+inline val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 
-fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
+@Suppress("NOTHING_TO_INLINE")
+inline fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
 
 fun <V : View> ViewGroup.inflateDetachedChild(@LayoutRes res: Int): V {
     @Suppress("UNCHECKED_CAST")
@@ -254,13 +256,13 @@ inline fun <reified T : View> RecyclerView.ViewHolder.findOptional(id: Int): T? 
     return itemView.findViewById(id)
 }
 
-var View.visible: Boolean
-    get() = visibility == View.VISIBLE
-    set(v) {
+inline var View.visible: Boolean
+    inline get() = visibility == View.VISIBLE
+    inline set(v) {
         visibility = if (v) View.VISIBLE else View.GONE
     }
 
-fun Canvas.save(block: () -> Unit) {
+inline fun Canvas.save(block: () -> Unit) {
     val count = save()
     try {
         block()
@@ -269,7 +271,8 @@ fun Canvas.save(block: () -> Unit) {
     }
 }
 
-fun CharSequence?.matches(pattern: Pattern): Boolean {
+@Suppress("NOTHING_TO_INLINE")
+inline fun CharSequence?.matches(pattern: Pattern): Boolean {
     return this != null && pattern.matcher(this).matches()
 }
 
@@ -343,7 +346,7 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
-fun <T : Any?> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
+inline fun <T : Any?> Observable<T>.subscribeIgnoreError(crossinline onNext: (T) -> Unit): Subscription {
     return subscribe({ onNext(it) }, { err -> AndroidUtility.logToCrashlytics(err) })
 }
 
@@ -377,8 +380,9 @@ fun <T> Observable<T>.debug(key: String, logger: KLogger? = null): Observable<T>
 fun File.toUri(): Uri = Uri.fromFile(this)
 
 
+@Suppress("NOTHING_TO_INLINE")
 @ColorInt
-fun Context.getColorCompat(@ColorRes id: Int): Int {
+inline fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
 }
 
@@ -435,7 +439,7 @@ class LongValueHolder(private var value: Long) {
     }
 }
 
-fun <T : Any?, R : Any> Observable<T>.mapNotNull(fn: (T) -> R?): Observable<R> {
+inline fun <T : Any?, R : Any> Observable<T>.mapNotNull(crossinline fn: (T) -> R?): Observable<R> {
     @Suppress("UNCHECKED_CAST")
     return map { fn(it) }.filter { it != null } as Observable<R>
 }
@@ -448,7 +452,7 @@ inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
     }
 }
 
-fun <T : Any?> T.withIf(b: Boolean, fn: T.() -> T): T {
+inline fun <T : Any?> T.withIf(b: Boolean, fn: T.() -> T): T {
     return if (b) this.fn() else this
 }
 
@@ -460,20 +464,6 @@ inline val View.kodein: Kodein get() = context.kodein
 
 inline val ContentProvider.kodein: Kodein get() = context!!.kodein
 
-
-fun sleepUninterruptibly(duration: Long, unit: TimeUnit) {
-    val deadline = System.nanoTime() + unit.toNanos(duration)
-
-    while (true) {
-        val amount = deadline - System.nanoTime()
-        if (amount > 0) {
-            try {
-                TimeUnit.NANOSECONDS.sleep(amount)
-            } catch (_: InterruptedException) {
-            }
-        }
-    }
-}
 
 val Throwable.rootCause
     get(): Throwable {
@@ -522,12 +512,6 @@ inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
     }
 }
 
-fun replaceableSubscription(): ReadWriteProperty<Any?, Subscription?> {
-    return Delegates.observable<Subscription?>(null) { _, oldValue, _ ->
-        oldValue?.unsubscribe()
-    }
-}
-
 fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
     private var previousValue: CharSequence? = null
 
@@ -539,7 +523,7 @@ fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
     }
 }
 
-fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
+inline fun <T> threadLocal(crossinline supplier: () -> T): ReadOnlyProperty<Any, T> {
     return object : ThreadLocal<T>(), ReadOnlyProperty<Any, T> {
         override fun initialValue(): T = supplier()
         override fun getValue(thisRef: Any, property: KProperty<*>): T = get()

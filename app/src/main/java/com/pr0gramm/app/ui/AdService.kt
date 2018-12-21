@@ -7,12 +7,10 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.Choreographer
-import androidx.annotation.RequiresApi
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.ApplicationClass
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.Track
@@ -121,7 +119,6 @@ object AdMobWorkaround {
     private const val CALLBACK_ANIMATION = 1
     private var choreographerAnimationCallback: Any? = null
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private fun pauseAnimationCallbacks() {
         log.info { "Pausing animation callbacks" }
         try {
@@ -160,7 +157,6 @@ object AdMobWorkaround {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private fun resumeAnimationCallbacks() {
         val callback = choreographerAnimationCallback ?: return
 
@@ -220,9 +216,6 @@ object AdMobWorkaround {
     }
 
     fun install(app: ApplicationClass) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-            return
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
             return
 
