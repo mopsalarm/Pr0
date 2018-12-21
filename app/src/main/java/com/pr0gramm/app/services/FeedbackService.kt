@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.encodeBase64
