@@ -24,6 +24,7 @@ import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.kodein.di.DKodein
 import org.kodein.di.Kodein

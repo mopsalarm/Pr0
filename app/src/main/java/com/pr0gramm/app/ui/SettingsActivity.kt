@@ -11,6 +11,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.*
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
