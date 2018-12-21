@@ -116,8 +116,7 @@ open class ApplicationClass : Application(), KodeinAware {
         val bootupTime = System.currentTimeMillis() - startup
         logger.info { "App booted in ${bootupTime}ms" }
 
-        Stats.get().incrementCounter("app.booted")
-        Stats.get().histogram("app.boot.time", bootupTime)
+        Stats().histogram("app.boot.time", bootupTime)
     }
 
     override val kodein: Kodein = Kodein.lazy { configureKodein(this) }

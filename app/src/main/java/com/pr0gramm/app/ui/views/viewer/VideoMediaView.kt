@@ -277,7 +277,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         }
 
         if (!statsSent) {
-            Stats.get().incrementCounter("video.playback.succeeded")
+            Stats().incrementCounter("video.playback.succeeded")
             statsSent = true
         }
     }
@@ -320,7 +320,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         }
 
         if (!statsSent && kind !== VideoPlayer.ErrorKind.NETWORK) {
-            Stats.get().incrementCounter("video.playback.failed")
+            Stats().incrementCounter("video.playback.failed")
             statsSent = true
         }
     }

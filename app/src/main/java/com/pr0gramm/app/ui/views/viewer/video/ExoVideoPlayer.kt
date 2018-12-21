@@ -122,7 +122,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val extractorsFactory = ExtractorsFactory { arrayOf(FragmentedMp4Extractor(), Mp4Extractor()) }
 
-        val mediaSource = ExtractorMediaSource.Factory(DataSourceFactory(context, uri))
+        val mediaSource = ExtractorMediaSource.Factory(DataSourceFactory(context))
                 .setExtractorsFactory(extractorsFactory)
                 .createMediaSource(uri)
 
@@ -310,32 +310,32 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
             }
         }
 
-        override fun onRenderedFirstFrame(surface: Surface) {
+        override fun onRenderedFirstFrame(surface: Surface?) {
             this.callbacks?.onVideoRenderingStarts()
         }
     }
 
     private class MediaCodecSelectorImpl internal constructor(private val settings: Settings) : MediaCodecSelector {
         @Throws(MediaCodecUtil.DecoderQueryException::class)
-        override fun getDecoderInfo(mimeType: String, requiresSecureDecoder: Boolean): MediaCodecInfo? {
+        override fun getDecoderInfos(mimeType: String, requiresSecureDecoder: Boolean): MutableList<MediaCodecInfo> {
             val codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder)
             // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 
             // look fo the best matching codec to return to the user.
             val preference = if (mimeType.startsWith("video/")) settings.videoCodec else settings.audioCodec
-            return bestMatchingCodec(codecs, preference) ?: codecs.firstOrNull()
+            return bestMatchingCodec(codecs, preference)?.let { mutableListOf(it) } ?: codecs
         }
 
         @Throws(MediaCodecUtil.DecoderQueryException::class)
-        override fun getPassthroughDecoderInfo(): MediaCodecInfo {
+        override fun getPassthroughDecoderInfo(): MediaCodecInfo? {
             return MediaCodecSelector.DEFAULT.passthroughDecoderInfo
         }
     }
 
-    private class DataSourceFactory(private val context: Context, private val uri: Uri) : DataSource.Factory {
+    private class DataSourceFactory(private val context: Context) : DataSource.Factory {
         override fun createDataSource(): DataSource {
             val cache by context.kodein.instance<Cache>()
-            return InputStreamCacheDataSource(uri, cache)
+            return InputStreamCacheDataSource(cache)
         }
     }
 

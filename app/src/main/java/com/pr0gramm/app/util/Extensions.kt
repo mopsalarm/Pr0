@@ -574,7 +574,7 @@ fun Closeable?.closeQuietly() {
     try {
         this?.close()
     } catch (err: Exception) {
-        // ignored
+        logger("CloseQuietly").warn("Ignoring exception during close", err)
     }
 }
 

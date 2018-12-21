@@ -663,7 +663,7 @@ private fun trackMainThreadNotResponding() {
             .doOnNext {
                 // track metric
                 val name = if (anr.get()) "main.anr" else "main.good"
-                Stats.get().increment(name)
+                Stats().increment(name)
             }
             .delaySubscription(6, TimeUnit.SECONDS, BackgroundScheduler)
             .ignoreError()

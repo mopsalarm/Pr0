@@ -97,10 +97,10 @@ class ApiProvider(base: String, client: OkHttpClient,
     private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
         val millis = watch.elapsed(TimeUnit.MILLISECONDS)
 
-        Stats.get().time("api.call", millis, "method:${method.name}", "success:$success")
+        Stats().time("api.call", millis, "method:${method.name}", "success:$success")
 
-        // track only sync calls.
-        if (method.name == "sync" && singleShotService.firstTimeInHour("track-time:sync")) {
+        // track only sync calls in 5% of syncs
+        if (method.name == "sync" && Math.random() < 0.05) {
             Track.trackSyncCall(millis, success)
         }
     }

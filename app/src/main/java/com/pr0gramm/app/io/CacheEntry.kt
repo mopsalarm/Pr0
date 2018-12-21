@@ -1,6 +1,8 @@
 package com.pr0gramm.app.io
 
+import android.app.Application
 import android.net.Uri
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import okhttp3.CacheControl
@@ -17,7 +19,7 @@ import kotlin.concurrent.withLock
 /**
  * A entry that is hold by the [Cache].
  */
-internal class CacheEntry(private val httpClient: OkHttpClient, override val file: File, private val uri: Uri) : Cache.Entry {
+internal class CacheEntry(private val context: Application, private val httpClient: OkHttpClient, override val file: File, private val uri: Uri) : Cache.Entry {
     private val logger = logger("CacheEntry")
 
     private val lock = ReentrantLock()
@@ -228,9 +230,8 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
     private fun resumeCaching(offset: Int): Int {
         lock.withLock {
-            var writer = cacheWriter
-            if (writer == null) {
-                writer = CacheWriter().also { writer ->
+            val writer = cacheWriter ?: run {
+                CacheWriter().also { writer ->
                     this.cacheWriter = writer
                     doInBackground { writer.resumeCaching(offset) }
                 }
@@ -276,16 +277,23 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                         .header("Range", String.format("bytes=%d-", offset))
                         .build()
 
+                val doTracking = !AndroidUtility.isOnMobile(context)
+
                 logger.debug { "Resume caching for ${this} starting at $offset" }
+
+                val connectStartTime = System.currentTimeMillis()
                 val response = httpClient.newCall(request).execute()
+
                 try {
-                    val body = response.body()!!
+                    val body = response.body()
+                            ?: throw IllegalStateException("no body in media response")
+
                     when {
                         response.code() == 200 -> written = 0
                         response.code() == 403 -> throw IOException("Not allowed to read file, are you on a public wifi?")
                         response.code() == 404 -> throw FileNotFoundException("File not found at " + response.request().url())
-                        body.contentLength() < 0L -> throw IOException("Content length not defined.")
                         response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
+                        body.contentLength() < 0L -> throw IOException("Content length not defined.")
                     }
 
                     size.setValue(body.contentLength().toInt())
@@ -295,8 +303,21 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                     throw err
                 }
 
+                val connectTime = System.currentTimeMillis() - connectStartTime
+
                 // read the response
-                writeResponseToEntry(response)
+                val transferStartTime = System.currentTimeMillis()
+                val bytesTransferred = writeResponseToEntry(response)
+
+                // and track the duration and as such the speed.
+                if (doTracking && bytesTransferred > 64 * 1024) {
+                    val typeTag = if (uri.toString().endsWith(".mp4")) "media:video" else "media:image"
+
+                    val bytesPerSecond = bytesTransferred * 1000L / (System.currentTimeMillis() - transferStartTime)
+                    Stats().histogram("net.speed", bytesPerSecond, typeTag)
+                    Stats().histogram("net.connect", connectTime, typeTag)
+                    Stats().histogram("net.transferred", bytesTransferred, typeTag)
+                }
 
             } catch (err: Exception) {
                 logger.error { "Error in caching thread" }
@@ -311,24 +332,30 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
          * Writes the response to the file. If [fp] disappears, we log a warning
          * and then we just return.
          */
-        private fun writeResponseToEntry(response: Response) {
+        private fun writeResponseToEntry(response: Response): Long {
+            var written = 0L
+
             response.body()?.byteStream()?.use { stream ->
                 readStream(stream) { buffer, byteCount ->
                     lock.withLock {
                         if (canceled) {
                             logger.info { "Caching canceled, stopping now." }
-                            return
+                            return@withLock
                         }
 
                         if (fp == null) {
                             logger.warn { "Error during caching, the file-handle went away: ${this}" }
-                            return
+                            return@withLock
                         }
 
                         write(buffer, 0, byteCount)
+
+                        written += byteCount
                     }
                 }
             }
+
+            return written
         }
     }
 
@@ -361,7 +388,16 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
         }
     }
 
-    protected fun finalize() = close()
+    protected fun finalize() {
+        if (this.fp != null) {
+            logger.warn { "Entry finalized, but file was not closed." }
+
+            Stats().increment("cache.finalize.needed")
+            fp.closeQuietly()
+
+            reset()
+        }
+    }
 
     override fun inputStreamAt(offset: Int): InputStream {
         // update the time stamp if the cache file already exists.
@@ -398,7 +434,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
         }
     }
 
-    private class EntryInputStream internal constructor(private val entry: CacheEntry, private var position: Int) : InputStream() {
+    private class EntryInputStream(private val entry: CacheEntry, private var position: Int) : InputStream() {
         private var mark: Int = 0
 
         override fun read(): Int {

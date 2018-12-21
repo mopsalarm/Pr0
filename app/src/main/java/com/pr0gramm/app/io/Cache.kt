@@ -1,7 +1,8 @@
 package com.pr0gramm.app.io
 
-import android.content.Context
+import android.app.Application
 import android.net.Uri
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.logger
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A cache we can use for linear caching of http requests.
  */
-class Cache(context: Context, private val httpClient: OkHttpClient) {
+class Cache(private val context: Application, private val httpClient: OkHttpClient) {
     private val MEGA = (1024 * 1024).toLong()
 
     private val logger = logger("Cache")
@@ -27,8 +28,6 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
 
     private val lock = Any()
     private val cache = HashMap<String, Entry>()
-
-    private val maxCacheSize: Long
 
     init {
         // schedule periodic cache clean up.
@@ -39,9 +38,6 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
                 logger.warn("Ignoring error during cache cleanup:", err)
             }
         }
-
-        maxCacheSize = if (root.freeSpace > 1024 * MEGA) 256 * MEGA else 128 * MEGA
-        logger.debug { "Initialized cache with ${maxCacheSize / MEGA.toDouble()}mb of space" }
     }
 
     /**
@@ -74,7 +70,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         }
 
         val cacheFile = cacheFileFor(uri)
-        return CacheEntry(httpClient, cacheFile, uri)
+        return CacheEntry(context, httpClient, cacheFile, uri)
     }
 
     /**
@@ -94,11 +90,22 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             return
         }
 
-        val files = root.listFiles().sortedWith(Comparator<File> { lhs, rhs ->
-            lhs.lastModified().compareTo(rhs.lastModified())
-        })
+        val files = root.listFiles().sortedByDescending { it.lastModified() }
 
-        logger.debug { "Doing cache cleanup, found ${files.size} files" }
+        // The space already in use by the cache
+        val usedCacheSpace = files.fold(0L) { acc, file -> acc + file.length() }
+
+        // The amount that can be used by apps
+        val usableSpace = root.usableSpace - 1024 * MEGA
+
+        // Ignoring what the cache already uses, this is the amount of space that
+        // is available to us.
+        val availableSpace = usedCacheSpace + usableSpace
+
+        // Now put it in sane limits.
+        val maxCacheSize = availableSpace.coerceIn(256 * MEGA, 2048 * MEGA)
+
+        logger.debug { "Doing cache cleanup, maxCacheSize=${formatSpace(maxCacheSize)}, found ${files.size} files using ${formatSpace(usedCacheSpace)}" }
 
         var totalSize: Long = 0
         for (file in files) {
@@ -109,7 +116,9 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             }
         }
 
-        logger.debug { "Cache took ${totalSize / (1024f * 1024f)}mb" }
+        // do some tracking of cache sizes
+        Stats().histogram("cache.maxSize", maxCacheSize)
+        Stats().histogram("cache.usedSize", totalSize)
     }
 
     /**
@@ -139,6 +148,10 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             logger.warn { "Could not check if files are the same: $lhs, $rhs, err: $err" }
             false
         }
+    }
+
+    private fun formatSpace(space: Long): String {
+        return "%1.2fmb".format(space.toFloat() / (1024f * 1024f))
     }
 
     interface Entry : Closeable {

@@ -39,7 +39,7 @@ class SyncService(private val userService: UserService,
     }
 
     suspend fun syncStatistics() {
-        Stats.get().incrementCounter("jobs.sync-stats")
+        Stats().incrementCounter("jobs.sync-stats")
 
         logger.info { "Doing some statistics related trackings" }
         Track.statistics()
@@ -52,8 +52,8 @@ class SyncService(private val userService: UserService,
     }
 
     suspend fun sync() {
-        Stats.get().time("jobs.sync.time", measureTimeMillis {
-            Stats.get().incrementCounter("jobs.sync")
+        Stats().time("jobs.sync.time", measureTimeMillis {
+            Stats().incrementCounter("jobs.sync")
 
             if (!userService.isAuthorized) {
                 logger.info { "Will not sync now - user is not signed in." }
@@ -133,7 +133,7 @@ class SyncService(private val userService: UserService,
             }
 
         } catch (err: Exception) {
-            Stats.get().incrementCounter("seen.sync.error")
+            Stats().incrementCounter("seen.sync.error")
             throw err
 
         } finally {

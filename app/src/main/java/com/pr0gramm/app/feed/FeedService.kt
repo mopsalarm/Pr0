@@ -51,7 +51,7 @@ class FeedServiceImpl(private val api: Api,
         val feedType = feedFilter.feedType
 
         // statistics
-        Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
+        Stats().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
 
         val tags = feedFilter.tags?.replaceFirst("^\\s*\\?\\s*".toRegex(), "!")
 

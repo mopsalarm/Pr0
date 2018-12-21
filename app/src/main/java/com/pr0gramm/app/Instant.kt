@@ -113,7 +113,7 @@ object TimeFactory {
             this.deltaInMillis.set(sum / buffer.size())
         }
 
-        Stats.get().time("server.time.delta", this.deltaInMillis.get())
+        Stats().time("server.time.delta", this.deltaInMillis.get())
     }
 
     fun currentTimeMillis(): Long = System.currentTimeMillis() + this.deltaInMillis.get()
