@@ -32,7 +32,7 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         applicationId "com.pr0gramm.app"
 
