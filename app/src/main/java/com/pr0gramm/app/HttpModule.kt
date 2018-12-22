@@ -2,6 +2,7 @@ package com.pr0gramm.app
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import androidx.collection.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
@@ -88,6 +89,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 
                 .apply {
                     debug {
+                        @Suppress("ConstantConditionIf")
                         if (Debug.debugInterceptor) {
                             addInterceptor(DebugInterceptor())
                         }
@@ -95,7 +97,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
                 }
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
-                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
+                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
                 .addNetworkInterceptor(LoggingInterceptor())
                 .addNetworkInterceptor(UpdateServerTimeInterceptor())
                 .build()

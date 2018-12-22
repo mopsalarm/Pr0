@@ -524,6 +524,7 @@ inline fun <T> threadLocal(crossinline supplier: () -> T): ReadOnlyProperty<Any,
     return object : ThreadLocal<T>(), ReadOnlyProperty<Any, T> {
         override fun initialValue(): T = supplier()
         override fun getValue(thisRef: Any, property: KProperty<*>): T = get()
+                ?: throw IllegalStateException("No value in thread local.")
     }
 }
 
