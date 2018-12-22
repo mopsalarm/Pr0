@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.*
@@ -75,8 +74,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val filterArgument: FeedFilter by lazy { arguments?.getFreezable(ARG_FEED_FILTER, FeedFilter)!! }
     private val isNormalMode: Boolean by fragmentArgumentWithDefault(true, ARG_NORMAL_MODE)
-
-    private var quickPeekDialog: Dialog? = null
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
