@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.time
 import java.util.*
 
@@ -11,7 +11,10 @@ import java.util.*
  * Tries to display tags in multiple line using a defined spacing.
  * It "works" but it is not nice, I guess.
  */
-class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, private val maxNumberOfRows: Int) : androidx.recyclerview.widget.RecyclerView.LayoutManager() {
+class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, private val maxNumberOfRows: Int) : RecyclerView.LayoutManager() {
+
+    private val logger = Logger("TagCloudLayoutManager")
+
     private var config = Config(0, 0, 0)
     private var scrollOffset: Int = 0
 
@@ -166,8 +169,4 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
     private class Size(val width: Int, val height: Int)
 
     private class Config(val width: Int, val height: Int, val rows: Int)
-
-    companion object {
-        private val logger = logger("TagCloudLayoutManager")
-    }
 }

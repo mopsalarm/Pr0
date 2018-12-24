@@ -16,8 +16,8 @@ import androidx.core.text.getSpans
 import androidx.core.text.inSpans
 import com.pr0gramm.app.ui.views.adjustImeOptions
 import com.pr0gramm.app.ui.views.handlePlainTextPaste
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.observeChange
 
 /**
@@ -56,7 +56,7 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
                     params.rightMargin = left
                     anchorView.layoutParams = params
 
-                    dropDownVerticalOffset = AndroidUtility.dp(context, 5)
+                    dropDownVerticalOffset = context.dip2px(5)
                 }
             }
         })
@@ -173,10 +173,11 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
         }
     }
 
-    companion object {
-        private val logger = logger("LineMultiAutoCompleteTextView")
-    }
-
     private object SuffixSpan
+
+    companion object {
+        // This needs to be static :/
+        private val logger = Logger("LineMultiAutoCompleteTextView")
+    }
 }
 

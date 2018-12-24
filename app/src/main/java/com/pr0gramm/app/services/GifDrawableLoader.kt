@@ -4,9 +4,9 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.legacyUse
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.readStream
 import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
@@ -22,7 +22,7 @@ import java.lang.System.identityHashCode
 /**
  */
 class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
-    private val logger = logger("GifLoader")
+    private val logger = Logger("GifLoader")
 
     fun load(uri: Uri): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->

@@ -104,7 +104,7 @@ class UpdateChecker {
     }
 
     companion object {
-        private val logger = logger("UpdateChecker")
+        private val logger = Logger("UpdateChecker")
 
 
         fun download(activity: androidx.fragment.app.FragmentActivity, update: Update) = with(activity.directKodein) {

@@ -42,7 +42,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
     }
 
     companion object {
-        private val logger = logger("Update")
+        private val logger = Logger("Update")
 
         private fun newInstance(update: Update?): UpdateDialogFragment {
             return UpdateDialogFragment().arguments {

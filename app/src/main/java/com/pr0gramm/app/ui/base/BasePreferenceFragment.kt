@@ -7,8 +7,8 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.CheckResult
 import androidx.preference.PreferenceFragmentCompat
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleProvider
 import com.trello.rxlifecycle.LifecycleTransformer
@@ -22,7 +22,7 @@ import rx.Observable
 import rx.subjects.BehaviorSubject
 
 abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat(), LifecycleProvider<FragmentEvent>, KodeinAware {
-    protected val logger = logger(name)
+    protected val logger = Logger(name)
 
     private val lifecycleSubject = BehaviorSubject.create<FragmentEvent>()
 

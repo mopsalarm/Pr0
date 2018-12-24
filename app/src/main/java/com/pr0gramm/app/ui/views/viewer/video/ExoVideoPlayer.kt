@@ -338,7 +338,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     companion object {
         private const val MAX_DROPPED_FRAMES = 75
-        private val logger = logger("ExoVideoPlayer")
+        private val logger = Logger("ExoVideoPlayer")
 
         private fun bestMatchingCodec(codecs: List<MediaCodecInfo>, videoCodecName: String): MediaCodecInfo? {
             return when (videoCodecName) {

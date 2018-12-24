@@ -20,7 +20,7 @@ import kotlin.concurrent.withLock
  * A entry that is hold by the [Cache].
  */
 internal class CacheEntry(private val context: Application, private val httpClient: OkHttpClient, override val file: File, private val uri: Uri) : Cache.Entry {
-    private val logger = logger("CacheEntry")
+    private val logger = Logger("CacheEntry")
 
     private val lock = ReentrantLock()
     private val writtenUpdated = lock.newCondition()

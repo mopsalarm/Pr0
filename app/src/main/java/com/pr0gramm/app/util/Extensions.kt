@@ -303,11 +303,11 @@ fun View?.removeFromParent() {
     parent?.removeView(this)
 }
 
-inline fun <T> KLogger.time(name: String, supplier: () -> T): T {
+inline fun <T> Logger.time(name: String, supplier: () -> T): T {
     return time({ name }, supplier)
 }
 
-inline fun <T> KLogger.time(nameSupplier: (T?) -> String, supplier: () -> T): T {
+inline fun <T> Logger.time(nameSupplier: (T?) -> String, supplier: () -> T): T {
     return if (BuildConfig.DEBUG) {
         val watch = Stopwatch.createStarted()
 
@@ -357,9 +357,9 @@ fun Completable.decoupleSubscribe(): Observable<Unit> {
     return toObservable<Unit>().decoupleSubscribe()
 }
 
-fun <T> Observable<T>.debug(key: String, logger: KLogger? = null): Observable<T> {
+fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {
     debug {
-        val log = logger ?: logger("Rx")
+        val log = logger ?: Logger("Rx")
         return this
                 .doOnSubscribe { log.info { "$key: onSubscribe" } }
                 .doOnUnsubscribe { log.info { "$key: onUnsubscribe" } }
@@ -537,7 +537,7 @@ inline fun <T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
     return result
 }
 
-val traceLogger = logger("Trace")
+val traceLogger = Logger("Trace")
 
 inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
@@ -556,7 +556,7 @@ fun Closeable?.closeQuietly() {
     try {
         this?.close()
     } catch (err: Exception) {
-        logger("CloseQuietly").warn("Ignoring exception during close", err)
+        Logger("CloseQuietly").warn("Ignoring exception during close", err)
     }
 }
 
@@ -581,7 +581,7 @@ fun asClosable(value: Any): Closeable {
             value.javaClass.getMethod("close").invoke(value)
 
         } catch (err: Exception) {
-            logger("Closable").warn(err) {
+            Logger("Closable").warn(err) {
                 "Error invoking close() method in ${value.javaClass.name}"
             }
         }

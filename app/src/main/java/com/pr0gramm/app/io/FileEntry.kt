@@ -1,6 +1,6 @@
 package com.pr0gramm.app.io
 
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.skipSimple
 import java.io.File
 import java.io.FileInputStream
@@ -11,7 +11,7 @@ import java.io.InputStream
  * not require caching at all. Useful for local "file://" urls.
  */
 internal class FileEntry(override val file: File) : Cache.Entry {
-    private val logger = logger("FileEntry")
+    private val logger = Logger("FileEntry")
 
     override val totalSize: Int
         get() {

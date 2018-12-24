@@ -7,8 +7,8 @@ import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
@@ -24,7 +24,7 @@ import rx.Subscription
  * A [android.support.v7.app.AppCompatActivity] with dagger injection and stuff.
  */
 abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), KodeinAware, AndroidCoroutineScope {
-    protected val logger = logger(name)
+    protected val logger = Logger(name)
 
     override val kodein: Kodein by lazy { (this as Context).kodein }
     override val kodeinTrigger = KodeinTrigger()

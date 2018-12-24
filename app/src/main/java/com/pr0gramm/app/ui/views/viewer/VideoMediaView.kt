@@ -179,7 +179,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         muteButtonView.animate().cancel()
 
         if (show) {
-            muteButtonView.animateCompat()
+            muteButtonView.animate()
                     .alpha(0f)
                     .translationY(muteButtonView.height.toFloat())
                     .withEndAction { muteButtonView.visible = false }
@@ -242,7 +242,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         } else {
             storeUnmuteTime(System.currentTimeMillis())
 
-            AndroidUtility.getTintentDrawable(context,
+            AndroidUtility.getTintedDrawable(context,
                     R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor)
         }
 
@@ -361,7 +361,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     companion object {
-        private val logger = logger("VideoMediaView")
+        private val logger = Logger("VideoMediaView")
 
         private val seekToCache = androidx.collection.LruCache<Long, ExpiringTimestamp>(16)
 

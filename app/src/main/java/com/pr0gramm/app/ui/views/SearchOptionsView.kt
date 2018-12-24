@@ -18,6 +18,7 @@ import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.find
 import kotterknife.bindView
 import rx.Observable
@@ -233,7 +234,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         container.removeAllViews()
 
         val params = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        params.rightMargin = AndroidUtility.dp(context, 8)
+        params.rightMargin = context.dip2px(8)
 
         val tags = listOf("f:sound", "webm", "f:repost", "m:ftb")
         val names = listOf("sound", "webm", "repost", "ftb")

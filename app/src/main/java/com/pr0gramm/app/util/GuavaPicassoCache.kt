@@ -12,7 +12,7 @@ import com.squareup.picasso.Cache
  * This should prevent further out of memory errors.
  */
 class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
-    private val logger = logger("GuavaPicassoCache")
+    private val logger = Logger("GuavaPicassoCache")
 
     private val cache = object : LruCache<String, Bitmap>(maxSize) {
         override fun sizeOf(key: String, value: Bitmap): Int = bitmapByteCount(value)

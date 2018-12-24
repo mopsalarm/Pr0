@@ -151,6 +151,6 @@ class DownloadService(
     }
 
     companion object {
-        private val logger = logger("DownloadService")
+        private val logger = Logger("DownloadService")
     }
 }

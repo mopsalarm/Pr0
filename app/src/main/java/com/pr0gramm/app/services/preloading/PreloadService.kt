@@ -323,7 +323,7 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
     }
 
     companion object {
-        private val logger = logger("PreloadService")
+        private val logger = Logger("PreloadService")
         private const val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
         private const val EXTRA_CANCEL = "PreloadService.cancel"
         private const val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"

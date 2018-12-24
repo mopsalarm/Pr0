@@ -13,6 +13,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.util.BrowserHelper
+import proguard.annotation.KeepPublicClassMemberNames
 
 /**
  * This class helps starting "Share with"-chooser for a [FeedItem].
@@ -86,6 +87,7 @@ object ShareHelper {
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
+    @KeepPublicClassMemberNames
     enum class ImageSearchEngine {
         NONE {
             override fun searchUri(url: String): Uri? {

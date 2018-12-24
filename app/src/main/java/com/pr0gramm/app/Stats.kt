@@ -1,8 +1,8 @@
 package com.pr0gramm.app
 
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.logger
 import com.timgroup.statsd.NoOpStatsDClient
 import com.timgroup.statsd.NonBlockingStatsDClient
 import com.timgroup.statsd.StatsDClient
@@ -11,7 +11,7 @@ import com.timgroup.statsd.StatsDClient
  * Statsd client helper
  */
 object Stats {
-    private val logger = logger("Stats")
+    private val logger = Logger("Stats")
 
     private var CLIENT: StatsDClient? = null
     private val EMPTY_CLIENT = NoOpStatsDClient()
@@ -41,7 +41,7 @@ object Stats {
 }
 
 private class LoggingStatsDClient : StatsDClient by NoOpStatsDClient() {
-    private val logger = logger("LoggingStatsdClient")
+    private val logger = Logger("LoggingStatsdClient")
 
     override fun recordGaugeValue(aspect: String, value: Double, vararg tags: String?) {
         logger.debug { "Stats.recordGaugeValue($aspect, $value)" }

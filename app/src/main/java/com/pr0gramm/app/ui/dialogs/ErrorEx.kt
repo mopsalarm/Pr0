@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui.dialogs
 
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import rx.Observable
 import rx.Subscriber
 import rx.Subscription
@@ -30,7 +30,7 @@ fun <T> Observable<T>.subscribeWithErrorHandling(
 
 fun <T> Observable<T>.ignoreError(msg: String = "Ignoring error"): Observable<T> {
     return onErrorResumeNext { err ->
-        logger("Error").warn(msg, err)
+        Logger("Error").warn(msg, err)
         Observable.empty()
     }
 }

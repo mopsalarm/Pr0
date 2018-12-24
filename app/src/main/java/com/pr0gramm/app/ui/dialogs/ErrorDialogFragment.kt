@@ -3,10 +3,10 @@ package com.pr0gramm.app.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.checkMainThread
 import rx.functions.Action1
 import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
@@ -27,7 +27,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
     }
 
     companion object {
-        private val logger = logger("ErrorDialogFragment")
+        private val logger = Logger("ErrorDialogFragment")
 
         private var GlobalErrorDialogHandler: WeakReference<OnErrorDialogHandler?> = WeakReference(null)
         private var PreviousError = WeakReference<Throwable>(null)

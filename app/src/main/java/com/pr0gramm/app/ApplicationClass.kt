@@ -16,9 +16,9 @@ import com.pr0gramm.app.ui.AdMobWorkaround
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.logger
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import org.kodein.di.Kodein
@@ -36,7 +36,7 @@ import java.util.logging.LogManager
 open class ApplicationClass : Application(), KodeinAware {
     private val startup = System.currentTimeMillis()
 
-    private val logger = logger("Pr0grammApplication")
+    private val logger = Logger("Pr0grammApplication")
 
     init {
         if (BuildConfig.DEBUG) {

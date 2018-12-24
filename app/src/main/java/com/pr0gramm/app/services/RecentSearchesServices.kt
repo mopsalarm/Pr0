@@ -4,8 +4,8 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.TypeToken
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.getString
-import com.pr0gramm.app.util.logger
 import java.util.*
 
 
@@ -16,6 +16,7 @@ import java.util.*
 class RecentSearchesServices(
         private val sharedPreferences: SharedPreferences) {
 
+    private val logger = Logger("RecentSearchesServices")
     private val searches: MutableList<String> = ArrayList()
 
     init {
@@ -75,8 +76,6 @@ class RecentSearchesServices(
     }
 
     companion object {
-        private val logger = logger("RecentSearchesServices")
-
         private const val KEY = "RecentSearchesServices.terms"
 
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")

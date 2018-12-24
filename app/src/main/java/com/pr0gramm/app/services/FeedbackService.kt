@@ -8,8 +8,8 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.Logging
-import com.pr0gramm.app.util.logger
 import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -28,6 +28,7 @@ import java.util.zip.DeflaterOutputStream
  * A simple service to generate and send a feedback to the feedback server.
  */
 class FeedbackService(okHttpClient: OkHttpClient) {
+    private val logger = Logger("FeedbackService")
 
     private val api: Api = Retrofit.Builder()
             .client(okHttpClient)
@@ -144,9 +145,5 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         val rt = Runtime.getRuntime()
         result.append("Memory used: ").append(rt.totalMemory() / 1024 / 1024).append("mb\n")
         result.append("MaxMemory for this app: ").append(rt.maxMemory() / 1024 / 1024).append("mb\n")
-    }
-
-    companion object {
-        private val logger = logger("FeedbackService")
     }
 }

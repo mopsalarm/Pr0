@@ -1,221 +1,172 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.logger
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.collections.ArrayList
+import androidx.annotation.MainThread
+import com.pr0gramm.app.util.Logger
+import kotlinx.coroutines.*
+import rx.Observable
+import rx.subjects.PublishSubject
+import kotlin.reflect.KMutableProperty0
 
-class Pagination<E : Any>(
-        private val scope: CoroutineScope,
-        private val loader: Loader<E>,
-        initialState: State<E> = State.hasMoreState()) {
+class PaginationController(
+        private val pagination: Pagination<*>,
+        private val headOffset: Int = 12,
+        private val tailOffset: Int = 12) {
 
-    private val logger = logger("Pagination(${loader.javaClass.simpleName})")
-
-    var state: State<E> = initialState
-        private set
-
-
-    /**
-     * Directly called with the current state if set.
-     */
-    var onStateChanged: (State<E>) -> Unit = {}
-
-    /**
-     * Loads the first page if no data is currently available
-     */
-    fun initialize() {
-        val tailState = state.tailState
-        if (tailState.hasMore && !tailState.loading && state.size == 0) {
-            this.loadAtTail()
-        }
-    }
-
-    /**
-     * Modifies the paginations state using a custom function
-     */
-    fun updateState(state: State<E>) {
-        checkMainThread()
-
-        this.state = state
-
-        // and publish updated state value
-        onStateChanged(state)
-    }
-
-    fun hit(value: Any) {
-        val state = this.state
-        val headState = state.headState
-        val tailState = state.tailState
-
-        val idx = state.lookupTable[value] ?: return
-
-        // check if we need to and are allowed to load at the head
-        if (headState.hasMore && !headState.loading && idx < 12) {
-            this.loadAtHead()
+    fun hit(position: Int, size: Int) {
+        if (position < headOffset) {
+            pagination.loadAtHead()
         }
 
-        // check if we need to and are allowed to load at the tail
-        if (tailState.hasMore && !tailState.loading && idx > state.size - 12) {
-            this.loadAtTail()
-        }
-    }
-
-    private fun loadAtHead() {
-        logger.debug { "loadAtHead() was triggered" }
-        load(loader::loadBefore) { state, function ->
-            state.copy(headState = function(state.headState))
-        }
-    }
-
-    private fun loadAtTail() {
-        logger.debug { "loadAtTail() was triggered" }
-        load(loader::loadAfter) { state, function ->
-            state.copy(tailState = function(state.tailState))
-        }
-    }
-
-    private fun load(
-            loadCallback: suspend (previousValues: List<E>) -> StateTransform<E>,
-            updateEndState: (State<E>, (EndState) -> (EndState)) -> State<E>) {
-
-        scope.launch {
-            // update state first
-            updateState(updateEndState(state) { it.copy(loading = true, error = null) })
-
-            val newState = try {
-                logger.warn { "Start loading" }
-                val updatedState = loadCallback(state.values)(state)
-
-                logger.info { "Loading finished, updating state" }
-                updateEndState(updatedState) { it.copy(loading = false, error = null) }
-
-            } catch (err: CancellationException) {
-                logger.warn { "Loading was canceled." }
-                updateEndState(state) { it.copy(loading = false, error = null) }
-
-            } catch (err: Exception) {
-                logger.warn { "Loading failed" }
-                updateEndState(state) { it.copy(loading = false, error = err) }
-            }
-
-            updateState(newState)
-        }
-    }
-
-    data class State<E>(
-            val values: List<E>,
-            val headState: EndState = EndState(),
-            val tailState: EndState = EndState()) {
-
-        val size = values.size
-
-        val lookupTable by lazy(LazyThreadSafetyMode.PUBLICATION) {
-            IdentityHashMap<E, Int>(size).also { map ->
-                values.forEachIndexed { index, value -> map[value] = index }
-            }
-        }
-
-        companion object {
-            fun <E> hasMoreState(values: List<E> = listOf()): State<E> {
-                return State(values, tailState = EndState(hasMore = true))
-            }
-        }
-    }
-
-    data class EndState(
-            val error: Exception? = null,
-            val loading: Boolean = false,
-            val hasMore: Boolean = false)
-
-    abstract class Loader<E> {
-        open suspend fun loadAfter(currentValues: List<E>): StateTransform<E> {
-            return { state -> state.copy(tailState = EndState()) }
-        }
-
-        open suspend fun loadBefore(currentValues: List<E>): StateTransform<E> {
-            return { state -> state.copy(headState = EndState()) }
+        if (size - position - 1 < tailOffset) {
+            pagination.loadAtTail()
         }
     }
 }
 
-typealias StateTransform<E> = (Pagination.State<E>) -> Pagination.State<E>
+class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loader: Loader<E>) {
 
+    private val logger = Logger("Pagination(${loader.javaClass.simpleName})")
 
-@Suppress("UNCHECKED_CAST")
-abstract class PaginationRecyclerViewAdapter<P : Any, E : Any>(
-        private val pagination: Pagination<P>,
-        diffCallback: DiffUtil.ItemCallback<E>) : DelegateAdapter<E>(diffCallback) {
+    private var headState: EndState<E> = EndState()
+    private var tailState: EndState<E> = EndState()
 
-    private var initialized = false
-    private var lookupTable = emptyMap<E, P>()
+    private val job = SupervisorJob()
+    private val scope get() = baseScope + job
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        if (!initialized) {
-            initialized = true
+    private val updatesSubject: PublishSubject<Update<E>> = PublishSubject.create()
 
-            updateAdapterValues(pagination.state)
+    val state: State<E> get() = State(headState, tailState)
 
-            pagination.onStateChanged = this::updateAdapterValues
-            pagination.initialize()
+    // publishes updates to this pagination
+    val updates: Observable<Update<E>> get() = updatesSubject.startWith(Update(state, listOf()))
+
+    /**
+     * Loads the first page if no data is currently available
+     */
+    fun initialize(headState: EndState<E> = EndState(), tailState: EndState<E> = EndState(hasMore = true)) {
+        // clear any pending co-routines
+        job.cancelChildren()
+
+        this.headState = headState
+        this.tailState = tailState
+
+        publishStateChange()
+
+        if (tailState.value != null) {
+            this.loadAtTail()
         }
-
-        super.onAttachedToRecyclerView(recyclerView)
     }
 
-    private fun updateAdapterValues(state: Pagination.State<P>) {
-        val values = translateState(state)
+    @MainThread
+    fun loadAtHead() {
+        if (headState.hasMore && !headState.loading) {
+            logger.debug { "loadAtHead() was triggered" }
+            load(loader::loadBefore, this::headState)
+        }
+    }
 
-        val adapterValues = ArrayList<E>(values.size)
-        val lookupTable = IdentityHashMap<E, P>(values.size)
+    @MainThread
+    fun loadAtTail() {
+        if (tailState.hasMore && !tailState.loading) {
+            logger.debug { "loadAtTail() was triggered" }
+            load(loader::loadAfter, this::tailState)
+        }
+    }
 
-        values.forEach { value ->
-            if (value is Translation<*, *>) {
-                @Suppress("UNCHECKED_CAST")
-                lookupTable[value.adapterValue as E] = value.stateValue as P
+    private fun load(
+            loadCallback: suspend (previousValue: E?) -> Page<E>,
+            endStateRef: KMutableProperty0<EndState<E>>) {
 
-                adapterValues += value.adapterValue
-            } else {
-                adapterValues += value as E
+        // update state first
+        endStateRef.set(endStateRef.get().copy(loading = true, error = null))
+
+        scope.launch {
+            try {
+                logger.warn { "Start loading" }
+                val (data, endValue) = loadCallback(endStateRef.get().value)
+
+                logger.info { "Loading finished, updating state" }
+                endStateRef.set(EndState(value = endValue, hasMore = endValue != null))
+
+                // publish the current state
+                publishContent(data)
+
+            } catch (err: CancellationException) {
+                logger.warn { "Loading was canceled." }
+                endStateRef.set(endStateRef.get().copy(loading = false, error = null))
+                publishStateChange()
+
+            } catch (err: Exception) {
+                logger.warn { "Loading failed" }
+                endStateRef.set(endStateRef.get().copy(loading = false, error = err))
+                publishStateChange()
             }
         }
-
-        submitList(adapterValues)
     }
 
-    abstract fun translateState(state: Pagination.State<P>): List<Any>
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        hitValue(position)
-        super.onBindViewHolder(holder, position)
+    private fun publishStateChange() {
+        publishContent(listOf())
     }
 
-    private fun hitValue(position: Int) {
-        val stateValue = lookupTable[items[position]] ?: items[position] ?: return
-        pagination.hit(stateValue)
+    private fun publishContent(data: List<E>) {
+        updatesSubject.onNext(Update(state, data))
     }
 
-    class Translation<E : Any, P : Any>(val adapterValue: E, val stateValue: P)
+    data class Update<E>(val state: State<E>, val newValues: List<E>)
 
-    companion object {
-        fun addEndStateToValues(context: Context, values: MutableList<in Any>, tailState: Pagination.EndState,
-                                ifEmptyValue: Any? = null) {
-            when {
-                tailState.error != null ->
-                    values += ErrorAdapterDelegate.errorValueOf(context, tailState.error)
+    data class State<E>(
+            val headState: EndState<E> = EndState(),
+            val tailState: EndState<E> = EndState()) {
 
-                tailState.hasMore ->
-                    values += Loading()
+        companion object {
+            fun <E> hasMoreState(): State<E> {
+                return State(tailState = EndState(hasMore = true))
             }
-
-            if (ifEmptyValue != null && values.isEmpty())
-                values += ifEmptyValue
         }
     }
+
+    data class EndState<E>(
+            val error: Exception? = null,
+            val value: E? = null,
+            val loading: Boolean = false,
+            val hasMore: Boolean = false)
+
+    data class Page<E>(val values: List<E>, val endValue: E? = null) {
+        companion object {
+            fun <E> atHead(values: List<E>, hasMore: Boolean): Page<E> {
+                return Page(values, values.firstOrNull()?.takeIf { hasMore })
+            }
+
+            fun <E> atTail(values: List<E>, hasMore: Boolean): Page<E> {
+                return Page(values, values.lastOrNull()?.takeIf { hasMore })
+            }
+        }
+    }
+
+    abstract class Loader<E> {
+        open suspend fun loadAfter(currentValue: E?): Page<E> {
+            return Page(listOf())
+        }
+
+        open suspend fun loadBefore(currentValue: E?): Page<E> {
+            return Page(listOf())
+        }
+    }
+}
+
+fun addEndStateToValues(
+        context: Context, values: MutableList<in Any>, tailState: Pagination.EndState<*>,
+        ifEmptyValue: Any? = null) {
+
+    when {
+        tailState.error != null ->
+            values += ErrorAdapterDelegate.errorValueOf(context, tailState.error)
+
+        tailState.hasMore ->
+            values += Loading()
+    }
+
+    if (ifEmptyValue != null && values.isEmpty())
+        values += ifEmptyValue
 }

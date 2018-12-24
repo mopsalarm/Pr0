@@ -24,6 +24,8 @@ class SeenService(context: Context) {
     private val lock = Any()
     private val buffer = AtomicReference<ByteBuffer>()
 
+    private val logger = Logger("SeenService")
+
     init {
         doInBackground {
             try {
@@ -185,9 +187,5 @@ class SeenService(context: Context) {
             raf.setLength(size)
             return raf.channel.map(FileChannel.MapMode.READ_WRITE, 0, size)
         }
-    }
-
-    companion object {
-        private val logger = logger("SeenService")
     }
 }

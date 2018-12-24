@@ -25,7 +25,7 @@ import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.views.AspectLayout
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import java.io.IOException
 
 /**
@@ -33,6 +33,8 @@ import java.io.IOException
  */
 class AndroidVideoPlayer(private val context: Context, internal val parentView: AspectLayout) :
         RxVideoPlayer(), VideoPlayer {
+
+    internal val logger = Logger("AndroidVideoPlayer")
 
     // settable by the client
     private var mUri: Uri? = null
@@ -378,15 +380,13 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
             mCurrentState != STATE_PREPARING
 
     companion object {
-        internal val logger = logger("CustomVideoView")
-
         // all possible internal states
-        private val STATE_ERROR = -1
-        private val STATE_IDLE = 0
-        private val STATE_PREPARING = 1
-        private val STATE_PREPARED = 2
-        private val STATE_PLAYING = 3
-        private val STATE_PAUSED = 4
-        private val STATE_PLAYBACK_COMPLETED = 5
+        private const val STATE_ERROR = -1
+        private const val STATE_IDLE = 0
+        private const val STATE_PREPARING = 1
+        private const val STATE_PREPARED = 2
+        private const val STATE_PLAYING = 3
+        private const val STATE_PAUSED = 4
+        private const val STATE_PLAYBACK_COMPLETED = 5
     }
 }

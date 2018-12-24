@@ -1,15 +1,14 @@
 package com.pr0gramm.app.ui
 
 import android.view.View
-import androidx.core.view.ViewPropertyAnimatorCompat
-import com.pr0gramm.app.util.animateCompat
+import android.view.ViewPropertyAnimator
 import com.pr0gramm.app.util.visible
 
 /**
  */
 class ScrollHideToolbarListener(private val toolbar: View) {
     private var toolbarMarginOffset: Int = 0
-    private var animation: ViewPropertyAnimatorCompat? = null
+    private var animation: ViewPropertyAnimator? = null
     private var hidden: Boolean = false
 
     init {
@@ -40,7 +39,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
                 toolbar.visible = true
             }
 
-            animation = toolbar.animateCompat()
+            animation = toolbar.animate()
                     .translationY(y.toFloat())
                     .setDuration(250)
                     .withEndAction {

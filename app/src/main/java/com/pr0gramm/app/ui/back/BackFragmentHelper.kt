@@ -1,10 +1,10 @@
 package com.pr0gramm.app.ui.back
 
 import androidx.fragment.app.SupportV4App
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 
 object BackFragmentHelper {
-    private val logger = logger("BackFragmentHelper")
+    private val logger = Logger("BackFragmentHelper")
 
     @JvmStatic
     fun dispatchOnBackAction(activity: androidx.fragment.app.FragmentActivity): Boolean {

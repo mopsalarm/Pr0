@@ -2,15 +2,15 @@ package com.pr0gramm.app.sync
 
 import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.directKodein
-import com.pr0gramm.app.util.logger
 import kotlinx.coroutines.runBlocking
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 class SyncStatisticsJob : DailyJob() {
-    private val logger = logger("SyncJob")
+    private val logger = Logger("SyncJob")
 
     override fun onRunDailyJob(params: Params): DailyJobResult {
         logger.info { "Sync statistics job started." }

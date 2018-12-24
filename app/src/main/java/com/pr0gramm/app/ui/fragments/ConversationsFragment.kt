@@ -32,7 +32,34 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val listView: RecyclerView by bindView(R.id.conversations)
 
+    private var state by observeChange(State()) { updateAdapterValues() }
+
+    private lateinit var adapter: ConversationsAdapter
     private lateinit var pagination: Pagination<Api.Conversation>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        pagination = Pagination(this, ConversationsLoader(inboxService))
+        adapter = ConversationsAdapter(PaginationController(pagination))
+    }
+
+    private fun applyPaginationUpdate(update: Pagination.Update<Api.Conversation>) {
+        val mergedConversations = if (update.newValues.isNotEmpty()) {
+            // only add conversations that are not yet in the list of conversations
+            (state.conversations + update.newValues).distinctBy { it.name }
+        } else {
+            state.conversations
+        }
+
+        state = state.copy(conversations = mergedConversations, tailState = update.state.tailState)
+    }
+
+    private fun updateAdapterValues() {
+        val values = state.conversations.toMutableList<Any>()
+        addEndStateToValues(requireContext(), values, state.tailState)
+        adapter.submitList(values)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_conversations, container, false)
@@ -41,13 +68,11 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(listView) {
-            itemAnimator = null
-            layoutManager = LinearLayoutManager(activity)
-            addItemDecoration(SpacingItemDecoration(dp = 8))
-            addItemDecoration(MarginDividerItemDecoration(
-                    requireContext(), marginLeftDp = 72))
-        }
+        listView.itemAnimator = null
+        listView.layoutManager = LinearLayoutManager(activity)
+        listView.adapter = adapter
+        listView.addItemDecoration(SpacingItemDecoration(dp = 8))
+        listView.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
 
         swipeRefreshLayout.setOnRefreshListener { reloadConversations() }
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
@@ -58,13 +83,16 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     override fun onResume() {
         super.onResume()
         updateConversationsUnreadCount()
+
+        pagination.updates.bindToLifecycle().subscribe { applyPaginationUpdate(it) }
     }
 
     private fun reloadConversations() {
-        pagination = Pagination(this, ConversationsLoader(inboxService))
-
         swipeRefreshLayout.isRefreshing = false
-        listView.adapter = ConversationsAdapter(pagination)
+
+        // reset state and re-start pagination
+        state = State()
+        pagination.initialize()
     }
 
     private fun handleConversationClicked(conversation: Api.Conversation) {
@@ -74,13 +102,11 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 
     private fun markConversationAsRead(conversation: Api.Conversation) {
-        // mark the conversation directly as unread
-        val updatedValues = pagination.state.values.map {
+        val updatedConversations = state.conversations.map {
             if (it.name == conversation.name) it.copy(unreadCount = 0) else it
         }
 
-        // publish change
-        pagination.updateState(pagination.state.copy(values = updatedValues))
+        state = state.copy(conversations = updatedConversations)
     }
 
     private fun updateConversationsUnreadCount() {
@@ -88,15 +114,16 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
             ignoreException {
                 // get the most recent conversations, and replace them in the
                 // pagination with their updated state.
-                val conversations = inboxService.listConversations()
-                val merged = conversations.conversations + pagination.state.values
-                pagination.updateState(pagination.state.copy(values = merged.distinctBy { it.name }))
+                val response = inboxService.listConversations()
+                val merged = state.conversations + response.conversations
+
+                state = state.copy(conversations = merged.distinctBy { it.name })
             }
         }
     }
 
-    inner class ConversationsAdapter(pagination: Pagination<Api.Conversation>)
-        : PaginationRecyclerViewAdapter<Api.Conversation, Any>(pagination, ConversationsItemDiffCallback()) {
+    inner class ConversationsAdapter(private val paginationController: PaginationController)
+        : DelegateAdapter<Any>(ConversationsItemDiffCallback()) {
 
         init {
             delegates += ConversationAdapterDelegate(requireContext()) { handleConversationClicked(it) }
@@ -104,12 +131,15 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
             delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
         }
 
-        override fun translateState(state: Pagination.State<Api.Conversation>): List<Any> {
-            val values = state.values.toMutableList<Any>()
-            addEndStateToValues(requireContext(), values, state.tailState)
-            return values
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            paginationController.hit(position, items.size)
+            super.onBindViewHolder(holder, position)
         }
     }
+
+    data class State(
+            val conversations: List<Api.Conversation> = listOf(),
+            val tailState: Pagination.EndState<Api.Conversation> = Pagination.EndState(hasMore = true))
 }
 
 private class ConversationsItemDiffCallback : DiffUtil.ItemCallback<Any>() {
@@ -130,15 +160,10 @@ private class ConversationsItemDiffCallback : DiffUtil.ItemCallback<Any>() {
 }
 
 private class ConversationsLoader(private val inboxService: InboxService) : Pagination.Loader<Api.Conversation>() {
-    override suspend fun loadAfter(currentValues: List<Api.Conversation>): StateTransform<Api.Conversation> {
-        val olderThan = currentValues.lastOrNull()?.lastMessage
-
+    override suspend fun loadAfter(currentValue: Api.Conversation?): Pagination.Page<Api.Conversation> {
+        val olderThan = currentValue?.lastMessage
         val response = inboxService.listConversations(olderThan)
-        return { state ->
-            state.copy(
-                    values = (state.values + response.conversations).distinctBy { it.name },
-                    tailState = state.tailState.copy(hasMore = !response.atEnd))
-        }
+        return Pagination.Page.atTail(response.conversations, hasMore = !response.atEnd)
     }
 }
 

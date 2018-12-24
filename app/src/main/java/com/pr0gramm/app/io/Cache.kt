@@ -5,7 +5,7 @@ import android.net.Uri
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import okhttp3.*
 import okio.Okio
 import rx.Observable
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class Cache(private val context: Application, private val httpClient: OkHttpClient) {
     private val MEGA = (1024 * 1024).toLong()
 
-    private val logger = logger("Cache")
+    private val logger = Logger("Cache")
     private val root: File = File(context.cacheDir, "mediacache")
 
     private val lock = Any()

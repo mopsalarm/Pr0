@@ -4,15 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.listOfSize
 import com.pr0gramm.app.util.time
 import okio.*
 import java.io.ByteArrayInputStream
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 
-private val logger = logger("Freezer")
+private val logger = Logger("Freezer")
 
 /**
  * Very simple re-implementation of the Parcelable framework.
@@ -33,6 +34,10 @@ interface Freezable : Parcelable {
     class Sink(private val sink: BufferedSink) {
         fun write(f: Freezable) {
             f.freeze(this)
+        }
+
+        fun writeBoolean(value: Boolean) {
+            sink.writeByte(if (value) 1 else 0)
         }
 
         fun writeByte(value: Int) {
@@ -63,12 +68,19 @@ interface Freezable : Parcelable {
                 sink.write(bytes)
             }
         }
+
+        fun <F : Freezable> writeValues(values: Collection<F>) {
+            writeInt(values.size)
+            values.forEach { write(it) }
+        }
     }
 
     class Source(private val source: BufferedSource) {
         fun <F : Freezable> read(c: Unfreezable<F>): F {
             return c.unfreeze(this)
         }
+
+        fun readBoolean(): Boolean = source.readByte() != 0.toByte()
 
         fun readByte(): Byte = source.readByte()
         fun readShort(): Short = source.readShort()
@@ -86,6 +98,10 @@ interface Freezable : Parcelable {
             }
 
             return source.readUtf8(size.toLong())
+        }
+
+        fun <F : Freezable> readValues(c: Unfreezable<F>): List<F> {
+            return listOfSize(readInt()) { read(c) }
         }
     }
 }

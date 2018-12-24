@@ -44,7 +44,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
                 Context.MODE_PRIVATE)
     }
 
-    private val logger = logger("DialogBuilder")
+    private val logger = Logger("DialogBuilder")
 
     private var buttonPositiveText: String? = null
     private var buttonPositiveClick: DialogClickListener? = null

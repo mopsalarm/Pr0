@@ -39,7 +39,7 @@ object ErrorFormatting {
          * if [.handles] returned true before.
          */
         fun getMessage(context: Context, thr: Throwable): String {
-            logger("ErrorFormatting").warn("Formatting error:", thr)
+            Logger("ErrorFormatting").warn("Formatting error:", thr)
             return message(thr, context)
         }
 

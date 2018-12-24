@@ -2,8 +2,8 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.MainThreadScheduler
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -13,7 +13,7 @@ import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 
 class FeedManager(private val feedService: FeedService, private var feed: Feed) {
-    private val logger = logger("FeedService")
+    private val logger = Logger("FeedService")
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
     private var job: Job? = null

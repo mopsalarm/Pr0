@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -88,7 +88,7 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
 }
 
 object TimeFactory {
-    private val logger = logger("TimeFactory")
+    private val logger = Logger("TimeFactory")
 
     private val buffer = androidx.collection.CircularArray<Long>(16)
     private val deltaInMillis = AtomicLong(0)

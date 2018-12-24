@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
@@ -22,12 +21,12 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.getSystemService
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.content.res.use
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewPropertyAnimatorCompat
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
@@ -48,7 +47,7 @@ import java.io.StringWriter
  * Place to put everything that belongs nowhere. Thanks Obama.
  */
 object AndroidUtility {
-    private val logger = logger("AndroidUtility")
+    private val logger = Logger("AndroidUtility")
 
     private val EXCEPTION_BLACKLIST = listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
 
@@ -68,7 +67,7 @@ object AndroidUtility {
     /**
      * Gets the height of the actionbar.
      */
-    fun getActionBarHeight(context: Context): Int {
+    private fun getActionBarHeight(context: Context): Int {
         context.obtainStyledAttributes(intArrayOf(R.attr.actionBarSize)).use {
             return it.getDimensionPixelSize(it.getIndex(0), -1)
         }
@@ -137,10 +136,6 @@ object AndroidUtility {
         }
     }
 
-    fun dp(context: Context, dpValue: Int): Int {
-        return context.dip2px(dpValue.toFloat()).toInt()
-    }
-
     fun isOnMobile(context: Context?): Boolean {
         context ?: return false
 
@@ -153,7 +148,7 @@ object AndroidUtility {
     /**
      * Gets the color tinted hq-icon
      */
-    fun getTintentDrawable(context: Context, @DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable {
+    fun getTintedDrawable(context: Context, @DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable {
         val resources = context.resources
         val icon = DrawableCompat.wrap(ResourcesCompat.getDrawable(resources, drawableId, null)!!)
         DrawableCompat.setTint(icon, ResourcesCompat.getColor(resources, colorId, null))
@@ -188,8 +183,11 @@ object AndroidUtility {
     }
 
     fun buildVersionCode(): Int {
-        return Debug.versionOverride.takeIf { BuildConfig.DEBUG }
-                ?: BuildConfig.VERSION_CODE
+        if (BuildConfig.DEBUG) {
+            return Debug.versionOverride ?: BuildConfig.VERSION_CODE
+        } else {
+            return BuildConfig.VERSION_CODE
+        }
     }
 
     fun hideSoftKeyboard(view: View?) {
@@ -209,25 +207,16 @@ object AndroidUtility {
             try {
                 view.requestFocus()
 
-                val imm = view.context
-                        .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
+                val imm = view.context.getSystemService<InputMethodManager>() ?: return
                 imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+
             } catch (ignored: Exception) {
             }
         }
     }
 
-    @ColorInt
-    fun darken(@ColorInt color: Int, amount: Float): Int {
-        val hsv = FloatArray(3)
-        Color.colorToHSV(color, hsv)
-        hsv[2] *= 1f - amount
-        return Color.HSVToColor(hsv)
-    }
-
     fun recreateActivity(activity: Activity) {
-        val intent = activity.intent
+        val intent = Intent(activity.intent)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         TaskStackBuilder.create(activity)
                 .addNextIntentWithParentStack(intent)
@@ -236,12 +225,14 @@ object AndroidUtility {
 
     fun applyWindowFullscreen(activity: Activity, fullscreen: Boolean) {
         var flags = 0
+
         if (fullscreen) {
             flags = flags or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            }
+            flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -273,10 +264,6 @@ object AndroidUtility {
         return size.x > size.y
     }
 
-    fun screenIsPortrait(activity: Activity): Boolean {
-        return !screenIsLandscape(activity)
-    }
-
     /**
      * Tries to get a basic activity from the given context. Returns an empty observable,
      * if no activity could be found.
@@ -300,26 +287,25 @@ object AndroidUtility {
             arr.recycle()
         }
     }
+}
 
-    fun checkMainThread() {
-        if (Looper.getMainLooper().thread !== Thread.currentThread()) {
-            logger.error {
-                "Expected to be in main thread, current thread is: ${Thread.currentThread().name}"
-            }
-
-            throw IllegalStateException("Must be called from the main thread.")
-        }
-    }
-
-    fun checkNotMainThread(msg: String? = null) {
-        if (Looper.getMainLooper().thread === Thread.currentThread()) {
-            logger.error { "Expected not to be on main thread: $msg" }
-            throw IllegalStateException("Must not be called from the main thread: $msg")
-        }
+@Suppress("NOTHING_TO_INLINE")
+inline fun checkMainThread() = debug {
+    if (Looper.getMainLooper().thread !== Thread.currentThread()) {
+        Logger("AndroidUtility").error { "Expected to be in main thread but was: ${Thread.currentThread().name}" }
+        throw IllegalStateException("Must be called from the main thread.")
     }
 }
 
-fun doInBackground(action: () -> Unit): Completable {
+@Suppress("NOTHING_TO_INLINE")
+inline fun checkNotMainThread(msg: String? = null) = debug {
+    if (Looper.getMainLooper().thread === Thread.currentThread()) {
+        Logger("AndroidUtility").error { "Expected not to be on main thread: $msg" }
+        throw IllegalStateException("Must not be called from the main thread: $msg")
+    }
+}
+
+inline fun doInBackground(crossinline action: () -> Unit): Completable {
     val o = Async.start<Any>({
         try {
             action()
@@ -337,7 +323,7 @@ fun doInBackground(action: () -> Unit): Completable {
     return o.toCompletable()
 }
 
-fun <T> doAsync(action: suspend () -> T): Job {
+inline fun <T> doAsync(crossinline action: suspend () -> T): Job {
     return AsyncScope.launch { action() }
 }
 
@@ -353,25 +339,20 @@ fun Throwable.getMessageWithCauses(): String {
 
     val hasCause = cause != null && error !== cause
     val message = error.message ?: ""
-    val hasMessage = !message.isBlank() && (
-            !hasCause || !message.contains(cause!!.javaClass.simpleName))
+    val hasMessage = message.isNotBlank() && (
+            !hasCause || (cause != null && cause.javaClass.simpleName !in message))
 
-    if (hasMessage) {
-        if (hasCause) {
-            return String.format("%s(%s), caused by %s",
-                    type, error.message, cause!!.getMessageWithCauses())
+    return if (hasMessage) {
+        if (hasCause && cause != null) {
+            "$type(${error.message}), caused by ${cause.getMessageWithCauses()}"
         } else {
-            return String.format("%s(%s)", type, error.message)
+            "$type(${error.message})"
         }
     } else {
-        if (hasCause) {
-            return String.format("%s, caused by %s", type, cause!!.getMessageWithCauses())
+        if (hasCause && cause != null) {
+            "$type, caused by ${cause.getMessageWithCauses()}"
         } else {
-            return type
+            type
         }
     }
-}
-
-fun View.animateCompat(): ViewPropertyAnimatorCompat {
-    return ViewCompat.animate(this)
 }

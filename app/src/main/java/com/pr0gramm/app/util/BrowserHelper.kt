@@ -23,7 +23,7 @@ import java.util.*
  */
 
 object BrowserHelper {
-    private val logger = logger("BrowserHelper")
+    private val logger = Logger("BrowserHelper")
 
     private const val CHROME_STABLE_PACKAGE = "com.android.chrome"
     private const val CHROME_BETA_PACKAGE = "com.chrome.beta"

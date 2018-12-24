@@ -21,7 +21,7 @@ import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.map.TLongObjectMap
 
@@ -219,13 +219,13 @@ private object PlaceholderItemAdapterDelegate
 
 @SuppressLint("ViewConstructor")
 private class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(context) {
-    var fixedHeight = AndroidUtility.dp(context, 150)
+    var fixedHeight = context.dip2px(150)
 
     init {
         val v = View(context)
         v.setBackgroundResource(R.drawable.dropshadow_reverse)
 
-        val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, AndroidUtility.dp(context, 8))
+        val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dip2px(8))
         lp.gravity = Gravity.BOTTOM
         v.layoutParams = lp
 

@@ -16,12 +16,10 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.MainActivity
-import com.pr0gramm.app.ui.MarginDividerItemDecoration
-import com.pr0gramm.app.ui.MessageActionListener
-import com.pr0gramm.app.ui.WriteMessageActivity
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.util.observeChange
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
@@ -35,6 +33,19 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
     private var loadStartedTimestamp = Instant(0)
 
+    private lateinit var adapter: MessageAdapter
+    private lateinit var pagination: Pagination<Api.Message>
+
+    private var state by observeChange(State()) { updateAdapterValues() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val (adapter, pagination) = getContentAdapter()
+        this.adapter = adapter
+        this.pagination = pagination
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_inbox, container, false)
     }
@@ -42,13 +53,10 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(messagesView) {
-            itemAnimator = null
-            layoutManager = LinearLayoutManager(activity)
-            adapter = getContentAdapter()
-
-            addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
-        }
+        messagesView.itemAnimator = null
+        messagesView.layoutManager = LinearLayoutManager(activity)
+        messagesView.adapter = adapter
+        messagesView.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
@@ -56,6 +64,10 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
     override fun onResume() {
         super.onResume()
+
+        pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
+            handleStateUpdate(state, newValues)
+        }
 
         // reload if re-started after one minute
         if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isBeforeNow) {
@@ -66,10 +78,39 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
     private fun reloadInboxContent() {
         swipeRefreshLayout.isRefreshing = false
-        messagesView.adapter = getContentAdapter()
+
+        // re-set state and re-start pagination
+        state = State()
+        pagination.initialize()
     }
 
-    abstract fun getContentAdapter(): RecyclerView.Adapter<*>
+    abstract fun getContentAdapter(): Pair<MessageAdapter, Pagination<Api.Message>>
+
+    private fun handleStateUpdate(state: Pagination.State<Api.Message>, newValues: List<Api.Message>) {
+        this.state = this.state.copy(
+                messages = this.state.messages + newValues,
+                tailState = state.tailState)
+    }
+
+    private fun updateAdapterValues() {
+        val context = context ?: return
+
+        // build values for the recycler view
+        val values = state.messages.toMutableList<Any>()
+
+        // add the divider above the first read message, but only
+        // if we have at least one unread message
+        val dividerIndex = values.indexOfFirst { it is Api.Message && it.read }
+        if (dividerIndex > 0) {
+            val divider = DividerAdapterDelegate.Value(context.getString(R.string.inbox_type_unread))
+            values.add(dividerIndex, divider)
+        }
+
+        // add common state values
+        addEndStateToValues(context, values, state.tailState, ifEmptyValue = MessageAdapter.EmptyValue)
+
+        adapter.submitList(values)
+    }
 
     protected val actionListener: MessageActionListener = object : MessageActionListener {
         override fun onAnswerToPrivateMessage(message: Api.Message) {
@@ -99,4 +140,8 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
             open(UriHelper.of(context ?: return).uploads(username))
         }
     }
+
+    data class State(
+            val messages: List<Api.Message> = listOf(),
+            val tailState: Pagination.EndState<Api.Message> = Pagination.EndState(hasMore = true))
 }

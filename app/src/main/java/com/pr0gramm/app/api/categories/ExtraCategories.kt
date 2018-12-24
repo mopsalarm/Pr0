@@ -5,7 +5,7 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  */
 class ExtraCategories(private val configService: ConfigService, httpClient: OkHttpClient) {
-    val logger = logger("ExtraCategories")
+    val logger = Logger("ExtraCategories")
 
     val api: ExtraCategoryApi = Retrofit.Builder()
             .validateEagerly(true)

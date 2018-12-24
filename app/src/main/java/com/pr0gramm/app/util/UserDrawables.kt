@@ -15,7 +15,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 class UserDrawables(context: Context) {
     private val shapes = TextDrawable.builder().beginConfig()
             .textColor(ContextCompat.getColor(context, R.color.feed_background))
-            .fontSize(AndroidUtility.dp(context, 20))
+            .fontSize(context.dip2px(20))
             .bold()
             .endConfig()
 

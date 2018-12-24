@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.dip2px
 import java.util.*
 
 typealias OnMenuItemClickListener = (MenuItem) -> Unit
@@ -53,7 +54,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         originalListPaddingTop = absListView.paddingTop
         setTitle(context.getString(titleRes))
 
-        ViewCompat.setElevation(this, AndroidUtility.dp(getContext(), 16).toFloat())
+        ViewCompat.setElevation(this, getContext().dip2px(16).toFloat())
     }
 
     /**
@@ -159,7 +160,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
 
             // Add some padding to the top to account for the missing title
             absListView.setPadding(absListView.paddingLeft,
-                    originalListPaddingTop + AndroidUtility.dp(context, 8),
+                    originalListPaddingTop + context.dip2px(8),
                     absListView.paddingRight, absListView.paddingBottom)
         }
     }

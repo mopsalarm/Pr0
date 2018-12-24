@@ -5,16 +5,17 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import java.util.*
 
 /**
  * This implementation has a [.getItemId] to identify items
  * and fragments, even if they change places between adapter updates.
 
- * @see android.support.v4.app.FragmentStatePagerAdapter
+ * @see androidx.fragment.app.FragmentStatePagerAdapter
  */
 abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: androidx.fragment.app.FragmentManager) : androidx.viewpager.widget.PagerAdapter() {
+    private val logger = Logger("IdFragmentStatePagerAdapter")
 
     // we only cache the most recent few saved states.
     private val mSavedState = object : LinkedHashMap<Long, androidx.fragment.app.Fragment.SavedState>() {
@@ -134,15 +135,14 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
         }
     }
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return (`object` as androidx.fragment.app.Fragment).view === view
+    override fun isViewFromObject(view: View, obj: Any): Boolean {
+        return (obj as androidx.fragment.app.Fragment).view === view
     }
 
     override fun saveState(): Parcelable? {
         var state: Bundle? = null
-        if (mSavedState.size > 0) {
-            state = Bundle()
 
+        if (mSavedState.size > 0) {
             val ids = LongArray(mSavedState.size)
             val states = arrayOfNulls<Parcelable>(mSavedState.size)
 
@@ -151,11 +151,12 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
                 states[idx] = entry.value
             }
 
+            state = Bundle()
             state.putLongArray("ids", ids)
             state.putParcelableArray("states", states)
         }
 
-        for (idx in 0..mFragments.size() - 1) {
+        for (idx in 0 until mFragments.size()) {
             val f = mFragments.valueAt(idx)
             if (f != null) {
                 state = state ?: Bundle()
@@ -200,9 +201,5 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
                 }
             }
         }
-    }
-
-    companion object {
-        private val logger = logger("IdFragmentStatePagerAdapter")
     }
 }

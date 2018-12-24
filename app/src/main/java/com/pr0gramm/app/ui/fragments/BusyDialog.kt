@@ -9,14 +9,14 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.AndroidCoroutineScope
 import com.pr0gramm.app.ui.fragments.BusyDialogHelper.dismiss
 import com.pr0gramm.app.ui.showDialog
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.checkMainThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import rx.*
 
 private object BusyDialogHelper {
-    private val logger = logger("BusyDialog")
+    private val logger = Logger("BusyDialog")
 
     fun show(context: Context, text: String): Dialog {
         return showDialog(context) {

@@ -6,7 +6,7 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
 import com.pr0gramm.app.util.AndroidUtility.toFile
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import com.squareup.picasso.Downloader
 import java.io.File
 import java.io.FileOutputStream
@@ -16,6 +16,8 @@ import java.io.IOException
  * This decoder first downloads the image before starting to decode it.
  */
 class DownloadingRegionDecoder(private val downloader: Downloader, private val decoder: Decoder) : Decoder {
+    private val logger = Logger("DownloadingRegionDecoder")
+
     private var imageFile: File? = null
     private var deleteImageOnRecycle: Boolean = false
 
@@ -89,9 +91,5 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
                 inputStream.copyTo(output)
             }
         }
-    }
-
-    companion object {
-        private val logger = logger("DownloadingRegionDecoder")
     }
 }

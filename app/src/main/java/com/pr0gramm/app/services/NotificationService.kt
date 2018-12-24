@@ -19,9 +19,9 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.UserDrawables
 import com.pr0gramm.app.util.getColorCompat
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.lruCache
 import com.squareup.picasso.Picasso
 import java.io.File
@@ -37,7 +37,7 @@ class NotificationService(private val context: Application,
                           private val picasso: Picasso,
                           private val userService: UserService) {
 
-    private val logger = logger("NotificationService")
+    private val logger = Logger("NotificationService")
 
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)

@@ -119,7 +119,7 @@ class ConfigService(context: Application,
     }
 
     companion object {
-        private val logger = logger("ConfigService")
+        private val logger = Logger("ConfigService")
         private const val PREF_DATA_KEY = "ConfigService.data"
         private const val PREF_ID_KEY = "ConfigService.id"
 

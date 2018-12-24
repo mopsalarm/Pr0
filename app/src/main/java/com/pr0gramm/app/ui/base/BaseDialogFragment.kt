@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
@@ -19,7 +19,7 @@ import rx.Observable
  * A robo fragment that provides lifecycle events as an observable.
  */
 abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache, AndroidCoroutineScope {
-    protected val logger = logger(name)
+    protected val logger = Logger(name)
 
     override val kodein: Kodein by lazy { requireContext().kodein }
     override val kodeinTrigger = KodeinTrigger()

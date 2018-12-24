@@ -13,7 +13,6 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.launch
 import rx.Completable
@@ -35,7 +34,7 @@ class UserService(private val api: Api,
                   private val database: Holder<SQLiteDatabase>,
                   private val config: Config) {
 
-    private val logger = logger("UserService")
+    private val logger = Logger("UserService")
 
     private val lock = Any()
 

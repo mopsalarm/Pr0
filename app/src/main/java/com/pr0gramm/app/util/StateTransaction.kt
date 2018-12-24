@@ -1,11 +1,11 @@
 package com.pr0gramm.app.util
 
 class StateTransaction<V : Any>(private val valueSupplier: () -> V, private val applyChange: () -> Unit) {
-    private val logger = logger("StateTransaction")
+    private val logger = Logger("StateTransaction")
     private var txLevel = 0
 
     operator fun <T> invoke(dispatch: Dispatch = Dispatch.CHANGED, tx: () -> T): T {
-        AndroidUtility.checkMainThread()
+        checkMainThread()
 
         val previousState = valueSupplier()
 

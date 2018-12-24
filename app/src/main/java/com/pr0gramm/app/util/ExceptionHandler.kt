@@ -27,7 +27,7 @@ class ExceptionHandler private constructor(private val delegate: Thread.Uncaught
     }
 
     companion object {
-        private val logger = logger("ExceptionHandler")
+        private val logger = Logger("ExceptionHandler")
 
         fun install() {
             logger.info { "Install uncaught exception handler" }

@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
@@ -24,7 +24,7 @@ import rx.Subscription
  * A fragment that provides lifecycle events as an observable.
  */
 abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAware, AndroidCoroutineScope {
-    protected val logger = logger(name)
+    protected val logger = Logger(name)
 
     override val kodein: Kodein by lazy { requireContext().kodein }
     override val kodeinTrigger = KodeinTrigger()

@@ -45,7 +45,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
@@ -852,7 +851,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show sfw/nsfw as a little flag, if the user is admin
         if (userService.userIsAdmin && settings.showContentTypeFlag) {
             // show the little admin triangle
-            val size = AndroidUtility.dp(requireContext(), 16)
+            val size = requireContext().dip2px(16)
             ViewCompat.setBackground(mediaControlsContainer,
                     TriangleDrawable(feedItem.contentType, size))
 

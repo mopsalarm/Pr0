@@ -5,7 +5,7 @@ import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.retryUpTo
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.ByteString
@@ -13,7 +13,7 @@ import okio.ByteString
 /**
  */
 class TagSuggestionService(api: Api) {
-    private val logger = logger("TagSuggestionService")
+    private val logger = Logger("TagSuggestionService")
 
     var tags: List<String> = listOf()
         private set

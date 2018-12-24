@@ -22,7 +22,7 @@ class SyncService(private val userService: UserService,
                   private val seenService: SeenService,
                   private val kvService: KVService) {
 
-    private val logger = logger("SyncService")
+    private val logger = Logger("SyncService")
 
     private val settings = Settings.get()
     private val seenSyncLock = AtomicBoolean()

@@ -7,8 +7,8 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.StringException
-import com.pr0gramm.app.util.logger
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
@@ -18,7 +18,7 @@ import rx.subjects.BehaviorSubject
  * as well as the combined inbox (comments and private messages)
  */
 class InboxService(private val api: Api, private val preferences: SharedPreferences) {
-    private val logger = logger("InboxService")
+    private val logger = Logger("InboxService")
 
     private val unreadMessagesCount = BehaviorSubject.create<Api.InboxCounts>().toSerialized()!!
 

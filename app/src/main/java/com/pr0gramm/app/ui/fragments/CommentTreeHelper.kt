@@ -24,7 +24,6 @@ import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import org.kodein.di.erased.instance
@@ -38,7 +37,7 @@ import kotlin.reflect.KProperty
 /**
  */
 abstract class CommentTreeHelper : CommentView.Listener {
-    private val logger = logger("CommentTreeHelper")
+    private val logger = Logger("CommentTreeHelper")
 
     private var state: CommentTree.Input by StateProperty()
     private var stateUpdateSync = false

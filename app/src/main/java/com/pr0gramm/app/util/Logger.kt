@@ -8,7 +8,41 @@ import com.pr0gramm.app.BuildConfig
 import java.util.concurrent.atomic.AtomicInteger
 
 
-fun logger(name: String): KLogger = KLogger(name)
+inline class Logger(val name: String) {
+    inline fun debug(block: () -> String) {
+        if (BuildConfig.DEBUG) {
+            Logging.log(Log.DEBUG, name, block())
+        }
+    }
+
+    inline fun info(block: () -> String) {
+        Logging.log(Log.INFO, name, block())
+    }
+
+    inline fun warn(block: () -> String) {
+        Logging.log(Log.WARN, name, block())
+    }
+
+    inline fun warn(err: Throwable, block: () -> String) {
+        warn(block(), err)
+    }
+
+    inline fun error(block: () -> String) {
+        Logging.log(Log.ERROR, name, block())
+    }
+
+    inline fun error(err: Throwable, block: () -> String) {
+        error(block(), err)
+    }
+
+    fun warn(text: String, err: Throwable) {
+        warn { text + "\n" + Log.getStackTraceString(err) }
+    }
+
+    fun error(text: String, err: Throwable) {
+        error { text + "\n" + Log.getStackTraceString(err) }
+    }
+}
 
 object Logging {
     private data class Entry(
@@ -88,41 +122,5 @@ object Logging {
             Log.ERROR -> "ERROR"
             else -> "LOG"
         }
-    }
-}
-
-inline class KLogger(val name: String) {
-    inline fun debug(block: () -> String) {
-        if (BuildConfig.DEBUG) {
-            Logging.log(Log.DEBUG, name, block())
-        }
-    }
-
-    inline fun info(block: () -> String) {
-        Logging.log(Log.INFO, name, block())
-    }
-
-    inline fun warn(block: () -> String) {
-        Logging.log(Log.WARN, name, block())
-    }
-
-    inline fun warn(err: Throwable, block: () -> String) {
-        warn(block(), err)
-    }
-
-    inline fun error(block: () -> String) {
-        Logging.log(Log.ERROR, name, block())
-    }
-
-    inline fun error(err: Throwable, block: () -> String) {
-        error(block(), err)
-    }
-
-    fun warn(text: String, err: Throwable) {
-        warn { text + "\n" + Log.getStackTraceString(err) }
-    }
-
-    fun error(text: String, err: Throwable) {
-        error { text + "\n" + Log.getStackTraceString(err) }
     }
 }

@@ -30,7 +30,6 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.squareup.picasso.Picasso
 import org.kodein.di.direct

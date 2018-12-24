@@ -4,10 +4,10 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.directKodein
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.logger
 import kotlinx.coroutines.runBlocking
 import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
@@ -38,11 +38,10 @@ class SyncJob : Job() {
     }
 
     companion object {
-        val CREATOR = SimpleJobCreator.forSupplier("sync") { SyncJob() }
-
+        private val logger = Logger("SyncJob")
         private val DEFAULT_SYNC_DELAY_MS = TimeUnit.MINUTES.toMillis(5)
 
-        private val logger = logger("SyncJob")
+        val CREATOR = SimpleJobCreator.forSupplier("sync") { SyncJob() }
 
         fun syncNow() {
             // start normal sync cycle now.

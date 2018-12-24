@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import rx.Observable
 import rx.subjects.PublishSubject
 
@@ -12,7 +11,7 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
         private val detectMoves: Boolean = false,
         name: String = "AsyncListAdapter") : androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
 
-    internal val logger = logger(name)
+    internal val logger = Logger(name)
 
     private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
     val updates = updateSubject as Observable<List<T>>
@@ -41,7 +40,7 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
      * @param newList The new List.
      */
     open fun submitList(newList: List<T>, forceSync: Boolean = false) {
-        AndroidUtility.checkMainThread()
+        checkMainThread()
 
         val oldList = items
 

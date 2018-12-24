@@ -11,7 +11,6 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
@@ -113,7 +112,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
         Async.start({
             checkNotMainThread()
 
-            val logger = logger("ProxyServiceFactory")
+            val logger = Logger("ProxyServiceFactory")
             repeat(10) {
                 val port = HttpProxyService.randomPort()
                 logger.debug { "Trying port $port" }
@@ -162,7 +161,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module("http") {
 }
 
 private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
-    val logger = logger("Picasso.Downloader")
+    val logger = Logger("Picasso.Downloader")
 
     private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
@@ -249,7 +248,7 @@ private class UpdateServerTimeInterceptor : Interceptor {
 }
 
 private class DebugInterceptor : Interceptor {
-    private val logger = logger("DebugInterceptor")
+    private val logger = Logger("DebugInterceptor")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         checkNotMainThread()
@@ -285,7 +284,7 @@ private class UserAgentInterceptor(val userAgent: String) : Interceptor {
 }
 
 private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
-    private val logger = logger("DoNotCacheInterceptor")
+    private val logger = Logger("DoNotCacheInterceptor")
     private val domains: Set<String> = domains.toSet()
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -302,7 +301,7 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
 }
 
 private class LoggingInterceptor : Interceptor {
-    val okLogger = logger("OkHttpClient")
+    val okLogger = Logger("OkHttpClient")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val watch = Stopwatch.createStarted()
@@ -322,7 +321,7 @@ private class LoggingInterceptor : Interceptor {
 }
 
 private class FallbackDns : Dns {
-    val logger = logger("FallbackDns")
+    val logger = Logger("FallbackDns")
 
     val resolver = SimpleResolver("8.8.8.8")
     val cache = org.xbill.DNS.Cache()

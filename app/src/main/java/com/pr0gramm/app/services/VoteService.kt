@@ -7,7 +7,6 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.TCollections
@@ -221,7 +220,7 @@ class VoteService(private val api: Api,
     companion object {
         val NO_VOTES: TLongObjectMap<Vote> = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())
 
-        private val logger = logger("VoteService")
+        private val logger = Logger("VoteService")
 
         private val VOTE_ACTIONS = mapOf(
                 1 to VoteAction(CachedVote.Type.ITEM, Vote.DOWN),

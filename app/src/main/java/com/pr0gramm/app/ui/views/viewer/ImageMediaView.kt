@@ -7,9 +7,12 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
+import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
 import org.kodein.di.erased.instance
@@ -108,7 +111,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.visible = true
 
         if (imageView.alpha == 0f) {
-            imageView.animateCompat().alpha(1f)
+            imageView.animate().alpha(1f)
                     .setDuration(MediaView.ANIMATION_DURATION)
                     .withEndAction { super.onMediaShown() }
                     .start()

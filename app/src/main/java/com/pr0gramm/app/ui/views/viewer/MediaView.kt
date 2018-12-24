@@ -39,9 +39,9 @@ import rx.subjects.ReplaySubject
  */
 abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin {
     private val logger = if (BuildConfig.DEBUG) {
-        logger("MediaView[${config.mediaUri.id}]")
+        Logger("MediaView[${config.mediaUri.id}]")
     } else {
-        logger("MediaView")
+        Logger("MediaView")
     }
 
     private val previewTarget = PreviewTarget(logger, this)
@@ -445,13 +445,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         fun onDoubleTap(event: MotionEvent): Boolean
     }
 
-    private class PreviewTarget(private val logger: KLogger, mediaView: MediaView) : Action1<Bitmap> {
+    private class PreviewTarget(private val logger: Logger, mediaView: MediaView) : Action1<Bitmap> {
         private val mediaView by weakref(mediaView)
         private val watch = Stopwatch.createStarted()
 
         override fun call(bitmap: Bitmap) {
-            bitmap
-
             logger.debug { "Got a preview image after $watch" }
 
             this.mediaView?.let { mediaView ->

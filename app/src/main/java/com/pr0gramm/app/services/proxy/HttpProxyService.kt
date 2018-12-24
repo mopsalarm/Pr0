@@ -6,7 +6,7 @@ import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BoundedInputStream
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
 import java.io.FileInputStream
@@ -19,6 +19,7 @@ class HttpProxyService(
         private val cache: Cache,
         private val port: Int) : NanoHTTPD("127.0.0.1", port), ProxyService {
 
+    private val logger = Logger("HttpProxyService")
     private val nonce: String = currentTimeMillis().toString(16)
 
     override fun proxy(url: Uri): Uri {
@@ -152,8 +153,6 @@ class HttpProxyService(
     }
 
     companion object {
-        private val logger = logger("HttpProxyService")
-
         private val ERROR_RESPONSE = NanoHTTPD.newFixedLengthResponse(
                 NanoHTTPD.Response.Status.INTERNAL_ERROR, "text/plain", null)
 

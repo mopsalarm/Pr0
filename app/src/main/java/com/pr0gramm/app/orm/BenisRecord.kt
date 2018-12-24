@@ -2,15 +2,15 @@ package com.pr0gramm.app.orm
 
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.arrayOfStrings
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.mapToList
 
 /**
  */
 data class BenisRecord(val time: Long, val benis: Int) {
     companion object {
-        private val logger = logger("BenisRecord")
+        private val logger = Logger("BenisRecord")
 
         fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: Instant): List<BenisRecord> {
             return db

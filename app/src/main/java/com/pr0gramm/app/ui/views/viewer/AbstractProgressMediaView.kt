@@ -9,9 +9,8 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.LayoutRes
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.animateCompat
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.visible
 
 /**
@@ -87,14 +86,14 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     private fun showSeekbar(show: Boolean) {
-        val deltaY = AndroidUtility.dp(context, 12)
+        val deltaY = context.dip2px(12)
 
         val viewToShow = if (show) seekBarView else progressView
         val viewToHide = if (show) progressView else seekBarView
 
         if (viewToHide.visibility == View.VISIBLE) {
             viewToHide.translationY = 0f
-            viewToHide.animateCompat()
+            viewToHide.animate()
                     .alpha(0f)
                     .translationY(deltaY.toFloat())
                     .withEndAction { viewToHide.visible = false }
@@ -147,7 +146,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             if (info != null && shouldShowView(info)) {
                 if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false
-                    progressView.visible = false
+                    progressView.visible = true
                     progressView.alpha = 1f
                     progressView.translationY = 0f
                 }
@@ -227,6 +226,6 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     companion object {
-        private val logger = logger("AbstractProgressMediaView")
+        private val logger = Logger("AbstractProgressMediaView")
     }
 }

@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 
 /**
  * This decoder has a reference to two decoders and initializes and uses the fallback
@@ -80,7 +80,7 @@ class FallbackRegionDecoder(private val decoder: Decoder,
     }
 
     companion object {
-        private val logger = logger("FallbackRegionDecoder")
+        private val logger = Logger("FallbackRegionDecoder")
 
         private fun makeAfterInitFallbackSupplier(context: Context, uri: Uri, originalFallbackFactory: () -> Decoder): () -> Decoder {
             return {

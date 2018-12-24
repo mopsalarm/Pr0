@@ -299,7 +299,7 @@ class UploadService(private val api: Api,
     }
 
     companion object {
-        private val logger = logger("UploadService")
+        private val logger = Logger("UploadService")
 
     }
 }

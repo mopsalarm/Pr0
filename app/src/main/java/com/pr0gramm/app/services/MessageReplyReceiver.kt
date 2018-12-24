@@ -7,9 +7,9 @@ import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.ignoreException
 import com.pr0gramm.app.util.kodein
-import com.pr0gramm.app.util.logger
 import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -19,6 +19,8 @@ import org.kodein.di.erased.instance
  * Reply directly to a user
  */
 class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
+    private val logger = Logger("MessageReplyReceiver")
+
     override lateinit var kodein: Kodein
 
     private val inboxService: InboxService by instance()
@@ -85,8 +87,6 @@ class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
     }
 
     companion object {
-        private val logger = logger("MessageReplyReceiver")
-
         fun makeIntent(context: Context, message: Api.Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)
             if (message.isComment) {

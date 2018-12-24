@@ -7,7 +7,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import com.squareup.picasso.Downloader
 
 object Decoders {
@@ -27,7 +27,7 @@ object Decoders {
     }
 
     private fun adapt(dec: Decoder): ImageRegionDecoder {
-        val logger = logger("Decoder")
+        val logger = Logger("Decoder")
 
         return object : ImageRegionDecoder {
             @Volatile

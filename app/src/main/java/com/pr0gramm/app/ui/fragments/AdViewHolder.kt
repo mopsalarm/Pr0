@@ -22,7 +22,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
         androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        private val logger = logger("AdViewHolder")
+        private val logger = Logger("AdViewHolder")
 
         fun new(context: Context): AdViewHolder {
             trace { "newContainerView" }

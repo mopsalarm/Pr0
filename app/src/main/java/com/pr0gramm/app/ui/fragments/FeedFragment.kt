@@ -36,7 +36,6 @@ import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
@@ -1204,7 +1203,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             searchContainer.alpha = 0f
 
             val searchView = searchView
-            searchContainer.animateCompat()
+            searchContainer.animate()
                     .withEndAction { searchView.requestSearchFocus() }
                     .alpha(1f)
 
@@ -1240,7 +1239,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
 
         val containerView = this.searchContainer
-        containerView.animateCompat()
+        containerView.animate()
                 .withEndAction { containerView.visible = false }
                 .alpha(0f)
 
@@ -1292,8 +1291,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val context = recyclerView.context
             layoutManager.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
                     dontScrollIfVisible = true,
-                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + AndroidUtility.dp(context, 32),
-                    offsetBottom = AndroidUtility.dp(context, 32)))
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
+                    offsetBottom = context.dip2px(32)))
 
         } else {
             // over scroll a bit
@@ -1370,7 +1369,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     companion object {
-        internal val logger = logger("FeedFragment")
+        internal val logger = Logger("FeedFragment")
 
         private const val ARG_FEED = "FeedFragment.feed"
         private const val ARG_FEED_FILTER = "FeedFragment.filter"

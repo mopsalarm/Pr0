@@ -130,7 +130,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         badgesContainer.adapter = BadgeAdapter(badges)
         badgesContainer.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
         badgesContainer.isHorizontalFadingEdgeEnabled = true
-        badgesContainer.setFadingEdgeLength(AndroidUtility.dp(context, 24))
+        badgesContainer.setFadingEdgeLength(context.dip2px(24))
 
         if (badges.isNotEmpty()) {
             // scroll to the end after a short delay.
@@ -211,7 +211,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             }
 
             // hack, if it is the first item, we need to add 12dp of left margin
-            val margin = if (firstItem) AndroidUtility.dp(itemView.context, 12) else 0
+            val margin = if (firstItem) itemView.context.dip2px(12) else 0
             (itemView.layoutParams as? MarginLayoutParams)?.leftMargin = margin
         }
 

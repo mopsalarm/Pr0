@@ -19,7 +19,7 @@ import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.util.AndroidUtility.getTintentDrawable
+import com.pr0gramm.app.util.AndroidUtility.getTintedDrawable
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
@@ -125,7 +125,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private fun getColoredHqIcon(@ColorRes colorId: Int): Drawable {
-        return getTintentDrawable(this, R.drawable.ic_action_high_quality, colorId)
+        return getTintedDrawable(this, R.drawable.ic_action_high_quality, colorId)
     }
 
     private fun loadImageWithUrl(url: Uri) {

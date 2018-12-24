@@ -19,7 +19,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.logger
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.observeOnMainThread
 import rx.Observable
 import rx.subjects.ReplaySubject
@@ -115,7 +115,7 @@ class AdService(private val configService: ConfigService, private val userServic
 }
 
 object AdMobWorkaround {
-    private val log = logger("AdModWorkaround")
+    private val log = Logger("AdModWorkaround")
 
     private const val CALLBACK_ANIMATION = 1
     private var choreographerAnimationCallback: Any? = null

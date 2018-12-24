@@ -3,8 +3,8 @@ package com.pr0gramm.app.orm
 import android.annotation.SuppressLint
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.forEach
-import com.pr0gramm.app.util.logger
 import com.pr0gramm.app.util.time
 import com.squareup.sqlbrite.BriteDatabase
 import rx.Observable
@@ -18,7 +18,7 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
     }
 
     companion object {
-        private val logger = logger("CachedVote")
+        private val logger = Logger("CachedVote")
 
         private fun voteId(type: Type, itemId: Long): Long {
             return itemId * 10 + type.ordinal
