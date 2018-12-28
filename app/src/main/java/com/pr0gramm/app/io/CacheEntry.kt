@@ -52,20 +52,21 @@ internal class CacheEntry(private val context: Application, private val httpClie
             if (pos >= totalSizeField) {
                 return -1
             }
+
             // check how much we can actually read at most!
-            val amount = Math.min(pos + amount, totalSizeField) - pos
+            val amountToRead = Math.min(pos + amount, totalSizeField) - pos
 
             // wait for the data to be there
-            expectCached(pos + amount)
+            expectCached(pos + amountToRead)
             seek(fp, pos)
 
             // now try to read the bytes we requested
-            val byteCount = read(fp, data, offset, amount)
+            val byteCount = read(fp, data, offset, amountToRead)
 
-            // check if we got as much bytes as we wanted to.
-            if (byteCount != amount) {
+            // check if we got as many bytes as we wanted to.
+            if (byteCount != amountToRead) {
                 logToCrashlytics(
-                        EOFException(String.format("Expected to read %d bytes at %d, but got only %d. Cache entry: %s", amount, pos, byteCount, this)))
+                        EOFException(String.format("Expected to read %d bytes at %d, but got only %d. Cache entry: %s", amountToRead, pos, byteCount, this)))
             }
 
             return byteCount
@@ -175,6 +176,8 @@ internal class CacheEntry(private val context: Application, private val httpClie
                     fp.setLength(0)
                     fp.close()
 
+                    this.fp = null
+
                     return initialize()
                 }
 
@@ -188,10 +191,16 @@ internal class CacheEntry(private val context: Application, private val httpClie
                 written = 0
 
                 // start caching now.
-                totalSizeField = resumeCaching(0)
+                totalSizeField = resumeCaching()
 
+                // we still have the lock, so we can write the header now.
                 fp.writeInt(expectedChecksum)
                 fp.writeInt(totalSizeField)
+
+                // fill up to PAYLOAD_OFFSET
+                for (idx in (8 until PAYLOAD_OFFSET)) {
+                    fp.write(0)
+                }
             }
 
             logger.debug { "Initialized entry ${this}" }
@@ -224,17 +233,22 @@ internal class CacheEntry(private val context: Application, private val httpClie
     private fun ensureCaching() {
         if (cacheWriter == null && !fullyCached()) {
             logger.debug { "Caching will start on entry ${this}" }
-            resumeCaching(written)
+            resumeCaching()
         }
     }
 
-    private fun resumeCaching(offset: Int): Int {
+    private fun resumeCaching(): Int {
         lock.withLock {
+            // start a new cache writer if required.
             val writer = cacheWriter ?: run {
-                CacheWriter().also { writer ->
-                    this.cacheWriter = writer
-                    doInBackground { writer.resumeCaching(offset) }
-                }
+                val writer = CacheWriter()
+                this.cacheWriter = writer
+
+                // start the caching thread in background
+                val offset = written
+                doInBackground { writer.resumeCaching(offset) }
+
+                writer
             }
 
             return try {
@@ -340,12 +354,17 @@ internal class CacheEntry(private val context: Application, private val httpClie
                     lock.withLock {
                         if (canceled) {
                             logger.info { "Caching canceled, stopping now." }
-                            return@withLock
+                            return@use
                         }
 
                         if (fp == null) {
                             logger.warn { "Error during caching, the file-handle went away: ${this}" }
-                            return@withLock
+                            return@use
+                        }
+
+                        debug {
+                            if (written > 1024 * 1024)
+                                throw EOFException("DEBUG Simulate network loss")
                         }
 
                         write(buffer, 0, byteCount)
@@ -501,6 +520,6 @@ internal class CacheEntry(private val context: Application, private val httpClie
     }
 
     companion object {
-        private val PAYLOAD_OFFSET = 16
+        private const val PAYLOAD_OFFSET = 16
     }
 }

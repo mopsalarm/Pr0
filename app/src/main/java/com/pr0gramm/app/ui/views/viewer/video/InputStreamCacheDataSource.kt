@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.upstream.DataSpec
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.BoundedInputStream
 import com.pr0gramm.app.util.closeQuietly
+import java.io.BufferedInputStream
 import java.io.EOFException
 import java.io.InputStream
 
@@ -40,6 +41,9 @@ internal class InputStreamCacheDataSource(private val cache: Cache) : BaseDataSo
                 this.inputStream = BoundedInputStream(inputStream, dataSpec.length)
                 this.bytesRemaining = dataSpec.length
             }
+
+            // reduce read calls to file
+            this.inputStream = BufferedInputStream(this.inputStream, 1024 * 64)
 
             opened = true
 

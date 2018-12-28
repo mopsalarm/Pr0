@@ -88,7 +88,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
         // download to temp file. not nice, but useful :/
         downloader.load(req).body()?.byteStream()?.use { inputStream ->
             FileOutputStream(imageFile).use { output ->
-                inputStream.copyTo(output)
+                inputStream.copyTo(output, bufferSize = 1024 * 64)
             }
         }
     }
