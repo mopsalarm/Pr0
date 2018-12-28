@@ -10,6 +10,7 @@ import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
@@ -42,7 +43,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.time("Injecting services") { kodeinTrigger.trigger() }
 
-        job = Job()
+        job = SupervisorJob()
         super.onCreate(savedInstanceState)
     }
 
@@ -63,6 +64,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
 
         super.onDestroyView()
         job.cancel()
+
         viewCache.reset()
     }
 

@@ -14,6 +14,7 @@ import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
@@ -63,7 +64,7 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        job = Job()
+        job = SupervisorJob()
     }
 
     override fun onDestroyView() {

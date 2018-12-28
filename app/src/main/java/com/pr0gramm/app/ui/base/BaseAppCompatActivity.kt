@@ -14,6 +14,7 @@ import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.KodeinTrigger
@@ -45,7 +46,7 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Kode
     fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseAppCompatActivity.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        job = Job()
+        job = SupervisorJob()
         logger.time("Injecting services") { kodeinTrigger.trigger() }
         super.onCreate(savedInstanceState)
     }
