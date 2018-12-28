@@ -63,4 +63,6 @@ private val DefaultUserClasses = listOf(
         Config.UserClass("#1cb992", "Pr0mium"),
         Config.UserClass("#addc8d", "Mittelaltschwuchtel"),
         Config.UserClass("#7fc7ff", "Altmod"),
-        Config.UserClass("#c52b2f", "Community Helfer", symbol = "\u2764\uFE0E"))
+        Config.UserClass("#c52b2f", "Community Helfer", symbol = "\u2764\uFE0E"),
+        Config.UserClass("#10366f", "Nutzer-Bot"),
+        Config.UserClass("#ffc166", "System-Bot"))
