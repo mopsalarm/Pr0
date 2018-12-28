@@ -2,13 +2,12 @@ package com.pr0gramm.app.ui.views.viewer.video
 
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import rx.subjects.PublishSubject
 
 /**
  * This is a base for [VideoPlayer]s with some rx features.
  */
 abstract class RxVideoPlayer : VideoPlayer {
-    protected val detaches: PublishSubject<Unit> = PublishSubject.create()
+    protected val detaches: BehaviorSubject<Unit> = BehaviorSubject.create()
 
     override var videoCallbacks: VideoPlayer.Callbacks? = null
 

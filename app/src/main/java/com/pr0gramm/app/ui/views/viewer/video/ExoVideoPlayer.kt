@@ -82,7 +82,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val mediaCodecSelector = MediaCodecSelectorImpl(settings)
         exoVideoRenderer = MediaCodecVideoRenderer(context, mediaCodecSelector,
-                5000, handler, videoListener, MAX_DROPPED_FRAMES)
+                5000, handler, videoListener, -1)
 
         val renderers = if (hasAudio) {
             exoAudioRenderer = MediaCodecAudioRenderer(context, mediaCodecSelector)

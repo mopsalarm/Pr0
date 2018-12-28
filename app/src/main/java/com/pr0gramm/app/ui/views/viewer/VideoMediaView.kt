@@ -17,6 +17,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.collection.LruCache
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -294,7 +295,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         storePlaybackPosition()
     }
 
-    fun storePlaybackPosition() {
+    private fun storePlaybackPosition() {
         val currentPosition = videoPlayer.currentPosition
         seekToCache.put(config.mediaUri.id, ExpiringTimestamp(currentPosition))
         logger.info { "Stored current position $currentPosition" }
@@ -350,7 +351,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     companion object {
         private val logger = Logger("VideoMediaView")
 
-        private val seekToCache = androidx.collection.LruCache<Long, ExpiringTimestamp>(16)
+        private val seekToCache = LruCache<Long, ExpiringTimestamp>(16)
 
         private const val KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo"
     }
