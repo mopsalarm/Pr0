@@ -324,7 +324,7 @@
     <string name="media_error_unsupported">Video playback failed: Bitstream is conforming to the related coding standard or file spec, but the media framework does not support the feature.</string>
     <string name="media_error_not_valid_for_progressive_playback">Video playback failed: The video is streamed and its container is not valid for progressive playback i.e the video\'s index (e.g moov atom) is not at the start of the file.</string>
     <string name="favorites_of">Favorites of %s</string>
-    <string name="media_exo_error">Could not play video. If this happens regularly, try the compatibility settings. Error was: %s.</string>
+    <string name="media_exo_error">Could not play video. Error is: %s.</string>
     <string name="media_exo_error_io">A network failure occurred (%s).</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_compatibility_summary">If video playback does not work, try to tweak these settings</string>
@@ -342,7 +342,6 @@
     <string name="pref_video_codec_summary">If you got problems playing video, try to manually select a codec here.</string>
     <string name="pref_audio_codec_title">Audio codec</string>
     <string name="pref_audio_codec_summary">If you got problems playing video, try to manually select a codec here.</string>
-    <string name="media_dropped_frames_hint">Your phone just dropped a lot of frames. If you can not watch videos correctly, or if they are really slow, try the compatibility settings.</string>
     <string name="dialog_dont_show_again">Don\'t show again</string>
     <string name="pref_use_exo_player__title">Use new player</string>
     <string name="pref_use_exo_player__summary">Uses the new and recommended video player. You might need to tune the codec selection below if you encounter problems.</string>

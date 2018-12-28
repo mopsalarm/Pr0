@@ -38,8 +38,6 @@ interface VideoPlayer {
         fun onVideoSizeChanged(width: Int, height: Int)
 
         fun onVideoError(message: String, kind: ErrorKind)
-
-        fun onDroppedFrames(count: Int)
     }
 
     enum class ErrorKind {

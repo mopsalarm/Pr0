@@ -45,9 +45,5 @@ abstract class RxVideoPlayer : VideoPlayer {
         override fun onVideoError(message: String, kind: VideoPlayer.ErrorKind) {
             videoCallbacks?.onVideoError(message, kind)
         }
-
-        override fun onDroppedFrames(count: Int) {
-            videoCallbacks?.onDroppedFrames(count)
-        }
     }
 }

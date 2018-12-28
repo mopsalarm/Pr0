@@ -300,7 +300,7 @@
     <string name="media_error_unknown">Abspielen fehlgeschlagen: Unbekannter Fehler.</string>
     <string name="media_error_unsupported">Abspielen fehlgeschlagen: Der Videobitstream hält sich zwar an den Standard, aber dein Android kann damit nicht umgehen.</string>
     <string name="favorites_of">Favoriten von %s</string>
-    <string name="media_exo_error">Video konnte nicht abgespielt werden. Wenn das öfter passiert, prüfe die Kompatibilitätseinstellungen. Fehler war: %s</string>
+    <string name="media_exo_error">Video konnte nicht abgespielt werden. Fehler ist: %s</string>
     <string name="media_exo_error_io">Ein Netzwerkfehler ist aufgetreten (%s).</string>
     <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_compatibility_summary">Hilft eventuell bei Problemen mit der Video Wiedergabe</string>
@@ -318,7 +318,6 @@
     <string name="pref_video_codec_summary">Probiere einen anderen Video Codec, wenn du Probleme bei der Wiedergabe hast.</string>
     <string name="pref_audio_codec_title">Audio Codec </string>
     <string name="pref_audio_codec_summary">Probiere einen anderen Audio Codec, wenn du Probleme bei der Wiedergabe hast.</string>
-    <string name="media_dropped_frames_hint">Dein Gerät kommt mit dem Dekodieren des Videos nicht hinterher. Falls das öfter passiert, probiere einen anderen Codec in die Kompatibilitätseinstellungen.</string>
     <string name="dialog_dont_show_again">Nicht wieder anzeigen</string>
     <string name="pref_use_exo_player__title">Neuen Videoplayer</string>
     <string name="pref_use_exo_player__summary">Verwende den neuen und empfohlenen Videoplayer. Eventuell musst du unten an den Codecs drehen, wenn Probleme bei der Wiedergabe auftreten.</string>

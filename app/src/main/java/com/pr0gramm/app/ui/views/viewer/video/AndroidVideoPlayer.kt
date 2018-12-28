@@ -89,7 +89,6 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
     }
 
     init {
-        // always use surface view.
         mBackendView = if (Settings.get().useTextureView) {
             TextureViewBackend(context, backendViewCallbacks)
         } else {

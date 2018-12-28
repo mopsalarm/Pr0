@@ -55,7 +55,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private var videoViewInitialized: Boolean = false
     private var errorShown: Boolean = false
     private var statsSent: Boolean = false
-    private var droppedFramesShown: Boolean = false
 
     init {
         videoPlayer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
@@ -322,18 +321,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         if (!statsSent && kind !== VideoPlayer.ErrorKind.NETWORK) {
             Stats().incrementCounter("video.playback.failed")
             statsSent = true
-        }
-    }
-
-    override fun onDroppedFrames(count: Int) {
-        if (!droppedFramesShown) {
-            showDialog(context) {
-                dontShowAgainKey("VideoMediaView.dropped-frames")
-                content(R.string.media_dropped_frames_hint)
-                positive()
-            }
-
-            droppedFramesShown = true
         }
     }
 

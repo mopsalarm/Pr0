@@ -9,8 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
-import androidx.preference.*
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
+import androidx.preference.PreferenceScreen
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -89,11 +91,9 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
-            updateCodecPreference("pref_video_codec", "video/avc")
-            updateCodecPreference("pref_audio_codec", "audio/mp4a-latm")
-
             if (!BuildConfig.DEBUG) {
                 hidePreferenceByName("prefcat_debug")
+                hidePreferenceByName("prefcat_compatibility")
             }
 
             if (!userService.userIsAdmin) {
@@ -139,36 +139,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 pref.icon?.let { icon ->
                     DrawableCompat.setTint(icon, color)
                 }
-            }
-        }
-
-        private fun updateCodecPreference(prefName: String, mimeType: String) {
-            val pref = findPreference(prefName) as ListPreference? ?: return
-
-            val entries = mutableListOf<CharSequence>()
-            val entryValues = mutableListOf<CharSequence>()
-
-            entries.add("Software")
-            entryValues.add("software")
-
-            entries.add("Hardware")
-            entryValues.add("hardware")
-
-            try {
-                val codecs = MediaCodecUtil.getDecoderInfos(mimeType, false)
-                for (codec in codecs) {
-                    entries.add(codec.name.toLowerCase())
-                    entryValues.add(codec.name)
-                }
-            } catch (ignored: MediaCodecUtil.DecoderQueryException) {
-            }
-
-            if (entries.size > 3) {
-                pref.setDefaultValue("hardware")
-                pref.entries = entries.toTypedArray()
-                pref.entryValues = entryValues.toTypedArray()
-            } else {
-                pref.isEnabled = false
             }
         }
 
