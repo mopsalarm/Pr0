@@ -15,7 +15,6 @@ import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
-import rx.Single
 
 /**
  */
@@ -33,9 +32,10 @@ fun appModule(app: Application) = Kodein.Module("app") {
     }
 
     bind<Holder<SQLiteDatabase>>() with singleton {
-        val helper: SQLiteOpenHelper = instance()
-        val db = Single.fromCallable { helper.writableDatabase }
-        Holder.ofSingle(db.subscribeOn(BackgroundScheduler))
+        Holder {
+            val helper: SQLiteOpenHelper = instance()
+            helper.writableDatabase
+        }
     }
 
     bind<BriteDatabase>() with singleton {

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.Deferred
@@ -21,7 +22,7 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
             .baseUrl("https://pr0.wibbly-wobbly.de/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .build()
             .create(Api::class.java)
 

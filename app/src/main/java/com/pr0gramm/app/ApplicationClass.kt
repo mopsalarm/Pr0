@@ -1,6 +1,7 @@
 package com.pr0gramm.app
 
 import android.app.Application
+import android.content.Context
 import android.os.StrictMode
 import android.util.Log
 import com.crashlytics.android.Crashlytics
@@ -13,14 +14,16 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.AdMobWorkaround
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobLogger
-import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.direct
@@ -49,8 +52,8 @@ open class ApplicationClass : Application(), KodeinAware {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
 
         if (!BuildConfig.DEBUG) {
             Log.i("pr0gramm", "Initialize fabric/crashlytics in Application::onCreate")
@@ -60,6 +63,10 @@ open class ApplicationClass : Application(), KodeinAware {
                     .kits(Crashlytics())
                     .build())
         }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
 
         // handler to ignore certain exceptions before they reach crashlytics.
         ExceptionHandler.install()
@@ -74,18 +81,20 @@ open class ApplicationClass : Application(), KodeinAware {
         JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
         JobConfig.addLogger(SimpleJobLogger())
 
-        val eagerSingletons = EagerBootstrap.initEagerSingletons { kodein.direct }
-
-        // do job handling & scheduling
+        // Initialize job handling
         val jobManager = JobManager.create(this)
         jobManager.addJobCreator(SyncJob.CREATOR)
         jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
 
-        // schedule first sync 30seconds after bootup.
-        SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
+        val asyncInitialization = AsyncScope.launch {
+            EagerBootstrap.initEagerSingletons(kodein.direct)
 
-        // also schedule the nightly update job
-        SyncStatisticsJob.schedule()
+            // schedule first sync 30seconds after bootup.
+            SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
+
+            // also schedule the nightly update job
+            SyncStatisticsJob.schedule()
+        }
 
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
@@ -99,24 +108,30 @@ open class ApplicationClass : Application(), KodeinAware {
             log?.handlers?.forEach { it.level = Level.INFO }
         }
 
-        doInBackground {
-            if (BuildConfig.DEBUG) {
-                // test ads for debug, see https://developers.google.com/admob/android/test-ads
-                MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713")
-            } else {
-                MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
-            }
+        // initialize mobile ads asynchronously
+        initializeMobileAds()
 
-            MobileAds.setAppVolume(0f)
-            MobileAds.setAppMuted(true)
-        }
-
-        eagerSingletons.await()
+        logger.info { "Wait for bootstrapping of singleton instances to finish..." }
+        runBlocking { asyncInitialization.join() }
 
         val bootupTime = System.currentTimeMillis() - startup
         logger.info { "App booted in ${bootupTime}ms" }
 
         Stats().histogram("app.boot.time", bootupTime)
+    }
+
+    private fun initializeMobileAds() {
+        AsyncScope.launch {
+            val id = if (BuildConfig.DEBUG) {
+                "ca-app-pub-3940256099942544~3347511713"
+            } else {
+                "ca-app-pub-2308657767126505~4138045673"
+            }
+
+            MobileAds.initialize(this@ApplicationClass, id)
+            MobileAds.setAppVolume(0f)
+            MobileAds.setAppMuted(true)
+        }
     }
 
     override val kodein: Kodein = Kodein.lazy { configureKodein(this) }

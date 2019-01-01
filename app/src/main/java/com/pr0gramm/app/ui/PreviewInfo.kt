@@ -6,9 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Holder
-import rx.Observable
 
 /**
  * Info about a pixels. Can be given to a post fragment to create
@@ -26,9 +24,9 @@ class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val
      * You can pre-load a fancy thumbnail if you want to
      */
     fun preloadFancyPreviewImage(service: FancyExifThumbnailGenerator) {
-        fancy = Holder.ofObservable(Observable
-                .fromCallable { service.fancyThumbnail(previewUri, aspect) }
-                .subscribeOn(BackgroundScheduler))
+        fancy = Holder {
+            service.fancyThumbnail(previewUri, aspect)
+        }
     }
 
     companion object {

@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -24,11 +25,16 @@ import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
+import com.pr0gramm.app.ui.base.AndroidCoroutineScope
 import com.pr0gramm.app.ui.views.AspectImageView
 import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 import org.kodein.di.erased.instance
 import rx.Observable
 import rx.functions.Action1
@@ -37,7 +43,7 @@ import rx.subjects.ReplaySubject
 
 /**
  */
-abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin {
+abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin, AndroidCoroutineScope {
     private val logger = if (BuildConfig.DEBUG) {
         Logger("MediaView[${config.mediaUri.id}]")
     } else {
@@ -56,6 +62,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     protected val picasso: Picasso by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val fancyThumbnailGenerator: FancyExifThumbnailGenerator by instance()
+
+    override var job: Job = SupervisorJob()
+    override val androidContext: Context = context
 
     /**
      * Returns the url that this view should display.
@@ -146,6 +155,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         return onViewListener
     }
 
+    override fun onDetachedFromWindow() {
+        job.cancel()
+        super.onDetachedFromWindow()
+    }
+
     @SuppressLint("SetTextI18n")
     private fun showPreloadedIndicator() {
         if (BuildConfig.DEBUG && mediaUri.isLocal) {
@@ -200,19 +214,16 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             }
         }
 
-        val rxFancyPreviewImage = info.fancy?.asObservable() ?: Observable.fromCallable {
-            logger.debug { "Requesting fancy thumbnail on background thread now." }
-            fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
-        }.subscribeOn(BackgroundScheduler)
-
-        rxFancyPreviewImage
-                .onErrorResumeNext { err ->
-                    logger.warn("Could not generate fancy thumbnail", err)
-                    Observable.empty()
+        launchIgnoreErrors {
+            val fancyPreview = info.fancy?.get() ?: run {
+                logger.debug { "Requesting fancy thumbnail on background thread now." }
+                withContext(Dispatchers.IO) {
+                    fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
                 }
-                .observeOnMainThread()
-                .compose(backgroundBindView())
-                .subscribe(previewTarget)
+            }
+
+            previewTarget.call(fancyPreview)
+        }
     }
 
     private fun hasPreviewView(): Boolean {

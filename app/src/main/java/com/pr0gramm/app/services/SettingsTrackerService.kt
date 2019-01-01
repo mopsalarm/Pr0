@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.Logger
@@ -23,7 +24,7 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
             .client(httpClient)
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .build()
             .create(HttpInterface::class.java)
 

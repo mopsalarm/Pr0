@@ -1,6 +1,7 @@
 package com.pr0gramm.app.api.categories
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
@@ -19,7 +20,7 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
     val logger = Logger("ExtraCategories")
 
     val api: ExtraCategoryApi = Retrofit.Builder()
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .client(httpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/categories/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))

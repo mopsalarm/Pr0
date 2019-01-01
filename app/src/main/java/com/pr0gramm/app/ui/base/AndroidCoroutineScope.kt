@@ -1,14 +1,19 @@
 package com.pr0gramm.app.ui.base
 
 import android.content.Context
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import retrofit2.HttpException
 import rx.Observable
+import rx.Single
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -100,13 +105,14 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 val Async = Dispatchers.IO
 val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
-val Main = Dispatchers.Main
+val Main = Looper.getMainLooper().asHandler(async = true).asCoroutineDispatcher("Main")
 val MainScope get() = CoroutineScope(Main)
 
-suspend fun <T : Any?> Observable<T>.await(): T {
+
+fun <T : Any?> Single<T>.toDeferred(): Deferred<T> {
     val def = CompletableDeferred<T>()
 
-    val sub = this.single().subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
+    val sub = this.subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
 
     def.invokeOnCompletion {
         if (def.isCancelled) {
@@ -114,7 +120,11 @@ suspend fun <T : Any?> Observable<T>.await(): T {
         }
     }
 
-    return def.await()
+    return def
+}
+
+suspend fun <T : Any?> Observable<T>.await(): T {
+    return toSingle().toDeferred().await()
 }
 
 fun <T> toObservable(block: suspend () -> T): Observable<T> {
@@ -138,3 +148,24 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T):
     throw error
 }
 
+/**
+ * Copied from coroutines-android
+ */
+private fun Looper.asHandler(async: Boolean): Handler {
+    if (Build.VERSION.SDK_INT >= 28) {
+        return Handler.createAsync(this)
+    }
+
+    try {
+        val constructor = Handler::class.java.getDeclaredConstructor(
+                Looper::class.java,
+                Handler.Callback::class.java,
+                Boolean::class.javaPrimitiveType)
+
+        return constructor.newInstance(this, null, true)
+
+    } catch (ignored: NoSuchMethodException) {
+        // Hidden constructor absent. Fall back to non-async constructor.
+        return Handler(this)
+    }
+}

@@ -35,7 +35,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .build().create(Api::class.java)
 
     suspend fun post(name: String, feedback: String) {

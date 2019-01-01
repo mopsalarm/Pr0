@@ -40,7 +40,7 @@ class UpdateChecker {
             .baseUrl("https://example.com")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .build().create<UpdateApi>()
 
     private val endpoints: List<String> = mutableListOf<String>().also { urls ->

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.ui.base.retryUpTo
 import com.squareup.moshi.JsonClass
@@ -19,7 +20,7 @@ import java.util.*
 
 class KVService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
-            .validateEagerly(true)
+            .validateEagerly(BuildConfig.DEBUG)
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/kv/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))

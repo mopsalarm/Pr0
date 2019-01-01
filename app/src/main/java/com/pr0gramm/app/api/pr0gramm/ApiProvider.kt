@@ -37,7 +37,7 @@ class ApiProvider(base: String, client: OkHttpClient,
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client)
-                .validateEagerly(true)
+                .validateEagerly(BuildConfig.DEBUG)
                 .build()
                 .create(Api::class.java)
     }
