@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import com.pr0gramm.app.ui.base.await
 import rx.Observable
 import rx.Single
 import rx.subjects.BehaviorSubject
@@ -36,6 +37,8 @@ class Holder<T> private constructor(single: Single<T>) {
      * not yet available.
      */
     val valueOrNull: T? get() = subject.value
+
+    suspend fun get(): T = subject.take(1).await()
 
     companion object {
         @JvmStatic

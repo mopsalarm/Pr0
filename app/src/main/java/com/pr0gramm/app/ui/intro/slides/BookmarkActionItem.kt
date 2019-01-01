@@ -3,8 +3,8 @@ package com.pr0gramm.app.ui.intro.slides
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  */
@@ -12,13 +12,9 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
                                   private val filter: FeedFilter) : ActionItem(title) {
 
     override fun enabled(): Boolean {
-        return bookmarkService.get()
-                .take(1)
-                .flatMapIterable { it }
-                .onErrorResumeEmpty()
-                .exists { it.asFeedFilter() == filter }
-                .toBlocking()
-                .single()
+        return runBlocking {
+            bookmarkService.exists(filter)
+        }
     }
 
     override fun activate() {
@@ -28,11 +24,8 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
     }
 
     override fun deactivate() {
-        bookmarkService.get()
-                .take(1)
-                .flatMapIterable { it }
-                .filter { it.asFeedFilter() == filter }
-                .flatMapCompletable { bookmark -> bookmarkService.delete(bookmark).onErrorComplete() }
-                .subscribe()
+        AsyncScope.launch {
+            bookmarkService.delete(filter)
+        }
     }
 }

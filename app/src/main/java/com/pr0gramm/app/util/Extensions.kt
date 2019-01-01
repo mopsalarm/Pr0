@@ -143,6 +143,10 @@ inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn
 }
 
 inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
+    contract {
+        callsInPlace(fn, InvocationKind.UNKNOWN)
+    }
+
     return use {
         val values = mutableListOf<R>()
         while (moveToNext()) {
@@ -161,7 +165,6 @@ inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R) {
     }
 }
 
-@Suppress("ConvertTryFinallyToUseCall")
 inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
     contract {
         callsInPlace(fn, InvocationKind.EXACTLY_ONCE)

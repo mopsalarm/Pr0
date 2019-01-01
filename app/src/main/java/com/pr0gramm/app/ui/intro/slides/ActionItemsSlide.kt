@@ -35,7 +35,7 @@ abstract class ActionItemsSlide(name: String) : BaseFragment(name) {
 
         val listView = view.find<ListView>(R.id.list)
         listView.choiceMode = if (singleChoice) ListView.CHOICE_MODE_SINGLE else ListView.CHOICE_MODE_MULTIPLE
-        listView.adapter = ArrayAdapter(activity,
+        listView.adapter = ArrayAdapter(requireContext(),
                 android.R.layout.simple_list_item_multiple_choice, android.R.id.text1,
                 actionItems)
 

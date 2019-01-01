@@ -26,12 +26,14 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
 import java.util.*
@@ -422,7 +424,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         showBottomSheet(this) {
             content(R.string.do_you_want_to_remove_this_bookmark)
             negative(R.string.cancel)
-            positive(R.string.delete) { bookmarkService.delete(bookmark) }
+            positive(R.string.delete) {
+                AsyncScope.launch { bookmarkService.delete(bookmark) }
+            }
         }
     }
 

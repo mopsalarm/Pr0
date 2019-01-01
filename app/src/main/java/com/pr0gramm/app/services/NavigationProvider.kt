@@ -81,7 +81,7 @@ class NavigationProvider(
                     categoryNavigationItems(),
 
                     loginStates
-                            .flatMap { bookmarkService.get() }
+                            .flatMap { bookmarkService.observe() }
                             .map { bookmarksToNavItem(it) },
 
                     loginStates.switchMap { specialMenuItems(it, upper = false) },
