@@ -20,8 +20,11 @@ import java.io.File
 fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<File>(tag = "cache") with singleton { app.cacheDir }
 
-    bind<SeenService>() with eagerSingleton { SeenService(app) }
-    bind<InMemoryCacheService>() with instance(InMemoryCacheService())
+    val seenService = SeenService(app)
+    val inMemoryCacheService = InMemoryCacheService()
+
+    bind<SeenService>() with instance(seenService)
+    bind<InMemoryCacheService>() with instance(inMemoryCacheService)
 
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
@@ -49,6 +52,7 @@ fun servicesModule(app: Application) = Kodein.Module("services") {
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
     bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
+    bind<BenisRecordService>() with singleton { BenisRecordService(instance()) }
 
     bind<KVService>() with singleton { KVService(instance()) }
 

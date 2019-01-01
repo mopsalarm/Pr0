@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteDatabase
 import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -14,7 +13,9 @@ import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -22,16 +23,13 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-/**
- */
-
 class UserService(private val api: Api,
                   private val voteService: VoteService,
                   private val seenService: SeenService,
                   private val inboxService: InboxService,
                   private val cookieHandler: LoginCookieHandler,
                   private val preferences: SharedPreferences,
-                  private val database: Holder<SQLiteDatabase>,
+                  private val benisService: BenisRecordService,
                   private val config: Config) {
 
     private val logger = Logger("UserService")
@@ -126,7 +124,7 @@ class UserService(private val api: Api,
                     .doOnNext { state -> updateUniqueTokenIfNeeded(state) }
 
                     .subscribe(
-                            { loginState -> updateLoginState({ loginState }) },
+                            { loginState -> updateLoginState { loginState } },
                             { error -> logger.warn("Could not restore login state:", error) })
 
         }
@@ -229,7 +227,7 @@ class UserService(private val api: Api,
             val userId = loginState.id
             if (userId > 0) {
                 // save the current benis value
-                BenisRecord.storeValue(database.value, userId, response.score)
+                benisService.storeValue(userId, response.score)
 
                 // and load the current benis history
                 val scoreGraph = loadBenisHistoryAsGraph(userId)
@@ -343,7 +341,7 @@ class UserService(private val api: Api,
         val start = now - Duration.days(7)
 
         // get the values and transform them
-        val points = BenisRecord.findValuesLaterThan(database.value, userId, start).map { record ->
+        val points = benisService.findValuesLaterThan(userId, start).map { record ->
             val x = record.time.toDouble()
             val y = record.benis.toDouble()
             Graph.Point(x, y)
@@ -356,15 +354,15 @@ class UserService(private val api: Api,
     /**
      * Loads all benis records for the current user.
      */
-    fun loadBenisRecords(after: Instant = Instant(0)): Observable<BenisGraphRecords> {
+    suspend fun loadBenisRecords(after: Instant = Instant(0)): BenisGraphRecords {
         val state = loginState
 
-        return database.asObservable().map {
-            BenisGraphRecords(state, BenisRecord.findValuesLaterThan(it, state.id, after))
+        return withContext(Dispatchers.IO) {
+            BenisGraphRecords(benisService.findValuesLaterThan(state.id, after))
         }
     }
 
-    class BenisGraphRecords(val loginState: LoginState, val records: List<BenisRecord>)
+    class BenisGraphRecords(val records: List<BenisRecord>)
 
     /**
      * Gets the name of the current user from the cookie. This will only
@@ -374,19 +372,6 @@ class UserService(private val api: Api,
      */
     val name: String?
         get() = cookieHandler.cookie?.name
-
-
-    /**
-     * Returns an observable that produces the unique user token, if a hash is currently
-     * available. This produces "null", if the user is currently not signed in.
-     *
-     * The observable will produce updated tokens on changes.
-     */
-    fun userToken(): Observable<String> {
-        return loginStateSubject.map { value ->
-            if (value.authorized) value.uniqueToken else null
-        }
-    }
 
     suspend fun requestPasswordRecovery(email: String) {
         api.requestPasswordRecovery(email).await()

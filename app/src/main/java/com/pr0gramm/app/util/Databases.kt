@@ -3,8 +3,8 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
+import com.pr0gramm.app.services.BenisRecordService
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.squareup.sqlbrite.BriteDatabase
@@ -32,7 +32,7 @@ object Databases {
     class PlainOpenHelper(context: Context) : SQLiteOpenHelper(context, "pr0gramm.db", null, DATABASE_VERSION) {
         override fun onCreate(db: SQLiteDatabase) {
             CachedVote.prepareDatabase(db)
-            BenisRecord.prepareDatabase(db)
+            BenisRecordService.prepare(db)
             BookmarkService.prepare(db)
             DatabasePreloadManager.onCreate(db)
         }

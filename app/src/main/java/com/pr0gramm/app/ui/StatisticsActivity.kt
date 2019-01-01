@@ -18,6 +18,7 @@ import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.*
+import kotlinx.coroutines.delay
 import kotterknife.bindView
 import org.kodein.di.erased.instance
 import rx.Observable
@@ -80,11 +81,13 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             handleVoteCounts(it)
         }
 
-        userService.loadBenisRecords()
-                .ignoreError()
-                .delay(200, TimeUnit.MILLISECONDS)
-                .bindToLifecycleAsync()
-                .subscribe { benisValues = it.records }
+        launchIgnoreErrors {
+            // delay querying the data for a moment
+            delay(200)
+
+            // and get the values now.
+            benisValues = userService.loadBenisRecords().records
+        }
 
         userService.name?.let { username ->
             showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))
