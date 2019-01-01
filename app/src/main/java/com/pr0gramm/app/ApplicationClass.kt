@@ -1,7 +1,6 @@
 package com.pr0gramm.app
 
 import android.app.Application
-import android.content.Context
 import android.os.StrictMode
 import android.util.Log
 import com.crashlytics.android.Crashlytics
@@ -52,8 +51,8 @@ open class ApplicationClass : Application(), KodeinAware {
         }
     }
 
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
+    override fun onCreate() {
+        super.onCreate()
 
         if (!BuildConfig.DEBUG) {
             Log.i("pr0gramm", "Initialize fabric/crashlytics in Application::onCreate")
@@ -63,10 +62,6 @@ open class ApplicationClass : Application(), KodeinAware {
                     .kits(Crashlytics())
                     .build())
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
 
         // handler to ignore certain exceptions before they reach crashlytics.
         ExceptionHandler.install()
