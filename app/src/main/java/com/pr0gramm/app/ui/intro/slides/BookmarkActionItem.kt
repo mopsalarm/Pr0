@@ -2,7 +2,9 @@ package com.pr0gramm.app.ui.intro.slides
 
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.services.BookmarkService
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.onErrorResumeEmpty
+import kotlinx.coroutines.launch
 
 /**
  */
@@ -20,7 +22,9 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
     }
 
     override fun activate() {
-        bookmarkService.create(filter, title)
+        AsyncScope.launch {
+            bookmarkService.create(filter, title)
+        }
     }
 
     override fun deactivate() {

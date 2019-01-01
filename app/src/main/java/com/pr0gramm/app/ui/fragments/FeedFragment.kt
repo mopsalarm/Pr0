@@ -550,9 +550,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
-            bookmarkService.isBookmarkable(currentFilter)
-                    .bindToLifecycleAsync()
-                    .subscribe({ onBookmarkableStateChanged(it) }, {})
+            launchIgnoreErrors {
+                val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
+                onBookmarkableStateChanged(bookmarkable)
+            }
         }
 
         recheckContentTypes()

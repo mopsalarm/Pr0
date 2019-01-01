@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.checkNotMainThread
@@ -23,14 +24,12 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
      * @param filter The filter to create a bookmark for.
      */
-    fun create(filter: FeedFilter, title: String): Completable {
-        return doInBackground {
-            // check if here is an existing item
-            Bookmark.byFilter(database.value, filter) ?: run {
-                // create new entry
-                Bookmark.save(database.value, Bookmark.of(filter, title))
-                triggerChange()
-            }
+    suspend fun create(filter: FeedFilter, title: String) {
+        // check if here is an existing item
+        Bookmark.byFilter(database.value, filter) ?: run {
+            // create new entry
+            Bookmark.save(database.value, Bookmark.of(filter, title))
+            triggerChange()
         }
     }
 
@@ -40,15 +39,15 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
      * @param filter The filter that the user wants to bookmark.
      */
-    fun isBookmarkable(filter: FeedFilter): Observable<Boolean> {
+    suspend fun isBookmarkable(filter: FeedFilter): Boolean {
         if (filter.isBasic)
-            return Observable.just(false)
+            return false
 
         if (filter.likes != null)
-            return Observable.just(false)
+            return false
 
         // check if already in database
-        return database.asObservable().map { db -> Bookmark.byFilter(db, filter) == null }
+        return database.valueOrNull?.let { db -> Bookmark.byFilter(db, filter) == null } == true
     }
 
     private fun triggerChange() {
@@ -56,7 +55,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     }
 
     fun get(): Observable<List<Bookmark>> {
-        return onChange.observeOn(BackgroundScheduler).map { list() }
+        return onChange.observeOn(BackgroundScheduler).flatMap { toObservable(this::list) }
     }
 
     /**
@@ -64,7 +63,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
      * @return The current bookmarks
      */
-    private fun list(): List<Bookmark> {
+    private suspend fun list(): List<Bookmark> {
         checkNotMainThread()
         return Bookmark.all(database.value)
     }
@@ -74,10 +73,8 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
      * @param bookmark The bookmark that is to be deleted.
      */
-    fun delete(bookmark: Bookmark): Completable {
-        return doInBackground {
-            Bookmark.delete(database.value, bookmark)
-            triggerChange()
-        }
+    suspend fun delete(bookmark: Bookmark) {
+        Bookmark.delete(database.value, bookmark)
+        triggerChange()
     }
 }

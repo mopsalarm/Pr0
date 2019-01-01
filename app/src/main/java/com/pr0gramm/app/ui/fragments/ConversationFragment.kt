@@ -136,13 +136,18 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
     private fun updateAdapterState() {
         val f = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        val dates = state.messages.map { message -> message.creationTime.toString(f) }
+        val dates = state.messages.map { it.creationTime.toString(f) }
 
+        // We will be adding messages from bottom to top (.asReserved())
+        // ...
+        // We need to add a timestamp containing the date of the current message
+        // after adding the message itself, if the next messages date will differ.
+        //
         val values = mutableListOf<Any>()
         state.messages.forEachIndexed { index, message ->
             values += message
 
-            if (index > 0 && dates[index] != dates.getOrNull(index + 1)) {
+            if (dates[index] != dates.getOrNull(index + 1)) {
                 values += DividerAdapterDelegate.Value(dates[index])
             }
         }

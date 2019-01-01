@@ -536,7 +536,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun pinFeedFilter(filter: FeedFilter, title: String) {
-        bookmarkService.create(filter, title)
+        launch { bookmarkService.create(filter, title) }
         drawerLayout.openDrawer(GravityCompat.START)
     }
 

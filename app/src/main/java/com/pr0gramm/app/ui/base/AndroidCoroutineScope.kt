@@ -23,6 +23,16 @@ interface AndroidCoroutineScope : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main + DefaultCoroutineExceptionHandler
 
+    fun launchIgnoreErrors(
+            context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
+            block: suspend CoroutineScope.() -> Unit
+    ): Job {
+        return launch(context, start) {
+            ignoreException { block() }
+        }
+    }
+
 
     fun launchWithErrorHandler(
             context: CoroutineContext = EmptyCoroutineContext,
