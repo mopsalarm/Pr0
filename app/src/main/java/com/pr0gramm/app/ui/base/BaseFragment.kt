@@ -9,26 +9,23 @@ import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.KodeinTrigger
 import rx.Observable
 import rx.Subscription
 
 /**
  * A fragment that provides lifecycle events as an observable.
  */
-abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAware, AndroidCoroutineScope {
+abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInjectorAware, AndroidCoroutineScope {
     protected val logger = Logger(name)
 
-    override val kodein: Kodein by lazy { requireContext().kodein }
-    override val kodeinTrigger = KodeinTrigger()
+    override val injector: PropertyInjector = PropertyInjector()
 
     override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
 
@@ -57,8 +54,8 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, KodeinAw
 
     fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseFragment.bindToLifecycleAsync())
 
-    override fun onAttach(context: Context?) {
-        logger.time("Injecting services") { kodeinTrigger.trigger() }
+    override fun onAttach(context: Context) {
+        logger.time("Injecting services") { injector.inject(context) }
         super.onAttach(context)
     }
 

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.core.content.edit
@@ -13,9 +14,12 @@ import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.Job
-import org.kodein.di.erased.instance
 
 /**
  */
@@ -51,7 +55,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
         }
 
         fun checkForUpdatesInBackground(activity: BaseAppCompatActivity) {
-            val prefs = activity.directKodein.instance<SharedPreferences>()
+            val prefs = (activity as Context).injector.instance<SharedPreferences>()
 
             // only check once an hour.
             if (!BuildConfig.DEBUG) {
@@ -86,7 +90,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
         fun checkForUpdatesInteractive(activity: BaseAppCompatActivity) {
             trace { "checkForUpdates" }
 
-            val prefs = activity.directKodein.instance<SharedPreferences>()
+            val prefs = activity.applicationContext.injector.instance<SharedPreferences>()
 
             activity.launchWithErrorHandler(busyDialog = true) {
                 val update = UpdateChecker().queryAll()

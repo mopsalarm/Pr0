@@ -5,25 +5,22 @@ import android.content.DialogInterface
 import android.os.Bundle
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.KodeinTrigger
 import rx.Observable
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), KodeinAware, HasViewCache, AndroidCoroutineScope {
+abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), LazyInjectorAware, HasViewCache, AndroidCoroutineScope {
     protected val logger = Logger(name)
 
-    override val kodein: Kodein by lazy { requireContext().kodein }
-    override val kodeinTrigger = KodeinTrigger()
+    override val injector: PropertyInjector = PropertyInjector()
 
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
@@ -41,7 +38,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), K
     fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        logger.time("Injecting services") { kodeinTrigger.trigger() }
+        logger.time("Injecting services") { injector.inject(requireContext()) }
 
         job = SupervisorJob()
         super.onCreate(savedInstanceState)

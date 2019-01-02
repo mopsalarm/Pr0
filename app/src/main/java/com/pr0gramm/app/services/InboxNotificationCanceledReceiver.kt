@@ -7,15 +7,14 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.util.bundle
-import com.pr0gramm.app.util.directKodein
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.injector
 
 
 /**
  */
 class InboxNotificationCanceledReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val inboxService: InboxService = context.directKodein.instance()
+        val inboxService: InboxService = context.injector.instance()
 
         val timestamp = intent.getFreezableExtra(EXTRA_MESSAGE_TIMESTAMP, Instant)
         if (timestamp != null) {

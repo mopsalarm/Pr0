@@ -1,24 +1,21 @@
 package com.pr0gramm.app.ui.intro
 
-import android.content.Context
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.github.paolorotolo.appintro.AppIntro
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.intro.slides.*
-import com.pr0gramm.app.util.kodein
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.KodeinTrigger
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
 
-class IntroActivity : AppIntro(), KodeinAware {
-    override val kodein: Kodein by lazy { (this as Context).kodein }
-    override val kodeinTrigger: KodeinTrigger = KodeinTrigger()
+class IntroActivity : AppIntro(), LazyInjectorAware {
+    override val injector: PropertyInjector = PropertyInjector()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        kodeinTrigger.trigger()
+
+        injector.inject(this)
 
         addSlide(GenericAppIntroFragment.newInstance(
                 title = "",

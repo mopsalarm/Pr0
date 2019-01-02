@@ -21,6 +21,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.matches
 import com.pr0gramm.app.util.visible
@@ -29,7 +30,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import kotterknife.bindView
 import kotterknife.bindViews
-import org.kodein.di.erased.instance
 
 /**
  */

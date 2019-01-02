@@ -11,27 +11,30 @@ import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.util.di.InjectorAware
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.ignoreException
-import com.pr0gramm.app.util.kodein
-import org.kodein.di.LateInitKodein
-import org.kodein.di.erased.instance
 import rx.Observable
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
  */
-object Track {
+@SuppressLint("StaticFieldLeak")
+object Track : InjectorAware {
     private const val GA_CUSTOM_AUTHORIZED = "authorized"
     private const val GA_CUSTOM_PREMIUM = "premium"
     private const val GA_CUSTOM_ADS = "ads"
 
-    private val injector = LateInitKodein()
-    private val fa: FirebaseAnalytics by injector.instance()
-    private val settingsTracker: SettingsTrackerService by injector.instance()
-    private val config: ConfigService by injector.instance()
+    lateinit var context: Context
+    override val injector by lazy { context.injector }
+
+    private val fa by lazy { instance<FirebaseAnalytics>() }
+    private val settingsTracker by lazy { instance<SettingsTrackerService>() }
+    private val config by lazy { instance<ConfigService>() }
 
     fun initialize(context: Context) {
-        injector.baseKodein = context.kodein
+        this.context = context.applicationContext
     }
 
     private inline fun send(eventType: String, b: Bundle.() -> Unit = {}) {
@@ -149,12 +152,6 @@ object Track {
 
     fun registerFAQClicked() {
         send("aff_faq_clicked")
-    }
-
-    fun advancedSearch(query: String?) {
-        send("search_advanced") {
-            putString(Param.SEARCH_TERM, query ?: "")
-        }
     }
 
     fun passwordChanged() {

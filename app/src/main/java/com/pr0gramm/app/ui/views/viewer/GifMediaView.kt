@@ -8,9 +8,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
+import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.checkMainThread
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import pl.droidsonroids.gif.GifDrawable
 import rx.functions.Action1
 

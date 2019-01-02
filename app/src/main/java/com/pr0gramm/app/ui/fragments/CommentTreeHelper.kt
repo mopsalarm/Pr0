@@ -24,9 +24,9 @@ import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import kotlin.math.absoluteValue
@@ -239,7 +239,7 @@ class CommentView(val parent: ViewGroup,
     }
 
     private fun showCommentMenu(view: View, entry: CommentTree.Item) {
-        val userService = view.context.directKodein.instance<UserService>()
+        val userService = view.context.injector.instance<UserService>()
 
         val popup = PopupMenu(view.context, view)
         popup.inflate(R.menu.menu_comment)

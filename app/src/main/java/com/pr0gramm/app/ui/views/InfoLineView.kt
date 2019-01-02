@@ -18,11 +18,14 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.TagCloudLayoutManager
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.LongValueHolder
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.layoutInflater
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import java.lang.Math.min
 
 /**
@@ -35,7 +38,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
     private val voteView: VoteView by bindView(R.id.voting)
 
-    private val admin: Boolean = !isInEditMode && context.directKodein.instance<UserService>().userIsAdmin
+    private val admin: Boolean = !isInEditMode && context.injector.instance<UserService>().userIsAdmin
 
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false

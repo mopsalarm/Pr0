@@ -19,8 +19,8 @@ import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChange
-import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 /**

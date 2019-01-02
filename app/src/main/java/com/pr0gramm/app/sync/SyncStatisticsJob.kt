@@ -4,9 +4,8 @@ import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobCreator
-import com.pr0gramm.app.util.directKodein
+import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 class SyncStatisticsJob : DailyJob() {
@@ -16,7 +15,7 @@ class SyncStatisticsJob : DailyJob() {
         logger.info { "Sync statistics job started." }
 
         // get service and sync now.
-        val syncService = context.directKodein.instance<SyncService>()
+        val syncService = context.injector.instance<SyncService>()
 
         runBlocking {
             syncService.syncStatistics()

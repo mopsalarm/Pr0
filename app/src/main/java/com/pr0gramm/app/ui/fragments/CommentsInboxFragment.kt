@@ -9,7 +9,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.MessageAdapter
 import com.pr0gramm.app.ui.Pagination
 import com.pr0gramm.app.ui.PaginationController
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.instance
 
 open class CommentsInboxFragment : InboxFragment("CommentsInboxFragment") {
     private val userService: UserService by instance()

@@ -15,14 +15,13 @@ import com.pr0gramm.app.util.ViewUtility
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import rx.Observable
 
 /**
  */
 class CommentPostLine @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), KodeinViewMixin {
+) : FrameLayout(context, attrs, defStyleAttr), InjectorViewMixin {
 
     private val postButton: View by bindView(R.id.comment_post)
     private val commentTextView: LineMultiAutoCompleteTextView by bindView(R.id.comment_text)

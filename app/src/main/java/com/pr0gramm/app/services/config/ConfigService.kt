@@ -12,9 +12,12 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.getString
 import kotlinx.coroutines.launch
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
@@ -189,7 +192,7 @@ class ConfigService(context: Application,
         }
 
         fun get(context: Context): Config {
-            return context.directKodein.instance()
+            return context.injector.instance()
         }
     }
 }

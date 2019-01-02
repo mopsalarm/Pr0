@@ -42,8 +42,8 @@ import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.kodein.di.erased.instance
 import rx.Observable
 import java.io.File
 import java.io.FileOutputStream

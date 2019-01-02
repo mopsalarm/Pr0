@@ -23,11 +23,11 @@ import com.pr0gramm.app.util.AndroidUtility.getTintedDrawable
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import rx.Emitter
 import rx.Observable
 

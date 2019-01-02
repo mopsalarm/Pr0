@@ -13,9 +13,9 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 
 class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity") {
     private lateinit var user: String

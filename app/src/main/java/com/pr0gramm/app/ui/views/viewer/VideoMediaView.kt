@@ -29,6 +29,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
+import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
@@ -36,7 +37,6 @@ import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor")

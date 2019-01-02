@@ -5,8 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 /**
- * Holds an [rx.Single] value and provides access
- * to the result.
+ * Holds a deferred value and provides access to the result.
  */
 class Holder<T>(provider: suspend () -> T) {
     private val deferred = AsyncScope.async { provider() }

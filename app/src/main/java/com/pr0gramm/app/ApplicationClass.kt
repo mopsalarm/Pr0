@@ -19,15 +19,11 @@ import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobLogger
+import com.pr0gramm.app.util.di.InjectorAware
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.direct
-import org.kodein.di.erased.bind
-import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -35,7 +31,7 @@ import java.util.logging.LogManager
 /**
  * Global application class for pr0gramm app.
  */
-open class ApplicationClass : Application(), KodeinAware {
+open class ApplicationClass : Application(), InjectorAware {
     private val startup = System.currentTimeMillis()
 
     private val logger = Logger("Pr0grammApplication")
@@ -81,9 +77,8 @@ open class ApplicationClass : Application(), KodeinAware {
         jobManager.addJobCreator(SyncJob.CREATOR)
         jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
 
-        val asyncInitialization = AsyncScope.launch {
-            EagerBootstrap.initEagerSingletons(kodein.direct)
 
+        val asyncInitialization = AsyncScope.launch {
             // schedule first sync 30seconds after bootup.
             SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
 
@@ -108,6 +103,7 @@ open class ApplicationClass : Application(), KodeinAware {
 
         logger.info { "Wait for bootstrapping of singleton instances to finish..." }
         runBlocking { asyncInitialization.join() }
+        runBlocking { injector.waitForEagerSingletons() }
 
         val bootupTime = System.currentTimeMillis() - startup
         logger.info { "App booted in ${bootupTime}ms" }
@@ -129,18 +125,6 @@ open class ApplicationClass : Application(), KodeinAware {
         }
     }
 
-    override val kodein: Kodein = Kodein.lazy { configureKodein(this) }
-
-    protected open fun configureKodein(builder: Kodein.MainBuilder) {
-        builder.apply {
-            val app = this@ApplicationClass
-            bind<Application>() with instance(app)
-
-            import(appModule(app))
-            import(httpModule(app))
-            import(trackingModule(app))
-            import(servicesModule(app))
-        }
-    }
+    override val injector by lazy { appInjector(this) }
 }
 

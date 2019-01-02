@@ -45,6 +45,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
@@ -52,7 +53,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.lang.kotlin.subscribeBy

@@ -25,9 +25,9 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import kotlin.collections.set
 
 /**

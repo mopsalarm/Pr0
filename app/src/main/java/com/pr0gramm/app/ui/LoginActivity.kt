@@ -28,9 +28,10 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import retrofit2.HttpException
 import rx.Observable
 
@@ -220,7 +221,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         fun run(runnable: Callback, retry: Callback? = null): Boolean {
             val context = fragment.context ?: return false
 
-            val userService: UserService = context.directKodein.instance()
+            val userService: UserService = context.injector.instance()
             return if (userService.isAuthorized) {
                 runnable()
                 true

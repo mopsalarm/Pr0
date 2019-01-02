@@ -15,12 +15,12 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
-import org.kodein.di.erased.instance
 
 /**
  */

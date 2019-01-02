@@ -26,8 +26,7 @@ import com.pr0gramm.app.ui.base.BasePreferenceFragment
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
-import org.kodein.di.KodeinAware
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.instance
 
 /**
  */
@@ -71,7 +70,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
     }
 
     class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
-            SharedPreferences.OnSharedPreferenceChangeListener, KodeinAware {
+            SharedPreferences.OnSharedPreferenceChangeListener {
 
         private val settings = Settings.get()
 

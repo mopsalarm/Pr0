@@ -12,8 +12,8 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
-import org.kodein.di.erased.instance
 
 /**
  */

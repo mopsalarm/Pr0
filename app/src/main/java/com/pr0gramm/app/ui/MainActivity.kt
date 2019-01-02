@@ -28,12 +28,12 @@ import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.BehaviorSubject

@@ -21,8 +21,8 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.ViewUpdater
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.launch
-import org.kodein.di.erased.instance
 
 /**
  */

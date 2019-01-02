@@ -36,11 +36,11 @@ import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.launch
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.subjects.PublishSubject
 import java.net.ConnectException

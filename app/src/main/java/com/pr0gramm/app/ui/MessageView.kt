@@ -13,10 +13,12 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.UserDrawables
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.use
 import com.squareup.picasso.Picasso
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
 
 /**
  */
@@ -43,9 +45,9 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         sender = find(R.id.message_sender_info)
 
         if (!isInEditMode) {
-            picasso = kodein.direct.instance()
+            picasso = context.injector.instance()
 
-            val userService by kodein.instance<UserService>()
+            val userService = context.injector.instance<UserService>()
             admin = userService.userIsAdmin
         } else {
             admin = false

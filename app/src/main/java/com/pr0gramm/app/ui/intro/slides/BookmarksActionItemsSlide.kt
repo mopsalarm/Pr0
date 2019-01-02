@@ -4,7 +4,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.BookmarkService
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.instance
 
 /**
  */

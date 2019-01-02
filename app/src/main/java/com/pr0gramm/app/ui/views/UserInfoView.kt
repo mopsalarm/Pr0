@@ -17,9 +17,8 @@ import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import com.squareup.picasso.Picasso
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
 import java.util.concurrent.TimeUnit
 
 /**
@@ -43,7 +42,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
     private val userTypeName: TextView = find(R.id.user_type_name)
     private val showCommentsContainer: View = comments.parent as View
 
-    private val userClassesService = kodein.direct.instance<UserClassesService>()
+    private val userClassesService = context.injector.instance<UserClassesService>()
 
     fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean) {
         // user info
@@ -199,7 +198,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
 
             if (!itemView.isInEditMode) {
                 val context = itemView.context
-                val picasso = context.directKodein.instance<Picasso>()
+                val picasso = context.injector.instance<Picasso>()
 
                 val localImageId = knownImages[badge.image]
                 if (localImageId != null) {

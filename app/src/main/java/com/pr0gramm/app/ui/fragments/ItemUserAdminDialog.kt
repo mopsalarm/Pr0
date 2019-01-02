@@ -19,8 +19,8 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.withAsyncContext
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
-import org.kodein.di.erased.instance
 
 /**
  */

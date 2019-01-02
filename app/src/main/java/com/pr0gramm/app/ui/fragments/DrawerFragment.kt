@@ -32,10 +32,10 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
 import java.util.*
 
 /**
@@ -46,7 +46,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userClassesService: UserClassesService by instance()
 
     private val navigationProvider: NavigationProvider by lazy {
-        val k = kodein.direct
+        val k = requireContext().injector
         val picasso = k.instance<Picasso>()
         val inboxService = k.instance<InboxService>()
         val configService = k.instance<ConfigService>()

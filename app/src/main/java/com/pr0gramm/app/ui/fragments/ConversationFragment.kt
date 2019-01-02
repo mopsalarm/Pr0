@@ -29,7 +29,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.*
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.instance
 import java.text.SimpleDateFormat
 import java.util.*
 

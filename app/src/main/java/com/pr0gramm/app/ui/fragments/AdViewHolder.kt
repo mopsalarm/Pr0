@@ -14,8 +14,8 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
-import org.kodein.di.erased.instance
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
@@ -50,7 +50,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             container.addView(placeholder)
 
-            val adService = context.directKodein.instance<AdService>()
+            val adService = context.injector.instance<AdService>()
 
             trace { "newAdView()" }
             val adView = adService.newAdView(context).apply {

@@ -19,8 +19,8 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChange
-import org.kodein.di.erased.instance
 
 /**
  */

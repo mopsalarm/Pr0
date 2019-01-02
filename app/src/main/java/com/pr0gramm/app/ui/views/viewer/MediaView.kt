@@ -27,7 +27,8 @@ import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.base.AndroidCoroutineScope
 import com.pr0gramm.app.ui.views.AspectImageView
-import com.pr0gramm.app.ui.views.KodeinViewMixin
+import com.pr0gramm.app.ui.views.InjectorViewMixin
+import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
@@ -35,7 +36,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
-import org.kodein.di.erased.instance
 import rx.Observable
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
@@ -43,7 +43,9 @@ import rx.subjects.ReplaySubject
 
 /**
  */
-abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin, AndroidCoroutineScope {
+abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?)
+    : FrameLayout(config.activity), InjectorViewMixin, AndroidCoroutineScope {
+
     private val logger = if (BuildConfig.DEBUG) {
         Logger("MediaView[${config.mediaUri.id}]")
     } else {

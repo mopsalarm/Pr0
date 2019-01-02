@@ -18,9 +18,9 @@ import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.delay
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 import rx.Observable
 import java.util.concurrent.TimeUnit
 

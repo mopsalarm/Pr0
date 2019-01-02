@@ -7,17 +7,21 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.MainThreadScheduler
+import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
-import org.kodein.di.erased.instance
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
@@ -106,10 +110,9 @@ class UpdateChecker {
     companion object {
         private val logger = Logger("UpdateChecker")
 
-
-        fun download(activity: androidx.fragment.app.FragmentActivity, update: Update) = with(activity.directKodein) {
-            val downloadService = instance<DownloadService>()
-            val notificationService = instance<NotificationService>()
+        fun download(activity: FragmentActivity, update: Update) {
+            val downloadService = activity.injector.instance<DownloadService>()
+            val notificationService = activity.injector.instance<NotificationService>()
 
             val progress = downloadService
                     .downloadUpdateFile(Uri.parse(update.apk))

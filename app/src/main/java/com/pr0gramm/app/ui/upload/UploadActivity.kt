@@ -13,8 +13,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.launch
-import org.kodein.di.erased.instance
 
 /**
  */

@@ -15,8 +15,8 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
+import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.launch
-import org.kodein.di.erased.instance
 import java.util.*
 
 /**
@@ -69,7 +69,7 @@ object BrowserHelper {
     }
 
     fun open(context: Context, url: String) {
-        if (context.directKodein.instance<Settings>().useIncognitoBrowser) {
+        if (context.injector.instance<Settings>().useIncognitoBrowser) {
             openIncognito(context, url)
         } else {
             openCustomTab(context, Uri.parse(url))
@@ -152,7 +152,7 @@ object BrowserHelper {
         val externalUri = uri.host?.toLowerCase() != "pr0gramm.com"
 
         // the user needs to be signed in for handover to make sense
-        val userService = context.directKodein.instance<UserService>()
+        val userService = context.injector.instance<UserService>()
         val notAuthorized = !userService.isAuthorized
 
         if (activity !is BaseAppCompatActivity || externalUri || notAuthorized) {
@@ -160,7 +160,7 @@ object BrowserHelper {
             return
         }
 
-        val api = activity.directKodein.instance<Api>()
+        val api = context.injector.instance<Api>()
 
         activity.launch {
             block(try {

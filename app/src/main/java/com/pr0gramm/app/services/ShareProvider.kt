@@ -15,21 +15,18 @@ import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.kodein
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.di.lazyInject
+import com.pr0gramm.app.util.requireContext
 import java.io.FileOutputStream
 import java.io.IOException
 
 /**
  */
-class ShareProvider : ContentProvider(), KodeinAware {
-    override val kodein: Kodein by lazy { context!!.kodein }
-
+class ShareProvider : ContentProvider() {
     private val logger = Logger("ShareProvider")
 
-    private val cache by instance<Cache>()
+    private val cache: Cache by lazyInject { requireContext().injector }
 
     override fun onCreate(): Boolean {
         return true
@@ -100,8 +97,8 @@ class ShareProvider : ContentProvider(), KodeinAware {
                         source.copyTo(FileOutputStream(output.fileDescriptor))
                     }
                 } else {
-                    context.contentResolver.openInputStream(Uri.parse(url)).use { source ->
-                        source.copyTo(FileOutputStream(output.fileDescriptor))
+                    requireContext().contentResolver.openInputStream(Uri.parse(url)).use { source ->
+                        source?.copyTo(FileOutputStream(output.fileDescriptor))
                     }
                 }
             } catch (error: IOException) {
@@ -125,7 +122,8 @@ class ShareProvider : ContentProvider(), KodeinAware {
      * Decodes the received url
      */
     private fun decode(uri: Uri): Uri {
-        return Uri.parse(uri.lastPathSegment.decodeBase64String(urlSafe = true))
+        val lastPathSegment = uri.lastPathSegment!!
+        return Uri.parse(lastPathSegment.decodeBase64String(urlSafe = true))
     }
 
     companion object {

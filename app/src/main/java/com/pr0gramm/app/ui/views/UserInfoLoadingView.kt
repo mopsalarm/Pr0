@@ -6,14 +6,12 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClassesService
+import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.kodein
 import com.pr0gramm.app.util.visible
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
 
 class UserInfoLoadingView(context: Context) : FrameLayout(context) {
-    private val userClassesService = kodein.direct.instance<UserClassesService>()
+    private val userClassesService = context.injector.instance<UserClassesService>()
     private val usernameView: UsernameView
     private val usermarkView: TextView
 

@@ -12,10 +12,10 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.startActivity
 import kotterknife.bindView
-import org.kodein.di.erased.instance
 
 
 /**

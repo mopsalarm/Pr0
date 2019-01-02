@@ -19,11 +19,11 @@ import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
+import com.pr0gramm.app.util.di.instance
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.erased.instance
 import java.io.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit
 /**
  * This service handles preloading and resolving of preloaded images.
  */
-class PreloadService : IntentService("PreloadService"), KodeinAware {
-    override val kodein: Kodein by lazy { applicationContext.kodein }
+class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
+    override val injector: PropertyInjector = PropertyInjector()
 
     private val httpClient: OkHttpClient by instance()
     private val preloadManager: PreloadManager by instance()
@@ -60,6 +60,8 @@ class PreloadService : IntentService("PreloadService"), KodeinAware {
 
     override fun onCreate() {
         super.onCreate()
+
+        injector.inject(this)
 
         // send out the initial notification and bring the service into foreground mode!
         startForeground(NotificationService.Types.Preload.id, notification.build())

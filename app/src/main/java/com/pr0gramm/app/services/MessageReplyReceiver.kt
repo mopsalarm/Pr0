@@ -8,29 +8,26 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.ignoreException
-import com.pr0gramm.app.util.kodein
 import kotlinx.coroutines.launch
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.erased.instance
 
 /**
  * Reply directly to a user
  */
-class MessageReplyReceiver : BroadcastReceiver(), KodeinAware {
+class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
     private val logger = Logger("MessageReplyReceiver")
 
-    override lateinit var kodein: Kodein
+    override val injector: PropertyInjector = PropertyInjector()
 
     private val inboxService: InboxService by instance()
     private val voteService: VoteService by instance()
     private val notificationService: NotificationService by instance()
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (!this::kodein.isInitialized) {
-            kodein = context.kodein
-        }
+        injector.inject(context)
 
         // normal receiver info
         val receiverId = intent.getIntExtra("receiverId", 0)

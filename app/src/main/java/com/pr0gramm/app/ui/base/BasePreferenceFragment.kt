@@ -8,26 +8,25 @@ import androidx.annotation.CallSuper
 import androidx.annotation.CheckResult
 import androidx.preference.PreferenceFragmentCompat
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.kodein
+import com.pr0gramm.app.util.di.LazyInjectorAware
+import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleProvider
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.RxLifecycle
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.KodeinTrigger
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
-abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat(), LifecycleProvider<FragmentEvent>, KodeinAware {
+abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat(),
+        LifecycleProvider<FragmentEvent>, LazyInjectorAware {
+
     protected val logger = Logger(name)
 
     private val lifecycleSubject = BehaviorSubject.create<FragmentEvent>()
 
-    override val kodein: Kodein by lazy { requireContext().kodein }
-    override val kodeinTrigger = KodeinTrigger()
+    override val injector: PropertyInjector = PropertyInjector()
 
     @CheckResult
     override fun lifecycle(): Observable<FragmentEvent> {
@@ -46,7 +45,7 @@ abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat()
 
     @CallSuper
     override fun onAttach(context: Context) {
-        logger.time("Injecting services") { kodeinTrigger.trigger() }
+        logger.time("Injecting services") { injector.inject(context) }
         super.onAttach(context)
     }
 

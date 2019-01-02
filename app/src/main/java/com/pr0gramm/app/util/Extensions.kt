@@ -26,10 +26,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import org.kodein.di.DKodein
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.direct
 import rx.*
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
@@ -456,15 +452,6 @@ inline fun <T : Any?> T.withIf(b: Boolean, fn: T.() -> T): T {
     return if (b) this.fn() else this
 }
 
-inline val Context.kodein: Kodein get() = (applicationContext as KodeinAware).kodein
-
-inline val Context.directKodein: DKodein get() = (applicationContext as KodeinAware).kodein.direct
-
-inline val View.kodein: Kodein get() = context.kodein
-
-inline val ContentProvider.kodein: Kodein get() = context!!.kodein
-
-
 val Throwable.rootCause
     get(): Throwable {
         val c = this.cause
@@ -603,4 +590,8 @@ inline fun <reified T : Activity> activityIntent(
 
 inline fun <reified T : Activity> Context.startActivity(configureIntent: (Intent) -> Unit = {}) {
     startActivity(Intent(this, T::class.java).also(configureIntent))
+}
+
+fun ContentProvider.requireContext(): Context {
+    return context ?: throw IllegalStateException("context not set on ContentProvider")
 }

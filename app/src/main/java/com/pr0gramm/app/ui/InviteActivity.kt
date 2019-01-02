@@ -20,6 +20,7 @@ import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.rootCause
 import com.pr0gramm.app.util.visible
@@ -27,7 +28,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import kotterknife.bindViews
-import org.kodein.di.erased.instance
 
 /**
  */

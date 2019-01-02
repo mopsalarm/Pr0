@@ -8,9 +8,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.inSpans
 import com.pr0gramm.app.UserClassesService
-import com.pr0gramm.app.util.kodein
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.injector
 import rx.Observable
 
 
@@ -22,7 +20,7 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
     private val userClassesService: UserClassesService = if (isInEditMode) {
         UserClassesService(Observable.empty())
     } else {
-        kodein.direct.instance()
+        context.injector.instance()
     }
 
     init {

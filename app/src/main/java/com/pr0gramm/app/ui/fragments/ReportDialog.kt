@@ -13,11 +13,11 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.optionalFragmentArgument
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import org.kodein.di.erased.instance
 
 /**
  */

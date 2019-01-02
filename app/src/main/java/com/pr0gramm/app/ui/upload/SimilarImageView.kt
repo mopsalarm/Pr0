@@ -6,25 +6,25 @@ import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.widget.ImageView
 import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
-import com.pr0gramm.app.ui.views.KodeinViewMixin
+import com.pr0gramm.app.ui.views.InjectorViewMixin
 import com.pr0gramm.app.ui.views.SimpleAdapter
+import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
-import org.kodein.di.erased.instance
 
 /**
  */
 class SimilarImageView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : androidx.recyclerview.widget.RecyclerView(context, attrs, defStyleAttr), KodeinViewMixin {
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr), InjectorViewMixin {
 
     private val picasso: Picasso by instance()
 

@@ -28,7 +28,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.*
-import org.kodein.di.erased.instance
+import com.pr0gramm.app.util.di.injector
 
 /**
  * Stripped down version of [android.widget.VideoView].
@@ -328,7 +328,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     private class DataSourceFactory(private val context: Context) : DataSource.Factory {
         override fun createDataSource(): DataSource {
-            val cache by context.kodein.instance<Cache>()
+            val cache = context.injector.instance<Cache>()
             return InputStreamCacheDataSource(cache)
         }
     }

@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.Debug
 import android.os.StrictMode
 import androidx.multidex.MultiDex
-import com.github.anrwatchdog.ANRWatchDog
 import com.pr0gramm.app.util.subscribeOnBackground
 import rx.Observable
 import java.util.concurrent.TimeUnit
@@ -26,12 +25,6 @@ class DebugApplicationClass : ApplicationClass() {
                         .subscribe()
             }
         }
-
-        ANRWatchDog(5000)
-                .setIgnoreDebugger(true)
-                .setReportMainThreadOnly()
-                .setANRListener { err -> err.printStackTrace() }
-                .start()
     }
 
     override fun attachBaseContext(base: Context) {
