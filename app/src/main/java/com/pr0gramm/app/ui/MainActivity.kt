@@ -24,7 +24,6 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
@@ -39,7 +38,6 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.properties.Delegates
 
 
@@ -84,8 +82,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
-
-        trackMainThreadNotResponding()
 
         // in tests we would like to quiet dialogs on startup
         quiet = intent?.getBooleanExtra("MainActivity.quiet", false) ?: false
@@ -646,33 +642,4 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // we use this to propagate a fake-home event to the fragments.
         const val ID_FAKE_HOME = android.R.id.list
     }
-}
-
-class MainThreadException : Exception("ANR - main thread hangs.")
-
-private var trackedMainThread = AtomicBoolean(false)
-
-private fun trackMainThreadNotResponding() {
-    if (!trackedMainThread.compareAndSet(false, true))
-        return
-
-    val anr = AtomicBoolean(true)
-    Observable
-            .fromCallable { Handler(Looper.getMainLooper()).run { anr.set(false) }; Unit }
-            .delay(2, TimeUnit.SECONDS, BackgroundScheduler)
-            .doOnNext {
-                // track metric
-                val name = if (anr.get()) "main.anr" else "main.good"
-                Stats().increment(name)
-            }
-            .delaySubscription(6, TimeUnit.SECONDS, BackgroundScheduler)
-            .ignoreError()
-            .subscribeOnBackground()
-            .subscribe {
-                if (anr.get()) {
-                    val err = MainThreadException()
-                    err.stackTrace = Looper.getMainLooper().thread.stackTrace
-                    AndroidUtility.logToCrashlytics(err)
-                }
-            }
 }
