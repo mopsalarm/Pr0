@@ -51,9 +51,6 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
         } catch (err: IllegalArgumentException) {
             AndroidUtility.logToCrashlytics(err)
             true
-        } catch (err: IllegalArgumentException) {
-            AndroidUtility.logToCrashlytics(err)
-            true
         }
     }
 
