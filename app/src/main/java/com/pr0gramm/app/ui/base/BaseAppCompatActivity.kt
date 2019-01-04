@@ -11,7 +11,6 @@ import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
-import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -28,10 +27,6 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
 
     override lateinit var job: Job
     override val androidContext: Context = this
-
-    fun <T> bindUntilEventAsync(event: ActivityEvent): Observable.Transformer<T, T> {
-        return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
-    }
 
     fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(
             this@BaseAppCompatActivity.bindToLifecycle())

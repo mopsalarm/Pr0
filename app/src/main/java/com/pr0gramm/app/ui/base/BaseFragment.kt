@@ -42,11 +42,11 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         }
     }
 
-    fun <T> bindUntilEventAsync(event: FragmentEvent): AsyncLifecycleTransformer<T> {
+    fun <T> bindUntilEventAsync(event: FragmentEvent): Observable.Transformer<T, T> {
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
     }
 
-    fun <T> bindToLifecycleAsync(): AsyncLifecycleTransformer<T> {
+    fun <T> bindToLifecycleAsync(): Observable.Transformer<T, T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
 

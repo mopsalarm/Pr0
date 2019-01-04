@@ -13,7 +13,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import retrofit2.HttpException
 import rx.Observable
-import rx.Single
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -118,11 +117,10 @@ val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
 val Main = Looper.getMainLooper().asHandler(async = true).asCoroutineDispatcher("Main")
 
-
-fun <T : Any?> Single<T>.toDeferred(): Deferred<T> {
+suspend fun <T : Any?> Observable<T>.await(): T {
     val def = CompletableDeferred<T>()
 
-    val sub = this.subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
+    val sub = single().subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
 
     def.invokeOnCompletion {
         if (def.isCancelled) {
@@ -130,11 +128,7 @@ fun <T : Any?> Single<T>.toDeferred(): Deferred<T> {
         }
     }
 
-    return def
-}
-
-suspend fun <T : Any?> Observable<T>.await(): T {
-    return toSingle().toDeferred().await()
+    return def.await()
 }
 
 fun <T> toObservable(block: suspend () -> T): Observable<T> {

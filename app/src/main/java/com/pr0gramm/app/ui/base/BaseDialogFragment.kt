@@ -8,11 +8,9 @@ import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
-import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import rx.Observable
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -28,12 +26,6 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
 
     override val androidContext: Context
         get() = requireContext()
-
-    fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
-        return AsyncLifecycleTransformer(bindToLifecycle<T>())
-    }
-
-    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.time("Injecting services") { injector.inject(requireContext()) }
