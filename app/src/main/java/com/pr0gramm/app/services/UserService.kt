@@ -33,8 +33,6 @@ class UserService(private val api: Api,
 
     private val logger = Logger("UserService")
 
-    private object Lock
-
     @Suppress("PrivatePropertyName")
     private val NotAuthorized = LoginState(
             id = -1, score = 0, mark = 0, admin = false,
@@ -54,51 +52,13 @@ class UserService(private val api: Api,
         cookieJar.observeCookie.distinctUntilChanged().subscribe { onCookieChanged(it) }
 
         // persist the login state every time it changes.
-        loginStateSubject.subscribe { state -> persistLatestLoginState(state) }
+        loginStates.observeOn(BackgroundScheduler).subscribe { state -> persistLatestLoginState(state) }
 
-        Track.updateUserState(loginStateSubject)
+        Track.updateUserState(loginStates)
     }
 
-    private fun updateLoginState(transformer: (LoginState) -> LoginState): LoginState {
-        synchronized(Lock) {
-            val newLoginState = transformer(this.loginState)
-
-            // persist and publish
-            if (newLoginState != loginState) {
-                this.loginStateSubject.onNext(newLoginState)
-            }
-
-            return newLoginState
-        }
-    }
-
-    private fun updateLoginStateIfAuthorized(transformer: (LoginState) -> LoginState): LoginState {
-        return updateLoginState { loginState ->
-            if (loginState.authorized) {
-                transformer(loginState)
-            } else {
-                // if we are not authorized, we always fall back to the not-authorized token.
-                NotAuthorized
-            }
-        }
-    }
-
-    private fun updateUniqueTokenIfNeeded(state: LoginState) {
-        if (state.authorized && state.uniqueToken == null) {
-            doInBackground {
-                val result = api.identifier().await()
-                updateUniqueToken(result.identifier)
-            }
-        }
-    }
-
-    private fun updateUniqueToken(uniqueToken: String?) {
-        if (uniqueToken == null)
-            return
-
-        updateLoginStateIfAuthorized { loginState ->
-            loginState.copy(uniqueToken = uniqueToken)
-        }
+    private fun updateLoginState(newLoginState: LoginState) {
+        this.loginStateSubject.onNext(newLoginState)
     }
 
     /**
@@ -129,7 +89,7 @@ class UserService(private val api: Api,
                         .fromJson(encodedLoginState) ?: return@doInBackground
 
                 logger.debug { "Restoring login state: $loginState" }
-                updateLoginState { loginState }
+                updateLoginState(loginState)
 
             } catch (err: Exception) {
                 logger.warn("Could not restore login state:", err)
@@ -196,7 +156,7 @@ class UserService(private val api: Api,
      * Performs a logout of the user.
      */
     suspend fun logout() = withBackgroundContext(NonCancellable) {
-        updateLoginState { NotAuthorized }
+        updateLoginState(NotAuthorized)
 
         // removing cookie from requests
         cookieJar.clearLoginCookie()
@@ -253,8 +213,10 @@ class UserService(private val api: Api,
                 // save the current benis value
                 benisService.storeValue(userId, response.score)
 
-                updateLoginStateIfAuthorized { loginState ->
-                    loginState.copy(score = response.score)
+                // and update login state
+                val updatedLoginState = loginState.copy(score = response.score)
+                if (updatedLoginState.authorized) {
+                    updateLoginState(updatedLoginState)
                 }
             }
 
@@ -293,28 +255,15 @@ class UserService(private val api: Api,
     }
 
     /**
-     * Returns information for the current user, if a user is signed in.
-
-     * @return The info, if the user is currently signed in.
-     */
-    private suspend fun info(): Api.Info? {
-        val name = name.takeUnless { it.isNullOrEmpty() }
-        return name?.let { info(it) }
-    }
-
-    /**
      * Update the cached user info in the background. Will throw an exception if
      * the user info can not be updated.
      */
     suspend fun updateCachedUserInfo(): Api.Info? {
-        val userInfo = info() ?: return null
+        val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
-        withBackgroundContext {
-            val loginState = createLoginStateFromInfo(userInfo)
-            updateLoginState { loginState }
+        return info(name).also { userInfo ->
+            updateLoginState(createLoginStateFromInfo(userInfo))
         }
-
-        return userInfo
     }
 
     /**
@@ -342,15 +291,12 @@ class UserService(private val api: Api,
     }
 
     private fun createLoginStateFromInfo(info: Api.Info): LoginState {
-        checkNotMainThread()
-
-        val user = info.user
         return LoginState(
                 authorized = true,
-                id = user.id,
-                name = user.name,
-                mark = user.mark,
-                score = user.score,
+                id = info.user.id,
+                name = info.user.name,
+                mark = info.user.mark,
+                score = info.user.score,
                 premium = userIsPremium,
                 admin = userIsAdmin,
                 uniqueToken = loginState.uniqueToken)
