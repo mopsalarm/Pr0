@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import rx.Observable
 import rx.subjects.BehaviorSubject
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -375,7 +376,8 @@ class UserService(private val api: Api,
             }
         }
 
-        rxStart.concatWith(rxGraphed)
+        val ticker = Observable.interval(0, 10, TimeUnit.MINUTES)
+        rxStart.concatWith(ticker.switchMap { rxGraphed })
     }
 
     private fun loadBenisHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
