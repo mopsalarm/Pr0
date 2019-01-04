@@ -14,6 +14,7 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
@@ -96,7 +97,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private fun showContentTypesOf(view: CircleChartView, stats: Observable<StatisticsService.Stats>) {
-        stats.bindToLifecycleAsync().subscribeWithErrorHandling {
+        stats.bindToLifecycleAsync().subscribeWithErrorHandling(supportFragmentManager) {
             showContentTypes(view, it)
         }
     }

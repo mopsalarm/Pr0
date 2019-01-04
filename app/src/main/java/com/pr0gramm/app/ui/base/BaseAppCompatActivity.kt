@@ -3,9 +3,6 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
-import com.pr0gramm.app.ui.dialogs.OnComplete
-import com.pr0gramm.app.ui.dialogs.OnNext
-import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
@@ -15,7 +12,6 @@ import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import rx.Observable
-import rx.Subscription
 
 /**
  * A [android.support.v7.app.AppCompatActivity] with dagger injection and stuff.
@@ -52,11 +48,5 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
             AndroidUtility.logToCrashlytics(err)
             true
         }
-    }
-
-    fun <T> Observable<T>.subscribeWithErrorHandling(
-            onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
-
-        return subscribeWithErrorHandling(supportFragmentManager, onComplete, onNext)
     }
 }
