@@ -4,7 +4,9 @@ package com.pr0gramm.app.ui
 import android.app.Application
 import android.graphics.*
 import android.net.Uri
+import androidx.core.graphics.applyCanvas
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
@@ -20,8 +22,16 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
     private val maskV = BitmapFactory.decodeResource(context.resources, R.raw.mask_v)
     private val maskH = BitmapFactory.decodeResource(context.resources, R.raw.mask_h)
 
-    fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap = logger.time("Building fancy thumbnail") {
-        val bytes = fetch(uri)
+    private val zero = Bitmap.createBitmap(64, 64, Bitmap.Config.RGB_565)
+
+    suspend fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap {
+        return withBackgroundContext {
+            fancyThumbnail0(uri, aspect) ?: zero
+        }
+    }
+
+    private suspend fun fancyThumbnail0(uri: Uri, aspect: Float): Bitmap? = logger.time("Building fancy thumbnail") {
+        val bytes = fetch(uri) ?: return null
 
         // almost square? fall back on non fancy normal image
         if (1 / 1.05 < aspect && aspect < 1.05) {
@@ -31,15 +41,16 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
         // load exif thumbnail or fall back to square image, if loading fails
         val low = exifThumbnail(bytes) ?: return decode565(bytes)
 
-        // decode image as a mutable bitmap
+        // decode the image mutable so that we can paint on it
         val normal = decodeMutableBitmap(bytes)
 
-        // add the alpha mask
-        applyAlphaMask(aspect, normal)
-        normal.setHasAlpha(true)
-
         try {
+            // add the alpha mask
+            applyAlphaMask(aspect, normal)
+            normal.setHasAlpha(true)
+
             return compose(aspect, low, normal)
+
         } finally {
             normal.recycle()
             low.recycle()
@@ -48,12 +59,13 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
     private fun applyAlphaMask(aspect: Float, bitmap: Bitmap) {
         val baseSquare = Rect(0, 0, bitmap.width, bitmap.height)
-        val canvas = Canvas(bitmap)
 
-        // draw the alpha mask
-        val paint = Paint()
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
-        canvas.drawBitmap(if (aspect > 1) maskH else maskV, null, baseSquare, paint)
+        bitmap.applyCanvas {
+            // draw the alpha mask
+            val paint = Paint()
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
+            drawBitmap(if (aspect > 1) maskH else maskV, null, baseSquare, paint)
+        }
     }
 
     private fun compose(aspect: Float, low: Bitmap, normal: Bitmap): Bitmap {
@@ -72,15 +84,16 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
         // now generate the result
         val result = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        val paint = Paint()
 
-        val canvas = Canvas(result)
-        paint.flags = Paint.FILTER_BITMAP_FLAG
-        canvas.drawBitmap(low, null, Rect(0, 0, width, height), paint)
+        return result.applyCanvas {
+            val paint = Paint()
 
-        paint.flags = paint.flags and Paint.FILTER_BITMAP_FLAG.inv()
-        canvas.drawBitmap(normal, null, centered, null)
-        return result
+            paint.flags = Paint.FILTER_BITMAP_FLAG
+            drawBitmap(low, null, Rect(0, 0, width, height), paint)
+
+            paint.flags = paint.flags and Paint.FILTER_BITMAP_FLAG.inv()
+            drawBitmap(normal, null, centered, null)
+        }
     }
 
     private fun decodeMutableBitmap(bytes: ByteArray): Bitmap {
@@ -97,12 +110,12 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
         }
     }
 
-    private fun fetch(uri: Uri): ByteArray {
+    private suspend fun fetch(uri: Uri): ByteArray? {
         val response = downloader.load(Request.Builder().url(uri.toString()).build())
-        return response.body()?.bytes() ?: byteArrayOf()
+        return response.body()?.bytes()?.takeIf { it.isNotEmpty() }
     }
 
-    private fun decode565(bytes: ByteArray): Bitmap {
+    private fun decode565(bytes: ByteArray): Bitmap? {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.RGB_565
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)

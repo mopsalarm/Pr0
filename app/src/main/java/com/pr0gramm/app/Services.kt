@@ -146,9 +146,9 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<Downloader>() with singleton {
-        val fallback = OkHttp3Downloader(instance<OkHttpClient>())
-        val cache = instance<com.pr0gramm.app.io.Cache>()
-        PicassoDownloader(cache, fallback)
+        PicassoDownloader(
+                cache = instance(),
+                delegate = OkHttp3Downloader(instance<OkHttpClient>()))
     }
 
     bind<ProxyService>() with eagerSingleton {
@@ -255,8 +255,8 @@ fun appInjector(app: Application) = Module.build {
 
 const val TagApiURL = "api.baseurl"
 
-class PicassoDownloader(val cache: com.pr0gramm.app.io.Cache, val fallback: OkHttp3Downloader) : Downloader {
-    val logger = Logger("Picasso.Downloader")
+class PicassoDownloader(val cache: com.pr0gramm.app.io.Cache, private val delegate: OkHttp3Downloader) : Downloader by delegate {
+    private val logger = Logger("Picasso.Downloader")
 
     private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int = value.size
@@ -278,7 +278,7 @@ class PicassoDownloader(val cache: com.pr0gramm.app.io.Cache, val fallback: OkHt
             }
 
             // do request using fallback - network or disk.
-            val response = fallback.load(request)
+            val response = delegate.load(request)
 
             // check if we want to cache the response in memory
             response.body()?.let { body ->
@@ -299,10 +299,6 @@ class PicassoDownloader(val cache: com.pr0gramm.app.io.Cache, val fallback: OkHt
                 return entry.toResponse(request)
             }
         }
-    }
-
-    override fun shutdown() {
-        fallback.shutdown()
     }
 }
 

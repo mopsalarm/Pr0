@@ -32,10 +32,8 @@ import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.withContext
 import rx.Observable
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
@@ -219,9 +217,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         launchIgnoreErrors {
             val fancyPreview = info.fancy?.get() ?: run {
                 logger.debug { "Requesting fancy thumbnail on background thread now." }
-                withContext(Dispatchers.IO) {
-                    fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
-                }
+                fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
             }
 
             previewTarget.call(fancyPreview)

@@ -3,9 +3,14 @@ package com.pr0gramm.app.util.di
 import android.content.Context
 import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.fragments.FeedFragment.Companion.logger
+import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.time
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -20,15 +25,29 @@ class InstanceProvider<T : Any>(private val value: T) : Provider<T> {
     }
 }
 
+private class RecursionChecker {
+    private val flag = AtomicBoolean()
+
+    fun check() {
+        if (!flag.compareAndSet(false, true)) {
+            throw IllegalStateException("Already under construction.")
+        }
+    }
+}
+
 class SingletonProvider<T : Any>(
         private val factory: Injector.() -> T) : Provider<T> {
 
+    @Volatile
     private var value: Any = NoValue
+
+    private val recursionChecker = RecursionChecker()
 
     override fun get(injector: Injector): T {
         if (value === NoValue) {
             synchronized(this) {
                 if (value === NoValue) {
+                    recursionChecker.check()
                     value = factory(injector)
                 }
             }
@@ -42,10 +61,14 @@ class SingletonProvider<T : Any>(
 class AsyncSingletonProvider<T : Any>(
         private val factory: suspend Injector.() -> T) : Provider<T> {
 
+    private val recursionChecker = RecursionChecker()
+
     private var value: Any = NoValue
     val result = CompletableDeferred<T>()
 
     fun init(injector: Injector) {
+        recursionChecker.check()
+
         AsyncScope.launch {
             try {
                 val value = factory(injector)
@@ -120,7 +143,31 @@ class Module private constructor() {
                 }
             }
 
+            debug {
+                eagerValidate(injector, providers.keys)
+            }
+
             return injector
+        }
+
+        private fun eagerValidate(injector: Injector, keys: Set<Injector.Key>) {
+            doInBackground {
+                try {
+                    logger.time("Validating ${keys.size} dependencies.") {
+                        // initialize everything once in debug mode
+                        keys.forEach { key ->
+                            logger.debug { "Now getting instance for key $key" }
+                            injector.instance(key)
+                        }
+                    }
+                } catch (err: Throwable) {
+                    err.printStackTrace()
+
+                    // let the app crash
+                    Thread.sleep(10000)
+                    System.exit(1)
+                }
+            }
         }
     }
 }
@@ -135,8 +182,11 @@ class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
     }
 
     fun <T : Any> instance(key: Key): T {
+        val provider = providers.get(key)
+                ?: throw IllegalArgumentException("No dependency for key $key")
+
         @Suppress("UNCHECKED_CAST")
-        return providers.getValue(key).get(this) as T
+        return provider.get(this) as T
     }
 
     suspend fun waitForEagerSingletons() {
