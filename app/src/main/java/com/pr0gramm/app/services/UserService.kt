@@ -4,22 +4,20 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
+import com.pr0gramm.app.api.pr0gramm.LoginCookieJar.LoginCookie
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.base.toObservable
-import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonClass
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import rx.Completable
+import okhttp3.Cookie
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -27,36 +25,41 @@ class UserService(private val api: Api,
                   private val voteService: VoteService,
                   private val seenService: SeenService,
                   private val inboxService: InboxService,
-                  private val cookieHandler: LoginCookieHandler,
+                  private val cookieJar: LoginCookieJar,
                   private val preferences: SharedPreferences,
                   private val benisService: BenisRecordService,
                   private val config: Config) {
 
     private val logger = Logger("UserService")
 
-    private val lock = Any()
+    private object Lock
+
+    @Suppress("PrivatePropertyName")
+    private val NotAuthorized = LoginState(
+            id = -1, score = 0, mark = 0, admin = false,
+            premium = false, authorized = false, name = null, uniqueToken = null)
 
     private val fullSyncInProgress = AtomicBoolean()
 
-    private val loginStateSubject = BehaviorSubject.create(NOT_AUTHORIZED)
+    private val loginStateSubject = BehaviorSubject.create(NotAuthorized)
 
     val loginState: LoginState get() = loginStateSubject.value
-    val loginStates: Observable<LoginState> = loginStateSubject
+    val loginStates: Observable<LoginState> = loginStateSubject.distinctUntilChanged()
 
     init {
-        // only restore user data if authorized.
-        if (cookieHandler.hasCookie()) {
-            restoreLatestUserInfo()
-        }
+        restoreLatestUserInfo()
 
-        this.cookieHandler.onCookieChanged = { this.onCookieChanged() }
+        // observe changes to the login cookie to handle login/logout behaviour.
+        cookieJar.observeCookie.distinctUntilChanged().subscribe { onCookieChanged(it) }
 
+        // persist the login state every time it changes.
         loginStateSubject.subscribe { state -> persistLatestLoginState(state) }
+
         Track.updateUserState(loginStateSubject)
     }
 
     private fun updateLoginState(transformer: (LoginState) -> LoginState): LoginState {
-        synchronized(lock) {
+        synchronized(Lock) {
             val newLoginState = transformer(this.loginState)
 
             // persist and publish
@@ -74,21 +77,20 @@ class UserService(private val api: Api,
                 transformer(loginState)
             } else {
                 // if we are not authorized, we always fall back to the not-authorized token.
-                NOT_AUTHORIZED
+                NotAuthorized
             }
         }
     }
 
     private fun updateUniqueTokenIfNeeded(state: LoginState) {
         if (state.authorized && state.uniqueToken == null) {
-            AsyncScope.launch {
-                ignoreException {
-                    val result = api.identifier().await()
-                    updateUniqueToken(result.identifier)
-                }
+            doInBackground {
+                val result = api.identifier().await()
+                updateUniqueToken(result.identifier)
             }
         }
     }
+
     private fun updateUniqueToken(uniqueToken: String?) {
         if (uniqueToken == null)
             return
@@ -102,104 +104,125 @@ class UserService(private val api: Api,
      * Restore the latest user info from the shared preferences
      */
     private fun restoreLatestUserInfo() {
-        preferences.getString(KEY_LAST_LOGIN_STATE, null)?.let { lastLoginState ->
-            debug {
-                logger.info { "Found login state: $lastLoginState" }
+        val encodedLoginState = preferences.getString(KEY_LAST_LOGIN_STATE, null)
+        logger.debug { "Found login state: $encodedLoginState" }
+
+        if (encodedLoginState == null || encodedLoginState == "null") {
+            if (cookieJar.hasCookie()) {
+                logger.warn { "Got cookie but no loginState, discarding cookie." }
+                cookieJar.clearLoginCookie()
             }
 
-            Observable.fromCallable { MoshiInstance.adapter<LoginState>().fromJson(lastLoginState) }
-                    .ofType<LoginState>()
-                    .onErrorResumeEmpty()
-                    .doOnNext { info -> logger.info { "Restoring login state: $info" } }
-
-                    // update once now, and one with recent benis history later.
-                    .flatMap { state ->
-                        val extendedState = Observable
-                                .fromCallable { state.copy(benisHistory = loadBenisHistoryAsGraph(state.id)) }
-                                .subscribeOnBackground()
-
-                        Observable.just(state).concatWith(extendedState)
-                    }
-
-                    .doOnNext { state -> updateUniqueTokenIfNeeded(state) }
-
-                    .subscribe(
-                            { loginState -> updateLoginState { loginState } },
-                            { error -> logger.warn("Could not restore login state:", error) })
-
+            return
         }
-    }
 
-    private fun onCookieChanged() {
-        if (cookieHandler.loginCookieValue == null) {
-            logout()
+        if (!cookieJar.hasCookie()) {
+            logger.warn { "Got loginState but no cookie, discarding login state." }
+            preferences.edit { remove(KEY_LAST_LOGIN_STATE) }
+            return
         }
-    }
 
-    fun login(username: String, password: String): Observable<LoginProgress> {
-        return toObservable { api.login(username, password).await() }.flatMap { login ->
-            val observables = ArrayList<Observable<*>>()
+        doInBackground {
+            try {
+                val loginState = MoshiInstance.adapter<LoginState>()
+                        .fromJson(encodedLoginState) ?: return@doInBackground
 
-            if (login.success) {
-                observables.add(updateCachedUserInfo()
-                        .doOnTerminate { updateUniqueToken(login.identifier) })
+                logger.debug { "Restoring login state: $loginState" }
+                updateLoginState { loginState }
 
-                // perform initial sync in background.
-                doAsync { sync() }
+            } catch (err: Exception) {
+                logger.warn("Could not restore login state:", err)
+                logout()
             }
-
-            // wait for sync to complete before emitting login result.
-            observables.add(Observable.just(LoginProgress(login)))
-            Observable.concatDelayError(observables).ofType(LoginProgress::class.java)
         }
     }
 
-    /**
-     * Check if we can do authorized requests.
-     */
-    val isAuthorized: Boolean
-        get() = cookieHandler.hasCookie() && loginState.authorized
+    private fun onCookieChanged(cookie: LoginCookie?) {
+        if (cookie == null) {
+            logger.info { "LoginCookie was removed, performing logout now." }
+            AsyncScope.launch { logout() }
+        }
+    }
 
-    /**
-     * Checks if the user has paid for a pr0mium account
-     */
-    val isPremiumUser: Boolean
-        get() = cookieHandler.isPaid
+    suspend fun login(username: String, password: String): LoginResult {
+        val response = api.login(username, password).await()
+
+        // in case of errors, just return the Failure
+        val login = response.body() ?: run {
+            logger.debug { "Request failed, no body." }
+            return LoginResult.Failure
+        }
+
+        if (login.banInfo != null) {
+            logger.debug { "User is banned." }
+            return LoginResult.Banned(login.banInfo)
+        }
+
+        if (!login.success) {
+            logger.debug { "Field login.success is false" }
+            return LoginResult.Failure
+        }
+
+        // extract login cookie from response
+        val loginCookie = Cookie
+                .parseAll(response.raw().request().url(), response.raw().headers())
+                .firstOrNull { cookie -> cookie.name() == "me" }
+
+        if (loginCookie == null) {
+            logger.debug { "No login cookie found" }
+            return LoginResult.Failure
+        }
+
+        // store the cookie
+        if (!cookieJar.updateLoginCookie(loginCookie)) {
+            logger.debug { "CookieJar did not accept cookie $loginCookie" }
+            return LoginResult.Failure
+        }
+
+        val userInfo = updateCachedUserInfo()
+        if (userInfo == null) {
+            ignoreException { logout() }
+            throw IllegalStateException("Could not fetch initial user info")
+        }
+
+        // start sync now
+        doInBackground { sync() }
+
+        return LoginResult.Success
+    }
 
     /**
      * Performs a logout of the user.
      */
-    fun logout(): Completable {
-        return doInBackground {
-            updateLoginState { NOT_AUTHORIZED }
+    suspend fun logout() = withBackgroundContext(NonCancellable) {
+        updateLoginState { NotAuthorized }
 
-            // removing cookie from requests
-            cookieHandler.clearLoginCookie(false)
+        // removing cookie from requests
+        cookieJar.clearLoginCookie()
 
-            // remove sync id
-            preferences.edit {
-                preferences.all.keys
-                        .filter { it.startsWith(KEY_LAST_LOF_OFFSET) }
-                        .forEach { remove(it) }
+        // remove sync id
+        preferences.edit {
+            preferences.all.keys
+                    .filter { it.startsWith(KEY_LAST_LOF_OFFSET) }
+                    .forEach { remove(it) }
 
-                remove(KEY_LAST_USER_INFO)
-                remove(KEY_LAST_LOGIN_STATE)
-            }
-
-            // clear all the vote cache
-            voteService.clear()
-
-            // clear the seen items
-            seenService.clear()
-
-            // no more read messages.
-            inboxService.forgetReadMessage()
-            inboxService.publishUnreadMessagesCount(Api.InboxCounts())
-
-            // and reset the content user, because only signed in users can
-            // see the nsfw and nsfl stuff.
-            Settings.get().resetContentTypeSettings()
+            remove(KEY_LAST_USER_INFO)
+            remove(KEY_LAST_LOGIN_STATE)
         }
+
+        // clear all the vote cache
+        voteService.clear()
+
+        // clear the seen items
+        seenService.clear()
+
+        // no more read messages.
+        inboxService.forgetReadMessage()
+        inboxService.publishUnreadMessagesCount(Api.InboxCounts())
+
+        // and reset the content user, because only signed in users can
+        // see the nsfw and nsfl stuff.
+        Settings.get().resetContentTypeSettings()
     }
 
     /**
@@ -207,7 +230,7 @@ class UserService(private val api: Api,
      * where performed since the last call to sync.
      */
     suspend fun sync(): Api.Sync? {
-        if (!cookieHandler.hasCookie())
+        if (!cookieJar.hasCookie())
             return null
 
         // tell the sync request where to start
@@ -229,11 +252,8 @@ class UserService(private val api: Api,
                 // save the current benis value
                 benisService.storeValue(userId, response.score)
 
-                // and load the current benis history
-                val scoreGraph = loadBenisHistoryAsGraph(userId)
-
                 updateLoginStateIfAuthorized { loginState ->
-                    loginState.copy(score = response.score, benisHistory = scoreGraph)
+                    loginState.copy(score = response.score)
                 }
             }
 
@@ -260,15 +280,15 @@ class UserService(private val api: Api,
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    fun info(username: String): Observable<Api.Info> {
-        return toObservable { api.info(username, null).await() }
+    suspend fun info(username: String): Api.Info {
+        return api.info(username, null).await()
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    fun info(username: String, contentTypes: Set<ContentType>): Observable<Api.Info> {
-        return toObservable { api.info(username, ContentType.combine(contentTypes)).await() }
+    suspend fun info(username: String, contentTypes: Set<ContentType>): Api.Info {
+        return api.info(username, ContentType.combine(contentTypes)).await()
     }
 
     /**
@@ -276,18 +296,24 @@ class UserService(private val api: Api,
 
      * @return The info, if the user is currently signed in.
      */
-    fun info(): Observable<Api.Info> {
-        return observableOrEmpty(name).flatMap { info(it) }
+    private suspend fun info(): Api.Info? {
+        val name = name.takeUnless { it.isNullOrEmpty() }
+        return name?.let { info(it) }
     }
 
     /**
-     * Update the cached user info in the background.
+     * Update the cached user info in the background. Will throw an exception if
+     * the user info can not be updated.
      */
-    fun updateCachedUserInfo(): Observable<Api.Info> {
-        return info().retry(3).ignoreError().doOnNext { info ->
-            val loginState = createLoginStateFromInfo(info)
+    suspend fun updateCachedUserInfo(): Api.Info? {
+        val userInfo = info() ?: return null
+
+        withBackgroundContext {
+            val loginState = createLoginStateFromInfo(userInfo)
             updateLoginState { loginState }
         }
+
+        return userInfo
     }
 
     /**
@@ -319,24 +345,40 @@ class UserService(private val api: Api,
 
         val user = info.user
         return LoginState(
+                authorized = true,
                 id = user.id,
                 name = user.name,
                 mark = user.mark,
                 score = user.score,
-                authorized = true,
-                premium = isPremiumUser,
+                premium = userIsPremium,
                 admin = userIsAdmin,
-                benisHistory = loadBenisHistoryAsGraph(user.id),
                 uniqueToken = loginState.uniqueToken)
     }
 
+    val isAuthorized: Boolean
+        get() = loginState.authorized && cookieJar.parsedCookie?.id?.isNotBlank() == true
+
+    val userIsPremium: Boolean
+        get() = loginState.authorized && cookieJar.parsedCookie?.paid == true
+
     val userIsAdmin: Boolean
-        get() = cookieHandler.cookie?.admin ?: false
+        get() = loginState.authorized && cookieJar.parsedCookie?.admin == true
 
+    val loginStateWithBenisGraph: Observable<LoginStateWithBenisGraph> = run {
+        val rxStart = loginStates.first().map { LoginStateWithBenisGraph(loginState) }
 
-    private fun loadBenisHistoryAsGraph(userId: Int): Graph {
-        val watch = Stopwatch.createStarted()
+        val rxGraphed = loginStates.observeOn(BackgroundScheduler).map { loginState ->
+            if (loginState.authorized) {
+                LoginStateWithBenisGraph(loginState, loadBenisHistoryAsGraph(loginState.id))
+            } else {
+                LoginStateWithBenisGraph(loginState)
+            }
+        }
 
+        rxStart.concatWith(rxGraphed)
+    }
+
+    private fun loadBenisHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
         val now = Instant.now()
         val start = now - Duration.days(7)
 
@@ -347,7 +389,6 @@ class UserService(private val api: Api,
             Graph.Point(x, y)
         }
 
-        logger.info { "Loading benis graph took $watch" }
         return Graph(start.millis.toDouble(), now.millis.toDouble(), optimizeValuesBy(points) { it.y })
     }
 
@@ -357,7 +398,7 @@ class UserService(private val api: Api,
     suspend fun loadBenisRecords(after: Instant = Instant(0)): BenisGraphRecords {
         val state = loginState
 
-        return withContext(Dispatchers.IO) {
+        return withBackgroundContext {
             BenisGraphRecords(benisService.findValuesLaterThan(state.id, after))
         }
     }
@@ -371,7 +412,7 @@ class UserService(private val api: Api,
      * @return The name of the currently signed in user.
      */
     val name: String?
-        get() = cookieHandler.cookie?.name
+        get() = cookieJar.parsedCookie?.name
 
     suspend fun requestPasswordRecovery(email: String) {
         api.requestPasswordRecovery(email).await()
@@ -391,19 +432,21 @@ class UserService(private val api: Api,
             val uniqueToken: String?,
             val admin: Boolean,
             val premium: Boolean,
-            val authorized: Boolean,
-            @Transient val benisHistory: Graph? = null)
+            val authorized: Boolean)
 
-    class LoginProgress(val login: Api.Login?)
+    class LoginStateWithBenisGraph(
+            val loginState: LoginState, val benisGraph: Graph? = null)
+
+    sealed class LoginResult {
+        object Success : LoginResult()
+        object Failure : LoginResult()
+
+        class Banned(val ban: Api.Login.BanInfo) : LoginResult()
+    }
 
     companion object {
         private const val KEY_LAST_LOF_OFFSET = "UserService.lastLogLength"
         private const val KEY_LAST_USER_INFO = "UserService.lastUserInfo"
         private const val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
-
-        private val NOT_AUTHORIZED = LoginState(
-                id = -1, score = 0, mark = 0, admin = false,
-                premium = false, authorized = false, name = null, uniqueToken = null)
-
     }
 }

@@ -18,21 +18,21 @@ import androidx.core.view.ViewCompat
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.ThemeHelper.primaryColorDark
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
-import com.pr0gramm.app.ui.fragments.withBusyDialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
-import com.trello.rxlifecycle.android.ActivityEvent
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.use
 import kotterknife.bindView
-import retrofit2.HttpException
 import rx.Observable
 
 typealias Callback = () -> Unit
@@ -125,37 +125,16 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply()
 
-        userService.login(username, password)
-                .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
-                .withBusyDialog(this, R.string.login_please_wait)
-                .flatMap { progress -> observableOrEmpty(progress.login) }
-                .interceptLoginFailures()
-                .doOnSubscribe { enableView(false) }
-                .doOnError { enableView(true) }
-                .subscribeWithErrorHandling { handleLoginResult(it) }
+        launchWithErrorHandler(busyIndicator = true) {
+            withViewDisabled(usernameView, passwordView, submitView) {
+                handleLoginResult(userService.login(username, password))
+            }
+        }
     }
 
-    private fun Observable<Api.Login>.interceptLoginFailures(): Observable<LoginResult> {
-        return this.
-                map { response ->
-                    when {
-                        response.success -> LoginResult.Success()
-                        response.banInfo != null -> LoginResult.Banned(response.banInfo)
-                        else -> LoginResult.Failure()
-                    }
-                }
-                .onErrorResumeNext { err ->
-                    if (err is HttpException && err.code() == 403) {
-                        Observable.just(LoginResult.Failure())
-                    } else {
-                        Observable.error(err)
-                    }
-                }
-    }
-
-    private fun handleLoginResult(response: LoginResult) {
+    private fun handleLoginResult(response: UserService.LoginResult) {
         when (response) {
-            is LoginResult.Success -> {
+            is UserService.LoginResult.Success -> {
                 SyncJob.scheduleNextSync()
                 Track.loginSuccessful()
 
@@ -164,7 +143,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 finish()
             }
 
-            is LoginResult.Banned -> {
+            is UserService.LoginResult.Banned -> {
                 val date = response.ban.endTime?.let { date ->
                     DurationFormat.timeToPointInTime(this, date, short = false)
                 }
@@ -179,7 +158,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 showErrorString(supportFragmentManager, message)
             }
 
-            is LoginResult.Failure -> {
+            is UserService.LoginResult.Failure -> {
                 Track.loginFailed()
 
                 val msg = getString(R.string.login_not_successful)
@@ -246,12 +225,6 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         private fun startActivityForResult(intent: Intent, requestCode: Int) {
             fragment.startActivityForResult(intent, requestCode)
         }
-    }
-
-    private sealed class LoginResult {
-        class Success : LoginResult()
-        class Banned(val ban: Api.Login.BanInfo) : LoginResult()
-        class Failure : LoginResult()
     }
 
     companion object {

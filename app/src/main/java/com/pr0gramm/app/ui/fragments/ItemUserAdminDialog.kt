@@ -16,7 +16,7 @@ import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindOptionalView
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
@@ -83,8 +83,8 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
             return
         }
 
-        launchWithErrorHandler(busyDialog = true) {
-            withAsyncContext(NonCancellable) {
+        launchWithErrorHandler(busyIndicator = true) {
+            withBackgroundContext(NonCancellable) {
                 user?.let { blockUser(it, reason) }
                 item?.let { deleteItem(it, reason) }
                 comment?.let { deleteComment(it, reason) }

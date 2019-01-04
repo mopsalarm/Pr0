@@ -1020,8 +1020,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (newTags.isNotEmpty()) {
             logger.info { "Adding new tags $newTags to post" }
 
-            launchWithErrorHandler(busyDialog = true) {
-                updateTags(withAsyncContext(NonCancellable) {
+            launchWithErrorHandler(busyIndicator = true) {
+                updateTags(withBackgroundContext(NonCancellable) {
                     voteService.tag(feedItem.id, newTags)
                 })
             }
@@ -1198,7 +1198,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             showPostVoteAnimation(vote)
 
             launchWithErrorHandler {
-                withAsyncContext(NonCancellable) {
+                withBackgroundContext(NonCancellable) {
                     voteService.vote(feedItem, vote)
                 }
             }
@@ -1221,7 +1221,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return runBlocking {
                 doIfAuthorizedHelper.run {
                     launchWithErrorHandler {
-                        withAsyncContext(NonCancellable) {
+                        withBackgroundContext(NonCancellable) {
                             voteService.vote(comment, vote)
                         }
                     }
@@ -1312,7 +1312,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
             return doIfAuthorizedHelper.runWithRetry {
                 launchWithErrorHandler {
-                    withAsyncContext(NonCancellable) {
+                    withBackgroundContext(NonCancellable) {
                         voteService.vote(tag, vote)
                     }
                 }
@@ -1341,8 +1341,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun writeCommentClicked(text: String): Boolean {
             AndroidUtility.hideSoftKeyboard(view)
             return doIfAuthorizedHelper.runWithRetry {
-                launchWithErrorHandler(busyDialog = true) {
-                    onNewComments(withAsyncContext(NonCancellable) {
+                launchWithErrorHandler(busyIndicator = true) {
+                    onNewComments(withBackgroundContext(NonCancellable) {
                         voteService.postComment(feedItem, 0, text)
                     })
                 }

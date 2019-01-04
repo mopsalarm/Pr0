@@ -26,7 +26,7 @@ interface AndroidCoroutineScope : CoroutineScope {
     val androidContext: Context
 
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main + DefaultCoroutineExceptionHandler
+        get() = job + Main + DefaultCoroutineExceptionHandler
 
     fun launchIgnoreErrors(
             context: CoroutineContext = EmptyCoroutineContext,
@@ -42,12 +42,12 @@ interface AndroidCoroutineScope : CoroutineScope {
     fun launchWithErrorHandler(
             context: CoroutineContext = EmptyCoroutineContext,
             start: CoroutineStart = CoroutineStart.DEFAULT,
-            busyDialog: Boolean = false,
+            busyIndicator: Boolean = false,
             block: suspend CoroutineScope.() -> Unit
     ): Job {
         return launch(context, start) {
             try {
-                if (busyDialog) {
+                if (busyIndicator) {
                     withBusyDialog { block() }
                 } else {
                     block()
@@ -72,7 +72,18 @@ inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
     }
 }
 
-suspend inline fun <T> withAsyncContext(
+inline fun <T> withViewVisible(vararg views: View, block: () -> T): T {
+    checkMainThread()
+
+    views.forEach { it.visible = true }
+    try {
+        return block()
+    } finally {
+        views.forEach { it.visible = true }
+    }
+}
+
+suspend inline fun <T> withBackgroundContext(
         context: CoroutineContext? = null,
         noinline block: suspend CoroutineScope.() -> T): T {
 
@@ -106,7 +117,6 @@ val Async = Dispatchers.IO
 val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
 val Main = Looper.getMainLooper().asHandler(async = true).asCoroutineDispatcher("Main")
-val MainScope get() = CoroutineScope(Main)
 
 
 fun <T : Any?> Single<T>.toDeferred(): Deferred<T> {

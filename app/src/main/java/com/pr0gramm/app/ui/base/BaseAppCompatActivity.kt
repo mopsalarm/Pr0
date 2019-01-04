@@ -11,7 +11,6 @@ import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
-import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
@@ -34,13 +33,11 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
     }
 
-    fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
-        return AsyncLifecycleTransformer(bindToLifecycle<T>())
-    }
+    fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(
+            this@BaseAppCompatActivity.bindToLifecycle())
 
-    fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseAppCompatActivity.bindToLifecycle())
-
-    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseAppCompatActivity.bindToLifecycleAsync())
+    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(
+            AsyncLifecycleTransformer(this@BaseAppCompatActivity.bindToLifecycle()))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         job = SupervisorJob()

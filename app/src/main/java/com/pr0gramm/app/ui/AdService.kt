@@ -43,7 +43,7 @@ class AdService(private val configService: ConfigService, private val userServic
         }
 
         // do not show ads for premium users
-        return !userService.isPremiumUser && configService.config().adType == type
+        return !userService.userIsPremium && configService.config().adType == type
     }
 
     /**

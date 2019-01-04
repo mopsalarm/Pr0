@@ -3,7 +3,7 @@ package com.pr0gramm.app.util
 import android.content.Context
 import androidx.annotation.StringRes
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.ui.PermissionHelper
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
@@ -229,7 +229,7 @@ object ErrorFormatting {
             string(R.string.error_socket)
         }
 
-        formatters.add<LoginCookieHandler.LoginRequiredException> {
+        formatters.add<LoginCookieJar.LoginRequiredException> {
             string(R.string.error_login_required_exception)
         }
 

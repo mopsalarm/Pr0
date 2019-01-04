@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.*
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -49,7 +50,7 @@ interface Api {
     @POST("/api/user/login")
     fun login(
             @Field("name") username: String,
-            @Field("password") password: String): Deferred<Login>
+            @Field("password") password: String): Deferred<Response<Api.Login>>
 
     @FormUrlEncoded
     @POST("/api/tags/add")

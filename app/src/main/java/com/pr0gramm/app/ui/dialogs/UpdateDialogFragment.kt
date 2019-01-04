@@ -92,7 +92,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
 
             val prefs = activity.applicationContext.injector.instance<SharedPreferences>()
 
-            activity.launchWithErrorHandler(busyDialog = true) {
+            activity.launchWithErrorHandler(busyIndicator = true) {
                 val update = UpdateChecker().queryAll()
 
                 // remember that we've checked

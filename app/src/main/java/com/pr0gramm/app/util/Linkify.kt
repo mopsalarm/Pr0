@@ -24,12 +24,12 @@ import java.util.regex.Pattern
 import android.text.util.Linkify as AndroidLinkify
 
 object Linkify {
-    private val MALICIOUS_COMMENT_CHARS = Pattern.compile("([\\p{Mn}\\p{Mc}\\p{Me}])[\\p{Mn}\\p{Mc}\\p{Me}]+")
+    private val MALICIOUS_COMMENT_CHARS = Pattern.compile("""([\p{Mn}\p{Mc}\p{Me}])[\p{Mn}\p{Mc}\p{Me}]+""")
 
-    private val RE_USERNAME = Pattern.compile("(?<![a-zA-Z0-9])@[A-Za-z0-9]+")
-    private val RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
-    private val RE_GENERIC_SHORT_LINK = Pattern.compile("(?<!reddit.com)/((?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
-    private val RE_WEB_LINK = Pattern.compile("\\bhttps?://[^<>\\s]+")
+    private val RE_USERNAME = Pattern.compile("""(?<![a-zA-Z0-9])@[A-Za-z0-9]+""")
+    private val RE_GENERIC_LINK = Pattern.compile("""(?:https?://)?(?:www\.)?pr0gramm\.com(/(?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9])""")
+    private val RE_GENERIC_SHORT_LINK = Pattern.compile("""(?<!reddit.com)/((?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9])""")
+    private val RE_WEB_LINK = Pattern.compile("""\bhttps?://[^<>\s]+[^<>)!,.:\s]""")
 
     fun linkifyClean(view: TextView, content: String, callback: Callback? = null) {
         var cleanedContent = content.take(1024 * 32)

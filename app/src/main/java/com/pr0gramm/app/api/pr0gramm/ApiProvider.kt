@@ -2,7 +2,6 @@ package com.pr0gramm.app.api.pr0gramm
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
-import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.Stopwatch
 import kotlinx.coroutines.Deferred
@@ -17,8 +16,7 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 
 class ApiProvider(base: String, client: OkHttpClient,
-                  private val cookieHandler: LoginCookieHandler,
-                  private val singleShotService: SingleShotService) {
+                  private val cookieJar: LoginCookieJar) {
 
     val api by lazy { proxy(restAdapter(base, client)) }
 
@@ -67,7 +65,7 @@ class ApiProvider(base: String, client: OkHttpClient,
             if (!args.isNullOrEmpty()) {
                 if (method.parameterTypes[0] == Api.Nonce::class.java) {
                     args = args.copyOf()
-                    args[0] = cookieHandler.nonce
+                    args[0] = cookieJar.requireNonce()
                 }
             }
 

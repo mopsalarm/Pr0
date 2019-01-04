@@ -7,11 +7,11 @@ import androidx.annotation.StringRes
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.AndroidCoroutineScope
+import com.pr0gramm.app.ui.base.Main
 import com.pr0gramm.app.ui.fragments.BusyDialogHelper.dismiss
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.checkMainThread
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import rx.*
 
@@ -119,7 +119,7 @@ fun <T> Observable<T>.withBusyDialog(fragment: androidx.fragment.app.Fragment, t
 }
 
 suspend fun <T> AndroidCoroutineScope.withBusyDialog(@StringRes textId: Int? = null, block: suspend () -> T): T {
-    val dialog = withContext(Dispatchers.Main) {
+    val dialog = withContext(Main) {
         val text = androidContext.getString(textId ?: R.string.please_wait)
         BusyDialogHelper.show(androidContext, text)
     }
@@ -128,7 +128,7 @@ suspend fun <T> AndroidCoroutineScope.withBusyDialog(@StringRes textId: Int? = n
         return block()
     } finally {
         // even run after cancellation, do we want this?
-        withContext(Dispatchers.Main) {
+        withContext(Main) {
             BusyDialogHelper.dismiss(dialog)
         }
     }

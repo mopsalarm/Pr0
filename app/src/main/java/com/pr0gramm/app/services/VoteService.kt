@@ -35,7 +35,7 @@ class VoteService(private val api: Api,
         logger.info { "Voting feed item ${item.id} $vote" }
         Track.votePost(vote)
 
-        doAsync { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
+        doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
         api.vote(null, item.id, vote.voteValue).await()
     }
 
@@ -43,7 +43,7 @@ class VoteService(private val api: Api,
         logger.info { "Voting comment ${comment.id} $vote" }
         Track.voteComment(vote)
 
-        doAsync { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
+        doInBackground { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
         api.voteComment(null, comment.id, vote.voteValue).await()
     }
 
@@ -51,7 +51,7 @@ class VoteService(private val api: Api,
         logger.info { "Voting tag ${tag.id} $vote" }
         Track.voteTag(vote)
 
-        doAsync { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
+        doInBackground { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
         api.voteTag(null, tag.id, vote.voteValue).await()
     }
 

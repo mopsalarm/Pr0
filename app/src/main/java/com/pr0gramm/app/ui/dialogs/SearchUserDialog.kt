@@ -11,8 +11,8 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.di.instance
+import kotlinx.coroutines.CancellationException
 
 /**
  */
@@ -40,10 +40,14 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
     private fun onSearchClicked() {
         val username = inputView.text.toString().trim()
 
-        userService.info(username)
-                .bindToLifecycleAsync()
-                .withBusyDialog(this)
-                .subscribe({ this.onSearchSuccess(it) }, { this.onSearchFailure() })
+        launchWithErrorHandler(busyIndicator = true) {
+            try {
+                onSearchSuccess(userService.info(username))
+            } catch (err: CancellationException) {
+            } catch (err: Exception) {
+                onSearchFailure()
+            }
+        }
     }
 
     private fun onSearchSuccess(info: Api.Info) {

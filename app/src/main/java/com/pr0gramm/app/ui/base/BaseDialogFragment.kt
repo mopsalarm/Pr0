@@ -33,8 +33,6 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
 
-    fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycle())
-
     fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseDialogFragment.bindToLifecycleAsync())
 
     override fun onCreate(savedInstanceState: Bundle?) {

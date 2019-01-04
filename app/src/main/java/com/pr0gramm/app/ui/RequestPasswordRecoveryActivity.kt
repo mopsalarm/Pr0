@@ -9,7 +9,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
@@ -39,9 +39,9 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
     private fun submitButtonClicked() {
         val email = this.email.text.toString().trim()
 
-        launchWithErrorHandler(busyDialog = true) {
+        launchWithErrorHandler(busyIndicator = true) {
             withViewDisabled(submit) {
-                withAsyncContext(NonCancellable) {
+                withBackgroundContext(NonCancellable) {
                     userService.requestPasswordRecovery(email)
                 }
             }

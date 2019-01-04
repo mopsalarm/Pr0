@@ -69,7 +69,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         val blockAmountStr = if (blockUser.isChecked) blockUserDays.text.toString() else ""
         val blockAmount = blockAmountStr.toFloatOrNull()
 
-        launchWithErrorHandler(busyDialog = true) {
+        launchWithErrorHandler(busyIndicator = true) {
             adminService.deleteTags(itemId, selected, blockAmount)
             dismiss()
         }

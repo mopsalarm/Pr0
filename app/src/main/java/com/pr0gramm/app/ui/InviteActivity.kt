@@ -14,7 +14,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.base.withAsyncContext
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
@@ -66,9 +66,9 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         // disable all views
         disableInputViews()
 
-        launchWithErrorHandler(busyDialog = true) {
+        launchWithErrorHandler(busyIndicator = true) {
             try {
-                withAsyncContext(NonCancellable) {
+                withBackgroundContext(NonCancellable) {
                     inviteService.send(email)
                 }
 

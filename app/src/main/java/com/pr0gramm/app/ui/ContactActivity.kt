@@ -118,7 +118,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         // hide keyboard when sending
         AndroidUtility.hideSoftKeyboard(vText)
 
-        launchWithErrorHandler(busyDialog = true) {
+        launchWithErrorHandler(busyIndicator = true) {
             withViewDisabled(buttonSubmit) {
                 sendFeedback()
                 onSubmitSuccess()

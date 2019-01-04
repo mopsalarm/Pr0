@@ -169,7 +169,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     override fun onResume() {
         super.onResume()
 
-        userService.loginStates
+        userService.loginStateWithBenisGraph
                 .observeOnMainThread(firstIsSync = true)
                 .bindToLifecycle()
                 .subscribe { onLoginStateChanged(it) }
@@ -180,18 +180,18 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .subscribe { navigationAdapter.setNavigationItems(it) }
     }
 
-    private fun onLoginStateChanged(state: UserService.LoginState) {
-        if (state.authorized) {
+    private fun onLoginStateChanged(state: UserService.LoginStateWithBenisGraph) {
+        if (state.loginState.authorized) {
             applyAuthorizedUserState(state)
         } else {
             applyNotAuthorizedState()
         }
     }
 
-    private fun applyAuthorizedUserState(state: UserService.LoginState) {
-        val userClass = userClassesService.get(state.mark)
+    private fun applyAuthorizedUserState(state: UserService.LoginStateWithBenisGraph) {
+        val userClass = userClassesService.get(state.loginState.mark)
 
-        usernameView.text = state.name
+        usernameView.text = state.loginState.name
         usernameView.setOnClickListener { callback.onUsernameClicked() }
 
         userTypeView.visible = true
@@ -200,14 +200,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         userTypeView.setOnClickListener { callback.onUsernameClicked() }
 
 
-        benisView.text = (state.score).toString()
+        benisView.text = (state.loginState.score).toString()
 
-        val benis = state.benisHistory
-        if (benis != null && benis.points.size > 2) {
-            benisGraph.setImageDrawable(GraphDrawable(benis))
+        val graph = state.benisGraph
+        if (graph != null && graph.points.size > 2) {
+            benisGraph.setImageDrawable(GraphDrawable(graph))
             benisContainer.visible = true
 
-            updateBenisDeltaForGraph(benis)
+            updateBenisDeltaForGraph(graph)
         } else {
             updateBenisDelta(0)
         }
@@ -215,7 +215,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         loginView.visible = false
         logoutView.visible = true
         inviteView.visible = true
-        actionPremium.visible = !state.premium
+        actionPremium.visible = !state.loginState.premium
     }
 
     private fun applyNotAuthorizedState() {

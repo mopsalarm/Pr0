@@ -4,11 +4,9 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.base.await
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.*
 import kotlinx.coroutines.launch
-import rx.lang.kotlin.onErrorReturnNull
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
@@ -81,7 +79,10 @@ class SyncService(private val userService: UserService,
     private suspend fun syncCachedUserInfo() {
         if (singleShotService.firstTimeToday("update-userInfo")) {
             logger.info { "Update current user info" }
-            userService.updateCachedUserInfo().onErrorReturnNull().await()
+
+            ignoreException {
+                userService.updateCachedUserInfo()
+            }
         }
     }
 

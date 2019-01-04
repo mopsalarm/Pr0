@@ -158,7 +158,7 @@ class NavigationProvider(
         }
 
         if (settings.showCategoryPremium) {
-            if (userService.isPremiumUser) {
+            if (userService.userIsPremium) {
                 items.add(NavigationItem(
                         action = ActionType.FILTER,
                         title = getString(R.string.action_feed_type_premium),
@@ -191,7 +191,7 @@ class NavigationProvider(
     }
 
     private fun bookmarksToNavItem(entries: List<Bookmark>): List<NavigationItem> {
-        val premium = userService.isPremiumUser
+        val premium = userService.userIsPremium
         return entries
                 .filter { premium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
                 .map { entry ->

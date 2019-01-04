@@ -36,8 +36,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import rx.Completable
-import rx.util.async.Async
 import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
@@ -305,26 +303,15 @@ inline fun checkNotMainThread(msg: String? = null) = debug {
     }
 }
 
-inline fun doInBackground(crossinline action: () -> Unit): Completable {
-    val o = Async.start<Any>({
+inline fun <T> doInBackground(crossinline action: suspend () -> T): Job {
+    return AsyncScope.launch {
         try {
             action()
         } catch (thr: Throwable) {
             // log it
             AndroidUtility.logToCrashlytics(BackgroundThreadException(thr))
-
-            // forward the exception
-            throw thr
         }
-
-        null
-    }, BackgroundScheduler)
-
-    return o.toCompletable()
-}
-
-inline fun <T> doAsync(crossinline action: suspend () -> T): Job {
-    return AsyncScope.launch { action() }
+    }
 }
 
 class BackgroundThreadException(cause: Throwable) : RuntimeException(cause)

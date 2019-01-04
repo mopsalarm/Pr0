@@ -159,7 +159,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .observeOnMainThread()
                     .bindToLifecycle()
                     .onErrorResumeEmpty()
-                    .filter { !userService.isPremiumUser }
+                    .filter { !userService.userIsPremium }
                     .subscribe { _ ->
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
                                 .configureNewStyle()
@@ -463,22 +463,18 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.closeDrawers()
         Track.logout()
 
-        val logout_successful_hint = R.string.logout_successful_hint
-        userService.logout()
-                .decoupleSubscribe()
-                .compose(bindToLifecycleAsync<Any>())
-                .lift(BusyDialog.busyDialog<Any>(this))
-                .doOnCompleted {
-                    // show a short information.
-                    Snackbar.make(contentContainer, logout_successful_hint, Snackbar.LENGTH_SHORT)
-                            .configureNewStyle()
-                            .setAction(R.string.okay) { }
-                            .show()
+        launchWithErrorHandler(busyIndicator = true) {
+            userService.logout()
 
-                    // reset everything!
-                    gotoFeedFragment(defaultFeedFilter(), true)
-                }
-                .subscribeWithErrorHandling()
+            // show a short information.
+            Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
+                    .configureNewStyle()
+                    .setAction(R.string.okay) { }
+                    .show()
+
+            // reset everything!
+            gotoFeedFragment(defaultFeedFilter(), true)
+        }
     }
 
     private fun defaultFeedFilter(): FeedFilter {

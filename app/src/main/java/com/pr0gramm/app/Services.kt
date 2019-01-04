@@ -13,7 +13,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
-import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
@@ -79,14 +79,14 @@ fun appInjector(app: Application) = Module.build {
         setAnalyticsCollectionEnabled(true)
     })
 
-    bind<LoginCookieHandler>() with singleton { LoginCookieHandler(app, instance()) }
+    bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }
 
     bind<Dns>() with singleton { FallbackDns() }
 
     bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
 
     bind<OkHttpClient>() with singleton {
-        val cookieHandler: LoginCookieHandler = instance()
+        val cookieJar: LoginCookieJar = instance()
 
         val cacheDir = File(app.cacheDir, "imgCache")
 
@@ -120,7 +120,7 @@ fun appInjector(app: Application) = Module.build {
                 .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
                 .socketFactory(SmallBufferSocketFactory())
 
-                .cookieJar(cookieHandler)
+                .cookieJar(cookieJar)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -193,7 +193,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<Api>() with singleton {
         val base = instance<String>(TagApiURL)
-        ApiProvider(base, instance(), instance(), instance()).api
+        ApiProvider(base, instance(), instance()).api
     }
 
     val seenService = SeenService(app)

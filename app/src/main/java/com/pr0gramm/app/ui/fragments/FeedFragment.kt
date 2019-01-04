@@ -29,7 +29,6 @@ import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
@@ -40,6 +39,7 @@ import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -218,7 +218,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // lets start receiving feed updates
         subscribeToFeedUpdates()
 
-        queryForUserInfo()
+        launchIgnoreErrors { queryForUserInfo() }
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
@@ -415,16 +415,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private fun queryForUserInfo() {
+    private suspend fun queryForUserInfo() {
         if (!isNormalMode) {
             return
         }
 
-        queryUserInfo().take(1).bindToLifecycle().ignoreError().subscribe { value ->
-            checkMainThread()
-            state = state.copy(userInfo = value)
-            activity?.invalidateOptionsMenu()
-        }
+        val userInfo = queryUserInfo()
+
+        state = state.copy(userInfo = userInfo)
+        activity?.invalidateOptionsMenu()
     }
 
     private fun useToolbarTopMargin(): Boolean {
@@ -469,7 +468,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .withUser(name))
     }
 
-    private fun queryUserInfo(): Observable<UserInfo> {
+    private suspend fun queryUserInfo(): UserInfo? {
         val filter = filterArgument
 
         val queryString = filter.username ?: filter.tags ?: filter.likes
@@ -479,27 +478,24 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
             if (cached != null) {
-                return Observable.just(cached)
+                return cached
             }
 
-            val first = userService
-                    .info(queryString, contentTypes)
-                    .subscribeOnBackground()
-                    .doOnNext { info -> followService.markAsFollowing(info.user.name, info.following) }
-                    .onErrorResumeEmpty()
+            // fan out
+            val first = async { userService.info(queryString, contentTypes) }
+            val second = async { inboxService.getUserComments(queryString, contentTypes) }
 
-            val second = toObservable { inboxService.getUserComments(queryString, contentTypes) }
-                    .subscribeOnBackground()
-                    .map { it.comments }
-                    .onErrorReturn { listOf() }
+            // and wait for responses with defaults
+            val info = runCatching { first.await() }.getOrNull() ?: return null
+            val comments = runCatching { second.await().comments }.getOrElse { listOf() }
 
-            return Observable
-                    .zip(first, second, ::UserInfo)
-                    .doOnNext { info -> inMemoryCacheService.cacheUserInfo(contentTypes, info) }
-                    .observeOnMainThread()
+            val userInfo = UserInfo(info, comments)
+            inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
+
+            return userInfo
 
         } else {
-            return Observable.empty()
+            return null
         }
     }
 
@@ -681,7 +677,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val newContentType = selectedContentType
         if (feed.contentType != newContentType) {
             replaceFeedFilter(feedFilter, newContentType)
-            queryForUserInfo()
+
+            launchIgnoreErrors {
+                queryForUserInfo()
+            }
         }
     }
 
@@ -804,7 +803,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             if (filter.username != null) {
                 activeUsername?.let { activeUsername ->
-                    if (userService.isPremiumUser) {
+                    if (userService.userIsPremium) {
                         val following = followService.isFollowing(activeUsername)
                         follow.isVisible = !following
                         unfollow.isVisible = following

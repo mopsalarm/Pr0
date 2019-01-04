@@ -66,8 +66,13 @@ private object BooleanAdapter : JsonAdapter<Boolean>() {
             JsonReader.Token.NULL -> false
             JsonReader.Token.BOOLEAN -> reader.nextBoolean()
             JsonReader.Token.NUMBER -> reader.nextLong() != 0L
+            JsonReader.Token.STRING -> isTruthValue(reader.nextString())
             else -> throw JsonDataException("tried to read boolean, but got ${reader.peek()}")
         }
+    }
+
+    private fun isTruthValue(value: String?): Boolean {
+        return "true".equals(value, ignoreCase = true) || value == "1"
     }
 
     override fun toJson(writer: JsonWriter, value: Boolean?) {
