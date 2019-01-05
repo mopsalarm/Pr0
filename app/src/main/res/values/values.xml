@@ -40,8 +40,8 @@
     </string-array>
 
     <string-array name="pref_image_search_engine_human">
-        <item>TinEye</item>
         <item>Google Images</item>
+        <item>TinEye</item>
         <item>@string/search_engine_none</item>
     </string-array>
 
