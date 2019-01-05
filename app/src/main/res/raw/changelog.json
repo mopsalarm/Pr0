@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Crashes auf einigen Android 9 Geräten behoben"
+      },
+      {
+        "type": "Fix",
         "change": "Diverse Bugfixes, Designoptimierungen und Geschwindigkeitsverbesserungen."
       }
     ]
