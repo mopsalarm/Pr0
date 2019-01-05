@@ -13,17 +13,15 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.AdMobWorkaround
-import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.di.InjectorAware
+import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -77,8 +75,7 @@ open class ApplicationClass : Application(), InjectorAware {
         jobManager.addJobCreator(SyncJob.CREATOR)
         jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
 
-
-        val asyncInitialization = AsyncScope.launch {
+        doInBackground {
             // schedule first sync 30seconds after bootup.
             SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
 
@@ -101,10 +98,6 @@ open class ApplicationClass : Application(), InjectorAware {
         // initialize mobile ads asynchronously
         initializeMobileAds()
 
-        logger.info { "Wait for bootstrapping of singleton instances to finish..." }
-        runBlocking { asyncInitialization.join() }
-        runBlocking { injector.waitForEagerSingletons() }
-
         val bootupTime = System.currentTimeMillis() - startup
         logger.info { "App booted in ${bootupTime}ms" }
 
@@ -112,7 +105,7 @@ open class ApplicationClass : Application(), InjectorAware {
     }
 
     private fun initializeMobileAds() {
-        AsyncScope.launch {
+        doInBackground {
             val id = if (BuildConfig.DEBUG) {
                 "ca-app-pub-3940256099942544~3347511713"
             } else {

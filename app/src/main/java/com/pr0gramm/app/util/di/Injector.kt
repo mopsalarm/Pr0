@@ -189,13 +189,6 @@ class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
         return provider.get(this) as T
     }
 
-    suspend fun waitForEagerSingletons() {
-        providers.values.forEach { prov ->
-            val p = prov as? AsyncSingletonProvider
-            p?.result?.join()
-        }
-    }
-
     data class Key(val type: Class<*>, val tag: String?)
 }
 
