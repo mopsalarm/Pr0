@@ -27,6 +27,10 @@
         android:theme="@style/AppTheme.Orange.NoActionBar"
         tools:replace="android:allowBackup,android:supportsRtl">
 
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false"/>
+
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401" />
