@@ -56,7 +56,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         find<View>(R.id.send_invite).setOnClickListener { onInviteClicked() }
     }
 
-    fun onInviteClicked() {
+    private fun onInviteClicked() {
         val email = mailField.text.toString()
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             mailField.error = getString(R.string.error_email)

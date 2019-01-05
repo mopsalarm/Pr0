@@ -54,9 +54,6 @@
 
     <color name="white">#ffffff</color>
 
-    <color name="message_text_received">@android:color/primary_text_dark</color>
-    <color name="message_text_sent">@color/grey_700</color>
-
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>
