@@ -1,5 +1,18 @@
 [
   {
+    "version": 158,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Google/TinEye Sucheinstellung war vertauscht"
+      },
+      {
+        "type": "Fix",
+        "change": "Diverse Bugfixes, Designoptimierungen und Geschwindigkeitsverbesserungen."
+      }
+    ]
+  },
+  {
     "version": 157,
     "changes": [
       {
