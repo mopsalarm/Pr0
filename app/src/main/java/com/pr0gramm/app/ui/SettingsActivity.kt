@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -92,16 +91,10 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
             if (!BuildConfig.DEBUG) {
                 hidePreferenceByName("prefcat_debug")
-                hidePreferenceByName("prefcat_compatibility")
             }
 
             if (!userService.userIsAdmin) {
                 hidePreferenceByName("pref_show_content_type_flag")
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // only allowed on older versions
-                hidePreferenceByName("pref_use_exo_player")
             }
 
             tintPreferenceIcons(color = 0xffd0d0d0.toInt())

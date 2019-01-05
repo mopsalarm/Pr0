@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer
 
-import com.pr0gramm.app.Settings
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.android.RxLifecycleAndroid.bindView
 import rx.Observable
@@ -16,15 +15,7 @@ object MediaViews {
 
      * @return A new [MediaView] instance.
      */
-    @JvmStatic
-    fun newInstance(config_: MediaView.Config): MediaView {
-        var config = config_
-
-        val settings = Settings.get()
-
-        if (config.audio && settings.disableAudio)
-            config = config.copy(audio = false)
-
+    fun newInstance(config: MediaView.Config): MediaView {
         // handle delay urls first.
         if (config.mediaUri.delay) {
             return DelayedMediaView(config.copy(mediaUri = config.mediaUri.copy(delay = false)))
@@ -43,8 +34,6 @@ object MediaViews {
         }
     }
 
-
-    @JvmStatic
     fun adaptFragmentLifecycle(lifecycle: Observable<FragmentEvent>, view: MediaView) {
         lifecycle.compose(bindView(view)).subscribe { event ->
             when (event) {

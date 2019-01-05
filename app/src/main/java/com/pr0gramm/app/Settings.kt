@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
@@ -165,28 +164,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val enableQuickPeek: Boolean
         get() = preferences.getBoolean("pref_enable_quick_peek", true)
-
-    val useExoPlayer: Boolean
-        get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // old player is not supported anymore.
-                return true
-            }
-
-            return preferences.getBoolean("pref_use_exo_player", true)
-        }
-
-    val videoCodec: String
-        get() = preferences.getString("pref_video_codec", "hardware")!!
-
-    val audioCodec: String
-        get() = preferences.getString("pref_audio_codec", "hardware")!!
-
-    val disableAudio: Boolean
-        get() = preferences.getBoolean("pref_disable_audio", false)
-
-    val useTextureView: Boolean
-        get() = preferences.getBoolean("pref_use_texture_view_new", true)
 
     val volumeNavigation: VolumeNavigationType
         get() {

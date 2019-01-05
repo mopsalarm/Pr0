@@ -10,31 +10,26 @@ import android.view.View
 /**
  * [ViewBackend] that uses a [TextureView]
  */
-internal class TextureViewBackend(context: Context,
-                                  private val callbacks: ViewBackend.Callbacks) : ViewBackend, TextureView.SurfaceTextureListener {
+internal class TextureViewBackend(
+        context: Context, private val callbacks: Callbacks) : TextureView.SurfaceTextureListener {
 
-    private val textureView: TextureView = TextureView(context)
-
-    init {
-        this.textureView.surfaceTextureListener = this
+    private val textureView = TextureView(context).apply {
+        surfaceTextureListener = this@TextureViewBackend
     }
 
-    override var currentSurface: Surface? = null
+    var currentSurface: Surface? = null
+        private set
 
-    override var size = ViewBackend.Size(0, 0)
-
-    override val view: View get() = textureView
+    val view: View = textureView
 
     @SuppressLint("Recycle")
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         currentSurface = Surface(surface)
 
         callbacks.onAvailable(this)
-        callbacks.onSizeChanged(this, width, height)
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        callbacks.onSizeChanged(this, width, height)
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
@@ -47,4 +42,13 @@ internal class TextureViewBackend(context: Context,
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+
+    /**
+     * Callbacks that are send from a [ViewBackend].
+     */
+    interface Callbacks {
+        fun onAvailable(backend: TextureViewBackend)
+
+        fun onDestroy(backend: TextureViewBackend)
+    }
 }

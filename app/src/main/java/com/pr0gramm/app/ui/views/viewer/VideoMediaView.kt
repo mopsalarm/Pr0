@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.media.AudioManager.AUDIOFOCUS_LOSS
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -30,7 +29,6 @@ import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.instance
-import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
@@ -58,13 +56,8 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private var statsSent: Boolean = false
 
     init {
-        videoPlayer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
-            logger.info { "Using exo player to play videos." }
-            ExoVideoPlayer(context, config.audio, videoPlayerParent)
-        } else {
-            logger.info { "Falling back on simple android video player." }
-            AndroidVideoPlayer(context, videoPlayerParent)
-        }
+        logger.info { "Using exo player to play videos." }
+        videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
 
         muteButtonView = LayoutInflater
                 .from(context)
@@ -85,7 +78,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
                 .subscribe { this.showBusyIndicator(it) }
 
 
-        videoPlayer.detaches().subscribe { storePlaybackPosition() }
+        videoPlayer.detaches.subscribe { storePlaybackPosition() }
 
         restorePreviousSeek()
 

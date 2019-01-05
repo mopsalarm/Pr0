@@ -7,7 +7,7 @@ import rx.subjects.BehaviorSubject
  * This is a base for [VideoPlayer]s with some rx features.
  */
 abstract class RxVideoPlayer : VideoPlayer {
-    protected val detaches: BehaviorSubject<Unit> = BehaviorSubject.create()
+    val detaches: BehaviorSubject<Unit> = BehaviorSubject.create()
 
     override var videoCallbacks: VideoPlayer.Callbacks? = null
 
@@ -15,10 +15,6 @@ abstract class RxVideoPlayer : VideoPlayer {
 
     fun buffering(): Observable<Boolean> {
         return buffering
-    }
-
-    fun detaches(): Observable<Unit> {
-        return detaches
     }
 
     protected val callbacks: VideoPlayer.Callbacks = object : VideoPlayer.Callbacks {

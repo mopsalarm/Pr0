@@ -13,7 +13,6 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -24,7 +23,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
 import com.google.android.exoplayer2.video.VideoRendererEventListener
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.*
@@ -36,43 +34,31 @@ import com.pr0gramm.app.util.di.injector
 class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayout) :
         RxVideoPlayer(), VideoPlayer, Player.EventListener {
 
-
     private val context = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
-    private val settings = Settings.get()
 
     private val exo: ExoPlayer
     private val exoVideoRenderer: MediaCodecVideoRenderer
-
     private var exoAudioRenderer: MediaCodecAudioRenderer? = null
 
     override var muted: Boolean by observeChange(false) { applyVolumeState() }
 
-    private val surfaceProvider: ViewBackend
-
     private var uri: Uri? = null
     private var initialized: Boolean = false
 
-    private val backendViewCallbacks = object : ViewBackend.Callbacks {
-        override fun onAvailable(backend: ViewBackend) {
+    private val backendViewCallbacks = object : TextureViewBackend.Callbacks {
+        override fun onAvailable(backend: TextureViewBackend) {
             sendSetSurfaceMessage(true, backend.currentSurface)
         }
 
-        override fun onSizeChanged(backend: ViewBackend, width: Int, height: Int) {}
-
-        override fun onDestroy(backend: ViewBackend) {
+        override fun onDestroy(backend: TextureViewBackend) {
             sendSetSurfaceMessage(true, null)
         }
     }
 
-    init {
-        // Use a texture view to display the video.
-        surfaceProvider = if (settings.useTextureView) {
-            TextureViewBackend(context, backendViewCallbacks)
-        } else {
-            SurfaceViewBackend(context, backendViewCallbacks)
-        }
+    private val surfaceProvider: TextureViewBackend = TextureViewBackend(context, backendViewCallbacks)
 
+    init {
         val videoView = surfaceProvider.view
         parentView.addView(videoView)
 
@@ -80,13 +66,13 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val videoListener = VideoListener(callbacks, parentView)
 
-        val mediaCodecSelector = MediaCodecSelectorImpl(settings)
-        exoVideoRenderer = MediaCodecVideoRenderer(context, mediaCodecSelector,
+        exoVideoRenderer = MediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT_WITH_FALLBACK,
                 5000, handler, videoListener, -1)
 
         val renderers = if (hasAudio) {
-            exoAudioRenderer = MediaCodecAudioRenderer(context, mediaCodecSelector)
-            arrayOf(exoVideoRenderer, exoAudioRenderer!!)
+            val renderer = MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT_WITH_FALLBACK)
+            exoAudioRenderer = renderer
+            arrayOf(exoVideoRenderer, renderer)
         } else {
             arrayOf(exoVideoRenderer)
         }
@@ -137,8 +123,8 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         // initialize the renderer with a surface, if we already have one.
         // this might be the case, if we are restarting the video after
         // a call to pause.
-        if (surfaceProvider.hasSurface) {
-            sendSetSurfaceMessage(true, surfaceProvider.currentSurface)
+        surfaceProvider.currentSurface?.let { surface ->
+            sendSetSurfaceMessage(true, surface)
         }
     }
 
@@ -306,23 +292,6 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         override fun onRenderedFirstFrame(surface: Surface?) {
             this.callbacks?.onVideoRenderingStarts()
-        }
-    }
-
-    private class MediaCodecSelectorImpl internal constructor(private val settings: Settings) : MediaCodecSelector {
-        @Throws(MediaCodecUtil.DecoderQueryException::class)
-        override fun getDecoderInfos(mimeType: String, requiresSecureDecoder: Boolean): MutableList<MediaCodecInfo> {
-            val codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder)
-            // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
-
-            // look fo the best matching codec to return to the user.
-            val preference = if (mimeType.startsWith("video/")) settings.videoCodec else settings.audioCodec
-            return bestMatchingCodec(codecs, preference)?.let { mutableListOf(it) } ?: codecs
-        }
-
-        @Throws(MediaCodecUtil.DecoderQueryException::class)
-        override fun getPassthroughDecoderInfo(): MediaCodecInfo? {
-            return MediaCodecSelector.DEFAULT.passthroughDecoderInfo
         }
     }
 
