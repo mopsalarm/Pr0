@@ -30,7 +30,7 @@ import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
-import com.trello.rxlifecycle.kotlin.bindToLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -449,12 +449,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
 
             if (updateCheck) {
-                Observable.just(Unit)
-                        .delay((if (updateCheckDelay) 10 else 0).toLong(), TimeUnit.SECONDS, mainThread())
-                        .bindToLifecycle(this)
-                        .subscribe {
-                            UpdateDialogFragment.checkForUpdatesInBackground(this)
-                        }
+                launchIgnoreErrors {
+                    if (updateCheckDelay) {
+                        delay(10_000)
+                    }
+
+                    UpdateDialogFragment.checkForUpdatesInBackground(
+                            this@MainActivity, supportFragmentManager)
+                }
             }
         }
     }

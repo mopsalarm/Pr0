@@ -25,7 +25,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.instance
@@ -48,7 +47,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private val videoPlayerParent: AspectLayout by bindView(R.id.video_container)
 
     private val settings: Settings by instance()
-    private val proxyService: ProxyService by instance()
     private val preferences: SharedPreferences by instance()
 
     private var videoViewInitialized: Boolean = false
@@ -150,12 +148,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
             videoPlayer.videoCallbacks = this
 
-            if (mediaUri.isLocal || videoPlayer is ExoVideoPlayer) {
-                videoPlayer.open(effectiveUri)
-            } else {
-                // for the old player, we need to proxy the url to improve caching.
-                videoPlayer.open(proxyService.proxy(effectiveUri))
-            }
+            videoPlayer.open(effectiveUri)
         }
 
         // restore seek position if known

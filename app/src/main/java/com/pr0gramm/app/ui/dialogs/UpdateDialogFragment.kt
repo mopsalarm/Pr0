@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.core.content.edit
+import androidx.fragment.app.FragmentManager
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -20,6 +21,7 @@ import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.Job
+import kotlin.coroutines.coroutineContext
 
 /**
  */
@@ -54,8 +56,8 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
             }
         }
 
-        fun checkForUpdatesInBackground(activity: BaseAppCompatActivity) {
-            val prefs = (activity as Context).injector.instance<SharedPreferences>()
+        suspend fun checkForUpdatesInBackground(context: Context, fm: FragmentManager) {
+            val prefs = context.injector.instance<SharedPreferences>()
 
             // only check once an hour.
             if (!BuildConfig.DEBUG) {
@@ -64,26 +66,26 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     return
             }
 
-            activity.launchWithErrorHandler {
-                val update = UpdateChecker().queryAll()
+            val update = UpdateChecker().queryAll()
 
-                // remember that we've checked
-                prefs.edit {
-                    putLong(KEY_LAST_UPDATE_CHECK, Instant.now().millis)
-                }
+            // remember that we've checked
+            prefs.edit {
+                putLong(KEY_LAST_UPDATE_CHECK, Instant.now().millis)
+            }
 
-                // ignore errors
-                if (update is UpdateChecker.Response.Error) {
-                    logger.warn(update.err) { "Ignoring error during update" }
-                    return@launchWithErrorHandler
-                }
+            // ignore errors
+            if (update is UpdateChecker.Response.Error) {
+                logger.warn(update.err) { "Ignoring error during update" }
+                return
+            }
 
-                if (coroutineContext[Job]?.isCompleted == true)
-                    return@launchWithErrorHandler
+            if (coroutineContext[Job]?.isCompleted == true) {
+                logger.warn { "coroutineContext.job is completed, but still in coroutine?" }
+                return
+            }
 
-                if (update is UpdateChecker.Response.UpdateAvailable) {
-                    newInstance(update.update).show(activity.supportFragmentManager, null)
-                }
+            if (update is UpdateChecker.Response.UpdateAvailable) {
+                newInstance(update.update).show(fm, null)
             }
         }
 

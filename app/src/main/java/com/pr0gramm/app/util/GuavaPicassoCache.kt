@@ -6,7 +6,7 @@ import androidx.core.graphics.BitmapCompat
 import com.squareup.picasso.Cache
 
 /**
- * This is a better cache for [com.squareup.picasso.Picasso].
+ * This is a better cache for [com.squareup.picasso3.Picasso].
  * It caches only small images (for the feed).
  *
  * This should prevent further out of memory errors.

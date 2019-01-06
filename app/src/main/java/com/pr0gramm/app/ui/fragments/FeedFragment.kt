@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding.support.design.widget.dismisses
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
@@ -659,16 +658,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             else -> getString(R.string.hint_new_items_many)
         }
 
-        val snackbar = Snackbar.make(view!!, text, Snackbar.LENGTH_LONG).apply {
+        val view = view ?: return
+
+        val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG).apply {
             configureNewStyle()
             setAction(R.string.hint_refresh_load) { refreshFeed() }
             show()
         }
 
         // dismiss once the fragment stops.
-        lifecycle().filter { it == FragmentEvent.STOP }
-                .takeUntil(snackbar.dismisses())
-                .subscribe { snackbar.dismiss() }
+        lifecycle().filter { it == FragmentEvent.STOP }.subscribe { snackbar.dismiss() }
     }
 
     private fun recheckContentTypes() {

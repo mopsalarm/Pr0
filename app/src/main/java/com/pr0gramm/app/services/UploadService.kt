@@ -14,7 +14,6 @@ import okhttp3.RequestBody
 import okio.BufferedSink
 import retrofit2.HttpException
 import rx.Observable
-import rx.lang.kotlin.ofType
 import rx.subjects.BehaviorSubject
 import java.io.*
 import java.util.concurrent.TimeUnit

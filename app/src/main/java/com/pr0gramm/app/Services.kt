@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -20,8 +19,6 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.pr0gramm.app.services.preloading.PreloadManager
-import com.pr0gramm.app.services.proxy.HttpProxyService
-import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
@@ -36,7 +33,6 @@ import okhttp3.*
 import okhttp3.Cache
 import org.xbill.DNS.*
 import java.io.File
-import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
@@ -147,36 +143,8 @@ fun appInjector(app: Application) = Module.build {
         CachingDownloader(cache = instance(), httpClient = instance())
     }
 
-    bind<ProxyService>() with eagerSingleton {
-        checkNotMainThread()
-
-        val logger = Logger("ProxyServiceFactory")
-        repeat(10) {
-            val port = HttpProxyService.randomPort()
-            logger.debug { "Trying port $port" }
-
-            try {
-                val proxy = HttpProxyService(instance(), port)
-                proxy.start()
-
-                // return the proxy
-                return@eagerSingleton proxy
-
-            } catch (ioError: IOException) {
-                logger.warn { "Could not open proxy on port $port: $ioError" }
-            }
-        }
-
-        logger.warn { "Stop trying, using no proxy now." }
-        return@eagerSingleton object : ProxyService {
-            override fun proxy(url: Uri): Uri {
-                return url
-            }
-        }
-    }
-
     bind<com.pr0gramm.app.io.Cache>() with singleton {
-        com.pr0gramm.app.io.Cache(app, instance<OkHttpClient>())
+        com.pr0gramm.app.io.Cache(app, httpClient = instance())
     }
 
     bind<Picasso>() with singleton {

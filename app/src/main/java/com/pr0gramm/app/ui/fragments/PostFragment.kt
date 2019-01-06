@@ -55,7 +55,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import rx.Observable
 import rx.Observable.combineLatest
-import rx.lang.kotlin.subscribeBy
 import rx.subjects.BehaviorSubject
 import java.io.IOException
 
@@ -77,7 +76,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
 
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
-    private var scrollHandler: androidx.recyclerview.widget.RecyclerView.OnScrollListener = NoopScrollHandler()
+    private var scrollHandler: RecyclerView.OnScrollListener = NoopScrollHandler()
 
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
@@ -625,7 +624,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .downloadWithNotification(feedItem, preview)
                 .decoupleSubscribe()
                 .bindToLifecycleAsync()
-                .subscribeBy(onError = { err ->
+                .subscribe({}, { err: Throwable ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
                         showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
                     } else {
@@ -1093,10 +1092,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return false
     }
 
-    private class NoopScrollHandler : androidx.recyclerview.widget.RecyclerView.OnScrollListener()
+    private class NoopScrollHandler : RecyclerView.OnScrollListener()
 
-    private inner class ScrollHandler : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+    private inner class ScrollHandler : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
                 return
 
@@ -1145,8 +1144,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             voteAnimationIndicator.translationY = voteIndicatorY
         }
 
-        override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
-            if (!isVideoFullScreen && newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE) {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
@@ -1378,6 +1377,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        private val androidx.recyclerview.widget.RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
+        private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
     }
 }

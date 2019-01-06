@@ -7,6 +7,7 @@ import android.net.Uri
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
+import java.io.IOException
 
 /**
  * Decodes image using picasso.
@@ -14,10 +15,12 @@ import com.squareup.picasso.Picasso
 class PicassoDecoder(private val tag: String, private val picasso: Picasso) : ImageDecoder {
     override fun decode(context: Context, uri: Uri): Bitmap {
         try {
-            return picasso.load(uri).tag(tag)
+            val bitmap = picasso.load(uri).tag(tag)
                     .config(Bitmap.Config.RGB_565)
                     .memoryPolicy(MemoryPolicy.NO_CACHE)
                     .get()
+
+            return bitmap ?: throw IOException("Could not load bitmap")
 
         } catch (error: OutOfMemoryError) {
             throw RuntimeException(error)
