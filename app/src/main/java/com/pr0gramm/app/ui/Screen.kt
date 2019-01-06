@@ -13,7 +13,7 @@ object Screen {
     private const val REVERSE_PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
     private const val UNSPECIFIED = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
-    @JvmStatic
+
     fun lockOrientation(activity: Activity) {
         val display = activity.windowManager.defaultDisplay
         val rotation = display.rotation
@@ -49,7 +49,7 @@ object Screen {
         }
     }
 
-    @JvmStatic
+
     fun unlockOrientation(activity: Activity) {
         activity.requestedOrientation = UNSPECIFIED
     }

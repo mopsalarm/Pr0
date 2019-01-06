@@ -44,7 +44,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.setMaxTileSize(2048)
 
         imageView.setBitmapDecoderFactory { PicassoDecoder(tag, picasso) }
-        imageView.setRegionDecoderFactory { Decoders.newFancyRegionDecoder(downloader) }
+        imageView.setRegionDecoderFactory { Decoders.newImageDecoder(downloader) }
 
         imageView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onImageLoaded() {

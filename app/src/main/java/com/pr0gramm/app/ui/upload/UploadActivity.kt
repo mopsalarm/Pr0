@@ -133,7 +133,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
 
         const val EXTRA_MEDIA_TYPE = "UploadActivity.mediaType"
 
-        @JvmStatic
+
         fun openForType(context: Context, mediaType: String) {
             val intent = Intent(context, UploadActivity::class.java)
             intent.putExtra(EXTRA_MEDIA_TYPE, mediaType)

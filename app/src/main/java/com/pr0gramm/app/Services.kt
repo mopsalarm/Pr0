@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import androidx.collection.LruCache
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -30,7 +29,6 @@ import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.Module
 import com.squareup.picasso.Downloader
-import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
@@ -138,7 +136,7 @@ fun appInjector(app: Application) = Module.build {
                     }
                 }
 
-                .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
+                .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
                 .addNetworkInterceptor(LoggingInterceptor())
                 .addNetworkInterceptor(UpdateServerTimeInterceptor())
@@ -146,9 +144,7 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<Downloader>() with singleton {
-        PicassoDownloader(
-                cache = instance(),
-                delegate = OkHttp3Downloader(instance<OkHttpClient>()))
+        CachingDownloader(cache = instance(), httpClient = instance())
     }
 
     bind<ProxyService>() with eagerSingleton {
@@ -254,53 +250,6 @@ fun appInjector(app: Application) = Module.build {
 
 
 const val TagApiURL = "api.baseurl"
-
-class PicassoDownloader(val cache: com.pr0gramm.app.io.Cache, private val delegate: OkHttp3Downloader) : Downloader by delegate {
-    private val logger = Logger("Picasso.Downloader")
-
-    private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
-        override fun sizeOf(key: String, value: ByteArray): Int = value.size
-    }
-
-    override fun load(request: Request): Response {
-        // load thumbnails normally
-        val url = request.url()
-        if (url.host().contains("thumb.pr0gramm.com") || url.encodedPath().contains("/thumb.jpg")) {
-            // try memory cache first.
-            memoryCache.get(url.toString())?.let {
-                return Response.Builder()
-                        .request(request)
-                        .protocol(Protocol.HTTP_1_0)
-                        .code(200)
-                        .message("OK")
-                        .body(ResponseBody.create(MediaType.parse("image/jpeg"), it))
-                        .build()
-            }
-
-            // do request using fallback - network or disk.
-            val response = delegate.load(request)
-
-            // check if we want to cache the response in memory
-            response.body()?.let { body ->
-                if (body.contentLength() in (1 until 20 * 1024)) {
-                    val bytes = body.bytes()
-
-                    memoryCache.put(url.toString(), bytes)
-                    return response.newBuilder()
-                            .body(ResponseBody.create(body.contentType(), bytes))
-                            .build()
-                }
-            }
-
-            return response
-        } else {
-            logger.debug { "Using cache to download image $url" }
-            cache.get(Uri.parse(url.toString())).use { entry ->
-                return entry.toResponse(request)
-            }
-        }
-    }
-}
 
 private class UpdateServerTimeInterceptor : Interceptor {
     private val format by threadLocal {

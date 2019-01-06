@@ -26,6 +26,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.base.AndroidCoroutineScope
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.views.AspectImageView
 import com.pr0gramm.app.ui.views.InjectorViewMixin
 import com.pr0gramm.app.ui.views.instance
@@ -216,8 +217,10 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         launchIgnoreErrors {
             val fancyPreview = info.fancy?.get() ?: run {
-                logger.debug { "Requesting fancy thumbnail on background thread now." }
-                fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
+                withBackgroundContext {
+                    logger.debug { "Requesting fancy thumbnail on background thread now." }
+                    fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
+                }
             }
 
             previewTarget.call(fancyPreview)

@@ -90,8 +90,6 @@ class BusyDialog<T>(val context: Context, val text: String) : Observable.Operato
     }
 
     companion object {
-        @JvmStatic
-        @JvmOverloads
         fun <T> busyDialog(context: Context, @StringRes textRes: Int = 0): BusyDialog<T> {
             val text = if (textRes != 0) context.getString(textRes) else context.getString(R.string.please_wait)
 

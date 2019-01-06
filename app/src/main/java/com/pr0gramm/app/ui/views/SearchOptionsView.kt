@@ -287,7 +287,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         /**
          * Creates a new state containing the given query term.
          */
-        @JvmStatic
+
         fun ofQueryTerm(queryTerm: String): Bundle {
             val bundle = Bundle()
             bundle.putCharSequence("queryTerm", queryTerm)

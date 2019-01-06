@@ -19,7 +19,7 @@ import proguard.annotation.KeepPublicClassMemberNames
  * This class helps starting "Share with"-chooser for a [FeedItem].
  */
 object ShareHelper {
-    @JvmStatic
+
     fun searchImage(activity: Activity, feedItem: FeedItem) {
         val imageUri = UriHelper
                 .of(activity).media(feedItem).toString()
@@ -30,7 +30,7 @@ object ShareHelper {
         BrowserHelper.open(activity, uri.toString())
     }
 
-    @JvmStatic
+
     fun sharePost(activity: Activity, feedItem: FeedItem) {
         val text = if (feedItem.promotedId > 0)
             UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.id).toString()
@@ -44,7 +44,7 @@ object ShareHelper {
                 .startChooser()
     }
 
-    @JvmStatic
+
     fun shareDirectLink(activity: Activity, feedItem: FeedItem) {
         val uri = UriHelper.of(activity).noPreload().media(feedItem).toString()
 
@@ -55,7 +55,7 @@ object ShareHelper {
                 .startChooser()
     }
 
-    @JvmStatic
+
     fun shareImage(activity: Activity, feedItem: FeedItem) {
         val mimetype = ShareProvider.guessMimetype(activity, feedItem)
         ShareCompat.IntentBuilder.from(activity)
@@ -65,21 +65,21 @@ object ShareHelper {
                 .startChooser()
     }
 
-    @JvmStatic
+
     fun copyLink(context: Context, feedItem: FeedItem) {
         val helper = UriHelper.of(context)
         val uri = helper.post(FeedType.NEW, feedItem.id).toString()
         copyToClipboard(context, uri)
     }
 
-    @JvmStatic
+
     fun copyLink(context: Context, feedItem: FeedItem, comment: Api.Comment) {
         val helper = UriHelper.of(context)
         val uri = helper.post(FeedType.NEW, feedItem.id, comment.id).toString()
         copyToClipboard(context, uri)
     }
 
-    @JvmStatic
+
     private fun copyToClipboard(context: Context, text: String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 

@@ -6,7 +6,7 @@ import com.pr0gramm.app.util.Logger
 object BackFragmentHelper {
     private val logger = Logger("BackFragmentHelper")
 
-    @JvmStatic
+
     fun dispatchOnBackAction(activity: androidx.fragment.app.FragmentActivity): Boolean {
         val fragments = listAllFragments(activity.supportFragmentManager)
         logger.debug { "Got ${fragments.size} fragments to dispatch action to" }

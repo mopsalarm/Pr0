@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 object ThumbyService {
     private val RE_VALID_URI = Pattern.compile("^https?://[^/]*pr0gramm.com/.*")
 
-    @JvmStatic
+
     fun thumbUri(mediaUri: MediaUri): Uri {
         if (BuildConfig.DEBUG) {
             require(isEligibleForPreview(mediaUri)) {
@@ -34,7 +34,7 @@ object ThumbyService {
      * Return true, if the thumby service can produce a pixels for this url.
      * This is currently possible for gifs and videos.
      */
-    @JvmStatic
+
     fun isEligibleForPreview(url: MediaUri): Boolean {
         val type = url.mediaType
         return (type == MediaUri.MediaType.VIDEO || type == MediaUri.MediaType.GIF)

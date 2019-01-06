@@ -5,8 +5,8 @@ import android.app.Application
 import android.graphics.*
 import android.net.Uri
 import androidx.core.graphics.applyCanvas
+import androidx.core.net.toFile
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
@@ -24,13 +24,11 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
     private val zero = Bitmap.createBitmap(64, 64, Bitmap.Config.RGB_565)
 
-    suspend fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap {
-        return withBackgroundContext {
-            fancyThumbnail0(uri, aspect) ?: zero
-        }
+    fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap {
+        return fancyThumbnail0(uri, aspect) ?: zero
     }
 
-    private suspend fun fancyThumbnail0(uri: Uri, aspect: Float): Bitmap? = logger.time("Building fancy thumbnail") {
+    private fun fancyThumbnail0(uri: Uri, aspect: Float): Bitmap? = logger.time("Building fancy thumbnail") {
         val bytes = fetch(uri) ?: return null
 
         // almost square? fall back on non fancy normal image
@@ -110,7 +108,11 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
         }
     }
 
-    private suspend fun fetch(uri: Uri): ByteArray? {
+    private fun fetch(uri: Uri): ByteArray? {
+        if (uri.scheme == "file") {
+            return uri.toFile().readBytes()
+        }
+
         val response = downloader.load(Request.Builder().url(uri.toString()).build())
         return response.body()?.bytes()?.takeIf { it.isNotEmpty() }
     }

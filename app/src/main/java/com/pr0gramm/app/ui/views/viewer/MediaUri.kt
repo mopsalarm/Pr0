@@ -34,7 +34,7 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
         /**
          * Returns a media uri and guesses the media type from the uri.
          */
-        @JvmStatic
+
         fun of(id: Long, uri: Uri): MediaUri {
             val name = uri.lastPathSegment ?: throw IllegalArgumentException("uri must have a file component")
 
@@ -48,12 +48,12 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
             return MediaUri(id, uri, type)
         }
 
-        @JvmStatic
+
         fun of(id: Long, uri: String): MediaUri {
             return of(id, Uri.parse(uri))
         }
 
-        @JvmStatic
+
         fun of(context: Context, item: FeedItem): MediaUri {
             return of(item.id, UriHelper.of(context).media(item))
         }

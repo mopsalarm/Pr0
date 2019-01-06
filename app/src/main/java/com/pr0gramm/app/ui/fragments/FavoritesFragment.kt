@@ -79,7 +79,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
     companion object {
         const val ARG_USERNAME = "FavoritesFragment.username"
 
-        @JvmStatic
+
         fun newInstance(username: String): FavoritesFragment {
             return FavoritesFragment().arguments {
                 putString(ARG_USERNAME, username)

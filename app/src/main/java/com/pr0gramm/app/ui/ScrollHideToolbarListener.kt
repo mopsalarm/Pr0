@@ -126,7 +126,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
 
          * @param recyclerView The recycler view to estimate scrolling of
          */
-        @JvmStatic
+
         fun estimateRecyclerViewScrollY(recyclerView: androidx.recyclerview.widget.RecyclerView): Int? {
             var scrollY: Int? = null
             val view = recyclerView.layoutManager?.findViewByPosition(0)

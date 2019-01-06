@@ -79,7 +79,7 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
             return Instant(source.readLong())
         }
 
-        @JvmStatic
+
         fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
 
         @JvmField

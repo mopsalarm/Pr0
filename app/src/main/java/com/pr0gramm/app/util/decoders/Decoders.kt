@@ -5,25 +5,17 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
 import com.pr0gramm.app.util.Logger
 import com.squareup.picasso.Downloader
 
 object Decoders {
-    @JvmStatic
-    fun newFancyRegionDecoder(downloader: Downloader): ImageRegionDecoder {
-        val decoders = mutableListOf<Decoder>(
+    fun newImageDecoder(downloader: Downloader): ImageRegionDecoder {
+        return adapt(DownloadingRegionDecoder(downloader, FallbackRegionDecoder.chain(listOf(
+                AndroidRegionDecoder(Bitmap.Config.RGB_565),
+                AndroidRegionDecoder(Bitmap.Config.ARGB_8888),
                 SimpleRegionDecoder(Bitmap.Config.RGB_565),
-                SimpleRegionDecoder(Bitmap.Config.ARGB_8888))
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            decoders.addAll(0, listOf(
-                    AndroidRegionDecoder(Bitmap.Config.RGB_565),
-                    AndroidRegionDecoder(Bitmap.Config.ARGB_8888)))
-        }
-
-        return adapt(DownloadingRegionDecoder(downloader, FallbackRegionDecoder.chain(decoders)))
+                SimpleRegionDecoder(Bitmap.Config.ARGB_8888)))))
     }
 
     private fun adapt(dec: Decoder): ImageRegionDecoder {

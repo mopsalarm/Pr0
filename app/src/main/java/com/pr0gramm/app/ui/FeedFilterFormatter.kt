@@ -15,7 +15,7 @@ object FeedFilterFormatter {
      * *
      * @param filter  The filter that is to be converted into a string
      */
-    @JvmStatic
+
     fun format(context: Context?, filter: FeedFilter): FeedTitle {
         // prevent null pointer exceptions
         if (context == null)
@@ -42,7 +42,7 @@ object FeedFilterFormatter {
         return FeedTitle(feedTypeToString(context, filter), "", "")
     }
 
-    @JvmStatic
+
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
         if (filter.likes != null) {
             return context.getString(R.string.favorites_of, filter.likes)

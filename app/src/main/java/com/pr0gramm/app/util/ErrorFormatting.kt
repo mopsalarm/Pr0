@@ -19,7 +19,7 @@ import javax.net.ssl.SSLException
  * This provides utilities for formatting of exceptions..
  */
 object ErrorFormatting {
-    @JvmStatic
+
     fun getFormatter(error: Throwable): Formatter {
         return formatters.firstOrNull { it.handles(error) }
                 ?: throw IllegalStateException("There should always be a default formatter", error)

@@ -42,7 +42,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
             }
         }
 
-        @JvmStatic
+
         var globalErrorDialogHandler: OnErrorDialogHandler?
             get() = GlobalErrorDialogHandler.get()
             set(handler) {
@@ -76,7 +76,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
             }
         }
 
-        @JvmStatic
+
         fun showErrorString(fragmentManager: androidx.fragment.app.FragmentManager?, message: String) {
             logger.info { message }
 
@@ -115,7 +115,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
         /**
          * Creates the default error callback [rx.functions.Action1]
          */
-        @JvmStatic
+
         fun defaultOnError(): Action1<Throwable> {
             return Action1 { error -> processError(error, globalErrorDialogHandler) }
         }

@@ -15,15 +15,11 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     private val logger = Logger("GuavaPicassoCache")
 
     private val cache = object : LruCache<String, Bitmap>(maxSize) {
-        override fun sizeOf(key: String, value: Bitmap): Int = bitmapByteCount(value)
+        override fun sizeOf(key: String, value: Bitmap): Int = BitmapCompat.getAllocationByteCount(value)
     }
 
     init {
         logger.info { "Initializing cache with about ${maxSize / (1024 * 1024)}mb" }
-    }
-
-    private fun bitmapByteCount(bitmap: Bitmap): Int {
-        return BitmapCompat.getAllocationByteCount(bitmap)
     }
 
     override fun get(key: String): Bitmap? {
@@ -31,7 +27,7 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     }
 
     override fun set(key: String, bitmap: Bitmap) {
-        if (bitmapByteCount(bitmap) <= MAX_CACHE_ITEM_SIZE) {
+        if (BitmapCompat.getAllocationByteCount(bitmap) <= MAX_CACHE_ITEM_SIZE) {
             cache.put(key, bitmap)
         }
     }
@@ -55,10 +51,9 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     companion object {
         private const val MAX_CACHE_ITEM_SIZE = (128 * 128 * 4).toLong()
 
-        @JvmStatic
         fun defaultSizedGuavaCache(): GuavaPicassoCache {
             val maxMemory = (Runtime.getRuntime().maxMemory() / 20L).toInt()
-                    .coerceIn(minimumValue = 2 * 1024 * 1024, maximumValue = 6 * 1024 * 1024)
+                    .coerceIn(minimumValue = 2 * 1024 * 1024, maximumValue = 8 * 1024 * 1024)
 
             return GuavaPicassoCache(maxMemory)
         }
