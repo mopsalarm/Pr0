@@ -36,11 +36,7 @@ object ViewUpdater {
                 }
     }
 
-    fun ofView(view: View): Observable<Unit> {
-        return ofView(view, tickerSeconds)
-    }
-
-    fun ofView(view: View, instant: Instant): Observable<Unit> {
+    private fun ofView(view: View, instant: Instant): Observable<Unit> {
         val delta = Duration.between(Instant.now(), instant)
                 .convertTo(TimeUnit.SECONDS)
                 .absoluteValue
