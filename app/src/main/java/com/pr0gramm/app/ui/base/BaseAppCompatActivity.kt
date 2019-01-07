@@ -27,9 +27,6 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
     fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(
             this@BaseAppCompatActivity.bindToLifecycle())
 
-    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(
-            AsyncLifecycleTransformer(this@BaseAppCompatActivity.bindToLifecycle()))
-
     override fun onCreate(savedInstanceState: Bundle?) {
         job = SupervisorJob()
         logger.time("Injecting services") { injector.inject(this) }

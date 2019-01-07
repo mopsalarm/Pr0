@@ -13,7 +13,6 @@ import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
@@ -78,8 +77,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             benisTimeRangeStart = System.currentTimeMillis() - millis
         }
 
-        voteService.summary.ignoreError().bindToLifecycleAsync().subscribe {
-            handleVoteCounts(it)
+        launchIgnoreErrors {
+            handleVoteCounts(voteService.summary())
         }
 
         launchIgnoreErrors {
@@ -97,9 +96,9 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private fun showContentTypesOf(view: CircleChartView, stats: Observable<StatisticsService.Stats>) {
-        stats.bindToLifecycleAsync().subscribeWithErrorHandling(supportFragmentManager) {
-            showContentTypes(view, it)
-        }
+        stats.subscribeOnBackground().observeOnMainThread()
+                .bindToLifecycle()
+                .subscribeWithErrorHandling(supportFragmentManager) { showContentTypes(view, it) }
     }
 
     private fun showContentTypes(view: CircleChartView, stats: StatisticsService.Stats) {

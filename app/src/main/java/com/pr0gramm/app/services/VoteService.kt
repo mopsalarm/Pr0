@@ -6,6 +6,7 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.squareup.sqlbrite.BriteDatabase
@@ -190,7 +191,7 @@ class VoteService(private val api: Api,
         return findCachedVotes(CachedVote.Type.TAG, ids)
     }
 
-    val summary: Observable<Map<CachedVote.Type, Summary>> = Observable.fromCallable {
+    suspend fun summary(): Map<CachedVote.Type, Summary> = withBackgroundContext {
         val counts = CachedVote.count(database.readableDatabase)
 
         counts.mapValues { entry ->
