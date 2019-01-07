@@ -17,8 +17,6 @@ import androidx.annotation.MainThread
 import androidx.core.text.bold
 import androidx.core.text.inSpans
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding.view.RxView
-import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -104,7 +102,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         upload.setOnClickListener { onUploadClicked() }
 
         // react on change in the tag input window
-        tags.textChanges().subscribe { text ->
+        tags.addTextChangedListener { text ->
             tagOpinionHint.visible = tagSuggestions.containsQuestionableTag(text)
         }
     }
@@ -355,7 +353,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        RxView.attaches(viewer).subscribe { viewer.playMedia() }
+        viewer.addOnAttachListener { viewer.playMedia() }
 
         preview.removeAllViews()
         preview.addView(viewer)

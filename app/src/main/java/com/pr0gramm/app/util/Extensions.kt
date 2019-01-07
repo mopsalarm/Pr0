@@ -12,14 +12,18 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.NonNull
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -30,6 +34,7 @@ import rx.Emitter
 import rx.Observable
 import rx.Scheduler
 import rx.Subscription
+import rx.android.MainThreadSubscription
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
@@ -557,3 +562,82 @@ val Class<*>.directName: String
     get() {
         return name.takeLastWhile { it != '.' }.replace('$', '.')
     }
+
+inline fun TextView.addTextChangedListener(crossinline listener: (CharSequence) -> Unit) {
+    addTextChangedListener(object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+            listener(s)
+        }
+    })
+}
+
+inline fun SeekBar.setOnProgressChanged(crossinline listener: (value: Int, fromUser: Boolean) -> Unit) {
+    this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            listener(progress, fromUser)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar) {}
+        override fun onStopTrackingTouch(seekBar: SeekBar) {}
+    })
+}
+
+inline fun View.addOnAttachStateChangeListener(crossinline listener: (isAttach: Boolean) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
+            listener(true)
+        }
+
+        override fun onViewDetachedFromWindow(v: View) {
+            listener(false)
+        }
+    })
+}
+
+inline fun View.addOnAttachListener(crossinline listener: () -> Unit) {
+    addOnAttachStateChangeListener { isAttach ->
+        if (isAttach) {
+            listener()
+        }
+    }
+}
+
+inline fun View.addOnDetachListener(crossinline listener: () -> Unit) {
+    addOnAttachStateChangeListener { isAttach ->
+        if (!isAttach) {
+            listener()
+        }
+    }
+}
+
+fun View.attachEvents(): Observable<Boolean> {
+    return Observable.create { subscriber ->
+        checkMainThread()
+
+        val listener = object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(@NonNull v: View) {
+                if (!subscriber.isUnsubscribed) {
+                    subscriber.onNext(true)
+                }
+            }
+
+            override fun onViewDetachedFromWindow(@NonNull v: View) {
+                if (!subscriber.isUnsubscribed) {
+                    subscriber.onNext(false)
+                }
+            }
+        }
+
+        subscriber.add(object : MainThreadSubscription() {
+            override fun onUnsubscribe() {
+                removeOnAttachStateChangeListener(listener)
+            }
+        })
+
+        addOnAttachStateChangeListener(listener)
+    }
+}

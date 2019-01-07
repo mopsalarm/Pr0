@@ -221,8 +221,6 @@ dependencies {
     implementation "com.trello:rxlifecycle-android:1.0"
     implementation "com.trello:rxlifecycle-components:1.0"
 
-    implementation "com.jakewharton.rxbinding:rxbinding-kotlin:$VersionRxBinding"
-
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.8"
 }
 

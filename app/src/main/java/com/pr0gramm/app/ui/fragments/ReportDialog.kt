@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
-import com.jakewharton.rxbinding.widget.itemClickEvents
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.ContactService
@@ -50,7 +49,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
 
             button?.isEnabled = false
 
-            reasonListView.itemClickEvents().subscribe {
+            reasonListView.setOnItemClickListener { parent, view, position, id ->
                 button?.isEnabled = true
             }
         }

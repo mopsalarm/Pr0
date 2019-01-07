@@ -3,12 +3,12 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
-import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.instance
+import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
 import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
@@ -30,7 +30,7 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         loadGif()
 
         // cleanup on detach!
-        RxView.detaches(this).subscribe {
+        addOnDetachListener {
             imageView.setImageDrawable(null)
             gif?.recycle()
             gif = null

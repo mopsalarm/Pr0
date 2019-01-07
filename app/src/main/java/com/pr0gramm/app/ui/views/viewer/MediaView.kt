@@ -16,8 +16,6 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
-import com.jakewharton.rxbinding.view.attachEvents
-import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -117,7 +115,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         showPreloadedIndicator()
 
-        this.detaches().subscribe {
+        addOnDetachListener {
             if (isPlaying)
                 stopMedia()
 
@@ -131,7 +129,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
 
         if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
-            attachEvents().limit(1).subscribe {
+            addOnAttachListener {
                 // test if we need to request the thumby preview.
                 if (hasPreviewView()) {
                     val uri = ThumbyService.thumbUri(mediaUri)

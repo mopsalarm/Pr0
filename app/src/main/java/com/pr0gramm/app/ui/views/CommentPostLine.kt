@@ -4,18 +4,19 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
-import com.jakewharton.rxbinding.view.clicks
-import com.jakewharton.rxbinding.widget.afterTextChangeEvents
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.UsernameTokenizer
 import com.pr0gramm.app.util.ViewUtility
+import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
-import rx.Observable
+
+typealias OnSendCommentListener = (text: String) -> Unit
+typealias OnCommentChangedListener = (text: String) -> Unit
 
 /**
  */
@@ -28,9 +29,19 @@ class CommentPostLine @JvmOverloads constructor(
 
     private val userSuggestionService: UserSuggestionService by instance()
 
+    var onTextChanged: OnCommentChangedListener? = null
+    var onPostCommentClicked: OnSendCommentListener? = null
+
     init {
         layoutInflater.inflate(R.layout.write_comment_layout, this)
         configureUsernameAutoComplete()
+
+        postButton.setOnClickListener {
+            val text = commentTextView.text.trim().toString()
+            if (text.isNotEmpty()) {
+                onPostCommentClicked?.invoke(text)
+            }
+        }
     }
 
     private fun configureUsernameAutoComplete() {
@@ -43,28 +54,11 @@ class CommentPostLine @JvmOverloads constructor(
         commentTextView.setAdapter(UsernameAutoCompleteAdapter(userSuggestionService, context,
                 android.R.layout.simple_dropdown_item_1line))
 
-        // The post button is only enabled if we have at least one letter.
-        commentTextView.afterTextChangeEvents()
-                .map { it.editable().toString().trim().isNotEmpty() }
-                .subscribe { postButton.isEnabled = it }
-    }
-
-    /**
-     * Observable filled with the comments each time the user clicks on the button
-     */
-    fun comments(): Observable<String> {
-        return postButton.clicks()
-                .map { commentTextView.text.toString().trim() }
-                .filter { text -> !text.isEmpty() }
-    }
-
-    /**
-     * Notified about every text changes after typing
-     */
-    fun textChanges(): Observable<String> {
-        return commentTextView
-                .afterTextChangeEvents()
-                .map { event -> event.editable().toString() }
+        commentTextView.addTextChangedListener { text ->
+            // The post button is only enabled if we have at least one letter.
+            postButton.isEnabled = text.trim().isNotEmpty()
+            onTextChanged?.invoke(text.toString())
+        }
     }
 
     fun clear() {

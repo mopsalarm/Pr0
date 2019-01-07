@@ -4,14 +4,13 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.MultiAutoCompleteTextView
-import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
 
@@ -21,7 +20,6 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val tagInput: MultiAutoCompleteTextView by bindView(R.id.tag)
     private val opinionHint: View by bindView(R.id.opinion_hint)
 
-    private val config: Config by instance()
     private val tagSuggestions: TagSuggestionService by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -36,7 +34,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     override fun onDialogViewCreated() {
         tagSuggestions.setupView(tagInput)
 
-        tagInput.textChanges().subscribe { text ->
+        tagInput.addTextChangedListener { text ->
             opinionHint.visible = tagSuggestions.containsQuestionableTag(text)
         }
     }

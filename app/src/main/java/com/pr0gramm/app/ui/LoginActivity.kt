@@ -15,7 +15,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
-import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.services.ThemeHelper
@@ -26,14 +25,10 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.use
 import kotterknife.bindView
-import rx.Observable
 
 typealias Callback = () -> Unit
 
@@ -66,12 +61,14 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         updateActivityBackground()
 
-        Observable.combineLatest(
-                usernameView.textChanges().map { it.trim().length },
-                passwordView.textChanges().map { it.trim().length },
-                { username, password -> username * password })
-                .subscribe { value -> submitView.isEnabled = value > 0 }
+        usernameView.addTextChangedListener { updateSubmitViewEnabled() }
+        passwordView.addTextChangedListener { updateSubmitViewEnabled() }
+    }
 
+    private fun updateSubmitViewEnabled() {
+        val usernameSet = usernameView.text.isNotBlank()
+        val passwordSet = passwordView.text.isNotBlank()
+        submitView.isEnabled = usernameSet && passwordSet
     }
 
     private fun updateActivityBackground() {

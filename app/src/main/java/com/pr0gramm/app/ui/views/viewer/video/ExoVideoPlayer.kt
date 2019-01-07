@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
 import com.google.android.exoplayer2.video.VideoRendererEventListener
-import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
@@ -80,7 +79,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         exo = ExoPlayerFactory.newInstance(renderers, DefaultTrackSelector(FixedTrackSelection.Factory()))
         exo.addListener(this)
 
-        RxView.detaches(videoView).subscribe {
+        videoView.addOnDetachListener {
             detaches.onNext(Unit)
 
             pause()

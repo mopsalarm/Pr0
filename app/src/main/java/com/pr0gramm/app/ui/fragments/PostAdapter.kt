@@ -164,9 +164,9 @@ private class CommentPostLineAdapterDelegate(private val postActions: PostAction
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT)
 
-            line.textChanges().subscribe { text -> latestText = text }
+            line.onTextChanged = { text -> latestText = text }
 
-            line.comments().subscribe { text ->
+            line.onPostCommentClicked = { text ->
                 if (postActions.writeCommentClicked(text)) {
                     line.clear()
                 }

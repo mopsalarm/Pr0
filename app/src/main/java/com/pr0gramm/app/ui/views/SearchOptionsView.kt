@@ -11,18 +11,12 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.widget.AppCompatCheckBox
-import com.jakewharton.rxbinding.widget.changes
-import com.jakewharton.rxbinding.widget.editorActions
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.dip2px
-import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.*
 import kotterknife.bindView
 import rx.Observable
-import rx.functions.Func1
 import rx.subjects.PublishSubject
 
 /**
@@ -49,20 +43,24 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         minimumScoreSlider.keyProgressIncrement = 5
 
         if (!isInEditMode) {
+
+
             // update the value field with the slider
-            minimumScoreSlider.changes()
-                    .map { value -> formatMinimumScoreValue(roundScoreValue(value)) }
-                    .subscribe { minimumScoreLabel.text = it }
+            minimumScoreSlider.setOnProgressChanged { value, _ ->
+                minimumScoreLabel.text = formatMinimumScoreValue(roundScoreValue(value))
+            }
+
+            val editorListener = TextView.OnEditorActionListener { v, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    handleSearchButtonClicked()
+                }
+
+                true
+            }
 
             // enter on search field should start the search
-            searchTermView
-                    .editorActions(Func1 { action -> action == EditorInfo.IME_ACTION_SEARCH })
-                    .subscribe { handleSearchButtonClicked() }
-
-            // and start search on custom tags view too.
-            customExcludesView
-                    .editorActions(Func1 { action -> action == EditorInfo.IME_ACTION_SEARCH })
-                    .subscribe { handleSearchButtonClicked() }
+            searchTermView.setOnEditorActionListener(editorListener)
+            customExcludesView.setOnEditorActionListener(editorListener)
         }
 
         find<View>(R.id.reset_button).setOnClickListener { reset() }

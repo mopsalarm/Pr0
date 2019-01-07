@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import com.google.code.regexp.Pattern
-import com.jakewharton.rxbinding.view.clicks
-import com.jakewharton.rxbinding.widget.RxTextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -13,6 +11,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
@@ -41,12 +40,11 @@ class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity
             finish()
         }
 
-        RxTextView.textChanges(password)
-                .compose(bindToLifecycle<CharSequence>())
-                .map { it.toString().trim().length > 6 }
-                .subscribe { submit.isEnabled = it }
+        password.addTextChangedListener { text ->
+            submit.isEnabled = text.trim().length > 6
+        }
 
-        submit.clicks().subscribe { submitButtonClicked() }
+        submit.setOnClickListener { submitButtonClicked() }
     }
 
     private fun submitButtonClicked() {

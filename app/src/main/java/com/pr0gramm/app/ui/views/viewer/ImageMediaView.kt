@@ -5,15 +5,11 @@ import android.view.View
 import android.widget.TextView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.views.instance
-import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
-import com.pr0gramm.app.util.removeFromParent
-import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
 
@@ -62,12 +58,13 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
             }
         })
 
-        // re-apply scaling after layout.
-        RxView.layoutChanges(imageView)
-                .filter { imageView.sWidth > 0 && imageView.sHeight > 0 }
-                .subscribe { applyScaling() }
+        imageView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (imageView.sWidth > 0 && imageView.sHeight > 0) {
+                applyScaling()
+            }
+        }
 
-        RxView.detaches(this).subscribe {
+        addOnDetachListener {
             picasso.cancelTag(tag)
             imageView.recycle()
             imageView.setOnImageEventListener(null)

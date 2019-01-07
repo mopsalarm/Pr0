@@ -20,7 +20,6 @@ import androidx.collection.LruCache
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
-import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
@@ -67,7 +66,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             setMuted(!videoPlayer.muted)
         }
 
-        detaches().subscribe { videoPlayer.videoCallbacks = null }
+        addOnDetachListener { videoPlayer.videoCallbacks = null }
 
         videoPlayer.buffering()
                 .sample(500, TimeUnit.MILLISECONDS, MainThreadScheduler)

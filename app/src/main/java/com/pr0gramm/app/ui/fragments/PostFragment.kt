@@ -19,7 +19,6 @@ import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -818,7 +817,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 logger.debug { "Initialized viewer height to $expectedViewerHeight" }
             }
 
-            viewer.layoutChanges().map { Unit }.subscribe {
+            viewer.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
                 val newHeight = viewer.measuredHeight
                 if (newHeight != state.viewerBaseHeight) {
                     logger.debug { "Change in viewer height detected, setting height to ${state.viewerBaseHeight} to $newHeight" }

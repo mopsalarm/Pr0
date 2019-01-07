@@ -6,8 +6,6 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ListView
-import com.jakewharton.rxbinding.widget.checkedChanges
-import com.jakewharton.rxbinding.widget.itemClicks
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.getFreezable
@@ -67,13 +65,13 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 blockUser.isEnabled = false
             }
 
-            blockUser.checkedChanges().subscribe { checked ->
-                blockTreeup?.isEnabled = checked
+            blockUser.setOnCheckedChangeListener { buttonView, isChecked ->
+                blockTreeup?.isEnabled = isChecked
             }
         }
 
-        reasonListView.itemClicks().subscribe { index ->
-            customReasonText.setText(REASONS[index])
+        reasonListView.setOnItemClickListener { parent, view, position, id ->
+            customReasonText.setText(REASONS[position])
         }
     }
 

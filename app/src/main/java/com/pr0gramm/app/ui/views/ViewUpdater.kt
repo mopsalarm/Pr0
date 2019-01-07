@@ -3,12 +3,11 @@ package com.pr0gramm.app.ui.views
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.ViewCompat
-import com.jakewharton.rxbinding.view.ViewAttachEvent
-import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.MainThreadScheduler
+import com.pr0gramm.app.util.attachEvents
 import com.pr0gramm.app.util.updateTextView
 import rx.Observable
 import rx.Subscription
@@ -30,7 +29,6 @@ object ViewUpdater {
         val currentlyAttached = ViewCompat.isAttachedToWindow(view)
 
         return view.attachEvents()
-                .map { it.kind() == ViewAttachEvent.Kind.ATTACH }
                 .startWith(currentlyAttached)
                 .switchMap { attached ->
                     val selectedTicker = if (attached) ticker else Observable.empty()
