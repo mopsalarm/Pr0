@@ -57,7 +57,7 @@ object ErrorFormatting {
             message = err.message
 
         if (message.isNullOrBlank())
-            message = context.getString(R.string.error_exception_of_type, err.javaClass.simpleName)
+            message = context.getString(R.string.error_exception_of_type, err.javaClass.directName)
 
         return message ?: err.toString()
     }

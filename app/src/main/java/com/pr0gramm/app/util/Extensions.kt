@@ -533,11 +533,11 @@ inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
         // jump to parent class if inside a companion object.
         var clazz: Class<*> = javaClass
-        if (clazz.simpleName == "Companion") {
+        if (clazz.name == "Companion") {
             clazz = clazz.enclosingClass!!
         }
 
-        val type = clazz.simpleName
+        val type = clazz.directName
         traceLogger.debug { "$type.${msg()}" }
     }
 }
@@ -595,3 +595,8 @@ inline fun <reified T : Activity> Context.startActivity(configureIntent: (Intent
 fun ContentProvider.requireContext(): Context {
     return context ?: throw IllegalStateException("context not set on ContentProvider")
 }
+
+val Class<*>.directName: String
+    get() {
+        return name.takeLastWhile { it != '.' }.replace('$', '.')
+    }

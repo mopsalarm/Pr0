@@ -44,7 +44,7 @@
 }
 
 # Preserve some attributes that may be required for reflection.
--keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,Signature,SourceFile
+-keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,SourceFile
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {

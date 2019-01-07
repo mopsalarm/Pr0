@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import androidx.annotation.MainThread
 import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.directName
 import kotlinx.coroutines.*
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -26,7 +27,7 @@ class PaginationController(
 
 class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loader: Loader<E>) {
 
-    private val logger = Logger("Pagination(${loader.javaClass.simpleName})")
+    private val logger = Logger("Pagination(${javaClass.directName})")
 
     private var headState: EndState<E> = EndState()
     private var tailState: EndState<E> = EndState()

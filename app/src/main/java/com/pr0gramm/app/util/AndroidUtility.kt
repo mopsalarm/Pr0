@@ -327,7 +327,7 @@ fun Throwable.getMessageWithCauses(): String {
     val hasCause = cause != null && error !== cause
     val message = error.message ?: ""
     val hasMessage = message.isNotBlank() && (
-            !hasCause || (cause != null && cause.javaClass.simpleName !in message))
+            !hasCause || (cause != null && cause.javaClass.directName !in message))
 
     return if (hasMessage) {
         if (hasCause && cause != null) {

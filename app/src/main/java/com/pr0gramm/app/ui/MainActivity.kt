@@ -555,7 +555,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 .replace(R.id.content, fragment)
 
         if (!clear) {
-            logger.info { "Adding fragment ${fragment.javaClass.name} to backstack" }
+            logger.debug { "Adding fragment ${fragment.javaClass.name} to backstack" }
             transaction.addToBackStack("Feed$fragment")
         }
 

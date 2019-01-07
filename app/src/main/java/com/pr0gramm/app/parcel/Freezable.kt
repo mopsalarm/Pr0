@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.directName
 import com.pr0gramm.app.util.listOfSize
 import com.pr0gramm.app.util.time
 import okio.*
@@ -24,10 +24,7 @@ interface Freezable : Parcelable {
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        debug {
-            logger.debug { "Lazy parceling of ${this.javaClass.simpleName}" }
-        }
-
+        logger.debug { "Lazy parceling of ${this.javaClass.directName}" }
         dest.writeByteArray(Freezer.freeze(this))
     }
 
@@ -108,7 +105,7 @@ interface Freezable : Parcelable {
 
 object Freezer {
     fun freeze(f: Freezable): ByteArray {
-        return logger.time({ "Freezing object of type ${f.javaClass.simpleName} (${it?.size} bytes)" }) {
+        return logger.time({ "Freezing object of type ${f.javaClass.directName} (${it?.size} bytes)" }) {
             val buffer = Buffer()
             try {
                 DeflaterSink(buffer, Deflater(Deflater.BEST_SPEED)).use {
@@ -126,7 +123,7 @@ object Freezer {
     }
 
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
-        return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.simpleName}") {
+        return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
             val source = Okio.source(ByteArrayInputStream(data))
 
             InflaterSource(source, Inflater()).use { inflaterSource ->
