@@ -639,7 +639,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             logger.info { "Checking for new items in current feed" }
 
             val query = FeedService.FeedQuery(feed.filter, feed.contentType)
-            ignoreException {
+            catchAll {
                 val response = feedService.load(query)
 
                 val previousIds = feed.mapTo(mutableSetOf()) { it.id }

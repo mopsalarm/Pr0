@@ -142,7 +142,7 @@ class UserService(private val api: Api,
 
         val userInfo = updateCachedUserInfo()
         if (userInfo == null) {
-            ignoreException { logout() }
+            catchAll { logout() }
             throw IllegalStateException("Could not fetch initial user info")
         }
 

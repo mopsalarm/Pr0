@@ -64,7 +64,6 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
                     .subscribeOnBackground()
                     .observeOnMainThread()
                     .ignoreError()
-                    .debug("AdService.load")
                     .compose(RxLifecycleAndroid.bindView(container))
                     .subscribe { state ->
                         trace { "adStateChanged($state)" }

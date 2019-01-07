@@ -8,10 +8,10 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.ignoreException
 import kotlinx.coroutines.launch
 
 /**
@@ -52,7 +52,7 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
         val isMessage = itemId == 0L || commentId == 0L
 
         AsyncScope.launch {
-            ignoreException {
+            catchAll {
                 if (isMessage) {
                     sendResponseToMessage(receiverId, text)
                 } else {

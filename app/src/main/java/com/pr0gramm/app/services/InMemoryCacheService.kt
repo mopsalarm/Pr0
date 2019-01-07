@@ -5,7 +5,7 @@ import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.catchAll
 import gnu.trove.set.hash.TLongHashSet
 import kotlinx.coroutines.NonCancellable
 import java.util.*
@@ -106,7 +106,7 @@ class InMemoryCacheService {
     }
 
     suspend fun refreshRepostsCache(feedService: FeedService, query: FeedService.FeedQuery): Boolean {
-        ignoreException {
+        catchAll {
             return withBackgroundContext(NonCancellable) {
                 val feed = feedService.load(query)
                 cacheReposts(feed.items.map { it.id })

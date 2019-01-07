@@ -11,10 +11,10 @@ import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.ignoreException
 import rx.Observable
 
 /**
@@ -38,7 +38,7 @@ object Track : InjectorAware {
     }
 
     private inline fun send(eventType: String, b: Bundle.() -> Unit = {}) {
-        ignoreException {
+        catchAll {
             fa.logEvent(eventType, Bundle().apply(b))
         }
     }
@@ -189,7 +189,7 @@ object Track : InjectorAware {
     }
 
     suspend fun statistics() {
-        ignoreException {
+        catchAll {
             settingsTracker.track()
         }
     }

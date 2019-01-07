@@ -33,7 +33,7 @@ interface AndroidCoroutineScope : CoroutineScope {
             block: suspend CoroutineScope.() -> Unit
     ): Job {
         return launch(context, start) {
-            ignoreException { block() }
+            catchAll { block() }
         }
     }
 

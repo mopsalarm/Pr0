@@ -61,15 +61,15 @@ class SyncService(private val userService: UserService,
             logger.info { "Performing a sync operation now" }
 
             logger.time("Sync operation") {
-                ignoreException {
+                catchAll {
                     syncCachedUserInfo()
                 }
 
-                ignoreException {
+                catchAll {
                     syncUserState()
                 }
 
-                ignoreException {
+                catchAll {
                     syncSeenService()
                 }
             }
@@ -80,7 +80,7 @@ class SyncService(private val userService: UserService,
         if (singleShotService.firstTimeToday("update-userInfo")) {
             logger.info { "Update current user info" }
 
-            ignoreException {
+            catchAll {
                 userService.updateCachedUserInfo()
             }
         }

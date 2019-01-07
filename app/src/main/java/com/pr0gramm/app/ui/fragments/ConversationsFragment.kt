@@ -111,7 +111,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
 
     private fun updateConversationsUnreadCount() {
         launch {
-            ignoreException {
+            catchAll {
                 // get the most recent conversations, and replace them in the
                 // pagination with their updated state.
                 val response = inboxService.listConversations()

@@ -241,7 +241,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
             if (dialog is BottomSheetDialog) {
                 val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 if (bottomSheet is FrameLayout) {
-                    ignoreException {
+                    catchAll {
                         BottomSheetBehavior
                                 .from(bottomSheet)
                                 .setState(BottomSheetBehavior.STATE_EXPANDED)

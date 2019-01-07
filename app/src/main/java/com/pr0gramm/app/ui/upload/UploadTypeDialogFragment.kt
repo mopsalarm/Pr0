@@ -10,7 +10,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.MenuSheetView
-import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.catchAll
 
 class UploadTypeDialogFragment : BottomSheetDialogFragment() {
     override fun getTheme(): Int = R.style.MyBottomSheetDialog
@@ -40,7 +40,7 @@ class UploadTypeDialogFragment : BottomSheetDialogFragment() {
             setOnShowListener {
                 val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 if (bottomSheet is FrameLayout) {
-                    ignoreException {
+                    catchAll {
                         BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED)
                     }
                 }

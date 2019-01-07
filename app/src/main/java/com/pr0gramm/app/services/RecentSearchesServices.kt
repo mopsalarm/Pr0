@@ -5,7 +5,7 @@ import androidx.core.content.edit
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.TypeToken
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.getString
+import com.pr0gramm.app.util.getStringOrNull
 import java.util.*
 
 
@@ -65,7 +65,7 @@ class RecentSearchesServices(
 
     private fun restoreState() {
         try {
-            val serialized = sharedPreferences.getString(KEY) ?: "[]"
+            val serialized = sharedPreferences.getStringOrNull(KEY) ?: "[]"
             searches.addAll(MoshiInstance.adapter<List<String>>(LIST_OF_STRINGS).fromJson(serialized)
                     ?: listOf())
 

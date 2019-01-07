@@ -16,7 +16,7 @@ import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.getString
+import com.pr0gramm.app.util.getStringOrNull
 import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -43,7 +43,7 @@ class ConfigService(context: Application,
     private val deviceHash = makeUniqueIdentifier(context, preferences)
 
     init {
-        val jsonCoded = preferences.getString(PREF_DATA_KEY) ?: "{}"
+        val jsonCoded = preferences.getStringOrNull(PREF_DATA_KEY) ?: "{}"
         this.configState = loadState(jsonCoded)
 
         publishState()

@@ -26,7 +26,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import rx.*
+import rx.Emitter
+import rx.Observable
+import rx.Scheduler
+import rx.Subscription
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
@@ -216,20 +219,20 @@ interface CachedValue<out T> {
 object EmptyCache
 
 inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : CachedValue<T> {
-    private var _value: Any? = EmptyCache
+    private var theValue: Any? = EmptyCache
 
     override val value: T
         get() {
-            if (_value === EmptyCache) {
-                _value = fn()
+            if (theValue === EmptyCache) {
+                theValue = fn()
             }
 
             @Suppress("UNCHECKED_CAST")
-            return _value as T
+            return theValue as T
         }
 
     override fun invalidate() {
-        _value = EmptyCache
+        theValue = EmptyCache
     }
 }
 
@@ -303,7 +306,22 @@ fun View?.removeFromParent() {
 }
 
 inline fun <T> Logger.time(name: String, supplier: () -> T): T {
-    return time({ name }, supplier)
+    if (BuildConfig.DEBUG) {
+        val watch = Stopwatch.createStarted()
+
+        val result = try {
+            supplier()
+        } catch (err: Exception) {
+            this.info { "$name failed after $watch" }
+            throw err
+        }
+
+        this.info { "$name took $watch" }
+        return result
+
+    } else {
+        return supplier()
+    }
 }
 
 inline fun <T> Logger.time(nameSupplier: (T?) -> String, supplier: () -> T): T {
@@ -335,7 +353,6 @@ fun <T> weakref(value: T?): ReadWriteProperty<Any?, T?> = object : ReadWriteProp
     }
 }
 
-
 inline fun debug(block: () -> Unit) {
     if (BuildConfig.DEBUG) {
         block()
@@ -350,27 +367,6 @@ fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Sche
     val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
     this.subscribeOn(scheduler).subscribe(subject)
     return subject
-}
-
-fun Completable.decoupleSubscribe(): Observable<Unit> {
-    return toObservable<Unit>().decoupleSubscribe()
-}
-
-fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {
-    debug {
-        val log = logger ?: Logger("Rx")
-        return this
-                .doOnSubscribe { log.info { "$key: onSubscribe" } }
-                .doOnUnsubscribe { log.info { "$key: onUnsubscribe" } }
-                .doOnCompleted { log.info { "$key: onCompleted" } }
-                .doOnError { log.info { "$key: onError($it)" } }
-                .doOnNext { log.info { "$key: onNext($it)" } }
-                .doOnTerminate { log.info { "$key: onTerminate" } }
-                .doAfterTerminate { log.info { "$key: onAfterTerminate" } }
-    }
-
-    // do nothing if not in debug build.
-    return this
 }
 
 fun File.toUri(): Uri = Uri.fromFile(this)
@@ -403,25 +399,13 @@ inline fun <reified R> Observable<*>.ofType(): Observable<R> {
     return ofType(R::class.java)
 }
 
-inline fun ignoreException(block: () -> Unit) {
+inline fun catchAll(block: () -> Unit) {
     try {
         block()
     } catch (err: Throwable) {
         AndroidUtility.logToCrashlytics(err)
     }
 }
-
-//val <T : Result> PendingResult<T>.rx: Observable<T>
-//    get() = createObservable<T> { emitter ->
-//        emitter.setCancellation {
-//            cancel()
-//        }
-//
-//        this.setResultCallback { result ->
-//            emitter.onNext(result)
-//            emitter.onCompleted()
-//        }
-//    }
 
 fun Context.canStartIntent(intent: Intent): Boolean {
     return packageManager.resolveActivity(intent, 0) != null
@@ -492,10 +476,10 @@ inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
     if (key == null)
         return null
 
-    try {
-        return enumValueOf<T>(key)
+    return try {
+        enumValueOf<T>(key)
     } catch (err: IllegalArgumentException) {
-        return null
+        null
     }
 }
 
@@ -533,7 +517,7 @@ inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
         // jump to parent class if inside a companion object.
         var clazz: Class<*> = javaClass
-        if (clazz.name == "Companion") {
+        if (clazz.directName == "Companion") {
             clazz = clazz.enclosingClass!!
         }
 
@@ -551,35 +535,8 @@ fun Closeable?.closeQuietly() {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun SharedPreferences.getString(key: String): String? {
+inline fun SharedPreferences.getStringOrNull(key: String): String? {
     return getString(key, null)
-}
-
-inline fun <T : Any, R> T.legacyUse(block: (T) -> R): R {
-    return asClosable(this).use {
-        block(this)
-    }
-}
-
-fun asClosable(value: Any): Closeable {
-    if (value is Closeable)
-        return value
-
-    return Closeable {
-        try {
-            // expect the close method to be there.
-            value.javaClass.getMethod("close").invoke(value)
-
-        } catch (err: Exception) {
-            Logger("Closable").warn(err) {
-                "Error invoking close() method in ${value.javaClass.name}"
-            }
-        }
-    }
-}
-
-fun <T : Any> observableOrEmpty(value: T?): Observable<T> {
-    return if (value == null) Observable.empty() else Observable.just(value)
 }
 
 inline fun <reified T : Activity> activityIntent(

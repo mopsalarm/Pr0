@@ -179,7 +179,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun checkForInfoMessage() {
         launch {
-            ignoreException {
+            catchAll {
                 val message = infoMessageService.fetch()
                 showInfoMessage(message)
             }
