@@ -6,7 +6,6 @@ import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.fragments.FeedFragment.Companion.logger
-import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.mapToList
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +17,7 @@ import rx.subjects.BehaviorSubject
 /**
  */
 class BookmarkService(private val database: Holder<SQLiteDatabase>) {
-    private val onChange = BehaviorSubject.create<Void>(null as Void?).toSerialized()
+    private val onChange = BehaviorSubject.create<Unit>(Unit).toSerialized()
 
     /**
      * Creates a bookmark for the filter.
@@ -55,14 +54,14 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     }
 
     private fun triggerChange() {
-        onChange.onNext(null)
+        onChange.onNext(Unit)
     }
 
     /**
      * Observes change to the bookmarks
      */
     fun observe(): Observable<List<Bookmark>> {
-        return onChange.observeOn(BackgroundScheduler).flatMap { toObservable(this::queryAll) }
+        return onChange.flatMap { toObservable(this::queryAll) }
     }
 
     /**

@@ -5,24 +5,23 @@ import android.os.Build
 import android.os.Debug
 import android.os.StrictMode
 import androidx.multidex.MultiDex
-import com.pr0gramm.app.util.subscribeOnBackground
-import rx.Observable
-import java.util.concurrent.TimeUnit
+import com.pr0gramm.app.util.doInBackground
+import kotlinx.coroutines.delay
 
 
 class DebugApplicationClass : ApplicationClass() {
     init {
         StrictMode.enableDefaults()
 
-        if (false) {
+        if (true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 // Debug.startMethodTracing(null, 128 * 1024 * 1024)
-                Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 100)
+                Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 500)
 
-                Observable.fromCallable { Debug.stopMethodTracing() }
-                        .delaySubscription(4, TimeUnit.SECONDS)
-                        .subscribeOnBackground()
-                        .subscribe()
+                doInBackground {
+                    delay(6000)
+                    Debug.stopMethodTracing()
+                }
             }
         }
     }

@@ -132,8 +132,21 @@ suspend fun <T : Any?> Observable<T>.await(): T {
 }
 
 fun <T> toObservable(block: suspend () -> T): Observable<T> {
-    return Observable.fromCallable {
-        runBlocking { block() }
+    return createObservable { emitter ->
+        val job = AsyncScope.launch {
+            try {
+                emitter.onNext(block())
+                emitter.onCompleted()
+            } catch (err: CancellationException) {
+                // ignored
+            } catch (err: Throwable) {
+                emitter.onError(err)
+            }
+        }
+
+        emitter.setCancellation {
+            job.cancel()
+        }
     }
 }
 

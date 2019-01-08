@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 class ApiProvider(base: String, client: OkHttpClient,
                   private val cookieJar: LoginCookieJar) {
 
-    val api by lazy { proxy(restAdapter(base, client)) }
+    val api = proxy(restAdapter(base, client))
 
     private fun restAdapter(base: String, client: OkHttpClient): Api {
         val settings = Settings.get()

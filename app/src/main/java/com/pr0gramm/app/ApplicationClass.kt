@@ -14,14 +14,14 @@ import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.AdMobWorkaround
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
-import com.pr0gramm.app.util.ExceptionHandler
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.di.InjectorAware
-import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
+import rx.Scheduler
+import rx.plugins.RxJavaPlugins
+import rx.plugins.RxJavaSchedulersHook
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -30,7 +30,7 @@ import java.util.logging.LogManager
  * Global application class for pr0gramm app.
  */
 open class ApplicationClass : Application(), InjectorAware {
-    private val startup = System.currentTimeMillis()
+    private val bootupWatch = Stopwatch.createStarted()
 
     private val logger = Logger("Pr0grammApplication")
 
@@ -43,6 +43,14 @@ open class ApplicationClass : Application(), InjectorAware {
             StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
         }
+
+        RxJavaPlugins.getInstance().registerSchedulersHook(object : RxJavaSchedulersHook() {
+            private val betterIoScheduler = CachedThreadScheduler("RxIoScheduler")
+
+            override fun getIOScheduler(): Scheduler {
+                return betterIoScheduler
+            }
+        })
     }
 
     override fun onCreate() {
@@ -75,6 +83,8 @@ open class ApplicationClass : Application(), InjectorAware {
         jobManager.addJobCreator(SyncJob.CREATOR)
         jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
 
+        forceInjectorInstance()
+
         doInBackground {
             // schedule first sync 30seconds after bootup.
             SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
@@ -98,10 +108,19 @@ open class ApplicationClass : Application(), InjectorAware {
         // initialize mobile ads asynchronously
         initializeMobileAds()
 
-        val bootupTime = System.currentTimeMillis() - startup
-        logger.info { "App booted in ${bootupTime}ms" }
+        logger.info { "App booted in $bootupWatch" }
 
-        Stats().histogram("app.boot.time", bootupTime)
+        Stats().histogram("app.boot.time", bootupWatch.elapsed(TimeUnit.MILLISECONDS))
+    }
+
+    private fun forceInjectorInstance() {
+        // ensure that the lazy creates the instance
+        System.identityHashCode(injector)
+
+        debug {
+            // validate that all dependencies can be created.
+            injector.validate()
+        }
     }
 
     private fun initializeMobileAds() {

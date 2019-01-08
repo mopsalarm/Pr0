@@ -5,12 +5,12 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
-import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Logger
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import rx.Observable
+import rx.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -32,12 +32,12 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
 
     val categoriesAvailable: Observable<Boolean> get() {
         return configService.observeConfig()
-                .observeOn(BackgroundScheduler)
+                .observeOn(Schedulers.computation())
 
                 .switchMap { config ->
                     if (config.extraCategories) {
                         Observable
-                                .interval(0, 1, TimeUnit.MINUTES, BackgroundScheduler)
+                                .interval(0, 1, TimeUnit.MINUTES)
                                 .flatMap { toObservable { pingOnce() } }
                     } else {
                         Observable.just(false)

@@ -2,10 +2,9 @@ package com.pr0gramm.app.util.di
 
 import android.content.Context
 import com.pr0gramm.app.ApplicationClass
+import com.pr0gramm.app.services.Track.injector
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.fragments.FeedFragment.Companion.logger
-import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.time
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
@@ -143,31 +142,7 @@ class Module private constructor() {
                 }
             }
 
-            debug {
-                eagerValidate(injector, providers.keys)
-            }
-
             return injector
-        }
-
-        private fun eagerValidate(injector: Injector, keys: Set<Injector.Key>) {
-            doInBackground {
-                try {
-                    logger.time("Validating ${keys.size} dependencies.") {
-                        // initialize everything once in debug mode
-                        keys.forEach { key ->
-                            logger.debug { "Now getting instance for key $key" }
-                            injector.instance(key)
-                        }
-                    }
-                } catch (err: Throwable) {
-                    err.printStackTrace()
-
-                    // let the app crash
-                    Thread.sleep(10000)
-                    System.exit(1)
-                }
-            }
         }
     }
 }
@@ -182,11 +157,22 @@ class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
     }
 
     fun <T : Any> instance(key: Key): T {
-        val provider = providers.get(key)
+        val provider = providers[key]
                 ?: throw IllegalArgumentException("No dependency for key $key")
 
         @Suppress("UNCHECKED_CAST")
         return provider.get(this) as T
+    }
+
+
+    fun validate() {
+        logger.time("Validating ${providers.size} dependencies.") {
+            // initialize everything once in debug mode
+            providers.keys.forEach { key ->
+                logger.debug { "Now getting instance for key $key" }
+                injector.instance(key)
+            }
+        }
     }
 
     data class Key(val type: Class<*>, val tag: String?)
@@ -232,7 +218,9 @@ private class InjectedProperty<T : Any>(private val key: Injector.Key) : ReadOnl
             ?: throw IllegalStateException("injected property ${property.name} not initialized")
 
     fun inject(injector: Injector) {
-        value = injector.instance(key) as T
+        logger.time("Injection of $key") {
+            value = injector.instance(key) as T
+        }
     }
 }
 

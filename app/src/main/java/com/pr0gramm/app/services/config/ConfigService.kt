@@ -11,13 +11,11 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
-import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
@@ -49,13 +47,13 @@ class ConfigService(context: Application,
         publishState()
 
         // schedule updates once an hour
-        Observable.interval(0, 1, TimeUnit.HOURS, BackgroundScheduler).subscribe {
+        Observable.interval(0, 1, TimeUnit.HOURS).subscribe {
             update()
         }
     }
 
     private fun update() {
-        AsyncScope.launch {
+        doInBackground {
             val context = ConfigEvaluator.Context(
                     version = BuildConfig.VERSION_CODE,
                     hash = deviceHash,

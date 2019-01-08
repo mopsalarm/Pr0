@@ -25,7 +25,6 @@ import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
-import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
@@ -573,9 +572,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // correct state in the ui once they are loaded
         preloadManager.all().share().let { preloadItems ->
             preloadItems
-                    .throttleLast(5, TimeUnit.SECONDS, BackgroundScheduler)
+                    .throttleLast(5, TimeUnit.SECONDS)
                     .startWith(preloadItems.first())
-                    .bindToLifecycleAsync()
+                    .observeOnMainThread()
+                    .bindToLifecycle()
                     .ignoreError()
                     .subscribe { items ->
                         state = state.copy(preloadedItemIds = items.mapTo(hashSetOf()) { it.itemId })
@@ -928,13 +928,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun onFollowClicked() {
         activeUsername?.let { name ->
-            AsyncScope.launch { followService.follow(name) }
+            doInBackground { followService.follow(name) }
         }
     }
 
     private fun onUnfollowClicked() {
         activeUsername?.let { name ->
-            AsyncScope.launch { followService.unfollow(name) }
+            doInBackground { followService.unfollow(name) }
         }
     }
 
@@ -1041,7 +1041,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         settings.changes()
-                .bindToLifecycleAsync()
+                .bindToLifecycle()
                 .startWith("")
                 .subscribeIgnoreError { listener.enableLongClick(settings.enableQuickPeek) }
     }

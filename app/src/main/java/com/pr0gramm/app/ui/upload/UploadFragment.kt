@@ -140,16 +140,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
             return
         }
 
-        uploadService.sizeOkay(file)
-                .onErrorResumeNext(Observable.empty())
-                .bindToLifecycleAsync()
-                .subscribe { sizeOkay ->
-                    if (sizeOkay) {
-                        startUpload(file)
-                    } else {
-                        handleSizeNotOkay()
-                    }
-                }
+        launchWithErrorHandler {
+            if (uploadService.sizeOkay(file)) {
+                startUpload(file)
+            } else {
+                handleSizeNotOkay()
+            }
+        }
     }
 
     private fun updateUploadState(state: UploadService.State) {

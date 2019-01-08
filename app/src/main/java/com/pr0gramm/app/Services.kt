@@ -32,6 +32,7 @@ import com.squareup.sqlbrite.SqlBrite
 import okhttp3.*
 import okhttp3.Cache
 import org.xbill.DNS.*
+import rx.schedulers.Schedulers
 import java.io.File
 import java.net.InetAddress
 import java.net.UnknownHostException
@@ -66,7 +67,7 @@ fun appInjector(app: Application) = Module.build {
         SqlBrite.Builder()
                 .logger { logger.info { it } }
                 .build()
-                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), BackgroundScheduler)
+                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), Schedulers.computation())
     }
 
     bind<FirebaseAnalytics>() with instance(FirebaseAnalytics.getInstance(app).apply {

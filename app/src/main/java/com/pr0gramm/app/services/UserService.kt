@@ -17,6 +17,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import rx.Observable
+import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -52,7 +53,7 @@ class UserService(private val api: Api,
         cookieJar.observeCookie.distinctUntilChanged().subscribe { onCookieChanged(it) }
 
         // persist the login state every time it changes.
-        loginStates.observeOn(BackgroundScheduler).subscribe { state -> persistLatestLoginState(state) }
+        loginStates.observeOn(Schedulers.computation()).subscribe { state -> persistLatestLoginState(state) }
 
         Track.updateUserState(loginStates)
     }

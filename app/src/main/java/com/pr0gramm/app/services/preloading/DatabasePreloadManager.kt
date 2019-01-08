@@ -23,11 +23,18 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     private val preloadCache = AtomicReference(
             TLongObjectHashMap<PreloadItem>() as TLongObjectMap<PreloadItem>)
 
+    private val observeAllItems = Observable.just(database)
+            .flatMap { db ->
+                db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS)
+                        .mapToList { readPreloadItem(it) }
+                        .map { convertToMap(it) }
+                        .onErrorResumeEmpty()
+            }
+            .share()
+
     init {
-        // initialize in background.
-        queryAllItems()
-                .subscribeOn(BackgroundScheduler)
-                .subscribe { setPreloadCache(it) }
+        // initialize and cache in background for polling
+        observeAllItems.subscribe { setPreloadCache(it) }
     }
 
     private fun setPreloadCache(items: TLongObjectMap<PreloadItem>) {
@@ -54,14 +61,6 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
         preloadCache.set(available)
     }
 
-    private fun queryAllItems(): Observable<TLongObjectMap<PreloadItem>> {
-        return Observable.just(database)
-                .flatMap { db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS).mapToList { readPreloadItem(it) } }
-                .map { readPreloadEntriesFromCursor(it) }
-                .doOnError { AndroidUtility.logToCrashlytics(it) }
-                .onErrorResumeEmpty()
-    }
-
     private fun readPreloadItem(cursor: Cursor): PreloadItem {
         val cItemId = cursor.getColumnIndexOrThrow("itemId")
         val cCreation = cursor.getColumnIndexOrThrow("creation")
@@ -75,7 +74,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
                 thumbnail = File(cursor.getString(cThumbnail)))
     }
 
-    private fun readPreloadEntriesFromCursor(items: List<PreloadItem>): TLongObjectMap<PreloadItem> {
+    private fun convertToMap(items: List<PreloadItem>): TLongObjectMap<PreloadItem> {
         val map = TLongObjectHashMap<PreloadItem>(items.size)
         items.forEach { item -> map.put(item.itemId, item) }
         return map
@@ -144,7 +143,7 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
      * Returns a list of all preloaded items.
      */
     override fun all(): Observable<Collection<PreloadItem>> {
-        return queryAllItems().map { it.valueCollection() }
+        return observeAllItems.map { it.valueCollection() }
     }
 
     companion object {

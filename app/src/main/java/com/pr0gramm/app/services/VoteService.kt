@@ -63,7 +63,6 @@ class VoteService(private val api: Api,
     fun getVote(item: FeedItem): Observable<Vote> {
         return CachedVote.find(database, ITEM, item.id)
                 .map<Vote> { vote -> vote.vote }
-                .subscribeOnBackground()
     }
 
     /**

@@ -5,6 +5,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
@@ -39,8 +40,8 @@ class UploadService(private val api: Api,
             }
         }
 
-    fun sizeOkay(file: File): Observable<Boolean> {
-        return Observable.just(maxUploadSize).map { file.length() < it }
+    suspend fun sizeOkay(file: File): Boolean = withBackgroundContext {
+        file.length() < maxUploadSize
     }
 
     fun downsize(file: File): Observable<File> {

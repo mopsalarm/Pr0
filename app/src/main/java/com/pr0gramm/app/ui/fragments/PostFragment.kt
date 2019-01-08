@@ -131,10 +131,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             activity?.invalidateOptionsMenu()
         }
 
-        // subscribe to it as long as the fragment lives.
-        feedItemVote.ignoreError()
-                .bindToLifecycleAsync()
-                .subscribe()
+        // observe changes to it as long as the fragment lives.
+        feedItemVote.ignoreError().bindToLifecycle().subscribe()
     }
 
     private fun stopMediaOnViewer() {
@@ -255,7 +253,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiTags.subscribe { hideProgressIfLoop(it) }
 
-        feedItemVote.bindToLifecycleAsync().subscribe { vote ->
+        feedItemVote.observeOnMainThread().bindToLifecycle().subscribe { vote ->
             state = state.copy(itemVote = vote)
         }
 
@@ -622,7 +620,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         downloadService
                 .downloadWithNotification(feedItem, preview)
                 .decoupleSubscribe()
-                .bindToLifecycleAsync()
+                .observeOnMainThread()
+                .bindToLifecycle()
                 .subscribe({}, { err: Throwable ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
                         showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
@@ -639,7 +638,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiComments
                 .switchMap { comments ->
-                    voteService.getCommentVotes(comments).subscribeOnBackground().onErrorResumeEmpty()
+                    voteService.getCommentVotes(comments).onErrorResumeEmpty()
                 }
                 .observeOnMainThread()
                 .bindToLifecycle()
@@ -647,7 +646,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiTags
                 .switchMap { votes ->
-                    voteService.getTagVotes(votes).subscribeOnBackground().onErrorResumeEmpty()
+                    voteService.getTagVotes(votes).onErrorResumeEmpty()
                 }
                 .observeOnMainThread()
                 .bindToLifecycle()
@@ -693,14 +692,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
                 commentsLoadError = false)
 
-        launch {
+        launchIgnoreErrors {
             try {
                 onPostReceived(feedService.post(feedItem.id, bust))
                 swipeRefreshLayout?.isRefreshing = false
 
             } catch (err: Exception) {
                 if (err is CancellationException) {
-                    return@launch
+                    return@launchIgnoreErrors
                 }
 
                 swipeRefreshLayout?.isRefreshing = false
@@ -773,9 +772,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             MediaViews.newInstance(viewerConfig).also { this.viewer = it }
         }
 
-        viewer.viewed().observeOn(BackgroundScheduler).subscribe {
+        viewer.viewed().subscribe {
+            doInBackground { seenService.markAsSeen(feedItem.id) }
             //  mark this item seen. We do that in a background thread
-            seenService.markAsSeen(feedItem.id)
         }
 
         // inform viewer about fragment lifecycle events!

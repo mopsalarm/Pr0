@@ -2,7 +2,13 @@ package com.pr0gramm.app.ui
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.ui.base.Main
+import com.pr0gramm.app.ui.base.withBackgroundContext
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.checkMainThread
+import com.pr0gramm.app.util.trace
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.PublishSubject
 
@@ -72,18 +78,25 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
             return
         }
 
-        Observable.fromCallable { calculateDiff(oldList, newList) }
-                .withIf(!forceSync && (oldList.size > 32 || newList.size > 32)) {
+        if (!forceSync && (oldList.size > 32 || newList.size > 32)) {
+            CoroutineScope(Main).launch {
+                val diff = withBackgroundContext {
                     logger.debug { "Calculate diff in background" }
-                    subscribeOnBackground().observeOnMainThread()
+                    calculateDiff(oldList, newList)
                 }
-                .subscribe { diff ->
-                    if (maxScheduledGeneration == runGeneration) {
-                        applyNewItems(newList) {
-                            diff.dispatchUpdatesTo(this)
-                        }
+
+                if (maxScheduledGeneration == runGeneration) {
+                    applyNewItems(newList) {
+                        diff.dispatchUpdatesTo(this@AsyncListAdapter)
                     }
                 }
+            }
+        } else {
+            val diff = calculateDiff(oldList, newList)
+            applyNewItems(newList) {
+                diff.dispatchUpdatesTo(this)
+            }
+        }
     }
 
     private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {

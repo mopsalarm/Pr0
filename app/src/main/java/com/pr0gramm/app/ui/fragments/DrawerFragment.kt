@@ -175,7 +175,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .subscribe { onLoginStateChanged(it) }
 
         navigationProvider.navigationItems
-                .bindToLifecycleAsync()
+                .observeOnMainThread()
+                .bindToLifecycle()
                 .subscribe { navigationAdapter.setNavigationItems(it) }
     }
 
