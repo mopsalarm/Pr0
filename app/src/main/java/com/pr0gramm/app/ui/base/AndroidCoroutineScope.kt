@@ -13,6 +13,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import retrofit2.HttpException
 import rx.Observable
+import rx.Scheduler
+import rx.schedulers.Schedulers
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -26,17 +28,6 @@ interface AndroidCoroutineScope : CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = job + Main + DefaultCoroutineExceptionHandler
-
-    fun launchIgnoreErrors(
-            context: CoroutineContext = EmptyCoroutineContext,
-            start: CoroutineStart = CoroutineStart.DEFAULT,
-            block: suspend CoroutineScope.() -> Unit
-    ): Job {
-        return launch(context, start) {
-            catchAll { block() }
-        }
-    }
-
 
     fun launchWithErrorHandler(
             context: CoroutineContext = EmptyCoroutineContext,
@@ -57,6 +48,30 @@ interface AndroidCoroutineScope : CoroutineScope {
                 }
             }
         }
+    }
+
+    fun newChild(): AndroidCoroutineScope = childAndroidScope(this)
+
+    fun cancelScope() {
+        job.cancel()
+    }
+}
+
+private fun childAndroidScope(parent: AndroidCoroutineScope): AndroidCoroutineScope {
+    return object : AndroidCoroutineScope {
+        override var job: Job = SupervisorJob(parent.job)
+        override val androidContext: Context = parent.androidContext
+    }
+}
+
+
+fun CoroutineScope.launchIgnoreErrors(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    return launch(context, start) {
+        catchAll { block() }
     }
 }
 
@@ -115,7 +130,7 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 val Async = Dispatchers.IO
 val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
-val Main = Looper.getMainLooper().asHandler(async = true).asCoroutineDispatcher("Main")
+val Main = Looper.getMainLooper().asHandler().asCoroutineDispatcher("Main")
 
 suspend fun <T : Any?> Observable<T>.await(): T {
     val def = CompletableDeferred<T>()
@@ -131,8 +146,8 @@ suspend fun <T : Any?> Observable<T>.await(): T {
     return def.await()
 }
 
-fun <T> toObservable(block: suspend () -> T): Observable<T> {
-    return createObservable { emitter ->
+fun <T> toObservable(scheduler: Scheduler = Schedulers.computation(), block: suspend () -> T): Observable<T> {
+    val observable = createObservable<T> { emitter ->
         val job = AsyncScope.launch {
             try {
                 emitter.onNext(block())
@@ -148,6 +163,8 @@ fun <T> toObservable(block: suspend () -> T): Observable<T> {
             job.cancel()
         }
     }
+
+    return observable.observeOn(scheduler)
 }
 
 inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T): T {
@@ -168,7 +185,7 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T):
 /**
  * Copied from coroutines-android
  */
-private fun Looper.asHandler(async: Boolean): Handler {
+private fun Looper.asHandler(): Handler {
     if (Build.VERSION.SDK_INT >= 28) {
         return Handler.createAsync(this)
     }

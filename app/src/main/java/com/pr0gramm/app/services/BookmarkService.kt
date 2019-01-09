@@ -61,7 +61,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
      * Observes change to the bookmarks
      */
     fun observe(): Observable<List<Bookmark>> {
-        return onChange.flatMap { toObservable(this::queryAll) }
+        return onChange.flatMap { toObservable(block = this::queryAll) }
     }
 
     /**

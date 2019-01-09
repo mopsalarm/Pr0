@@ -16,6 +16,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
+import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*
@@ -23,6 +24,7 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
@@ -30,14 +32,10 @@ import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.BehaviorSubject
-import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 
@@ -380,8 +378,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun showInfoMessage(message: InfoMessageService.Message) {
-        trace { "showInfoMessage($message)" }
-
         if (message.endOfLife >= AndroidUtility.buildVersionCode()) {
             showDialog(this) {
                 contentWithLinks("Support für deine Version ist eingestellt. " +
@@ -409,20 +405,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onResume() {
-        trace { "onResume" }
         super.onResume()
         onBackStackChanged()
     }
 
-    override fun onStart() {
-        trace { "onStart" }
-        super.onStart()
-
-        // schedule a sync operation every 45 seconds while the app window is open
-        Observable.interval(0, 45, TimeUnit.SECONDS, mainThread())
-                .bindToLifecycle()
-                .subscribe { SyncJob.syncNow() }
-
+    override suspend fun doOnStart() {
+        launchIgnoreErrors {
+            runEvery(Duration.seconds(45)) { SyncJob.syncNow() }
+        }
 
         if (coldStart && !quiet) {
             var updateCheck = true
@@ -451,7 +441,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             if (updateCheck) {
                 launchIgnoreErrors {
                     if (updateCheckDelay) {
-                        delay(10_000)
+                        delay(seconds(10))
                     }
 
                     UpdateDialogFragment.checkForUpdatesInBackground(

@@ -54,6 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import rx.Observable
 import rx.Observable.combineLatest
+import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.io.IOException
 
@@ -619,6 +620,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         downloadService
                 .downloadWithNotification(feedItem, preview)
+                .subscribeOn(Schedulers.io())
                 .decoupleSubscribe()
                 .observeOnMainThread()
                 .bindToLifecycle()
@@ -633,9 +635,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private class DownloadException(cause: Throwable) : Exception(cause)
 
-    override fun onResume() {
-        super.onResume()
-
+    override suspend fun doOnResume() {
         apiComments
                 .switchMap { comments ->
                     voteService.getCommentVotes(comments).onErrorResumeEmpty()

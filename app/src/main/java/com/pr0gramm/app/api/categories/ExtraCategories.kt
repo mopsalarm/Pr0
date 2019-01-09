@@ -45,8 +45,8 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
                 }
 
                 // always emit the last known state first
-                .doOnNext { cachedState.set(it) }
-                .startWith(Observable.fromCallable { cachedState.get() })
+                .doOnNext(cachedState::set)
+                .startWith(Observable.fromCallable(cachedState::get))
 
                 .distinctUntilChanged()
     }

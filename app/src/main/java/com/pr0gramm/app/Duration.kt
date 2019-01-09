@@ -2,12 +2,14 @@ package com.pr0gramm.app
 
 import java.util.concurrent.TimeUnit
 
-class Duration private constructor(val millis: Long) {
+inline class Duration(val millis: Long) {
     fun convertTo(unit: TimeUnit): Long {
         return unit.convert(millis, TimeUnit.MILLISECONDS)
     }
 
     companion object {
+        val Zero = Duration(0)
+
         fun between(first: Instant, second: Instant): Duration {
             return Duration(first.millis - second.millis)
         }

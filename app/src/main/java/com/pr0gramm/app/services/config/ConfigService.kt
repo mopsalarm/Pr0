@@ -7,18 +7,15 @@ import android.content.SharedPreferences
 import android.provider.Settings
 import androidx.core.content.edit
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration.Companion.minutes
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.getStringOrNull
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -46,9 +43,8 @@ class ConfigService(context: Application,
 
         publishState()
 
-        // schedule updates once an hour
-        Observable.interval(0, 1, TimeUnit.HOURS).subscribe {
-            update()
+        doInBackground {
+            runEvery(minutes(30)) { update() }
         }
     }
 

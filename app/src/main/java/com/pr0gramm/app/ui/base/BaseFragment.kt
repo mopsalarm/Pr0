@@ -14,8 +14,10 @@ import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import rx.Observable
 import rx.Subscription
 
@@ -33,6 +35,10 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
 
     override val androidContext: Context
         get() = requireContext()
+
+
+    private lateinit var onStartScope: AndroidCoroutineScope
+    private lateinit var onResumeScope: AndroidCoroutineScope
 
     init {
         debug {
@@ -64,10 +70,37 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         job = SupervisorJob()
     }
 
+    override fun onStart() {
+        onStartScope = newChild()
+        super.onStart()
+    }
+
+    final override fun onResume() {
+        super.onResume()
+
+        onResumeScope = onStartScope.newChild()
+        onResumeScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            doOnResume()
+        }
+    }
+
+    protected open suspend fun doOnResume() {}
+
+    override fun onPause() {
+        super.onPause()
+        onResumeScope.cancelScope()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        onStartScope.cancelScope()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        job.cancel()
         this.viewCache.reset()
+
+        cancelScope()
     }
 
     fun <T> Observable<T>.subscribeWithErrorHandling(

@@ -7,7 +7,10 @@ import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.ofType
+import com.pr0gramm.app.util.readStream
+import com.pr0gramm.app.util.toInt
 import com.squareup.picasso.Picasso
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -143,7 +146,6 @@ class UploadService(private val api: Api,
         toObservable { api.upload(body).await() }
                 .doOnEach { Track.upload(size) }
                 .map { response -> State.Uploaded(response.key) }
-                .subscribeOnBackground()
                 .subscribe(result)
 
         return result.ignoreElements().mergeWith(result)
@@ -234,7 +236,7 @@ class UploadService(private val api: Api,
                 .retryWhen { errObservable ->
                     errObservable
                             .doOnNext { err -> logger.warn("Error polling queue", err) }
-                            .delay(2, TimeUnit.SECONDS, BackgroundScheduler)
+                            .delay(2, TimeUnit.SECONDS)
                 }
 
                 .flatMap { value ->
@@ -245,7 +247,7 @@ class UploadService(private val api: Api,
                     }
                 }
 
-                .delaySubscription(2, TimeUnit.SECONDS, BackgroundScheduler)
+                .delaySubscription(2, TimeUnit.SECONDS)
     }
 
     sealed class State {

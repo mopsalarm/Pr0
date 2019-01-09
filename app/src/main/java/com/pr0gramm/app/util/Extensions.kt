@@ -29,10 +29,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.supervisorScope
 import rx.Emitter
 import rx.Observable
-import rx.Scheduler
 import rx.Subscription
 import rx.android.MainThreadSubscription
 import rx.functions.Action1
@@ -42,6 +44,7 @@ import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.contracts.InvocationKind
@@ -368,9 +371,9 @@ inline fun <T : Any?> Observable<T>.subscribeIgnoreError(crossinline onNext: (T)
     return subscribe({ onNext(it) }, { err -> AndroidUtility.logToCrashlytics(err) })
 }
 
-fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Scheduler = BackgroundScheduler): Observable<T> {
+fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false): Observable<T> {
     val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
-    this.subscribeOn(scheduler).subscribe(subject)
+    subscribe(subject)
     return subject
 }
 
@@ -407,6 +410,10 @@ inline fun <reified R> Observable<*>.ofType(): Observable<R> {
 inline fun catchAll(block: () -> Unit) {
     try {
         block()
+
+    } catch (err: CancellationException) {
+        // ignore
+
     } catch (err: Throwable) {
         AndroidUtility.logToCrashlytics(err)
     }
@@ -640,4 +647,27 @@ fun View.attachEvents(): Observable<Boolean> {
 
         addOnAttachStateChangeListener(listener)
     }
+}
+
+suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero, crossinline task: () -> Unit) {
+    if (initial.millis > 0) {
+        delay(initial)
+    }
+
+    while (true) {
+        try {
+            supervisorScope { task() }
+
+        } catch (err: CancellationException) {
+            return
+        } catch (err: Exception) {
+            AndroidUtility.logToCrashlytics(err)
+        }
+
+        delay(period.millis)
+    }
+}
+
+suspend fun delay(duration: Duration) {
+    delay(duration.millis)
 }

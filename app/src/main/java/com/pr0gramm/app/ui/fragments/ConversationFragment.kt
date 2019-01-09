@@ -109,9 +109,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         outState.putFreezable("ConversationFragment.state", state)
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override suspend fun doOnResume() {
         pagination.updates.bindToLifecycle().subscribe { (state, newValues) -> applyPaginationUpdate(state, newValues) }
     }
 

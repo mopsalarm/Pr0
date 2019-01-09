@@ -10,8 +10,12 @@ import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.time
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -315,11 +319,13 @@ class UserService(private val api: Api,
     val loginStateWithBenisGraph: Observable<LoginStateWithBenisGraph> = run {
         val rxStart = loginStates.first().map { LoginStateWithBenisGraph(loginState) }
 
-        val rxGraphed = loginStates.observeOn(BackgroundScheduler).map { loginState ->
+        val rxGraphed = loginStates.flatMap { loginState ->
             if (loginState.authorized) {
-                LoginStateWithBenisGraph(loginState, loadBenisHistoryAsGraph(loginState.id))
+                toObservable {
+                    LoginStateWithBenisGraph(loginState, loadBenisHistoryAsGraph(loginState.id))
+                }
             } else {
-                LoginStateWithBenisGraph(loginState)
+                Observable.just(LoginStateWithBenisGraph(loginState))
             }
         }
 
@@ -327,7 +333,7 @@ class UserService(private val api: Api,
         rxStart.concatWith(ticker.switchMap { rxGraphed })
     }
 
-    private fun loadBenisHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
+    private suspend fun loadBenisHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
         val now = Instant.now()
         val start = now - Duration.days(7)
 
@@ -345,11 +351,7 @@ class UserService(private val api: Api,
      * Loads all benis records for the current user.
      */
     suspend fun loadBenisRecords(after: Instant = Instant(0)): BenisGraphRecords {
-        val state = loginState
-
-        return withBackgroundContext {
-            BenisGraphRecords(benisService.findValuesLaterThan(state.id, after))
-        }
+        return BenisGraphRecords(benisService.findValuesLaterThan(loginState.id, after))
     }
 
     class BenisGraphRecords(val records: List<BenisRecord>)

@@ -2,10 +2,12 @@ package com.pr0gramm.app.io
 
 import android.app.Application
 import android.net.Uri
+import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.runEvery
 import okhttp3.*
 import okio.Okio
 import rx.Observable
@@ -30,6 +32,12 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     private val cache = HashMap<String, Entry>()
 
     init {
+        doInBackground {
+            runEvery(seconds(60), initial = seconds(10)) {
+                cleanupCache()
+            }
+        }
+
         // schedule periodic cache clean up.
         Observable.interval(10, 60, TimeUnit.SECONDS).subscribe {
             doInBackground {

@@ -44,12 +44,12 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         return millis > other.millis
     }
 
-    val isAfterNow: Boolean
+    val isInFuture: Boolean
         get() {
             return millis > TimeFactory.currentTimeMillis()
         }
 
-    val isBeforeNow: Boolean
+    val isInPast: Boolean
         get() {
             return millis < TimeFactory.currentTimeMillis()
         }

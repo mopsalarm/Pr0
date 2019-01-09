@@ -62,15 +62,13 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override suspend fun doOnResume() {
         pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
             handleStateUpdate(state, newValues)
         }
 
         // reload if re-started after one minute
-        if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isBeforeNow) {
+        if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isInPast) {
             loadStartedTimestamp = Instant.now()
             reloadInboxContent()
         }

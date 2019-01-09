@@ -27,6 +27,7 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
@@ -535,9 +536,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return settings.contentType
         }
 
-    override fun onResume(): Unit = stateTransaction {
-        super.onResume()
-
+    override suspend fun doOnResume(): Unit = stateTransaction {
         if (config.trackItemView) {
             Track.screen(activity, "Feed")
         }
