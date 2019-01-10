@@ -45,14 +45,18 @@ inline class Logger(val name: String) {
 }
 
 object Logging {
-    private data class Entry(
+    private const val ENTRY_BUFFER_SIZE = 4096
+
+    class Entry(
             var time: Long = 0,
             var level: Int = 0,
             var name: String = "",
             var message: String = "",
             var thread: String = "")
 
-    private val entries = Array(4096) { Entry() }
+    private val array = arrayOf("0", "1", "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR", "ASSERT")
+
+    private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
     private var cachedCrashlytics: CrashlyticsCore? = null
@@ -75,11 +79,12 @@ object Logging {
             Log.println(level, tag, message)
 
         } else {
+            // only log to crashlytics
             cachedCrashlytics?.log(level, tag, message)
         }
 
         // store in buffer. Not 100% thread safe but close enough.
-        val index = entriesIndex.getAndIncrement() % entries.size
+        val index = entriesIndex.getAndIncrement() % ENTRY_BUFFER_SIZE
         entries[index].apply {
             this.time = SystemClock.elapsedRealtime()
             this.level = level
@@ -101,7 +106,9 @@ object Logging {
                 val entry = entries[(beginIndex + offset) % entries.size]
                 entry.takeIf { it.time != 0L }?.let {
                     "%4.3fs [%16s] [%5s] %s: %s".format(0.001f * (entry.time - now),
-                            entry.thread, levelToString(entry.level), entry.name, entry.message)
+                            entry.thread,
+                            array.getOrNull(entry.level) ?: "DEBUG",
+                            entry.name, entry.message)
                 }
             }
 
@@ -112,15 +119,5 @@ object Logging {
         }
 
         return result
-    }
-
-    private fun levelToString(level: Int): String {
-        return when (level) {
-            Log.DEBUG -> "DEBUG"
-            Log.INFO -> "INFO"
-            Log.WARN -> "WARN"
-            Log.ERROR -> "ERROR"
-            else -> "LOG"
-        }
     }
 }

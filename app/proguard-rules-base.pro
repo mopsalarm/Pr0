@@ -81,7 +81,7 @@
 # Keep mBackgroundTintHelper etc in support library who are used in
 # a bad access pattern. A null check is mistakenly optimized away.
 # see https://sourceforge.net/p/proguard/bugs/531/
--keepclassmembers,allowshrinking,allowobfuscation class  android.support.** {
+-keepclassmembers,allowshrinking,allowobfuscation class android.support.** {
     !static final <fields>;
     ** m*Helper;
 }
@@ -120,4 +120,3 @@
 }
 
 # END moshi rules
-
