@@ -14,10 +14,8 @@ import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import rx.Observable
 import rx.Subscription
 
@@ -70,21 +68,28 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         job = SupervisorJob()
     }
 
-    override fun onStart() {
-        onStartScope = newChild()
+    final override fun onStart() {
         super.onStart()
+
+        onStartScope = newChild()
+        onStartScope.launchUndispatched {
+            onStartImpl()
+        }
+    }
+
+    protected open suspend fun onStartImpl() {
     }
 
     final override fun onResume() {
         super.onResume()
 
         onResumeScope = onStartScope.newChild()
-        onResumeScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            doOnResume()
+        onResumeScope.launchUndispatched {
+            onResumeImpl()
         }
     }
 
-    protected open suspend fun doOnResume() {}
+    protected open suspend fun onResumeImpl() {}
 
     override fun onPause() {
         super.onPause()

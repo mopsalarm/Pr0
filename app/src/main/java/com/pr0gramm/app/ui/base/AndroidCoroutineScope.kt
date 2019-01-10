@@ -75,6 +75,13 @@ fun CoroutineScope.launchIgnoreErrors(
     }
 }
 
+fun CoroutineScope.launchUndispatched(
+        context: CoroutineContext = EmptyCoroutineContext,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    return launch(context, CoroutineStart.UNDISPATCHED, block)
+}
+
 inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
     checkMainThread()
 

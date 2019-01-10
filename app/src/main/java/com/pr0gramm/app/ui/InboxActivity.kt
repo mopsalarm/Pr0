@@ -99,9 +99,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override suspend fun onResumeImpl() {
         // remove pending notifications.
         notificationService.cancelForInbox()
     }

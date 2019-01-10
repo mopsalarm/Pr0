@@ -80,7 +80,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         reloadConversations()
     }
 
-    override suspend fun doOnResume() {
+    override suspend fun onResumeImpl() {
         updateConversationsUnreadCount()
         pagination.updates.bindToLifecycle().subscribe { applyPaginationUpdate(it) }
     }

@@ -23,6 +23,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
     override lateinit var job: Job
+    private lateinit var onStartScope: AndroidCoroutineScope
 
     override val androidContext: Context
         get() = requireContext()
@@ -34,16 +35,25 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
         super.onCreate(savedInstanceState)
     }
 
-    override fun onStart() {
+    final override fun onStart() {
         super.onStart()
+
+        onStartScope = newChild()
 
         // bind dialog. It is only created in on start.
         dialog?.let {
-            onDialogViewCreated()
+            onStartScope.launchUndispatched {
+                onDialogViewCreated()
+            }
         }
     }
 
-    protected open fun onDialogViewCreated() {}
+    protected open suspend fun onDialogViewCreated() {}
+
+    override fun onStop() {
+        super.onStop()
+        onStartScope.cancelScope()
+    }
 
     override fun onDestroyView() {
         if (dialog != null && retainInstance)

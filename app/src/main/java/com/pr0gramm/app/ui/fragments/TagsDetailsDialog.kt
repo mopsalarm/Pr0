@@ -45,7 +45,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         tagsView.layoutManager = LinearLayoutManager(
                 dialog.context, RecyclerView.VERTICAL, false)
 

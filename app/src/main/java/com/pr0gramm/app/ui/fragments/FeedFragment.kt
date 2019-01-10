@@ -536,7 +536,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return settings.contentType
         }
 
-    override suspend fun doOnResume(): Unit = stateTransaction {
+    override suspend fun onResumeImpl(): Unit = stateTransaction {
         if (config.trackItemView) {
             Track.screen(activity, "Feed")
         }

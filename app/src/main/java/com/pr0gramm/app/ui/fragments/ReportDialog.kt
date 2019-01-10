@@ -38,7 +38,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         reasonListView.adapter = ArrayAdapter(dialog.context,
                 android.R.layout.simple_list_item_single_choice,
                 config.reportReasons)

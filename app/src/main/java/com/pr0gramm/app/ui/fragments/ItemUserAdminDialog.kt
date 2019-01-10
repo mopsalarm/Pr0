@@ -55,7 +55,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         reasonListView.adapter = ArrayAdapter(dialog.context,
                 android.R.layout.simple_list_item_1, REASONS)
 

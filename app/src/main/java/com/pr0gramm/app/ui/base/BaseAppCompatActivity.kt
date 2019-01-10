@@ -8,10 +8,8 @@ import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import rx.Observable
 
 /**
@@ -45,16 +43,23 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
         super.onStart()
 
         onStartScope = newChild()
-        onStartScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            doOnStart()
+        onStartScope.launchUndispatched {
+            onStartImpl()
         }
     }
 
-    protected open suspend fun doOnStart() {}
+    protected open suspend fun onStartImpl() {}
 
     override fun onResume() {
-        onResumeScope = onStartScope.newChild()
         super.onResume()
+
+        onResumeScope = onStartScope.newChild()
+        onResumeScope.launchUndispatched {
+            onResumeImpl()
+        }
+    }
+
+    protected open suspend fun onResumeImpl() {
     }
 
     override fun onPause() {

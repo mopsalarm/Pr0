@@ -62,7 +62,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
     }
 
-    override suspend fun doOnResume() {
+    override suspend fun onResumeImpl() {
         pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
             handleStateUpdate(state, newValues)
         }

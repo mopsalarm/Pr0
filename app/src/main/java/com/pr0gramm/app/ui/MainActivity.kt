@@ -404,12 +404,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override suspend fun onResumeImpl() {
         onBackStackChanged()
     }
 
-    override suspend fun doOnStart() {
+    override suspend fun onStartImpl() {
         launchIgnoreErrors {
             runEvery(Duration.seconds(45)) { SyncJob.syncNow() }
         }

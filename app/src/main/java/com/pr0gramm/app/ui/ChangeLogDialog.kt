@@ -35,7 +35,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         val changes = loadChangelog(requireContext())
         recyclerView.adapter = changeAdapter(changes)
         recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)

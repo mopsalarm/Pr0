@@ -260,6 +260,19 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // show the repost badge if this is a repost
         repostHint.visible = inMemoryCacheService.isRepost(feedItem)
+
+        activeState.bindToLifecycle().subscribe { active ->
+            logger.info { "Switching viewer state to $active" }
+            if (active) {
+                playMediaOnViewer()
+            } else {
+                stopMediaOnViewer()
+            }
+
+            if (!active) {
+                exitFullscreen()
+            }
+        }
     }
 
     private val activeState = run {
@@ -347,23 +360,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                         || item === PostAdapter.Item.LoadErrorItem
             })
         }
-    }
-
-    override fun onStart() {
-        activeState.bindToLifecycle().subscribe { active ->
-            logger.info { "Switching viewer state to $active" }
-            if (active) {
-                playMediaOnViewer()
-            } else {
-                stopMediaOnViewer()
-            }
-
-            if (!active) {
-                exitFullscreen()
-            }
-        }
-
-        super.onStart()
     }
 
     override fun onDestroyView() {
@@ -635,7 +631,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private class DownloadException(cause: Throwable) : Exception(cause)
 
-    override suspend fun doOnResume() {
+    override suspend fun onResumeImpl() {
         apiComments
                 .switchMap { comments ->
                     voteService.getCommentVotes(comments).onErrorResumeEmpty()

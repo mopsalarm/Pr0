@@ -31,7 +31,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         tagSuggestions.setupView(tagInput)
 
         tagInput.addTextChangedListener { text ->

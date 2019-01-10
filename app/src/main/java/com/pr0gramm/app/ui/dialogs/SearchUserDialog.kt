@@ -31,7 +31,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
         }
     }
 
-    override fun onDialogViewCreated() {
+    override suspend fun onDialogViewCreated() {
         inputView.setAdapter(UsernameAutoCompleteAdapter(suggestionService, themedContext,
                 android.R.layout.simple_dropdown_item_1line, ""))
 

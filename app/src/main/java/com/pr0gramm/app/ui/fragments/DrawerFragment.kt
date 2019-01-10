@@ -166,7 +166,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         callback.onOtherNavigationItemClicked()
     }
 
-    override suspend fun doOnResume() {
+    override suspend fun onResumeImpl() {
         userService.loginStateWithBenisGraph
                 .observeOnMainThread(firstIsSync = true)
                 .bindToLifecycle()
