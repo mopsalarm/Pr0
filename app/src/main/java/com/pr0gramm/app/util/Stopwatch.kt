@@ -1,8 +1,7 @@
 package com.pr0gramm.app.util
 
-import java.util.*
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
-
 
 class Stopwatch {
     private val startTime = System.nanoTime()
@@ -17,10 +16,7 @@ class Stopwatch {
 
         val unit = chooseUnit(nanos)
         val value = nanos.toDouble() / TimeUnit.NANOSECONDS.convert(1, unit)
-
-        // Too bad this functionality is not exposed as a regular method call
-
-        return String.format(Locale.ROOT, "%1.4f %s", value, abbreviate(unit))
+        return format.format(value) + abbreviate(unit)
     }
 
     private fun chooseUnit(nanos: Long): TimeUnit {
@@ -49,6 +45,8 @@ class Stopwatch {
     }
 
     companion object {
+        private val format = DecimalFormat("#.0000")
+
         fun createStarted() = Stopwatch()
     }
 }
