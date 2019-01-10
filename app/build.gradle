@@ -244,15 +244,23 @@ dependencyUpdates.resolutionStrategy {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
     sourceCompatibility = JavaVersion.VERSION_1_6
     targetCompatibility = JavaVersion.VERSION_1_6
 
     kotlinOptions {
-        freeCompilerArgs = [
+        freeCompilerArgs += [
                 "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
                 "-XXLanguage:+InlineClasses",
         ]
+
+        if(task.name == "compileReleaseKotlin") {
+            freeCompilerArgs += [
+                "-Xno-call-assertions",
+                "-Xno-param-assertions",
+                "-Xno-receiver-assertions",
+            ]
+        }
     }
 }
 
