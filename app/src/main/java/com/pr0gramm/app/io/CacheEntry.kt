@@ -19,7 +19,12 @@ import kotlin.concurrent.withLock
 /**
  * A entry that is hold by the [Cache].
  */
-internal class CacheEntry(private val context: Application, private val httpClient: OkHttpClient, override val file: File, private val uri: Uri) : Cache.Entry {
+internal class CacheEntry(
+        private val context: Application,
+        private val httpClient: OkHttpClient,
+        override val file: File,
+        private val uri: Uri) : Cache.Entry {
+
     private val logger = Logger("CacheEntry")
 
     private val lock = ReentrantLock()
@@ -31,13 +36,16 @@ internal class CacheEntry(private val context: Application, private val httpClie
     private var fp: RandomAccessFile? = null
 
     @Volatile
-    private var totalSizeField: Int = 0
+    private var totalSizeValue: Int = 0
 
     @Volatile
     private var written: Int = 0
 
     @Volatile
     private var cacheWriter: CacheWriter? = null
+
+    // delegate all calls to this delegate if set
+    private var delegate: FileEntry? = null
 
     fun read(pos: Int, data: ByteArray, offset: Int, amount: Int): Int {
         // Always succeed when reading 0 bytes.
@@ -49,12 +57,12 @@ internal class CacheEntry(private val context: Application, private val httpClie
             val fp = ensureInitialized()
 
             // if we are at the end of the file, we need to signal that
-            if (pos >= totalSizeField) {
+            if (pos >= totalSizeValue) {
                 return -1
             }
 
             // check how much we can actually read at most!
-            val amountToRead = Math.min(pos + amount, totalSizeField) - pos
+            val amountToRead = Math.min(pos + amount, totalSizeValue) - pos
 
             // wait for the data to be there
             expectCached(pos + amountToRead)
@@ -73,22 +81,23 @@ internal class CacheEntry(private val context: Application, private val httpClie
         }
     }
 
-
-    override val totalSize: Int
-        get() {
-            ensureInitialized()
-            return totalSizeField
-        }
-
     private fun write(data: ByteArray, offset: Int, amount: Int) {
         lock.withLock {
             val fp = ensureInitialized()
 
             // only really write if we have a positive amount here.
             if (amount > 0) {
+                // write the data
                 seek(fp, written)
                 fp.write(data, offset, amount)
                 written += amount
+
+                // update the metadata field
+                seek(fp, totalSizeValue + 4)
+                fp.writeInt(written)
+
+                // sync the write to disk
+                fp.fd.sync()
             }
 
             // tell the readers about the new data.
@@ -111,7 +120,7 @@ internal class CacheEntry(private val context: Application, private val httpClie
     }
 
     private fun seek(fp: RandomAccessFile, pos: Int) {
-        fp.seek((PAYLOAD_OFFSET + pos).toLong())
+        fp.seek(pos.toLong())
     }
 
     private fun ensureInitialized(): RandomAccessFile {
@@ -132,7 +141,7 @@ internal class CacheEntry(private val context: Application, private val httpClie
      * You need to hold the lock to call this method.
      */
     private fun fullyCached(): Boolean {
-        return written >= totalSizeField
+        return written >= totalSizeValue
     }
 
     /**
@@ -155,22 +164,30 @@ internal class CacheEntry(private val context: Application, private val httpClie
         val fp = RandomAccessFile(file, "rwd")
         this.fp = fp
         try {
+            // layout
+            // < bytes:data > | <int:checksum> | <int:written>
+
             // get the length of the file and the checksum to test if we just created it,
             // or if it already contains data.
-            val length = fp.length().toInt()
-            val fileIsValid = length >= 8 && fp.readInt() == expectedChecksum
+            val length = fp.length()
+
+            val fileIsValid = length >= 8 && run {
+                // seek 8 bytes before the end of the file to read metadata
+                fp.seek(length - 8)
+                fp.readInt() == expectedChecksum
+            }
 
             if (fileIsValid) {
                 logger.debug { "Found already cached file, loading metadata." }
 
                 // read the total size from the file now.
                 // We've previously read the first four bytes (checksum).
-                totalSizeField = fp.readInt()
-                written = Math.max(0, length - PAYLOAD_OFFSET)
+                totalSizeValue = length.toInt() - 8
+                written = fp.readInt()
 
-                if (written > totalSizeField) {
+                if (written > totalSizeValue) {
                     // okay, someone fucked up! :/
-                    logToCrashlytics(IOException("written=$written greater than totalSize=$totalSizeField"))
+                    logToCrashlytics(IOException("written=$written greater than totalSize=$totalSizeValue"))
 
                     // invalidate the file and try again.
                     fp.setLength(0)
@@ -184,23 +201,17 @@ internal class CacheEntry(private val context: Application, private val httpClie
             } else {
                 logger.debug { "Entry is new, no data is previously cached." }
 
-                // write header at the beginning of the file
-                fp.setLength(0)
-
                 // we can not have written anything yet.
                 written = 0
 
-                // start caching now.
-                totalSizeField = resumeCaching()
+                // start caching in the background now. This also resolves
+                // the total size of the file
+                totalSizeValue = resumeCaching()
 
-                // we still have the lock, so we can write the header now.
+                // re-size the file and write header at the end of the file
+                fp.setLength(totalSizeValue.toLong())
                 fp.writeInt(expectedChecksum)
-                fp.writeInt(totalSizeField)
-
-                // fill up to PAYLOAD_OFFSET
-                for (idx in (8 until PAYLOAD_OFFSET)) {
-                    fp.write(0)
-                }
+                fp.writeInt(written)
             }
 
             logger.debug { "Initialized entry ${this}" }
@@ -221,7 +232,7 @@ internal class CacheEntry(private val context: Application, private val httpClie
         logger.debug { "Resetting entry ${this}" }
         this.fp = null
         this.written = 0
-        this.totalSizeField = 0
+        this.totalSizeValue = 0
 
         this.cacheWriter = null
     }
@@ -333,6 +344,7 @@ internal class CacheEntry(private val context: Application, private val httpClie
                     Stats().histogram("net.transferred", bytesTransferred, typeTag)
                 }
 
+
             } catch (err: Exception) {
                 logger.error { "Error in caching thread" }
                 size.setError(err)
@@ -349,33 +361,53 @@ internal class CacheEntry(private val context: Application, private val httpClie
         private fun writeResponseToEntry(response: Response): Long {
             var written = 0L
 
-            response.body()?.byteStream()?.use { stream ->
-                readStream(stream) { buffer, byteCount ->
+            response.body()?.use { body ->
+                body.byteStream().use { stream ->
+                    readStream(stream) { buffer, byteCount ->
+                        lock.withLock {
+                            if (canceled) {
+                                logger.info { "Caching canceled, stopping now." }
+                                return written
+                            }
+
+                            if (fp == null) {
+                                logger.warn { "Error during caching, the file-handle went away: ${this}" }
+                                return written
+                            }
+
+                            debug {
+                                if (written > 1024 * 1024)
+                                    throw EOFException("DEBUG Simulate network loss")
+                            }
+
+                            write(buffer, 0, byteCount)
+
+                            written += byteCount
+                        }
+                    }
+
                     lock.withLock {
-                        if (canceled) {
-                            logger.info { "Caching canceled, stopping now." }
-                            return@use
-                        }
-
-                        if (fp == null) {
-                            logger.warn { "Error during caching, the file-handle went away: ${this}" }
-                            return@use
-                        }
-
-                        debug {
-                            if (written > 1024 * 1024)
-                                throw EOFException("DEBUG Simulate network loss")
-                        }
-
-                        write(buffer, 0, byteCount)
-
-                        written += byteCount
+                        fp?.let { promoteFullyCached(it) }
                     }
                 }
+
             }
 
             return written
         }
+    }
+
+    private fun promoteFullyCached(fp: RandomAccessFile) {
+        // remove metadata from end of the file
+        fp.setLength(totalSizeValue.toLong())
+        fp.fd.sync()
+
+        // replace with fully cached file
+        val promoted = File(file.path + ".ok")
+        file.renameTo(promoted)
+
+        // replace this file with the delegate
+        delegate = FileEntry(promoted)
     }
 
     /**
@@ -386,11 +418,23 @@ internal class CacheEntry(private val context: Application, private val httpClie
         return this
     }
 
+    override val totalSize: Int
+        get() {
+            // prefer the delegate if possible
+            delegate?.let { return it.totalSize }
+
+            ensureInitialized()
+            return totalSizeValue
+        }
+
     /**
      * Mark this entry as "closed" - as far as the caller is concerned. The entry
      * itself does not need to close immediately if it is used somewhere else.
      */
     override fun close() {
+        // delegate if needed
+        delegate?.close()
+
         this.refCount.decrementAndGet()
         lock.withLock {
             // reset the ref count in case of errors.
@@ -407,18 +451,10 @@ internal class CacheEntry(private val context: Application, private val httpClie
         }
     }
 
-    protected fun finalize() {
-        if (this.fp != null) {
-            logger.warn { "Entry finalized, but file was not closed." }
-
-            Stats().increment("cache.finalize.needed")
-            fp.closeQuietly()
-
-            reset()
-        }
-    }
-
     override fun inputStreamAt(offset: Int): InputStream {
+        // serve directly from file if possible
+        delegate?.let { return it.inputStreamAt(offset) }
+
         // update the time stamp if the cache file already exists.
         if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
             logger.warn { "Could not update timestamp on $file" }
@@ -428,10 +464,23 @@ internal class CacheEntry(private val context: Application, private val httpClie
     }
 
     override val fractionCached: Float get() {
-        if (totalSizeField > 0) {
-            return written / totalSizeField.toFloat()
+        delegate?.let { return it.fractionCached }
+
+        return if (totalSizeValue > 0) {
+            written / totalSizeValue.toFloat()
         } else {
-            return -1f
+            -1f
+        }
+    }
+
+    protected fun finalize() {
+        if (this.fp != null) {
+            logger.warn { "Entry finalized, but file was not closed." }
+
+            Stats().increment("cache.finalize.needed")
+            fp.closeQuietly()
+
+            reset()
         }
     }
 
@@ -447,7 +496,7 @@ internal class CacheEntry(private val context: Application, private val httpClie
 
     override fun toString(): String {
         lock.withLock {
-            return "Entry(written=$written, totalSize=${totalSizeField.takeIf { it > 0 }}, " +
+            return "Entry(written=$written, totalSize=${totalSizeValue.takeIf { it > 0 }}, " +
                     "caching=${cacheWriter != null}, refCount=${refCount.get()}, " +
                     "fullyCached=${fullyCached()}, uri=$uri)"
         }
@@ -517,9 +566,5 @@ internal class CacheEntry(private val context: Application, private val httpClie
         } while (totalCount < amount)
 
         return totalCount
-    }
-
-    companion object {
-        private const val PAYLOAD_OFFSET = 16
     }
 }

@@ -10,7 +10,7 @@ import java.io.InputStream
  * A simple file based entry. This one is backed by a static file and does
  * not require caching at all. Useful for local "file://" urls.
  */
-internal class FileEntry(override val file: File) : Cache.Entry {
+class FileEntry(override val file: File) : Cache.Entry {
     private val logger = Logger("FileEntry")
 
     override val totalSize: Int

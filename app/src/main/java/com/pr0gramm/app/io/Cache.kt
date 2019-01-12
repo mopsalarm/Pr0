@@ -2,21 +2,20 @@ package com.pr0gramm.app.io
 
 import android.app.Application
 import android.net.Uri
+import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.Stats
-import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.runEvery
 import okhttp3.*
 import okio.Okio
-import rx.Observable
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -34,13 +33,6 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     init {
         doInBackground {
             runEvery(seconds(60), initial = seconds(10)) {
-                cleanupCache()
-            }
-        }
-
-        // schedule periodic cache clean up.
-        Observable.interval(10, 60, TimeUnit.SECONDS).subscribe {
-            doInBackground {
                 cleanupCache()
             }
         }
@@ -71,20 +63,20 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         logger.debug { "Creating a new cache entry for uri $uri" }
 
         // just open the file directly if it is local.
-        if (uri.scheme == "file") {
-            return FileEntry(toFile(uri))
+        if (uri.isLocalFile) {
+            return FileEntry(uri.toFile())
         }
 
-        val cacheFile = cacheFileFor(uri)
-        return CacheEntry(context, httpClient, cacheFile, uri)
-    }
+        val cacheFile = File(root, uri.toString()
+                .replaceFirst("https?://".toRegex(), "")
+                .replace("[^a-zA-Z0-9.]+".toRegex(), "_"))
 
-    /**
-     * Retuns the cache file for the given uri.
-     */
-    private fun cacheFileFor(uri: Uri): File {
-        val filename = uri.toString().replaceFirst("https?://".toRegex(), "").replace("[^a-zA-Z0-9.]+".toRegex(), "_")
-        return File(root, filename)
+        // if the file was completelly cached, return that one now directly.
+        val finishedCacheFile = File(root, cacheFile.name + ".ok")
+        if (finishedCacheFile.exists())
+            return FileEntry(finishedCacheFile)
+
+        return CacheEntry(context, httpClient, cacheFile, uri)
     }
 
     /**
@@ -96,7 +88,9 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
             return
         }
 
-        val files = root.listFiles().sortedByDescending { it.lastModified() }
+        // cache times to sort without someone modifying timestamps during sorting between
+        val modificationTimes = root.listFiles().associate { Pair(it, it.lastModified()) }
+        val files = modificationTimes.keys.sortedByDescending { modificationTimes[it] }
 
         // The space already in use by the cache
         val usedCacheSpace = files.fold(0L) { acc, file -> acc + file.length() }
