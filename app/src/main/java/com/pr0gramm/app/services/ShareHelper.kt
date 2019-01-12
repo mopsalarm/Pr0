@@ -46,7 +46,7 @@ object ShareHelper {
 
 
     fun shareDirectLink(activity: Activity, feedItem: FeedItem) {
-        val uri = UriHelper.of(activity).noPreload().media(feedItem).toString()
+        val uri = UriHelper.NoPreload.media(feedItem).toString()
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")

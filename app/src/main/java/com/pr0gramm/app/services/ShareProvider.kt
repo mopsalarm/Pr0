@@ -61,8 +61,7 @@ class ShareProvider : ContentProvider() {
     }
 
     private fun getSizeForUri(uri: Uri): Long {
-        val url = decode(uri).toString()
-        return cache.get(Uri.parse(url)).totalSize.toLong()
+        return cache.get(decode(uri)).use { it.totalSize.toLong() }
     }
 
     override fun getType(uri: Uri): String? {
@@ -86,18 +85,20 @@ class ShareProvider : ContentProvider() {
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        val url = decode(uri).toString()
+        val decoded = decode(uri)
         val mimeType = guessMimetype(decode(uri))
 
         return openPipeHelper<Any>(uri, mimeType, null, null) { output, _, _, _, _ ->
             try {
-                if (url.matches("https?://.*".toRegex())) {
-                    cache.get(Uri.parse(url)).inputStreamAt(0).use { source ->
-                        // stream the data to the caller
-                        source.copyTo(FileOutputStream(output.fileDescriptor))
+                if (decoded.scheme == "http" || decoded.scheme == "https") {
+                    cache.get(decoded).use { entry ->
+                        entry.inputStreamAt(0).use { source ->
+                            // stream the data to the caller
+                            source.copyTo(FileOutputStream(output.fileDescriptor))
+                        }
                     }
                 } else {
-                    requireContext().contentResolver.openInputStream(Uri.parse(url)).use { source ->
+                    requireContext().contentResolver.openInputStream(decoded).use { source ->
                         source?.copyTo(FileOutputStream(output.fileDescriptor))
                     }
                 }
@@ -122,7 +123,9 @@ class ShareProvider : ContentProvider() {
      * Decodes the received url
      */
     private fun decode(uri: Uri): Uri {
-        val lastPathSegment = uri.lastPathSegment!!
+        val lastPathSegment = uri.lastPathSegment
+                ?: throw IllegalArgumentException("Invalid share uri")
+
         return Uri.parse(lastPathSegment.decodeBase64String(urlSafe = true))
     }
 
@@ -159,7 +162,7 @@ class ShareProvider : ContentProvider() {
 
         private val EXT_MIMETYPE_MAP = mapOf(
                 ".png" to "image/png",
-                ".jpg" to "image/jpg",
+                ".jpg" to "image/jpeg",
                 "jpeg" to "image/jpeg",
                 "webm" to "video/webm",
                 ".mp4" to "video/mp4",

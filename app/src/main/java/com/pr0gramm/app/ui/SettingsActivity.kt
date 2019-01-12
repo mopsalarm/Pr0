@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.collection.valueIterator
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.Preference
@@ -24,8 +25,11 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BasePreferenceFragment
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.observeOnMainThread
 
 /**
  */
@@ -137,9 +141,12 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         private fun updatePreloadInfo() {
             val preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
             if (preference != null) {
-                preloadManager.all()
-                        .subscribeOnBackground()
-                        .map { items -> items.fold(0L) { sum, item -> sum + item.media.length() + item.thumbnail.length() } }
+                preloadManager.items
+                        .map { items ->
+                            items.valueIterator().asSequence().fold(0L) { sum, item ->
+                                sum + item.media.length() + item.thumbnail.length()
+                            }
+                        }
                         .observeOnMainThread()
                         .compose(bindToLifecycle())
                         .subscribe { totalSize ->
@@ -191,7 +198,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_clean_preloaded" -> {
-                    doInBackground { preloadManager.deleteBefore(Instant.now()) }
+                    doInBackground { preloadManager.deleteOlderThan(Instant.now()) }
                     return true
                 }
 

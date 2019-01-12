@@ -48,7 +48,7 @@ class SimilarImageView @JvmOverloads constructor(
                             .placeholder(ColorDrawable(0xff333333.toInt()))
                             .into(imageView)
 
-                    imageView.setOnClickListener { _ ->
+                    imageView.setOnClickListener {
                         handleItemClicked(item)
                     }
                 }

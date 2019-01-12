@@ -2,50 +2,37 @@ package com.pr0gramm.app.services
 
 import android.content.Context
 import android.net.Uri
-import com.pr0gramm.app.Settings
+import androidx.core.net.toUri
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.toUri
 
 
 /**
  * A little helper class to work with URLs
  */
 class UriHelper private constructor(context: Context) {
-    private val settings: Settings = Settings.get()
-    private val noPreload = NoPreload()
-
     private val preloadManager: PreloadManager by lazy { context.injector.instance<PreloadManager>() }
 
-    private fun start(): Uri.Builder {
-        return Uri.Builder()
-                .scheme("https")
-                .authority("pr0gramm.com")
-    }
-
-    internal fun start(subdomain: String): Uri.Builder {
-        return Uri.Builder()
-                .scheme("https")
-                .authority("$subdomain.pr0gramm.com")
-    }
-
     fun thumbnail(item: HasThumbnail): Uri {
-        return preloadManager.get(item.id)?.thumbnail?.toUri() ?: noPreload.thumbnail(item)
+        val preloaded = preloadManager[item.id]
+        if (preloaded != null)
+            return preloaded.thumbnail.toUri()
+
+        return NoPreload.thumbnail(item)
     }
 
     fun media(item: FeedItem, hq: Boolean = false): Uri {
         if (hq && item.fullsize.isNotEmpty())
-            return noPreload.media(item, true)
+            return NoPreload.media(item, true)
 
-        return preloadManager.get(item.id)?.media?.toUri() ?: noPreload.media(item, false)
-    }
+        val preloaded = preloadManager[item.id]
+        if (preloaded != null)
+            return preloaded.media.toUri()
 
-    fun media(path: String): Uri {
-        val isVideo = path.endsWith(".mp4") || path.endsWith(".webm")
-        return absoluteJoin(start(if (isVideo) "vid" else "img"), path)
+        return NoPreload.media(item, highQuality = false)
     }
 
     fun base(): Uri {
@@ -72,16 +59,31 @@ class UriHelper private constructor(context: Context) {
         return start().path("/user/$user/likes").build()
     }
 
-    fun noPreload(): NoPreload {
-        return noPreload
-    }
-
-    inner class NoPreload internal constructor() {
-        fun media(item: FeedItem): Uri {
-            return media(item, false)
+    fun badgeImageUrl(image: String): Uri {
+        if (image.startsWith("http://") || image.startsWith("https://")) {
+            return Uri.parse(image)
         }
 
-        fun media(item: FeedItem, highQuality: Boolean): Uri {
+        if (image.startsWith("//")) {
+            return Uri.parse("https:$image")
+        }
+
+        val builder = Uri.parse("https://pr0gramm.com/media/badges/").buildUpon()
+        return if (image.startsWith("/")) {
+            builder.path(image).build()
+        } else {
+            builder.appendEncodedPath(image).build()
+        }
+    }
+
+    private fun start(): Uri.Builder {
+        return Uri.Builder()
+                .scheme("https")
+                .authority("pr0gramm.com")
+    }
+
+    object NoPreload {
+        fun media(item: FeedItem, highQuality: Boolean = false): Uri {
             return if (highQuality && !item.isVideo)
                 absoluteJoin(start("full"), item.fullsize)
             else
@@ -91,34 +93,24 @@ class UriHelper private constructor(context: Context) {
         fun thumbnail(item: HasThumbnail): Uri {
             return absoluteJoin(start("thumb"), item.thumbnail ?: "")
         }
-    }
 
-    private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {
-        if (path.startsWith("http://") || path.startsWith("https://")) {
-            return Uri.parse(path)
+        private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {
+            if (path.startsWith("http://") || path.startsWith("https://")) {
+                return Uri.parse(path)
+            }
+
+            if (path.startsWith("//")) {
+                return Uri.parse("https:$path")
+            }
+
+            val normalized = if (path.startsWith("/")) path else "/$path"
+            return builder.path(normalized).build()
         }
 
-        if (path.startsWith("//")) {
-            return Uri.parse("https:$path")
-        }
-
-        val normalized = if (path.startsWith("/")) path else "/" + path
-        return builder.path(normalized).build()
-    }
-
-    private fun join(builder: Uri.Builder, path: String): Uri {
-        if (path.startsWith("http://") || path.startsWith("https://")) {
-            return Uri.parse(path)
-        }
-
-        if (path.startsWith("//")) {
-            return Uri.parse("https:$path")
-        }
-
-        if (path.startsWith("/")) {
-            return builder.path(path).build()
-        } else {
-            return builder.appendEncodedPath(path).build()
+        private fun start(subdomain: String): Uri.Builder {
+            return Uri.Builder()
+                    .scheme("https")
+                    .authority("$subdomain.pr0gramm.com")
         }
     }
 
@@ -126,15 +118,10 @@ class UriHelper private constructor(context: Context) {
         fun of(context: Context): UriHelper {
             return UriHelper(context)
         }
-
         private val FEED_TYPES = mapOf(
                 FeedType.NEW to "new",
                 FeedType.PROMOTED to "top",
                 FeedType.PREMIUM to "stalk")
-    }
 
-    fun badgeImageUrl(image: String): Uri {
-        val builder = Uri.parse("https://pr0gramm.com/media/badges/").buildUpon()
-        return join(builder, image)
     }
 }

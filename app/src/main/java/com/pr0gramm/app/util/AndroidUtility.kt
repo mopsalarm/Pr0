@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
-import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.text.SpannableStringBuilder
@@ -36,7 +35,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -173,11 +171,6 @@ object AndroidUtility {
                 append(if (last) "" else "\n")
             }
         }
-    }
-
-    fun toFile(uri: Uri): File {
-        require("file" == uri.scheme) { "not a file:// uri" }
-        return File(uri.path)
     }
 
     fun buildVersionCode(): Int {

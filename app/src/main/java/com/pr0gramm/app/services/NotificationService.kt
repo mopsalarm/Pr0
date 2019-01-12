@@ -41,7 +41,8 @@ class NotificationService(private val context: Application,
 
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)
-    private val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
+
+    val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
     private val downloadNotificationNextId = AtomicInteger(Types.Download.id)
 

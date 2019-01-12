@@ -3,8 +3,8 @@ package com.pr0gramm.app.util.decoders
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.pr0gramm.app.util.AndroidUtility.toFile
+import androidx.core.net.toFile
+import com.pr0gramm.app.util.isLocalFile
 import java.io.FileInputStream
 
 /**
@@ -14,10 +14,10 @@ class AndroidRegionDecoder(private val config: Bitmap.Config) : Decoder {
     private var decoder: BitmapRegionDecoder? = null
 
     override fun init(context: Context, uri: Uri): Point {
-        if (uri.scheme != "file")
+        if (!uri.isLocalFile)
             throw IllegalArgumentException("Must be a file:// uri")
 
-        val decoder = FileInputStream(toFile(uri)).use { input ->
+        val decoder = FileInputStream(uri.toFile()).use { input ->
             BitmapRegionDecoder.newInstance(input.fd, false)
         }
 

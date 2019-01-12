@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.BenisRecordService
 import com.pr0gramm.app.services.BookmarkService
-import com.pr0gramm.app.services.preloading.DatabasePreloadManager
+import com.pr0gramm.app.services.preloading.PreloadManager
 import com.squareup.sqlbrite.BriteDatabase
 
 /**
@@ -34,7 +34,7 @@ object Databases {
             CachedVote.prepareDatabase(db)
             BenisRecordService.prepare(db)
             BookmarkService.prepare(db)
-            DatabasePreloadManager.onCreate(db)
+            PreloadManager.onCreate(db)
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

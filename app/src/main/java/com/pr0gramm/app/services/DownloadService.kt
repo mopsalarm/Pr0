@@ -95,27 +95,28 @@ class DownloadService(
         return downloadToFile(uri, tempFile)
     }
 
-    fun downloadToFile(uri: Uri, target: File): Observable<Status> {
+    private fun downloadToFile(uri: Uri, target: File): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
-                val entry = cache.get(uri)
-                val totalSize = entry.totalSize
+                cache.get(uri).use { entry ->
+                    val totalSize = entry.totalSize
 
-                FileOutputStream(target).use { output ->
-                    val interval = Interval(250)
+                    FileOutputStream(target).use { output ->
+                        val interval = Interval(250)
 
-                    entry.inputStreamAt(0).use { body ->
-                        emitter.setCancellation { body.closeQuietly() }
+                        entry.inputStreamAt(0).use { body ->
+                            emitter.setCancellation { body.closeQuietly() }
 
-                        CountingInputStream(body).use { input ->
-                            readStream(input) { buffer, count ->
-                                output.write(buffer, 0, count)
+                            CountingInputStream(body).use { input ->
+                                readStream(input) { buffer, count ->
+                                    output.write(buffer, 0, count)
 
-                                // only give status if we know the size of the file
-                                if (totalSize > 0L) {
-                                    interval.doIfTime {
-                                        val progress = input.count / totalSize.toFloat()
-                                        emitter.onNext(Status(progress, null))
+                                    // only give status if we know the size of the file
+                                    if (totalSize > 0L) {
+                                        interval.doIfTime {
+                                            val progress = input.count / totalSize.toFloat()
+                                            emitter.onNext(Status(progress, null))
+                                        }
                                     }
                                 }
                             }

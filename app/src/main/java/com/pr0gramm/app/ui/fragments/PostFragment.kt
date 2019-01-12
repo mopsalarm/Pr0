@@ -856,7 +856,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // initialize a new viewer fragment
         val uri = MediaUri.of(requireContext(), feedItem)
 
-        if (!uri.isLocal && AndroidUtility.isOnMobile(context)) {
+        if (!uri.isLocalFile && AndroidUtility.isOnMobile(context)) {
             val confirmAll = settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.ALL
             val confirmVideo = settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.VIDEO
                     && uri.mediaType !== MediaUri.MediaType.IMAGE

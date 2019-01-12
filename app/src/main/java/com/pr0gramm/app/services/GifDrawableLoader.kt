@@ -2,10 +2,11 @@ package com.pr0gramm.app.services
 
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import androidx.core.net.toFile
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.readStream
 import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
@@ -26,9 +27,8 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
     fun load(uri: Uri): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
-                if (uri.scheme == "file") {
-                    val file = toFile(uri)
-                    val drawable = RandomAccessFile(file, "r").use { createGifDrawable(it) }
+                if (uri.isLocalFile) {
+                    val drawable = RandomAccessFile(uri.toFile(), "r").use { createGifDrawable(it) }
 
                     emitter.onNext(Status(drawable))
                     emitter.onCompleted()

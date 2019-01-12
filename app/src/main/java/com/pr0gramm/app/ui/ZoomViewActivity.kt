@@ -15,6 +15,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
@@ -25,7 +26,6 @@ import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
-import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
 import rx.Emitter
@@ -44,7 +44,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
 
     private val picasso: Picasso by instance()
-    private val downloader: Downloader by instance()
+    private val cache: Cache by instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.fullscreen)
@@ -55,8 +55,8 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
 
         imageView.setMaxTileSize(4096)
         imageView.setDebug(BuildConfig.DEBUG)
-        imageView.setBitmapDecoderFactory { PicassoDecoder(tag, picasso) }
-        imageView.setRegionDecoderFactory { Decoders.newImageDecoder(downloader) }
+        imageView.setBitmapDecoderFactory(PicassoDecoder.factory(tag, picasso))
+        imageView.setRegionDecoderFactory(Decoders.regionDecoderFactory(cache))
 
         rxImageLoaded(imageView).bindToLifecycle().subscribe {
             hideBusyIndicator()

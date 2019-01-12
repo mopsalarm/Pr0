@@ -6,11 +6,10 @@ import android.widget.TextView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
-import com.squareup.picasso.Downloader
+import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
 
 @SuppressLint("ViewConstructor")
@@ -22,8 +21,6 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
 
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)
-
-    private val downloader: Downloader by instance()
 
     init {
         imageView.visibility = View.VISIBLE
@@ -39,8 +36,8 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         // try not to use too much memory, even on big devices
         imageView.setMaxTileSize(2048)
 
-        imageView.setBitmapDecoderFactory { PicassoDecoder(tag, picasso) }
-        imageView.setRegionDecoderFactory { Decoders.newImageDecoder(downloader) }
+        imageView.setBitmapDecoderFactory(PicassoDecoder.factory(tag, picasso))
+        imageView.setRegionDecoderFactory(Decoders.regionDecoderFactory(context.injector.instance()))
 
         imageView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onImageLoaded() {

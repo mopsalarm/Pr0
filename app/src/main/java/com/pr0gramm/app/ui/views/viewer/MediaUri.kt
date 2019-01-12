@@ -5,21 +5,16 @@ import android.net.Uri
 
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.util.isLocalFile
 
 /**
  */
 data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.MediaType, val delay: Boolean = false) {
-
     fun withDelay(value: Boolean): MediaUri {
         return copy(delay = value)
     }
 
-    fun withUri(uri: Uri, mediaType: MediaType): MediaUri {
-        return copy(baseUri = uri, mediaType = mediaType)
-    }
-
-    val isLocal: Boolean
-        get() = "file" == baseUri.scheme
+    val isLocalFile: Boolean = baseUri.isLocalFile
 
     override fun toString(): String {
         return baseUri.toString()

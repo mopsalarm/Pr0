@@ -14,7 +14,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.NonNull
+import androidx.collection.LongSparseArray
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -41,7 +41,6 @@ import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
 import java.io.Closeable
-import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
@@ -138,14 +137,11 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (Byt
 
 inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn: () -> R): R {
     acquire(timeUnit.toMillis(timeValue))
+
     try {
         return fn()
     } finally {
-        try {
-            Log.i("pr0", "Releasing wake lock")
-            release()
-        } catch (ignored: RuntimeException) {
-        }
+        runCatching { release() }
     }
 }
 
@@ -154,14 +150,12 @@ inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
         callsInPlace(fn, InvocationKind.UNKNOWN)
     }
 
-    return use {
-        val values = mutableListOf<R>()
-        while (moveToNext()) {
-            values.add(fn())
-        }
-
-        values
+    val values = mutableListOf<R>()
+    while (moveToNext()) {
+        values.add(fn())
     }
+
+    return values
 }
 
 inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R) {
@@ -376,9 +370,6 @@ fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false): Observable<T> 
     subscribe(subject)
     return subject
 }
-
-fun File.toUri(): Uri = Uri.fromFile(this)
-
 
 @Suppress("NOTHING_TO_INLINE")
 @ColorInt
@@ -671,3 +662,20 @@ suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero,
 suspend fun delay(duration: Duration) {
     delay(duration.millis)
 }
+
+inline fun <T> longSparseArrayOf(values: Iterable<T>, crossinline keyOf: (T) -> Long): LongSparseArray<T> {
+    val comparator = Comparator<T> { o1, o2 ->
+        val x = keyOf(o1)
+        val y = keyOf(o2)
+        if (x < y) -1 else if (x == y) 0 else 1
+    }
+
+    val sortedValues = values.sortedWith(comparator)
+    val sparse = LongSparseArray<T>(sortedValues.size)
+    for (value in sortedValues)
+        sparse.append(keyOf(value), value)
+
+    return sparse
+}
+
+val Uri.isLocalFile get(): Boolean = scheme == "file"

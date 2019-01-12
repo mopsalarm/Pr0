@@ -8,6 +8,7 @@ import androidx.core.graphics.applyCanvas
 import androidx.core.net.toFile
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
 import okhttp3.Request
@@ -109,12 +110,15 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
     }
 
     private fun fetch(uri: Uri): ByteArray? {
-        if (uri.scheme == "file") {
+        if (uri.isLocalFile) {
             return uri.toFile().readBytes()
         }
 
+        if (uri.scheme != "http" && uri.scheme != "https")
+            return null
+
         val response = downloader.load(Request.Builder().url(uri.toString()).build())
-        return response.body()?.bytes()?.takeIf { it.isNotEmpty() }
+        return response.body()?.use { body -> body.bytes().takeIf { it.isNotEmpty() } }
     }
 
     private fun decode565(bytes: ByteArray): Bitmap? {

@@ -162,7 +162,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     @SuppressLint("SetTextI18n")
     private fun showPreloadedIndicator() {
-        if (BuildConfig.DEBUG && mediaUri.isLocal) {
+        if (BuildConfig.DEBUG && mediaUri.isLocalFile) {
             val preloadHint = TextView(context)
             preloadHint.text = "preloaded"
             preloadHint.layoutParams = DEFAULT_PARAMS

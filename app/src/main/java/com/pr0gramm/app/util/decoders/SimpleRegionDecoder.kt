@@ -3,7 +3,8 @@ package com.pr0gramm.app.util.decoders
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
-import com.pr0gramm.app.util.AndroidUtility.toFile
+import androidx.core.net.toFile
+import com.pr0gramm.app.util.isLocalFile
 
 /**
  * Decodes the complete image and then cuts out the region we want.
@@ -12,16 +13,14 @@ class SimpleRegionDecoder(private val config: Bitmap.Config) : Decoder {
     private var bitmap: Bitmap? = null
 
     override fun init(context: Context, uri: Uri): Point {
-        if (uri.scheme == "file") {
-            val options = BitmapFactory.Options().apply {
-                inPreferredConfig = config
-            }
+        if (uri.isLocalFile) {
+            val options = BitmapFactory.Options()
+            options.inPreferredConfig = config
 
             // load the image
-            BitmapFactory.decodeFile(toFile(uri).path, options).let {
-                bitmap = it
-                return Point(it.width, it.height)
-            }
+            val bitmap = BitmapFactory.decodeFile(uri.toFile().path, options)
+            this.bitmap = bitmap
+            return Point(bitmap.width, bitmap.height)
         }
 
         throw IllegalArgumentException("Can only process images from the local filesystem")

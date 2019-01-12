@@ -5,9 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.pr0gramm.app.util.AndroidUtility.toFile
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.io.FileEntry
+import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.Logger
-import com.squareup.picasso.Downloader
+import com.pr0gramm.app.util.isLocalFile
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -15,38 +19,32 @@ import java.io.IOException
 /**
  * This decoder first downloads the image before starting to decode it.
  */
-class DownloadingRegionDecoder(private val downloader: Downloader, private val decoder: Decoder) : Decoder {
+class DownloadingRegionDecoder(private val cache: Cache, private val decoder: Decoder) : Decoder {
     private val logger = Logger("DownloadingRegionDecoder")
 
-    private var imageFile: File? = null
-    private var deleteImageOnRecycle: Boolean = false
+    private var imageFileRef: FileRef? = null
 
     override fun init(context: Context, uri: Uri): Point? {
-        require(imageFile == null) { "Can not call init twice." }
+        require(imageFileRef == null) { "Can not call init twice." }
 
-        val file = if ("file" == uri.scheme) {
-            toFile(uri).also { imageFile = it }
+        if (uri.isLocalFile) {
+            imageFileRef = FileRef(uri.toFile(), shared = true)
+            return decoder.init(context, uri)
+
         } else {
-            val file = File.createTempFile("image", ".tmp", context.cacheDir)
-            imageFile = file
-            deleteImageOnRecycle = true
-
             try {
-                downloadTo(uri, file)
-                file
+                val ref = resolveToFile(uri)
+                imageFileRef = ref
+
+                return decoder.init(context, ref.file.toUri())
 
             } catch (error: IOException) {
                 logger.warn { "Could not download image to temp file" }
-
-                if (!file.delete())
-                    logger.warn { "Could not delete file" }
 
                 // re-raise exception
                 throw IOException("Could not download image to temp file", error)
             }
         }
-
-        return decoder.init(context, Uri.fromFile(file))
     }
 
     override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap? {
@@ -59,7 +57,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     }
 
     override fun isReady(): Boolean {
-        return imageFile != null && decoder.isReady()
+        return imageFileRef != null && decoder.isReady()
     }
 
     override fun recycle() {
@@ -71,25 +69,38 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     }
 
     private fun cleanup() {
-        imageFile?.let { file ->
-            if (deleteImageOnRecycle && file.exists()) {
-                file.delete()
+        imageFileRef?.let { ref ->
+            if (!ref.shared) {
+                ref.file.delete()
             }
         }
     }
 
+    @Suppress("unused")
     fun finalize() {
         cleanup()
     }
 
-    private fun downloadTo(uri: Uri, imageFile: File) {
-        val req = okhttp3.Request.Builder().url(uri.toString()).build()
+    private fun resolveToFile(uri: Uri): FileRef {
+        cache.get(uri).use { entry ->
+            if (entry is FileEntry)
+                return FileRef(entry.file, shared = true)
 
-        // download to temp file. not nice, but useful :/
-        downloader.load(req).body()?.byteStream()?.use { inputStream ->
-            FileOutputStream(imageFile).use { output ->
-                inputStream.copyTo(output, bufferSize = 1024 * 64)
+            val file = File.createTempFile("image", ".tmp", context.cacheDir)
+            try {
+                FileOutputStream(file).use { output ->
+                    entry.inputStreamAt(0).use { inputStream ->
+                        inputStream.copyTo(output, bufferSize = 1024 * 64)
+                    }
+                }
+
+                return FileRef(file, shared = false)
+            } catch (err: Exception) {
+                file.delete()
+                throw err
             }
         }
     }
+
+    class FileRef(val file: File, val shared: Boolean)
 }

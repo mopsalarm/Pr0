@@ -118,11 +118,13 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
         val query = "SELECT title, filter_tags, filter_username, filter_feed_type FROM bookmark ORDER BY title ASC"
 
         return withContext(Dispatchers.IO) {
-            val bookmarks = database.get().rawQuery(query, null).mapToList {
-                Bookmark(title = getString(0),
-                        filterTags = getString(1),
-                        filterUsername = getString(2),
-                        filterFeedType = getString(3))
+            val bookmarks = database.get().rawQuery(query, null).use { cursor ->
+                cursor.mapToList {
+                    Bookmark(title = getString(0),
+                            filterTags = getString(1),
+                            filterUsername = getString(2),
+                            filterFeedType = getString(3))
+                }
             }
 
             bookmarks.map { bookmark ->
@@ -138,15 +140,14 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
     companion object {
         fun prepare(db: SQLiteDatabase) {
-            logger.info { "create table bookmark if not exists" }
+            logger.info { "Create table bookmark if not exists" }
             db.execSQL("""
-            CREATE TABLE IF NOT EXISTS bookmark (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                filter_feed_type TEXT,
-                filter_tags TEXT,
-                filter_username TEXT,
-                title TEXT
-        )""")
+                CREATE TABLE IF NOT EXISTS bookmark (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    filter_feed_type TEXT,
+                    filter_tags TEXT,
+                    filter_username TEXT,
+                    title TEXT)""")
         }
     }
 }

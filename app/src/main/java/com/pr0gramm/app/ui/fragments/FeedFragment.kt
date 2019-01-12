@@ -29,7 +29,6 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
@@ -98,7 +97,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private data class State(
             val feed: Feed = Feed(),
-            val preloadedItemIds: Set<Long> = emptySet(),
+            val preloadedItemIds: LongSet = LongSet(),
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
             val adsVisible: Boolean = false,
@@ -569,15 +568,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // Observe all preloaded items to get them into the cache and to show the
         // correct state in the ui once they are loaded
-        preloadManager.all().share().let { preloadItems ->
+        preloadManager.items.let { preloadItems ->
             preloadItems
-                    .throttleLast(5, TimeUnit.SECONDS)
+                    .skip(1)
+                    .throttleLast(1, TimeUnit.SECONDS)
                     .startWith(preloadItems.first())
                     .observeOnMainThread()
                     .bindToLifecycle()
-                    .ignoreError()
                     .subscribe { items ->
-                        state = state.copy(preloadedItemIds = items.mapTo(hashSetOf()) { it.itemId })
+                        state = state.copy(preloadedItemIds = LongSet.keysOf(items))
                     }
         }
 

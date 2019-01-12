@@ -17,7 +17,6 @@ import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
@@ -177,7 +176,7 @@ fun appInjector(app: Application) = Module.build {
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
-    bind<PreloadManager>() with eagerSingleton { DatabasePreloadManager(instance()) }
+    bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
 
