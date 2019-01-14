@@ -8,7 +8,6 @@ import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.io.FileEntry
 import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.isLocalFile
@@ -83,9 +82,11 @@ class DownloadingRegionDecoder(private val cache: Cache, private val decoder: De
 
     private fun resolveToFile(uri: Uri): FileRef {
         cache.get(uri).use { entry ->
-            if (entry is FileEntry)
-                return FileRef(entry.file, shared = true)
-
+            // check for a file backed entry
+            entry.file?.let { file ->
+                return FileRef(file, shared = true)
+            }
+            
             val file = File.createTempFile("image", ".tmp", context.cacheDir)
             try {
                 FileOutputStream(file).use { output ->

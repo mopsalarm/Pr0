@@ -25,7 +25,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     private val MEGA = (1024 * 1024).toLong()
 
     private val logger = Logger("Cache")
-    private val root: File = File(context.cacheDir, "mediacache")
+    private val root: File = File(context.cacheDir, "mediacache2")
 
     private val lock = Any()
     private val cache = HashMap<String, Entry>()
@@ -33,7 +33,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     init {
         doInBackground {
             runEvery(seconds(60), initial = seconds(10)) {
-                cleanupCache()
+                // cleanupCache()
             }
         }
     }
@@ -43,9 +43,10 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
      * once you are finish with it.
      */
     fun get(uri: Uri): Cache.Entry {
-        val key = uri.toString()
+        val key = cacheKeyOf(uri)
 
         synchronized(lock) {
+            logger.debug { "Looking up cache entry for $key" }
             val entry: Entry = cache.getOrPut(key) { createEntry(uri) }
             return refCountIfNeeded(entry)
         }
@@ -62,21 +63,29 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     private fun createEntry(uri: Uri): Entry {
         logger.debug { "Creating a new cache entry for uri $uri" }
 
-        // just open the file directly if it is local.
+        // just open the file directly if it is already local.
         if (uri.isLocalFile) {
+            logger.debug { "Uri is local, returning FileEntry(${uri.toFile()})" }
             return FileEntry(uri.toFile())
         }
 
-        val cacheFile = File(root, uri.toString()
+        // derive the files basename from the url
+        val basename = uri.toString()
                 .replaceFirst("https?://".toRegex(), "")
-                .replace("[^a-zA-Z0-9.]+".toRegex(), "_"))
+                .replace("[^a-zA-Z0-9.]+".toRegex(), "_")
 
-        // if the file was completelly cached, return that one now directly.
-        val finishedCacheFile = File(root, cacheFile.name + ".ok")
-        if (finishedCacheFile.exists())
-            return FileEntry(finishedCacheFile)
+        // check if we have a fully cached file
+        val fullyCached = File(root, "$basename.ok")
+        if (fullyCached.exists() && fullyCached.length() > 0) {
+            logger.debug { "Fully cached file exists, returning FileEntry(${fullyCached}" }
+            return FileEntry(fullyCached)
+        }
 
-        return CacheEntry(context, httpClient, cacheFile, uri)
+        logger.debug { "No cached file found for $uri, creating new CacheEntry." }
+
+        // resume a previously cached file
+        val partialCached = File(root, "$basename.part")
+        return CacheEntry(httpClient, partialCached, fullyCached, uri)
     }
 
     /**
@@ -131,15 +140,15 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
             logger.warn { "Could not delete cached file $file" }
         }
 
-        synchronized(lock) {
-            for ((key, entry) in cache) {
-                if (isSameFile(entry.file, file)) {
-                    // remove the entry from our cache
-                    cache.remove(key)
-                    break
-                }
-            }
-        }
+//        synchronized(lock) {
+//            for ((key, entry) in cache) {
+//                if (isSameFile(entry.file, file)) {
+//                    // remove the entry from our cache
+//                    cache.remove(key)
+//                    break
+//                }
+//            }
+//        }
     }
 
     private fun isSameFile(lhs: File, rhs: File): Boolean {
@@ -155,10 +164,15 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         return "%1.2fmb".format(space.toFloat() / (1024f * 1024f))
     }
 
-    interface Entry : Closeable {
-        val totalSize: Int
+    private fun cacheKeyOf(uri: Uri): String {
+        return uri.toString().replaceFirst("http://", "https://")
+    }
 
-        fun inputStreamAt(offset: Int): InputStream
+    interface Entry : Closeable {
+        /**
+         * Total size of this cache entry.
+         */
+        val totalSize: Int
 
         /**
          * Returns a value between 0 and 1 that specifies how much of this
@@ -166,8 +180,20 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
          */
         val fractionCached: Float
 
-        val file: File
+        /**
+         * Not null if this cache entry is backed by a file.
+         */
+        val file: File?
 
+        /**
+         * An input stream that starts at the given place in the file.
+         */
+        fun inputStreamAt(offset: Int): InputStream
+
+        /**
+         * Closes the reference to the entry. Must be called after getting
+         * a Entry instance using Cache#get.
+         */
         override fun close()
 
         fun toResponse(request: Request, mediaType: MediaType? = null): Response {
