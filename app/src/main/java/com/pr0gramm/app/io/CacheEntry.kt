@@ -2,7 +2,7 @@ package com.pr0gramm.app.io
 
 import android.net.Uri
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Stats
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import okhttp3.CacheControl
@@ -12,6 +12,7 @@ import okhttp3.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -35,16 +36,12 @@ internal class CacheEntry(
     private var written: Int = 0
     private val writtenUpdated = lock.newCondition()
 
-    // TODO how to solve this?
     private val refCount = AtomicInteger()
-
     private var fp: RandomAccessFile? = null
 
-    @Volatile
     private var fileCacher: Cacher? = null
 
     // delegate all calls to this delegate if set
-    @Volatile
     private var delegate: FileEntry? = null
 
     private var totalSizeValue: Int = -1
@@ -197,6 +194,7 @@ internal class CacheEntry(
 
     private fun reset() {
         logger.debug { "Resetting entry ${this}" }
+        this.fp?.closeQuietly()
         this.fp = null
         this.written = 0
         this.totalSizeValue = -1
@@ -261,13 +259,18 @@ internal class CacheEntry(
 
         fun resumeCaching(offset: Int) {
             incrementRefCount()
+
             try {
                 logger.debug { "Resume caching for ${this} starting at $offset" }
 
                 val request = Request.Builder()
                         .url(uri.toString())
                         .cacheControl(CacheControl.FORCE_NETWORK)
-                        .header("Range", "bytes=$offset-")
+                        .apply {
+                            if (offset > 0) {
+                                header("Range", "bytes=$offset-")
+                            }
+                        }
                         .build()
 
                 // do the call synchronously
@@ -279,8 +282,18 @@ internal class CacheEntry(
                             ?: throw IllegalStateException("no body in media response")
 
                     when {
-                        response.code() == 200 ->
+                        response.code() == 200 -> {
                             written = 0
+                            body.contentLength().toInt()
+                        }
+
+                        response.code() == 206 -> {
+                            val range = response.header("Content-Range")
+                                    ?: throw IOException("Expected Content-Range header")
+
+                            logger.debug { "Got Content-Range header with $range" }
+                            parseRangeHeaderTotalSize(range)
+                        }
 
                         response.code() == 403 ->
                             throw IOException("Not allowed to read file, are you on a public wifi?")
@@ -288,20 +301,11 @@ internal class CacheEntry(
                         response.code() == 404 ->
                             throw FileNotFoundException("File not found at " + response.request().url())
 
-                        response.code() == 416 -> {
-                            logger.debug { "Could not satisfy the request range: range=${response.header("Content-Range")}" }
-                            throw IOException("Unsatisfied range")
-                        }
-
-                        response.code() != 206 ->
-                            throw IOException("Expected status code 2xx, got " + response.code())
-
-                        body.contentLength() < 0L ->
-                            throw IOException("Content length not defined.")
+                        else -> throw IOException("Request for ${request.url()} failed with status ${response.code()}")
                     }
 
                     // we now know the size of the full file
-                    body.contentLength().toInt()
+
 
                 } catch (err: Exception) {
                     logger.debug { "Closing the response because of an error." }
@@ -333,6 +337,8 @@ internal class CacheEntry(
          * and then we just return.
          */
         private fun writeResponseToEntry(response: Response) {
+            val lockExpireTime = Instant.now().plus(1, TimeUnit.SECONDS)
+
             response.body()?.use { body ->
                 body.byteStream().use { stream ->
                     var localWritten = 0
@@ -358,6 +364,10 @@ internal class CacheEntry(
                                 localWritten += byteCount
                                 if (localWritten > 1024 * 1024)
                                     throw EOFException("DEBUG Simulate network loss")
+                            }
+
+                            if (refCount.toInt() == 1 && lockExpireTime.isInPast) {
+                                throw TimeoutException("No one holds a reference to the cache entry, stop caching now.")
                             }
                         }
                     }
@@ -436,17 +446,9 @@ internal class CacheEntry(
      * itself does not need to close immediately if it is used somewhere else.
      */
     override fun close() {
-        this.refCount.decrementAndGet()
         lock.withLock {
-            // reset the ref count in case of errors.
-            if (refCount.get() < 0) {
-                refCount.set(0)
-            }
-
-            // close if ref count is zero.
-            if (this.refCount.get() <= 0 && this.fp != null) {
+            if (this.refCount.decrementAndGet() == 0 && this.fp != null) {
                 logger.debug { "Closing cache file for entry ${this} now." }
-                fp.closeQuietly()
                 reset()
             }
         }
@@ -458,12 +460,14 @@ internal class CacheEntry(
         // serve directly from file if possible
         delegate?.let { return it.inputStreamAt(offset) }
 
-        // update the time stamp if the cache file already exists.
-        if (!partialCached.setLastModified(System.currentTimeMillis())) {
-            logger.warn { "Could not update timestamp on $partialCached" }
-        }
+        lock.withLock {
+            // update the time stamp if the cache file already exists.
+            if (!partialCached.updateTimestamp()) {
+                logger.warn { "Could not update timestamp on $partialCached" }
+            }
 
-        return EntryInputStream(incrementRefCount(), offset)
+            return EntryInputStream(incrementRefCount(), offset)
+        }
     }
 
     override val fractionCached: Float get() {
@@ -473,17 +477,6 @@ internal class CacheEntry(
             written / totalSizeValue.toFloat()
         } else {
             -1f
-        }
-    }
-
-    protected fun finalize() {
-        if (this.fp != null) {
-            logger.warn { "Entry finalized, but file was not closed." }
-
-            Stats().increment("cache.finalize.needed")
-            fp.closeQuietly()
-
-            reset()
         }
     }
 
@@ -498,8 +491,8 @@ internal class CacheEntry(
     }
 
     override fun toString(): String {
-        lock.withLock {
-            return "Entry(written=$written, totalSize=${totalSizeValue.takeIf { it > 0 }}, " +
+        return lock.withTryLock {
+            "Entry(written=$written, totalSize=${totalSizeValue.takeIf { it > 0 }}, " +
                     "caching=${fileCacher != null}, refCount=${refCount.get()}, " +
                     "fullyCached=${fullyCached()}, uri=$uri)"
         }
@@ -569,6 +562,21 @@ internal class CacheEntry(
         } while (totalCount < amount)
 
         return totalCount
+    }
+
+    private fun parseRangeHeaderTotalSize(header: String): Int {
+        return header.takeLastWhile { it != '/' }.toInt()
+    }
+}
+
+private inline fun <T> ReentrantLock.withTryLock(block: () -> T): T {
+    val locked = tryLock()
+    return try {
+        block()
+    } finally {
+        if (locked) {
+            unlock()
+        }
     }
 }
 

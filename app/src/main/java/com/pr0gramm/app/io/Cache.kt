@@ -13,7 +13,6 @@ import okhttp3.*
 import okio.Okio
 import java.io.Closeable
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
@@ -25,7 +24,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     private val MEGA = (1024 * 1024).toLong()
 
     private val logger = Logger("Cache")
-    private val root: File = File(context.cacheDir, "mediacache2")
+    private val root: File = File(context.cacheDir, "mediacache")
 
     private val lock = Any()
     private val cache = HashMap<String, Entry>()
@@ -33,7 +32,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
     init {
         doInBackground {
             runEvery(seconds(60), initial = seconds(10)) {
-                // cleanupCache()
+                cleanupCache()
             }
         }
     }
@@ -47,7 +46,13 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
 
         synchronized(lock) {
             logger.debug { "Looking up cache entry for $key" }
-            val entry: Entry = cache.getOrPut(key) { createEntry(uri) }
+
+            var entry: Entry? = cache[key]
+            if (entry?.valid != true) {
+                entry = createEntry(uri)
+                cache[key] = entry
+            }
+
             return refCountIfNeeded(entry)
         }
     }
@@ -139,25 +144,6 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         if (!file.delete()) {
             logger.warn { "Could not delete cached file $file" }
         }
-
-//        synchronized(lock) {
-//            for ((key, entry) in cache) {
-//                if (isSameFile(entry.file, file)) {
-//                    // remove the entry from our cache
-//                    cache.remove(key)
-//                    break
-//                }
-//            }
-//        }
-    }
-
-    private fun isSameFile(lhs: File, rhs: File): Boolean {
-        return try {
-            lhs.canonicalPath == rhs.canonicalPath
-        } catch(err: IOException) {
-            logger.warn { "Could not check if files are the same: $lhs, $rhs, err: $err" }
-            false
-        }
     }
 
     private fun formatSpace(space: Long): String {
@@ -184,6 +170,11 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
          * Not null if this cache entry is backed by a file.
          */
         val file: File?
+
+        /**
+         * Check if the entry is still valid
+         */
+        val valid: Boolean get() = file?.exists() == true
 
         /**
          * An input stream that starts at the given place in the file.

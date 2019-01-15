@@ -41,6 +41,7 @@ import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
 import java.io.Closeable
+import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
@@ -678,4 +679,9 @@ inline fun <T> longSparseArrayOf(values: Iterable<T>, crossinline keyOf: (T) -> 
     return sparse
 }
 
+fun File.updateTimestamp(): Boolean {
+    return setLastModified(System.currentTimeMillis())
+}
+
 val Uri.isLocalFile get(): Boolean = scheme == "file"
+

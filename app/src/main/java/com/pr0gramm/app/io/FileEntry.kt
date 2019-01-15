@@ -2,6 +2,7 @@ package com.pr0gramm.app.io
 
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.skipSimple
+import com.pr0gramm.app.util.updateTimestamp
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -13,13 +14,15 @@ import java.io.InputStream
 class FileEntry(override val file: File) : Cache.Entry {
     private val logger = Logger("FileEntry")
 
-    override val totalSize: Int
-        get() {
-            return file.length().toInt()
-        }
+    override val totalSize: Int by lazy {
+        if (!file.updateTimestamp())
+            throw IllegalStateException("Cached file is missing: $file")
+
+        file.length().toInt()
+    }
 
     override fun inputStreamAt(offset: Int): InputStream {
-        if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
+        if (file.exists() && !file.updateTimestamp()) {
             logger.warn { "Could not update timestamp on $file" }
         }
 

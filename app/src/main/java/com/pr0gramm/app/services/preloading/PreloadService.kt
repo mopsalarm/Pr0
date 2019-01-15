@@ -234,8 +234,9 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         if (targetFile.exists()) {
             logger.info { "File $targetFile already exists" }
 
-            if (!targetFile.setLastModified(System.currentTimeMillis()))
+            if (!targetFile.updateTimestamp()) {
                 logger.warn { "Could not touch file $targetFile" }
+            }
 
             return
         }
