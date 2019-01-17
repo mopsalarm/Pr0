@@ -8,6 +8,7 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.Logging
 import kotlinx.coroutines.Deferred
@@ -60,7 +61,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         api.post(name, feedback, version, encoded).await()
     }
 
-    private inline fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
+    private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
         try {
             block(result)
         } catch (thr: Throwable) {
@@ -78,10 +79,21 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         add(result, "memory info", this::appendMemoryInfo)
         add(result, "codec info", this::appendCodecInfo)
         add(result, "preferences", this::appendPreferences)
+        add(result, "previous stacktrace", this::appendPreviousStacktrace)
         add(result, "log", this::appendLogMessages)
 
         // convert result to a string
         return result.toString()
+    }
+
+    private fun appendPreviousStacktrace(result: StringBuilder) {
+        val trace = ExceptionHandler.previousStackTrace()
+        if (trace != null) {
+            result.append("previously recorded stack trace")
+            result.append(trace)
+        } else {
+            result.append("no stack trace recorded")
+        }
     }
 
     private fun appendCodecInfo(result: StringBuilder) {

@@ -66,7 +66,7 @@ open class ApplicationClass : Application(), InjectorAware {
         }
 
         // handler to ignore certain exceptions before they reach crashlytics.
-        ExceptionHandler.install()
+        ExceptionHandler.install(this)
 
         Stats.init(buildVersionCode())
 

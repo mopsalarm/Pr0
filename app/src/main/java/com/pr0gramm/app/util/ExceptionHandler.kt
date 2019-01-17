@@ -1,9 +1,14 @@
 package com.pr0gramm.app.util
 
+import android.content.Context
 import kotlinx.coroutines.CancellationException
+import java.io.File
 import java.io.IOException
+import java.util.*
 
-class ExceptionHandler private constructor(private val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
+class ExceptionHandler private constructor(
+        private val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
+
     override fun uncaughtException(thread: Thread, err: Throwable) {
         if (err.causalChain.containsType<CancellationException>()) {
             return
@@ -23,17 +28,42 @@ class ExceptionHandler private constructor(private val delegate: Thread.Uncaught
             return
         }
 
+        writeStacktraceToFile(thread, err)
+
         delegate.uncaughtException(thread, err)
+    }
+
+    private fun writeStacktraceToFile(thread: Thread, err: Throwable) {
+        runCatching {
+            val file = file ?: return
+
+            file.printWriter().use { writer ->
+                writer.println("Stack trace at " + Date())
+                writer.println("Thread: ${thread.name}")
+                writer.println()
+
+                err.printStackTrace(writer)
+            }
+        }
     }
 
     companion object {
         private val logger = Logger("ExceptionHandler")
 
-        fun install() {
+        private var file: File? = null
+
+        fun install(context: Context) {
             logger.info { "Install uncaught exception handler" }
+
+            file = File(context.filesDir, "last-stacktrace.txt")
+
             val previous = Thread.getDefaultUncaughtExceptionHandler()
             val handler = ExceptionHandler(previous)
             Thread.setDefaultUncaughtExceptionHandler(handler)
+        }
+
+        fun previousStackTrace(): String? {
+            return runCatching { file?.readText() }.getOrNull()
         }
     }
 }
