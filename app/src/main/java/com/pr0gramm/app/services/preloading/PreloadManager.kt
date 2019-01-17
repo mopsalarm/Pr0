@@ -22,8 +22,7 @@ class PreloadManager(private val database: BriteDatabase) {
 
     private val observeAllItems = Observable.interval(0, 10, TimeUnit.MINUTES)
             .switchMap {
-                database
-                        .createQuery(TABLE_NAME, "SELECT * FROM $TABLE_NAME")
+                database.createQuery(TABLE_NAME, "SELECT * FROM $TABLE_NAME")
                         .mapToList { cursor -> readPreloadItem(cursor) }
             }
             .map { items -> validateItems(items) }
