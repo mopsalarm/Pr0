@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
-import gnu.trove.set.TLongSet
 
 
 /**
@@ -18,10 +17,10 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
         api.deleteItem(null, item.id, "custom", reason, blockUser, blockDays).await()
     }
 
-    suspend fun deleteTags(itemId: Long, tagIds: TLongSet, blockDays: Float?) {
+    suspend fun deleteTags(itemId: Long, tagIds: Collection<Long>, blockDays: Float?) {
         cacheService.invalidate()
 
-        val tags = tagIds.toArray().toList()
+        val tags = tagIds.toList()
 
         val pBlockUser = if (blockDays != null) "on" else null
         api.deleteTag(null, itemId, pBlockUser, blockDays, tags).await()

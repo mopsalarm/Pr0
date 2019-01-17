@@ -19,8 +19,6 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.removeFromParent
-import gnu.trove.set.TLongSet
-import gnu.trove.set.hash.TLongHashSet
 
 /**
  */
@@ -34,7 +32,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     private val blockUser: CheckBox by bindView(R.id.block_user)
     private val blockUserDays: TextView by bindView(R.id.block_user_days)
 
-    private val selected: TLongSet = TLongHashSet()
+    private val selected: MutableSet<Long> = mutableSetOf()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(requireContext()) {
@@ -61,7 +59,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     private fun onDeleteClicked() {
-        if (selected.isEmpty) {
+        if (selected.isEmpty()) {
             dismiss()
             return
         }

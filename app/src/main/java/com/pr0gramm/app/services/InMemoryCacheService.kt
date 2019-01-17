@@ -1,12 +1,13 @@
 package com.pr0gramm.app.services
 
+import androidx.collection.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.ui.base.withBackgroundContext
+import com.pr0gramm.app.util.LongSet
 import com.pr0gramm.app.util.catchAll
-import gnu.trove.set.hash.TLongHashSet
 import kotlinx.coroutines.NonCancellable
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -18,9 +19,9 @@ import java.util.concurrent.atomic.AtomicReference
  * deltas might arise because of cha0s own caching.
  */
 class InMemoryCacheService {
-    private val tagsCache = androidx.collection.LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
-    private val userInfoCache = androidx.collection.LruCache<String, ExpiringValue<UserInfo>>(24)
-    private val repostCache = AtomicReference(TLongHashSet())
+    private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
+    private val userInfoCache = LruCache<String, ExpiringValue<UserInfo>>(24)
+    private val repostCache = AtomicReference(LongSet())
 
     /**
      * Invalidates all caches
@@ -59,12 +60,7 @@ class InMemoryCacheService {
             return
 
         synchronized(repostCache) {
-            val initialCapacity = repostCache.get().size() + newRepostIds.size
-
-            repostCache.set(TLongHashSet(initialCapacity).apply {
-                addAll(repostCache.get())
-                addAll(newRepostIds)
-            })
+            repostCache.set(repostCache.get() + LongSet.ofValues(newRepostIds.toLongArray()))
         }
     }
 
