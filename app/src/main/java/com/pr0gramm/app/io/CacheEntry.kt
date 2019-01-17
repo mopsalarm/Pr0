@@ -13,6 +13,7 @@ import java.io.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -499,6 +500,7 @@ internal class CacheEntry(
     }
 
     private class EntryInputStream(private val entry: CacheEntry, private var position: Int) : InputStream() {
+        private val closed = AtomicBoolean()
         private var mark: Int = 0
 
         override fun read(): Int {
@@ -525,7 +527,9 @@ internal class CacheEntry(
         }
 
         override fun close() {
-            entry.close()
+            if (closed.compareAndSet(false, true)) {
+                entry.close()
+            }
         }
 
         override fun available(): Int {
