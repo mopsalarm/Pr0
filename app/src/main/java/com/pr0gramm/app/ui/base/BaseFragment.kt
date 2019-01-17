@@ -8,7 +8,6 @@ import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.time
@@ -37,14 +36,6 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
 
     private lateinit var onStartScope: AndroidCoroutineScope
     private lateinit var onResumeScope: AndroidCoroutineScope
-
-    init {
-        debug {
-            lifecycle().subscribe { event ->
-                logger.info { "Lifecycle ${System.identityHashCode(this)}: $event" }
-            }
-        }
-    }
 
     fun <T> bindUntilEventAsync(event: FragmentEvent): Observable.Transformer<T, T> {
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
