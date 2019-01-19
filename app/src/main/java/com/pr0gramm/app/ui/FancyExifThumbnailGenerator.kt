@@ -72,11 +72,11 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
         var width = centered.width()
         var height = centered.height()
         if (aspect > 1.0) {
-            width = (aspect * height).toInt()
+            width = (aspect * height).toInt().coerceAtLeast(1)
             centered.left = (width - height) / 2
             centered.right = centered.left + height
         } else {
-            height = (width / aspect).toInt()
+            height = (width / aspect).toInt().coerceAtLeast(1)
             centered.top = (height - width) / 2
             centered.bottom = centered.top + width
         }

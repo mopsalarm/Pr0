@@ -79,7 +79,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
 
-    bind<OkHttpClient>() with singleton {
+    bind<OkHttpClient>() with eagerSingleton {
         val cookieJar: LoginCookieJar = instance()
 
         val cacheDir = File(app.cacheDir, "imgCache")
@@ -122,6 +122,8 @@ fun appInjector(app: Application) = Module.build {
                 .retryOnConnectionFailure(true)
                 .dns(instance())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
+
+                .configureSSLSocketFactoryAndSecurity(app)
 
                 .apply {
                     debug {

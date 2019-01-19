@@ -1,5 +1,14 @@
 [
   {
+    "version": 159,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Probleme mit SSL auf älteren Android Geräten gefixt."
+      }
+    ]
+  },
+  {
     "version": 158,
     "changes": [
       {

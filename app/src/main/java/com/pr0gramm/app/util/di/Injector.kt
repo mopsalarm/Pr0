@@ -24,8 +24,8 @@ class InstanceProvider<T : Any>(private val value: T) : Provider<T> {
     }
 }
 
-private class RecursionChecker {
-    private val flag = AtomicBoolean()
+private inline class RecursionChecker(private val flag: AtomicBoolean) {
+    constructor() : this(AtomicBoolean())
 
     fun check() {
         if (!flag.compareAndSet(false, true)) {
@@ -39,15 +39,27 @@ class SingletonProvider<T : Any>(
 
     @Volatile
     private var value: Any = NoValue
+    private var previousThrowable: Throwable? = null
 
     private val recursionChecker = RecursionChecker()
 
     override fun get(injector: Injector): T {
         if (value === NoValue) {
             synchronized(this) {
+                // someone already failed
+                previousThrowable?.let { cause ->
+                    throw IllegalStateException("Instance construction did already fail", cause)
+                }
+
                 if (value === NoValue) {
                     recursionChecker.check()
-                    value = factory(injector)
+
+                    try {
+                        value = factory(injector)
+                    } catch (err: Throwable) {
+                        previousThrowable = err
+                        throw err
+                    }
                 }
             }
         }
