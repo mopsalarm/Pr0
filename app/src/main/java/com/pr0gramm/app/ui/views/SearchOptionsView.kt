@@ -43,7 +43,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         minimumScoreSlider.keyProgressIncrement = 5
 
         if (!isInEditMode) {
-
+            minimumScoreLabel.text = formatMinimumScoreValue(0)
 
             // update the value field with the slider
             minimumScoreSlider.setOnProgressChanged { value, _ ->
