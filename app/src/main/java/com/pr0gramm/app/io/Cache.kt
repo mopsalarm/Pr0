@@ -117,7 +117,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         val availableSpace = usedCacheSpace + usableSpace
 
         // Now put it in sane limits.
-        val maxCacheSize = availableSpace.coerceIn(256 * MEGA, 2048 * MEGA)
+        val maxCacheSize = availableSpace.coerceIn(256 * MEGA, 1024 * MEGA)
 
         logger.debug { "Doing cache cleanup, maxCacheSize=${formatSpace(maxCacheSize)}, found ${files.size} files using ${formatSpace(usedCacheSpace)}" }
 
