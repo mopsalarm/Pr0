@@ -18,6 +18,7 @@ import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.setTextFuture
 import com.squareup.moshi.JsonClass
 import okio.Okio
 import java.io.IOException
@@ -74,7 +75,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
                         // might contains links that we want to display?
                         Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
                     } else {
-                        textView.text = text
+                        textView.setTextFuture(text)
                     }
                 }
             }

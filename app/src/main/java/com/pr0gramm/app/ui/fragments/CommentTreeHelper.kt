@@ -170,8 +170,6 @@ class CommentView(val parent: ViewGroup,
             actionListener.onCommentAuthorClicked(comment)
         }
 
-        Linkify.linkifyClean(this.content, comment.content, actionListener)
-
         // show the points
         val scoreVisibleThreshold = Instant.now() - Duration.hours(1)
         if (item.pointsVisible || comment.created.isBefore(scoreVisibleThreshold)) {
@@ -236,6 +234,8 @@ class CommentView(val parent: ViewGroup,
             more.visible = true
             more.setOnClickListener { view -> showCommentMenu(view, item) }
         }
+
+        Linkify.linkifyClean(this.content, comment.content, actionListener)
     }
 
     private fun showCommentMenu(view: View, entry: CommentTree.Item) {

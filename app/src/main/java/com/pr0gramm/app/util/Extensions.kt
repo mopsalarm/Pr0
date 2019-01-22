@@ -23,9 +23,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.NonNull
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.collection.LongSparseArray
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
+import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
@@ -685,3 +687,15 @@ fun File.updateTimestamp(): Boolean {
 
 val Uri.isLocalFile get(): Boolean = scheme == "file"
 
+fun AppCompatTextView.setTextFuture(text: CharSequence) {
+    setTextFuture(PrecomputedTextCompat.getTextFuture(
+            text, textMetricsParamsCompat, null))
+}
+
+fun TextView.setTextFuture(text: CharSequence) {
+    if (this is AppCompatTextView) {
+        setTextFuture(text)
+    } else {
+        setText(text)
+    }
+}

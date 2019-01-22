@@ -12,6 +12,7 @@ import android.text.style.ReplacementSpan
 import android.view.*
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.recyclerview.widget.DiffUtil
@@ -294,9 +295,7 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
     override fun onBindViewHolder(holder: ViewHolder, value: Api.ConversationMessage) {
         val context = holder.message.context
 
-        holder.message.movementMethod = NonCrashingLinkMovementMethod
-
-        holder.message.text = buildSpannedString {
+        val text = buildSpannedString {
             append(Linkify.linkify(context, value.message))
 
             inSpans(SpaceSpan(context.dip2px(32f).toInt())) {
@@ -304,11 +303,14 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
             }
         }
 
+        holder.message.movementMethod = NonCrashingLinkMovementMethod
+        holder.message.setTextFuture(text)
+
         holder.time.text = value.creationTime.toString(format)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val message = find<TextView>(R.id.message)
+        val message = find<AppCompatTextView>(R.id.message)
         val time = find<TextView>(R.id.time)
     }
 }
