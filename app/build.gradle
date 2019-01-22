@@ -209,7 +209,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:v5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.3'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
     debugImplementation "com.squareup.okhttp3:mockwebserver:3.12.1"
