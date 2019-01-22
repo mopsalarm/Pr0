@@ -30,6 +30,7 @@ import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.observeOnMainThread
+import rx.schedulers.Schedulers
 
 /**
  */
@@ -142,6 +143,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
             val preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
             if (preference != null) {
                 preloadManager.items
+                        .subscribeOn(Schedulers.io())
                         .map { items ->
                             items.valueIterator().asSequence().fold(0L) { sum, item ->
                                 sum + item.media.length() + item.thumbnail.length()

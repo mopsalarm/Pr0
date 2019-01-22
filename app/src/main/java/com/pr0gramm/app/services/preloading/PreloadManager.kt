@@ -128,7 +128,10 @@ class PreloadManager(private val database: BriteDatabase) {
         }
     }
 
-    val items: Observable<LongSparseArray<PreloadItem>> = observeAllItems.map { it.clone() }.share()
+    val items: Observable<LongSparseArray<PreloadItem>>
+        get() {
+            return observeAllItems.startWith(preloadCache).map { it.clone() }.share()
+        }
 
     /**
      * A item that was preloaded.
