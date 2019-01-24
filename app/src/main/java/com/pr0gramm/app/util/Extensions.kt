@@ -643,7 +643,7 @@ fun View.attachEvents(): Observable<Boolean> {
     }
 }
 
-suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero, crossinline task: () -> Unit) {
+suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero, crossinline task: suspend () -> Unit) {
     if (initial.millis > 0) {
         delay(initial)
     }

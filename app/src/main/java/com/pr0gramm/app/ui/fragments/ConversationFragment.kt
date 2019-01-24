@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -28,6 +29,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
@@ -111,7 +113,26 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     }
 
     override suspend fun onResumeImpl() {
-        pagination.updates.bindToLifecycle().subscribe { (state, newValues) -> applyPaginationUpdate(state, newValues) }
+        pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
+            applyPaginationUpdate(state, newValues)
+        }
+
+        launchIgnoreErrors {
+            runEvery(initial = seconds(15), period = seconds(15)) {
+                val shouldUpdate = isAtConversationTail()
+                if (shouldUpdate) {
+                    refreshConversation()
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true, if the user has scrolled to the current end of the conversation.
+     */
+    private fun isAtConversationTail(): Boolean {
+        val llm = listView.layoutManager as? LinearLayoutManager
+        return llm?.findLastVisibleItemPosition() == adapter.itemCount - 1
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -121,10 +142,22 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return false != when (item.itemId) {
-            R.id.action_refresh -> reloadConversation()
+            R.id.action_refresh -> {
+                scrollToEndOfConversation(force = true)
+
+                launchWithErrorHandler {
+                    refreshConversation()
+                }
+            }
+
             R.id.action_profile -> openUserProfile()
+
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private suspend fun refreshConversation() {
+        mergeWithMessages(inboxService.messagesInConversation(conversationName))
     }
 
     private fun applyPaginationUpdate(paginationState: Pagination.State<Api.ConversationMessage>, newValues: List<Api.ConversationMessage>) {
@@ -165,29 +198,45 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
     private fun sendInboxMessage() {
         val message = messageText.text.toString()
+        scrollToEndOfConversation(force = true)
 
         launchWithErrorHandler {
             withViewDisabled(messageText, buttonSend) {
                 // do the real posting
                 val response = inboxService.send(conversationName, message)
 
-                // scroll to the end of the list on the next update
-                adapter.updates.take(1).subscribe {
-                    listView.smoothScrollToPosition(adapter.itemCount - 1)
-                }
-
-                // merge messages into the state
-                state = State(
-                        messages = response.messages, tailState = Pagination.EndState(
-                        hasMore = !response.atEnd, value = response.messages.lastOrNull()))
-
-                pagination.initialize(tailState = state.tailState)
+                mergeWithMessages(response)
 
                 // clear the input field
                 messageText.text = ""
 
                 // remove backup value
                 BACKUP.remove(conversationName)
+            }
+        }
+    }
+
+    private fun mergeWithMessages(response: Api.ConversationMessages) {
+        scrollToEndOfConversation(force = false)
+
+        // merge messages into the state
+        state = State(
+                messages = response.messages, tailState = Pagination.EndState(
+                hasMore = !response.atEnd, value = response.messages.lastOrNull()))
+
+        pagination.initialize(tailState = state.tailState)
+    }
+
+    private fun scrollToEndOfConversation(force: Boolean = false) {
+        if (force) {
+            val index = adapter.itemCount - 1
+            if (index >= 0) {
+                listView.smoothScrollToPosition(index)
+            }
+
+        } else {
+            adapter.updates.take(1).subscribe {
+                scrollToEndOfConversation(force = true)
             }
         }
     }
