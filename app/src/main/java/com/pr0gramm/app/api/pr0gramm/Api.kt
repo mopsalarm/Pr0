@@ -220,9 +220,6 @@ interface Api {
     fun suggestUsers(
             @Query("prefix") prefix: String): Call<Names>
 
-    @GET("api/user/identifier")
-    fun identifier(): Deferred<UserIdentifier>
-
     @FormUrlEncoded
     @POST("api/contact/send")
     fun contactSend(
@@ -449,22 +446,6 @@ interface Api {
                 val codec: String?,
                 val type: String)
     }
-
-    @JsonClass(generateAdapter = true)
-    data class PrivateMessage(
-            val id: Long,
-            val created: Instant,
-            val recipientId: Int,
-            val recipientMark: Int,
-            val recipientName: String,
-            val senderId: Int,
-            val senderMark: Int,
-            val senderName: String,
-            val message: String,
-            @Json(name = "sent") val isSent: Boolean)
-
-    @JsonClass(generateAdapter = true)
-    data class PrivateMessageFeed(val messages: List<PrivateMessage> = listOf())
 
     @JsonClass(generateAdapter = true)
     data class Sync(

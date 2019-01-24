@@ -13,19 +13,6 @@ object MessageConverter {
         return of(sender.id, sender.name, sender.mark, comment)
     }
 
-    fun of(message: Api.PrivateMessage): Api.Message {
-        return Api.Message(
-                id = message.id,
-                itemId = 0L,
-                mark = message.senderMark,
-                name = message.senderName,
-                senderId = message.senderId,
-                message = message.message,
-                score = 0,
-                creationTime = message.created,
-                thumbnail = null)
-    }
-
     fun of(item: FeedItem, comment: Api.Comment): Api.Message {
         return Api.Message(
                 id = comment.id,
