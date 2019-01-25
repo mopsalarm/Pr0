@@ -1,5 +1,18 @@
 [
   {
+    "version": 160,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Vorgeladene Bilder wurden teilweise nicht als solche markiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Unterhaltungen werden nun alle paar Sekunden automatisch upgedated, wenn man auf eine Antwort wartet."
+      }
+    ]
+  },
+  {
     "version": 159,
     "changes": [
       {
