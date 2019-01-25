@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.util.LongSparseArray
 import java.util.*
 
 /**
@@ -24,7 +26,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
         }
     }
 
-    private val mFragments = androidx.collection.LongSparseArray<androidx.fragment.app.Fragment>()
+    private val mFragments = LongSparseArray<Fragment>()
     private var mCurTransaction: androidx.fragment.app.FragmentTransaction? = null
     private var mCurrentPrimaryItem: androidx.fragment.app.Fragment? = null
 
@@ -156,19 +158,17 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
             state.putParcelableArray("states", states)
         }
 
-        for (idx in 0 until mFragments.size()) {
-            val f = mFragments.valueAt(idx)
-            if (f != null) {
-                state = state ?: Bundle()
-                val key = "f" + mFragments.keyAt(idx)
+        for (idx in 0 until mFragments.size) {
+            state = state ?: Bundle()
+            val key = "f" + mFragments.keyAt(idx)
 
-                try {
-                    mFragmentManager.putFragment(state, key, f)
-                } catch(err: IllegalStateException) {
-                    logger.warn("Could not put fragment into the bundle. Skipping.", err)
-                }
+            try {
+                mFragmentManager.putFragment(state, key, mFragments.valueAt(idx))
+            } catch (err: IllegalStateException) {
+                logger.warn("Could not put fragment into the bundle. Skipping.", err)
             }
         }
+
         return state
     }
 

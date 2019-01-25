@@ -46,8 +46,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
-import gnu.trove.map.TLongObjectMap
-import gnu.trove.map.hash.TLongObjectHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -300,7 +298,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         logger.debug {
             "Applying post fragment state: h=${state.viewerBaseHeight}, " +
-                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size()}, " +
+                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size}, " +
                     "comments=${state.comments.size} (${state.comments.hashCode()}), " +
                     "l=${state.commentsLoading}, viewer=${viewer != null}, " +
                     "mcc=${state.mediaControlsContainer != null}"
@@ -1026,7 +1024,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         updateComments(response.comments) { state ->
             state.copy(selectedCommentId = response.commentId, baseVotes = state.baseVotes.let { votes ->
-                val copy = TLongObjectHashMap(votes)
+                val copy = votes.clone()
                 copy.put(response.commentId, Vote.UP)
                 copy
             })
@@ -1347,7 +1345,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val item: FeedItem,
             val itemVote: Vote = Vote.NEUTRAL,
             val tags: List<Api.Tag> = emptyList(),
-            val tagVotes: TLongObjectMap<Vote> = TLongObjectHashMap(),
+            val tagVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
             val viewerBaseHeight: Int = 0,
             val comments: List<CommentTree.Item> = emptyList(),
             val commentsVisible: Boolean = true,

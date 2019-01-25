@@ -97,7 +97,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private data class State(
             val feed: Feed = Feed(),
-            val preloadedItemIds: LongSet = LongSet(),
+            val preloadedItemIds: LongSparseArray<PreloadManager.PreloadItem> = LongSparseArray(initialCapacity = 0),
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
             val adsVisible: Boolean = false,
@@ -576,7 +576,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     .observeOnMainThread()
                     .bindToLifecycle()
                     .subscribe { items ->
-                        state = state.copy(preloadedItemIds = LongSet.keysOf(items))
+                        state = state.copy(preloadedItemIds = items)
                     }
         }
 

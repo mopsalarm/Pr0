@@ -197,7 +197,6 @@ dependencies {
     implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
     implementation "com.squareup.sqlbrite:sqlbrite:1.1.2"
     implementation "com.infstory:proguard-annotations:1.0.2"
-    implementation 'net.sf.trove4j:trove4j:3.0.3'
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"

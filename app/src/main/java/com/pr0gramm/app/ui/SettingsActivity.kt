@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.collection.valueIterator
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.Preference
@@ -145,9 +144,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 preloadManager.items
                         .subscribeOn(Schedulers.io())
                         .map { items ->
-                            items.valueIterator().asSequence().fold(0L) { sum, item ->
-                                sum + item.media.length() + item.thumbnail.length()
-                            }
+                            items.values().sumBy { (it.media.length() + it.thumbnail.length()).toInt() }
                         }
                         .observeOnMainThread()
                         .compose(bindToLifecycle())

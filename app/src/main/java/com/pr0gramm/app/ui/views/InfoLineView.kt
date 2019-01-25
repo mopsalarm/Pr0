@@ -18,13 +18,8 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.TagCloudLayoutManager
-import com.pr0gramm.app.util.DurationFormat
-import com.pr0gramm.app.util.LongValueHolder
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
-import gnu.trove.map.TLongObjectMap
-import gnu.trove.map.hash.TLongObjectHashMap
 import kotterknife.bindView
 import java.lang.Math.min
 
@@ -183,7 +178,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
 
     private var selectedTagId = -1L
     private var tags: List<Api.Tag> = listOf()
-    private var votes: TLongObjectMap<Vote> = TLongObjectHashMap()
+    private var votes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0)
 
     init {
         View.inflate(context, R.layout.post_tags, this)
@@ -205,7 +200,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
         }
     }
 
-    fun updateTags(tags: List<Api.Tag>, votes: TLongObjectMap<Vote>) {
+    fun updateTags(tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
         this.tags = tags
         this.votes = votes
         rebuildAdapterState()

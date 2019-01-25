@@ -10,9 +10,6 @@ import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.squareup.sqlbrite.BriteDatabase
-import gnu.trove.TCollections
-import gnu.trove.map.TLongObjectMap
-import gnu.trove.map.hash.TLongObjectHashMap
 import okio.Okio
 import rx.Observable
 import java.io.ByteArrayInputStream
@@ -180,12 +177,12 @@ class VoteService(private val api: Api,
      * *
      * @return A map containing the vote from commentId to vote
      */
-    fun getCommentVotes(comments: List<Api.Comment>): Observable<TLongObjectMap<Vote>> {
+    fun getCommentVotes(comments: List<Api.Comment>): Observable<LongSparseArray<Vote>> {
         val ids = comments.map { it.id }
         return findCachedVotes(CachedVote.Type.COMMENT, ids)
     }
 
-    fun getTagVotes(tags: List<Api.Tag>): Observable<TLongObjectMap<Vote>> {
+    fun getTagVotes(tags: List<Api.Tag>): Observable<LongSparseArray<Vote>> {
         val ids = tags.map { it.id }
         return findCachedVotes(CachedVote.Type.TAG, ids)
     }
@@ -200,14 +197,15 @@ class VoteService(private val api: Api,
         }
     }
 
-    private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Observable<TLongObjectMap<Vote>> {
+    private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Observable<LongSparseArray<Vote>> {
         return CachedVote.find(database, type, ids).map { cachedVotes ->
-            val result = TLongObjectHashMap<Vote>(cachedVotes.size)
-            for (cachedVote in cachedVotes)
-                result.put(cachedVote.itemId, cachedVote.vote)
+            val result = LongSparseArray<Vote>(cachedVotes.size)
 
             // add "NEUTRAL" votes for every unknown item
-            ids.forEach { result.putIfAbsent(it, Vote.NEUTRAL) }
+            ids.forEach { result.put(it, Vote.NEUTRAL) }
+
+            for (cachedVote in cachedVotes)
+                result.put(cachedVote.itemId, cachedVote.vote)
 
             result
         }
@@ -218,8 +216,6 @@ class VoteService(private val api: Api,
     data class Summary(val up: Int, val down: Int, val fav: Int)
 
     companion object {
-        val NO_VOTES: TLongObjectMap<Vote> = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())
-
         private val logger = Logger("VoteService")
 
         private val VOTE_ACTIONS = mapOf(

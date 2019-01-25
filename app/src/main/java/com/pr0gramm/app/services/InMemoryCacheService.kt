@@ -6,7 +6,7 @@ import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.LongSet
+import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.NonCancellable
 import java.util.*
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference
 class InMemoryCacheService {
     private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
     private val userInfoCache = LruCache<String, ExpiringValue<UserInfo>>(24)
-    private val repostCache = AtomicReference(LongSet())
+    private val repostCache = AtomicReference(LongSparseArray<Unit>())
 
     /**
      * Invalidates all caches
@@ -60,7 +60,9 @@ class InMemoryCacheService {
             return
 
         synchronized(repostCache) {
-            repostCache.set(repostCache.get() + LongSet.ofValues(newRepostIds.toLongArray()))
+            val copy = repostCache.get().clone()
+            newRepostIds.forEach { copy.put(it, Unit) }
+            repostCache.set(copy)
         }
     }
 

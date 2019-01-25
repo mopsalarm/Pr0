@@ -24,7 +24,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.NonNull
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.collection.LongSparseArray
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.core.text.PrecomputedTextCompat
@@ -664,21 +663,6 @@ suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero,
 
 suspend fun delay(duration: Duration) {
     delay(duration.millis)
-}
-
-inline fun <T> longSparseArrayOf(values: Iterable<T>, crossinline keyOf: (T) -> Long): LongSparseArray<T> {
-    val comparator = Comparator<T> { o1, o2 ->
-        val x = keyOf(o1)
-        val y = keyOf(o2)
-        if (x < y) -1 else if (x == y) 0 else 1
-    }
-
-    val sortedValues = values.sortedWith(comparator)
-    val sparse = LongSparseArray<T>(sortedValues.size)
-    for (value in sortedValues)
-        sparse.append(keyOf(value), value)
-
-    return sparse
 }
 
 fun File.updateTimestamp(): Boolean {

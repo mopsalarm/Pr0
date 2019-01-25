@@ -21,9 +21,9 @@ import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
+import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.removeFromParent
-import gnu.trove.map.TLongObjectMap
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
@@ -62,7 +62,7 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
         data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean)
             : Item(idInCategory(1))
 
-        data class TagsItem(val tags: List<Api.Tag>, val votes: TLongObjectMap<Vote>)
+        data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>)
             : Item(idInCategory(2))
 
         data class CommentInputItem(val text: String)

@@ -3,7 +3,6 @@ package com.pr0gramm.app.services.preloading
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import androidx.collection.LongSparseArray
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.Databases.withTransaction

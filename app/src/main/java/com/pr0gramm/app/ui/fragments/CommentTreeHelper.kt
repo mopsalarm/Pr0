@@ -25,8 +25,6 @@ import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import gnu.trove.map.TLongObjectMap
-import gnu.trove.map.hash.TLongObjectHashMap
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import kotlin.math.absoluteValue
@@ -66,16 +64,12 @@ abstract class CommentTreeHelper : CommentView.Listener {
         state = state.copy(collapsed = state.collapsed - comment.id)
     }
 
-    fun updateVotes(votes: TLongObjectMap<Vote>) {
-        val currentVotes = TLongObjectHashMap(votes)
+    fun updateVotes(votes: LongSparseArray<Vote>) {
+        val currentVotes = votes.clone()
 
-        // add new votes as base votes
-        val baseVotes = TLongObjectHashMap(state.baseVotes)
-
-        votes.forEachEntry { id, vote ->
-            baseVotes.putIfAbsent(id, vote)
-            true
-        }
+        // start with the current votes and reset the existing base votes
+        val baseVotes = votes.clone()
+        baseVotes.putAll(state.baseVotes)
 
         state = state.copy(baseVotes = baseVotes, currentVotes = currentVotes)
     }
@@ -400,8 +394,8 @@ class CommentTree(val state: Input) {
 
     data class Input(
             val allComments: List<Api.Comment> = listOf(),
-            val currentVotes: TLongObjectMap<Vote> = TLongObjectHashMap(),
-            val baseVotes: TLongObjectMap<Vote> = TLongObjectHashMap(),
+            val currentVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
+            val baseVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
             val collapsed: Set<Long> = setOf(),
             val op: String? = null,
             val self: String? = null,
