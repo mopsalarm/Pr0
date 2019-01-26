@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.base
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.collection.SparseArrayCompat
-import androidx.collection.set
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -17,7 +16,7 @@ class ViewCache(val lookupView: (Int) -> View?) {
                     val view = lookupView(id)
                             ?: throw IllegalArgumentException("Could not find view ${property.name} on $thisRef")
 
-                    cache[id] = view
+                    cache.put(id, view)
                     view
                 }
 
@@ -31,7 +30,7 @@ class ViewCache(val lookupView: (Int) -> View?) {
         return object : ReadOnlyProperty<R, V?> {
             override fun getValue(thisRef: R, property: KProperty<*>): V? {
                 val result = cache[id] ?: run {
-                    val view = lookupView(id)?.also { cache[id] = it }
+                    val view = lookupView(id)?.also { cache.put(id, it) }
                     view
                 }
 

@@ -154,14 +154,13 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"
 
     implementation "com.google.code.findbugs:jsr305:3.0.2"
 
     implementation 'androidx.fragment:fragment:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.browser:browser:1.0.0'
-    implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.annotation:annotation:1.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
@@ -171,8 +170,6 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.0.1'
     implementation 'androidx.fragment:fragment-ktx:1.0.0'
-    implementation 'androidx.sqlite:sqlite-ktx:2.0.0'
-    implementation 'androidx.collection:collection-ktx:1.0.0'
 
     implementation "com.google.firebase:firebase-core:16.0.6"
 
