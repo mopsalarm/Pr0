@@ -50,7 +50,6 @@ object FeedFilterFormatter {
 
         when (filter.feedType) {
             FeedType.NEW -> return context.getString(R.string.filter_format_new)
-            FeedType.TEXT -> return context.getString(R.string.filter_format_text)
             FeedType.BESTOF -> return context.getString(R.string.filter_format_bestof)
             FeedType.RANDOM -> return context.getString(R.string.filter_format_random)
             FeedType.PREMIUM -> return context.getString(R.string.filter_format_premium)

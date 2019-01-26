@@ -94,12 +94,6 @@
 
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
-                    android:key="pref_show_category_text"
-                    android:summary="@string/pref_show_category_text_summary"
-                    android:title="@string/pref_show_category_text_title"/>
-
-                <SwitchPreferenceCompat
-                    android:defaultValue="true"
                     android:key="pref_show_category_controversial"
                     android:summary="@string/pref_show_category_controversial_summary"
                     android:title="@string/pref_show_category_controversial_title"/>

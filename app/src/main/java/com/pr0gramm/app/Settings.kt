@@ -172,8 +172,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return value ?: VolumeNavigationType.DISABLED
         }
 
-    val showCategoryText: Boolean
-        get() = preferences.getBoolean("pref_show_category_text", true)
+    val legacyShowCategoryText: Boolean
+        get() = preferences.getBoolean("pref_show_category_text", false)
 
     val showContentTypeFlag: Boolean
         get() = preferences.getBoolean("pref_show_content_type_flag", true)

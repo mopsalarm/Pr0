@@ -12,5 +12,4 @@ enum class FeedType(val searchable: Boolean = true,
     CONTROVERSIAL(sortable = false),
     RANDOM(preloadable = false, sortable = false),
     BESTOF(),
-    TEXT(),
 }

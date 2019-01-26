@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
-import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
@@ -50,9 +49,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         val picasso = k.instance<Picasso>()
         val inboxService = k.instance<InboxService>()
         val configService = k.instance<ConfigService>()
-        val extraCategories = k.instance<ExtraCategories>()
         NavigationProvider(requireActivity(), userService, inboxService,
-                bookmarkService, configService, extraCategories, picasso)
+                bookmarkService, configService, picasso)
     }
 
     private val usernameView: TextView by bindView(R.id.username)
@@ -103,7 +101,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         navItemsRecyclerView.isNestedScrollingEnabled = false
 
         // add the static items to the navigation
-        navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(null, false))
+        navigationAdapter.setNavigationItems(
+                navigationProvider.categoryNavigationItems(null))
 
         settingsView.setOnClickListener {
             val intent = Intent(activity, SettingsActivity::class.java)

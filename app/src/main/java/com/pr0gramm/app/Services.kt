@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.os.Build
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
@@ -170,7 +169,6 @@ fun appInjector(app: Application) = Module.build {
 
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
-    bind<ExtraCategories>() with singleton { ExtraCategories(instance(), instance()) }
     bind<ConfigService>() with singleton { ConfigService(app, instance(), instance()) }
     bind<BookmarkService>() with singleton { BookmarkService(instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
@@ -187,7 +185,7 @@ fun appInjector(app: Application) = Module.build {
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance()) }
     bind<FeedbackService>() with singleton { FeedbackService(instance()) }
-    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance()) }
+    bind<FeedService>() with singleton { FeedServiceImpl(instance()) }
     bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app.cacheDir, instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }

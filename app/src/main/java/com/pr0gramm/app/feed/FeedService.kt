@@ -4,7 +4,6 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
-import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.createObservable
 import kotlinx.coroutines.runBlocking
@@ -31,9 +30,7 @@ interface FeedService {
 
 }
 
-class FeedServiceImpl(private val api: Api,
-                      private val extraCategories: ExtraCategories) : FeedService {
-
+class FeedServiceImpl(private val api: Api) : FeedService {
     override suspend fun load(query: FeedService.FeedQuery): Api.Feed {
         val feedFilter = query.filter
 
@@ -81,8 +78,6 @@ class FeedServiceImpl(private val api: Api,
                 val tagsQuery = Tags.join("!f:controversial", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
-
-            FeedType.TEXT -> extraCategories.api.text(tags, flags, query.older).await()
 
             else -> {
                 // do the normal query as is.

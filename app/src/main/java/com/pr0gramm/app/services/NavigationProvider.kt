@@ -8,7 +8,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -33,7 +32,6 @@ class NavigationProvider(
         private val inboxService: InboxService,
         private val bookmarkService: BookmarkService,
         private val configService: ConfigService,
-        private val extraCategories: ExtraCategories,
         private val picasso: Picasso) {
 
     private val logger = Logger("NavigationProvider")
@@ -105,7 +103,7 @@ class NavigationProvider(
     /**
      * Adds the default "fixed" items to the menu
      */
-    fun categoryNavigationItems(username: String?, extraCategory: Boolean): List<NavigationItem> {
+    fun categoryNavigationItems(username: String?): List<NavigationItem> {
 
         val items = ArrayList<NavigationItem>()
 
@@ -145,16 +143,6 @@ class NavigationProvider(
                     title = getString(R.string.action_feed_type_random),
                     icon = iconFeedTypeRandom,
                     filter = FeedFilter().withFeedType(FeedType.RANDOM)))
-        }
-
-        if (extraCategory) {
-            if (settings.showCategoryText) {
-                items.add(NavigationItem(
-                        action = ActionType.FILTER,
-                        title = getString(R.string.action_feed_type_text),
-                        icon = iconFeedTypeText,
-                        filter = FeedFilter().withFeedType(FeedType.TEXT)))
-            }
         }
 
         if (settings.showCategoryPremium) {
@@ -206,11 +194,7 @@ class NavigationProvider(
     }
 
     private fun categoryNavigationItems(): Observable<List<NavigationItem>> {
-        val username = userService.loginStates.map { it.name }
-        val categoriesAvailable = extraCategories.categoriesAvailable
-
-        return combineLatest(username, categoriesAvailable, this::categoryNavigationItems)
-                .startWith(emptyList<NavigationItem>())
+        return userService.loginStates.map { categoryNavigationItems(it.name) }
     }
 
     /**

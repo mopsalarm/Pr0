@@ -2,8 +2,12 @@ package com.pr0gramm.app.services
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.fragments.FeedFragment.Companion.logger
 import com.pr0gramm.app.util.Holder
@@ -18,6 +22,21 @@ import rx.subjects.BehaviorSubject
  */
 class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     private val onChange = BehaviorSubject.create<Unit>(Unit).toSerialized()
+
+    init {
+        AsyncScope.launchIgnoreErrors {
+            if (Settings.get().legacyShowCategoryText) {
+                // disable this for the next time
+                Settings.get().edit {
+                    putBoolean("pref_show_category_text", false)
+                }
+
+                // and create a bookmark for this
+                val filter = FeedFilter().withFeedType(FeedType.NEW).withTags("!\"hat text\"")
+                create(filter, "Text in Neu")
+            }
+        }
+    }
 
     /**
      * Creates a bookmark for the filter.

@@ -4,7 +4,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Config(
-        val extraCategories: Boolean = true,
         val maxUploadSizeNormal: Long = 10 * 1024 * 1024,
         val maxUploadSizePremium: Long = 20 * 1024 * 1024,
         val adType: AdType = AdType.NONE,
