@@ -36,7 +36,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
 
         return dialog(this) {
             content(Linkify.linkify(requireContext(), content))
-            positive(R.string.install_update) { activity?.let { UpdateChecker.download(it, update) } }
+            positive(R.string.install_update) { activity?.let { ctx -> UpdateChecker.download(ctx, update) } }
         }
     }
 
@@ -85,7 +85,9 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
             }
 
             if (update is UpdateChecker.Response.UpdateAvailable) {
-                newInstance(update.update).show(fm, null)
+                if (!fm.isStateSaved) {
+                    newInstance(update.update).show(fm, null)
+                }
             }
         }
 
