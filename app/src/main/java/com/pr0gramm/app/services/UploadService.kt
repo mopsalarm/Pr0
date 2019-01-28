@@ -307,7 +307,7 @@ class UploadService(private val api: Api,
 }
 
 fun isValidTag(tag: String): Boolean {
-    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
+    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound")
     val invalid = tag in invalidTags || tag.length < 2 || tag.length > 32
     return !invalid
 }

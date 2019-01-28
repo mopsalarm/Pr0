@@ -1,10 +1,8 @@
 package com.pr0gramm.app.ui.intro.slides
 
 import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.BookmarkService
-import com.pr0gramm.app.ui.base.AsyncScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  */
@@ -12,20 +10,17 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
                                   private val filter: FeedFilter) : ActionItem(title) {
 
     override fun enabled(): Boolean {
-        return runBlocking {
-            bookmarkService.exists(filter)
-        }
+        return bookmarkService.byTitle(title) != null || bookmarkService.byFilter(filter) != null
     }
 
     override fun activate() {
-        AsyncScope.launch {
-            bookmarkService.create(filter, title)
-        }
+        deactivate()
+        bookmarkService.save(Bookmark(title, filter))
     }
 
     override fun deactivate() {
-        AsyncScope.launch {
-            bookmarkService.delete(filter)
-        }
+        // delete any existing bookmarks
+        bookmarkService.byTitle(title)?.let { bookmarkService.delete(it) }
+        bookmarkService.byFilter(filter)?.let { bookmarkService.delete(it) }
     }
 }

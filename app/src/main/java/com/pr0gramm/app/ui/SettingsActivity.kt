@@ -218,13 +218,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
             // get the correct theme for the app!
             when (key) {
-                "pref_convert_gif_to_webm" -> if (preferences.getBoolean(key, false)) {
-                    showDialog(this) {
-                        content(R.string.gif_as_webm_might_be_buggy)
-                        positive()
-                    }
-                }
-
                 "pref_theme" -> {
                     // get the correct theme for the app!
                     ThemeHelper.updateTheme()

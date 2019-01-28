@@ -234,8 +234,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         val params = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         params.rightMargin = context.dip2px(8)
 
-        val tags = listOf("f:sound", "webm", "f:repost", "m:ftb")
-        val names = listOf("sound", "webm", "repost", "ftb")
+        val names = listOf("sound", "video", "repost", "ftb")
+        val tags = listOf("f:sound", "video", "f:repost", "m:ftb")
 
         for (idx in tags.indices) {
             val tagValue = tags[idx]
