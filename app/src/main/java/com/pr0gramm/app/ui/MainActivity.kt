@@ -74,15 +74,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     override var scrollHideToolbarListener: ScrollHideToolbarListener by Delegates.notNull()
 
     // how the app was started as seen by onCreate
-    private var quiet: Boolean = false
     private var coldStart: Boolean = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
-
-        // in tests we would like to quiet dialogs on startup
-        quiet = intent?.getBooleanExtra("MainActivity.quiet", false) ?: false
 
         if (settings.secureApp) {
             // hide app from recent apps list
@@ -129,11 +125,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true)
 
-                unless(quiet) {
-                    lifecycle()
-                            .takeFirst { it == ActivityEvent.START }
-                            .subscribe { checkForInfoMessage() }
-                }
+                lifecycle()
+                        .takeFirst { it == ActivityEvent.START }
+                        .subscribe { checkForInfoMessage() }
 
             } else {
                 startedWithIntent = true
@@ -141,11 +135,24 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
         }
 
-        unless(quiet) {
-            if (singleShotService.isFirstTime("onboarding-activity:1")) {
-                startActivityForResult(Intent(this, IntroActivity::class.java), RequestCodes.INTRO_ACTIVITY)
-                return
-            }
+        // show the intro activity if this is the first time the app started.
+        if (singleShotService.isFirstTime("onboarding-activity:1")) {
+            // do not show any of the migration activities
+            singleShotService.isFirstTime("MigrationIntro:bookmark:1")
+
+            IntroActivity.launch(this)
+            return
+        }
+
+        //
+        val extraSlides = mutableListOf<IntroActivity.Slides>()
+        if (singleShotService.isFirstTime("MigrationIntro:bookmark:1")) {
+            extraSlides += IntroActivity.Slides.UPDATE
+            extraSlides += IntroActivity.Slides.BOOKMARKS
+        }
+
+        if (extraSlides.isNotEmpty()) {
+            IntroActivity.launch(this, extraSlides)
         }
     }
 
@@ -413,7 +420,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             runEvery(Duration.seconds(45)) { SyncJob.syncNow() }
         }
 
-        if (coldStart && !quiet) {
+        if (coldStart) {
             var updateCheck = true
             var updateCheckDelay = false
 

@@ -554,6 +554,11 @@ inline fun <reified T : Activity> Context.startActivity(configureIntent: (Intent
     startActivity(Intent(this, T::class.java).also(configureIntent))
 }
 
+inline fun <reified T : Activity> Activity.startActivity(requestCode: Int = -1, configureIntent: (Intent) -> Unit = {}) {
+    val intent = Intent(this, T::class.java).also(configureIntent)
+    startActivityForResult(intent, requestCode)
+}
+
 fun ContentProvider.requireContext(): Context {
     return context ?: throw IllegalStateException("context not set on ContentProvider")
 }

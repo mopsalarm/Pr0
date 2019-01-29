@@ -55,7 +55,6 @@ class SingleShotService(private val preferences: SharedPreferences) {
     }
 
     private fun firstTimeByTimePattern(action: String, pattern: String): Boolean {
-
         return timeStringHasChanged(action, Instant.now()
                 .minus(timeOffset)
                 .toString(SimpleDateFormat(pattern, Locale.ROOT)))

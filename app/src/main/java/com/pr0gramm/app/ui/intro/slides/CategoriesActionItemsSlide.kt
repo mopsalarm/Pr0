@@ -18,7 +18,6 @@ class CategoriesActionItemsSlide : ActionItemsSlide("CategoriesActionItemsSlide"
         return listOf(
                 SettingActionItem(settings, "Zufall", "pref_show_category_random"),
                 SettingActionItem(settings, "Kontrovers", "pref_show_category_controversial"),
-                SettingActionItem(settings, "Text", "pref_show_category_text"),
                 SettingActionItem(settings, "Stelz (nur pr0mium)", "pref_show_category_premium"))
     }
 }
