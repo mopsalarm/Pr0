@@ -7,11 +7,12 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.getStringOrNull
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class SingleShotService(internal val preferences: SharedPreferences) {
+class SingleShotService(private val preferences: SharedPreferences) {
     private val timeOffset = Duration.millis((Math.random() * 3600.0 * 1000.0).toLong())
 
     private val keySetActions = "SingleShotService.actions"
@@ -80,7 +81,8 @@ class SingleShotService(internal val preferences: SharedPreferences) {
     @Suppress("UNCHECKED_CAST")
     private fun loadTimeStringMap(): MutableMap<String, String> {
         try {
-            val map = mapAdapter.fromJson(preferences.getString(keyMapActions, "{}")) as? Map<String, String>
+            val map = mapAdapter.fromJson(preferences
+                    .getStringOrNull(keyMapActions) ?: "{}") as? Map<String, String>
 
             @Suppress("UNCHECKED_CAST")
             return (map ?: mapOf()).toMutableMap()
