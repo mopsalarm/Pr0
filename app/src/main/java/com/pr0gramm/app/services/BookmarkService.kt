@@ -32,6 +32,7 @@ class BookmarkService(
 
         // serialize updates back to the preferences
         bookmarks.skip(1)
+                .distinctUntilChanged()
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .subscribe { persist(it) }
 
