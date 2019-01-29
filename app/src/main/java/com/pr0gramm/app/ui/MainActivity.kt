@@ -19,6 +19,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
@@ -525,8 +526,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         gotoFeedFragment(filter, false, startAt, queryState)
     }
 
-    override fun pinFeedFilter(filter: FeedFilter, title: String) {
-        launch { bookmarkService.create(filter, title) }
+    override fun bookmarkFilter(filter: FeedFilter, title: String) {
+        bookmarkService.save(Bookmark(title, filter))
         drawerLayout.openDrawer(GravityCompat.START)
     }
 

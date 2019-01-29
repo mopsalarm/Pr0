@@ -6,7 +6,6 @@ import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 
 object FeedFilterFormatter {
-
     /**
      * Simple utility function to format a [com.pr0gramm.app.feed.FeedFilter] to some
      * string. The string can not be parsed back or anything interesting.
@@ -22,8 +21,8 @@ object FeedFilterFormatter {
             return FeedTitle("", "", "")
 
         if (!filter.isBasic) {
-            filter.tags?.let {
-                return FeedTitle(it, " in ", feedTypeToString(context, filter))
+            filter.tags?.let { tags ->
+                return FeedTitle(cleanTags(tags), " in ", feedTypeToString(context, filter))
             }
 
             filter.username?.let {
@@ -42,7 +41,6 @@ object FeedFilterFormatter {
         return FeedTitle(feedTypeToString(context, filter), "", "")
     }
 
-
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
         if (filter.likes != null) {
             return context.getString(R.string.favorites_of, filter.likes)
@@ -60,7 +58,30 @@ object FeedFilterFormatter {
         }
     }
 
-    class FeedTitle(val title: String, val separator: String, val subtitle: String) {
+    private fun cleanTags(tags: String): String {
+        var result = tags.trimStart('?', '!').trim()
+
+        result = trim(result, '(', ')').trim()
+        result = trim(result, '"', '"').trim()
+        result = trim(result, '\'', '\'').trim()
+        result = result.replace(" ([|&-]) ".toRegex(), "$1").trim()
+
+        return result
+    }
+
+    private fun trim(text: String, left: Char, right: Char): String {
+        if (!text.startsWith(left) || !text.endsWith(right) || text.length <= 2)
+            return text
+
+        val mid = text.substring(1, text.lastIndex)
+        if (left in mid || right in mid) {
+            return text
+        }
+
+        return mid
+    }
+
+    class FeedTitle(val title: String, private val separator: String, val subtitle: String) {
         val singleline: String get() {
             return title + separator + subtitle
         }

@@ -57,19 +57,7 @@ class BookmarkService(
     }
 
     /**
-     * Creates a bookmark for the filter.
-
-     * @param filter The filter to create a bookmark for.
-     */
-    fun create(filter: FeedFilter, title: String) {
-        save(Bookmark(title, filter))
-    }
-
-    /**
-     * Returns an observable producing "true", if the item is bookmarkable.
-     * The observable produces "false" otherwise.
-
-     * @param filter The filter that the user wants to bookmark.
+     * Returns "true", if the item is bookmarkable.
      */
     fun isBookmarkable(filter: FeedFilter): Boolean {
         if (filter.isBasic)

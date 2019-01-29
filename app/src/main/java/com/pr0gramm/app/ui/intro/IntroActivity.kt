@@ -66,7 +66,11 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
 
         addSlide(GenericAppIntroFragment.newInstance(
                 title = "Danke",
-                description = "Schön, dass du dich für die App entschieden hast. Wenn bei dir etwas nicht funktioniert, zögere nicht die Feedback Funktion innerhalb der App zu verwenden.",
+                description = """
+                    Schön, dass du dich für die App entschieden hast.
+                    Wenn bei dir etwas nicht funktioniert, zögere nicht die Feedback-Funktion innerhalb der App zu verwenden.
+                    Diesen Willkommensbildschirm kannst du in den Einstellungen jederzeit erneut aufrufen.
+                    """.trimIndent(),
                 imageDrawable = R.drawable.ic_favorite_white_48dp,
                 bgColor = ContextCompat.getColor(this, R.color.olive_primary)))
 

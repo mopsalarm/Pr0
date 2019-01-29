@@ -3,6 +3,10 @@
     "version": 160,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Einige neue Lesezeichen Vorschläge eingebaut"
+      },
+      {
         "type": "Fix",
         "change": "Vorgeladene Bilder wurden teilweise nicht als solche markiert."
       },

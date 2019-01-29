@@ -16,7 +16,7 @@ interface MainActionHandler {
     fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?,
                              startAt: CommentRef?, popBackstack: Boolean = false)
 
-    fun pinFeedFilter(filter: FeedFilter, title: String)
+    fun bookmarkFilter(filter: FeedFilter, title: String)
 
     fun showUploadBottomSheet()
 

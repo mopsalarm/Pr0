@@ -889,7 +889,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val filter = currentFilter
         val title = FeedFilterFormatter.format(context, filter).singleline
-        (activity as MainActionHandler).pinFeedFilter(filter, title)
+        (activity as MainActionHandler).bookmarkFilter(filter, title)
     }
 
     private fun preloadCurrentFeed() {

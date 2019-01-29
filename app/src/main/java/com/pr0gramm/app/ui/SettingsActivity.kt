@@ -207,7 +207,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_onboarding" -> {
-                    startActivity(Intent(activity, IntroActivity::class.java))
+                    IntroActivity.launch(requireActivity())
                     return true
                 }
 
