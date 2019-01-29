@@ -17,7 +17,7 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
 
     override val introDescription: String = "Wähle aus der Liste Lesezeichen aus, die du direkt " +
             "in der Navigation sehen möchtest. Du kannst auch jederzeit weitere Lesezeichen " +
-            "mit eigener Suche anlegen oder bearbeiten."
+            "mit eigener Suche anlegen oder vorhandene durch langes Drücken löschen."
 
     override val introActionItems: List<ActionItem>
         get() {

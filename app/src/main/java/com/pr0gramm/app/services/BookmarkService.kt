@@ -85,7 +85,7 @@ class BookmarkService(
      * Observes change to the bookmarks
      */
     fun observe(): Observable<List<Bookmark>> {
-        return bookmarks
+        return bookmarks.map { it.sortedBy { it.title.toLowerCase() } }
     }
 
     /**
