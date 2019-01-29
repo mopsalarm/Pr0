@@ -22,11 +22,11 @@ class BenisRecordService(private val database: Holder<SQLiteDatabase>) {
         }
     }
 
-    fun storeValue(ownerId: Int, benis: Int) {
+    suspend fun storeValue(ownerId: Int, benis: Int) {
         checkNotMainThread()
 
         val sql = "INSERT INTO benis_record (owner_id, time, benis) VALUES (?, ?, ?)"
-        database.value.execSQL(sql, arrayOfStrings(ownerId, TimeFactory.currentTimeMillis(), benis))
+        database.get().execSQL(sql, arrayOfStrings(ownerId, TimeFactory.currentTimeMillis(), benis))
     }
 
     companion object {
