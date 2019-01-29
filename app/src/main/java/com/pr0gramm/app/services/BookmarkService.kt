@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit
 /**
  */
 class BookmarkService(
-        private val database: Holder<SQLiteDatabase>,
         private val preferences: SharedPreferences,
+        database: Holder<SQLiteDatabase>,
         singleShotService: SingleShotService) {
 
     private val logger = Logger("BookmarkService")
@@ -38,7 +38,7 @@ class BookmarkService(
 
         if (singleShotService.isFirstTime("BookmarkService.migrate")) {
             // migrate "old" data
-            doInBackground { migrate() }
+            doInBackground { migrate(database.get()) }
         }
     }
 
@@ -133,7 +133,7 @@ class BookmarkService(
     /**
      * Query a list of all bookmarks directly from the database.
      */
-    private suspend fun migrate() {
+    private fun migrate(db: SQLiteDatabase) {
         if (Settings.get().legacyShowCategoryText) {
             // disable this for the next time
             Settings.get().edit {
@@ -147,7 +147,7 @@ class BookmarkService(
         try {
             // get all values
             val query = "SELECT title, filter_tags, filter_username, filter_feed_type FROM bookmark ORDER BY title DESC"
-            val bookmarks = database.get().rawQuery(query, null).use { cursor ->
+            val bookmarks = db.rawQuery(query, null).use { cursor ->
                 cursor.mapToList {
                     Bookmark(title = getString(0),
                             filterTags = getString(1),
@@ -157,7 +157,7 @@ class BookmarkService(
             }
 
             // and delete all values from the table
-            database.get().execSQL("DELETE FROM bookmark")
+            db.execSQL("DELETE FROM bookmark")
 
             // save all those bookmarks
             logger.info { "Migrating ${bookmarks.size} bookmarks to new storage" }
