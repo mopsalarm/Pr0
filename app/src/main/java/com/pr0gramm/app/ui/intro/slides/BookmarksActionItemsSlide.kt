@@ -27,17 +27,17 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
                     BookmarkActionItem(bookmarkService, "Kein Ton",
                             f.withTags("! -f:sound")),
 
-                    BookmarkActionItem(bookmarkService, "Text in Top",
-                            f.withTags("! 'text'")),
-
                     BookmarkActionItem(bookmarkService, "Community Textposts",
                             f.withTags("! 'text' & 'richtiges grau'")),
 
                     BookmarkActionItem(bookmarkService, "Nur Bilder",
-                            f.withTags("! -video -gif")),
+                            f.withTags("! -'video' -'gif'")),
 
                     BookmarkActionItem(bookmarkService, "Original Content",
                             f.withTags("! 'original content' | 'oc'")),
+
+                    BookmarkActionItem(bookmarkService, "Text in Top",
+                            f.withTags("! 'text'")),
 
                     BookmarkActionItem(bookmarkService, "0815 & Süßvieh",
                             f.withTags("! 0815|süßvieh|'ficken halt'|'aber schicks keinem'")),
@@ -45,11 +45,17 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
                     BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel",
                             f.withTags("! (-f:sound | (untertitel & -404))")),
 
-                    BookmarkActionItem(bookmarkService, "Keine Videos",
-                            f.withTags("! -video")),
+                    BookmarkActionItem(bookmarkService, "Admin & Mods",
+                            f.withTags("! m:admin | m:mod")),
+
+                    BookmarkActionItem(bookmarkService, "Zufall von früher",
+                            f.withTags("! d:2012 | d:2013").withFeedType(FeedType.RANDOM)),
 
                     BookmarkActionItem(bookmarkService, "Reposts in Top",
                             f.withTags("! 'repost' & f:top")),
+
+                    BookmarkActionItem(bookmarkService, "Wichteln",
+                            f.withTags("! 'wichteln'")),
 
                     BookmarkActionItem(bookmarkService, "Nur Schrott",
                             f.withTags("! s:shit").withFeedType(FeedType.NEW)))
