@@ -2,6 +2,7 @@ package com.pr0gramm.app.orm
 
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.util.tryEnumValueOf
 import com.squareup.moshi.JsonClass
 
 /**
@@ -12,7 +13,8 @@ data class Bookmark(val title: String, val filterTags: String?, val filterUserna
      * Create a feed filter from this bookmark.
      */
     fun asFeedFilter(): FeedFilter {
-        var filter = FeedFilter().withFeedType(FeedType.valueOf(filterFeedType))
+        val feedType = tryEnumValueOf<FeedType>(filterFeedType) ?: FeedType.PROMOTED
+        var filter = FeedFilter().withFeedType(feedType)
 
         if (filterTags != null)
             filter = filter.withTags(filterTags)

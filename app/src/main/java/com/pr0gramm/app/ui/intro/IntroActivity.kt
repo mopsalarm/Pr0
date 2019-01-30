@@ -11,6 +11,7 @@ import com.pr0gramm.app.ui.intro.slides.*
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.startActivity
+import com.pr0gramm.app.util.tryEnumValueOf
 
 class IntroActivity : AppIntro(), LazyInjectorAware {
     override val injector: PropertyInjector = PropertyInjector()
@@ -22,7 +23,7 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
 
         // deserialize slides to show
         val slidesToShow = intent.getStringArrayExtra("IntroActivity.steps")
-                ?.map { enumValueOf<Slides>(it) }
+                ?.mapNotNull { tryEnumValueOf<Slides>(it) }
                 ?: defaultSlides
 
         if (Slides.INITIAL in slidesToShow) {

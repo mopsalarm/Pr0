@@ -164,7 +164,13 @@ class BookmarkService(
                         ?.replace("hat text", "text")
                         ?.replace("^'original content'", "! 'original content'")
 
-                bookmark.copy(filterTags = tags)
+                // migrate remove non existing filter types
+                val feedType = when (bookmark.filterFeedType) {
+                    "TEXT" -> FeedType.PROMOTED.name
+                    else -> bookmark.filterFeedType
+                }
+
+                bookmark.copy(filterTags = tags, filterFeedType = feedType)
             }
 
             logger.debug { "Fixing ${fixed.size} bookmarks" }
