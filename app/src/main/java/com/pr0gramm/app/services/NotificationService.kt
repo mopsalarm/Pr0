@@ -9,8 +9,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.app.*
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
+import androidx.core.app.TaskStackBuilder
 import androidx.core.content.FileProvider
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -19,10 +24,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.UserDrawables
-import com.pr0gramm.app.util.getColorCompat
-import com.pr0gramm.app.util.lruCache
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
@@ -44,10 +46,10 @@ class NotificationService(private val context: Application,
 
     val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
-    private val downloadNotificationNextId = AtomicInteger(Types.Download.id)
+    private val notificationNextId = AtomicInteger(Types.Download.id)
 
-    private val downloadNotificationIdCache = lruCache<File, Int>(128) {
-        downloadNotificationNextId.incrementAndGet()
+    private val notificationIdCache = lruCache<File, Int>(128) {
+        notificationNextId.incrementAndGet()
     }
 
     init {
@@ -65,22 +67,18 @@ class NotificationService(private val context: Application,
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannels() {
-        createChannel(Types.NewMessage, NotificationManager.IMPORTANCE_LOW) {
-            setShowBadge(true)
-            enableLights(true)
-            lightColor = context.getColorCompat(ThemeHelper.accentColor)
+        listOf(Types.NewMessage, Types.NewComment).forEach { type ->
+            createChannel(type, NotificationManager.IMPORTANCE_LOW) {
+                setShowBadge(true)
+                enableLights(true)
+                lightColor = context.getColorCompat(ThemeHelper.accentColor)
+            }
         }
 
-        createChannel(Types.Update, NotificationManager.IMPORTANCE_LOW) {
-            setShowBadge(false)
-        }
-
-        createChannel(Types.Download, NotificationManager.IMPORTANCE_LOW) {
-            setShowBadge(false)
-        }
-
-        createChannel(Types.Preload, NotificationManager.IMPORTANCE_LOW) {
-            setShowBadge(false)
+        listOf(Types.Update, Types.Download, Types.Preload).forEach { type ->
+            createChannel(type, NotificationManager.IMPORTANCE_LOW) {
+                setShowBadge(false)
+            }
         }
     }
 
@@ -112,7 +110,7 @@ class NotificationService(private val context: Application,
     }
 
     fun showDownloadNotification(file: File, progress: Float, preview: Bitmap? = null) {
-        val id = downloadNotificationIdCache[file]
+        val id = notificationIdCache[file]
         notify(Types.Download, id) {
             setContentTitle(file.nameWithoutExtension)
             setSmallIcon(R.drawable.ic_notify_new_message)
@@ -143,10 +141,68 @@ class NotificationService(private val context: Application,
             return
 
         // try to get the new messages, ignore all errors.
-        runCatching {
+        catchAll {
             val messages = inboxService.pending()
             val unread = messages.filter { inboxService.messageIsUnread(it) }
             showInboxNotification(unread)
+        }
+    }
+
+    private inner class MessageGroup(private val messages: List<Api.Message>) {
+        private val isComment = messages.all { it.isComment }
+
+        private val maxTimestamp = messages.maxBy { it.creationTime }!!.creationTime
+
+        val type = if (isComment) Types.NewComment else Types.NewMessage
+        val id = type.id + if (isComment) messages.first().itemId.toInt() else messages.first().senderId
+
+        val title: String = when {
+            !isComment -> messages.first().name
+            isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
+            isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
+            else -> "unreachable"
+        }
+
+        val contentText: String = context.getString(R.string.notify_new_message_summary_text)
+
+        val inboxIntent: PendingIntent = run {
+            when {
+                isComment -> inboxActivityIntent(maxTimestamp, InboxType.COMMENTS_IN)
+                else -> inboxActivityIntent(maxTimestamp, InboxType.PRIVATE, messages.first().name)
+            }
+        }
+
+        val deleteIntent: PendingIntent = markAsReadIntent(maxTimestamp)
+
+        val icon: Bitmap? by lazy { thumbnail(messages) }
+
+        val timestampWhen: Instant = messages.minBy { it.creationTime }!!.creationTime
+
+        val replyAction: NotificationCompat.Action? = run {
+            if (isComment && messages.size == 1 || !isComment) {
+                buildReplyAction(id, messages.first())
+            } else {
+                null
+            }
+        }
+
+        val style: NotificationCompat.Style? = NotificationCompat.InboxStyle().also { style ->
+            if (!isComment) {
+                style.setBigContentTitle(context.getString(R.string.notify_new_message_title, messages.first().name))
+            }
+
+            messages.sortedBy { it.creationTime }.take(5).forEach { message ->
+                val line = if (isComment) {
+                    buildSpannedString {
+                        bold { append(message.name).append(": ") }
+                        append(message.message)
+                    }
+                } else {
+                    message.message
+                }
+
+                style.addLine(line)
+            }
         }
     }
 
@@ -157,73 +213,40 @@ class NotificationService(private val context: Application,
             return
         }
 
-        val title = when {
-            messages.size == 1 -> context.getString(R.string.notify_new_message_title)
-            else -> context.getString(R.string.notify_new_messages_title, messages.size)
-        }
+        val notifications = messages
+                .groupBy { if (it.isComment) it.itemId.toInt() else it.senderId }
+                .values.map { MessageGroup(it) }
 
-        val inboxStyle = formatMessages(messages)
 
-        val minMessageTimestamp = messages.minBy { it.creationTime }!!.creationTime
-        val maxMessageTimestamp = messages.maxBy { it.creationTime }!!.creationTime
+        notifications.forEach { not ->
+            notify(not.type, not.id) {
+                setContentTitle(not.title)
+                setContentIntent(not.inboxIntent)
+                setContentText(not.contentText)
 
-        val inboxIntent = when {
-            messages.size == 1 && messages.first().isComment ->
-                inboxActivityIntent(maxMessageTimestamp, InboxType.COMMENTS_IN)
+                setSmallIcon(R.drawable.ic_notify_new_message)
+                setLargeIcon(not.icon)
 
-            messages.size == 1 && !messages.first().isComment ->
-                inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE,
-                        conversationName = messages.first().name)
+                setWhen(not.timestampWhen.millis)
+                setShowWhen(true)
 
-            else ->
-                inboxActivityIntent(maxMessageTimestamp, InboxType.PRIVATE)
-        }
+                setAutoCancel(true)
+                setDeleteIntent(not.deleteIntent)
+                setCategory(NotificationCompat.CATEGORY_EMAIL)
 
-        notify(Types.NewMessage) {
-            setContentIntent(inboxIntent)
-            setContentTitle(title)
-            setContentText(context.getString(R.string.notify_new_message_summary_text))
-            setStyle(inboxStyle)
-            setSmallIcon(R.drawable.ic_notify_new_message)
-            setLargeIcon(thumbnail(messages))
-            setWhen(minMessageTimestamp.millis)
-            setShowWhen(minMessageTimestamp.millis != 0L)
-            setAutoCancel(true)
-            setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
-            setCategory(NotificationCompat.CATEGORY_EMAIL)
-
-            setLights(context.getColorCompat(ThemeHelper.accentColor), 500, 500)
-            setColor(context.getColorCompat(ThemeHelper.accentColor))
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val replyToUserId = instantReplyToUserId(messages)
-                if (replyToUserId != 0) {
-                    val action = buildReplyAction(messages[0])
-                    addAction(action)
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
+
+                not.style?.let { setStyle(it) }
+
+                not.replyAction?.let { addAction(it) }
             }
         }
 
         Track.inboxNotificationShown()
     }
 
-    private fun formatMessages(messages: List<Api.Message>): NotificationCompat.MessagingStyle {
-        val inboxStyle = NotificationCompat.MessagingStyle(Person.Builder().setName("Me").build())
-        messages.take(5).forEach { msg ->
-            val p = Person.Builder().setName(msg.name).build()
-            val m = NotificationCompat.MessagingStyle.Message(msg.message, msg.creationTime.millis, p)
-            inboxStyle.addMessage(m)
-        }
-
-        return inboxStyle
-    }
-
-    fun showSendSuccessfulNotification(receiver: String) {
-        notify(Types.NewMessage) {
+    fun showSendSuccessfulNotification(receiver: String, notificationId: Int) {
+        notify(Types.NewMessage, notificationId) {
             setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE, receiver))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
@@ -236,10 +259,10 @@ class NotificationService(private val context: Application,
     /**
      * This builds the little "reply" action under a notification.
      */
-    private fun buildReplyAction(message: Api.Message): NotificationCompat.Action {
+    private fun buildReplyAction(notificationId: Int, message: Api.Message): NotificationCompat.Action {
         // build the intent to fire on reply
         val pendingIntent = PendingIntent.getBroadcast(context, 0,
-                MessageReplyReceiver.makeIntent(context, message),
+                MessageReplyReceiver.makeIntent(context, notificationId, message),
                 PendingIntent.FLAG_UPDATE_CURRENT)
 
         // the input field
@@ -249,6 +272,7 @@ class NotificationService(private val context: Application,
 
         // add everything as an action
         return NotificationCompat.Action.Builder(R.drawable.ic_reply, context.getString(R.string.notify_reply), pendingIntent)
+                .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                 .addRemoteInput(remoteInput)
                 .build()
     }
@@ -259,15 +283,14 @@ class NotificationService(private val context: Application,
     private fun thumbnail(messages: List<Api.Message>): Bitmap? {
         val message = messages[0]
 
-        val allForTheSamePost = messages.all { message.itemId == it.itemId }
-
-        if (allForTheSamePost && message.itemId != 0L && !message.thumbnail.isNullOrEmpty()) {
-            return loadThumbnail(message)
+        val allSameItem = messages.all { message.itemId == it.itemId }
+        if (allSameItem && message.isComment && !message.thumbnail.isNullOrEmpty()) {
+            return loadItemThumbnail(message)
         }
 
-        val allForTheSameUser = messages.all { message.senderId == it.senderId }
-
-        if (allForTheSameUser && message.itemId == 0L && message.name.isNotEmpty()) {
+        val allSameSender = messages.all { message.senderId == it.senderId }
+        if (allSameSender && !message.isComment && message.name.isNotEmpty()) {
+            // build an icon for the user
             val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
 
@@ -278,7 +301,7 @@ class NotificationService(private val context: Application,
         return null
     }
 
-    private fun loadThumbnail(message: Api.Message): Bitmap? {
+    private fun loadItemThumbnail(message: Api.Message): Bitmap? {
         val uri = uriHelper.thumbnail(message)
         return try {
             picasso.load(uri).get()
@@ -332,31 +355,25 @@ class NotificationService(private val context: Application,
     }
 
     fun cancelForInbox() {
-        nm.cancel(Types.NewMessage.id)
+        // not 100% accurate, but should work
+        nm.cancelAll()
     }
 
     fun cancelForUpdate() {
         nm.cancel(Types.Update.id)
     }
 
-    /**
-     * If all messages are from the same user, we return this user id as the one
-     * that we can send a reply to.
-     */
-    private fun instantReplyToUserId(messages: List<Api.Message>): Int {
-        val sender = messages[0].senderId
-        return if (messages.all { it.senderId == sender }) sender else 0
-    }
-
     class NotificationType(val id: Int, channelName: String, val description: Int) {
-        val channel = "com.pr0gramm.app." + channelName
+        val channel = "com.pr0gramm.app.$channelName"
     }
 
     object Types {
-        val NewMessage = NotificationType(5001, "NEW_MESSAGE", R.string.notification_channel_new_message)
         val Preload = NotificationType(5002, "PRELOAD", R.string.notification_channel_preload)
         val Update = NotificationType(5003, "UPDATE", R.string.notification_channel_update)
         val Download = NotificationType(6000, "DOWNLOAD", R.string.notification_channel_download)
+
+        val NewMessage = NotificationType(7000, "NEW_MESSAGE", R.string.notification_channel_new_message)
+        val NewComment = NotificationType(1024 * 1024 * 1024, "NEW_COMMENT", R.string.notification_channel_new_comment)
     }
 
     fun beginPreloadNotification(): NotificationCompat.Builder {

@@ -6,13 +6,12 @@ import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.launch
+import com.pr0gramm.app.util.doInBackground
 
 /**
  * Reply directly to a user
@@ -51,7 +50,10 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
         // decide if we are sending a message or a comment
         val isMessage = itemId == 0L || commentId == 0L
 
-        AsyncScope.launch {
+        // notification id to re-use for confirmation
+        val notificationId = intent.getIntExtra("notificationId", 0)
+
+        doInBackground {
             catchAll {
                 if (isMessage) {
                     sendResponseToMessage(receiverId, text)
@@ -59,7 +61,7 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
                     sendResponseAsComment(itemId, commentId, text)
                 }
 
-                notificationService.showSendSuccessfulNotification(receiverName)
+                notificationService.showSendSuccessfulNotification(receiverName, notificationId)
             }
 
             markMessageAsRead(context, messageCreated)
@@ -84,8 +86,10 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
     }
 
     companion object {
-        fun makeIntent(context: Context, message: Api.Message): Intent {
+        fun makeIntent(context: Context, notificationId: Int, message: Api.Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)
+            intent.putExtra("notificationId", notificationId)
+
             if (message.isComment) {
                 intent.putExtra("itemId", message.itemId)
                 intent.putExtra("commentId", message.commentId)

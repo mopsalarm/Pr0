@@ -96,8 +96,7 @@
     <string name="error_login_required_exception">Schaut so aus, als wäre deine Sitzung abgelaufen. Hast du Dich vielleicht im Browser abgemeldet?</string>
     <string name="feedback_reminder">Dies ist eine Betaversion. Bei Problemen sende bitte Feedback.</string>
     <string name="filter_format_premium">Stelz</string>
-    <string name="notify_new_message_title">Eine neue Nachricht</string>
-    <string name="notify_new_messages_title">%d neue Nachrichten</string>
+    <string name="notify_new_message_title">Unterhaltung mit %s</string>
     <string name="pref_show_notifications_title">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="badge_op">OP</string>
@@ -437,6 +436,7 @@
     <string name="pref_rotate_in_fullscreen_title">Videos drehen</string>
     <string name="pref_rotate_in_fullscreen_summary">Videos automatisch im Vollbild drehen, wenn sie dadurch größer werden.</string>
     <string name="notification_channel_new_message">Neue Nachricht</string>
+    <string name="notification_channel_new_comment">Neuer Kommentar</string>
     <string name="notification_channel_download">Downloads</string>
     <string name="notification_channel_update">Update verfügbar</string>
     <string name="notification_channel_preload">Vorladen</string>
@@ -482,4 +482,6 @@
     <string name="conversation_load_error">Unterhaltung kann nicht geladen werden.</string>
     <string name="error_senderIsRecipient">Du kannst dir selbst keine Nachrichten schicken.</string>
     <string name="action_profile">Zum Profil</string>
+    <string name="notify_new_comment_title">Ein neuer Kommentar</string>
+    <string name="notify_new_comments_title">%d neue Kommentare</string>
 </resources>
