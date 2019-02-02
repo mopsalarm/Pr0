@@ -189,6 +189,29 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
         val lhsSize = lhs.size
         val rhsSize = rhs.size
 
+        // Check some optimizations first. Maybe we dont need to do anything,
+        when {
+            rhsSize == 0 -> {
+                return
+            }
+
+            rhsSize == 1 -> {
+                // just put the one value and stop here.
+                put(rhs.keyAt(0), rhs.valueAt(0))
+                return
+            }
+
+            lhsSize == 0 -> {
+                // just copy the rhs
+                val copy = rhs.clone()
+                mSize = copy.mSize
+                mKeys = copy.mKeys
+                mValues = copy.mValues
+                mGarbage = copy.mGarbage
+                return
+            }
+        }
+
         val targetSize = idealLongArraySize(lhsSize + rhsSize)
 
         var lhsIndex = 0
@@ -226,6 +249,21 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
                 }
             }
 
+        }
+
+        // copy the rest to the target
+        while (lhsIndex < lhsSize) {
+            keyArray[targetIndex] = lhs.mKeys[lhsIndex]
+            valArray[targetIndex] = lhs.mValues[lhsIndex]
+            targetIndex++
+            lhsIndex++
+        }
+
+        while (rhsIndex < rhsSize) {
+            keyArray[targetIndex] = rhs.mKeys[rhsIndex]
+            valArray[targetIndex] = rhs.mValues[rhsIndex]
+            targetIndex++
+            rhsIndex++
         }
 
         // apply merged values
