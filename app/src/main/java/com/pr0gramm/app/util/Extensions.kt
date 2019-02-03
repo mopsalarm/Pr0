@@ -330,21 +330,20 @@ inline fun <T> Logger.time(name: String, supplier: () -> T): T {
     }
 }
 
-inline fun <T> Logger.time(nameSupplier: (T?) -> String, supplier: () -> T): T {
+inline fun <T> Logger.timeSuffix(name: String, supplier: () -> Pair<String, T>): T {
     return if (BuildConfig.DEBUG) {
         val watch = Stopwatch.createStarted()
 
-        var result: T? = null
+        var result: Pair<String, T>? = null
         try {
             result = supplier()
-            return result
+            return result.second
         } finally {
-            val name = nameSupplier(result)
-            this.info { "$name took $watch" }
+            this.info { "$name (${result?.first}) took $watch" }
         }
 
     } else {
-        supplier()
+        supplier().second
     }
 }
 

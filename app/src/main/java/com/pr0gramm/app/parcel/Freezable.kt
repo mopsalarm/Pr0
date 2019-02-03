@@ -4,10 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.directName
-import com.pr0gramm.app.util.listOfSize
-import com.pr0gramm.app.util.time
+import com.pr0gramm.app.util.*
 import okio.*
 import java.io.ByteArrayInputStream
 import java.util.zip.Deflater
@@ -105,18 +102,38 @@ interface Freezable : Parcelable {
 
 object Freezer {
     fun freeze(f: Freezable): ByteArray {
-        return logger.time({ "Freezing object of type ${f.javaClass.directName} (${it?.size} bytes)" }) {
+        return logger.timeSuffix("Freezing object of type ${f.javaClass.directName}") {
+            val raw = Buffer()
             val buffer = Buffer()
             try {
-                DeflaterSink(buffer, Deflater(Deflater.BEST_SPEED)).use {
-                    Okio.buffer(it).use { bufferedSink ->
-                        f.freeze(Freezable.Sink(bufferedSink))
-                    }
+                // freeze it to the raw buffer
+                f.freeze(Freezable.Sink(raw))
+
+                // select compression
+                val comp = when {
+                    raw.size() < 16 * 1024 -> Deflater.NO_COMPRESSION
+                    raw.size() < 64 * 1024 -> Deflater.BEST_SPEED
+                    else -> Deflater.BEST_COMPRESSION
                 }
 
-                return@time buffer.readByteArray()
+                if (comp == Deflater.NO_COMPRESSION) {
+                    // identify as uncompressed
+                    buffer.writeByte(0)
+                    buffer.write(raw, raw.size())
+
+                } else {
+                    // identify as compressed
+                    buffer.writeByte(1)
+
+                    // and write data compressed to the buffer
+                    DeflaterSink(buffer, Deflater(comp)).use { def -> def.write(raw, raw.size()) }
+                }
+
+
+                return@timeSuffix Pair("${buffer.size()} bytes", buffer.readByteArray())
 
             } finally {
+                raw.clear()
                 buffer.clear()
             }
         }
@@ -124,11 +141,21 @@ object Freezer {
 
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
         return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
-            val source = Okio.source(ByteArrayInputStream(data))
+            val source = Okio.source(ByteArrayInputStream(data, 1, data.size - 1))
 
-            InflaterSource(source, Inflater()).use { inflaterSource ->
-                val bufferedSource = Okio.buffer(inflaterSource)
-                c.unfreeze(Freezable.Source(bufferedSource))
+            val notCompressed = data[0] == 0.toByte()
+            if (notCompressed) {
+                // directly read from the source
+                Okio.buffer(source).use { bufferedSource ->
+                    c.unfreeze(Freezable.Source(bufferedSource))
+                }
+            } else {
+                // decompress
+                InflaterSource(source, Inflater()).use { inflaterSource ->
+                    Okio.buffer(inflaterSource).use { bufferedSource ->
+                        c.unfreeze(Freezable.Source(bufferedSource))
+                    }
+                }
             }
         }
     }
