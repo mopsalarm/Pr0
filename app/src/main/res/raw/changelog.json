@@ -1,5 +1,18 @@
 [
   {
+    "version": 161,
+    "changes": [
+      {
+        "type": "Überarbeitet",
+        "change": "Benachrichtigungen kommen jetzt gruppiert nach Post oder Unterhaltung."
+      },
+      {
+        "type": "Fix",
+        "change": "Benis eines Kommentars wurde nach dem Posten manchmal fehlerhaft angezeigt."
+      }
+    ]
+  },
+  {
     "version": 160,
     "changes": [
       {
