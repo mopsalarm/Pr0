@@ -60,14 +60,14 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
                 } else {
                     sendResponseAsComment(itemId, commentId, text)
                 }
-
-                notificationService.showSendSuccessfulNotification(receiverName, isMessage, notificationId)
             }
 
+            notificationService.showSendSuccessfulNotification(receiverName, isMessage, notificationId)
+
             if (isMessage) {
-                inboxService.markAsRead("item:$itemId", messageCreated)
-            } else {
                 inboxService.markAsRead(receiverName, messageCreated)
+            } else {
+                inboxService.markAsRead("item:$itemId", messageCreated)
             }
         }
     }
