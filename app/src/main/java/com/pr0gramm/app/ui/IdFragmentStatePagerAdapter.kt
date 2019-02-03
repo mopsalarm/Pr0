@@ -6,6 +6,9 @@ import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.viewpager.widget.PagerAdapter
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.LongSparseArray
 import java.util.*
@@ -16,24 +19,24 @@ import java.util.*
 
  * @see androidx.fragment.app.FragmentStatePagerAdapter
  */
-abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: androidx.fragment.app.FragmentManager) : androidx.viewpager.widget.PagerAdapter() {
+abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: FragmentManager) : PagerAdapter() {
     private val logger = Logger("IdFragmentStatePagerAdapter")
 
     // we only cache the most recent few saved states.
-    private val mSavedState = object : LinkedHashMap<Long, androidx.fragment.app.Fragment.SavedState>() {
-        override fun removeEldestEntry(eldest: Map.Entry<Long, androidx.fragment.app.Fragment.SavedState>): Boolean {
+    private val mSavedState = object : LinkedHashMap<Long, Fragment.SavedState>() {
+        override fun removeEldestEntry(eldest: Map.Entry<Long, Fragment.SavedState>): Boolean {
             return size > 5
         }
     }
 
     private val mFragments = LongSparseArray<Fragment>()
-    private var mCurTransaction: androidx.fragment.app.FragmentTransaction? = null
-    private var mCurrentPrimaryItem: androidx.fragment.app.Fragment? = null
+    private var mCurTransaction: FragmentTransaction? = null
+    private var mCurrentPrimaryItem: Fragment? = null
 
     /**
      * Return the Fragment associated with a specified position.
      */
-    abstract fun getItem(position: Int): androidx.fragment.app.Fragment
+    abstract fun getItem(position: Int): Fragment
 
     override fun startUpdate(container: ViewGroup) {
         if (container.id == View.NO_ID) {
@@ -46,9 +49,9 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
 
      * @param position The position of the fragment to get
      */
-    fun getFragment(position: Int): androidx.fragment.app.Fragment? {
+    fun getFragment(position: Int): Fragment? {
         val itemId = getItemId(position)
-        return mFragments.get(itemId)
+        return mFragments[itemId]
     }
 
     @SuppressLint("CommitTransaction")
@@ -59,7 +62,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
         // to do.  This can happen when we are restoring the entire pager
         // from its saved state, where the fragment manager has already
         // taken care of restoring the fragments we previously had instantiated.
-        val f = mFragments.get(id)
+        val f = mFragments[id]
         if (f != null) {
             return f
         }
@@ -86,7 +89,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
 
     @SuppressLint("CommitTransaction")
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        val fragment = `object` as androidx.fragment.app.Fragment
+        val fragment = `object` as Fragment
 
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction()
@@ -109,7 +112,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
     }
 
     override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-        val fragment = `object` as androidx.fragment.app.Fragment
+        val fragment = `object` as Fragment
         if (fragment !== mCurrentPrimaryItem) {
             mCurrentPrimaryItem?.let {
                 it.setMenuVisibility(false)
@@ -138,7 +141,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
     }
 
     override fun isViewFromObject(view: View, obj: Any): Boolean {
-        return (obj as androidx.fragment.app.Fragment).view === view
+        return (obj as Fragment).view === view
     }
 
     override fun saveState(): Parcelable? {
@@ -179,11 +182,12 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: android
             val ids = state.getLongArray("ids")
             val fss = state.getParcelableArray("states")
 
-            mSavedState.clear()
             mFragments.clear()
-            if (fss != null) {
+            mSavedState.clear()
+
+            if (ids != null && fss != null) {
                 for (i in fss.indices) {
-                    mSavedState.put(ids[i], fss[i] as androidx.fragment.app.Fragment.SavedState)
+                    mSavedState.put(ids[i], fss[i] as Fragment.SavedState)
                 }
             }
 
