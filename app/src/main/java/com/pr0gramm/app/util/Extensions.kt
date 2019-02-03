@@ -31,6 +31,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.adapter
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
@@ -687,4 +689,19 @@ fun TextView.setTextFuture(text: CharSequence) {
     } else {
         setText(text)
     }
+}
+
+inline fun <reified T : Any> SharedPreferences.getObject(key: String): T? {
+    val encoded = getStringOrNull(key) ?: return null
+    return MoshiInstance.adapter<T>().fromJson(encoded)
+}
+
+inline fun <reified T : Any> SharedPreferences.Editor.setObject(key: String, value: T?): SharedPreferences.Editor {
+    if (value == null) {
+        remove(key)
+    } else {
+        putString(key, MoshiInstance.adapter<T>().toJson(value))
+    }
+
+    return this
 }

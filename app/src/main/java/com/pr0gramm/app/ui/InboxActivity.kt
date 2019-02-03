@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
-import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -77,10 +76,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         // track if we've clicked the notification!
         if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
             Track.inboxNotificationClosed("clicked")
-        }
-
-        intent.getParcelableExtra<Instant>(EXTRA_MESSAGE_TIMESTAMP)?.let { timestamp ->
-            inboxService.markAsRead(timestamp)
         }
 
         intent.getStringExtra(EXTRA_CONVERSATION_NAME)?.let { name ->
@@ -164,7 +159,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
     companion object {
         const val EXTRA_INBOX_TYPE = "InboxActivity.inboxType"
         const val EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification"
-        const val EXTRA_MESSAGE_TIMESTAMP = "InboxActivity.maxMessageId"
+        const val EXTRA_MESSAGE_UNREAD_TIMESTAMP = "InboxActivity.maxMessageId"
         const val EXTRA_CONVERSATION_NAME = "InboxActivity.conversationName"
     }
 }

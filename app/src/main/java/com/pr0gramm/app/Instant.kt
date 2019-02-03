@@ -62,12 +62,8 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         return millis.compareTo(other.millis)
     }
 
-    override fun hashCode(): Int {
-        return millis.hashCode()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is Instant && other.millis == millis
+    override fun toString(): String {
+        return Date(millis).toString()
     }
 
     fun toString(format: DateFormat): String {

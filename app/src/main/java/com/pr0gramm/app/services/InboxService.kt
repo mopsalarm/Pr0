@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
+import androidx.collection.LruCache
 import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -9,6 +10,9 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.StringException
+import com.pr0gramm.app.util.getObject
+import com.pr0gramm.app.util.setObject
+import com.squareup.moshi.JsonClass
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
@@ -22,6 +26,26 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
     private val unreadMessagesCount = BehaviorSubject.create<Api.InboxCounts>().toSerialized()!!
 
+    private val readUpToCache = LruCache<String, Instant>(128)
+
+    @JsonClass(generateAdapter = true)
+    data class Timestamp(val id: String, val timestamp: Instant)
+
+    init {
+        // restore previous cache entries
+        val readUpToTimestamps: List<Timestamp> = preferences
+                .getObject("InboxService.readUpTo") ?: listOf()
+
+        readUpToTimestamps.forEach { readUpToCache.put(it.id, it.timestamp) }
+    }
+
+    private fun persistState() {
+        val values = readUpToCache.snapshot().map { entry -> Timestamp(entry.key, entry.value) }
+        preferences.edit {
+            setObject("InboxService.readUpTo", values)
+        }
+    }
+
     /**
      * Gets unread messages
      */
@@ -33,7 +57,12 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets the list of inbox comments
      */
     suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
-        return api.inboxCommentsAsync(olderThan?.epochSeconds).await().messages
+        val comments = api.inboxCommentsAsync(olderThan?.epochSeconds).await().messages
+
+        // mark the most recent comment as read.
+        comments.maxBy { it.creationTime }?.let { markAsRead(it) }
+
+        return comments
     }
 
     /**
@@ -44,42 +73,41 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         return api.userCommentsAsync(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
     }
 
+    fun markAsRead(notifyId: String, timestamp: Instant) {
+        if (messageIsUnread(notifyId, timestamp)) {
+            logger.debug {
+                "Mark all messages for id=$notifyId with " +
+                        "timestamp less than or equal to $timestamp as read"
+            }
+
+            readUpToCache.put(notifyId, timestamp)
+            persistState()
+        }
+    }
+
     /**
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from [.unreadMessagesCount].
      */
-    fun markAsRead(timestamp: Instant) {
-        val updateRequired = messageIsUnread(timestamp)
-        if (updateRequired) {
-            logger.info {
-                "Mark all messages with timestamp less than or equal to $timestamp as read"
-            }
+    fun markAsRead(message: Api.Message) {
+        markAsRead(message.unreadId, message.creationTime)
+    }
 
-            preferences.edit {
-                putLong(KEY_MAX_READ_MESSAGE_ID, timestamp.millis)
-            }
-        }
+    private fun messageIsUnread(notifyId: String, timestamp: Instant): Boolean {
+        val upToTimestamp = readUpToCache.get(notifyId) ?: return true
+        return timestamp.isAfter(upToTimestamp)
+    }
+
+    fun messageIsUnread(message: Api.Message): Boolean {
+        return messageIsUnread(message.unreadId, message.creationTime)
     }
 
     /**
      * Forgets all read messages. This is useful on logout.
      */
-    fun forgetReadMessage() {
-        preferences.edit {
-            putLong(KEY_MAX_READ_MESSAGE_ID, 0)
-        }
-    }
-
-    /**
-     * Returns true if the given message was already read
-     * according to [.markAsRead].
-     */
-    fun messageIsUnread(message: Api.Message): Boolean {
-        return messageIsUnread(message.creationTime)
-    }
-
-    fun messageIsUnread(timestamp: Instant): Boolean {
-        return timestamp.millis > preferences.getLong(KEY_MAX_READ_MESSAGE_ID, 0)
+    fun forgetUnreadMessages() {
+        readUpToCache.evictAll()
+        persistState()
     }
 
     /**
@@ -116,10 +144,13 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     suspend fun messagesInConversation(name: String, olderThan: Instant? = null): Api.ConversationMessages {
-        return api.messagesWithAsync(name, olderThan?.epochSeconds).await()
-    }
+        val result = api.messagesWithAsync(name, olderThan?.epochSeconds).await()
 
-    companion object {
-        private val KEY_MAX_READ_MESSAGE_ID = "InboxService.maxReadMessageId"
+        // mark the latest message in the conversation as read
+        result.messages.maxBy { it.creationTime }?.let { markAsRead(name, it.creationTime) }
+
+        return result
     }
 }
+
+val Api.Message.unreadId: String get() = if (isComment) "item:$itemId" else name

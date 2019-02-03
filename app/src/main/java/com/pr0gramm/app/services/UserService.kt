@@ -183,7 +183,7 @@ class UserService(private val api: Api,
         seenService.clear()
 
         // no more read messages.
-        inboxService.forgetReadMessage()
+        inboxService.forgetUnreadMessages()
         inboxService.publishUnreadMessagesCount(Api.InboxCounts())
 
         // and reset the content user, because only signed in users can

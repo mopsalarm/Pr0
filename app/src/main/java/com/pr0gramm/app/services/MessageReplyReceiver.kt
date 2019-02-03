@@ -64,7 +64,11 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
                 notificationService.showSendSuccessfulNotification(receiverName, notificationId)
             }
 
-            markMessageAsRead(context, messageCreated)
+            if (isMessage) {
+                inboxService.markAsRead("item:$itemId", messageCreated)
+            } else {
+                inboxService.markAsRead(receiverName, messageCreated)
+            }
         }
     }
 
@@ -74,11 +78,6 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
 
     private suspend fun sendResponseToMessage(receiverId: Int, text: String) {
         inboxService.send(receiverId.toLong(), text)
-    }
-
-    private fun markMessageAsRead(context: Context, messageTimestamp: Instant) {
-        val intent = InboxNotificationCanceledReceiver.makeIntent(context, messageTimestamp)
-        context.sendBroadcast(intent)
     }
 
     private fun getMessageText(intent: Intent): String {

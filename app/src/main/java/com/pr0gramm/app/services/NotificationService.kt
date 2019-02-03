@@ -151,10 +151,8 @@ class NotificationService(private val context: Application,
     private inner class MessageGroup(private val messages: List<Api.Message>) {
         private val isComment = messages.all { it.isComment }
 
-        private val maxTimestamp = messages.maxBy { it.creationTime }!!.creationTime
-
         val type = if (isComment) Types.NewComment else Types.NewMessage
-        val id = type.id + if (isComment) messages.first().itemId.toInt() else messages.first().senderId
+        val id = if (isComment) messages.first().itemId.toInt() else messages.first().senderId
 
         val title: String = when {
             !isComment -> messages.first().name
@@ -167,12 +165,12 @@ class NotificationService(private val context: Application,
 
         val inboxIntent: PendingIntent = run {
             when {
-                isComment -> inboxActivityIntent(maxTimestamp, InboxType.COMMENTS_IN)
-                else -> inboxActivityIntent(maxTimestamp, InboxType.PRIVATE, messages.first().name)
+                isComment -> inboxActivityIntent(InboxType.COMMENTS_IN)
+                else -> inboxActivityIntent(InboxType.PRIVATE, messages.first().name)
             }
         }
 
-        val deleteIntent: PendingIntent = markAsReadIntent(maxTimestamp)
+        val deleteIntent: PendingIntent = markAsReadIntent(messages.first())
 
         val icon: Bitmap? by lazy { thumbnail(messages) }
 
@@ -243,7 +241,7 @@ class NotificationService(private val context: Application,
 
     fun showSendSuccessfulNotification(receiver: String, notificationId: Int) {
         notify(Types.NewMessage, notificationId) {
-            setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE, receiver))
+            setContentIntent(inboxActivityIntent(InboxType.PRIVATE, receiver))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
             setSmallIcon(R.drawable.ic_notify_new_message)
@@ -307,11 +305,10 @@ class NotificationService(private val context: Application,
         }
     }
 
-    private fun inboxActivityIntent(timestamp: Instant, inboxType: InboxType, conversationName: String? = null): PendingIntent {
+    private fun inboxActivityIntent(inboxType: InboxType, conversationName: String? = null): PendingIntent {
         val intent = Intent(context, InboxActivity::class.java)
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal)
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true)
-        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, timestamp)
 
         if (conversationName != null) {
             intent.putExtra(InboxActivity.EXTRA_CONVERSATION_NAME, conversationName)
@@ -324,8 +321,8 @@ class NotificationService(private val context: Application,
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
-    private fun markAsReadIntent(timestamp: Instant): PendingIntent {
-        val intent = InboxNotificationCanceledReceiver.makeIntent(context, timestamp)
+    private fun markAsReadIntent(message: Api.Message): PendingIntent {
+        val intent = InboxNotificationCanceledReceiver.makeIntent(context, message)
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
@@ -364,12 +361,12 @@ class NotificationService(private val context: Application,
     }
 
     object Types {
-        val Preload = NotificationType(5002, "PRELOAD", R.string.notification_channel_preload)
-        val Update = NotificationType(5003, "UPDATE", R.string.notification_channel_update)
-        val Download = NotificationType(6000, "DOWNLOAD", R.string.notification_channel_download)
+        val Update = NotificationType(1, "UPDATE", R.string.notification_channel_update)
+        val Preload = NotificationType(1, "PRELOAD", R.string.notification_channel_preload)
+        val Download = NotificationType(1, "DOWNLOAD", R.string.notification_channel_download)
 
         val NewMessage = NotificationType(7000, "NEW_MESSAGE", R.string.notification_channel_new_message)
-        val NewComment = NotificationType(1024 * 1024 * 1024, "NEW_COMMENT", R.string.notification_channel_new_comment)
+        val NewComment = NotificationType(7000, "NEW_COMMENT", R.string.notification_channel_new_comment)
     }
 
     fun beginPreloadNotification(): NotificationCompat.Builder {
