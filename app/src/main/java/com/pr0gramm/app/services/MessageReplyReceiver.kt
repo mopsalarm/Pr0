@@ -61,7 +61,7 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
                     sendResponseAsComment(itemId, commentId, text)
                 }
 
-                notificationService.showSendSuccessfulNotification(receiverName, notificationId)
+                notificationService.showSendSuccessfulNotification(receiverName, isMessage, notificationId)
             }
 
             if (isMessage) {

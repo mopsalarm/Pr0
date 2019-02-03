@@ -25,6 +25,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.InboxService
+import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
@@ -40,6 +41,7 @@ import java.util.*
  */
 class ConversationFragment : BaseFragment("ConversationFragment") {
     private val inboxService: InboxService by instance()
+    private val notifyService: NotificationService by instance()
 
     private val refreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val listView: RecyclerView by bindView(R.id.messages)
@@ -125,6 +127,9 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
                 }
             }
         }
+
+        // remove notification
+        notifyService.cancelForUnreadConversation(conversationName)
     }
 
     /**

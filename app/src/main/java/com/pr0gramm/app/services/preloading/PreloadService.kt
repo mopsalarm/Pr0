@@ -9,6 +9,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.net.toFile
@@ -18,6 +19,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
+import com.pr0gramm.app.services.NotificationService.Types
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.LazyInjectorAware
@@ -53,13 +55,11 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         }
     }
 
-    private val notification by lazy {
-        notificationService.beginPreloadNotification()
-                .setContentTitle(getString(R.string.preload_ongoing))
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setOngoing(true)
-                .setTicker("")
-    }
+    private val notification = NotificationCompat.Builder(this, Types.Preload.channel)
+            .setContentTitle(getString(R.string.preload_ongoing))
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setOngoing(true)
+            .setTicker("")
 
     override fun onCreate() {
         super.onCreate()
@@ -272,7 +272,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     private inline fun show(config: NotificationCompat.Builder.() -> Unit) {
         notification.config()
-        notificationService.nm.notify(NotificationService.Types.Preload.id, notification.build())
+        NotificationManagerCompat.from(this).notify(NotificationService.Types.Preload.id, notification.build())
     }
 
     private inline fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {

@@ -6,7 +6,9 @@ import android.view.MenuItem
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
@@ -22,8 +24,6 @@ import kotterknife.bindView
  */
 class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageChangeListener {
     private val userService: UserService by instance()
-    private val inboxService: InboxService by instance()
-    private val notificationService: NotificationService by instance()
 
     private val tabLayout: TabLayout by bindView(R.id.tabs)
     private val viewPager: ViewPager by bindView(R.id.pager)
@@ -92,11 +92,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
             else -> false
         }
-    }
-
-    override suspend fun onResumeImpl() {
-        // remove pending notifications.
-        notificationService.cancelForInbox()
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.fragments
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.MessageAdapter
 import com.pr0gramm.app.ui.Pagination
@@ -11,6 +12,7 @@ import com.pr0gramm.app.util.di.instance
 
 open class CommentsInboxFragment : InboxFragment("CommentsInboxFragment") {
     private val userService: UserService by instance()
+    private val notificationService: NotificationService by instance()
 
     override fun getContentAdapter(): Pair<MessageAdapter, Pagination<Api.Message>> {
         val loader = apiMessageLoader { inboxService.comments(it) }
@@ -21,6 +23,12 @@ open class CommentsInboxFragment : InboxFragment("CommentsInboxFragment") {
                 PaginationController(pagination, tailOffset = 32))
 
         return Pair(adapter, pagination)
+    }
+
+    override suspend fun onResumeImpl() {
+        super.onResumeImpl()
+
+        notificationService.cancelForUnreadComments()
     }
 }
 

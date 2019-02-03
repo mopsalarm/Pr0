@@ -95,7 +95,7 @@ class SyncService(private val userService: UserService,
             notificationService.showUnreadMessagesNotification()
         } else {
             // remove if no messages are found
-            notificationService.cancelForInbox()
+            notificationService.cancelForAllUnread()
         }
     }
 

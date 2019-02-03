@@ -14,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.FileProvider
+import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pr0gramm.app.BuildConfig
@@ -28,6 +29,7 @@ import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
+import java.util.Collections.synchronizedSet
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -44,13 +46,16 @@ class NotificationService(private val context: Application,
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)
 
-    val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
+    private val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
+    private val nmSystem: NotificationManager = context.getSystemService()!!
 
-    private val notificationNextId = AtomicInteger(Types.Download.id)
+    private val notificationNextId = AtomicInteger(10000)
 
-    private val notificationIdCache = lruCache<File, Int>(128) {
+    private val notificationIdCache = lruCache<String, Int>(512) {
         notificationNextId.incrementAndGet()
     }
+
+    private val inboxNotificationCache = synchronizedSet(mutableSetOf<NotificationId>())
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,7 +98,7 @@ class NotificationService(private val context: Application,
                        configure: NotificationCompat.Builder.() -> Unit) {
 
         val n = NotificationCompat.Builder(context, type.channel).apply(configure).build()
-        nm.notify(id ?: type.id, n)
+        nm.notify(type.channel, id ?: type.id, n)
     }
 
     fun showUpdateNotification(update: Update) {
@@ -110,7 +115,8 @@ class NotificationService(private val context: Application,
     }
 
     fun showDownloadNotification(file: File, progress: Float, preview: Bitmap? = null) {
-        val id = notificationIdCache[file]
+        val id = notificationIdCache["download:$file"]
+
         notify(Types.Download, id) {
             setContentTitle(file.nameWithoutExtension)
             setSmallIcon(R.drawable.ic_notify_new_message)
@@ -149,7 +155,7 @@ class NotificationService(private val context: Application,
     }
 
     private inner class MessageGroup(private val messages: List<Api.Message>) {
-        private val isComment = messages.all { it.isComment }
+        val isComment = messages.all { it.isComment }
 
         val type = if (isComment) Types.NewComment else Types.NewMessage
         val id = if (isComment) messages.first().itemId.toInt() else messages.first().senderId
@@ -203,7 +209,7 @@ class NotificationService(private val context: Application,
     @Suppress("UsePropertyAccessSyntax")
     private fun showInboxNotification(messages: List<Api.Message>) {
         if (messages.isEmpty() || !userService.isAuthorized) {
-            cancelForInbox()
+            cancelForAllUnread()
             return
         }
 
@@ -211,6 +217,12 @@ class NotificationService(private val context: Application,
                 .groupBy { if (it.isComment) it.itemId.toInt() else it.senderId }
                 .values.map { MessageGroup(it) }
 
+        // cache notification ids by sender name
+        messages.forEach { message ->
+            if (!message.isComment) {
+                notificationIdCache.put("senderId:${message.name}", message.senderId)
+            }
+        }
 
         notifications.forEach { not ->
             notify(not.type, not.id) {
@@ -234,13 +246,16 @@ class NotificationService(private val context: Application,
 
                 not.replyAction?.let { addAction(it) }
             }
+
+            inboxNotificationCache.add(NotificationId(not.type.channel, not.id))
         }
 
         Track.inboxNotificationShown()
     }
 
-    fun showSendSuccessfulNotification(receiver: String, notificationId: Int) {
-        notify(Types.NewMessage, notificationId) {
+    fun showSendSuccessfulNotification(receiver: String, isMessage: Boolean, notificationId: Int) {
+        val type = if (isMessage) Types.NewMessage else Types.NewComment
+        notify(type, notificationId) {
             setContentIntent(inboxActivityIntent(InboxType.PRIVATE, receiver))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
@@ -347,9 +362,38 @@ class NotificationService(private val context: Application,
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    fun cancelForInbox() {
-        // not 100% accurate, but should work
-        nm.cancelAll()
+    fun cancelForUnreadConversation(conversationName: String) {
+        val senderId = notificationIdCache.get("senderId:$conversationName") ?: return
+        nm.cancel(Types.NewMessage.channel, senderId)
+    }
+
+    fun cancelForUnreadComments() {
+        cancelAllByType(Types.NewComment)
+    }
+
+    fun cancelForAllUnread() {
+        cancelAllByType(Types.NewComment)
+        cancelAllByType(Types.NewMessage)
+    }
+
+    private fun cancelAllByType(type: NotificationType) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            nmSystem.activeNotifications.forEach { notification ->
+                if (notification.tag == type.channel) {
+                    nm.cancel(notification.tag, notification.id)
+                }
+            }
+
+        } else {
+            inboxNotificationCache.forEach {
+                if (it.tag == type.channel) {
+                    nm.cancel(it.tag, it.id)
+                }
+            }
+        }
+
+        // now remove those from the cache
+        inboxNotificationCache.removeAll { it.tag == type.channel }
     }
 
     fun cancelForUpdate() {
@@ -369,7 +413,6 @@ class NotificationService(private val context: Application,
         val NewComment = NotificationType(7000, "NEW_COMMENT", R.string.notification_channel_new_comment)
     }
 
-    fun beginPreloadNotification(): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, Types.Preload.channel)
-    }
+    private data class NotificationId(val tag: String, val id: Int)
+
 }
