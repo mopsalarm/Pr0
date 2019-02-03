@@ -55,11 +55,13 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         }
     }
 
-    private val notification = NotificationCompat.Builder(this, Types.Preload.channel)
-            .setContentTitle(getString(R.string.preload_ongoing))
-            .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setOngoing(true)
-            .setTicker("")
+    private val notification by lazy {
+        NotificationCompat.Builder(this, Types.Preload.channel)
+                .setContentTitle(getString(R.string.preload_ongoing))
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setOngoing(true)
+                .setTicker("")
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -272,7 +274,9 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     private inline fun show(config: NotificationCompat.Builder.() -> Unit) {
         notification.config()
-        NotificationManagerCompat.from(this).notify(NotificationService.Types.Preload.id, notification.build())
+        NotificationManagerCompat
+                .from(this)
+                .notify(NotificationService.Types.Preload.id, notification.build())
     }
 
     private inline fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {
