@@ -104,7 +104,6 @@
     <string name="filter_format_premium">Stelz</string>
     <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
     <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
-    <string name="notify_new_message_title">Conversation with %s</string>
     <string name="notify_new_comment_title">One new comment</string>
     <string name="notify_new_comments_title">%d new comments</string>
     <string name="pref_show_notifications_title">Notifications</string>

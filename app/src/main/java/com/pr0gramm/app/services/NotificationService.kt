@@ -187,10 +187,6 @@ class NotificationService(private val context: Application,
         }
 
         val style: NotificationCompat.Style? = NotificationCompat.InboxStyle().also { style ->
-            if (!isComment) {
-                style.setBigContentTitle(context.getString(R.string.notify_new_message_title, messages.first().name))
-            }
-
             messages.sortedBy { it.creationTime }.take(5).forEach { message ->
                 val line = if (isComment) {
                     buildSpannedString {
