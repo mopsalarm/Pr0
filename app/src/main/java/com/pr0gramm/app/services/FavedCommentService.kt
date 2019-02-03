@@ -17,7 +17,7 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
         if (!userService.isAuthorized || username == null)
             return listOf()
 
-        val response = api.userCommentsLike(username,
+        val response = api.userCommentsLikeAsync(username,
                 (olderThan ?: Instant.now().plus(1, TimeUnit.DAYS)).epochSeconds,
                 ContentType.combine(contentType)).await()
 

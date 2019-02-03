@@ -34,7 +34,7 @@ class VoteService(private val api: Api,
         Track.votePost(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
-        api.vote(null, item.id, vote.voteValue).await()
+        api.voteAsync(null, item.id, vote.voteValue).await()
     }
 
     suspend fun vote(comment: Api.Comment, vote: Vote) {
@@ -42,7 +42,7 @@ class VoteService(private val api: Api,
         Track.voteComment(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.COMMENT, comment.id, vote) }
-        api.voteComment(null, comment.id, vote.voteValue).await()
+        api.voteCommentAsync(null, comment.id, vote.voteValue).await()
     }
 
     suspend fun vote(tag: Api.Tag, vote: Vote) {
@@ -50,7 +50,7 @@ class VoteService(private val api: Api,
         Track.voteTag(vote)
 
         doInBackground { storeVoteValueInTx(CachedVote.Type.TAG, tag.id, vote) }
-        api.voteTag(null, tag.id, vote.voteValue).await()
+        api.voteTagAsync(null, tag.id, vote.voteValue).await()
     }
 
     /**
@@ -134,7 +134,7 @@ class VoteService(private val api: Api,
     suspend fun tag(itemId: Long, tags: List<String>): List<Api.Tag> {
         val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
 
-        val response = api.addTags(null, itemId, tagString).await()
+        val response = api.addTagsAsync(null, itemId, tagString).await()
 
         withTransaction(database) {
             // auto-apply up-vote to newly created tags
@@ -150,7 +150,7 @@ class VoteService(private val api: Api,
      * Writes a comment to the given post.
      */
     suspend fun postComment(itemId: Long, parentId: Long, comment: String): Api.NewComment {
-        val response = api.postComment(null, itemId, parentId, comment).await()
+        val response = api.postCommentAsync(null, itemId, parentId, comment).await()
 
         // store the implicit upvote for the comment.
         storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)

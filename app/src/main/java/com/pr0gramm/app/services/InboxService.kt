@@ -26,14 +26,14 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets unread messages
      */
     suspend fun pending(): List<Api.Message> {
-        return api.inboxPending().await().messages
+        return api.inboxPendingAsync().await().messages
     }
 
     /**
      * Gets the list of inbox comments
      */
     suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
-        return api.inboxComments(olderThan?.epochSeconds).await().messages
+        return api.inboxCommentsAsync(olderThan?.epochSeconds).await().messages
     }
 
     /**
@@ -41,7 +41,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      */
     suspend fun getUserComments(user: String, contentTypes: Set<ContentType>, olderThan: Instant? = null): Api.UserComments {
         val beforeInSeconds = (olderThan ?: Instant.now().plus(Duration.days(1))).epochSeconds
-        return api.userComments(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
+        return api.userCommentsAsync(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
     }
 
     /**
@@ -97,14 +97,14 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Sends a private message to a receiver
      */
     suspend fun send(receiverId: Long, message: String) {
-        api.sendMessage(null, message, receiverId).await()
+        api.sendMessageAsync(null, message, receiverId).await()
     }
 
     /**
      * Sends a private message to a receiver
      */
     suspend fun send(recipient: String, message: String): Api.ConversationMessages {
-        val response = api.sendMessage(null, message, recipient).await()
+        val response = api.sendMessageAsync(null, message, recipient).await()
         if (response.error == "senderIsRecipient") {
             throw StringException(R.string.error_senderIsRecipient)
         }
@@ -112,11 +112,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     suspend fun listConversations(olderThan: Instant? = null): Api.Conversations {
-        return api.listConversations(olderThan?.epochSeconds).await()
+        return api.listConversationsAsync(olderThan?.epochSeconds).await()
     }
 
     suspend fun messagesInConversation(name: String, olderThan: Instant? = null): Api.ConversationMessages {
-        return api.messagesWith(name, olderThan?.epochSeconds).await()
+        return api.messagesWithAsync(name, olderThan?.epochSeconds).await()
     }
 
     companion object {

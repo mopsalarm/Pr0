@@ -165,7 +165,7 @@ object BrowserHelper {
         activity.launch {
             block(try {
                 val response = activity.withBusyDialog {
-                    api.handoverToken(null).await()
+                    api.handoverTokenAsync(null).await()
                 }
 
                 Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()
