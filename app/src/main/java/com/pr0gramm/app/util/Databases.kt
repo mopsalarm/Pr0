@@ -29,20 +29,27 @@ object Databases {
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            db.execSQL("""CREATE TABLE cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)""")
+            fun upgradeTo(version: Int, block: () -> Unit) {
+                if (oldVersion < version) {
+                    block()
+                }
+            }
 
-            db.execSQL("""CREATE TABLE benis_record (id INTEGER PRIMARY KEY AUTOINCREMENT, benis INTEGER, time INTEGER, owner_id INTEGER)""")
-            db.execSQL("""CREATE INDEX benis_record__time ON benis_record(time)""")
+            upgradeTo(version = 10) {
+                db.execSQL("""CREATE TABLE cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)""")
 
-            db.execSQL("""CREATE TABLE preload_2 (
+                db.execSQL("""CREATE TABLE benis_record (id INTEGER PRIMARY KEY AUTOINCREMENT, benis INTEGER, time INTEGER, owner_id INTEGER)""")
+                db.execSQL("""CREATE INDEX benis_record__time ON benis_record(time)""")
+
+                db.execSQL("""CREATE TABLE preload_2 (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     itemId INT NOT NULL UNIQUE,
                     creation INT NOT NULL,
                     media TEXT NOT NULL,
                     thumbnail TEXT NOT NULL)""")
+            }
 
-
-            if (oldVersion < 11) {
+            upgradeTo(version = 11) {
                 db.execSQL("ALTER TABLE preload_2 RENAME TO preload_items")
             }
         }
