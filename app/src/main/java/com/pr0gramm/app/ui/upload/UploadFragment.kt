@@ -171,7 +171,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         setFormEnabled(false)
 
         // get those from UI
-        val type = selectedContentType
+        val type = selectedContentType()
 
         val tags = tags.text.split('#', ',')
                 .map { it.trim() }
@@ -401,10 +401,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
     }
 
-    private val selectedContentType: ContentType
-        get() {
+    private fun selectedContentType(): ContentType {
             val types = mapOf(
                     R.id.upload_type_sfw to ContentType.SFW,
+                    R.id.upload_type_nsfp to ContentType.NSFP,
                     R.id.upload_type_nsfw to ContentType.NSFW,
                     R.id.upload_type_nsfl to ContentType.NSFL)
 

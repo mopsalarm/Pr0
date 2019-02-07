@@ -151,11 +151,11 @@ class UploadService(private val api: Api,
         return result.ignoreElements().mergeWith(result)
     }
 
-    private fun post(key: String, contentType: ContentType, tags_: Set<String>,
+    private fun post(key: String, contentType: ContentType, userTags: Set<String>,
                      checkSimilar: Boolean): Observable<State> {
 
         val contentTypeTag = contentType.name.toLowerCase()
-        val tags = tags_.map { it.trim() }.filter { isValidTag(it) }
+        val tags = userTags.map { it.trim() }.filter { isValidTag(it) }
 
         // we can only post 4 extra tags with an upload, so lets add the rest later
         val firstTags: List<String>
@@ -166,7 +166,7 @@ class UploadService(private val api: Api,
             extraTags = tags.drop(5)
         } else {
             // we need to add the nsfw/nsfl tag to the list of tags.
-            // It looks like the sfwstatus is getting ignored
+            // It looks like the sfw status is getting ignored
             firstTags = listOf(contentTypeTag) + tags.take(4)
             extraTags = tags.drop(4)
         }
@@ -307,13 +307,19 @@ class UploadService(private val api: Api,
 }
 
 fun isValidTag(tag: String): Boolean {
-    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound")
-    val invalid = tag in invalidTags || tag.length < 2 || tag.length > 32
+    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound", "text")
+    val invalid = tag.toLowerCase() in invalidTags || tag.length < 2 || tag.length > 32
     return !invalid
 }
 
 fun isMoreRestrictiveContentTypeTag(tags: List<Api.Tag>, tag: String): Boolean {
-    val t = tags.map { it.tag }
-    return (tag !in t) && ((tag == "nsfw" && "nsfl" !in t) || (tag == "nsfl"))
+    val sorted = listOf("sfw", "nsfp", "nsfw", "nsfl")
+
+    val newTagIndex = sorted.indexOf(tag.toLowerCase())
+    if (newTagIndex < 0)
+        return false
+
+    val maxExistingTagIndex = tags.map { sorted.indexOf(it.tag.toLowerCase()) }.max()
+    return maxExistingTagIndex == null || maxExistingTagIndex < newTagIndex
 }
 

@@ -486,4 +486,6 @@
 
 
     <string name="notification_hint_unread">%d ungelesen</string>
+    <string name="add_tags_hint">Ergänze deinen Upload um Tags, die das Bild oder Video beschreiben und in der Suche findbar machen.</string>
+
 </resources>
