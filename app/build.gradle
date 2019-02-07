@@ -8,7 +8,7 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.3.20"
+        VersionKotlin = "1.3.21"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.5.0"
     }
