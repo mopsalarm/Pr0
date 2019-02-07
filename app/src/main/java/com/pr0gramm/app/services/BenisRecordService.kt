@@ -28,11 +28,4 @@ class BenisRecordService(private val database: Holder<SQLiteDatabase>) {
         val sql = "INSERT INTO benis_record (owner_id, time, benis) VALUES (?, ?, ?)"
         database.get().execSQL(sql, arrayOfStrings(ownerId, TimeFactory.currentTimeMillis(), benis))
     }
-
-    companion object {
-        fun prepare(db: SQLiteDatabase) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS benis_record (id INTEGER PRIMARY KEY AUTOINCREMENT, benis INTEGER, time INTEGER, owner_id INTEGER)")
-            db.execSQL("CREATE INDEX IF NOT EXISTS benis_record__time ON benis_record(time)")
-        }
-    }
 }

@@ -144,18 +144,7 @@ class PreloadManager(private val database: BriteDatabase) {
     }
 
     companion object {
+        private const val TABLE_NAME = "preload_items"
         private val logger = Logger("PreloadManager")
-
-        private const val TABLE_NAME = "preload_2"
-
-        fun onCreate(db: SQLiteDatabase) {
-            logger.info { "initializing sqlite database" }
-            db.execSQL("""CREATE TABLE IF NOT EXISTS $TABLE_NAME (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    itemId INT NOT NULL UNIQUE,
-                    creation INT NOT NULL,
-                    media TEXT NOT NULL,
-                    thumbnail TEXT NOT NULL)""")
-        }
     }
 }

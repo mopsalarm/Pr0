@@ -67,11 +67,6 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
             database.executeAndTrigger("cached_vote", "DELETE FROM cached_vote")
         }
 
-        fun prepareDatabase(db: SQLiteDatabase) {
-            logger.info { "Create cached_vote table if it does not exist." }
-            db.execSQL("CREATE TABLE IF NOT EXISTS cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)")
-        }
-
         @SuppressLint("Recycle")
         fun count(db: SQLiteDatabase): Map<Type, Map<Vote, Int>> {
             val result = HashMap<Type, HashMap<Vote, Int>>()

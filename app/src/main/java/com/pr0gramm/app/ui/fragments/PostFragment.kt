@@ -1324,8 +1324,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun writeNewTagClicked() {
             doIfAuthorizedHelper.run {
-                val dialog = NewTagDialogFragment()
-                dialog.show(childFragmentManager, null)
+                if (!childFragmentManager.isStateSaved) {
+                    val dialog = NewTagDialogFragment()
+                    dialog.show(childFragmentManager, null)
+                }
             }
         }
 
