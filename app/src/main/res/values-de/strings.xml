@@ -483,4 +483,7 @@
     <string name="action_profile">Zum Profil</string>
     <string name="notify_new_comment_title">Ein neuer Kommentar</string>
     <string name="notify_new_comments_title">%d neue Kommentare</string>
+
+
+    <string name="notification_hint_unread">%d ungelesen</string>
 </resources>

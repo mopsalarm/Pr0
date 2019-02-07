@@ -154,58 +154,6 @@ class NotificationService(private val context: Application,
         }
     }
 
-    private inner class MessageGroup(private val messages: List<Api.Message>) {
-        val isComment = messages.all { it.isComment }
-
-        val type = if (isComment) Types.NewComment else Types.NewMessage
-        val id = if (isComment) messages.first().itemId.toInt() else messages.first().senderId
-
-        val title: String = when {
-            !isComment -> messages.first().name
-            isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
-            isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
-            else -> "unreachable"
-        }
-
-        val contentText: String = context.getString(R.string.notify_new_message_summary_text)
-
-        val inboxIntent: PendingIntent = run {
-            when {
-                isComment -> inboxActivityIntent(InboxType.COMMENTS_IN)
-                else -> inboxActivityIntent(InboxType.PRIVATE, messages.first().name)
-            }
-        }
-
-        val deleteIntent: PendingIntent = markAsReadIntent(messages.first())
-
-        val icon: Bitmap? by lazy { thumbnail(messages) }
-
-        val timestampWhen: Instant = messages.minBy { it.creationTime }!!.creationTime
-
-        val replyAction: NotificationCompat.Action? = run {
-            if (isComment && messages.size == 1 || !isComment) {
-                buildReplyAction(id, messages.first())
-            } else {
-                null
-            }
-        }
-
-        val style: NotificationCompat.Style? = NotificationCompat.InboxStyle().also { style ->
-            messages.sortedBy { it.creationTime }.take(5).forEach { message ->
-                val line = if (isComment) {
-                    buildSpannedString {
-                        bold { append(message.name).append(": ") }
-                        append(message.message)
-                    }
-                } else {
-                    message.message
-                }
-
-                style.addLine(line)
-            }
-        }
-    }
-
     @Suppress("UsePropertyAccessSyntax")
     private fun showInboxNotification(messages: List<Api.Message>) {
         if (messages.isEmpty() || !userService.isAuthorized) {
@@ -227,8 +175,10 @@ class NotificationService(private val context: Application,
         notifications.forEach { not ->
             notify(not.type, not.id) {
                 setContentTitle(not.title)
-                setContentIntent(not.inboxIntent)
+                setContentIntent(not.contentIntent)
                 setContentText(not.contentText)
+
+                setColor(context.getColorCompat(ThemeHelper.accentColor))
 
                 setSmallIcon(R.drawable.ic_notify_new_message)
                 setLargeIcon(not.icon)
@@ -241,8 +191,9 @@ class NotificationService(private val context: Application,
                 setCategory(NotificationCompat.CATEGORY_EMAIL)
 
                 setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
+                setContentInfo("XXX")
 
-                not.style?.let { setStyle(it) }
+                setStyle(not.style)
 
                 not.replyAction?.let { addAction(it) }
             }
@@ -398,6 +349,91 @@ class NotificationService(private val context: Application,
 
     fun cancelForUpdate() {
         nm.cancel(Types.Update.id)
+    }
+
+
+    private inner class MessageGroup(private val messages: List<Api.Message>) {
+        val isComment = messages.all { it.isComment }
+
+        val type = if (isComment) Types.NewComment else Types.NewMessage
+        val id = if (isComment) messages.first().itemId.toInt() else messages.first().senderId
+
+        val title: String = when {
+            !isComment && messages.size > 1 -> {
+                val more = context.getString(R.string.notification_hint_unread, messages.size)
+                "${messages.first().name} ($more)"
+            }
+
+            !isComment ->
+                messages.first().name
+
+            isComment && messages.size == 1 ->
+                context.getString(R.string.notify_new_comment_title)
+
+            isComment ->
+                context.getString(R.string.notify_new_comments_title, messages.size)
+
+            else -> "unreachable"
+        }
+
+        val contentText: CharSequence = buildSpannedString {
+            messages.minBy { it.creationTime }?.let { message ->
+                val text = if (message.message.length > 120) message.message.take(119) + "…" else message.message
+
+                if (isComment) {
+                    bold { append(message.name).append(": ") }
+                    append(message.message)
+                } else {
+                    append(text)
+                }
+            }
+        }
+
+        val contentIntent: PendingIntent = when {
+            isComment -> inboxActivityIntent(InboxType.COMMENTS_IN)
+            else -> inboxActivityIntent(InboxType.PRIVATE, messages.first().name)
+        }
+
+        val deleteIntent: PendingIntent = markAsReadIntent(messages.first())
+
+        val icon: Bitmap? by lazy { thumbnail(messages) }
+
+        val timestampWhen: Instant = messages.minBy { it.creationTime }!!.creationTime
+
+        val replyAction: NotificationCompat.Action? = run {
+            if (isComment && messages.size == 1 || !isComment) {
+                buildReplyAction(id, messages.first())
+            } else {
+                null
+            }
+        }
+
+        val style: NotificationCompat.Style = NotificationCompat.InboxStyle().also { style ->
+            messages.sortedBy { it.creationTime }.take(5).forEach { message ->
+                val line = if (isComment) {
+                    buildSpannedString {
+                        bold { append(message.name).append(": ") }
+                        append(message.message)
+                    }
+                } else {
+                    message.message
+                }
+
+                style.addLine(line)
+            }
+
+            if (messages.size > 1) {
+                style.setSummaryText(context.getString(
+                        R.string.notification_hint_unread, messages.size))
+            }
+
+            style.setBigContentTitle(when {
+                !isComment -> messages.first().name
+                isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
+                isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
+                else -> "unreachable"
+            })
+        }
     }
 
     class NotificationType(val id: Int, channelName: String, val description: Int) {

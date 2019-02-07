@@ -506,5 +506,7 @@
     <string name="conversation_load_error">Could not load conversation.</string>
     <string name="error_senderIsRecipient">Can not send message to yourself.</string>
     <string name="action_profile">Goto profile</string>
+
+    <string name="notification_hint_unread">%d unread</string>
 </resources>
 
