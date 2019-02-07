@@ -9,8 +9,6 @@ import com.squareup.sqlbrite.BriteDatabase
  */
 
 object Databases {
-    const val DATABASE_VERSION: Int = 11
-
     inline fun withTransaction(db: SQLiteDatabase, inTxRunnable: () -> Unit) {
         db.beginTransaction()
         try {
@@ -49,4 +47,7 @@ object Databases {
             }
         }
     }
+
+    // remember to update the database version
+    private const val DATABASE_VERSION: Int = 11
 }
