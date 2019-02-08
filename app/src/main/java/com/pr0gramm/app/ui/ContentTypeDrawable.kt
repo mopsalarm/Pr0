@@ -39,7 +39,7 @@ class ContentTypeDrawable(context: Context, types: Collection<ContentType>) : Dr
         tp.typeface = Typeface.DEFAULT_BOLD
         tp.isAntiAlias = true
 
-        val layout = StaticLayout(text, tp, canvas.width,
+        val layout = StaticLayout(text, tp, bounds.width(),
                 Layout.Alignment.ALIGN_CENTER, 0.8f, 0f, false)
 
         canvas.save {

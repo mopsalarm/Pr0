@@ -202,7 +202,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance()) }
 
-    bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
+    bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance()) }
 
     bind<RulesService>() with singleton { RulesService(instance()) }
     bind<StalkService>() with singleton { StalkService(instance()) }

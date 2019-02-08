@@ -38,8 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class NotificationService(private val context: Application,
                           private val inboxService: InboxService,
-                          private val picasso: Picasso,
-                          private val userService: UserService) {
+                          private val picasso: Picasso) {
 
     private val logger = Logger("NotificationService")
 
@@ -148,22 +147,29 @@ class NotificationService(private val context: Application,
 
         // try to get the new messages, ignore all errors.
         catchAll {
-            val messages = inboxService.pending()
-            val unread = messages.filter { inboxService.messageIsUnread(it) }
-            showInboxNotification(unread)
+            showInboxNotification(inboxService.pending())
         }
     }
 
+    private val Api.Message.isUnread: Boolean get() = inboxService.messageIsUnread(this)
+
     @Suppress("UsePropertyAccessSyntax")
     private fun showInboxNotification(messages: List<Api.Message>) {
-        if (messages.isEmpty() || !userService.isAuthorized) {
+        if (!messages.any { it.isUnread }) {
+            logger.debug { "No unread messages, cancel all existing notifications." }
             cancelForAllUnread()
             return
         }
 
-        val notifications = messages
+        val messageGroups = messages
                 .groupBy { if (it.isComment) it.itemId.toInt() else it.senderId }
-                .values.map { MessageGroup(it) }
+                .values
+
+        val messageGroupsWithUnread = messageGroups
+                .filter { messageGroup -> messageGroup.any { it.isUnread } }
+
+        // convert to notifications
+        val notificationConfigs = messageGroupsWithUnread.map { MessageNotificationConfig(it) }
 
         // cache notification ids by sender name
         messages.forEach { message ->
@@ -172,33 +178,33 @@ class NotificationService(private val context: Application,
             }
         }
 
-        notifications.forEach { not ->
-            notify(not.type, not.id) {
-                setContentTitle(not.title)
-                setContentIntent(not.contentIntent)
-                setContentText(not.contentText)
+        notificationConfigs.forEach { notifyConfig ->
+            notify(notifyConfig.type, notifyConfig.id) {
+                setContentTitle(notifyConfig.title)
+                setContentIntent(notifyConfig.contentIntent)
+                setContentText(notifyConfig.contentText)
 
                 setColor(context.getColorCompat(ThemeHelper.accentColor))
 
                 setSmallIcon(R.drawable.ic_notify_new_message)
-                setLargeIcon(not.icon)
+                setLargeIcon(notifyConfig.icon)
 
-                setWhen(not.timestampWhen.millis)
+                setWhen(notifyConfig.timestampWhen.millis)
                 setShowWhen(true)
 
                 setAutoCancel(true)
-                setDeleteIntent(not.deleteIntent)
+                setDeleteIntent(notifyConfig.deleteIntent)
                 setCategory(NotificationCompat.CATEGORY_EMAIL)
 
                 setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
                 setContentInfo("XXX")
 
-                setStyle(not.style)
+                setStyle(notifyConfig.style)
 
-                not.replyAction?.let { addAction(it) }
+                notifyConfig.replyAction?.let { addAction(it) }
             }
 
-            inboxNotificationCache.add(NotificationId(not.type.channel, not.id))
+            inboxNotificationCache.add(NotificationId(notifyConfig.type.channel, notifyConfig.id))
         }
 
         Track.inboxNotificationShown()
@@ -240,24 +246,27 @@ class NotificationService(private val context: Application,
     /**
      * Gets an optional "big" thumbnail for the given set of messages.
      */
-    private fun thumbnail(messages: List<Api.Message>): Bitmap? {
-        val message = messages[0]
+    private fun messageThumbnail(messages: List<Api.Message>): Bitmap? {
+        val message = messages.first()
 
-        val allSameItem = messages.all { message.itemId == it.itemId }
-        if (allSameItem && message.isComment && !message.thumbnail.isNullOrEmpty()) {
-            return loadItemThumbnail(message)
+        if (message.isComment) {
+            if (message.thumbnail?.isNotBlank() == true) {
+                return loadItemThumbnail(message)
+            }
+
+        } else {
+            val allSameSender = messages.all { message.senderId == it.senderId }
+            if (allSameSender && message.name.isNotEmpty()) {
+                // build an icon for the user
+                val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+                val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+
+                val provider = UserDrawables(context)
+                return provider.makeSenderBitmap(message, width, height)
+            }
         }
 
-        val allSameSender = messages.all { message.senderId == it.senderId }
-        if (allSameSender && !message.isComment && message.name.isNotEmpty()) {
-            // build an icon for the user
-            val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
-            val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
-
-            val provider = UserDrawables(context)
-            return provider.makeSenderBitmap(message, width, height)
-        }
-
+        // no thumbnail :/
         return null
     }
 
@@ -266,7 +275,7 @@ class NotificationService(private val context: Application,
         return try {
             picasso.load(uri).get()
         } catch (ignored: IOException) {
-            logger.warn { "Could not load thumbnail for url: $uri" }
+            logger.warn { "Could not load thumbnail at url: $uri" }
             null
         }
     }
@@ -352,20 +361,23 @@ class NotificationService(private val context: Application,
     }
 
 
-    private inner class MessageGroup(private val messages: List<Api.Message>) {
-        val isComment = messages.all { it.isComment }
+    private inner class MessageNotificationConfig(private val messages: List<Api.Message>) {
+        private val message = messages.filter { it.isUnread }.maxBy { it.creationTime }
+                ?: throw IllegalArgumentException("Must contain at least one unread message.")
 
+        private val isComment = messages.all { it.isComment }
+
+        val id = if (isComment) message.itemId.toInt() else message.senderId
         val type = if (isComment) Types.NewComment else Types.NewMessage
-        val id = if (isComment) messages.first().itemId.toInt() else messages.first().senderId
 
         val title: String = when {
             !isComment && messages.size > 1 -> {
                 val more = context.getString(R.string.notification_hint_unread, messages.size)
-                "${messages.first().name} ($more)"
+                "${message.name} ($more)"
             }
 
             !isComment ->
-                messages.first().name
+                message.name
 
             isComment && messages.size == 1 ->
                 context.getString(R.string.notify_new_comment_title)
@@ -377,39 +389,34 @@ class NotificationService(private val context: Application,
         }
 
         val contentText: CharSequence = buildSpannedString {
-            messages.minBy { it.creationTime }?.let { message ->
-                val text = if (message.message.length > 120) message.message.take(119) + "…" else message.message
+            val text = if (message.message.length > 120) message.message.take(119) + "…" else message.message
 
-                if (isComment) {
-                    bold { append(message.name).append(": ") }
-                    append(message.message)
-                } else {
-                    append(text)
-                }
+            if (isComment) {
+                bold { append(message.name).append(": ") }
+                append(message.message)
+            } else {
+                append(text)
             }
         }
 
         val contentIntent: PendingIntent = when {
             isComment -> inboxActivityIntent(InboxType.COMMENTS_IN)
-            else -> inboxActivityIntent(InboxType.PRIVATE, messages.first().name)
+            else -> inboxActivityIntent(InboxType.PRIVATE, message.name)
         }
 
-        val deleteIntent: PendingIntent = markAsReadIntent(messages.first())
+        val deleteIntent: PendingIntent = markAsReadIntent(message)
 
-        val icon: Bitmap? by lazy { thumbnail(messages) }
+        val icon: Bitmap? = messageThumbnail(messages)
 
         val timestampWhen: Instant = messages.minBy { it.creationTime }!!.creationTime
 
-        val replyAction: NotificationCompat.Action? = run {
-            if (isComment && messages.size == 1 || !isComment) {
-                buildReplyAction(id, messages.first())
-            } else {
-                null
-            }
+        val replyAction: NotificationCompat.Action? = when {
+            !isComment || messages.size == 1 -> buildReplyAction(id, message)
+            else -> null
         }
 
         val style: NotificationCompat.Style = NotificationCompat.InboxStyle().also { style ->
-            messages.sortedBy { it.creationTime }.take(5).forEach { message ->
+            messages.sortedBy { it.creationTime }.takeLast(5).forEach { message ->
                 val line = if (isComment) {
                     buildSpannedString {
                         bold { append(message.name).append(": ") }
@@ -428,7 +435,7 @@ class NotificationService(private val context: Application,
             }
 
             style.setBigContentTitle(when {
-                !isComment -> messages.first().name
+                !isComment -> message.name
                 isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
                 isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
                 else -> "unreachable"
@@ -450,5 +457,4 @@ class NotificationService(private val context: Application,
     }
 
     private data class NotificationId(val tag: String, val id: Int)
-
 }
