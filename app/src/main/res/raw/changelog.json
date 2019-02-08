@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Benis eines Kommentars wurde nach dem Abschicken manchmal fehlerhaft angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Upload von sfw/nsfp ist wieder möglich."
       }
     ]
   },
