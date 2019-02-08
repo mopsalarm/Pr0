@@ -202,7 +202,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         }
     }
 
-    private fun setMuted(wantMuted: Boolean) {
+    private fun setMuted(wantMuted: Boolean): Unit = catchAll {
         var muted = wantMuted
 
         if (muted) {
