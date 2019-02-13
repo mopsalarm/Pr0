@@ -141,11 +141,11 @@ object Freezer {
         return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
             val notCompressed = data[0] == 0.toByte()
             if (notCompressed) {
-                val source = Buffer(data, 1, data.size - 1)
+                val source = bufferOf(data, 1, data.size - 1)
                 c.unfreeze(Freezable.Source(source))
 
             } else {
-                val uncompressed = Buffer(Snappy.uncompress(data, 1, data.size - 1))
+                val uncompressed = bufferOf(Snappy.uncompress(data, 1, data.size - 1))
                 c.unfreeze(Freezable.Source(uncompressed))
             }
         }
@@ -153,7 +153,7 @@ object Freezer {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Buffer(data: ByteArray, offset: Int = 0, length: Int = data.size): Buffer {
+private inline fun bufferOf(data: ByteArray, offset: Int = 0, length: Int = data.size): Buffer {
     return Buffer().apply { write(data, offset, length) }
 }
 
