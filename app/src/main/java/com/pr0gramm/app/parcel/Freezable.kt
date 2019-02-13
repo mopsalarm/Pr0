@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.util.*
-import okio.*
-import java.io.ByteArrayInputStream
-import java.util.zip.Deflater
-import java.util.zip.Inflater
+import okio.Buffer
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.ByteString
+import org.iq80.snappy.Snappy
 
 private val logger = Logger("Freezer")
 
@@ -101,64 +102,59 @@ interface Freezable : Parcelable {
 }
 
 object Freezer {
-    fun freeze(f: Freezable): ByteArray {
-        return logger.timeSuffix("Freezing object of type ${f.javaClass.directName}") {
-            val raw = Buffer()
+    fun freeze(f: Freezable): ByteArray = logger.time("Freezing object of type ${f.javaClass.directName}") {
+        val raw = Buffer()
+
+        // assume that we might not need to compress and
+        // start with a zero byte to indicate that later.
+        raw.writeByte(0)
+
+        // freeze it to the raw buffer
+        f.freeze(Freezable.Sink(raw))
+
+        if (raw.size() < 64) {
+            // no compression needed
+            return raw.readByteArray()
+
+        } else {
+            val watch = Stopwatch()
+            val uncompressedSize = raw.size()
+
+            // assumption of not needing compression failed, skipping zero byte.
+            raw.skip(1)
+
             val buffer = Buffer()
-            try {
-                // freeze it to the raw buffer
-                f.freeze(Freezable.Sink(raw))
+            buffer.writeByte(1)
+            buffer.write(Snappy.compress(raw.readByteArray()))
 
-                // select compression
-                val comp = when {
-                    raw.size() < 16 * 1024 -> Deflater.NO_COMPRESSION
-                    raw.size() < 64 * 1024 -> Deflater.BEST_SPEED
-                    else -> Deflater.BEST_COMPRESSION
-                }
-
-                if (comp == Deflater.NO_COMPRESSION) {
-                    // identify as uncompressed
-                    buffer.writeByte(0)
-                    buffer.write(raw, raw.size())
-
-                } else {
-                    // identify as compressed
-                    buffer.writeByte(1)
-
-                    // and write data compressed to the buffer
-                    DeflaterSink(buffer, Deflater(comp)).use { def -> def.write(raw, raw.size()) }
-                }
-
-
-                return@timeSuffix Pair("${buffer.size()} bytes", buffer.readByteArray())
-
-            } finally {
-                raw.clear()
-                buffer.clear()
+            logger.debug {
+                "Compressed %d bytes to %d (%1.2f%%) took %s".format(
+                        uncompressedSize, buffer.size(),
+                        buffer.size() * 100.0 / uncompressedSize, watch)
             }
+
+            return buffer.readByteArray()
         }
     }
 
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
         return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
-            val source = Okio.source(ByteArrayInputStream(data, 1, data.size - 1))
-
             val notCompressed = data[0] == 0.toByte()
             if (notCompressed) {
-                // directly read from the source
-                Okio.buffer(source).use { bufferedSource ->
-                    c.unfreeze(Freezable.Source(bufferedSource))
-                }
+                val source = Buffer(data, 1, data.size - 1)
+                c.unfreeze(Freezable.Source(source))
+
             } else {
-                // decompress
-                InflaterSource(source, Inflater()).use { inflaterSource ->
-                    Okio.buffer(inflaterSource).use { bufferedSource ->
-                        c.unfreeze(Freezable.Source(bufferedSource))
-                    }
-                }
+                val uncompressed = Buffer(Snappy.uncompress(data, 1, data.size - 1))
+                c.unfreeze(Freezable.Source(uncompressed))
             }
         }
     }
+}
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun Buffer(data: ByteArray, offset: Int = 0, length: Int = data.size): Buffer {
+    return Buffer().apply { write(data, offset, length) }
 }
 
 interface Unfreezable<T : Freezable> {

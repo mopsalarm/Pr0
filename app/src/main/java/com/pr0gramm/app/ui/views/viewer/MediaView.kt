@@ -458,7 +458,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     private class PreviewTarget(private val logger: Logger, mediaView: MediaView) : Action1<Bitmap> {
         private val mediaView by weakref(mediaView)
-        private val watch = Stopwatch.createStarted()
+        private val watch = Stopwatch()
 
         override fun call(bitmap: Bitmap) {
             logger.debug { "Got a preview image after $watch" }

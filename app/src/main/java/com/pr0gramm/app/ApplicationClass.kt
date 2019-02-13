@@ -30,7 +30,7 @@ import java.util.logging.LogManager
  * Global application class for pr0gramm app.
  */
 open class ApplicationClass : Application(), InjectorAware {
-    private val bootupWatch = Stopwatch.createStarted()
+    private val bootupWatch = Stopwatch()
 
     private val logger = Logger("Pr0grammApplication")
 

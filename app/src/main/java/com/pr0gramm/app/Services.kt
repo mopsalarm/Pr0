@@ -263,7 +263,7 @@ private class DebugInterceptor : Interceptor {
 
         val request = chain.request()
 
-        val watch = Stopwatch.createStarted()
+        val watch = Stopwatch()
         try {
             if ("pr0gramm.com" in request.url().toString()) {
                 TimeUnit.MILLISECONDS.sleep(750)
@@ -312,7 +312,7 @@ private class LoggingInterceptor : Interceptor {
     val okLogger = Logger("OkHttpClient")
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val watch = Stopwatch.createStarted()
+        val watch = Stopwatch()
         val request = chain.request()
 
         okLogger.info { "performing ${request.method()} http request for ${request.url()}" }

@@ -313,7 +313,7 @@ fun View?.removeFromParent() {
 
 inline fun <T> Logger.time(name: String, supplier: () -> T): T {
     if (BuildConfig.DEBUG) {
-        val watch = Stopwatch.createStarted()
+        val watch = Stopwatch()
 
         val result = try {
             supplier()
@@ -327,23 +327,6 @@ inline fun <T> Logger.time(name: String, supplier: () -> T): T {
 
     } else {
         return supplier()
-    }
-}
-
-inline fun <T> Logger.timeSuffix(name: String, supplier: () -> Pair<String, T>): T {
-    return if (BuildConfig.DEBUG) {
-        val watch = Stopwatch.createStarted()
-
-        var result: Pair<String, T>? = null
-        try {
-            result = supplier()
-            return result.second
-        } finally {
-            this.info { "$name (${result?.first}) took $watch" }
-        }
-
-    } else {
-        supplier().second
     }
 }
 

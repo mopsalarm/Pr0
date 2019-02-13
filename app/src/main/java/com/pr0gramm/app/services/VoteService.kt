@@ -110,7 +110,7 @@ class VoteService(private val api: Api,
         val actionCount = decoded.size / 5
         val actionStream = Okio.buffer(Okio.source(ByteArrayInputStream(decoded)))
 
-        val watch = Stopwatch.createStarted()
+        val watch = Stopwatch()
         withTransaction(database) {
             logger.info { "Applying $actionCount vote actions" }
             for (idx in 0 until actionCount) {

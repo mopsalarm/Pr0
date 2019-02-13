@@ -69,7 +69,7 @@ class ApiProvider(base: String, client: OkHttpClient,
                 }
             }
 
-            val watch = Stopwatch.createStarted()
+            val watch = Stopwatch()
 
             try {
                 val result = doInvoke(method, args)

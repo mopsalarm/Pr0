@@ -203,7 +203,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:v5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.5'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
     debugImplementation "com.squareup.okhttp3:mockwebserver:3.12.1"
@@ -216,7 +216,8 @@ dependencies {
     implementation "com.trello:rxlifecycle-android:1.0"
     implementation "com.trello:rxlifecycle-components:1.0"
 
-    implementation "com.crashlytics.sdk.android:crashlytics:2.9.8"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.9.9"
+    implementation 'org.iq80.snappy:snappy:0.4'
 }
 
 configurations {
