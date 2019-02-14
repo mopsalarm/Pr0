@@ -9,10 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.RemoteInput
-import androidx.core.app.TaskStackBuilder
+import androidx.core.app.*
 import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
@@ -415,31 +412,51 @@ class NotificationService(private val context: Application,
             else -> null
         }
 
-        val style: NotificationCompat.Style = NotificationCompat.InboxStyle().also { style ->
-            messages.sortedBy { it.creationTime }.takeLast(5).forEach { message ->
-                val line = if (isComment) {
-                    buildSpannedString {
-                        bold { append(message.name).append(": ") }
-                        append(message.message)
+        val style: NotificationCompat.Style = run {
+            val me = Person.Builder()
+                    .setName("Me")
+                    .build()
+
+            NotificationCompat.MessagingStyle(me).also { style ->
+                messages.sortedBy { it.creationTime }.takeLast(5).forEach { message ->
+                    val line = if (isComment) {
+                        buildSpannedString {
+                            bold { append(message.name).append(": ") }
+                            append(message.message)
+                        }
+                    } else {
+                        message.message
                     }
-                } else {
-                    message.message
+
+                    val styleMessage = NotificationCompat.MessagingStyle.Message(
+                            message.message, message.creationTime.millis,
+                            Person.Builder().setName(message.name).build())
+
+                    style.addMessage(styleMessage)
                 }
 
-                style.addLine(line)
-            }
+                if (isComment) {
+                    style.isGroupConversation = true
 
-            if (messages.size > 1) {
-                style.setSummaryText(context.getString(
-                        R.string.notification_hint_unread, messages.size))
-            }
+                    style.conversationTitle = if (messages.size == 1) {
+                        context.getString(R.string.notify_new_comment_title)
+                    } else {
+                        context.getString(R.string.notify_new_comments_title, messages.size)
+                    }
+                }
 
-            style.setBigContentTitle(when {
-                !isComment -> message.name
-                isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
-                isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
-                else -> "unreachable"
-            })
+//                if (messages.size > 1) {
+//                    style.setSummaryText(context.getString(
+//                            R.string.notification_hint_unread, messages.size))
+//                }
+//
+//                style.setBigContentTitle(when {
+//                    !isComment -> message.name
+//                    isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
+//                    isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
+//                    else -> "unreachable"
+//                })
+            }
         }
     }
 
