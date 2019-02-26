@@ -2,6 +2,7 @@ package com.pr0gramm.app.util
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import com.squareup.sqlbrite.BriteDatabase
 
@@ -9,6 +10,9 @@ import com.squareup.sqlbrite.BriteDatabase
  */
 
 object Databases {
+    private val logger = Logger("Database")
+
+
     inline fun withTransaction(db: SQLiteDatabase, inTxRunnable: () -> Unit) {
         db.beginTransaction()
         try {
@@ -23,18 +27,28 @@ object Databases {
         withTransaction(db.writableDatabase, inTxRunnable)
     }
 
+    // remember to update the database version if you add new migrations.
+    private const val DATABASE_VERSION: Int = 11
+
     class PlainOpenHelper(context: Context) : SQLiteOpenHelper(context, "pr0gramm.db", null, DATABASE_VERSION) {
         override fun onCreate(db: SQLiteDatabase) {
-            onUpgrade(db, 0, DATABASE_VERSION)
+            migrate(db, 0, recreateOnError = true)
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            fun upgradeTo(version: Int, block: () -> Unit) {
-                if (oldVersion < version) {
-                    block()
-                }
-            }
+            migrate(db, oldVersion, recreateOnError = true)
+        }
+    }
 
+    private fun migrate(db: SQLiteDatabase, oldVersion: Int, recreateOnError: Boolean) {
+        fun upgradeTo(version: Int, block: () -> Unit) {
+            if (oldVersion < version) {
+                logger.info { "Upgrade to version $version" }
+                block()
+            }
+        }
+
+        try {
             upgradeTo(version = 10) {
                 db.execSQL("""CREATE TABLE cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)""")
 
@@ -52,9 +66,27 @@ object Databases {
             upgradeTo(version = 11) {
                 db.execSQL("ALTER TABLE preload_2 RENAME TO preload_items")
             }
+        } catch (err: SQLiteException) {
+            AndroidUtility.logToCrashlytics(err)
+
+            if (recreateOnError) {
+                recreate(db)
+                return
+            }
+
+            // migration failed, re-throw exception
+            throw err
         }
     }
 
-    // remember to update the database version
-    private const val DATABASE_VERSION: Int = 11
+    private fun recreate(db: SQLiteDatabase) {
+        logger.warn { "Create database" }
+
+        db.execSQL("DROP TABLE IF EXISTS preload_2")
+        db.execSQL("DROP TABLE IF EXISTS preload_items")
+        db.execSQL("DROP TABLE IF EXISTS benis_record")
+        db.execSQL("DROP TABLE IF EXISTS cached_vote")
+
+        migrate(db, 0, recreateOnError = false)
+    }
 }
