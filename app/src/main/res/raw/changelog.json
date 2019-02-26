@@ -1,5 +1,14 @@
 [
   {
+    "version": 162,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Bugfixes und Kleinkram"
+      }
+    ]
+  },
+  {
     "version": 161,
     "changes": [
       {
