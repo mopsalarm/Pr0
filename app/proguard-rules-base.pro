@@ -64,14 +64,6 @@
     public static final ** CREATOR;
 }
 
-# for moshi we need to keep the json adapters.
--keep,allowoptimization class **JsonAdapter {
-    <init>(...);
-    <fields>;
-}
-
--keepnames @com.squareup.moshi.JsonClass class *
-
 -keepclassmembers class **$WhenMappings {
     <fields>;
 }
@@ -94,32 +86,3 @@
 -assumevalues class android.os.Build$VERSION {
     int SDK_INT return 17..2147483647;
 }
-
-# BEGIN moshi rules
-#
-# JSR 305 annotations are for embedding nullability information.
--dontwarn javax.annotation.**
-
--keepclasseswithmembers class * {
-    @com.squareup.moshi.* <methods>;
-}
-
--keep @com.squareup.moshi.JsonQualifier interface *
-
-# Enum field names are used by the integrated EnumJsonAdapter.
-# Annotate enums with @JsonClass(generateAdapter = false) to use them with Moshi.
--keepclassmembers @com.squareup.moshi.JsonClass class * extends java.lang.Enum {
-    <fields>;
-}
-
-# The name of @JsonClass types is used to look up the generated adapter.
--keepnames @com.squareup.moshi.JsonClass class *
-
-# Retain generated JsonAdapters if annotated type is retained.
--if @com.squareup.moshi.JsonClass class *
--keep class <1>JsonAdapter {
-    <init>(...);
-    <fields>;
-}
-
-# END moshi rules

@@ -573,24 +573,21 @@ inline fun View.addOnDetachListener(crossinline listener: () -> Unit) {
 }
 
 fun View.attachEvents(): Observable<Boolean> {
-    return Observable.create { subscriber ->
+    return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
         checkMainThread()
+
 
         val listener = object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(@NonNull v: View) {
-                if (!subscriber.isUnsubscribed) {
-                    subscriber.onNext(true)
-                }
+                emitter.onNext(true)
             }
 
             override fun onViewDetachedFromWindow(@NonNull v: View) {
-                if (!subscriber.isUnsubscribed) {
-                    subscriber.onNext(false)
-                }
+                emitter.onNext(false)
             }
         }
 
-        subscriber.add(object : MainThreadSubscription() {
+        emitter.setSubscription(object : MainThreadSubscription() {
             override fun onUnsubscribe() {
                 removeOnAttachStateChangeListener(listener)
             }
