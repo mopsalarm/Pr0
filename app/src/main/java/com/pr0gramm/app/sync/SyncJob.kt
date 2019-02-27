@@ -4,7 +4,7 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.doInBackground

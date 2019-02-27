@@ -10,11 +10,11 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.decodeBase64String
 import com.pr0gramm.app.encodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.lazyInject
 import com.pr0gramm.app.util.requireContext

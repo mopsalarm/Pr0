@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.Holder
@@ -31,7 +32,7 @@ class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val
 
     companion object {
         fun of(context: Context, item: FeedItem, drawable: Drawable? = null): PreviewInfo {
-            val thumbnail = UriHelper.of(context).thumbnail(item)
+            val thumbnail = UriHelper.of(context).thumbnail(item.asThumbnail())
             return PreviewInfo(item.id, thumbnail, item.width, item.height, drawable)
         }
     }

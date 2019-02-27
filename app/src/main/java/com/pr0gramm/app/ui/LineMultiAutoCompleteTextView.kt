@@ -14,9 +14,9 @@ import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
 import androidx.core.text.getSpans
 import androidx.core.text.inSpans
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.views.adjustImeOptions
 import com.pr0gramm.app.ui.views.handlePlainTextPaste
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.observeChange
 

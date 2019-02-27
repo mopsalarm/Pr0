@@ -5,14 +5,14 @@ import androidx.collection.LruCache
 import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.model.inbox.UnixSecondTimestamp
 import com.pr0gramm.app.util.StringException
 import com.pr0gramm.app.util.getObject
 import com.pr0gramm.app.util.setObject
-import com.squareup.moshi.JsonClass
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
@@ -28,19 +28,18 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
     private val readUpToCache = LruCache<String, Instant>(128)
 
-    @JsonClass(generateAdapter = true)
-    data class Timestamp(val id: String, val timestamp: Instant)
-
     init {
         // restore previous cache entries
-        val readUpToTimestamps: List<Timestamp> = preferences
+        val readUpToTimestamps: List<UnixSecondTimestamp> = preferences
                 .getObject("InboxService.readUpTo") ?: listOf()
 
-        readUpToTimestamps.forEach { readUpToCache.put(it.id, it.timestamp) }
+        readUpToTimestamps.forEach {
+            readUpToCache.put(it.id, Instant.ofEpochSeconds(it.timestamp * 1000))
+        }
     }
 
     private fun persistState() {
-        val values = readUpToCache.snapshot().map { entry -> Timestamp(entry.key, entry.value) }
+        val values = readUpToCache.snapshot().map { entry -> UnixSecondTimestamp(entry.key, entry.value.epochSeconds) }
         preferences.edit {
             setObject("InboxService.readUpTo", values)
         }

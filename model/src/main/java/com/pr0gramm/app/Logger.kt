@@ -1,12 +1,9 @@
-package com.pr0gramm.app.util
+package com.pr0gramm.app
 
 import android.os.SystemClock
 import android.util.Log
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.core.CrashlyticsCore
-import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.model.BuildConfig
 import java.util.concurrent.atomic.AtomicInteger
-
 
 inline class Logger(val name: String) {
     inline fun debug(block: () -> String) {
@@ -44,6 +41,8 @@ inline class Logger(val name: String) {
     }
 }
 
+typealias RemoteLoggingHandler = (level: Int, tag: String, message: String) -> Unit
+
 object Logging {
     private const val ENTRY_BUFFER_SIZE = 4096
 
@@ -59,16 +58,7 @@ object Logging {
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
-    private var cachedCrashlytics: CrashlyticsCore? = null
-        get() {
-            if (field == null) {
-                Crashlytics.getInstance()?.let {
-                    field = it.core
-                }
-            }
-
-            return field
-        }
+    var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> Unit }
 
     fun log(level: Int, name: String, message: String) {
         val thread = Thread.currentThread().name
@@ -80,7 +70,7 @@ object Logging {
 
         } else {
             // only log to crashlytics
-            cachedCrashlytics?.log(level, tag, message)
+            remoteLoggingHandler(level, tag, message)
         }
 
         // store in buffer. Not 100% thread safe but close enough.
@@ -119,5 +109,24 @@ object Logging {
         }
 
         return result
+    }
+}
+
+inline fun <T> Logger.time(name: String, supplier: () -> T): T {
+    if (BuildConfig.DEBUG) {
+        val watch = Stopwatch()
+
+        val result = try {
+            supplier()
+        } catch (err: Exception) {
+            this.info { "$name failed after $watch" }
+            throw err
+        }
+
+        this.info { "$name took $watch" }
+        return result
+
+    } else {
+        return supplier()
     }
 }

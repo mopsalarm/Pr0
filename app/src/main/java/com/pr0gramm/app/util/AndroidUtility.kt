@@ -29,6 +29,7 @@ import androidx.core.text.inSpans
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.AsyncScope
 import kotlinx.coroutines.CancellationException

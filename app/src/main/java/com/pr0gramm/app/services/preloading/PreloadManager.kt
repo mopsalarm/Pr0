@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.squareup.sqlbrite.BriteDatabase

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.content.Context
+import com.pr0gramm.app.Logger
 import kotlinx.coroutines.CancellationException
 import java.io.File
 import java.io.IOException

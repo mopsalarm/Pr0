@@ -2,10 +2,10 @@ package com.pr0gramm.app.ui
 
 import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.retryUpTo
-import com.pr0gramm.app.util.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.ByteString

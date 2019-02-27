@@ -4,7 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.Stopwatch
+import com.pr0gramm.app.listOfSize
+import com.pr0gramm.app.time
 import okio.Buffer
 import okio.BufferedSink
 import okio.BufferedSource
@@ -188,3 +191,8 @@ inline fun <T : Freezable> Bundle.getParcelable(key: String, c: Unfreezable<T>):
 inline fun <T : Freezable> Intent.getFreezableExtra(key: String, c: Unfreezable<T>): T? {
     return getParcelableExtra(key)
 }
+
+private inline val Class<*>.directName: String
+    get() {
+        return name.takeLastWhile { it != '.' }.replace('$', '.')
+    }

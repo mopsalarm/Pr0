@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.feed.FeedItem
@@ -7,8 +9,11 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.Databases.withTransaction
+import com.pr0gramm.app.util.LongSparseArray
+import com.pr0gramm.app.util.checkNotMainThread
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
 import okio.Okio
 import rx.Observable

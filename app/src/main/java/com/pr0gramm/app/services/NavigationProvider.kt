@@ -6,16 +6,18 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.orm.Bookmark
-import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.model.bookmark.Bookmark
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.user.LoginState
+import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.RxPicasso
 import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
@@ -52,7 +54,7 @@ class NavigationProvider(
         return ContextCompat.getDrawable(context, id)!!
     }
 
-    private fun specialMenuItems(loginState: UserService.LoginState, upper: Boolean): Observable<List<NavigationItem>> {
+    private fun specialMenuItems(loginState: LoginState, upper: Boolean): Observable<List<NavigationItem>> {
         return configService.observeConfig()
                 .observeOnMainThread()
                 .map { config -> config.specialMenuItems }
@@ -217,7 +219,7 @@ class NavigationProvider(
      * if there is one.
      */
     private fun resolveSpecial(
-            loginState: UserService.LoginState, upper: Boolean,
+            loginState: LoginState, upper: Boolean,
             items: List<Config.MenuItem>): Observable<List<NavigationItem>> {
 
         return Observable.from(items)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
+import com.pr0gramm.app.Logger
 import com.squareup.sqlbrite.BriteDatabase
 
 /**

@@ -1,13 +1,13 @@
 package com.pr0gramm.app.services
 
 import android.graphics.Bitmap
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.ofType
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.toInt
@@ -207,8 +207,9 @@ class UploadService(private val api: Api,
             return State.SimilarItems(key, posted.similar)
         }
 
-        if (posted.error != null) {
-            return State.Error(posted.error, posted.report)
+        val error = posted.error
+        if (error != null) {
+            return State.Error(error, posted.report)
         }
 
         if (posted.itemId > 0) {

@@ -1,8 +1,9 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.getOrPut
+import kotlinx.coroutines.runBlocking
 import java.util.Collections.emptyList
 
 /**
@@ -23,11 +24,9 @@ class UserSuggestionService(private val api: Api) {
 
         logger.info { "Looking for users starting with prefix $prefix" }
         try {
-            val response = api.suggestUsers(prefix).execute()
-            if (!response.isSuccessful)
-                return emptyList()
+            val response = runBlocking { api.suggestUsersAsync(prefix).await() }
+            return response.users
 
-            return response.body()?.users.orEmpty()
         } catch (error: Exception) {
             logger.warn { "Could not fetch username suggestions for prefix=$prefix: $error" }
             return emptyList()

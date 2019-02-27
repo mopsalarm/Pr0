@@ -1,4 +1,4 @@
-package com.pr0gramm.app.util
+package com.pr0gramm.app
 
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit

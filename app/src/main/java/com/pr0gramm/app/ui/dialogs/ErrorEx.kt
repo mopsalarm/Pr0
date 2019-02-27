@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui.dialogs
 
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 import rx.Observable
 import rx.Subscriber
 import rx.Subscription

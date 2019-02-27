@@ -22,6 +22,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.content.edit
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.*
 import java.util.concurrent.atomic.AtomicBoolean

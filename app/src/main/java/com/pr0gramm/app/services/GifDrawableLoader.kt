@@ -3,8 +3,8 @@ package com.pr0gramm.app.services
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.core.net.toFile
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.readStream

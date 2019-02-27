@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.adapter
+import com.pr0gramm.app.model.update.Change
+import com.pr0gramm.app.model.update.ChangeGroup
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
@@ -19,7 +21,6 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.setTextFuture
-import com.squareup.moshi.JsonClass
 import okio.Okio
 import java.io.IOException
 
@@ -81,12 +82,6 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
             }
         }
     }
-
-    @JsonClass(generateAdapter = true)
-    class Change(val type: String, val change: String)
-
-    @JsonClass(generateAdapter = true)
-    class ChangeGroup(val version: Int = 0, val changes: List<Change> = listOf())
 
     private class Version(val formatted: String, val current: Boolean) {
         companion object {

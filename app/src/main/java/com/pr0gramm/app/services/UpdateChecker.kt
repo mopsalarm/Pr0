@@ -10,13 +10,14 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.model.update.UpdateModel
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.Deferred
@@ -60,7 +61,7 @@ class UpdateChecker {
     }
 
     private suspend fun queryOne(endpoint: String): Update {
-        val update = updateApi.fetchUpdate(endpoint).await()
+        val update = Update(updateApi.fetchUpdateAsync(endpoint).await())
 
         // make path absolute if needed
         var apk = update.apk
@@ -104,7 +105,7 @@ class UpdateChecker {
 
     private interface UpdateApi {
         @GET
-        fun fetchUpdate(@Url url: String): Deferred<Update>
+        fun fetchUpdateAsync(@Url url: String): Deferred<UpdateModel>
     }
 
     companion object {

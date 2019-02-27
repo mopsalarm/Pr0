@@ -7,9 +7,9 @@ import android.graphics.Rect
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.Track.context
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.isLocalFile
 import java.io.File
 import java.io.FileOutputStream

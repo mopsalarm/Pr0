@@ -3,6 +3,7 @@ package com.pr0gramm.app.io
 import android.net.Uri
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import okhttp3.CacheControl

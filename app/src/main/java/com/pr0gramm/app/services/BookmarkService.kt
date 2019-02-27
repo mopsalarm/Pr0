@@ -4,12 +4,15 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import androidx.core.content.edit
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.model.bookmark.Bookmark
+import com.pr0gramm.app.orm.asFeedFilter
+import com.pr0gramm.app.orm.bookmarkOf
 import com.pr0gramm.app.util.*
 import rx.Observable
 import rx.schedulers.Schedulers
@@ -129,7 +132,7 @@ class BookmarkService(
             }
 
             val filter = FeedFilter().withFeedType(FeedType.PROMOTED).withTags("!'text'")
-            save(Bookmark("Text in Top", filter))
+            save(bookmarkOf("Text in Top", filter))
         }
 
         try {

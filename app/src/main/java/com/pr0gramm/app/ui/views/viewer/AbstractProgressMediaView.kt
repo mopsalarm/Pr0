@@ -8,8 +8,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.LayoutRes
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.visible
 

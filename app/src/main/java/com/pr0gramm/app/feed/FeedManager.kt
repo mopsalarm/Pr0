@@ -1,8 +1,8 @@
 package com.pr0gramm.app.feed
 
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CancellationException

@@ -15,11 +15,11 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
+import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.getParcelable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*

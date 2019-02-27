@@ -4,8 +4,8 @@ import android.app.Application
 import android.net.Uri
 import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.seconds
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Stats
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.runEvery

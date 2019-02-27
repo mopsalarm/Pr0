@@ -29,13 +29,12 @@ inline fun <reified T : Any> Moshi.adapter(): JsonAdapter<T> {
 
 private object InstantAdapter : JsonAdapter<Instant>() {
     override fun fromJson(reader: JsonReader): Instant {
-        return Instant(reader.nextLong() * 1000L)
+        return Instant.ofEpochSeconds(reader.nextLong())
     }
 
     override fun toJson(writer: JsonWriter, value: Instant?) {
-        val millis = value?.millis
-        if (millis != null) {
-            writer.value(millis / 1000)
+        if (value != null) {
+            writer.value(value.epochSeconds)
         } else {
             writer.nullValue()
         }

@@ -63,6 +63,9 @@ open class ApplicationClass : Application(), InjectorAware {
                     .logger(SilentLogger())
                     .kits(Crashlytics())
                     .build())
+
+            // setup log forwarding in production
+            Logging.remoteLoggingHandler = Crashlytics.getInstance().core::log
         }
 
         // handler to ignore certain exceptions before they reach crashlytics.

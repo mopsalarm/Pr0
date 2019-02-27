@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
 import com.google.android.exoplayer2.video.VideoRendererEventListener
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout

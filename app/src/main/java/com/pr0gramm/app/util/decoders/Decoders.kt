@@ -7,8 +7,8 @@ import android.graphics.Rect
 import android.net.Uri
 import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.Logger
 
 object Decoders {
     fun regionDecoderFactory(cache: Cache): DecoderFactory<ImageRegionDecoder> {

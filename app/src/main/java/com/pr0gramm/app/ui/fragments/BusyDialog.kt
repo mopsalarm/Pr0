@@ -5,12 +5,12 @@ import android.content.Context
 import android.widget.TextView
 import androidx.annotation.StringRes
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.AndroidCoroutineScope
 import com.pr0gramm.app.ui.base.Main
 import com.pr0gramm.app.ui.fragments.BusyDialogHelper.dismiss
 import com.pr0gramm.app.ui.showDialog
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.checkMainThread
 import kotlinx.coroutines.withContext
 import rx.*

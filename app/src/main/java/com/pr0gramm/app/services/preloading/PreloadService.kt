@@ -15,7 +15,9 @@ import androidx.core.content.getSystemService
 import androidx.core.net.toFile
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
@@ -154,7 +156,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                 val mediaUri = uriHelper.media(item)
                 val mediaFile = if (mediaUri.isLocalFile) mediaUri.toFile() else cacheFileForUri(mediaUri)
 
-                val thumbUri = uriHelper.thumbnail(item)
+                val thumbUri = uriHelper.thumbnail(item.asThumbnail())
                 val thumbFile = if (thumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
 
                 // update the notification

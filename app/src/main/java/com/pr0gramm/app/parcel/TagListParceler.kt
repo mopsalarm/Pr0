@@ -1,7 +1,7 @@
 package com.pr0gramm.app.parcel
 
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.listOfSize
+import com.pr0gramm.app.listOfSize
 
 /**
  */

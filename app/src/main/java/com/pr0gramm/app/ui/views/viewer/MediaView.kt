@@ -17,7 +17,9 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper

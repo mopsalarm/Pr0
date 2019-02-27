@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import com.evernote.android.job.util.JobLogger
+import com.pr0gramm.app.Logger
 
 class SimpleJobLogger : JobLogger {
     private val logger = Logger("JobLogger")

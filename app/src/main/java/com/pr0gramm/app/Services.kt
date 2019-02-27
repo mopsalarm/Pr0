@@ -13,8 +13,8 @@ import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
+import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService

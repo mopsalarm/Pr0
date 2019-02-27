@@ -1,6 +1,5 @@
 package com.pr0gramm.app
 
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.doInBackground
 import com.timgroup.statsd.NoOpStatsDClient

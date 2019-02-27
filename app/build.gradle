@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'io.fabric'
 
@@ -153,6 +152,8 @@ repositories {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
+    implementation project(":model")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"
 
@@ -197,8 +198,6 @@ dependencies {
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
     implementation "dnsjava:dnsjava:2.1.8"
 
-    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
-
     implementation 'com.evernote:android-job:1.3.0-alpha09'
 
     implementation 'com.github.paolorotolo:appintro:v5.1.0'
@@ -217,7 +216,6 @@ dependencies {
     implementation "com.trello:rxlifecycle-components:1.0"
 
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.9"
-    implementation 'org.iq80.snappy:snappy:0.4'
 }
 
 configurations {

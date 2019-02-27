@@ -2,7 +2,7 @@ package com.pr0gramm.app.sync
 
 import com.evernote.android.job.DailyJob
 import com.evernote.android.job.JobRequest
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.SimpleJobCreator
 import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.runBlocking

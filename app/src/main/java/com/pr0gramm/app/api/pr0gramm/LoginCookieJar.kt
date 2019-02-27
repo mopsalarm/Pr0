@@ -4,12 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Debug
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
+import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.Logger
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okio.ByteString
@@ -166,13 +165,6 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
         val id = parsedCookie?.id ?: throw LoginRequiredException()
         return Api.Nonce(id)
     }
-
-    @JsonClass(generateAdapter = true)
-    data class LoginCookie(
-            val id: String,
-            @Json(name = "n") val name: String,
-            @Json(name = "paid") val paid: Boolean = false,
-            @Json(name = "a") val admin: Boolean = false)
 
     /**
      * An exception indicating that a login is required.

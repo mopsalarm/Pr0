@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.intro.slides
 
 import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.orm.bookmarkOf
 import com.pr0gramm.app.services.BookmarkService
 
 /**
@@ -15,7 +15,7 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
 
     override fun activate() {
         deactivate()
-        bookmarkService.save(Bookmark(title, filter))
+        bookmarkService.save(bookmarkOf(title, filter))
     }
 
     override fun deactivate() {

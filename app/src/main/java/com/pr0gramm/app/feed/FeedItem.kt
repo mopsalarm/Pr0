@@ -2,7 +2,6 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
@@ -12,13 +11,13 @@ import com.pr0gramm.app.util.toInt
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by the data of an [Api.Feed.Item].
  */
-class FeedItem : Freezable, HasThumbnail {
+class FeedItem : Freezable {
     val created: Instant
-    override val thumbnail: String
+    val thumbnail: String
     val image: String
     val fullsize: String
     val user: String
-    override val id: Long
+    val id: Long
     val promotedId: Long
     val width: Int
     val height: Int

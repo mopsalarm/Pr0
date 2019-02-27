@@ -3,9 +3,9 @@ package com.pr0gramm.app.orm
 import android.annotation.SuppressLint
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.util.forEach
-import com.pr0gramm.app.util.time
 import com.squareup.sqlbrite.BriteDatabase
 import rx.Observable
 

@@ -15,9 +15,8 @@ class InviteService(private val api: Api) {
             throw InviteException("email")
 
         val response = api.inviteAsync(null, email).await()
-        if (response.error != null) {
-            throw InviteException(response.error)
-        }
+
+        response.error?.let { error -> throw InviteException(error) }
     }
 
     /**

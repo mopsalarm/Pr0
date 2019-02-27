@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.Debug
 import android.os.StrictMode
 import androidx.multidex.MultiDex
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.delay
 

@@ -9,8 +9,9 @@ import android.widget.ImageView
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*

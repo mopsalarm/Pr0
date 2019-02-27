@@ -3,7 +3,7 @@ package com.pr0gramm.app.services
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
-import com.squareup.moshi.JsonClass
+import com.pr0gramm.app.model.info.InfoMessage
 import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -26,15 +26,12 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
             .build()
             .create(Api::class.java)
 
-    suspend fun fetch(): Message {
-        return api.get().await()
+    suspend fun fetch(): InfoMessage {
+        return api.getAsync().await()
     }
 
     private interface Api {
         @GET("info-message.json")
-        fun get(): Deferred<Message>
+        fun getAsync(): Deferred<InfoMessage>
     }
-
-    @JsonClass(generateAdapter = true)
-    class Message(val message: String? = null, val endOfLife: Int = 0)
 }

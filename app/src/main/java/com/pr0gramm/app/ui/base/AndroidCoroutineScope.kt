@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*

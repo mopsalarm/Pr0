@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.Window
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.transaction
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews

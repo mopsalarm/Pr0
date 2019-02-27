@@ -19,9 +19,10 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.info.InfoMessage
+import com.pr0gramm.app.orm.bookmarkOf
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -385,7 +386,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return defaultFeedFilter() == filter
     }
 
-    private fun showInfoMessage(message: InfoMessageService.Message) {
+    private fun showInfoMessage(message: InfoMessage) {
         if (message.endOfLife >= AndroidUtility.buildVersionCode()) {
             showDialog(this) {
                 contentWithLinks("Support für deine Version ist eingestellt. " +
@@ -527,7 +528,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun bookmarkFilter(filter: FeedFilter, title: String) {
-        bookmarkService.save(Bookmark(title, filter))
+        bookmarkService.save(bookmarkOf(title, filter))
         drawerLayout.openDrawer(GravityCompat.START)
     }
 

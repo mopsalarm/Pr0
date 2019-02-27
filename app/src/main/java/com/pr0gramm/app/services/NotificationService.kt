@@ -14,15 +14,16 @@ import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.UserDrawables
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.lruCache
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.IOException
@@ -268,7 +269,7 @@ class NotificationService(private val context: Application,
     }
 
     private fun loadItemThumbnail(message: Api.Message): Bitmap? {
-        val uri = uriHelper.thumbnail(message)
+        val uri = uriHelper.thumbnail(message.asThumbnail())
         return try {
             picasso.load(uri).get()
         } catch (ignored: IOException) {

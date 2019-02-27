@@ -8,8 +8,9 @@ import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.FirebaseAnalytics.Event
 import com.google.firebase.analytics.FirebaseAnalytics.Param
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.InjectorAware
@@ -170,7 +171,7 @@ object Track : InjectorAware {
         }
     }
 
-    fun updateUserState(loginState: Observable<UserService.LoginState>) {
+    fun updateUserState(loginState: Observable<LoginState>) {
         loginState.distinctUntilChanged { st -> Pair(st.authorized, st.premium) }.subscribe { state ->
             fa.setUserProperty(GA_CUSTOM_AUTHORIZED, state.authorized.toString())
             fa.setUserProperty(GA_CUSTOM_PREMIUM, state.premium.toString())

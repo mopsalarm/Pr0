@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector

@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 
 /**
  * This decoder has a reference to two decoders and initializes and uses the fallback

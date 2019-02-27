@@ -3,7 +3,9 @@ package com.pr0gramm.app.services.config
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
-import com.squareup.moshi.JsonClass
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.config.Range
+import com.pr0gramm.app.model.config.Rule
 import kotlin.math.absoluteValue
 
 object ConfigEvaluator {
@@ -63,15 +65,4 @@ object ConfigEvaluator {
     }
 
     class Context(val version: Int, val hash: String, val beta: Boolean)
-
-    @JsonClass(generateAdapter = true)
-    data class Range(val min: Double = 0.0, val max: Double = Double.MAX_VALUE)
-
-    @JsonClass(generateAdapter = true)
-    data class Rule(
-            val key: String, val value: Any?,
-            val versions: List<Range> = listOf(),
-            val percentiles: List<Range> = listOf(),
-            val times: List<Range> = listOf(),
-            val beta: Boolean = false)
 }

@@ -1,4 +1,4 @@
-package com.pr0gramm.app.services.config
+package com.pr0gramm.app.model.config
 
 import com.squareup.moshi.JsonClass
 
@@ -13,7 +13,7 @@ data class Config(
         val reportReasons: List<String> = DefaultReportReasons,
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
-        val specialMenuItems: List<Config.MenuItem> = listOf()) {
+        val specialMenuItems: List<MenuItem> = listOf()) {
 
     enum class AdType {
         NONE,

@@ -2,6 +2,7 @@ package com.pr0gramm.app.util
 
 import android.content.Context
 import androidx.annotation.StringRes
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.ui.PermissionHelper

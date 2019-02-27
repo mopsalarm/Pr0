@@ -3,8 +3,8 @@ package com.pr0gramm.app.ui
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.time
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import java.util.*
 
 /**

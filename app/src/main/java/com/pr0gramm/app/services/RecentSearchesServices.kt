@@ -2,9 +2,9 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.TypeToken
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.getStringOrNull
 import java.util.*
 

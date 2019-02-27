@@ -1,6 +1,6 @@
 package com.pr0gramm.app.io
 
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.skipSimple
 import com.pr0gramm.app.util.updateTimestamp
 import java.io.File

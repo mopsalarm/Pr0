@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import com.pr0gramm.app.Logger
 import rx.Scheduler
 import rx.Subscription
 import rx.functions.Action0

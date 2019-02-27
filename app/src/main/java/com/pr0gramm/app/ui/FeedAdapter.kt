@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.UriHelper
@@ -227,7 +227,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     fun bindTo(picasso: Picasso, entry: FeedAdapter.Entry.Item) {
         val item = entry.item
 
-        val imageUri = UriHelper.of(itemView.context).thumbnail(item)
+        val imageUri = UriHelper.of(itemView.context).thumbnail(item.asThumbnail())
         picasso.load(imageUri)
                 .config(Bitmap.Config.RGB_565)
                 .placeholder(ColorDrawable(0xff333333.toInt()))

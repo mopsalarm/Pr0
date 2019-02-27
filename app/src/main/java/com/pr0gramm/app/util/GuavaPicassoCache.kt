@@ -3,6 +3,7 @@ package com.pr0gramm.app.util
 import android.graphics.Bitmap
 import androidx.collection.LruCache
 import androidx.core.graphics.BitmapCompat
+import com.pr0gramm.app.Logger
 import com.squareup.picasso.Cache
 
 /**

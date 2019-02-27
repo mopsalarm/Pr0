@@ -2,9 +2,9 @@ package com.pr0gramm.app.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.util.Logger
 import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import proguard.annotation.KeepPublicClassMemberNames

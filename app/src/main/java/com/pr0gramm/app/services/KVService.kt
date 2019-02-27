@@ -3,8 +3,9 @@ package com.pr0gramm.app.services
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.model.kv.GetResult
+import com.pr0gramm.app.model.kv.PutResult
 import com.pr0gramm.app.ui.base.retryUpTo
-import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.Deferred
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
@@ -45,7 +46,7 @@ class KVService(okHttpClient: OkHttpClient) {
 
     suspend fun get(ident: String, key: String): GetResult {
         return try {
-            api.getValue(tokenOf(ident), key).await()
+            api.getValueAsync(tokenOf(ident), key).await()
         } catch (err: HttpException) {
             if (err.code() != 404)
                 throw err
@@ -60,7 +61,7 @@ class KVService(okHttpClient: OkHttpClient) {
         val body = RequestBody.create(MediaType.parse("application/octet"), value)
 
         return try {
-            api.putValue(tokenOf(ident), key, version, body).await()
+            api.putValueAsync(tokenOf(ident), key, version, body).await()
         } catch (err: HttpException) {
             if (err.code() != 409)
                 throw err
@@ -73,30 +74,16 @@ class KVService(okHttpClient: OkHttpClient) {
 
     private interface Api {
         @GET("token/{token}/key/{key}")
-        fun getValue(
+        fun getValueAsync(
                 @Path("token") token: UUID,
                 @Path("key") key: String): Deferred<GetResult.Value>
 
         @POST("token/{token}/key/{key}/version/{version}")
-        fun putValue(
+        fun putValueAsync(
                 @Path("token") token: UUID,
                 @Path("key") key: String,
                 @Path("version") version: Int,
                 @Body body: RequestBody): Deferred<PutResult.Version>
-    }
-
-    sealed class PutResult {
-        @JsonClass(generateAdapter = true)
-        class Version(val version: Int) : PutResult()
-
-        object Conflict : PutResult()
-    }
-
-    sealed class GetResult {
-        @JsonClass(generateAdapter = true)
-        class Value(val version: Int, val value: ByteArray) : GetResult()
-
-        object NoValue : GetResult()
     }
 
     class VersionConflictException : RuntimeException("version conflict during update")

@@ -7,10 +7,10 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.CheckResult
 import androidx.preference.PreferenceFragmentCompat
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleProvider
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.RxLifecycle

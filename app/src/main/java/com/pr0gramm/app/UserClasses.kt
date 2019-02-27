@@ -2,7 +2,7 @@ package com.pr0gramm.app
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import rx.Observable
 

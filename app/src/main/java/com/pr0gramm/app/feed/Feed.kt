@@ -2,10 +2,10 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
-import com.pr0gramm.app.util.listOfSize
 import com.pr0gramm.app.util.toInt
 
 /**

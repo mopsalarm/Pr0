@@ -3,14 +3,9 @@ package com.pr0gramm.app.services
 import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Settings
-import com.pr0gramm.app.encodeBase64
+import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ExceptionHandler
-import com.pr0gramm.app.util.Logger
-import com.pr0gramm.app.util.Logging
 import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit

@@ -3,10 +3,10 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob

@@ -3,11 +3,11 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob

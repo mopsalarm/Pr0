@@ -2,10 +2,10 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.checkMainThread
 import rx.functions.Action1
 import java.lang.ref.WeakReference

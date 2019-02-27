@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.back
 
 import androidx.fragment.app.SupportV4App
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 
 object BackFragmentHelper {
     private val logger = Logger("BackFragmentHelper")

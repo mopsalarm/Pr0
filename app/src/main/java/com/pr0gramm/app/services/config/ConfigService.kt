@@ -6,14 +6,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
 import androidx.core.content.edit
-import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.minutes
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.getStringOrNull
+import com.pr0gramm.app.util.runEvery
 import rx.Observable
 import rx.subjects.BehaviorSubject
 

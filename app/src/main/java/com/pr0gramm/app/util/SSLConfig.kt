@@ -6,6 +6,8 @@ import android.os.Build
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.security.ProviderInstaller
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import okhttp3.OkHttpClient
 import java.security.SecureRandom
 import java.security.cert.X509Certificate

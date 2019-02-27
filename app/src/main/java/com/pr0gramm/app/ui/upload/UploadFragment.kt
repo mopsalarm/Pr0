@@ -22,11 +22,11 @@ import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseFragment

@@ -3,7 +3,6 @@ package com.pr0gramm.app.api.pr0gramm
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.util.Stopwatch
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient

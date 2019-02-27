@@ -2,14 +2,15 @@ package com.pr0gramm.app.services
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.pr0gramm.app.model.update.UpdateModel
 import com.pr0gramm.app.parcel.creator
-import com.squareup.moshi.JsonClass
 
 /**
  * Update
  */
-@JsonClass(generateAdapter = true)
 data class Update(val version: Int, val apk: String, val changelog: String) : Parcelable {
+    constructor(update: UpdateModel) : this(update.version, update.apk, update.changelog)
+
     fun versionStr(): String {
         return String.format("1.%d.%d", version / 10, version % 10)
     }
@@ -27,7 +28,8 @@ data class Update(val version: Int, val apk: String, val changelog: String) : Pa
     companion object {
         @JvmField
         val CREATOR = creator {
-            Update(it.readInt(), it.readString(), it.readString())
+            Update(it.readInt(), it.readString()!!, it.readString()!!)
         }
     }
 }
+

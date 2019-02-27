@@ -5,18 +5,16 @@ import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
-import com.pr0gramm.app.api.pr0gramm.LoginCookieJar.LoginCookie
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.user.LoginCookie
+import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.time
-import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
@@ -119,9 +117,10 @@ class UserService(private val api: Api,
             return LoginResult.Failure
         }
 
-        if (login.banInfo != null) {
+        val banInfo = login.banInfo
+        if (banInfo != null) {
             logger.debug { "User is banned." }
-            return LoginResult.Banned(login.banInfo)
+            return LoginResult.Banned(banInfo)
         }
 
         if (!login.success) {
@@ -373,17 +372,6 @@ class UserService(private val api: Api,
         val result = api.resetPasswordAsync(name, token, password).await()
         return result.error == null
     }
-
-    @JsonClass(generateAdapter = true)
-    data class LoginState(
-            val id: Int,
-            val name: String?,
-            val mark: Int,
-            val score: Int,
-            val uniqueToken: String?,
-            val admin: Boolean,
-            val premium: Boolean,
-            val authorized: Boolean)
 
     class LoginStateWithBenisGraph(
             val loginState: LoginState, val benisGraph: Graph? = null)

@@ -5,11 +5,15 @@ import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.CountingInputStream
+import com.pr0gramm.app.util.closeQuietly
+import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.readStream
 import rx.Emitter
 import rx.Observable
 import java.io.File

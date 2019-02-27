@@ -20,7 +20,7 @@ import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.services.config.ConfigService

@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.base.Main
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.checkMainThread
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CoroutineScope

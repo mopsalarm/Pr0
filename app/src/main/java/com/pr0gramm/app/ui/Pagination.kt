@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import androidx.annotation.MainThread
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.directName
 import kotlinx.coroutines.*
 import rx.Observable

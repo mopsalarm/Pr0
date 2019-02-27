@@ -3,7 +3,7 @@ package com.pr0gramm.app.services
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.pr0gramm.app.api.pr0gramm.HasThumbnail
+import com.pr0gramm.app.api.pr0gramm.Thumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -16,7 +16,7 @@ import com.pr0gramm.app.util.di.injector
 class UriHelper private constructor(context: Context) {
     private val preloadManager: PreloadManager by lazy { context.injector.instance<PreloadManager>() }
 
-    fun thumbnail(item: HasThumbnail): Uri {
+    fun thumbnail(item: Thumbnail): Uri {
         val preloaded = preloadManager[item.id]
         if (preloaded != null)
             return preloaded.thumbnail.toUri()
@@ -47,7 +47,7 @@ class UriHelper private constructor(context: Context) {
 
     fun post(type: FeedType, itemId: Long, commentId: Long): Uri {
         return start().path(FEED_TYPES[type])
-                .appendEncodedPath(itemId.toString() + ":comment" + commentId)
+                .appendEncodedPath("$itemId:comment$commentId")
                 .build()
     }
 
@@ -90,7 +90,7 @@ class UriHelper private constructor(context: Context) {
                 absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.image)
         }
 
-        fun thumbnail(item: HasThumbnail): Uri {
+        fun thumbnail(item: Thumbnail): Uri {
             return absoluteJoin(start("thumb"), item.thumbnail ?: "")
         }
 
@@ -118,6 +118,7 @@ class UriHelper private constructor(context: Context) {
         fun of(context: Context): UriHelper {
             return UriHelper(context)
         }
+
         private val FEED_TYPES = mapOf(
                 FeedType.NEW to "new",
                 FeedType.PROMOTED to "top",

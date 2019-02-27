@@ -29,10 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
+import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
@@ -311,25 +308,6 @@ fun View?.removeFromParent() {
     parent?.removeView(this)
 }
 
-inline fun <T> Logger.time(name: String, supplier: () -> T): T {
-    if (BuildConfig.DEBUG) {
-        val watch = Stopwatch()
-
-        val result = try {
-            supplier()
-        } catch (err: Exception) {
-            this.info { "$name failed after $watch" }
-            throw err
-        }
-
-        this.info { "$name took $watch" }
-        return result
-
-    } else {
-        return supplier()
-    }
-}
-
 fun <T> weakref(value: T?): ReadWriteProperty<Any?, T?> = object : ReadWriteProperty<Any?, T?> {
     private var ref: WeakReference<T?> = WeakReference(value)
 
@@ -489,15 +467,6 @@ inline fun <T> threadLocal(crossinline supplier: () -> T): ReadOnlyProperty<Any,
         override fun getValue(thisRef: Any, property: KProperty<*>): T = get()
                 ?: throw IllegalStateException("No value in thread local.")
     }
-}
-
-inline fun <T> listOfSize(n: Int, initializer: (Int) -> T): List<T> {
-    val result = ArrayList<T>(n)
-    for (idx in 0 until n) {
-        result.add(initializer(idx))
-    }
-
-    return result
 }
 
 val traceLogger = Logger("Trace")

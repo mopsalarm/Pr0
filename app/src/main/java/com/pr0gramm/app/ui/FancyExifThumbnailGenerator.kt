@@ -6,10 +6,10 @@ import android.graphics.*
 import android.net.Uri
 import androidx.core.graphics.applyCanvas
 import androidx.core.net.toFile
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.util.isLocalFile
-import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
 import okhttp3.Request
 import java.io.ByteArrayInputStream

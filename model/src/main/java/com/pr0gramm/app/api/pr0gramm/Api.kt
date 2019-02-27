@@ -1,16 +1,13 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.services.config.ConfigEvaluator
+import com.pr0gramm.app.model.config.Rule
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Response
 import retrofit2.http.*
 
-@Suppress("MemberVisibilityCanBePrivate")
 interface Api {
     @GET("/api/items/get")
     fun itemsGetAsync(
@@ -50,7 +47,7 @@ interface Api {
     @POST("/api/user/login")
     fun loginAsync(
             @Field("name") username: String,
-            @Field("password") password: String): Deferred<Response<Api.Login>>
+            @Field("password") password: String): Deferred<retrofit2.Response<Login>>
 
     @FormUrlEncoded
     @POST("/api/tags/add")
@@ -217,8 +214,8 @@ interface Api {
             @Field("name") username: String): Deferred<Unit>
 
     @GET("api/profile/suggest")
-    fun suggestUsers(
-            @Query("prefix") prefix: String): Call<Names>
+    fun suggestUsersAsync(
+            @Query("prefix") prefix: String): Deferred<Names>
 
     @FormUrlEncoded
     @POST("api/contact/send")
@@ -253,7 +250,7 @@ interface Api {
             @Field("_nonce") nonce: Nonce?): Deferred<HandoverToken>
 
     @GET("media/app-config.json")
-    fun remoteConfigAsync(@Query("bust") bust: Long): Deferred<List<ConfigEvaluator.Rule>>
+    fun remoteConfigAsync(@Query("bust") bust: Long): Deferred<List<Rule>>
 
     data class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
@@ -372,7 +369,7 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class Message(
-            override val id: Long,
+            val id: Long,
             val itemId: Long = 0,
             val mark: Int,
             val message: String,
@@ -381,7 +378,7 @@ interface Api {
             val senderId: Int,
             val read: Boolean = true,
             @Json(name = "created") val creationTime: Instant,
-            @Json(name = "thumb") override val thumbnail: String?) : HasThumbnail {
+            @Json(name = "thumb") val thumbnail: String?) {
 
         val isComment: Boolean get() = itemId != 0L
 
@@ -428,9 +425,9 @@ interface Api {
 
         @JsonClass(generateAdapter = true)
         data class SimilarItem(
-                override val id: Long,
+                val id: Long,
                 val image: String,
-                @Json(name = "thumb") override val thumbnail: String) : HasThumbnail
+                @Json(name = "thumb") val thumbnail: String)
 
         @JsonClass(generateAdapter = true)
         data class VideoReport(
@@ -521,9 +518,6 @@ interface Api {
             @Json(name = "ccreated") val commentCreated: Instant)
 
     @JsonClass(generateAdapter = true)
-    data class UserIdentifier(val identifier: String)
-
-    @JsonClass(generateAdapter = true)
     data class ResetPassword(val error: String?)
 
     @JsonClass(generateAdapter = true)
@@ -576,7 +570,7 @@ interface Api {
     @JsonClass(generateAdapter = true)
     data class ConversationMessage(
             val id: Long,
-            @Json(name="created") val creationTime: Instant,
+            @Json(name = "created") val creationTime: Instant,
             val message: String,
             val sent: Boolean)
 }

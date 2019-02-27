@@ -4,13 +4,13 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
-import com.pr0gramm.app.util.Logger
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
 import kotlinx.coroutines.Job

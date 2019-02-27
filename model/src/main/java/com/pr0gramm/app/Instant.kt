@@ -5,7 +5,6 @@ import android.os.Parcelable
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.creator
-import com.pr0gramm.app.util.Logger
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -78,6 +77,10 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
 
         fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
 
+        fun ofEpochSeconds(epochSeconds: Long): Instant {
+            return Instant(1000 * epochSeconds)
+        }
+
         @JvmField
         val CREATOR = creator { p -> Instant(p.readLong()) }
     }
@@ -86,31 +89,22 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
 object TimeFactory {
     private val logger = Logger("TimeFactory")
 
-    private val buffer = androidx.collection.CircularArray<Long>(16)
+    private val buffer = LongArray(16)
+    private var bufferIdx: Int = 0
+
     private val deltaInMillis = AtomicLong(0)
 
     fun updateServerTime(serverTime: Instant) {
         synchronized(buffer) {
-            if (buffer.size() >= 16) {
-                buffer.popFirst()
-            }
-
             val delta = serverTime.millis - System.currentTimeMillis()
 
-            logger.info { "Storing time delta of ${this.deltaInMillis}ms" }
-            buffer.addLast(delta)
+            logger.info { "Storing time delta of ${deltaInMillis}ms" }
+            buffer[bufferIdx++ % buffer.size] = delta
 
             // calculate average server/client delta
-            var sum = 0L
-            for (idx in 0 until buffer.size()) {
-                sum += buffer.get(idx)
-            }
-
-            this.deltaInMillis.set(sum / buffer.size())
+            deltaInMillis.set(buffer.sum() / buffer.size)
         }
-
-        Stats().time("server.time.delta", this.deltaInMillis.get())
     }
 
-    fun currentTimeMillis(): Long = System.currentTimeMillis() + this.deltaInMillis.get()
+    fun currentTimeMillis(): Long = System.currentTimeMillis() + deltaInMillis.get()
 }

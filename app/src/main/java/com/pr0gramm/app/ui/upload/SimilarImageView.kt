@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
@@ -42,7 +43,7 @@ class SimilarImageView @JvmOverloads constructor(
                 val imageView = it as ImageView
 
                 bind { item ->
-                    val imageUri = UriHelper.of(context).thumbnail(item)
+                    val imageUri = UriHelper.of(context).thumbnail(item.asThumbnail())
                     picasso.load(imageUri)
                             .config(Bitmap.Config.RGB_565)
                             .placeholder(ColorDrawable(0xff333333.toInt()))

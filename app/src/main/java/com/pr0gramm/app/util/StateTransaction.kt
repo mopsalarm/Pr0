@@ -1,5 +1,7 @@
 package com.pr0gramm.app.util
 
+import com.pr0gramm.app.Logger
+
 class StateTransaction<V : Any>(private val valueSupplier: () -> V, private val applyChange: () -> Unit) {
     private val logger = Logger("StateTransaction")
     private var txLevel = 0
