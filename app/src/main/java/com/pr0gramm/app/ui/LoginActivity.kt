@@ -21,7 +21,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.ThemeHelper.primaryColorDark
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.sync.SyncJob
+import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
@@ -132,7 +132,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private fun handleLoginResult(response: UserService.LoginResult) {
         when (response) {
             is UserService.LoginResult.Success -> {
-                SyncJob.scheduleNextSync()
+                SyncWorker.scheduleNextSync()
                 Track.loginSuccessful()
 
                 // signal success

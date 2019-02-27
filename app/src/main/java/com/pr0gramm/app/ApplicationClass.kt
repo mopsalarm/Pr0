@@ -3,20 +3,23 @@ package com.pr0gramm.app
 import android.app.Application
 import android.os.StrictMode
 import android.util.Log
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.crashlytics.android.Crashlytics
-import com.evernote.android.job.JobConfig
-import com.evernote.android.job.JobManager
 import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
-import com.pr0gramm.app.sync.SyncJob
-import com.pr0gramm.app.sync.SyncStatisticsJob
+import com.pr0gramm.app.sync.SyncStatsWorker
+import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.AdMobWorkaround
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
+import com.pr0gramm.app.util.CachedThreadScheduler
+import com.pr0gramm.app.util.ExceptionHandler
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.InjectorAware
+import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
 import rx.Scheduler
@@ -78,22 +81,18 @@ open class ApplicationClass : Application(), InjectorAware {
 
         AdMobWorkaround.install(this)
 
-        JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
-        JobConfig.addLogger(SimpleJobLogger())
-
-        // Initialize job handling
-        val jobManager = JobManager.create(this)
-        jobManager.addJobCreator(SyncJob.CREATOR)
-        jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
+        WorkManager.initialize(this, Configuration.Builder()
+                .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
+                .build())
 
         forceInjectorInstance()
 
         doInBackground {
             // schedule first sync 30seconds after bootup.
-            SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
+            SyncWorker.scheduleNextSyncIn(30, TimeUnit.SECONDS)
 
             // also schedule the nightly update job
-            SyncStatisticsJob.schedule()
+            SyncStatsWorker.schedule()
         }
 
         // initialize this to show errors always in the context of the current activity.

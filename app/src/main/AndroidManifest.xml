@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.pr0gramm.app">
+<manifest package="com.pr0gramm.app"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
-        tools:node="remove" />
+        tools:node="remove"/>
 
     <application
         android:name=".ApplicationClass"
@@ -33,35 +33,35 @@
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
-            android:value="3b0e9b35b11bde7bb671229dba63447351751401" />
+            android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-2308657767126505~4138045673" />
+            android:value="ca-app-pub-2308657767126505~4138045673"/>
 
         <!-- activate multi window for samsung -->
         <uses-library
             android:name="com.sec.android.app.multiwindow"
-            android:required="false" />
+            android:required="false"/>
 
         <meta-data
             android:name="com.sec.android.support.multiwindow"
-            android:value="true" />
+            android:value="true"/>
 
-        <receiver android:name=".services.InboxNotificationCanceledReceiver" />
+        <receiver android:name=".services.InboxNotificationCanceledReceiver"/>
 
-        <receiver android:name=".services.MessageReplyReceiver" />
+        <receiver android:name=".services.MessageReplyReceiver"/>
 
         <service
             android:name=".services.preloading.PreloadService"
-            android:exported="false" />
+            android:exported="false"/>
 
         <provider
             android:name=".services.ShareProvider"
             android:authorities="${applicationId}.ShareProvider"
             android:exported="true"
             android:grantUriPermissions="true"
-            tools:ignore="ExportedContentProvider" />
+            tools:ignore="ExportedContentProvider"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -70,8 +70,14 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/fileprovider" />
+                android:resource="@xml/fileprovider"/>
         </provider>
+
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:enabled="false"
+            android:exported="false"/>
 
         <activity
             android:name=".ui.MainActivity"
@@ -80,17 +86,17 @@
             android:theme="@style/AppTheme.Orange.NoActionBar.TranslucentStatus"
             android:windowSoftInputMode="adjustPan|stateHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"/>
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
                     android:host="pr0gramm.com"
@@ -119,7 +125,7 @@
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/stalk"
-                    android:scheme="http" />
+                    android:scheme="http"/>
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/stalk"
@@ -131,7 +137,7 @@
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/user"
-                    android:scheme="https" />
+                    android:scheme="https"/>
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/inbox"
@@ -144,7 +150,7 @@
 
             <meta-data
                 android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
+                android:resource="@xml/shortcuts"/>
         </activity>
         <activity
             android:name=".ui.InboxActivity"
@@ -153,7 +159,7 @@
             android:theme="@style/AppTheme.Orange.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.ConversationActivity"
@@ -162,7 +168,7 @@
             android:theme="@style/AppTheme.Orange.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.InboxActivity" />
+                android:value=".ui.InboxActivity"/>
         </activity>
         <activity
             android:name=".ui.SettingsActivity"
@@ -171,7 +177,7 @@
             android:theme="@style/AppTheme.Orange">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.UpdateActivity"
@@ -180,7 +186,7 @@
             android:theme="@style/AppTheme.Orange">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.LoginActivity"
@@ -189,7 +195,7 @@
             android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.ZoomViewActivity"
@@ -197,7 +203,7 @@
             android:theme="@style/AppTheme.Orange.NoActionBar.Fullscreen">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.ContactActivity"
@@ -207,13 +213,13 @@
             android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.WriteMessageActivity"
             android:label="@string/action_new_message"
             android:theme="@style/AppTheme.Orange"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
             android:name=".ui.InviteActivity"
             android:label="@string/invites_title"
@@ -223,7 +229,7 @@
             android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
         <activity
             android:name=".ui.upload.UploadActivity"
@@ -232,15 +238,15 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Orange">
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
 
-                <data android:mimeType="image/png" />
-                <data android:mimeType="image/jpeg" />
-                <data android:mimeType="image/gif" />
-                <data android:mimeType="video/webm" />
-                <data android:mimeType="video/mp4" />
+                <data android:mimeType="image/png"/>
+                <data android:mimeType="image/jpeg"/>
+                <data android:mimeType="image/gif"/>
+                <data android:mimeType="video/webm"/>
+                <data android:mimeType="video/mp4"/>
             </intent-filter>
         </activity>
         <activity
@@ -250,7 +256,7 @@
             android:theme="@style/AppTheme.Orange">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.LoginActivity" />
+                android:value=".ui.LoginActivity"/>
         </activity>
         <activity
             android:name=".ui.PasswordRecoveryActivity"
@@ -259,13 +265,13 @@
             android:theme="@style/AppTheme.Orange">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
 
         <activity
             android:name=".ui.intro.IntroActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Intro.TranslucentStatus" />
+            android:theme="@style/AppTheme.Intro.TranslucentStatus"/>
 
         <activity
             android:name=".ui.StatisticsActivity"
@@ -275,7 +281,7 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.MainActivity"/>
         </activity>
 
     </application>

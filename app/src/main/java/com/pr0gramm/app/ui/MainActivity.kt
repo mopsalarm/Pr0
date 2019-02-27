@@ -23,7 +23,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.info.InfoMessage
 import com.pr0gramm.app.orm.bookmarkOf
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.sync.SyncJob
+import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
@@ -419,7 +419,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override suspend fun onStartImpl() {
         launchIgnoreErrors {
-            runEvery(Duration.seconds(45)) { SyncJob.syncNow() }
+            runEvery(Duration.seconds(45)) { SyncWorker.syncNow() }
         }
 
         if (coldStart) {
