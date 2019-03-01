@@ -639,7 +639,7 @@ fun TextView.setTextFuture(text: CharSequence) {
     }
 }
 
-inline fun <reified T : Any> SharedPreferences.getObject(key: String): T? {
+inline fun <reified T : Any> SharedPreferences.getJSON(key: String): T? {
     val encoded = getStringOrNull(key) ?: return null
     return MoshiInstance.adapter<T>().fromJson(encoded)
 }

@@ -11,7 +11,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.model.inbox.UnreadMarkerTimestamp
 import com.pr0gramm.app.util.StringException
-import com.pr0gramm.app.util.getObject
+import com.pr0gramm.app.util.getJSON
 import com.pr0gramm.app.util.setObject
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -31,7 +31,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     init {
         // restore previous cache entries
         val readUpToTimestamps: List<UnreadMarkerTimestamp> = preferences
-                .getObject("InboxService.readUpToCache") ?: listOf()
+                .getJSON("InboxService.readUpToCache") ?: listOf()
 
         readUpToTimestamps.forEach {
             readUpToCache.put(it.id, it.timestamp)
