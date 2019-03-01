@@ -112,7 +112,7 @@ open class ApplicationClass : Application(), InjectorAware {
 
         logger.info { "App booted in $bootupWatch" }
 
-        Stats().histogram("app.boot.time", bootupWatch.elapsed(TimeUnit.MILLISECONDS))
+        Stats().histogram("app.boot.time", bootupWatch.elapsed().millis)
     }
 
     private fun forceInjectorInstance() {

@@ -12,7 +12,6 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.concurrent.CancellationException
-import java.util.concurrent.TimeUnit
 
 class ApiProvider(base: String, client: OkHttpClient,
                   private val cookieJar: LoginCookieJar) {
@@ -92,7 +91,7 @@ class ApiProvider(base: String, client: OkHttpClient,
     }
 
     private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
-        val millis = watch.elapsed(TimeUnit.MILLISECONDS)
+        val millis = watch.elapsed().millis
 
         Stats().time("api.call", millis, "method:${method.name}", "success:$success")
 

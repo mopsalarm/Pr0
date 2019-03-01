@@ -5,21 +5,17 @@ import androidx.work.*
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
 class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     private val logger = Logger("SyncStatsWorker")
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = retryOnError {
         logger.info { "Sync statistics job started." }
 
         // get service and sync now.
         val syncService = context.injector.instance<SyncService>()
-
-        runBlocking {
-            syncService.syncStatistics()
-        }
+        syncService.syncStatistics()
 
         return Result.success()
     }

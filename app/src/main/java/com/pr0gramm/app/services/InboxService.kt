@@ -9,7 +9,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.model.inbox.UnixSecondTimestamp
+import com.pr0gramm.app.model.inbox.UnreadMarkerTimestamp
 import com.pr0gramm.app.util.StringException
 import com.pr0gramm.app.util.getObject
 import com.pr0gramm.app.util.setObject
@@ -30,16 +30,16 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
     init {
         // restore previous cache entries
-        val readUpToTimestamps: List<UnixSecondTimestamp> = preferences
-                .getObject("InboxService.readUpTo") ?: listOf()
+        val readUpToTimestamps: List<UnreadMarkerTimestamp> = preferences
+                .getObject("InboxService.readUpToCache") ?: listOf()
 
         readUpToTimestamps.forEach {
-            readUpToCache.put(it.id, Instant.ofEpochSeconds(it.timestamp * 1000))
+            readUpToCache.put(it.id, it.timestamp)
         }
     }
 
     private fun persistState() {
-        val values = readUpToCache.snapshot().map { entry -> UnixSecondTimestamp(entry.key, entry.value.epochSeconds) }
+        val values = readUpToCache.snapshot().map { entry -> UnreadMarkerTimestamp(entry.key, entry.value) }
         preferences.edit {
             setObject("InboxService.readUpTo", values)
         }

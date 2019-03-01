@@ -46,9 +46,11 @@ class SyncService(private val userService: UserService,
         logger.info { "Doing some statistics related trackings" }
         Track.statistics()
 
-        UpdateChecker().queryAll().let { response ->
-            if (response is UpdateChecker.Response.UpdateAvailable) {
-                notificationService.showUpdateNotification(response.update)
+        catchAll {
+            UpdateChecker().queryAll().let { response ->
+                if (response is UpdateChecker.Response.UpdateAvailable) {
+                    notificationService.showUpdateNotification(response.update)
+                }
             }
         }
     }

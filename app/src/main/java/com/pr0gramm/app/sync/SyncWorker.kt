@@ -2,17 +2,19 @@ package com.pr0gramm.app.sync
 
 import android.content.Context
 import androidx.work.*
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
 import java.util.concurrent.TimeUnit
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = retryOnError {
         logger.info { "Sync worker started." }
 
         // schedule next sync
-        scheduleNextSyncIn(nextIntervalInMillis(), TimeUnit.MILLISECONDS)
+        scheduleNextSyncIn(nextIntervalInMillis(), TimeUnit.MILLISECONDS, append = true)
 
         // get service and sync now.
         val syncService = context.injector.instance<SyncService>()
@@ -42,9 +44,10 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
             scheduleNextSyncIn(DEFAULT_SYNC_DELAY_MS, TimeUnit.MILLISECONDS)
         }
 
-        fun scheduleNextSyncIn(delay: Long, unit: TimeUnit) {
+        fun scheduleNextSyncIn(delay: Long = DEFAULT_SYNC_DELAY_MS, unit: TimeUnit = TimeUnit.MILLISECONDS, append: Boolean = false) = doInBackground {
+
             val delayInMilliseconds = unit.toMillis(delay)
-            logger.info { "Scheduling sync-job to run in ${delayInMilliseconds / 1000} seconds" }
+            logger.info { "Scheduling sync-job to run in ${Duration.millis(delayInMilliseconds)} (append=$append)" }
 
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -57,8 +60,10 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
                     .build()
 
-            WorkManager.getInstance().enqueueUniqueWork(
-                    "Sync", ExistingWorkPolicy.REPLACE, request)
+            val policy = if (append) ExistingWorkPolicy.APPEND else ExistingWorkPolicy.REPLACE
+
+            val wm = WorkManager.getInstance()
+            wm.enqueueUniqueWork("Sync", policy, request)
         }
     }
 }
