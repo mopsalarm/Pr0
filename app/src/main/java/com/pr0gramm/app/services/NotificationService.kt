@@ -445,18 +445,6 @@ class NotificationService(private val context: Application,
                         context.getString(R.string.notify_new_comments_title, messages.size)
                     }
                 }
-
-//                if (messages.size > 1) {
-//                    style.setSummaryText(context.getString(
-//                            R.string.notification_hint_unread, messages.size))
-//                }
-//
-//                style.setBigContentTitle(when {
-//                    !isComment -> message.name
-//                    isComment && messages.size == 1 -> context.getString(R.string.notify_new_comment_title)
-//                    isComment -> context.getString(R.string.notify_new_comments_title, messages.size)
-//                    else -> "unreachable"
-//                })
             }
         }
     }
