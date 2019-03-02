@@ -107,7 +107,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (savedInstanceState == null) {
             val intent: Intent? = intent
-            val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN
+            val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
 
             coldStart = true
 
