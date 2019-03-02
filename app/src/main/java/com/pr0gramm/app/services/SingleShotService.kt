@@ -19,13 +19,16 @@ class SingleShotService(private val preferences: SharedPreferences) {
     private val keyMapActions = "SingleShotService.mapActions"
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    private val mapAdapter = MoshiInstance.adapter<java.util.Map<String, String>>()
+    private val mapAdapter = MoshiInstance.adapter<HashMap<String, String>>()
 
     private val lock = Any()
 
     private val timeStringMap: MutableMap<String, String> = loadTimeStringMap()
 
-    fun isFirstTime(action: String): Boolean {
+    /**
+     * Marks the given action as done and returns true, if it was not yet done.
+     */
+    fun markAsDoneOnce(action: String): Boolean {
         synchronized(lock) {
             val actions = (preferences.getStringSet(keySetActions, null) ?: setOf()).toMutableSet()
 
@@ -41,9 +44,15 @@ class SingleShotService(private val preferences: SharedPreferences) {
         }
     }
 
+    inline fun doOnce(action: String, block: () -> Unit) {
+        if (markAsDoneOnce(action)) {
+            block()
+        }
+    }
+
     fun firstTimeInVersion(action: String): Boolean {
         val version = AndroidUtility.buildVersionCode()
-        return isFirstTime("$action--$version")
+        return markAsDoneOnce("$action--$version")
     }
 
     fun firstTimeToday(action: String): Boolean {
@@ -62,17 +71,20 @@ class SingleShotService(private val preferences: SharedPreferences) {
 
     private fun timeStringHasChanged(action: String, timeString: String): Boolean {
         synchronized(lock) {
-            if (timeStringMap[action] == timeString) {
-                return false
+            return if (timeStringMap[action] == timeString) {
+                false
             } else {
                 timeStringMap[action] = timeString
 
+                val copy = HashMap<String, String>()
+                copy.putAll(timeStringMap)
+
                 preferences.edit {
                     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
-                    putString(keyMapActions, mapAdapter.toJson(timeStringMap as java.util.Map<String, String>))
+                    putString(keyMapActions, mapAdapter.toJson(copy))
                 }
 
-                return true
+                true
             }
         }
     }
@@ -80,11 +92,8 @@ class SingleShotService(private val preferences: SharedPreferences) {
     @Suppress("UNCHECKED_CAST")
     private fun loadTimeStringMap(): MutableMap<String, String> {
         try {
-            val map = mapAdapter.fromJson(preferences
-                    .getStringOrNull(keyMapActions) ?: "{}") as? Map<String, String>
-
-            @Suppress("UNCHECKED_CAST")
-            return (map ?: mapOf()).toMutableMap()
+            return mapAdapter.fromJson(preferences
+                    .getStringOrNull(keyMapActions) ?: "{}") ?: HashMap()
 
         } catch (ignored: RuntimeException) {
             return HashMap()

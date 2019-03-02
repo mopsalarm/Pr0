@@ -138,9 +138,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
 
         // show the intro activity if this is the first time the app started.
-        if (singleShotService.isFirstTime("onboarding-activity:1")) {
+        singleShotService.doOnce("onboarding-activity:1") {
             // do not show any of the migration activities
-            singleShotService.isFirstTime("MigrationIntro:bookmark:1")
+            singleShotService.markAsDoneOnce("MigrationIntro:bookmark:1")
 
             IntroActivity.launch(this)
             return
@@ -148,7 +148,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         //
         val extraSlides = mutableListOf<IntroActivity.Slides>()
-        if (singleShotService.isFirstTime("MigrationIntro:bookmark:1")) {
+        singleShotService.doOnce("MigrationIntro:bookmark:1") {
             extraSlides += IntroActivity.Slides.UPDATE
             extraSlides += IntroActivity.Slides.BOOKMARKS
         }

@@ -39,7 +39,7 @@ class BookmarkService(
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .subscribe { persist(it) }
 
-        if (singleShotService.isFirstTime("BookmarkService.migrate")) {
+        singleShotService.doOnce("BookmarkService.migrate") {
             // migrate "old" data
             doInBackground { migrate(database.get()) }
         }

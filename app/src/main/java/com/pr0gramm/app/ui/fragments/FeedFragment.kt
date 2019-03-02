@@ -916,7 +916,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         Track.preloadCurrentFeed(feed.size)
 
-        if (singleShotService.isFirstTime("preload_info_hint")) {
+        singleShotService.doOnce("preload_info_hint") {
             showDialog(this) {
                 content(R.string.preload_info_hint)
                 positive()
