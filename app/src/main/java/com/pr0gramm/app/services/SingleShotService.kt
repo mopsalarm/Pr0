@@ -1,3 +1,5 @@
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
@@ -10,7 +12,7 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.getStringOrNull
 import java.text.SimpleDateFormat
 import java.util.*
-
+import kotlin.collections.HashMap
 
 class SingleShotService(private val preferences: SharedPreferences) {
     private val timeOffset = Duration.millis((Math.random() * 3600.0 * 1000.0).toLong())
@@ -19,7 +21,7 @@ class SingleShotService(private val preferences: SharedPreferences) {
     private val keyMapActions = "SingleShotService.mapActions"
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    private val mapAdapter = MoshiInstance.adapter<HashMap<String, String>>()
+    private val mapAdapter = MoshiInstance.adapter<java.util.Map<String, String>>()
 
     private val lock = Any()
 
@@ -76,12 +78,10 @@ class SingleShotService(private val preferences: SharedPreferences) {
             } else {
                 timeStringMap[action] = timeString
 
-                val copy = HashMap<String, String>()
-                copy.putAll(timeStringMap)
-
                 preferences.edit {
                     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
-                    putString(keyMapActions, mapAdapter.toJson(copy))
+                    putString(keyMapActions, mapAdapter.toJson(HashMap<String, String>(
+                            timeStringMap) as java.util.Map<String, String>))
                 }
 
                 true
@@ -92,11 +92,16 @@ class SingleShotService(private val preferences: SharedPreferences) {
     @Suppress("UNCHECKED_CAST")
     private fun loadTimeStringMap(): MutableMap<String, String> {
         try {
-            return mapAdapter.fromJson(preferences
-                    .getStringOrNull(keyMapActions) ?: "{}") ?: HashMap()
+            val encoded = preferences.getStringOrNull(keyMapActions) ?: "{}"
+            val map = mapAdapter.fromJson(encoded)
+            if (map != null) {
+                val kMap = map as Map<String, String>
+                return kMap.toMutableMap()
+            }
 
         } catch (ignored: RuntimeException) {
-            return HashMap()
         }
+
+        return HashMap()
     }
 }
