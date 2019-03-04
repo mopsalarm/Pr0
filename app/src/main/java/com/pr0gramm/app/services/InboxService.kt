@@ -41,7 +41,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     private fun persistState() {
         val values = readUpToCache.snapshot().map { entry -> UnreadMarkerTimestamp(entry.key, entry.value) }
         preferences.edit {
-            setObject("InboxService.readUpTo", values)
+            setObject("InboxService.readUpToCache", values)
         }
     }
 
