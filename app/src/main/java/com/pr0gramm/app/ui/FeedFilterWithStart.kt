@@ -68,11 +68,12 @@ object FilterParser {
     private val pUser = Pattern.compile("^/user/(?<user>[^/]+)/?$")
     private val pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/?$")
     private val pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<id>[0-9]+)$")
+    private val pUserUploadsWithTag = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads)/(?<tag>[^/]+)$")
     private val pUserUploadsWithTagId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
     private val pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$")
     private val pTagId = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
 
-    private val patterns = listOf(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pUserUploadsWithTagId, pTag, pTagId)
+    private val patterns = listOf(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pUserUploadsWithTag, pUserUploadsWithTagId, pTag, pTagId)
 }
 
 class FeedFilterWithStart(
