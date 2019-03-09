@@ -194,7 +194,7 @@ dependencies {
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
     implementation "dnsjava:dnsjava:2.1.8"
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.0-rc02"
+    implementation "androidx.work:work-runtime-ktx:2.0.0-rc01"
 
     implementation 'com.github.paolorotolo:appintro:v5.1.0'
 
