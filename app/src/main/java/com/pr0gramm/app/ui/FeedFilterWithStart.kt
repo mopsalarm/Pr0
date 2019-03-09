@@ -35,17 +35,24 @@ object FilterParser {
             val user = groups["user"]
             if (user != null && user.isNotBlank()) {
                 val subcategory = groups["subcategory"]
-                if ("likes" == subcategory) {
-                    filter = filter.withLikes(user)
+
+                filter = if ("likes" == subcategory) {
+                    filter.withLikes(user)
                 } else {
-                    filter = filter.withFeedType(FeedType.NEW).withUser(user)
+                    filter.withFeedType(FeedType.NEW).withUser(user)
                 }
             }
 
             // filter by tag
             val tag = groups["tag"]
-            if (tag != null && tag.isNotBlank())
+            if (tag != null && tag.isNotBlank()) {
                 filter = filter.withTags(tag)
+
+                // special case, handle uploads of users.
+                if (user != null && user.isNotBlank()) {
+                    filter = filter.withTags("!u:$user $tag")
+                }
+            }
 
             val itemId = groups["id"]?.toLongOrNull()
             return FeedFilterWithStart(filter, itemId, commentId, notificationTime)
