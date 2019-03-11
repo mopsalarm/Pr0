@@ -1,19 +1,16 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteException
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.asFeedFilter
-import com.pr0gramm.app.orm.bookmarkOf
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.orm.migrate
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.getStringOrNull
 import rx.Observable
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -23,8 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 class BookmarkService(
         private val preferences: SharedPreferences,
-        database: Holder<SQLiteDatabase>,
-        singleShotService: SingleShotService) {
+        private val bookmarkSyncService: BookmarkSyncService) {
 
     private val logger = Logger("BookmarkService")
     private val bookmarks = BehaviorSubject.create<List<Bookmark>>()
@@ -38,10 +34,22 @@ class BookmarkService(
                 .distinctUntilChanged()
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .subscribe { persist(it) }
+    }
 
-        singleShotService.doOnce("BookmarkService.migrate") {
-            // migrate "old" data
-            doInBackground { migrate(database.get()) }
+    /**
+     * Fetches bookmarks from the remote api and publishes them locally.
+     */
+    suspend fun update() {
+        val remote = bookmarkSyncService.fetch()
+
+        synchronized(bookmarks) {
+            // get the local ones that dont have a 'link' yet
+            val local = bookmarks.value.filter { it.link == null }
+
+            // and merge them together, with the local ones winning.
+            val merged = (local + remote).distinctBy { it.title }
+
+            bookmarks.onNext(merged)
         }
     }
 
@@ -57,6 +65,31 @@ class BookmarkService(
 
         val json = MoshiInstance.adapter<List<Bookmark>>().toJson(bookmarks)
         preferences.edit { putString("Bookmarks.json", json) }
+
+        doInBackground { upload() }
+    }
+
+    suspend fun upload() {
+        val bookmarks = bookmarks.value
+
+        // sync back all bookmarks that are local only (legacy bookmarks from the app)
+        val localOnly = bookmarks.filter { it.link == null }
+
+        if (localOnly.isNotEmpty() && bookmarkSyncService.isAuthorized) {
+            logger.info { "Uploading all non default bookmarks now" }
+
+            // get the names of all default bookmarks on the server side
+            val defaults = bookmarkSyncService.fetch(anonymous = true).map { it.title }
+
+            // and filter all bookmarks from the app that are not in the default bookmarks
+            val custom = localOnly.filter { it.title !in defaults }
+
+            // store those bookmarks on the remote side
+            val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
+
+            // now all bookmarks are remote, we can publish them locally now.
+            this.bookmarks.onNext(remote)
+        }
     }
 
     /**
@@ -88,6 +121,27 @@ class BookmarkService(
             val newValues = bookmarks.value.filter { it != bookmark }
             bookmarks.onNext(newValues)
         }
+
+        updateAsync {
+            // also delete bookmarks on the server
+            bookmarkSyncService.delete(bookmark.title)
+        }
+    }
+
+    private fun updateAsync(block: suspend () -> List<Bookmark>) {
+        if (bookmarkSyncService.isAuthorized) {
+            // do optimistic locking
+            val currentState = this.bookmarks.value
+
+            doInBackground {
+                val updated = block()
+                synchronized(this.bookmarks) {
+                    if (this.bookmarks.value === currentState) {
+                        this.bookmarks.onNext(updated)
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -111,73 +165,17 @@ class BookmarkService(
             // replace the first bookmark that has the same title
             val idx = values.indexOfFirst { it.title == bookmark.title }
             if (idx >= 0) {
-                values[idx] = bookmark
+                values[idx] = bookmark.migrate()
             } else {
-                values.add(0, bookmark)
+                values.add(0, bookmark.migrate())
             }
 
             // dispatch changes
             bookmarks.onNext(values)
         }
-    }
 
-    /**
-     * Query a list of all bookmarks directly from the database.
-     */
-    private fun migrate(db: SQLiteDatabase) {
-        if (Settings.get().legacyShowCategoryText) {
-            // disable this for the next time
-            Settings.get().edit {
-                putBoolean("pref_show_category_text", false)
-            }
-
-            val filter = FeedFilter().withFeedType(FeedType.PROMOTED).withTags("!'text'")
-            save(bookmarkOf("Text in Top", filter))
-        }
-
-        try {
-            // get all values
-            val query = "SELECT title, filter_tags, filter_username, filter_feed_type FROM bookmark ORDER BY title DESC"
-            val bookmarks = db.rawQuery(query, null).use { cursor ->
-                cursor.mapToList {
-                    Bookmark(title = getString(0),
-                            filterTags = getString(1),
-                            filterUsername = getString(2),
-                            filterFeedType = getString(3))
-                }
-            }
-
-            // and delete all values from the table
-            db.execSQL("DELETE FROM bookmark")
-
-            // save all those bookmarks
-            logger.info { "Migrating ${bookmarks.size} bookmarks to new storage" }
-            bookmarks.distinctBy { it.title }.forEach { save(it) }
-
-        } catch (err: SQLiteException) {
-            logger.warn { "Could not migrate: $err" }
-        }
-
-        // check what else we need to change...
-        synchronized(bookmarks) {
-            val fixed = bookmarks.value.map { bookmark ->
-                // migrate some values...
-                val tags = bookmark.filterTags
-                        ?.replace("webm", "video")
-                        ?.replace("hat text", "text")
-                        ?.replace("^'original content'", "! 'original content'")
-
-                // migrate remove non existing filter types
-                val feedType = when (bookmark.filterFeedType) {
-                    "TEXT" -> FeedType.PROMOTED.name
-                    else -> bookmark.filterFeedType
-                }
-
-                bookmark.copy(filterTags = tags, filterFeedType = feedType)
-            }
-
-            logger.debug { "Fixing ${fixed.size} bookmarks" }
-            bookmarks.onNext(fixed)
+        updateAsync {
+            bookmarkSyncService.add(bookmark)
         }
     }
 }

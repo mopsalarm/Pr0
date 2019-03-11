@@ -249,6 +249,25 @@ interface Api {
     fun handoverTokenAsync(
             @Field("_nonce") nonce: Nonce?): Deferred<HandoverToken>
 
+    @GET("api/bookmarks/get")
+    fun bookmarksAsync(): Deferred<Bookmarks>
+
+    @GET("api/bookmarks/get?default")
+    fun defaultBookmarksAsync(): Deferred<Bookmarks>
+
+    @FormUrlEncoded
+    @POST("api/bookmarks/add")
+    fun bookmarksAddAsync(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("name") name: String,
+            @Field("link") link: String): Deferred<Bookmarks>
+
+    @FormUrlEncoded
+    @POST("api/bookmarks/delete")
+    fun bookmarksDeleteAsync(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("name") name: String): Deferred<Bookmarks>
+
     @GET("media/app-config.json")
     fun remoteConfigAsync(@Query("bust") bust: Long): Deferred<List<Rule>>
 
@@ -573,4 +592,12 @@ interface Api {
             @Json(name = "created") val creationTime: Instant,
             val message: String,
             val sent: Boolean)
+
+    @JsonClass(generateAdapter = true)
+    data class Bookmarks(val bookmarks: List<Bookmark>)
+
+    @JsonClass(generateAdapter = true)
+    data class Bookmark(
+            val name: String,
+            val link: String)
 }

@@ -9,7 +9,7 @@
     ]
   },
   {
-    "version": 161,
+    "version": 160,
     "changes": [
       {
         "type": "Überarbeitet",
@@ -22,12 +22,7 @@
       {
         "type": "Fix",
         "change": "Upload von sfw/nsfp ist wieder möglich."
-      }
-    ]
-  },
-  {
-    "version": 160,
-    "changes": [
+      },
       {
         "type": "Neu",
         "change": "Einige neue Lesezeichen Vorschläge eingebaut"
@@ -242,7 +237,6 @@
       }
     ]
   },
-
   {
     "version": 145,
     "changes": [
@@ -260,7 +254,6 @@
       }
     ]
   },
-
   {
     "version": 144,
     "changes": [

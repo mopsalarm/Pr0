@@ -170,7 +170,8 @@ fun appInjector(app: Application) = Module.build {
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
     bind<ConfigService>() with singleton { ConfigService(app, instance(), instance()) }
-    bind<BookmarkService>() with singleton { BookmarkService(instance(), instance(), instance()) }
+    bind<BookmarkSyncService>() with singleton { BookmarkSyncService(instance(), instance()) }
+    bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }

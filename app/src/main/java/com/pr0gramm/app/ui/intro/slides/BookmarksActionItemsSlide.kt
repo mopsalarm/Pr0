@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.intro.slides
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.util.di.instance
 
@@ -61,3 +62,20 @@ class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") 
                             f.withTags("! s:shit").withFeedType(FeedType.NEW)))
         }
 }
+
+val Bookmark.isAppDefaultBookmark: Boolean
+    get() {
+        return title in listOf(
+                "Kein Ton",
+                "Community Textposts",
+                "Nur Bilder",
+                "Original Content",
+                "Text in Top",
+                "0815 & Süßvieh",
+                "Ton nur mit Untertitel",
+                "Admin & Mods",
+                "Zufall von früher",
+                "Reposts in Top",
+                "Wichteln",
+                "Nur Schrott")
+    }

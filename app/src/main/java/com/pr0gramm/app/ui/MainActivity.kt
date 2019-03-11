@@ -146,16 +146,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             return
         }
 
-        //
-        val extraSlides = mutableListOf<IntroActivity.Slides>()
-        singleShotService.doOnce("MigrationIntro:bookmark:1") {
-            extraSlides += IntroActivity.Slides.UPDATE
-            extraSlides += IntroActivity.Slides.BOOKMARKS
-        }
+        // set extra slides to show during some migration
+        // val extraSlides = mutableListOf<IntroActivity.Slides>()
+        // if (extraSlides.isNotEmpty()) {
+        //     IntroActivity.launch(this, extraSlides)
+        // }
 
-        if (extraSlides.isNotEmpty()) {
-            IntroActivity.launch(this, extraSlides)
-        }
+        // schedule an update in the background
+        doInBackground { bookmarkService.update() }
     }
 
     private fun preparePremiumHint() {
