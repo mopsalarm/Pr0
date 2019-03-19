@@ -7,7 +7,10 @@ import com.github.paolorotolo.appintro.AppIntro
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.ui.intro.slides.*
+import com.pr0gramm.app.ui.intro.slides.BetaActionItemsSlide
+import com.pr0gramm.app.ui.intro.slides.CategoriesActionItemsSlide
+import com.pr0gramm.app.ui.intro.slides.SettingsActionItemsSlide
+import com.pr0gramm.app.ui.intro.slides.ThemeActionItemsSlide
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.startActivity
@@ -44,10 +47,6 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
 
         if (Slides.CATEOGRIES in slidesToShow) {
             addSlide(CategoriesActionItemsSlide())
-        }
-
-        if (Slides.BOOKMARKS in slidesToShow) {
-            addSlide(BookmarksActionItemsSlide())
         }
 
         if (Slides.THEMES in slidesToShow) {
@@ -89,7 +88,7 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
 
     companion object {
         private val defaultSlides = listOf(
-                Slides.INITIAL, Slides.CATEOGRIES, Slides.BOOKMARKS,
+                Slides.INITIAL, Slides.CATEOGRIES,
                 Slides.THEMES, Slides.SETTINGS, Slides.BETA)
 
         fun launch(activity: Activity, steps: List<Slides> = defaultSlides) {
@@ -104,7 +103,6 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
         INITIAL,
         UPDATE,
         CATEOGRIES,
-        BOOKMARKS,
         THEMES,
         SETTINGS,
         BETA

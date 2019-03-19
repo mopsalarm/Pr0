@@ -46,6 +46,13 @@ class SingleShotService(private val preferences: SharedPreferences) {
         }
     }
 
+    fun isFirstTime(action: String): Boolean {
+        synchronized(lock) {
+            val actions = preferences.getStringSet(keySetActions, null) ?: setOf()
+            return action !in actions
+        }
+    }
+
     inline fun doOnce(action: String, block: () -> Unit) {
         if (markAsDoneOnce(action)) {
             block()

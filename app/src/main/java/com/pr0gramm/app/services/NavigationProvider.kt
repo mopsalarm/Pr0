@@ -23,6 +23,7 @@ import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import rx.Observable
 import rx.Observable.combineLatest
+import rx.subjects.BehaviorSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -34,6 +35,7 @@ class NavigationProvider(
         private val inboxService: InboxService,
         private val bookmarkService: BookmarkService,
         private val configService: ConfigService,
+        private val singleShotService: SingleShotService,
         private val picasso: Picasso) {
 
     private val logger = Logger("NavigationProvider")
@@ -46,7 +48,6 @@ class NavigationProvider(
     private val iconFeedTypePremium = drawable(R.drawable.ic_black_action_stelz)
     private val iconFeedTypePromoted = drawable(R.drawable.ic_black_action_home)
     private val iconFeedTypeRandom = drawable(R.drawable.ic_action_random)
-    private val iconFeedTypeText = drawable(R.drawable.ic_drawer_text_24)
     private val iconInbox = drawable(R.drawable.ic_action_email)
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
 
@@ -59,8 +60,10 @@ class NavigationProvider(
                 .observeOnMainThread()
                 .map { config -> config.specialMenuItems }
                 .distinctUntilChanged()
-                .flatMap { item -> resolveSpecial(loginState, upper, item) }
+                .switchMap { item -> resolveSpecial(loginState, upper, item) }
     }
+
+    private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
     val navigationItems: Observable<List<NavigationItem>>
         get() {
@@ -81,8 +84,8 @@ class NavigationProvider(
                     categoryNavigationItems(),
 
                     loginStates
-                            .flatMap { bookmarkService.observe() }
-                            .map { bookmarksToNavItem(it) },
+                            .switchMap { bookmarkService.observe() }
+                            .map { bookmarks -> bookmarksToNavItem(bookmarks) },
 
                     loginStates.switchMap { specialMenuItems(it, upper = false) },
 
@@ -99,7 +102,7 @@ class NavigationProvider(
                 }
             }
 
-            return combineLatest(sources, ::merge).distinctUntilChanged()
+            return triggerNavigationUpdate.switchMap { combineLatest(sources, ::merge) }.distinctUntilChanged()
         }
 
     /**
@@ -180,9 +183,10 @@ class NavigationProvider(
                 unreadCount = unreadCounts)
     }
 
-    private fun bookmarksToNavItem(entries: List<Bookmark>): List<NavigationItem> {
+    private fun bookmarksToNavItem(bookmarks: List<Bookmark>): List<NavigationItem> {
         val premium = userService.userIsPremium
-        return entries
+
+        val items = bookmarks
                 .filter { premium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
                 .map { entry ->
                     val icon = iconBookmark.constantState!!.newDrawable()
@@ -193,6 +197,23 @@ class NavigationProvider(
                             title = title, icon = icon, bookmark = entry,
                             filter = entry.asFeedFilter())
                 }
+
+        val hintNotYetShown = singleShotService.isFirstTime("hint:bookmark-hold-to-delete")
+        if (items.isNotEmpty() && premium && hintNotYetShown) {
+            val hint = NavigationItem(
+                    action = ActionType.HINT,
+                    title = getString(R.string.bookmark_hint_delete),
+                    icon = null,
+                    layout = R.layout.left_drawer_nav_item_hint,
+                    customAction = {
+                        singleShotService.markAsDoneOnce("hint:bookmark-hold-to-delete")
+                        triggerNavigationUpdate.onNext(Unit)
+                    })
+
+            return listOf(hint) + items
+        }
+
+        return items
     }
 
     private fun categoryNavigationItems(): Observable<List<NavigationItem>> {
@@ -261,11 +282,12 @@ class NavigationProvider(
 
     class NavigationItem(val action: ActionType,
                          val title: String,
-                         val icon: Drawable,
+                         val icon: Drawable? = null,
                          val layout: Int = R.layout.left_drawer_nav_item,
                          val filter: FeedFilter? = null,
                          val bookmark: Bookmark? = null,
                          val unreadCount: Api.InboxCounts = Api.InboxCounts(),
+                         val customAction: () -> Unit = {},
                          val uri: Uri? = null) {
 
         private val hashCode by lazy { listOf(action, title, layout, filter, bookmark, unreadCount, uri).hashCode() }
@@ -287,6 +309,6 @@ class NavigationProvider(
     }
 
     enum class ActionType {
-        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI
+        HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI
     }
 }

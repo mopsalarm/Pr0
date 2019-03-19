@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -49,8 +50,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         val picasso = k.instance<Picasso>()
         val inboxService = k.instance<InboxService>()
         val configService = k.instance<ConfigService>()
+        val singleShotService = k.instance<SingleShotService>()
         NavigationProvider(requireActivity(), userService, inboxService,
-                bookmarkService, configService, picasso)
+                bookmarkService, configService, singleShotService, picasso)
     }
 
     private val usernameView: TextView by bindView(R.id.username)
@@ -274,9 +276,10 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         fun onNavigateToFavorites(username: String)
     }
 
-    private val callback: OnFeedFilterSelected get() {
-        return activity as OnFeedFilterSelected
-    }
+    private val callback: OnFeedFilterSelected
+        get() {
+            return activity as OnFeedFilterSelected
+        }
 
     private inner class NavigationAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<NavigationItemViewHolder>() {
         private val allItems = ArrayList<NavigationItem>()
@@ -301,18 +304,24 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null)
 
             // update color
-            val color = if ((selected == item)) markedColor else defaultColor
-            holder.text.setTextColor(color)
-            changeCompoundDrawableColor(holder.text, color.withAlpha(127))
+            if (item.action !== NavigationProvider.ActionType.HINT) {
+                val color = if ((selected == item)) markedColor else defaultColor
+                holder.text.setTextColor(color)
+                changeCompoundDrawableColor(holder.text, color.withAlpha(127))
+            }
 
             // handle clicks
             holder.itemView.setOnClickListener {
                 dispatchItemClick(item)
             }
 
-            holder.itemView.setOnLongClickListener { _ ->
+            holder.itemView.setOnLongClickListener {
                 item.bookmark?.let { showDialogToRemoveBookmark(it) }
                 true
+            }
+
+            holder.action?.setOnClickListener {
+                item.customAction()
             }
 
             if (item.action === NavigationProvider.ActionType.MESSAGES) {
@@ -357,6 +366,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
     private fun dispatchItemClick(item: NavigationItem) {
         when (item.action) {
+            NavigationProvider.ActionType.HINT ->
+                Unit
+
             NavigationProvider.ActionType.FILTER,
             NavigationProvider.ActionType.BOOKMARK ->
                 callback.onFeedFilterSelectedInNavigation(item.filter!!)
@@ -447,5 +459,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private class NavigationItemViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         val text: TextView = (itemView as? TextView ?: itemView.find(R.id.title))
         val unread: TextView? = itemView.findOptional(R.id.unread_count)
+        val action: Button? = itemView.findOptional(R.id.action_okay)
     }
 }
