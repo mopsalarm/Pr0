@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import android.net.Uri
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.bookmark.Bookmark
@@ -12,7 +13,7 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
 
     suspend fun add(bookmark: Bookmark): List<Bookmark> {
         val title = bookmark.title
-        val link = bookmark.migrate().link!!
+        val link = Uri.encode(bookmark.migrate().link!!)
 
         logger.info { "add bookmark '$title' ($link)" }
         val bookmarks = api.bookmarksAddAsync(null, title, link).await()
