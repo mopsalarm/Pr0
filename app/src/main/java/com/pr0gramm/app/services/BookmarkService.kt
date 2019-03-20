@@ -70,7 +70,7 @@ class BookmarkService(
     }
 
     suspend fun uploadLocalBookmarks() {
-        val bookmarks = bookmarks.value
+        val bookmarks = bookmarks.value ?: return
 
         // sync back all bookmarks that are local only (legacy bookmarks from the app)
         val localOnly = bookmarks.filter { it.link == null }
