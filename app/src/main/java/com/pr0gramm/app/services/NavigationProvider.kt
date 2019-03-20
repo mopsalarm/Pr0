@@ -64,7 +64,7 @@ class NavigationProvider(
 
     private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
-    val navigationItems: Observable<List<NavigationItem>> = run {
+    val navigationItems: Observable<List<NavigationItem>> by lazy(LazyThreadSafetyMode.NONE) {
         val loginStates = userService.loginStates
 
         val rawSources = listOf<Observable<List<NavigationItem>>>(
