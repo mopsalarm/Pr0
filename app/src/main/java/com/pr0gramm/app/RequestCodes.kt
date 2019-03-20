@@ -8,5 +8,4 @@ object RequestCodes {
     const val WRITE_COMMENT = 3
     const val INTRO_ACTIVITY = 4
     const val FEEDBACK = 5
-    const val CONVERSATION = 6
 }

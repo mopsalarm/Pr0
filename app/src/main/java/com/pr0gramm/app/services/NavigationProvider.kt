@@ -19,12 +19,10 @@ import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
-import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.subjects.BehaviorSubject
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -51,121 +49,154 @@ class NavigationProvider(
     private val iconInbox = drawable(R.drawable.ic_action_email)
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
 
+    private val iconSettings = drawable(R.drawable.ic_grey_action_settings)
+    private val iconContact = drawable(R.drawable.ic_grey_action_feedback)
+    private val iconInvite = drawable(R.drawable.ic_contact_mail_black_24dp)
+    private val iconFAQ = drawable(R.drawable.ic_assignment)
+    private val iconPremium = drawable(R.drawable.ic_menu_premium)
+    private val iconLogin = drawable(R.drawable.ic_grey_action_login)
+    private val iconLogout = drawable(R.drawable.ic_black_action_exit)
+
+
     private fun drawable(@DrawableRes id: Int): Drawable {
         return ContextCompat.getDrawable(context, id)!!
     }
 
-    private fun specialMenuItems(loginState: LoginState, upper: Boolean): Observable<List<NavigationItem>> {
-        return configService.observeConfig()
-                .observeOnMainThread()
-                .map { config -> config.specialMenuItems }
-                .distinctUntilChanged()
-                .switchMap { item -> resolveSpecial(loginState, upper, item) }
-    }
-
     private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
-    val navigationItems: Observable<List<NavigationItem>>
-        get() {
-            // observe and merge the menu items from different sources
-            fun merge(args: Array<Any>): List<NavigationItem> {
-                val result = mutableListOf<NavigationItem>()
-                args.filterIsInstance<List<Any?>>().forEach { items ->
-                    items.filterIsInstanceTo(result)
-                }
+    val navigationItems: Observable<List<NavigationItem>> = run {
+        val loginStates = userService.loginStates
 
-                return result
-            }
+        val rawSources = listOf<Observable<List<NavigationItem>>>(
+                loginStates
+                        .switchMap { remoteConfigItems(it, upper = true) },
 
-            val loginStates = userService.loginStates
-            val rawSources = listOf<Observable<List<NavigationItem>>>(
-                    loginStates.switchMap { specialMenuItems(it, upper = true) },
+                loginStates
+                        .map { categoryNavigationItems(it.name) },
 
-                    categoryNavigationItems(),
+                loginStates
+                        .switchMap { bookmarkService.observe() }
+                        .map { bookmarks -> bookmarksToNavItem(bookmarks) },
 
-                    loginStates
-                            .switchMap { bookmarkService.observe() }
-                            .map { bookmarks -> bookmarksToNavItem(bookmarks) },
+                loginStates
+                        .switchMap { remoteConfigItems(it, upper = false) },
 
-                    loginStates.switchMap { specialMenuItems(it, upper = false) },
+                inboxService.unreadMessagesCount()
+                        .startWith(Api.InboxCounts())
+                        .map { listOf(inboxNavigationItem(it)) },
 
-                    inboxService.unreadMessagesCount()
-                            .startWith(Api.InboxCounts())
-                            .map { listOf(inboxNavigationItem(it)) },
+                loginStates
+                        .map { footerItems(it) })
 
-                    Observable.just(listOf(uploadNavigationItem)))
-
-            val sources = rawSources.map { source ->
-                source.startWith(emptyList<NavigationItem>()).retryWhen {
-                    it.doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
-                            .delay(5, TimeUnit.SECONDS)
-                }
-            }
-
-            return triggerNavigationUpdate.switchMap { combineLatest(sources, ::merge) }.distinctUntilChanged()
+        val sources = rawSources.map { navigationItemSource ->
+            navigationItemSource
+                    .startWith(emptyList<NavigationItem>())
+                    .retryWhen { errorStream ->
+                        errorStream
+                                .doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
+                                .delay(5, TimeUnit.SECONDS)
+                    }
         }
+
+        // observe and merge the menu items from different sources
+        fun merge(args: Array<Any>): List<NavigationItem> {
+            val result = mutableListOf<NavigationItem>()
+            args.filterIsInstance<List<Any?>>().forEach { items ->
+                items.filterIsInstanceTo(result)
+            }
+
+            return result
+        }
+
+        triggerNavigationUpdate.switchMap { combineLatest(sources, ::merge) }.distinctUntilChanged()
+    }
+
+    private fun footerItems(loginState: LoginState): List<NavigationItem> {
+        val items = mutableListOf<NavigationItem>()
+
+        items += uploadNavigationItem
+        items += staticItemDivider
+        items += staticItemSettings
+        items += staticItemContact
+
+        if (loginState.authorized) {
+            items += staticItemInvites
+        }
+
+        items += staticItemFAQ
+
+        if (!loginState.authorized || !loginState.premium) {
+            items += staticItemPremium
+        }
+
+        if (loginState.authorized) {
+            items += staticItemLogout
+        } else {
+            items += staticItemLogin
+        }
+
+        return items
+    }
 
     /**
      * Adds the default "fixed" items to the menu
      */
     fun categoryNavigationItems(username: String?): List<NavigationItem> {
 
-        val items = ArrayList<NavigationItem>()
+        val items = mutableListOf<NavigationItem>()
 
-        items.add(NavigationItem(
+        items += NavigationItem(
                 action = ActionType.FILTER,
                 title = getString(R.string.action_feed_type_promoted),
                 icon = iconFeedTypePromoted,
-                filter = FeedFilter().withFeedType(FeedType.PROMOTED)))
+                filter = FeedFilter().withFeedType(FeedType.PROMOTED))
 
-        items.add(NavigationItem(
+        items += NavigationItem(
                 action = ActionType.FILTER,
                 title = getString(R.string.action_feed_type_new),
                 icon = iconFeedTypeNew,
-                filter = FeedFilter().withFeedType(FeedType.NEW)))
+                filter = FeedFilter().withFeedType(FeedType.NEW))
 
         val settings = Settings.get()
 
         if (settings.showCategoryBestOf) {
-            items.add(NavigationItem(
+            items += NavigationItem(
                     action = ActionType.FILTER,
                     title = getString(R.string.action_feed_type_bestof),
                     icon = iconFeedTypeBestOf,
-                    filter = FeedFilter().withFeedType(FeedType.BESTOF)))
+                    filter = FeedFilter().withFeedType(FeedType.BESTOF))
         }
 
         if (settings.showCategoryControversial) {
-            items.add(NavigationItem(
+            items += NavigationItem(
                     action = ActionType.FILTER,
                     title = getString(R.string.action_feed_type_controversial),
                     icon = iconFeedTypeControversial,
-                    filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL)))
+                    filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
         }
 
         if (settings.showCategoryRandom) {
-            items.add(NavigationItem(
+            items += NavigationItem(
                     action = ActionType.FILTER,
                     title = getString(R.string.action_feed_type_random),
                     icon = iconFeedTypeRandom,
-                    filter = FeedFilter().withFeedType(FeedType.RANDOM)))
+                    filter = FeedFilter().withFeedType(FeedType.RANDOM))
         }
 
-        if (settings.showCategoryPremium) {
-            if (userService.userIsPremium) {
-                items.add(NavigationItem(
-                        action = ActionType.FILTER,
-                        title = getString(R.string.action_feed_type_premium),
-                        icon = iconFeedTypePremium,
-                        filter = FeedFilter().withFeedType(FeedType.PREMIUM)))
-            }
+        if (settings.showCategoryPremium && userService.userIsPremium) {
+            items += NavigationItem(
+                    action = ActionType.FILTER,
+                    title = getString(R.string.action_feed_type_premium),
+                    icon = iconFeedTypePremium,
+                    filter = FeedFilter().withFeedType(FeedType.PREMIUM))
         }
 
         if (username != null) {
-            items.add(NavigationItem(
+            items += NavigationItem(
                     action = ActionType.FAVORITES,
                     title = getString(R.string.action_favorites),
                     icon = iconFavorites,
-                    filter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username)))
+                    filter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
         }
 
         return items
@@ -216,10 +247,6 @@ class NavigationProvider(
         return items
     }
 
-    private fun categoryNavigationItems(): Observable<List<NavigationItem>> {
-        return userService.loginStates.map { categoryNavigationItems(it.name) }
-    }
-
     /**
      * Returns the menu item that takes the user to the upload activity.
      */
@@ -229,17 +256,55 @@ class NavigationProvider(
             icon = iconUpload)
 
     /**
+     * Divider to divide item groups
+     */
+    private val staticItemDivider: NavigationItem = NavigationItem(ActionType.DIVIDER,
+            layout = R.layout.left_drawer_nav_item_divider)
+
+    private fun staticItem(action: ActionType, icon: Drawable, title: String): NavigationItem {
+        return NavigationItem(action, title = title, icon = icon, colorOverride = 0x80808080.toInt())
+    }
+
+    private val staticItemFAQ: NavigationItem = staticItem(
+            ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
+
+    private val staticItemSettings: NavigationItem = staticItem(
+            ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
+
+    private val staticItemInvites: NavigationItem = staticItem(
+            ActionType.INVITES, iconInvite, getString(R.string.action_invite))
+
+    private val staticItemContact: NavigationItem = staticItem(
+            ActionType.CONTACT, iconContact, getString(R.string.action_contact))
+
+    private val staticItemPremium: NavigationItem = staticItem(
+            ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
+
+    private val staticItemLogin: NavigationItem = staticItem(
+            ActionType.LOGIN, iconLogin, getString(R.string.action_login))
+
+    private val staticItemLogout: NavigationItem = staticItem(
+            ActionType.LOGOUT, iconLogout, getString(R.string.action_logout))
+
+    /**
      * Short for context.getString(...)
      */
     private fun getString(id: Int): String {
         return context.getString(id)
     }
 
+    private fun remoteConfigItems(loginState: LoginState, upper: Boolean): Observable<List<NavigationItem>> {
+        return configService.observeConfig()
+                .map { config -> config.specialMenuItems }
+                .distinctUntilChanged()
+                .switchMap { item -> resolveRemoteConfigItems(loginState, upper, item) }
+    }
+
     /**
      * Resolves the special for the given config and loads the icon,
      * if there is one.
      */
-    private fun resolveSpecial(
+    private fun resolveRemoteConfigItems(
             loginState: LoginState, upper: Boolean,
             items: List<Config.MenuItem>): Observable<List<NavigationItem>> {
 
@@ -281,14 +346,15 @@ class NavigationProvider(
     }
 
     class NavigationItem(val action: ActionType,
-                         val title: String,
+                         val title: String? = null,
                          val icon: Drawable? = null,
                          val layout: Int = R.layout.left_drawer_nav_item,
                          val filter: FeedFilter? = null,
                          val bookmark: Bookmark? = null,
                          val unreadCount: Api.InboxCounts = Api.InboxCounts(),
                          val customAction: () -> Unit = {},
-                         val uri: Uri? = null) {
+                         val uri: Uri? = null,
+                         val colorOverride: Int? = null) {
 
         private val hashCode by lazy { listOf(action, title, layout, filter, bookmark, unreadCount, uri).hashCode() }
 
@@ -309,6 +375,8 @@ class NavigationProvider(
     }
 
     enum class ActionType {
-        HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI
+        HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI,
+        DIVIDER,
+        SETTINGS, CONTACT, INVITES, FAQ, PREMIUM, LOGIN, LOGOUT
     }
 }

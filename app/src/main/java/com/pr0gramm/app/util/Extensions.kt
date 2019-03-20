@@ -512,6 +512,14 @@ inline fun <reified T : Activity> Activity.startActivity(requestCode: Int = -1, 
     startActivityForResult(intent, requestCode)
 }
 
+inline fun <reified T : Activity> Fragment.startActivity(configureIntent: (Intent) -> Unit = {}) {
+    startActivity(Intent(requireContext(), T::class.java).also(configureIntent))
+}
+
+inline fun <reified T : Activity> Fragment.startActivity(requestCode: Int = -1, configureIntent: (Intent) -> Unit = {}) {
+    val intent = Intent(requireContext(), T::class.java).also(configureIntent)
+    startActivityForResult(intent, requestCode)
+}
 fun ContentProvider.requireContext(): Context {
     return context ?: throw IllegalStateException("context not set on ContentProvider")
 }

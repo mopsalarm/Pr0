@@ -61,13 +61,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val benisDeltaView: TextView by bindView(R.id.benis_delta)
     private val benisContainer: View by bindView(R.id.benis_container)
     private val benisGraph: ImageView by bindView(R.id.benis_graph)
-    private val actionFAQ: TextView by bindView(R.id.action_faq)
-    private val actionPremium: TextView by bindView(R.id.action_premium)
-    private val loginView: TextView by bindView(R.id.action_login)
-    private val logoutView: TextView by bindView(R.id.action_logout)
-    private val feedbackView: TextView by bindView(R.id.action_contact)
-    private val settingsView: TextView by bindView(R.id.action_settings)
-    private val inviteView: TextView by bindView(R.id.action_invite)
     private val userImageView: View by bindView(R.id.user_image)
 
     private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
@@ -106,52 +99,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         navigationAdapter.setNavigationItems(
                 navigationProvider.categoryNavigationItems(null))
 
-        settingsView.setOnClickListener {
-            val intent = Intent(activity, SettingsActivity::class.java)
-            startActivity(intent)
-        }
-
-        inviteView.setOnClickListener {
-            val intent = Intent(activity, InviteActivity::class.java)
-            startActivity(intent)
-        }
-
-        actionFAQ.setOnClickListener {
-            Track.registerFAQClicked()
-            BrowserHelper.openCustomTab(requireActivity(),
-                    Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
-                    handover = false)
-        }
-
-        actionPremium.setOnClickListener {
-            Track.registerLinkClicked()
-            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
-            BrowserHelper.openCustomTab(requireActivity(), uri)
-        }
-
-        loginView.setOnClickListener {
-            val intent = Intent(activity, LoginActivity::class.java)
-            startActivity(intent)
-        }
-
-        logoutView.setOnClickListener {
-            LogoutDialogFragment().show(fragmentManager, null)
-        }
-
-        feedbackView.setOnClickListener {
-            val intent = Intent(activity, ContactActivity::class.java)
-            activity?.startActivityForResult(intent, RequestCodes.FEEDBACK)
-        }
-
         benisGraph.setOnClickListener {
             this.onBenisGraphClicked()
-        }
-
-        // colorize all the secondary icons.
-        val views = listOf(loginView, logoutView, feedbackView, settingsView, inviteView, actionFAQ, actionPremium)
-        for (v in views) {
-            val secondary = ColorStateList.valueOf(0x80808080.toInt())
-            changeCompoundDrawableColor(v, secondary)
         }
     }
 
@@ -210,11 +159,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         } else {
             updateBenisDelta(0)
         }
-
-        loginView.visible = false
-        logoutView.visible = true
-        inviteView.visible = true
-        actionPremium.visible = !state.loginState.premium
     }
 
     private fun applyNotAuthorizedState() {
@@ -226,11 +170,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         benisContainer.visible = false
         benisGraph.setImageDrawable(null)
-
-        loginView.visible = true
-        logoutView.visible = false
-        inviteView.visible = false
-        actionPremium.visible = false
     }
 
     private fun updateBenisDeltaForGraph(benis: Graph) {
@@ -298,16 +237,29 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         override fun onBindViewHolder(holder: NavigationItemViewHolder, position: Int) {
             val item = allItems[position]
-            holder.text.text = item.title
 
-            // set the icon of the image
-            holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null)
+            if (holder.text != null) {
+                holder.text.text = item.title ?: ""
 
-            // update color
-            if (item.action !== NavigationProvider.ActionType.HINT) {
-                val color = if ((selected == item)) markedColor else defaultColor
-                holder.text.setTextColor(color)
-                changeCompoundDrawableColor(holder.text, color.withAlpha(127))
+                // set the icon of the image
+                holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null)
+
+                // update color
+                if (item.action !== NavigationProvider.ActionType.HINT) {
+                    val textColor: ColorStateList
+                    val iconColor: ColorStateList
+
+                    if (item.colorOverride != null) {
+                        textColor = defaultColor
+                        iconColor = ColorStateList.valueOf(item.colorOverride)
+                    } else {
+                        textColor = if ((selected == item)) markedColor else defaultColor
+                        iconColor = textColor.withAlpha(127)
+                    }
+
+                    holder.text.setTextColor(textColor)
+                    changeCompoundDrawableColor(holder.text, iconColor)
+                }
             }
 
             // handle clicks
@@ -366,7 +318,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
     private fun dispatchItemClick(item: NavigationItem) {
         when (item.action) {
-            NavigationProvider.ActionType.HINT ->
+            NavigationProvider.ActionType.HINT,
+            NavigationProvider.ActionType.DIVIDER ->
                 Unit
 
             NavigationProvider.ActionType.FILTER,
@@ -384,10 +337,41 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             }
 
             NavigationProvider.ActionType.FAVORITES ->
-                callback.onNavigateToFavorites(item.filter!!.likes!!)
+                item.filter?.likes?.let { likes ->
+                    callback.onNavigateToFavorites(likes)
+                }
 
             NavigationProvider.ActionType.URI ->
                 item.uri?.let { openActionUri(it) }
+
+            NavigationProvider.ActionType.SETTINGS ->
+                startActivity<SettingsActivity>()
+
+            NavigationProvider.ActionType.INVITES ->
+                startActivity<InviteActivity>()
+
+            NavigationProvider.ActionType.CONTACT ->
+                activity?.startActivity<ContactActivity>(RequestCodes.FEEDBACK)
+
+            NavigationProvider.ActionType.FAQ -> {
+                Track.registerFAQClicked()
+                BrowserHelper.openCustomTab(requireActivity(),
+                        Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
+                        handover = false)
+            }
+
+            NavigationProvider.ActionType.PREMIUM -> {
+                Track.registerLinkClicked()
+                val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
+                BrowserHelper.openCustomTab(requireActivity(), uri)
+            }
+
+            NavigationProvider.ActionType.LOGIN ->
+                startActivity<LoginActivity>()
+
+            NavigationProvider.ActionType.LOGOUT ->
+                LogoutDialogFragment().show(fragmentManager, null)
+
         }
     }
 
@@ -457,7 +441,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private class NavigationItemViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        val text: TextView = (itemView as? TextView ?: itemView.find(R.id.title))
+        val text: TextView? = (itemView as? TextView ?: itemView.findOptional(R.id.title))
         val unread: TextView? = itemView.findOptional(R.id.unread_count)
         val action: Button? = itemView.findOptional(R.id.action_okay)
     }
