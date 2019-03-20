@@ -176,5 +176,18 @@ class BookmarkService(
         }
     }
 
+    suspend fun restore() {
+        // get all default bookmarks
+        val defaults = bookmarkSyncService.fetch(anonymous = true)
+
+        // and save missing bookmarks remotely
+        defaults.filter { byTitle(it.title) == null }.forEach { bookmark ->
+            bookmarkSyncService.add(bookmark)
+        }
+
+        // then fetch the new remote list of bookmarks
+        update()
+    }
+
     val canEdit: Boolean get() = bookmarkSyncService.canChange
 }

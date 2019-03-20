@@ -16,6 +16,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
@@ -78,6 +79,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         private val settings = Settings.get()
 
         private val userService: UserService by instance()
+        private val bookmarkService: BookmarkService by instance()
         private val preloadManager: PreloadManager by instance()
         private val recentSearchesServices: RecentSearchesServices by instance()
 
@@ -99,6 +101,10 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
             if (!userService.userIsAdmin) {
                 hidePreferenceByName("pref_show_content_type_flag")
+            }
+
+            if (!bookmarkService.canEdit) {
+                hidePreferenceByName("pref_pseudo_restore_bookmarks")
             }
 
             tintPreferenceIcons(color = 0xffd0d0d0.toInt())
@@ -208,6 +214,14 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
                 "pref_pseudo_onboarding" -> {
                     IntroActivity.launch(requireActivity())
+                    return true
+                }
+
+                "pref_pseudo_restore_bookmarks" -> {
+                    launchWithErrorHandler(busyIndicator = true) {
+                        bookmarkService.restore()
+                    }
+
                     return true
                 }
 

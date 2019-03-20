@@ -10,7 +10,7 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
                                   private val filter: FeedFilter) : ActionItem(title) {
 
     override fun enabled(): Boolean {
-        return bookmarkService.byTitle(title) != null || bookmarkService.byFilter(filter) != null
+        return bookmarkService.byTitle(title) != null
     }
 
     override fun activate() {
@@ -21,6 +21,5 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
     override fun deactivate() {
         // delete any existing bookmarks
         bookmarkService.byTitle(title)?.let { bookmarkService.delete(it) }
-        bookmarkService.byFilter(filter)?.let { bookmarkService.delete(it) }
     }
 }

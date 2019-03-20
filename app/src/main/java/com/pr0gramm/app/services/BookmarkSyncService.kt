@@ -14,7 +14,8 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
 
     suspend fun add(bookmark: Bookmark): List<Bookmark> {
         val title = bookmark.title
-        val link = bookmark.migrate().link!!
+
+        val link = "/" + bookmark.migrate().link!!.trimStart('/')
 
         logger.info { "add bookmark '$title' ($link)" }
         val bookmarks = api.bookmarksAddAsync(null, title, link).await()
@@ -31,8 +32,17 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
     }
 
     private fun translate(bookmarks: Api.Bookmarks): List<Bookmark> {
-        return bookmarks.bookmarks.map { bookmarkOf(it) }
+        return bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it) }
     }
+
+}
+
+/**
+ * We might have better handling for those bookmarks in the app
+ */
+private fun isAppSpecialCategory(bookmark: Api.Bookmark): Boolean {
+    val name = bookmark.name.toLowerCase()
+    return name == "best of" || name == "kontrovers" || name == "wichteln"
 }
 
 fun bookmarkOf(b: Api.Bookmark): Bookmark {

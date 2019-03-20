@@ -19,8 +19,8 @@
         android:title="@string/prefcat_settings_title">
 
         <PreferenceScreen
-            android:key="prefcat_behaviour"
             android:icon="@drawable/ic_settings_behaviour"
+            android:key="prefcat_behaviour"
             android:summary="@string/prefcat_behaviour_summary"
             android:title="@string/prefcat_behaviour">
 
@@ -201,9 +201,9 @@
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:icon="@drawable/ic_settings_visual"
             android:key="prefcat_visual"
             android:persistent="true"
-            android:icon="@drawable/ic_settings_visual"
             android:summary="@string/prefcat_visual_summary"
             android:title="@string/prefcat_visual_title">
 
@@ -231,9 +231,9 @@
 
                 <ListPreference
                     android:defaultValue="GOOGLE"
-                    android:key="pref_image_search_engine"
                     android:entries="@array/pref_image_search_engine_human"
                     android:entryValues="@array/pref_image_search_engine_values"
+                    android:key="pref_image_search_engine"
                     android:summary="@string/pref_image_search_engine_summary"
                     android:title="@string/pref_image_search_engine_title"/>
             </PreferenceCategory>
@@ -307,8 +307,8 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="prefcat_update"
             android:icon="@drawable/ic_settings_update"
+            android:key="prefcat_update"
             android:summary="@string/prefcat_update_summary"
             android:title="@string/prefcat_update">
 
@@ -344,31 +344,37 @@
         android:title="@string/prefcat_misc">
 
         <Preference
+            android:icon="@drawable/ic_settings_changelog"
             android:key="pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"
-            android:icon="@drawable/ic_settings_changelog"
             android:title="@string/pref_pseudo_changelog"/>
 
         <Preference
+            android:icon="@drawable/ic_settings_website"
             android:key="pref_pseudo_recommend"
             android:persistent="false"
-            android:icon="@drawable/ic_settings_website"
             android:summary="@string/pref_website_summary"
             android:title="@string/pref_website_title"/>
 
         <Preference
+            android:icon="@drawable/ic_settings_cleanup"
             android:key="pref_pseudo_clean_preloaded"
             android:persistent="false"
-            android:icon="@drawable/ic_settings_cleanup"
             android:summary="@string/pseudo_clean_preloaded_summary"
             android:title="@string/pref_pseudo_clean_preloaded_title"/>
 
 
         <Preference
-            android:key="pref_pseudo_onboarding"
             android:icon="@drawable/ic_settings_welcome"
+            android:key="pref_pseudo_onboarding"
             android:summary="@string/pref_pseudo_onboarding_summary"
             android:title="@string/pref_pseudo_onboarding_title"/>
+
+        <Preference
+            android:icon="@drawable/ic_black_action_bookmark"
+            android:key="pref_pseudo_restore_bookmarks"
+            android:summary="@string/pref_pseudo_restore_bookmarks_summary"
+            android:title="@string/pref_pseudo_restore_bookmarks_title"/>
 
     </PreferenceCategory>
 
