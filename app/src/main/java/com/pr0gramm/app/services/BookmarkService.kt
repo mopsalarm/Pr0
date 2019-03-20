@@ -23,7 +23,7 @@ class BookmarkService(
         private val bookmarkSyncService: BookmarkSyncService) {
 
     private val logger = Logger("BookmarkService")
-    private val bookmarks = BehaviorSubject.create<List<Bookmark>>()
+    private val bookmarks = BehaviorSubject.create<List<Bookmark>>(listOf())
 
     init {
         // restore previous json
@@ -70,7 +70,7 @@ class BookmarkService(
     }
 
     suspend fun uploadLocalBookmarks() {
-        val bookmarks = bookmarks.value ?: return
+        val bookmarks = bookmarks.value
 
         // sync back all bookmarks that are local only (legacy bookmarks from the app)
         val localOnly = bookmarks.filter { it.link == null }
