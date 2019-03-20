@@ -3,6 +3,14 @@
     "version": 162,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Lesezeichen werden nun mit der Website synchronisiert."
+      },
+      {
+        "type": "Neu",
+        "change": "Lesezeichen können nur noch mit pr0mium erstellt und gelöscht werden. Vorher angelegte Lesezeichen bleiben jedoch bestehen."
+      },
+      {
         "type": "Fix",
         "change": "Bugfixes und Kleinkram"
       }
