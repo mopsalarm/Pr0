@@ -66,10 +66,10 @@ class BookmarkService(
         val json = MoshiInstance.adapter<List<Bookmark>>().toJson(bookmarks)
         preferences.edit { putString("Bookmarks.json", json) }
 
-        doInBackground { upload() }
+        doInBackground { uploadLocalBookmarks() }
     }
 
-    suspend fun upload() {
+    suspend fun uploadLocalBookmarks() {
         val bookmarks = bookmarks.value
 
         // sync back all bookmarks that are local only (legacy bookmarks from the app)
@@ -96,10 +96,7 @@ class BookmarkService(
      * Returns "true", if the item is bookmarkable.
      */
     fun isBookmarkable(filter: FeedFilter): Boolean {
-        if (filter.isBasic)
-            return false
-
-        if (filter.likes != null)
+        if (!canEdit || filter.isBasic || filter.likes != null)
             return false
 
         return byFilter(filter) == null
@@ -178,4 +175,6 @@ class BookmarkService(
             bookmarkSyncService.add(bookmark)
         }
     }
+
+    val canEdit: Boolean get() = bookmarkSyncService.canChange
 }

@@ -75,15 +75,17 @@ class NavigationProvider(
                         .map { categoryNavigationItems(it.name) },
 
                 loginStates
-                        .switchMap { bookmarkService.observe() }
-                        .map { bookmarks -> bookmarksToNavItem(bookmarks) },
-
-                loginStates
                         .switchMap { remoteConfigItems(it, upper = false) },
 
                 inboxService.unreadMessagesCount()
                         .startWith(Api.InboxCounts())
                         .map { listOf(inboxNavigationItem(it)) },
+
+                Observable.just(listOf(uploadNavigationItem)),
+
+                loginStates
+                        .switchMap { bookmarkService.observe() }
+                        .map { bookmarks -> bookmarksToNavItem(bookmarks) },
 
                 loginStates
                         .map { footerItems(it) })
@@ -114,7 +116,6 @@ class NavigationProvider(
     private fun footerItems(loginState: LoginState): List<NavigationItem> {
         val items = mutableListOf<NavigationItem>()
 
-        items += uploadNavigationItem
         items += staticItemDivider
         items += staticItemSettings
         items += staticItemContact
@@ -215,11 +216,9 @@ class NavigationProvider(
     }
 
     private fun bookmarksToNavItem(bookmarks: List<Bookmark>): List<NavigationItem> {
-        val premium = userService.userIsPremium
-
         val items = bookmarks
-                .filter { premium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
-                .map { entry ->
+                .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
+                .mapTo(mutableListOf()) { entry ->
                     val icon = iconBookmark.constantState!!.newDrawable()
                     val title = entry.title.toUpperCase()
 
@@ -230,7 +229,7 @@ class NavigationProvider(
                 }
 
         val hintNotYetShown = singleShotService.isFirstTime("hint:bookmark-hold-to-delete")
-        if (items.isNotEmpty() && premium && hintNotYetShown) {
+        if (items.isNotEmpty() && bookmarkService.canEdit && hintNotYetShown) {
             val hint = NavigationItem(
                     action = ActionType.HINT,
                     title = getString(R.string.bookmark_hint_delete),
@@ -241,7 +240,11 @@ class NavigationProvider(
                         triggerNavigationUpdate.onNext(Unit)
                     })
 
-            return listOf(hint) + items
+            items.add(0, hint)
+        }
+
+        if (items.isNotEmpty()) {
+            items.add(0, staticItemDivider)
         }
 
         return items

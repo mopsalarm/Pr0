@@ -10,6 +10,8 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
 
     val isAuthorized get() = userService.isAuthorized
 
+    val canChange get() = userService.isAuthorized && userService.userIsPremium
+
     suspend fun add(bookmark: Bookmark): List<Bookmark> {
         val title = bookmark.title
         val link = bookmark.migrate().link!!

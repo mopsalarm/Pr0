@@ -510,5 +510,6 @@
     <string name="notification_hint_unread">%d unread</string>
     <string name="add_tags_hint">Add tags to your upload to describe the image or video and to make it searchable. Multiple tags must be separated by commas.</string>
     <string name="bookmark_hint_delete">Long press bookmark to delete.</string>
+    <string name="hint_edit_bookmarks_premium">Bookmarks are editable with pr0mium.</string>
 </resources>
 

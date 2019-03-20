@@ -523,8 +523,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun onBookmarkableStateChanged(bookmarkable: Boolean) {
-        this.bookmarkable = bookmarkable
-        activity?.invalidateOptionsMenu()
+        if (this.bookmarkable != bookmarkable) {
+            this.bookmarkable = bookmarkable
+            activity?.invalidateOptionsMenu()
+        }
     }
 
     private val selectedContentType: EnumSet<ContentType>
@@ -542,10 +544,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
-            launchIgnoreErrors {
-                val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
-                onBookmarkableStateChanged(bookmarkable)
-            }
+            val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
+            onBookmarkableStateChanged(bookmarkable)
         }
 
         recheckContentTypes()
@@ -757,7 +757,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         menu.findItem(R.id.action_refresh)
                 ?.isVisible = settings.showRefreshButton
 
-        menu.findItem(R.id.action_pin)
+        menu.findItem(R.id.action_bookmark)
                 ?.isVisible = bookmarkable
 
         menu.findItem(R.id.action_preload)
@@ -792,7 +792,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val follow = menu.findItem(R.id.action_follow)
         val unfollow = menu.findItem(R.id.action_unfollow)
-        val bookmark = menu.findItem(R.id.action_pin)
+        val bookmark = menu.findItem(R.id.action_bookmark)
         if (follow != null && unfollow != null && bookmark != null) {
             // go to default state.
             follow.isVisible = false
@@ -855,7 +855,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return true == when (item.itemId) {
             R.id.action_feedtype -> switchFeedType()
             R.id.action_refresh -> refreshFeedWithIndicator()
-            R.id.action_pin -> pinCurrentFeedFilter()
+            R.id.action_bookmark -> pinCurrentFeedFilter()
             R.id.action_preload -> preloadCurrentFeed()
             R.id.action_follow -> onFollowClicked()
             R.id.action_unfollow -> onUnfollowClicked()

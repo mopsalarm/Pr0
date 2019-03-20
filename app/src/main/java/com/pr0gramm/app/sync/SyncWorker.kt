@@ -24,7 +24,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
         // upload legacy bookmarks if any
         val bookmarkService = context.injector.instance<BookmarkService>()
-        catchAll { bookmarkService.upload() }
+        catchAll { bookmarkService.uploadLocalBookmarks() }
 
         return Result.success()
     }

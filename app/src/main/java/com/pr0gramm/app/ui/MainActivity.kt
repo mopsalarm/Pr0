@@ -165,16 +165,35 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .bindToLifecycle()
                     .onErrorResumeEmpty()
                     .filter { !userService.userIsPremium }
-                    .subscribe { _ ->
-                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
-                                .configureNewStyle()
-                                .setAction("pr0mium") {
-                                    Track.registerLinkClicked()
-                                    val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
-                                    BrowserHelper.openCustomTab(this, uri)
-                                }
-                                .show()
+                    .subscribe {
+                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
+                            configureNewStyle()
+
+                            setAction("pr0mium") {
+                                Track.registerLinkClicked()
+                                val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
+                                BrowserHelper.openCustomTab(this@MainActivity, uri)
+                            }
+
+                            show()
+                        }
                     }
+        }
+    }
+
+    override fun hintBookmarksEditableWithPremium() {
+        drawerLayout.closeDrawers()
+
+        Snackbar.make(contentContainer, R.string.hint_edit_bookmarks_premium, 10000).apply {
+            configureNewStyle()
+
+            setAction("pr0mium") {
+                Track.registerLinkClicked()
+                val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
+                BrowserHelper.openCustomTab(this@MainActivity, uri)
+            }
+
+            show()
         }
     }
 
@@ -463,6 +482,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         launchWithErrorHandler(busyIndicator = true) {
             userService.logout()
+
+            // update bookmarks after logout
+            catchAll { bookmarkService.update() }
 
             // show a short information.
             Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)

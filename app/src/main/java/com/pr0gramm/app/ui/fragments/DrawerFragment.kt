@@ -26,7 +26,6 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
-import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
@@ -35,7 +34,6 @@ import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.launch
 import java.util.*
 
 /**
@@ -213,6 +211,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
          * Navigate to the favorites of the given user
          */
         fun onNavigateToFavorites(username: String)
+
+        fun hintBookmarksEditableWithPremium()
     }
 
     private val callback: OnFeedFilterSelected
@@ -268,7 +268,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             }
 
             holder.itemView.setOnLongClickListener {
-                item.bookmark?.let { showDialogToRemoveBookmark(it) }
+                if (item.bookmark != null) {
+                    if (bookmarkService.canEdit) {
+                        showDialogToRemoveBookmark(item.bookmark)
+                    } else {
+                        callback.hintBookmarksEditableWithPremium()
+                    }
+                }
+
                 true
             }
 
@@ -417,9 +424,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         showBottomSheet(this) {
             content(R.string.do_you_want_to_remove_this_bookmark)
             negative(R.string.cancel)
-            positive(R.string.delete) {
-                AsyncScope.launch { bookmarkService.delete(bookmark) }
-            }
+            positive(R.string.delete) { bookmarkService.delete(bookmark) }
         }
     }
 
