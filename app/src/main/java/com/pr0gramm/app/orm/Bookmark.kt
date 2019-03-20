@@ -57,7 +57,7 @@ fun Bookmark.migrate(): Bookmark {
         uri.appendPath(filter.tags)
     }
 
-    return Bookmark(title, link = uri.build().path ?: "/")
+    return Bookmark(title, link = uri.build().encodedPath ?: "/")
 }
 
 fun bookmarkOf(title: String, filter: FeedFilter): Bookmark {
