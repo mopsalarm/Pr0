@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 class BookmarkService(
         private val preferences: SharedPreferences,
+        private val userService: UserService,
         private val bookmarkSyncService: BookmarkSyncService) {
 
     private val logger = Logger("BookmarkService")
@@ -34,6 +35,10 @@ class BookmarkService(
                 .distinctUntilChanged()
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .subscribe { persist(it) }
+
+        userService.loginStates
+                .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
+                .subscribe { doInBackground { update() } }
     }
 
     /**

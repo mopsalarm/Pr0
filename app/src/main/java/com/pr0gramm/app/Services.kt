@@ -171,7 +171,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<ConfigService>() with singleton { ConfigService(app, instance(), instance()) }
     bind<BookmarkSyncService>() with singleton { BookmarkSyncService(instance(), instance()) }
-    bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance()) }
+    bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }

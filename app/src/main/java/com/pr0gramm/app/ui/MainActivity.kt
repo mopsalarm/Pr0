@@ -139,9 +139,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // show the intro activity if this is the first time the app started.
         singleShotService.doOnce("onboarding-activity:1") {
-            // do not show any of the migration activities
-            singleShotService.markAsDoneOnce("MigrationIntro:bookmark:1")
-
             IntroActivity.launch(this)
             return
         }
@@ -482,9 +479,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         launchWithErrorHandler(busyIndicator = true) {
             userService.logout()
-
-            // update bookmarks after logout
-            catchAll { bookmarkService.update() }
 
             // show a short information.
             Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)

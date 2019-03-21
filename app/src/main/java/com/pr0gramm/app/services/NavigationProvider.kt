@@ -228,7 +228,9 @@ class NavigationProvider(
                             filter = entry.asFeedFilter())
                 }
 
-        val hintNotYetShown = singleShotService.isFirstTime("hint:bookmark-hold-to-delete")
+        val actionKey = "hint:bookmark-hold-to-delete:2"
+
+        val hintNotYetShown = singleShotService.isFirstTime(actionKey)
         if (items.isNotEmpty() && bookmarkService.canEdit && hintNotYetShown) {
             val hint = NavigationItem(
                     action = ActionType.HINT,
@@ -236,7 +238,7 @@ class NavigationProvider(
                     icon = null,
                     layout = R.layout.left_drawer_nav_item_hint,
                     customAction = {
-                        singleShotService.markAsDoneOnce("hint:bookmark-hold-to-delete")
+                        singleShotService.markAsDoneOnce(actionKey)
                         triggerNavigationUpdate.onNext(Unit)
                     })
 
