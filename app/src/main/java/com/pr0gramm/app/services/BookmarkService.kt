@@ -45,16 +45,8 @@ class BookmarkService(
      * Fetches bookmarks from the remote api and publishes them locally.
      */
     suspend fun update() {
-        val remote = bookmarkSyncService.fetch()
-
-        synchronized(bookmarks) {
-            // get the local ones that dont have a 'link' yet
-            val local = bookmarks.value.filter { it.link == null }
-
-            // and merge them together, with the local ones winning.
-            val merged = (local + remote).distinctBy { it.title }
-
-            bookmarks.onNext(merged)
+        mergeWith {
+            bookmarkSyncService.fetch()
         }
     }
 
@@ -124,25 +116,39 @@ class BookmarkService(
             bookmarks.onNext(newValues)
         }
 
-        updateAsync {
-            // also delete bookmarks on the server
-            bookmarkSyncService.delete(bookmark.title)
+        if (bookmarkSyncService.isAuthorized) {
+            mergeWithAsync {
+                // also delete bookmarks on the server
+                bookmarkSyncService.delete(bookmark.title)
+            }
         }
     }
 
-    private fun updateAsync(block: suspend () -> List<Bookmark>) {
-        if (bookmarkSyncService.isAuthorized) {
-            // do optimistic locking
-            val currentState = this.bookmarks.value
+    private fun mergeWithAsync(block: suspend () -> List<Bookmark>) {
+        doInBackground { mergeWith(block) }
+    }
 
-            doInBackground {
-                val updated = block()
-                synchronized(this.bookmarks) {
-                    if (this.bookmarks.value === currentState) {
-                        this.bookmarks.onNext(updated)
-                    }
-                }
+    private suspend fun mergeWith(block: suspend () -> List<Bookmark>) {
+        // do optimistic locking
+        val currentState = this.bookmarks.value
+
+        val updated = block()
+        synchronized(this.bookmarks) {
+            if (this.bookmarks.value === currentState) {
+                mergeWith(updated)
             }
+        }
+    }
+
+    private fun mergeWith(update: List<Bookmark>) {
+        synchronized(bookmarks) {
+            // get the local ones that dont have a 'link' yet
+            val local = bookmarks.value.filter { it.link == null }
+
+            // and merge them together, with the local ones winning.
+            val merged = (local + update).distinctBy { it.title }
+
+            bookmarks.onNext(merged)
         }
     }
 
@@ -176,8 +182,10 @@ class BookmarkService(
             bookmarks.onNext(values)
         }
 
-        updateAsync {
-            bookmarkSyncService.add(bookmark)
+        if (bookmarkSyncService.isAuthorized) {
+            mergeWithAsync {
+                bookmarkSyncService.add(bookmark)
+            }
         }
     }
 
