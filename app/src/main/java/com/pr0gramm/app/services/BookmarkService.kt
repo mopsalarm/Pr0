@@ -88,7 +88,7 @@ class BookmarkService(
             val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
 
             // now all bookmarks are remote, we can publish them locally now.
-            this.bookmarks.onNext(remote)
+            this.bookmarks.onNext(remote ?: listOf())
         }
     }
 

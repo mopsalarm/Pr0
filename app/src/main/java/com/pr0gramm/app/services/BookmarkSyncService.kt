@@ -1,9 +1,11 @@
 package com.pr0gramm.app.services
 
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.migrate
+import com.pr0gramm.app.util.StringException
 
 class BookmarkSyncService(private val api: Api, private val userService: UserService) {
     private val logger = Logger("BookmarkSyncService")
@@ -30,11 +32,13 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
     suspend fun delete(title: String): List<Bookmark> {
         return translate(api.bookmarksDeleteAsync(null, title).await())
     }
+}
 
-    private fun translate(bookmarks: Api.Bookmarks): List<Bookmark> {
-        return bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it) }
-    }
+private fun translate(bookmarks: Api.Bookmarks): List<Bookmark> {
+    if (bookmarks.error != null)
+        throw StringException { ctx -> ctx.getString(R.string.error_bookmark, bookmarks.error) }
 
+    return bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it) }
 }
 
 /**
@@ -45,6 +49,6 @@ private fun isAppSpecialCategory(bookmark: Api.Bookmark): Boolean {
     return name == "best of" || name == "kontrovers" || name == "wichteln"
 }
 
-fun bookmarkOf(b: Api.Bookmark): Bookmark {
+private fun bookmarkOf(b: Api.Bookmark): Bookmark {
     return Bookmark(b.name, link = b.link)
 }

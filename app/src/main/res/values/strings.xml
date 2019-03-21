@@ -513,5 +513,6 @@
     <string name="hint_edit_bookmarks_premium">Bookmarks are editable with pr0mium.</string>
     <string name="pref_pseudo_restore_bookmarks_title">Restore bookmarks</string>
     <string name="pref_pseudo_restore_bookmarks_summary">Restores the pr0gramm default bookmarks. Will not delete any locally stored bookmarks.</string>
+    <string name="error_bookmark">Error processing bookmarks: %s</string>
 </resources>
 
