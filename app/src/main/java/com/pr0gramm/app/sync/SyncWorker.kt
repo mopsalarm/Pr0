@@ -9,6 +9,7 @@ import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.setConstraintsCompat
 import java.util.concurrent.TimeUnit
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -61,7 +62,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                     .setInitialDelay(delay, unit)
-                    .setConstraints(constraints)
+                    .setConstraintsCompat(constraints)
                     .setInputData(workDataOf("delay" to delayInMilliseconds))
                     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
                     .build()

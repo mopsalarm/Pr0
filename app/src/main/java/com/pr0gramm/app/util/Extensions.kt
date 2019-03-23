@@ -10,6 +10,7 @@ import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.text.Editable
@@ -29,6 +30,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.WorkRequest
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import kotlinx.coroutines.delay
@@ -520,6 +523,7 @@ inline fun <reified T : Activity> Fragment.startActivity(requestCode: Int = -1, 
     val intent = Intent(requireContext(), T::class.java).also(configureIntent)
     startActivityForResult(intent, requestCode)
 }
+
 fun ContentProvider.requireContext(): Context {
     return context ?: throw IllegalStateException("context not set on ContentProvider")
 }
@@ -660,4 +664,15 @@ inline fun <reified T : Any> SharedPreferences.Editor.setObject(key: String, val
     }
 
     return this
+}
+
+/**
+ * Mitigate crashes in older android versions that are relying on AlarmManager.
+ * Changing a constraint leads to a crash of the application.
+ */
+fun <W : WorkRequest, B : WorkRequest.Builder<B, W>> B.setConstraintsCompat(constraints: Constraints): B {
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
+        return this
+
+    return setConstraints(constraints)
 }

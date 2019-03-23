@@ -5,6 +5,7 @@ import androidx.work.*
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.setConstraintsCompat
 import java.util.concurrent.TimeUnit
 
 class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -32,7 +33,7 @@ class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWor
 
             WorkManager.getInstance().enqueueUniquePeriodicWork(
                     "SyncStats", ExistingPeriodicWorkPolicy.KEEP,
-                    builder.setConstraints(constraints).build())
+                    builder.setConstraintsCompat(constraints).build())
         }
     }
 }
