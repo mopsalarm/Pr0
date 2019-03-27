@@ -179,6 +179,7 @@ dependencies {
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
     implementation "com.squareup.okhttp3:okhttp:3.12.2"
     implementation "com.squareup.picasso:picasso:2.71828"
+
     implementation "com.squareup.moshi:moshi:1.8.0"
 
     // still issues with version > 1.2.12

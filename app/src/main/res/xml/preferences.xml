@@ -280,8 +280,8 @@
                     android:title="@string/pref_fancy_scroll_horizontal"/>
 
                 <SwitchPreferenceCompat
-                    android:defaultValue="true"
-                    android:key="pref_show_content_type_flag"
+                    android:defaultValue="false"
+                    android:key="pref_show_content_type_flag_2"
                     android:summary="@string/pref_show_content_type_flag_summary"
                     android:title="@string/pref_show_content_type_flag_title"/>
 

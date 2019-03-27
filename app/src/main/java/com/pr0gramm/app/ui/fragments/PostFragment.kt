@@ -840,7 +840,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .subscribe { mediaControlsContainer.addView(it) }
 
         // show sfw/nsfw as a little flag, if the user is admin
-        if (userService.userIsAdmin && settings.showContentTypeFlag) {
+        if (settings.showContentTypeFlag) {
             // show the little admin triangle
             val size = requireContext().dip2px(16)
             ViewCompat.setBackground(mediaControlsContainer,

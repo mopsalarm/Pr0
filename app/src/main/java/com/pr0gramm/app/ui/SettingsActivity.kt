@@ -99,10 +99,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 hidePreferenceByName("prefcat_debug")
             }
 
-            if (!userService.userIsAdmin) {
-                hidePreferenceByName("pref_show_content_type_flag")
-            }
-
             if (!bookmarkService.canEdit) {
                 hidePreferenceByName("pref_pseudo_restore_bookmarks")
             }

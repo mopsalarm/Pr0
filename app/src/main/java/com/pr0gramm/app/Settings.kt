@@ -173,7 +173,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         }
 
     val showContentTypeFlag: Boolean
-        get() = preferences.getBoolean("pref_show_content_type_flag", true)
+        get() = preferences.getBoolean("pref_show_content_type_flag_2", false)
 
     val alwaysShowAds: Boolean
         get() = preferences.getBoolean("pref_always_show_ads", false)
