@@ -58,14 +58,13 @@ class NavigationProvider(
     private val iconLogin by drawable(R.drawable.ic_grey_action_login)
     private val iconLogout by drawable(R.drawable.ic_black_action_exit)
 
+    private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
         return lazy(LazyThreadSafetyMode.NONE) {
             ContextCompat.getDrawable(context, id)!!
         }
     }
-
-    private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
     fun navigationItems(currentSelection: Observable<FeedFilter?>): Observable<List<NavigationItem>> {
         val loginStates = userService.loginStates

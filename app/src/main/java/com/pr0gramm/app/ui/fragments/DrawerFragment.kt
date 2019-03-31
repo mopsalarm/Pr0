@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
@@ -17,6 +18,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
 import androidx.core.view.updatePaddingRelative
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
@@ -34,6 +36,8 @@ import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
+import com.pr0gramm.app.util.di.Injector
+import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
@@ -50,25 +54,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
     private val currentSelection = BehaviorSubject.create(null as FeedFilter?)
 
-    private val navigationProvider: NavigationProvider by lazy {
-        val k = requireContext().injector
-        val picasso = k.instance<Picasso>()
-        val inboxService = k.instance<InboxService>()
-        val configService = k.instance<ConfigService>()
-        val singleShotService = k.instance<SingleShotService>()
-        NavigationProvider(requireActivity(), userService, inboxService,
-                bookmarkService, configService, singleShotService, picasso)
-    }
-
     private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
 
     private lateinit var navigationAdapter: Adapter
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
-
-    private lateinit var defaultColor: ColorStateList
-    private lateinit var markedColor: ColorStateList
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.left_drawer, container, false)
@@ -77,12 +67,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.context.obtainStyledAttributes(intArrayOf(R.attr.colorAccent, android.R.attr.textColorPrimary)).use { result ->
-            markedColor = ColorStateList.valueOf(result.getColor(result.getIndex(0), 0))
-            defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0))
-        }
-
-        navigationAdapter = Adapter(callback)
+        navigationAdapter = Adapter(requireActivity() as Callbacks)
 
         // initialize the top navigation items
         navItemsRecyclerView.adapter = navigationAdapter
@@ -96,8 +81,17 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     override suspend fun onResumeImpl() {
+        val provider = with(requireContext().injector) {
+            val picasso = instance<Picasso>()
+            val inboxService = instance<InboxService>()
+            val configService = instance<ConfigService>()
+            val singleShotService = instance<SingleShotService>()
 
-        val rxNavItems = navigationProvider.navigationItems(currentSelection)
+            NavigationProvider(requireActivity(), userService, inboxService,
+                    bookmarkService, configService, singleShotService, picasso)
+        }
+
+        val rxNavItems = provider.navigationItems(currentSelection)
                 .subscribeOn(Schedulers.computation())
                 .startWith(listOf<NavigationItem>())
 
@@ -157,18 +151,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         fun hintBookmarksEditableWithPremium()
     }
 
-    private val callback: Callbacks
-        get() {
-            return activity as Callbacks
-        }
-
     private inner class Adapter(callbacks: Callbacks) : DelegateAdapter<Any>() {
         init {
-            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item)
-            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_hint)
-            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_inbox)
-            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_divider)
-            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_special)
+            val viewContext = view!!.context
+
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item)
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_hint)
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_inbox)
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_divider)
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_special)
 
             delegates += TitleDelegateAdapter(callbacks, userClassesService)
             delegates += BenisGraphDelegateAdapter(callbacks)
@@ -177,73 +168,118 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
     }
 
-    private inner class NavigationDelegateAdapter(@LayoutRes private val layoutId: Int)
-        : ItemAdapterDelegate<NavigationItem, Any, NavigationItemViewHolder>() {
+    fun scrollTo(filter: FeedFilter) {
+        navItemsRecyclerView.postDelayed(delayInMillis = 500) {
+            val context = requireContext()
 
-        override fun isForViewType(value: Any): Boolean {
-            return value is NavigationItem && value.layout == layoutId
+            val idx = navigationAdapter.items.indexOfFirst { item -> item is NavigationItem && item.filter == filter }
+            if (idx == -1)
+                return@postDelayed
+
+            val lm = navItemsRecyclerView.layoutManager as? LinearLayoutManager
+                    ?: return@postDelayed
+
+            lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
+                    dontScrollIfVisible = true,
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
+                    offsetBottom = context.dip2px(32)))
+        }
+    }
+}
+
+private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val text: TextView? = (itemView as? TextView ?: itemView.findOptional(R.id.title))
+    val unread: TextView? = itemView.findOptional(R.id.unread_count)
+    val action: Button? = itemView.findOptional(R.id.action_okay)
+}
+
+private class NavigationDelegateAdapter(
+        viewContext: Context,
+        private val activity: FragmentActivity,
+        private val doIfAuthorizedHelper: LoginActivity.DoIfAuthorizedHelper,
+        private val callback: DrawerFragment.Callbacks,
+        @LayoutRes private val layoutId: Int)
+
+    : ItemAdapterDelegate<NavigationItem, Any, NavigationItemViewHolder>(), InjectorAware {
+
+    override val injector: Injector = activity.injector
+
+    private val bookmarkService: BookmarkService = instance()
+
+    private val defaultColor: ColorStateList
+    private val markedColor: ColorStateList
+
+    init {
+        viewContext.obtainStyledAttributes(intArrayOf(R.attr.colorAccent, android.R.attr.textColorPrimary)).use { result ->
+            markedColor = ColorStateList.valueOf(result.getColor(result.getIndex(0), 0))
+            defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0))
+        }
+    }
+
+    override fun isForViewType(value: Any): Boolean {
+        return value is NavigationItem && value.layout == layoutId
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): NavigationItemViewHolder {
+        val inflater = LayoutInflater.from(parent.context).cloneInContext(parent.context)
+        val view = inflater.inflate(layoutId, parent, false)
+        return NavigationItemViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: NavigationItemViewHolder, value: NavigationItem) {
+        if (holder.text != null) {
+            holder.text.text = value.title ?: ""
+
+            // set the icon of the image
+            holder.text.setCompoundDrawablesWithIntrinsicBounds(value.icon, null, null, null)
+
+            // update color
+            if (value.action !== NavigationProvider.ActionType.HINT) {
+                val textColor: ColorStateList
+                val iconColor: ColorStateList
+
+                if (value.colorOverride != null) {
+                    textColor = defaultColor
+                    iconColor = ColorStateList.valueOf(value.colorOverride)
+                } else {
+                    textColor = if (value.isSelected) markedColor else defaultColor
+                    iconColor = textColor.withAlpha(127)
+                }
+
+                holder.text.setTextColor(textColor)
+                changeCompoundDrawableColor(holder.text, iconColor)
+            }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup): NavigationItemViewHolder {
-            val inflater = LayoutInflater.from(parent.context).cloneInContext(parent.context)
-            val view = inflater.inflate(layoutId, parent, false)
-            return NavigationItemViewHolder(view)
+        // handle clicks
+        holder.itemView.setOnClickListener {
+            dispatchItemClick(value)
         }
 
-        override fun onBindViewHolder(holder: NavigationItemViewHolder, value: NavigationItem) {
-            if (holder.text != null) {
-                holder.text.text = value.title ?: ""
-
-                // set the icon of the image
-                holder.text.setCompoundDrawablesWithIntrinsicBounds(value.icon, null, null, null)
-
-                // update color
-                if (value.action !== NavigationProvider.ActionType.HINT) {
-                    val textColor: ColorStateList
-                    val iconColor: ColorStateList
-
-                    if (value.colorOverride != null) {
-                        textColor = defaultColor
-                        iconColor = ColorStateList.valueOf(value.colorOverride)
-                    } else {
-                        textColor = if (value.isSelected) markedColor else defaultColor
-                        iconColor = textColor.withAlpha(127)
-                    }
-
-                    holder.text.setTextColor(textColor)
-                    changeCompoundDrawableColor(holder.text, iconColor)
+        holder.itemView.setOnLongClickListener {
+            if (value.bookmark != null) {
+                if (bookmarkService.canEdit) {
+                    showDialogToRemoveBookmark(value.bookmark)
+                } else {
+                    callback.hintBookmarksEditableWithPremium()
                 }
             }
 
-            // handle clicks
-            holder.itemView.setOnClickListener {
-                dispatchItemClick(value)
-            }
+            true
+        }
 
-            holder.itemView.setOnLongClickListener {
-                if (value.bookmark != null) {
-                    if (bookmarkService.canEdit) {
-                        showDialogToRemoveBookmark(value.bookmark)
-                    } else {
-                        callback.hintBookmarksEditableWithPremium()
-                    }
-                }
+        holder.action?.setOnClickListener {
+            value.customAction()
+        }
 
-                true
-            }
-
-            holder.action?.setOnClickListener {
-                value.customAction()
-            }
-
-            if (value.action === NavigationProvider.ActionType.MESSAGES) {
-                holder.unread?.apply {
-                    text = value.unreadCount.total.toString()
-                    visible = value.unreadCount.total > 0
-                }
+        if (value.action === NavigationProvider.ActionType.MESSAGES) {
+            holder.unread?.apply {
+                text = value.unreadCount.total.toString()
+                visible = value.unreadCount.total > 0
             }
         }
     }
+
 
     private fun dispatchItemClick(item: NavigationItem) {
         when (item.action) {
@@ -274,17 +310,17 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 item.uri?.let { openActionUri(it) }
 
             NavigationProvider.ActionType.SETTINGS ->
-                startActivity<SettingsActivity>()
+                activity.startActivity<SettingsActivity>()
 
             NavigationProvider.ActionType.INVITES ->
-                startActivity<InviteActivity>()
+                activity.startActivity<InviteActivity>()
 
             NavigationProvider.ActionType.CONTACT ->
-                activity?.startActivity<ContactActivity>(RequestCodes.FEEDBACK)
+                activity.startActivity<ContactActivity>(RequestCodes.FEEDBACK)
 
             NavigationProvider.ActionType.FAQ -> {
                 Track.registerFAQClicked()
-                BrowserHelper.openCustomTab(requireActivity(),
+                BrowserHelper.openCustomTab(activity,
                         Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
                         handover = false)
             }
@@ -292,14 +328,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             NavigationProvider.ActionType.PREMIUM -> {
                 Track.registerLinkClicked()
                 val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
-                BrowserHelper.openCustomTab(requireActivity(), uri)
+                BrowserHelper.openCustomTab(activity, uri)
             }
 
             NavigationProvider.ActionType.LOGIN ->
-                startActivity<LoginActivity>()
+                activity.startActivity<LoginActivity>()
 
             NavigationProvider.ActionType.LOGOUT ->
-                LogoutDialogFragment().show(fragmentManager, null)
+                LogoutDialogFragment().show(activity.supportFragmentManager, null)
 
         }
     }
@@ -313,7 +349,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             return
         }
 
-        BrowserHelper.openCustomTab(context ?: return, uri)
+        BrowserHelper.openCustomTab(activity, uri)
     }
 
     private fun showInboxActivity(unreadCounts: Api.InboxCounts) {
@@ -328,7 +364,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         val run = Runnable {
             val intent = Intent(activity, InboxActivity::class.java)
             intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal)
-            startActivity(intent)
+            activity.startActivity(intent)
         }
 
         doIfAuthorizedHelper.run(run, run)
@@ -343,7 +379,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun showDialogToRemoveBookmark(bookmark: Bookmark) {
-        showBottomSheet(this) {
+        showBottomSheet(activity) {
             content(R.string.do_you_want_to_remove_this_bookmark)
             negative(R.string.cancel)
             positive(R.string.delete) { bookmarkService.delete(bookmark) }
@@ -365,30 +401,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             // fake the tint with a color filter.
             it.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN)
         }
-    }
-
-    fun scrollTo(filter: FeedFilter) {
-        navItemsRecyclerView.postDelayed(delayInMillis = 500) {
-            val context = requireContext()
-
-            val idx = navigationAdapter.items.indexOfFirst { item -> item is NavigationItem && item.filter == filter }
-            if (idx == -1)
-                return@postDelayed
-
-            val lm = navItemsRecyclerView.layoutManager as? LinearLayoutManager
-                    ?: return@postDelayed
-
-            lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
-                    dontScrollIfVisible = true,
-                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
-                    offsetBottom = context.dip2px(32)))
-        }
-    }
-
-    private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val text: TextView? = (itemView as? TextView ?: itemView.findOptional(R.id.title))
-        val unread: TextView? = itemView.findOptional(R.id.unread_count)
-        val action: Button? = itemView.findOptional(R.id.action_okay)
     }
 }
 
