@@ -17,12 +17,12 @@
         android:padding="0dp"/>
 
     <TextView
-        android:id="@+id/unread_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
         android:background="?attr/roundedCornerBackground"
+        android:maxLines="1"
         android:paddingBottom="2dp"
         android:paddingLeft="3dp"
         android:paddingRight="3dp"

@@ -377,7 +377,7 @@
     <string name="dt_for_one_month_n_weeks">einen Monat und $r Wochen</string>
     <string name="dt_for_n_month">$d Monate</string>
     <string name="dt_for_one_year">ein Jahr</string>
-    <string name="dt_for_one_year_1_month">ein Jahr und eine Monat</string>
+    <string name="dt_for_one_year_1_month">ein Jahr und ein Monat</string>
     <string name="dt_for_one_year_n_month">ein Jahr und $r Monate</string>
     <string name="dt_for_n_years">$d Jahre</string>
     <string name="dt_for_now">jetzt</string>
@@ -403,7 +403,7 @@
     <string name="dt_since_one_month_n_weeks">einem Monat und $r Wochen</string>
     <string name="dt_since_n_month">$d Monaten</string>
     <string name="dt_since_one_year">einem Jahr</string>
-    <string name="dt_since_one_year_1_month">einem Jahr und einem Monate</string>
+    <string name="dt_since_one_year_1_month">einem Jahr und einem Monat</string>
     <string name="dt_since_one_year_n_month">einem Jahr und $r Monaten</string>
     <string name="dt_since_n_years">$d Jahren</string>
 
