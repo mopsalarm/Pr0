@@ -2,12 +2,12 @@
 <LinearLayout
     android:id="@+id/user_cell_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/grey_800"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
     <include
         layout="@layout/user_info_head"
@@ -82,7 +82,11 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
-                android:text="@string/kpi_desc_uploads"/>
+                android:text="@string/kpi_desc_uploads"
+                app:autoSizeMaxTextSize="12sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"/>
 
             <TextView
                 android:id="@+id/kpi_uploads"
@@ -95,7 +99,11 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
-                android:text="@string/kpi_desc_favorites"/>
+                android:text="@string/kpi_desc_favorites"
+                app:autoSizeMaxTextSize="12sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"/>
 
             <TextView
                 android:id="@+id/kpi_favorites"
@@ -108,8 +116,11 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
-                android:ellipsize="end"
-                android:text="@string/kpi_desc_comments"/>
+                android:text="@string/kpi_desc_comments"
+                app:autoSizeMaxTextSize="12sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"/>
 
             <TextView
                 android:id="@+id/kpi_comments"
@@ -123,7 +134,11 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
-                android:text="@string/kpi_desc_tags"/>
+                android:text="@string/kpi_desc_tags"
+                app:autoSizeMaxTextSize="12sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"/>
 
             <TextView
                 android:id="@+id/kpi_tags"
