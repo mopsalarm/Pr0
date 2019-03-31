@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -11,11 +12,15 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.core.os.bundleOf
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.setOnProgressChanged
 import kotterknife.bindView
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -109,15 +114,23 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun showAdvancedHelpPage() {
-        val uri = Uri.parse("https://github.com/mopsalarm/pr0gramm-tags/blob/master/README.md#tag-suche-für-pr0gramm")
-        BrowserHelper.openCustomTab(context, uri)
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://pr0gramm.com/new/2782197"))
+        context.startActivity(intent)
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        return bundleOf(
+                "viewState" to super.onSaveInstanceState(),
+                "customState" to currentState())
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
-        super.onRestoreInstanceState(null)
-
         if (state is Bundle) {
-            applyState(state)
+            val viewState = state.getParcelable<Parcelable>("viewState")
+            if (viewState != null)
+                super.onRestoreInstanceState(viewState)
+
+            this.applyState(state.getBundle("customState"))
         }
     }
 
