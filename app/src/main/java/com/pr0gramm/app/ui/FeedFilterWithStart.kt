@@ -14,7 +14,7 @@ object FilterParser {
         val commentId = extractCommentId(uriPath)
 
         // get the path without optional comment link
-        val path = uriPath.replaceFirst(":comment[0-9]+$".toRegex(), "")
+        val path = uriPath.replaceFirst(reCommentSuffix, "")
 
         for (pattern in patterns) {
             val matcher = pattern.matcher(path)
@@ -69,6 +69,8 @@ object FilterParser {
         val matcher = Pattern.compile(":comment([0-9]+)$").matcher(path)
         return if (matcher.find()) matcher.group(1).toLongOrNull() else null
     }
+
+    private val reCommentSuffix = ":comment[0-9]+$".toRegex()
 
     private val pFeed = Pattern.compile("^/(?<type>new|top|stalk)$")
     private val pFeedId = Pattern.compile("^/(?<type>new|top|stalk)/(?<id>[0-9]+)$")

@@ -11,6 +11,7 @@ import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.arguments
@@ -62,7 +63,9 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     return
             }
 
-            val update = UpdateChecker().queryAll()
+            val update = withBackgroundContext {
+                UpdateChecker().queryAll()
+            }
 
             // remember that we've checked
             prefs.edit {

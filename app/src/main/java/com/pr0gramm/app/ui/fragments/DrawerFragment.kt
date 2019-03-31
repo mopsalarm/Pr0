@@ -34,6 +34,7 @@ import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
+import rx.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -121,6 +122,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .subscribe { onLoginStateChanged(it) }
 
         navigationProvider.navigationItems
+                .subscribeOn(Schedulers.computation())
                 .observeOnMainThread()
                 .bindToLifecycle()
                 .subscribe { navigationAdapter.setNavigationItems(it) }

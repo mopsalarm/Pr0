@@ -17,6 +17,8 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import rx.Observable
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
@@ -61,8 +63,8 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             logger.info { "Starting loading ad now." }
 
             // now load the ad and show it, once it finishes loading
-            adService.load(adView, Config.AdType.FEED)
-                    .subscribeOnBackground()
+            Observable.defer { adService.load(adView, Config.AdType.FEED) }
+                    .delaySubscription(1000, TimeUnit.MILLISECONDS, MainThreadScheduler)
                     .observeOnMainThread()
                     .ignoreError()
                     .compose(RxLifecycleAndroid.bindView(container))

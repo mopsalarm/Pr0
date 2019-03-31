@@ -74,7 +74,7 @@ class AdService(private val configService: ConfigService, private val userServic
     fun newAdView(context: Context): AdView {
         val view = AdView(context.applicationContext)
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             view.adUnitId = "ca-app-pub-3940256099942544/6300978111"
         } else {
             view.adUnitId = context.getString(R.string.banner_ad_unit_id)

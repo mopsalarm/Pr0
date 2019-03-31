@@ -19,6 +19,7 @@ import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
+import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import rx.Observable
 import rx.Observable.combineLatest
@@ -38,28 +39,30 @@ class NavigationProvider(
 
     private val logger = Logger("NavigationProvider")
 
-    private val iconBookmark = drawable(R.drawable.ic_black_action_bookmark)
-    private val iconFavorites = drawable(R.drawable.ic_black_action_favorite)
-    private val iconFeedTypeBestOf = drawable(R.drawable.ic_drawer_bestof)
-    private val iconFeedTypeControversial = drawable(R.drawable.ic_category_controversial)
-    private val iconFeedTypeNew = drawable(R.drawable.ic_black_action_trending)
-    private val iconFeedTypePremium = drawable(R.drawable.ic_black_action_stelz)
-    private val iconFeedTypePromoted = drawable(R.drawable.ic_black_action_home)
-    private val iconFeedTypeRandom = drawable(R.drawable.ic_action_random)
-    private val iconInbox = drawable(R.drawable.ic_action_email)
-    private val iconUpload = drawable(R.drawable.ic_black_action_upload)
+    private val iconBookmark by drawable(R.drawable.ic_black_action_bookmark)
+    private val iconFavorites by drawable(R.drawable.ic_black_action_favorite)
+    private val iconFeedTypeBestOf by drawable(R.drawable.ic_drawer_bestof)
+    private val iconFeedTypeControversial by drawable(R.drawable.ic_category_controversial)
+    private val iconFeedTypeNew by drawable(R.drawable.ic_black_action_trending)
+    private val iconFeedTypePremium by drawable(R.drawable.ic_black_action_stelz)
+    private val iconFeedTypePromoted by drawable(R.drawable.ic_black_action_home)
+    private val iconFeedTypeRandom by drawable(R.drawable.ic_action_random)
+    private val iconInbox by drawable(R.drawable.ic_action_email)
+    private val iconUpload by drawable(R.drawable.ic_black_action_upload)
 
-    private val iconSettings = drawable(R.drawable.ic_grey_action_settings)
-    private val iconContact = drawable(R.drawable.ic_grey_action_feedback)
-    private val iconInvite = drawable(R.drawable.ic_contact_mail_black_24dp)
-    private val iconFAQ = drawable(R.drawable.ic_assignment)
-    private val iconPremium = drawable(R.drawable.ic_menu_premium)
-    private val iconLogin = drawable(R.drawable.ic_grey_action_login)
-    private val iconLogout = drawable(R.drawable.ic_black_action_exit)
+    private val iconSettings by drawable(R.drawable.ic_grey_action_settings)
+    private val iconContact by drawable(R.drawable.ic_grey_action_feedback)
+    private val iconInvite by drawable(R.drawable.ic_contact_mail_black_24dp)
+    private val iconFAQ by drawable(R.drawable.ic_assignment)
+    private val iconPremium by drawable(R.drawable.ic_menu_premium)
+    private val iconLogin by drawable(R.drawable.ic_grey_action_login)
+    private val iconLogout by drawable(R.drawable.ic_black_action_exit)
 
 
-    private fun drawable(@DrawableRes id: Int): Drawable {
-        return ContextCompat.getDrawable(context, id)!!
+    private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
+        return lazy(LazyThreadSafetyMode.NONE) {
+            ContextCompat.getDrawable(context, id)!!
+        }
     }
 
     private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
@@ -328,6 +331,10 @@ class NavigationProvider(
         logger.info { "Loading item $item" }
 
         return Observable.just(item)
+
+                // Picasso load call need to be on the main thread.
+                .observeOnMainThread()
+
                 .flatMap {
                     RxPicasso.load(picasso, picasso.load(Uri.parse(item.icon))
                             .noPlaceholder()
@@ -342,8 +349,8 @@ class NavigationProvider(
                     NavigationItem(ActionType.URI, item.name, icon, uri = uri, layout = layout)
                 }
                 .retryWhen { err ->
-                    err.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
-                        logger.debug { "Delay retry by $idx second(s)" }
+                    err.doOnNext { logger.warn(it) { "could not load item" } }.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
+                        logger.debug { "Delay retry by $idx second(s) because of $err" }
                         Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }
                 }
