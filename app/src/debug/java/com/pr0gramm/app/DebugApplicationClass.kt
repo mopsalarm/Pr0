@@ -14,7 +14,7 @@ class DebugApplicationClass : ApplicationClass() {
         StrictMode.enableDefaults()
 
         if (true) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 try {
                     // Debug.startMethodTracing(null, 128 * 1024 * 1024)
                     Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 500)
