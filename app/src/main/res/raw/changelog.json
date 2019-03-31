@@ -1,5 +1,22 @@
 [
   {
+    "version": 164,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Bilder, die zu groß sind, können beim Upload nun automatisch herunterskaliert werden."
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Bugs und Typos gefixt."
+      },
+      {
+        "type": "Fix",
+        "change": "Geschwindigkeit der App insbesondere auf älteren Geräten verbessert."
+      }
+    ]
+  },
+  {
     "version": 163,
     "changes": [
       {
