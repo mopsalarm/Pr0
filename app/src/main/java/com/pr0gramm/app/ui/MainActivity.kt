@@ -14,6 +14,7 @@ import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
@@ -321,7 +322,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val currentFeedFilter: FeedFilter?
         get() = (currentFragment as? FilterFragment)?.currentFilter
 
-    private val currentFragment: androidx.fragment.app.Fragment?
+    private val currentFragment: Fragment?
         get() = supportFragmentManager?.findFragmentById(R.id.content)
 
     private val shouldClearOnIntent: Boolean
@@ -553,7 +554,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)
     }
 
-    private fun moveToFragment(fragment: androidx.fragment.app.Fragment, clear: Boolean) {
+    private fun moveToFragment(fragment: Fragment, clear: Boolean) {
         if (isFinishing)
             return
 

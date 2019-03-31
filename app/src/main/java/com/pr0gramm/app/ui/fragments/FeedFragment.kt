@@ -203,7 +203,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // execute a search when we get a search term
         searchView.searchQuery().bindToLifecycle().subscribe { this.performSearch(it) }
         searchView.searchCanceled().bindToLifecycle().subscribe { hideSearchContainer() }
-        searchView.setupAutoComplete(recentSearchesServices)
 
         // restore open search
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
@@ -1187,9 +1186,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         view.post { this.hideToolbar() }
 
+        // ensure that the search view is initialized
+        searchView.initView()
+
         // prepare search view
         val typeName = FeedFilterFormatter.feedTypeToString(context, currentFilter.withTagsNoReset("dummy"))
-        searchView.queryHint = getString(R.string.action_search, typeName)
+        searchView.setQueryHint(getString(R.string.action_search, typeName))
 
         val paddingTop = if (isNormalMode) AndroidUtility.getStatusBarHeight(context) else 0
         searchView.setPadding(0, paddingTop, 0, 0)

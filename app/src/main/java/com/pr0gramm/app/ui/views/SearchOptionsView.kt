@@ -15,6 +15,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -34,10 +35,10 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private val minimumScoreSlider: SeekBar by bindView(R.id.minimum_benis_slider)
     private val customExcludesView: EditText by bindView(R.id.without_tags_text)
 
-    init {
-        View.inflate(context, R.layout.view_search, this)
+    private var pendingState: Bundle? = null
 
-        updateTagsCheckboxes()
+    val initView = Once {
+        View.inflate(context, R.layout.view_search, this)
 
         minimumScoreSlider.max = 1000
         minimumScoreSlider.keyProgressIncrement = 5
@@ -67,20 +68,29 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         find<View>(R.id.search_cancel).setOnClickListener { cancel() }
         find<View>(R.id.search_advanced).setOnClickListener { showAdvancedHelpPage() }
         find<View>(R.id.search_button).setOnClickListener { handleSearchButtonClicked() }
+
+        if (!isInEditMode) {
+            initAutoCompleteView(context.injector.instance())
+        }
+
+        if (this.pendingState != null) {
+            this.applyState(pendingState)
+            this.pendingState = null
+        } else {
+            updateTagsCheckboxes()
+        }
     }
 
-    fun setupAutoComplete(recentSearchesServices: RecentSearchesServices) {
+    private fun initAutoCompleteView(recentSearchesServices: RecentSearchesServices) {
         (searchTermView as? AutoCompleteTextView)?.setAdapter(
                 RecentSearchesAutoCompleteAdapter(recentSearchesServices,
                         context, android.R.layout.simple_dropdown_item_1line))
     }
 
-    var queryHint: String
-        get() = searchTermView.hint.toString()
-        set(queryHint) {
-            searchTermView.hint = queryHint
-        }
-
+    fun setQueryHint(hint: String) {
+        initView()
+        searchTermView.hint = hint
+    }
 
     /**
      * Resets the view back to its "empty" state.
@@ -103,11 +113,6 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         BrowserHelper.openCustomTab(context, uri)
     }
 
-    override fun onSaveInstanceState(): Parcelable {
-        super.onSaveInstanceState()
-        return currentState()
-    }
-
     override fun onRestoreInstanceState(state: Parcelable) {
         super.onRestoreInstanceState(null)
 
@@ -116,7 +121,10 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
-    fun currentState(): Bundle {
+    fun currentState(): Bundle? {
+        if (!initView.initialized)
+            return null
+
         return Bundle().apply {
             putInt("minScore", minimumScoreSlider.progress)
             putCharSequence("queryTerm", searchTermView.text)
@@ -127,6 +135,11 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
     fun applyState(state: Bundle?) {
         if (state == null) {
+            return
+        }
+
+        if (!initView.initialized) {
+            this.pendingState = state
             return
         }
 
@@ -290,6 +303,18 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             val bundle = Bundle()
             bundle.putCharSequence("queryTerm", queryTerm)
             return bundle
+        }
+    }
+}
+
+class Once(private val block: () -> Unit) {
+    var initialized = false
+        private set
+
+    operator fun invoke() {
+        if (!initialized) {
+            initialized = true
+            block()
         }
     }
 }
