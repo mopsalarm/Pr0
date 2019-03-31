@@ -46,7 +46,7 @@ import kotlin.properties.Delegates
  * This is the main class of our pr0gramm app.
  */
 class MainActivity : BaseAppCompatActivity("MainActivity"),
-        DrawerFragment.OnFeedFilterSelected,
+        DrawerFragment.Callbacks,
         androidx.fragment.app.FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler,
@@ -545,6 +545,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     override fun bookmarkFilter(filter: FeedFilter, title: String) {
         bookmarkService.save(bookmarkOf(title, filter))
         drawerLayout.openDrawer(GravityCompat.START)
+
+        drawerFragment?.scrollTo(filter)
     }
 
     private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,

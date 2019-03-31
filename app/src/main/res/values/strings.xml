@@ -56,7 +56,7 @@
     <string name="comment_hint">Comment…</string>
     <string name="action_answer">Reply</string>
     <string name="post_comment">Send</string>
-    <string name="benis">Benis:</string>
+    <string name="benis">Benis: %d</string>
     <string name="dummy_benis" translatable="false">2048</string>
     <string name="action_settings">SETTINGS</string>
     <string name="action_logout">LOGOUT</string>

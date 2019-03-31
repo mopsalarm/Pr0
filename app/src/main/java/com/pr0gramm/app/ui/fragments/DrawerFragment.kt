@@ -13,7 +13,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.postDelayed
+import androidx.core.view.updatePaddingRelative
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
@@ -35,7 +38,8 @@ import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
 import rx.schedulers.Schedulers
-import java.util.*
+import rx.subjects.BehaviorSubject
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -43,6 +47,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val userClassesService: UserClassesService by instance()
+
+    private val currentSelection = BehaviorSubject.create(null as FeedFilter?)
 
     private val navigationProvider: NavigationProvider by lazy {
         val k = requireContext().injector
@@ -54,17 +60,10 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 bookmarkService, configService, singleShotService, picasso)
     }
 
-    private val usernameView: TextView by bindView(R.id.username)
-    private val userTypeView: TextView by bindView(R.id.user_type)
-    private val benisView: TextView by bindView(R.id.kpi_benis)
-    private val benisDeltaView: TextView by bindView(R.id.benis_delta)
-    private val benisContainer: View by bindView(R.id.benis_container)
-    private val benisGraph: ImageView by bindView(R.id.benis_graph)
-    private val userImageView: View by bindView(R.id.user_image)
-
     private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
 
-    private val navigationAdapter = NavigationAdapter()
+    private lateinit var navigationAdapter: Adapter
+
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
     private lateinit var defaultColor: ColorStateList
@@ -83,24 +82,12 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0))
         }
 
-        // add some space on the top for the translucent status bar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val params = userImageView.layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin += getStatusBarHeight(requireActivity())
-        }
+        navigationAdapter = Adapter(callback)
 
         // initialize the top navigation items
         navItemsRecyclerView.adapter = navigationAdapter
+        navItemsRecyclerView.itemAnimator = null
         navItemsRecyclerView.layoutManager = LinearLayoutManager(activity)
-        navItemsRecyclerView.isNestedScrollingEnabled = false
-
-        // add the static items to the navigation
-        navigationAdapter.setNavigationItems(
-                navigationProvider.categoryNavigationItems(null))
-
-        benisGraph.setOnClickListener {
-            this.onBenisGraphClicked()
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -108,90 +95,43 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
     }
 
-    private fun onBenisGraphClicked() {
-        startActivity(Intent(context, StatisticsActivity::class.java))
-
-        // close the drawer
-        callback.onOtherNavigationItemClicked()
-    }
-
     override suspend fun onResumeImpl() {
-        userService.loginStateWithBenisGraph
-                .observeOnMainThread(firstIsSync = true)
-                .bindToLifecycle()
-                .subscribe { onLoginStateChanged(it) }
 
-        navigationProvider.navigationItems
+        val rxNavItems = navigationProvider.navigationItems(currentSelection)
                 .subscribeOn(Schedulers.computation())
-                .observeOnMainThread()
+                .startWith(listOf<NavigationItem>())
+
+        rx.Observable
+                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems) { state, navItems ->
+                    mutableListOf<Any>().also { items ->
+                        items += TitleInfo(state.loginState.name, state.loginState.mark)
+
+                        if (state.loginState.authorized) {
+                            items += BenisInfo(state.loginState.score, state.benisGraph)
+                        }
+
+                        items += Spacer
+                        items.addAll(navItems)
+                        items += Spacer
+                    }
+                }
+
+                .distinctUntilChanged()
+
+                // the first should come directly and can be applied here in "resume"
+                .debounce(100, TimeUnit.MILLISECONDS, MainThreadScheduler)
                 .bindToLifecycle()
-                .subscribe { navigationAdapter.setNavigationItems(it) }
-    }
-
-    private fun onLoginStateChanged(state: UserService.LoginStateWithBenisGraph) {
-        if (state.loginState.authorized) {
-            applyAuthorizedUserState(state)
-        } else {
-            applyNotAuthorizedState()
-        }
-    }
-
-    private fun applyAuthorizedUserState(state: UserService.LoginStateWithBenisGraph) {
-        val userClass = userClassesService.get(state.loginState.mark)
-
-        usernameView.text = state.loginState.name
-        usernameView.setOnClickListener { callback.onUsernameClicked() }
-
-        userTypeView.visible = true
-        userTypeView.text = userClass.name
-        userTypeView.setTextColor(userClass.color)
-        userTypeView.setOnClickListener { callback.onUsernameClicked() }
-
-
-        benisView.text = (state.loginState.score).toString()
-
-        val graph = state.benisGraph
-        if (graph != null && graph.points.size > 2) {
-            benisGraph.setImageDrawable(GraphDrawable(graph))
-            benisContainer.visible = true
-
-            updateBenisDeltaForGraph(graph)
-        } else {
-            updateBenisDelta(0)
-        }
-    }
-
-    private fun applyNotAuthorizedState() {
-        usernameView.setText(R.string.pr0gramm)
-        usernameView.setOnClickListener(null)
-
-        userTypeView.text = ""
-        userTypeView.visible = false
-
-        benisContainer.visible = false
-        benisGraph.setImageDrawable(null)
-    }
-
-    private fun updateBenisDeltaForGraph(benis: Graph) {
-        val delta = (benis.last.y - benis.first.y).toInt()
-        updateBenisDelta(delta)
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun updateBenisDelta(delta: Int) {
-        val context = context ?: return
-
-        val color = if (delta < 0) R.color.benis_delta_negative else R.color.benis_delta_positive
-        benisDeltaView.setTextColor(ContextCompat.getColor(context, color))
-        benisDeltaView.text = (if (delta < 0) "↓" else "↑") + delta
-        benisDeltaView.visible = true
+                .subscribe { items ->
+                    logger.debug { "Submitting ${items.size} navigation items" }
+                    navigationAdapter.submitList(items)
+                }
     }
 
     fun updateCurrentFilters(current: FeedFilter?) {
-        navigationAdapter.setCurrentFilter(current)
+        currentSelection.onNext(current)
     }
 
-    interface OnFeedFilterSelected {
+    interface Callbacks {
         /**
          * Called if a drawer filter was clicked.
          * @param filter The feed filter that was clicked.
@@ -217,45 +157,56 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         fun hintBookmarksEditableWithPremium()
     }
 
-    private val callback: OnFeedFilterSelected
+    private val callback: Callbacks
         get() {
-            return activity as OnFeedFilterSelected
+            return activity as Callbacks
         }
 
-    private inner class NavigationAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<NavigationItemViewHolder>() {
-        private val allItems = ArrayList<NavigationItem>()
-        private var currentFilter: FeedFilter? = null
-        private var selected: NavigationItem? = null
+    private inner class Adapter(callbacks: Callbacks) : DelegateAdapter<Any>() {
+        init {
+            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item)
+            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_hint)
+            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_inbox)
+            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_divider)
+            delegates += NavigationDelegateAdapter(R.layout.left_drawer_nav_item_special)
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NavigationItemViewHolder {
+            delegates += TitleDelegateAdapter(callbacks, userClassesService)
+            delegates += BenisGraphDelegateAdapter(callbacks)
+
+            delegates += SpacerAdapterDelegate
+        }
+    }
+
+    private inner class NavigationDelegateAdapter(@LayoutRes private val layoutId: Int)
+        : ItemAdapterDelegate<NavigationItem, Any, NavigationItemViewHolder>() {
+
+        override fun isForViewType(value: Any): Boolean {
+            return value is NavigationItem && value.layout == layoutId
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup): NavigationItemViewHolder {
             val inflater = LayoutInflater.from(parent.context).cloneInContext(parent.context)
-            val view = inflater.inflate(viewType, parent, false)
+            val view = inflater.inflate(layoutId, parent, false)
             return NavigationItemViewHolder(view)
         }
 
-        override fun getItemViewType(position: Int): Int {
-            return allItems[position].layout
-        }
-
-        override fun onBindViewHolder(holder: NavigationItemViewHolder, position: Int) {
-            val item = allItems[position]
-
+        override fun onBindViewHolder(holder: NavigationItemViewHolder, value: NavigationItem) {
             if (holder.text != null) {
-                holder.text.text = item.title ?: ""
+                holder.text.text = value.title ?: ""
 
                 // set the icon of the image
-                holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null)
+                holder.text.setCompoundDrawablesWithIntrinsicBounds(value.icon, null, null, null)
 
                 // update color
-                if (item.action !== NavigationProvider.ActionType.HINT) {
+                if (value.action !== NavigationProvider.ActionType.HINT) {
                     val textColor: ColorStateList
                     val iconColor: ColorStateList
 
-                    if (item.colorOverride != null) {
+                    if (value.colorOverride != null) {
                         textColor = defaultColor
-                        iconColor = ColorStateList.valueOf(item.colorOverride)
+                        iconColor = ColorStateList.valueOf(value.colorOverride)
                     } else {
-                        textColor = if ((selected == item)) markedColor else defaultColor
+                        textColor = if (value.isSelected) markedColor else defaultColor
                         iconColor = textColor.withAlpha(127)
                     }
 
@@ -266,13 +217,13 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             // handle clicks
             holder.itemView.setOnClickListener {
-                dispatchItemClick(item)
+                dispatchItemClick(value)
             }
 
             holder.itemView.setOnLongClickListener {
-                if (item.bookmark != null) {
+                if (value.bookmark != null) {
                     if (bookmarkService.canEdit) {
-                        showDialogToRemoveBookmark(item.bookmark)
+                        showDialogToRemoveBookmark(value.bookmark)
                     } else {
                         callback.hintBookmarksEditableWithPremium()
                     }
@@ -282,46 +233,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             }
 
             holder.action?.setOnClickListener {
-                item.customAction()
+                value.customAction()
             }
 
-            if (item.action === NavigationProvider.ActionType.MESSAGES) {
+            if (value.action === NavigationProvider.ActionType.MESSAGES) {
                 holder.unread?.apply {
-                    text = item.unreadCount.total.toString()
-                    visible = item.unreadCount.total > 0
+                    text = value.unreadCount.total.toString()
+                    visible = value.unreadCount.total > 0
                 }
             }
-        }
-
-        override fun getItemCount(): Int {
-            return allItems.size
-        }
-
-        fun setNavigationItems(items: List<NavigationItem>) {
-            checkMainThread()
-            this.allItems.clear()
-            this.allItems.addAll(items)
-            merge()
-        }
-
-        fun setCurrentFilter(current: FeedFilter?) {
-            currentFilter = current
-            merge()
-        }
-
-        private fun merge() {
-            checkMainThread()
-            logger.debug { "Merging items now" }
-
-            selected = allItems.firstOrNull { it.hasFilter && it.filter == currentFilter }
-
-            if (selected == null) {
-                currentFilter?.let { current ->
-                    selected = allItems.firstOrNull { it.filter?.feedType === current.feedType }
-                }
-            }
-
-            notifyDataSetChanged()
         }
     }
 
@@ -447,9 +367,128 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
     }
 
-    private class NavigationItemViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
+    fun scrollTo(filter: FeedFilter) {
+        navItemsRecyclerView.postDelayed(delayInMillis = 500) {
+            val context = requireContext()
+
+            val idx = navigationAdapter.items.indexOfFirst { item -> item is NavigationItem && item.filter == filter }
+            if (idx == -1)
+                return@postDelayed
+
+            val lm = navItemsRecyclerView.layoutManager as? LinearLayoutManager
+                    ?: return@postDelayed
+
+            lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
+                    dontScrollIfVisible = true,
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
+                    offsetBottom = context.dip2px(32)))
+        }
+    }
+
+    private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text: TextView? = (itemView as? TextView ?: itemView.findOptional(R.id.title))
         val unread: TextView? = itemView.findOptional(R.id.unread_count)
         val action: Button? = itemView.findOptional(R.id.action_okay)
     }
 }
+
+
+data class TitleInfo(val name: String?, val mark: Int = 0)
+
+private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks, private val userClassesService: UserClassesService)
+    : ListItemTypeAdapterDelegate<TitleInfo, TitleViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup): TitleViewHolder {
+        return TitleViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_title))
+    }
+
+    override fun onBindViewHolder(holder: TitleViewHolder, value: TitleInfo) {
+        if (value.name == null) {
+            holder.title.setText(R.string.pr0gramm)
+            holder.title.setOnClickListener(null)
+
+            holder.subtitle.visible = false
+        } else {
+            holder.title.text = value.name
+            holder.title.setOnClickListener { callbacks.onUsernameClicked() }
+
+            val userClass = userClassesService.get(value.mark)
+            holder.subtitle.visible = true
+            holder.subtitle.text = userClass.name
+            holder.subtitle.setTextColor(userClass.color)
+            holder.subtitle.setOnClickListener { callbacks.onUsernameClicked() }
+        }
+    }
+}
+
+private class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val title = find<TextView>(R.id.title)
+    val subtitle = find<TextView>(R.id.subtitle)
+
+    init {
+        // add some space on the top for the translucent status bar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            itemView.updatePaddingRelative(top = getStatusBarHeight(itemView.context))
+        }
+    }
+}
+
+data class BenisInfo(val score: Int, val graph: Graph?)
+
+private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
+    : ListItemTypeAdapterDelegate<BenisInfo, BenisGraphViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup): BenisGraphViewHolder {
+        return BenisGraphViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_benis))
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onBindViewHolder(holder: BenisGraphViewHolder, value: BenisInfo) {
+        val context = holder.itemView.context
+
+        holder.benis.text = context.getString(R.string.benis, value.score)
+
+        val graph = value.graph
+        if (graph != null && graph.points.size >= 2) {
+            holder.graph.setImageDrawable(GraphDrawable(graph))
+            holder.graph.visible = true
+
+            val delta = (graph.last.y - graph.first.y).toInt()
+            val color = if (delta < 0) R.color.benis_delta_negative else R.color.benis_delta_positive
+            holder.delta.setTextColor(ContextCompat.getColor(context, color))
+            holder.delta.text = (if (delta < 0) "↓" else "↑") + delta
+            holder.delta.visible = true
+        } else {
+            holder.graph.setImageDrawable(null)
+            holder.graph.visible = false
+
+            holder.delta.visible = false
+        }
+
+        holder.itemView.setOnClickListener {
+            context.startActivity<StatisticsActivity>()
+            callbacks.onOtherNavigationItemClicked()
+        }
+    }
+}
+
+
+private class BenisGraphViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val benis = find<TextView>(R.id.benis)
+    val delta = find<TextView>(R.id.benis_delta)
+    val graph = find<ImageView>(R.id.benis_graph)
+}
+
+
+private object Spacer
+
+private object SpacerAdapterDelegate : ListItemTypeAdapterDelegate<Spacer, RecyclerView.ViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        return object : RecyclerView.ViewHolder(
+                parent.inflateDetachedChild(R.layout.left_drawer_nav_spacer)) {}
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: Spacer) {
+    }
+}
+

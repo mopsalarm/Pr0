@@ -172,10 +172,10 @@ class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLU
         fun x(x: Double): Double = (x - minX) / scaleX
 
         fun y(y: Double): Double {
-            if (scaleY > 0) {
-                return bounds.height() - (y - minY) / scaleY
+            return if (scaleY > 0) {
+                bounds.height() - (y - minY) / scaleY
             } else {
-                return bounds.height() * 0.5
+                bounds.height() * 0.75
             }
         }
     }
