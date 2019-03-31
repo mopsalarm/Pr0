@@ -309,7 +309,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         showDialog(this) {
             content(R.string.error_check_file_permission)
-            positive(android.R.string.ok, { activity?.finish() })
+            positive(android.R.string.ok) { activity?.finish() }
             onCancel { activity?.finish() }
         }
     }
@@ -363,7 +363,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         if (fileMediaType == MediaUri.MediaType.IMAGE) {
             showDialog(this) {
                 content(R.string.hint_image_too_large)
-                positive(R.string.down_size, { shrinkImage() })
+                positive(R.string.down_size) { shrinkImage() }
                 negative(android.R.string.no)
             }
         } else {
@@ -389,7 +389,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         view?.let { view ->
             Snackbar.make(view, R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
                     .configureNewStyle()
-                    .setAction(R.string.okay, {})
+                    .setAction(R.string.okay) {}
                     .show()
         }
     }
@@ -397,7 +397,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun showCanNotHandleTypeDialog() {
         showDialog(this) {
             content(R.string.upload_error_invalid_type)
-            positive(R.string.okay, { activity?.finish() })
+            positive(R.string.okay) { activity?.finish() }
         }
     }
 

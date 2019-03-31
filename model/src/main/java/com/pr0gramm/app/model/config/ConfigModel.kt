@@ -7,8 +7,8 @@ data class Config(
         val maxUploadSizeNormal: Long = 10 * 1024 * 1024,
         val maxUploadSizePremium: Long = 20 * 1024 * 1024,
 
-        val maxUploadPixelsNormal: Int = 25_250_000,
-        val maxUploadPixelsPremium: Int = 25_250_000,
+        val maxUploadPixelsNormal: Long = 20_250_000,
+        val maxUploadPixelsPremium: Long = 20_250_000,
 
         val adType: AdType = AdType.NONE,
         val trackItemView: Boolean = false,

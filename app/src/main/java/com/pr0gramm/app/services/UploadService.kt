@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
@@ -37,14 +38,34 @@ class UploadService(private val api: Api,
      */
     private val maxUploadSize: Long
         get() {
-            return userService.loginState.let { state ->
-                val config = configService.config()
-                if (state.premium) config.maxUploadSizePremium else config.maxUploadSizeNormal
-            }
+            val config = configService.config()
+            return if (userService.loginState.premium) config.maxUploadSizePremium else config.maxUploadSizeNormal
+        }
+
+    private val maxUploadPixels: Long
+        get() {
+            val config = configService.config()
+            return if (userService.loginState.premium) config.maxUploadPixelsPremium else config.maxUploadPixelsNormal
         }
 
     suspend fun sizeOkay(file: File): Boolean = withBackgroundContext {
-        file.length() < maxUploadSize
+        val fileSizeOk = file.length() < maxUploadSize
+
+        if (!fileSizeOk)
+            return@withBackgroundContext false
+
+        val pixelsOkay = runCatching {
+            // get image size, ignore errors
+            val opts = BitmapFactory.Options()
+            opts.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(file.path, opts)
+
+            // check that image size is okay
+            opts.outWidth * opts.outHeight <= maxUploadPixels
+        }
+
+        // and recover here if file is not an image
+        pixelsOkay.getOrDefault(true)
     }
 
     fun downsize(file: File): Observable<File> {
@@ -56,7 +77,7 @@ class UploadService(private val api: Api,
             val bitmap = picasso.load(file)
                     .config(Bitmap.Config.ARGB_8888)
                     .centerInside()
-                    .resize(2048, 2048)
+                    .resize(4096, 4096)
                     .onlyScaleDown()
                     .get()
 
