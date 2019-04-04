@@ -5,7 +5,6 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
-import com.pr0gramm.app.util.toInt
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
@@ -95,8 +94,8 @@ class FeedItem : Freezable {
 
         sink.writeByte(mark)
         sink.writeByte(flags)
-        sink.writeByte(audio.toInt())
-        sink.writeByte(deleted.toInt())
+        sink.writeBoolean(audio)
+        sink.writeBoolean(deleted)
     }
 
     constructor(source: Freezable.Source) {
@@ -116,8 +115,8 @@ class FeedItem : Freezable {
 
         mark = source.readByte().toInt()
         flags = source.readByte().toInt()
-        audio = source.readByte() != 0.toByte()
-        deleted = source.readByte() != 0.toByte()
+        audio = source.readBoolean()
+        deleted = source.readBoolean()
     }
 
     companion object : Unfreezable<FeedItem> {

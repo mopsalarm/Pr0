@@ -6,6 +6,7 @@ import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
+import com.pr0gramm.app.parcel.writeValues
 
 /**
  * Represents a feed.
@@ -153,9 +154,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             sink.writeInt(ContentType.combine(feed.contentType))
             sink.writeBoolean(feed.isAtStart)
             sink.write(feed.created)
-
-            sink.writeInt(feed.items.size)
-            feed.items.forEach { write(it) }
+            sink.writeValues(feed.items)
         }
 
         companion object : Unfreezable<FeedParcel> {

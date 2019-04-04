@@ -11,6 +11,7 @@ import com.pr0gramm.app.time
 import okio.*
 import java.util.zip.Deflater
 import java.util.zip.Inflater
+import kotlin.contracts.contract
 
 
 private val logger = Logger("Freezer")
@@ -79,11 +80,6 @@ interface Freezable : Parcelable {
                 sink.write(bytes)
             }
         }
-
-        fun <F : Freezable> writeValues(values: Collection<F>) {
-            writeInt(values.size)
-            values.forEach { write(it) }
-        }
     }
 
     class Source(private val source: BufferedSource) {
@@ -146,10 +142,6 @@ interface Freezable : Parcelable {
             }
 
             return source.readUtf8(size.toLong())
-        }
-
-        fun <F : Freezable> readValues(c: Unfreezable<F>): List<F> {
-            return listOfSize(readInt()) { read(c) }
         }
     }
 }
@@ -251,3 +243,24 @@ private inline val Class<*>.directName: String
     get() {
         return name.takeLastWhile { it != '.' }.replace('$', '.')
     }
+
+
+fun <F : Freezable> Freezable.Sink.writeValues(values: Collection<F>) {
+    writeInt(values.size)
+    values.forEach { write(it) }
+}
+
+inline fun Freezable.Sink.writeValues(n: Int, fn: (idx: Int) -> Unit) {
+    contract { callsInPlace(fn) }
+
+    writeInt(n)
+    repeat(n, fn)
+}
+
+fun <F : Freezable> Freezable.Source.readValues(c: Unfreezable<F>): List<F> {
+    return listOfSize(readInt()) { read(c) }
+}
+
+inline fun <E> Freezable.Source.readValues(fn: () -> E): List<E> {
+    return listOfSize(readInt()) { fn() }
+}

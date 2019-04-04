@@ -19,7 +19,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -340,9 +339,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                 if (excerptTextView.isEnabled) {
                     val user = parentComment.comment.user
                     if (user in selectedUsers) {
-                        selectedUsers -= user
+                        selectedUsers = selectedUsers - user
                     } else {
-                        selectedUsers += user
+                        selectedUsers = selectedUsers + user
                     }
                 }
             }
@@ -351,10 +350,10 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
     class ParentComments(val comments: List<ParentComment>) : Freezable {
         override fun freeze(sink: Freezable.Sink) {
-            sink.writeInt(comments.size)
-            comments.forEach {
-                sink.writeString(it.user)
-                sink.writeString(it.excerpt)
+            sink.writeValues(comments.size) { idx ->
+                val comment = comments[idx]
+                sink.writeString(comment.user)
+                sink.writeString(comment.excerpt)
             }
         }
 
@@ -363,7 +362,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val CREATOR = parcelableCreator()
 
             override fun unfreeze(source: Freezable.Source): ParentComments {
-                return ParentComments(comments = listOfSize(source.readInt()) {
+                return ParentComments(comments = source.readValues {
                     ParentComment(user = source.readString(), excerpt = source.readString())
                 })
             }

@@ -1,15 +1,13 @@
 package com.pr0gramm.app.parcel
 
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.listOfSize
 
 /**
  */
 class TagListParceler(val tags: List<Api.Tag>) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeInt(tags.size)
-
-        tags.forEach { tag ->
+        sink.writeValues(tags.size) { idx ->
+            val tag = tags[idx]
             writeLong(tag.id)
             writeFloat(tag.confidence)
             writeString(tag.tag)
@@ -21,7 +19,7 @@ class TagListParceler(val tags: List<Api.Tag>) : Freezable {
         val CREATOR = parcelableCreator()
 
         override fun unfreeze(source: Freezable.Source): TagListParceler = with(source) {
-            val tags = listOfSize(readInt()) {
+            val tags = readValues {
                 val id = readLong()
                 val confidence = readFloat()
                 val tag = readString()

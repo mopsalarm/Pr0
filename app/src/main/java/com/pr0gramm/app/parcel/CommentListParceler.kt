@@ -2,16 +2,14 @@ package com.pr0gramm.app.parcel
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.listOfSize
 
 /**
  */
 class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
 
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeInt(comments.size)
-
-        comments.forEach { comment ->
+        writeValues(comments.size) { idx ->
+            val comment = comments[idx]
             writeLong(comment.id)
             writeFloat(comment.confidence)
             writeString(comment.name)
@@ -29,7 +27,7 @@ class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
         val CREATOR = parcelableCreator()
 
         override fun unfreeze(source: Freezable.Source): CommentListParceler {
-            val comments = listOfSize(source.readInt()) {
+            val comments = source.readValues {
                 Api.Comment(
                         id = source.readLong(),
                         confidence = source.readFloat(),
