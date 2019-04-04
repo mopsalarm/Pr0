@@ -89,7 +89,7 @@ class FeedItem : Freezable {
 
         sink.writeShort(up)
         sink.writeShort(down)
-        sink.writeInt((created.millis / 1000).toInt())
+        sink.write(created)
         sink.writeInt(width)
         sink.writeInt(height)
 
@@ -110,7 +110,7 @@ class FeedItem : Freezable {
 
         up = source.readShort().toInt()
         down = source.readShort().toInt()
-        created = Instant(1000L * source.readInt())
+        created = source.read(Instant)
         width = source.readInt()
         height = source.readInt()
 

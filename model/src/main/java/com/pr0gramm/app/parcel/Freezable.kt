@@ -8,11 +8,10 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.time
-import okio.Buffer
-import okio.BufferedSink
-import okio.BufferedSource
-import okio.ByteString
-import org.iq80.snappy.Snappy
+import okio.*
+import java.util.zip.Deflater
+import java.util.zip.Inflater
+
 
 private val logger = Logger("Freezer")
 
@@ -43,15 +42,29 @@ interface Freezable : Parcelable {
         }
 
         fun writeShort(value: Int) {
-            sink.writeShort(value)
+            writeInt(value)
         }
 
         fun writeInt(value: Int) {
-            sink.writeInt(value)
+            var rest = value shl 1 xor (value shr 31)
+
+            while (rest and -0x80 != 0) {
+                writeByte(rest and 0x7F or 0x80)
+                rest = rest ushr 7
+            }
+
+            writeByte(rest and 0x7F)
         }
 
         fun writeLong(value: Long) {
-            sink.writeLong(value)
+            var rest = value shl 1 xor (value shr 63)
+
+            while (rest and -0x80L != 0L) {
+                writeByte(rest.toInt() and 0x7F or 0x80)
+                rest = rest ushr 7
+            }
+
+            writeByte(rest.toInt() and 0x7F)
         }
 
         fun writeFloat(f: Float) {
@@ -60,7 +73,7 @@ interface Freezable : Parcelable {
 
         fun writeString(s: String) {
             val bytes = ByteString.encodeUtf8(s)
-            sink.writeInt(bytes.size())
+            writeInt(bytes.size())
 
             if (bytes.size() > 0) {
                 sink.write(bytes)
@@ -81,16 +94,53 @@ interface Freezable : Parcelable {
         fun readBoolean(): Boolean = source.readByte() != 0.toByte()
 
         fun readByte(): Byte = source.readByte()
-        fun readShort(): Short = source.readShort()
-        fun readInt(): Int = source.readInt()
-        fun readLong(): Long = source.readLong()
+
+        fun readShort(): Short = readInt().toShort()
+
+        fun readInt(): Int {
+            var value = 0
+            var len = 0
+
+            do {
+                val b = readByte().toInt()
+                if (b and 0x80 == 0) {
+                    val raw = value or (b shl len)
+                    val temp = raw shl 31 shr 31 xor raw shr 1
+                    return temp xor (raw and (1 shl 31))
+                }
+
+                value = value or (b and 0x7F shl len)
+                len += 7
+            } while (len <= 35)
+
+            throw IllegalArgumentException("Variable length quantity is too long")
+        }
+
+        fun readLong(): Long {
+            var value = 0L
+            var len = 0
+
+            do {
+                val b = readByte().toLong()
+                if (b and 0x80L == 0L) {
+                    val raw = value or (b shl len)
+                    val temp = raw shl 63 shr 63 xor raw shr 1
+                    return temp xor (raw and (1L shl 63))
+                }
+
+                value = value or (b and 0x7F shl len)
+                len += 7
+            } while (len <= 63)
+
+            throw IllegalArgumentException("Variable length quantity is too long")
+        }
 
         fun readFloat(): Float {
             return Float.fromBits(source.readInt())
         }
 
         fun readString(): String {
-            val size = source.readInt()
+            val size = readInt()
             if (size == 0) {
                 return ""
             }
@@ -128,7 +178,10 @@ object Freezer {
 
             val buffer = Buffer()
             buffer.writeByte(1)
-            buffer.write(Snappy.compress(raw.readByteArray()))
+
+            DeflaterSink(buffer, Deflater(6)).use { sink ->
+                sink.write(raw, raw.size())
+            }
 
             logger.debug {
                 "Compressed %d bytes to %d (%1.2f%%) took %s".format(
@@ -143,13 +196,15 @@ object Freezer {
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
         return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
             val notCompressed = data[0] == 0.toByte()
+
+            val rawSource = bufferOf(data, 1, data.size - 1)
             if (notCompressed) {
-                val source = bufferOf(data, 1, data.size - 1)
-                c.unfreeze(Freezable.Source(source))
+                c.unfreeze(Freezable.Source(rawSource))
 
             } else {
-                val uncompressed = bufferOf(Snappy.uncompress(data, 1, data.size - 1))
-                c.unfreeze(Freezable.Source(uncompressed))
+                InflaterSource(rawSource, Inflater()).use { source ->
+                    c.unfreeze(Freezable.Source(Okio.buffer(source)))
+                }
             }
         }
     }

@@ -32,9 +32,6 @@
 -keep public class com.evernote.android.job.JobRescheduleService
 
 
-# Snappy loads a memory subclass via reflection
--keep class * implements org.iq80.snappy.Memory
-
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 

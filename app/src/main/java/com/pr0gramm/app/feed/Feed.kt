@@ -6,7 +6,6 @@ import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
-import com.pr0gramm.app.util.toInt
 
 /**
  * Represents a feed.
@@ -152,7 +151,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
             sink.write(feed.filter)
             sink.writeInt(ContentType.combine(feed.contentType))
-            sink.writeInt(feed.isAtStart.toInt())
+            sink.writeBoolean(feed.isAtStart)
             sink.write(feed.created)
 
             sink.writeInt(feed.items.size)
@@ -167,7 +166,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 return FeedParcel(Feed(
                         filter = read(FeedFilter),
                         contentType = ContentType.decompose(readInt()),
-                        isAtStart = readInt() != 0,
+                        isAtStart = readBoolean(),
                         created = read(Instant),
                         items = listOfSize(readInt()) { read(FeedItem) }))
             }
