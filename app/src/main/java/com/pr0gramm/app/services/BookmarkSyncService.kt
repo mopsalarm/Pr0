@@ -35,8 +35,9 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
 }
 
 private fun translate(bookmarks: Api.Bookmarks): List<Bookmark> {
-    if (bookmarks.error != null)
-        throw StringException { ctx -> ctx.getString(R.string.error_bookmark, bookmarks.error) }
+    val error = bookmarks.error
+    if (error != null)
+        throw StringException(error) { ctx -> ctx.getString(R.string.error_bookmark, error) }
 
     return bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it) }
 }

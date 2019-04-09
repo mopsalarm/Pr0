@@ -325,7 +325,7 @@ private class ConversationLoader(private val name: String, private val inboxServ
 
         val response = inboxService.messagesInConversation(name, olderThan)
         if (response.error != null) {
-            throw StringException { context -> context.getString(R.string.conversation_load_error) }
+            throw StringException("load") { context -> context.getString(R.string.conversation_load_error) }
         }
 
         return Pagination.Page.atTail(response.messages, hasMore = !response.atEnd)

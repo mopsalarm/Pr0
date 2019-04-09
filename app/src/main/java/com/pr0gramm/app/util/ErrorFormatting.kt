@@ -314,6 +314,6 @@ private val HttpException.bodyContent: String
         return kotlin.runCatching { body.string() }.getOrDefault("")
     }
 
-class StringException(val messageProvider: (Context) -> String) : RuntimeException() {
-    constructor(id: Int) : this({ it.getString(id) })
+class StringException(errorKey: String, val messageProvider: (Context) -> String) : RuntimeException(errorKey) {
+    constructor(errorKey: String, id: Int) : this(errorKey, { it.getString(id) })
 }

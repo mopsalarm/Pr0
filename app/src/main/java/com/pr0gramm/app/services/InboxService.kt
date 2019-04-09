@@ -133,7 +133,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     suspend fun send(recipient: String, message: String): Api.ConversationMessages {
         val response = api.sendMessageAsync(null, message, recipient).await()
         if (response.error == "senderIsRecipient") {
-            throw StringException(R.string.error_senderIsRecipient)
+            throw StringException("senderIsRecipient", R.string.error_senderIsRecipient)
         }
         return response
     }
