@@ -21,15 +21,12 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.util.AndroidUtility.getTintedDrawable
-import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
-import rx.Emitter
-import rx.Observable
 
 class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val tag = "ZoomViewActivity" + System.currentTimeMillis()
@@ -58,14 +55,16 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         imageView.setBitmapDecoderFactory(PicassoDecoder.factory(tag, picasso))
         imageView.setRegionDecoderFactory(Decoders.regionDecoderFactory(cache))
 
-        rxImageLoaded(imageView).bindToLifecycle().subscribe {
-            hideBusyIndicator()
+        imageView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
+            override fun onImageLoaded() {
+                hideBusyIndicator()
 
-            imageView.maxScale = Math.max(
-                    2 * imageView.width.toFloat() / imageView.sWidth,
-                    2 * imageView.height.toFloat() / imageView.sWidth
-            )
-        }
+                imageView.maxScale = Math.max(
+                        2 * imageView.width.toFloat() / imageView.sWidth,
+                        2 * imageView.height.toFloat() / imageView.sWidth
+                )
+            }
+        })
 
         hq.setImageDrawable(getColoredHqIcon(R.color.grey_700))
 
@@ -147,16 +146,6 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
             val intent = Intent(context, ZoomViewActivity::class.java)
             intent.putExtra("ZoomViewActivity__item", item)
             return intent
-        }
-
-        private fun rxImageLoaded(view: SubsamplingScaleImageView): Observable<Unit> {
-            return createObservable<Unit>(Emitter.BackpressureMode.NONE) {
-                view.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
-                    override fun onImageLoaded() {
-                        it.onNext(Unit)
-                    }
-                })
-            }
         }
     }
 }
