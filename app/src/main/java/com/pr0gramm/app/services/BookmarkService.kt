@@ -54,7 +54,7 @@ class BookmarkService(
         val bookmarks = MoshiInstance.adapter<List<Bookmark>>().fromJson(json) ?: listOf()
 
         logger.debug { "Restored ${bookmarks.size} bookmarks" }
-        this.bookmarks.onNext(bookmarks)
+        this.bookmarks.onNext(bookmarks.filter { it.title.length <= 255 })
     }
 
     private fun persist(bookmarks: List<Bookmark>) {
