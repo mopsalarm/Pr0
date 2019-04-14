@@ -24,7 +24,7 @@ class StalkService(private val api: Api) {
         markAsFollowing(username, false)
     }
 
-    fun markAsFollowing(username: String, following: Boolean) {
+    private fun markAsFollowing(username: String, following: Boolean) {
         val changed = if (following) {
             this.following.add(username.toLowerCase())
         } else {

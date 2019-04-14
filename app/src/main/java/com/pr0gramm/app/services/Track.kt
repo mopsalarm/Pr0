@@ -9,14 +9,12 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.FirebaseAnalytics.Event
 import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.model.config.Config
-import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
-import rx.Observable
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
@@ -171,11 +169,9 @@ object Track : InjectorAware {
         }
     }
 
-    fun updateUserState(loginState: Observable<LoginState>) {
-        loginState.distinctUntilChanged { st -> Pair(st.authorized, st.premium) }.subscribe { state ->
-            fa.setUserProperty(GA_CUSTOM_AUTHORIZED, state.authorized.toString())
-            fa.setUserProperty(GA_CUSTOM_PREMIUM, state.premium.toString())
-        }
+    fun updateUserState(state: AuthState) {
+        fa.setUserProperty(GA_CUSTOM_AUTHORIZED, state.authorized.toString())
+        fa.setUserProperty(GA_CUSTOM_PREMIUM, state.premium.toString())
     }
 
     fun updateAdType(adType: Config.AdType) {
@@ -194,4 +190,6 @@ object Track : InjectorAware {
             settingsTracker.track()
         }
     }
+
+    data class AuthState(val authorized: Boolean, val premium: Boolean)
 }

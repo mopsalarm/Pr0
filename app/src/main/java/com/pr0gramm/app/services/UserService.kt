@@ -57,7 +57,8 @@ class UserService(private val api: Api,
         // persist the login state every time it changes.
         loginStates.observeOn(Schedulers.computation()).subscribe { state -> persistLatestLoginState(state) }
 
-        Track.updateUserState(loginStates)
+        loginStates.map { Track.AuthState(it.authorized, it.premium) }
+                .distinctUntilChanged().subscribe { state -> Track.updateUserState(state) }
     }
 
     private fun updateLoginState(newLoginState: LoginState) {
