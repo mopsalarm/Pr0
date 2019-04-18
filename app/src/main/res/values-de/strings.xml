@@ -24,7 +24,6 @@
     <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Eventuell ist es dein altes Smartphone oder ein Bug in der App.</string>
     <string name="error_service_unavailable">Pr0gramm ist gerade nicht verfügbar. Informationen zu Störungen auch auf https://twitter.com/pr0gramm</string>
-    <string name="gif_as_webm_might_be_buggy">Achtung: Du sparst damit sehr viel Datenvolumen, aber es könnte etwas länger dauern.</string>
     <string name="hint_password">Passwort</string>
     <string name="hint_username">Benutzername</string>
     <string name="login">Login</string>
@@ -205,7 +204,6 @@
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
     <string name="pref_show_category_premium_title">Stelz-Kategorie</string>
-    <string name="notify_new_message_summary_text">Zum Lesen hier berühren</string>
     <string name="action_feed_type_controversial">KONTROVERS</string>
     <string name="filter_format_controversial">Kontrovers</string>
     <string name="prefcat_behaviour__categories_title">Kategorien</string>
@@ -296,11 +294,7 @@
     <string name="upload_error_video_container">Ungültige Container/Codec-Konstellation. (z.B. VP8 in einem MP4 Container).</string>
     <string name="upload_error_video_streams">Ungültige Stream-Konstellation (z.B zwei Audio Streams).</string>
     <string name="dialog_dont_show_again">Nicht wieder anzeigen</string>
-    <string name="action_feed_type_text">TEXT</string>
     <string name="login_register">Neuer Account</string>
-    <string name="filter_format_text">Text</string>
-    <string name="pref_show_category_text_title">\'Text\' Kategorie</string>
-    <string name="pref_show_category_text_summary">Diese Kategorie zeigt nur Bilder in denen Text erkannt wurde.</string>
     <string name="error_cloudflare">Die Anfrage ist fehlgeschlagen, da Cloudflare scheinbar deine Adresse gesperrt hat.</string>
     <string name="error_proxy_timeout">Ein Timeout ist beim Kontaktieren des pr0gramms aufgetreten.</string>
     <string name="feedback_appfeedback">Feedback zur App</string>
