@@ -66,7 +66,7 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled false
+            minifyEnabled true
             shrinkResources false
 
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
@@ -79,7 +79,7 @@ android {
 
         release {
             minifyEnabled true
-            shrinkResources true
+            shrinkResources false
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-release.pro'
 
             multiDexEnabled false
