@@ -7,6 +7,8 @@ import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.ui.FilterParser
 import com.pr0gramm.app.util.tryEnumValueOf
 
+val Bookmark.isImmutable: Boolean get() = trending
+
 /**
  * Create a feed filter from this bookmark.
  */
@@ -57,7 +59,7 @@ fun Bookmark.migrate(): Bookmark {
         uri.appendPath(filter.tags)
     }
 
-    return Bookmark(title, link = uri.build().encodedPath)
+    return Bookmark(title, link = uri.build().encodedPath, trending = trending)
 }
 
 fun bookmarkOf(title: String, filter: FeedFilter): Bookmark {

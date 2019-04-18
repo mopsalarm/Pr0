@@ -11,5 +11,7 @@ data class Bookmark(
         val filterUsername: String? = null,
         val filterFeedType: String? = null,
 
+        val trending: Boolean = false,
+
         // new optional field for migrated bookmarks
         val link: String? = null)

@@ -107,7 +107,8 @@ class BookmarkService(
      * Observes change to the bookmarks
      */
     fun observe(): Observable<List<Bookmark>> {
-        return bookmarks.map { it.sortedBy { it.title.toLowerCase() } }.distinctUntilChanged()
+        val comparator = compareBy<Bookmark> { !it.trending }.thenBy { it.title.toLowerCase() }
+        return bookmarks.map { it.sortedWith(comparator) }.distinctUntilChanged()
     }
 
     /**

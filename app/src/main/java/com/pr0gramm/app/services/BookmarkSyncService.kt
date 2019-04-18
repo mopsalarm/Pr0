@@ -39,7 +39,9 @@ private fun translate(bookmarks: Api.Bookmarks): List<Bookmark> {
     if (error != null)
         throw StringException(error) { ctx -> ctx.getString(R.string.error_bookmark, error) }
 
-    return bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it) }
+    val normal = bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it, trending = false) }
+    val trending = bookmarks.trending.sortedByDescending { it.velocity }.take(3).map { bookmarkOf(it, trending = true) }
+    return normal + trending
 }
 
 /**
@@ -50,6 +52,6 @@ private fun isAppSpecialCategory(bookmark: Api.Bookmark): Boolean {
     return name == "best of" || name == "kontrovers" || name == "wichteln"
 }
 
-private fun bookmarkOf(b: Api.Bookmark): Bookmark {
-    return Bookmark(b.name, link = b.link)
+private fun bookmarkOf(b: Api.Bookmark, trending: Boolean): Bookmark {
+    return Bookmark(b.name, link = b.link, trending = trending)
 }

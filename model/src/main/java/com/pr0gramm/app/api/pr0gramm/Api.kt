@@ -594,10 +594,14 @@ interface Api {
             val sent: Boolean)
 
     @JsonClass(generateAdapter = true)
-    data class Bookmarks(val bookmarks: List<Bookmark> = listOf(), val error: String? = null)
+    data class Bookmarks(
+            val bookmarks: List<Bookmark> = listOf(),
+            val trending: List<Bookmark> = listOf(),
+            val error: String? = null)
 
     @JsonClass(generateAdapter = true)
     data class Bookmark(
             val name: String,
-            val link: String)
+            val link: String,
+            val velocity: Float = 0.0f)
 }

@@ -40,6 +40,7 @@ class NavigationProvider(
     private val logger = Logger("NavigationProvider")
 
     private val iconBookmark by drawable(R.drawable.ic_black_action_bookmark)
+    private val iconBookmarkTrending by drawable(R.drawable.ic_trending)
     private val iconFavorites by drawable(R.drawable.ic_black_action_favorite)
     private val iconFeedTypeBestOf by drawable(R.drawable.ic_drawer_bestof)
     private val iconFeedTypeControversial by drawable(R.drawable.ic_category_controversial)
@@ -69,50 +70,52 @@ class NavigationProvider(
     fun navigationItems(currentSelection: Observable<FeedFilter?>): Observable<List<NavigationItem>> {
         val loginStates = userService.loginStates
 
-        val rawSources = listOf<Observable<List<NavigationItem>>>(
-                loginStates
-                        .switchMap { remoteConfigItems(it, upper = true) },
+        val items = loginStates.switchMap { loginState ->
+            val rawSources = listOf<Observable<List<NavigationItem>>>(
+                    remoteConfigItems(loginState, upper = true),
 
-                loginStates
-                        .switchMap { categoryNavigationItems(currentSelection, it.name) },
+                    currentSelection.map { selection ->
+                        categoryNavigationItems(selection, loginState.name)
+                    },
 
-                loginStates
-                        .switchMap { remoteConfigItems(it, upper = false) },
+                    remoteConfigItems(loginState, upper = false),
 
-                inboxService.unreadMessagesCount()
-                        .startWith(Api.InboxCounts())
-                        .map { listOf(inboxNavigationItem(it)) },
+                    inboxService.unreadMessagesCount()
+                            .startWith(Api.InboxCounts())
+                            .map { listOf(inboxNavigationItem(it)) },
 
-                Observable.just(listOf(uploadNavigationItem)),
+                    Observable.just(listOf(uploadNavigationItem)),
 
-                loginStates
-                        .switchMap { bookmarkService.observe() }
-                        .switchMap { bookmarks -> bookmarksToNavItem(currentSelection, bookmarks) },
+                    combineLatest(bookmarkService.observe(), currentSelection) { bookmarks, selection ->
+                        bookmarksToNavItem(selection, bookmarks)
+                    },
 
-                loginStates
-                        .map { footerItems(it) })
+                    Observable.just(footerItems(loginState)))
 
-        val sources = rawSources.map { navigationItemSource ->
-            navigationItemSource
-                    .startWith(emptyList<NavigationItem>())
-                    .retryWhen { errorStream ->
-                        errorStream
-                                .doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
-                                .delay(5, TimeUnit.SECONDS)
-                    }
-        }
-
-        // observe and merge the menu items from different sources
-        fun merge(args: Array<Any>): List<NavigationItem> {
-            val result = mutableListOf<NavigationItem>()
-            args.filterIsInstance<List<Any?>>().forEach { items ->
-                items.filterIsInstanceTo(result)
+            val sources = rawSources.map { navigationItemSource ->
+                navigationItemSource
+                        .startWith(emptyList<NavigationItem>())
+                        .retryWhen { errorStream ->
+                            errorStream
+                                    .doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
+                                    .delay(5, TimeUnit.SECONDS)
+                        }
             }
 
-            return result
+            // observe and merge the menu items from different sources
+            fun merge(args: Array<Any>): List<NavigationItem> {
+                val result = mutableListOf<NavigationItem>()
+                args.filterIsInstance<List<Any?>>().forEach { items ->
+                    items.filterIsInstanceTo(result)
+                }
+
+                return result
+            }
+
+            combineLatest(sources, ::merge)
         }
 
-        return triggerNavigationUpdate.switchMap { combineLatest(sources, ::merge) }.distinctUntilChanged()
+        return triggerNavigationUpdate.switchMap { items }.distinctUntilChanged()
     }
 
     private fun footerItems(loginState: LoginState): List<NavigationItem> {
@@ -144,63 +147,61 @@ class NavigationProvider(
     /**
      * Adds the default "fixed" items to the menu
      */
-    private fun categoryNavigationItems(currentSelection: Observable<FeedFilter?>, username: String?): Observable<List<NavigationItem>> {
-        return currentSelection.map { selection ->
-            fun makeItem(title: String, icon: Drawable, filter: FeedFilter, action: ActionType = ActionType.FILTER) = NavigationItem(
-                    action = action, title = title, icon = icon, filter = filter, isSelected = filter == selection)
+    private fun categoryNavigationItems(selection: FeedFilter?, username: String?): List<NavigationItem> {
+        fun makeItem(title: String, icon: Drawable, filter: FeedFilter, action: ActionType = ActionType.FILTER) = NavigationItem(
+                action = action, title = title, icon = icon, filter = filter, isSelected = filter == selection)
 
-            val items = mutableListOf<NavigationItem>()
+        val items = mutableListOf<NavigationItem>()
 
+        items += makeItem(
+                title = getString(R.string.action_feed_type_promoted),
+                icon = iconFeedTypePromoted,
+                filter = FeedFilter().withFeedType(FeedType.PROMOTED))
+
+        items += makeItem(
+                title = getString(R.string.action_feed_type_new),
+                icon = iconFeedTypeNew,
+                filter = FeedFilter().withFeedType(FeedType.NEW))
+
+        val settings = Settings.get()
+
+        if (settings.showCategoryBestOf) {
             items += makeItem(
-                    title = getString(R.string.action_feed_type_promoted),
-                    icon = iconFeedTypePromoted,
-                    filter = FeedFilter().withFeedType(FeedType.PROMOTED))
-
-            items += makeItem(
-                    title = getString(R.string.action_feed_type_new),
-                    icon = iconFeedTypeNew,
-                    filter = FeedFilter().withFeedType(FeedType.NEW))
-
-            val settings = Settings.get()
-
-            if (settings.showCategoryBestOf) {
-                items += makeItem(
-                        title = getString(R.string.action_feed_type_bestof),
-                        icon = iconFeedTypeBestOf,
-                        filter = FeedFilter().withFeedType(FeedType.BESTOF))
-            }
-
-            if (settings.showCategoryControversial) {
-                items += makeItem(
-                        title = getString(R.string.action_feed_type_controversial),
-                        icon = iconFeedTypeControversial,
-                        filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
-            }
-
-            if (settings.showCategoryRandom) {
-                items += makeItem(
-                        title = getString(R.string.action_feed_type_random),
-                        icon = iconFeedTypeRandom,
-                        filter = FeedFilter().withFeedType(FeedType.RANDOM))
-            }
-
-            if (settings.showCategoryPremium && userService.userIsPremium) {
-                items += makeItem(
-                        title = getString(R.string.action_feed_type_premium),
-                        icon = iconFeedTypePremium,
-                        filter = FeedFilter().withFeedType(FeedType.PREMIUM))
-            }
-
-            if (username != null) {
-                items += makeItem(
-                        action = ActionType.FAVORITES,
-                        title = getString(R.string.action_favorites),
-                        icon = iconFavorites,
-                        filter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
-            }
-
-            items
+                    title = getString(R.string.action_feed_type_bestof),
+                    icon = iconFeedTypeBestOf,
+                    filter = FeedFilter().withFeedType(FeedType.BESTOF))
         }
+
+        if (settings.showCategoryControversial) {
+            items += makeItem(
+                    title = getString(R.string.action_feed_type_controversial),
+                    icon = iconFeedTypeControversial,
+                    filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
+        }
+
+        if (settings.showCategoryRandom) {
+            items += makeItem(
+                    title = getString(R.string.action_feed_type_random),
+                    icon = iconFeedTypeRandom,
+                    filter = FeedFilter().withFeedType(FeedType.RANDOM))
+        }
+
+        if (settings.showCategoryPremium && userService.userIsPremium) {
+            items += makeItem(
+                    title = getString(R.string.action_feed_type_premium),
+                    icon = iconFeedTypePremium,
+                    filter = FeedFilter().withFeedType(FeedType.PREMIUM))
+        }
+
+        if (username != null) {
+            items += makeItem(
+                    action = ActionType.FAVORITES,
+                    title = getString(R.string.action_favorites),
+                    icon = iconFavorites,
+                    filter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
+        }
+
+        return items
     }
 
     /**
@@ -215,44 +216,47 @@ class NavigationProvider(
                 unreadCount = unreadCounts)
     }
 
-    private fun bookmarksToNavItem(currentSelection: Observable<FeedFilter?>, bookmarks: List<Bookmark>): Observable<List<NavigationItem>> {
-        return currentSelection.map { currentSelection ->
-            val items = bookmarks
-                    .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
-                    .mapTo(mutableListOf()) { entry ->
-                        val icon = iconBookmark.constantState!!.newDrawable()
-                        val title = entry.title.toUpperCase()
-
-                        val filter = entry.asFeedFilter()
-                        NavigationItem(
-                                action = ActionType.BOOKMARK,
-                                title = title, icon = icon, bookmark = entry,
-                                filter = filter, isSelected = filter == currentSelection)
+    private fun bookmarksToNavItem(currentSelection: FeedFilter?, bookmarks: List<Bookmark>): List<NavigationItem> {
+        val items = bookmarks
+                .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
+                .mapTo(mutableListOf()) { entry ->
+                    val icon = when {
+                        entry.trending -> iconBookmarkTrending.constantState!!.newDrawable()
+                        else -> iconBookmark.constantState!!.newDrawable()
                     }
 
-            val actionKey = "hint:bookmark-hold-to-delete:2"
+                    val title = entry.title.toUpperCase()
 
-            val hintNotYetShown = singleShotService.isFirstTime(actionKey)
-            if (items.isNotEmpty() && bookmarkService.canEdit && hintNotYetShown) {
-                val hint = NavigationItem(
-                        action = ActionType.HINT,
-                        title = getString(R.string.bookmark_hint_delete),
-                        icon = null,
-                        layout = R.layout.left_drawer_nav_item_hint,
-                        customAction = {
-                            singleShotService.markAsDoneOnce(actionKey)
-                            triggerNavigationUpdate.onNext(Unit)
-                        })
+                    val filter = entry.asFeedFilter()
 
-                items.add(0, hint)
-            }
+                    NavigationItem(
+                            action = ActionType.BOOKMARK,
+                            title = title, icon = icon, bookmark = entry,
+                            filter = filter, isSelected = filter == currentSelection)
+                }
 
-            if (items.isNotEmpty()) {
-                items.add(0, staticItemDivider)
-            }
+        val actionKey = "hint:bookmark-hold-to-delete:2"
 
-            items
+        val hintNotYetShown = singleShotService.isFirstTime(actionKey)
+        if (items.isNotEmpty() && bookmarkService.canEdit && hintNotYetShown) {
+            val hint = NavigationItem(
+                    action = ActionType.HINT,
+                    title = getString(R.string.bookmark_hint_delete),
+                    icon = null,
+                    layout = R.layout.left_drawer_nav_item_hint,
+                    customAction = {
+                        singleShotService.markAsDoneOnce(actionKey)
+                        triggerNavigationUpdate.onNext(Unit)
+                    })
+
+            items.add(0, hint)
         }
+
+        if (items.isNotEmpty()) {
+            items.add(0, staticItemDivider)
+        }
+
+        return items
     }
 
     /**
@@ -369,7 +373,9 @@ class NavigationProvider(
                          val isSelected: Boolean = false,
                          val colorOverride: Int? = null) {
 
-        private val hashCode by lazy { listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode() }
+        private val hashCode by lazy(LazyThreadSafetyMode.NONE) {
+            listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode()
+        }
 
         override fun hashCode(): Int = hashCode
 
