@@ -6,6 +6,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.orm.migrate
@@ -94,6 +95,9 @@ class BookmarkService(
      */
     fun isBookmarkable(filter: FeedFilter): Boolean {
         if (!canEdit || filter.isBasic || filter.likes != null)
+            return false
+
+        if (filter.feedType != FeedType.NEW && filter.feedType != FeedType.PROMOTED)
             return false
 
         return byFilter(filter) == null
