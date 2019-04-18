@@ -9,9 +9,13 @@ import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.asFeedFilter
+import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.orm.migrate
+import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
 import rx.Observable
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -27,6 +31,8 @@ class BookmarkService(
     private val logger = Logger("BookmarkService")
     private val bookmarks = BehaviorSubject.create<List<Bookmark>>(listOf())
 
+    private val updateQueue = Channel<suspend () -> Unit>(Channel.UNLIMITED)
+
     init {
         // restore previous json
         restoreFromSerialized(preferences.getStringOrNull("Bookmarks.json") ?: "[]")
@@ -39,7 +45,13 @@ class BookmarkService(
 
         userService.loginStates
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .subscribe { doInBackground { update() } }
+                .subscribe { updateQueue.sendBlocking { update() } }
+
+        doInBackground {
+            for (action in updateQueue) {
+                catchAll { action() }
+            }
+        }
     }
 
     /**
@@ -64,7 +76,7 @@ class BookmarkService(
         val json = MoshiInstance.adapter<List<Bookmark>>().toJson(bookmarks)
         preferences.edit { putString("Bookmarks.json", json) }
 
-        doInBackground { uploadLocalBookmarks() }
+        updateQueue.sendBlocking { uploadLocalBookmarks() }
     }
 
     suspend fun uploadLocalBookmarks() {
@@ -77,10 +89,10 @@ class BookmarkService(
             logger.info { "Uploading all non default bookmarks now" }
 
             // get the names of all default bookmarks on the server side
-            val defaults = bookmarkSyncService.fetch(anonymous = true).map { it.title }
+            val defaults = bookmarkSyncService.fetch(anonymous = true).map { it.title.toLowerCase() }
 
             // and filter all bookmarks from the app that are not in the default bookmarks
-            val custom = localOnly.filter { it.title !in defaults }
+            val custom = localOnly.filter { it.title.toLowerCase() !in defaults }
 
             // store those bookmarks on the remote side
             val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
@@ -112,12 +124,12 @@ class BookmarkService(
     }
 
     /**
-     * Deletes the given bookmark if it exists.
+     * Deletes the given bookmark if it exists. Bookmarks are compared by their title.
      */
     fun delete(bookmark: Bookmark) {
         synchronized(bookmarks) {
             // remove all matching bookmarks
-            val newValues = bookmarks.value.filter { it != bookmark }
+            val newValues = bookmarks.value.filterNot { it.hasTitle(bookmark.title) }
             bookmarks.onNext(newValues)
         }
 
@@ -130,7 +142,7 @@ class BookmarkService(
     }
 
     private fun mergeWithAsync(block: suspend () -> List<Bookmark>) {
-        doInBackground { mergeWith(block) }
+        updateQueue.sendBlocking { mergeWith(block) }
     }
 
     private suspend fun mergeWith(block: suspend () -> List<Bookmark>) {
@@ -140,18 +152,18 @@ class BookmarkService(
         val updated = block()
         synchronized(this.bookmarks) {
             if (this.bookmarks.value === currentState) {
-                mergeWith(updated)
+                mergeCurrentState(updated)
             }
         }
     }
 
-    private fun mergeWith(update: List<Bookmark>) {
+    private fun mergeCurrentState(update: List<Bookmark>) {
         synchronized(bookmarks) {
             // get the local ones that dont have a 'link' yet
             val local = bookmarks.value.filter { it.link == null }
 
             // and merge them together, with the local ones winning.
-            val merged = (local + update).distinctBy { it.title }
+            val merged = (local + update).distinctBy { it.title.toLowerCase() }
 
             bookmarks.onNext(merged)
         }
@@ -165,22 +177,32 @@ class BookmarkService(
     }
 
     fun byTitle(title: String): Bookmark? {
-        return bookmarks.value.firstOrNull { it.title == title }
+        return bookmarks.value.firstOrNull { it.hasTitle(title) }
     }
 
     /**
      * Save a bookmark to the database.
      */
     fun save(bookmark: Bookmark) {
+        rename(bookmark, bookmark.title)
+    }
+
+    /**
+     * Rename a bookmark
+     */
+    fun rename(existing: Bookmark, newTitle: String) {
+        val new = existing.migrate().copy(title = newTitle)
+
         synchronized(bookmarks) {
             val values = bookmarks.value.toMutableList()
 
-            // replace the first bookmark that has the same title
-            val idx = values.indexOfFirst { it.title == bookmark.title }
+            // replace the first bookmark that has the old title,
+            // or add the new bookmark to the end
+            val idx = values.indexOfFirst { it.hasTitle(existing.title) }
             if (idx >= 0) {
-                values[idx] = bookmark.migrate()
+                values[idx] = new
             } else {
-                values.add(0, bookmark.migrate())
+                values.add(0, new)
             }
 
             // dispatch changes
@@ -189,14 +211,18 @@ class BookmarkService(
 
         if (bookmarkSyncService.isAuthorized) {
             mergeWithAsync {
-                bookmarkSyncService.add(bookmark)
+                if (existing.title != newTitle) {
+                    bookmarkSyncService.delete(existing.title)
+                }
+
+                bookmarkSyncService.add(new)
             }
         }
     }
 
     suspend fun restore() {
         // get all default bookmarks
-        val defaults = bookmarkSyncService.fetch(anonymous = true)
+        val defaults = bookmarkSyncService.fetch(anonymous = true).filter { !it.isImmutable }
 
         // and save missing bookmarks remotely
         defaults.filter { byTitle(it.title) == null }.forEach { bookmark ->
@@ -208,4 +234,8 @@ class BookmarkService(
     }
 
     val canEdit: Boolean get() = bookmarkSyncService.canChange
+
+    private fun Bookmark.hasTitle(title: String): Boolean {
+        return this.title.equals(title, ignoreCase = false)
+    }
 }

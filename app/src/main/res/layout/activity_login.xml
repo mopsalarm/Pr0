@@ -2,12 +2,12 @@
 <LinearLayout
     android:id="@+id/content"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.LoginActivity"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:context=".ui.LoginActivity">
 
     <ImageView
         android:layout_width="match_parent"
@@ -26,11 +26,12 @@
         android:layout_marginTop="16dp">
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/username"
+            style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_username"
+            android:importantForAutofill="yes"
             android:inputType="textVisiblePassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -42,11 +43,12 @@
         android:layout_marginTop="16dp">
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/password"
+            style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_password"
+            android:importantForAutofill="yes"
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -54,36 +56,36 @@
         android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginLeft="64dp"
         android:layout_marginRight="64dp"
+        android:layout_marginTop="8dp"
         android:text="@string/login"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/register"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_marginRight="4dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
             android:text="@string/login_register"/>
 
         <Button
             android:id="@+id/password_recovery"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
+            android:layout_weight="1"
             android:text="@string/login_password_recovery"/>
     </LinearLayout>
 </LinearLayout>

@@ -33,7 +33,7 @@
     <string name="login_not_successful">Login not successful. Did you check your password? You might be temporarily banned if you failed to login too often.</string>
     <string name="must_not_be_empty">Must not be empty</string>
     <string name="new_update_available">New update available. Short overview about what is new: %s</string>
-    <string name="okay">OK</string>
+    <string name="okay">Okay</string>
     <string name="please_wait">please wait…</string>
     <string name="points">%d points</string>
     <string name="pr0gramm">pr0gramm</string>
@@ -84,7 +84,7 @@
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
     <string name="action_pin">Bookmark</string>
-    <string name="do_you_want_to_remove_this_bookmark">Do you want to remove this bookmark?</string>
+    <string name="bookmark_editor_title">Edit bookmark</string>
     <string name="filter_format_tag_by">By</string>
     <string name="filter_format_fav_of">Fav of</string>
     <string name="filter_format_top">Top</string>

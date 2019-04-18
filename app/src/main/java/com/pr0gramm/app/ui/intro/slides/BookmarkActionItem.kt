@@ -21,5 +21,6 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
     override fun deactivate() {
         // delete any existing bookmarks
         bookmarkService.byTitle(title)?.let { bookmarkService.delete(it) }
+        bookmarkService.byFilter(filter)?.let { bookmarkService.delete(it) }
     }
 }

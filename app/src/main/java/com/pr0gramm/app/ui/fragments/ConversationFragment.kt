@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -137,7 +138,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
      */
     private fun isAtConversationTail(): Boolean {
         val llm = listView.layoutManager as? LinearLayoutManager
-        return llm?.findLastVisibleItemPosition() == adapter.itemCount - 1
+        return llm?.findLastCompletelyVisibleItemPosition() == adapter.itemCount - 1
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -314,6 +315,7 @@ private class ConversationItemDiffCallback : DiffUtil.ItemCallback<Any>() {
         }
     }
 
+    @SuppressLint("DiffUtilEquals")
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
         return oldItem == newItem
     }

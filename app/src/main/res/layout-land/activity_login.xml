@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:id="@+id/content"
                 xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:padding="16dp"
-                tools:context=".ui.LoginActivity"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
+                tools:context=".ui.LoginActivity">
 
     <ImageView
         android:layout_width="wrap_content"
@@ -28,21 +28,23 @@
         android:orientation="vertical">
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/username"
+            style="@style/Widget.AppCompat.EditText"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:hint="@string/hint_username"/>
+            android:hint="@string/hint_username"
+            android:importantForAutofill="yes"/>
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/password"
+            style="@style/Widget.AppCompat.EditText"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:hint="@string/hint_password"
+            android:importantForAutofill="yes"
             android:inputType="textPassword"/>
 
         <Button

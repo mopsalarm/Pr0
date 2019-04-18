@@ -3,8 +3,16 @@
     "version": 165,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Lesezeichen können nun umbenannt werden. Um den Editor zu öffnen musst du einfach länger auf ein Lesezeichen drücken."
+      },
+      {
+        "type": "Neu",
+        "change": "Frequentierte Tags werden nun neben den Lesezeichen gezeigt."
+      },
+      {
         "type": "Fix",
-        "change": "Links mit einer schließenden Klammer am Ende wurden nicht richtig hervorgehoben"
+        "change": "Links mit einer schließenden Klammer am Ende wurden nicht richtig hervorgehoben."
       }
     ]
   },

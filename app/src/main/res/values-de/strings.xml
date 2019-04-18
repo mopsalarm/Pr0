@@ -30,7 +30,7 @@
     <string name="login_not_successful">Login nicht erfolgreich. Passwort/Benutzer falsch.</string>
     <string name="must_not_be_empty">Darf nicht leer sein</string>
     <string name="new_update_available">Neues Update verfügbar: %s</string>
-    <string name="okay">OK</string>
+    <string name="okay">Okay</string>
     <string name="please_wait">Bitte warten</string>
     <string name="points">%d Punkte</string>
     <string name="pr0gramm">pr0gramm</string>
@@ -78,7 +78,7 @@
     <string name="pref_pseudo_update_summary">Drücke hier um auf Updates für die App zu prüfen</string>
     <string name="zoom">Zoomfunktion</string>
     <string name="action_pin">Lesezeichen</string>
-    <string name="do_you_want_to_remove_this_bookmark">Möchtest du dieses Lesezeichen wirklich löschen?</string>
+    <string name="bookmark_editor_title">Lesezeichen bearbeiten</string>
     <string name="filter_format_fav_of">Mag</string>
     <string name="filter_format_new">Neu</string>
     <string name="filter_format_tag_by">Von</string>
