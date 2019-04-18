@@ -26,7 +26,6 @@ import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
@@ -261,7 +260,7 @@ private class NavigationDelegateAdapter(
         holder.itemView.setOnLongClickListener {
             if (value.bookmark != null && !value.bookmark.isImmutable) {
                 if (bookmarkService.canEdit) {
-                    showDialogToRemoveBookmark(value.bookmark)
+                    EditBookmarkDialog.forBookmark(value.bookmark).show(activity.supportFragmentManager, null)
                 } else {
                     callback.hintBookmarksEditableWithPremium()
                 }
@@ -378,10 +377,6 @@ private class NavigationDelegateAdapter(
         }
 
         doIfAuthorizedHelper.run(run, run)
-    }
-
-    private fun showDialogToRemoveBookmark(bookmark: Bookmark) {
-        EditBookmarkDialog.forBookmark(bookmark).show(activity.supportFragmentManager, null)
     }
 
     /**
