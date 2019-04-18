@@ -100,7 +100,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         // update notification
         show {
             setProgress(100 * items.size, 0, false)
-            addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), cancelIntent)
+            addAction(R.drawable.ic_white_action_clear, getString(R.string.cancel), cancelIntent)
             setContentIntent(cancelIntent)
         }
 

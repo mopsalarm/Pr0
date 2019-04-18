@@ -1,29 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_action_promoted"
+        android:shortcutDisabledMessage="@string/action_feed_type_promoted"
         android:shortcutId="top"
-        android:enabled="true"
-        android:icon="@drawable/ic_black_action_home"
-        android:shortcutShortLabel="@string/action_feed_type_promoted"
         android:shortcutLongLabel="@string/action_feed_type_promoted"
-        android:shortcutDisabledMessage="@string/action_feed_type_promoted">
+        android:shortcutShortLabel="@string/action_feed_type_promoted">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.pr0gramm.app"
+            android:data="/top"
             android:targetClass="com.pr0gramm.app.ui.MainActivity"
-            android:data="/top" />
+            android:targetPackage="com.pr0gramm.app"/>
     </shortcut>
+
     <shortcut
-        android:shortcutId="new"
         android:enabled="true"
-        android:icon="@drawable/ic_black_action_trending"
-        android:shortcutShortLabel="@string/action_feed_type_new"
+        android:icon="@drawable/ic_action_new"
+        android:shortcutDisabledMessage="@string/action_feed_type_new"
+        android:shortcutId="new"
         android:shortcutLongLabel="@string/action_feed_type_new"
-        android:shortcutDisabledMessage="@string/action_feed_type_new">
+        android:shortcutShortLabel="@string/action_feed_type_new">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.pr0gramm.app"
+            android:data="/new"
             android:targetClass="com.pr0gramm.app.ui.MainActivity"
-            android:data="/new" />
+            android:targetPackage="com.pr0gramm.app"/>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_action_email"
+        android:shortcutDisabledMessage="@string/action_inbox"
+        android:shortcutId="messages"
+        android:shortcutLongLabel="@string/action_inbox"
+        android:shortcutShortLabel="@string/action_inbox">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://pr0gramm.com/inbox/messages"
+            android:targetClass="com.pr0gramm.app.ui.MainActivity"
+            android:targetPackage="com.pr0gramm.app"/>
     </shortcut>
 </shortcuts>

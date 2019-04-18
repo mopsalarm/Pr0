@@ -238,7 +238,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
 
         when {
             entry.repost -> setItemOverlay(R.drawable.ic_repost)
-            entry.seen -> setItemOverlay(R.drawable.ic_checked)
+            entry.seen -> setItemOverlay(R.drawable.ic_check)
             else -> overlayView?.visible = false
         }
 

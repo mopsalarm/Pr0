@@ -71,7 +71,7 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
                     Wenn bei dir etwas nicht funktioniert, zögere nicht die Feedback-Funktion innerhalb der App zu verwenden.
                     Diesen Willkommensbildschirm kannst du in den Einstellungen jederzeit erneut aufrufen.
                     """.trimIndent(),
-                imageDrawable = R.drawable.ic_favorite_white_48dp,
+                imageDrawable = R.drawable.ic_action_favorite,
                 bgColor = ContextCompat.getColor(this, R.color.olive_primary)))
 
         setGoBackLock(true)

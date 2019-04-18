@@ -371,7 +371,7 @@
             android:title="@string/pref_pseudo_onboarding_title"/>
 
         <Preference
-            android:icon="@drawable/ic_black_action_bookmark"
+            android:icon="@drawable/ic_action_bookmark"
             android:key="pref_pseudo_restore_bookmarks"
             android:summary="@string/pref_pseudo_restore_bookmarks_summary"
             android:title="@string/pref_pseudo_restore_bookmarks_title"/>
