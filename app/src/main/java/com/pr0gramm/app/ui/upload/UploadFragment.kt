@@ -60,7 +60,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private val busyContainer: View by bindView(R.id.busy_container)
     private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
     private val busyState: TextView by bindView(R.id.busy_state)
-    
+
     private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
     private val preview: FrameLayout by bindView(R.id.preview)
     private val scrollView: ScrollView by bindView(R.id.scroll_view)
@@ -104,6 +104,15 @@ class UploadFragment : BaseFragment("UploadFragment") {
         // react on change in the tag input window
         tags.addTextChangedListener { text ->
             tagOpinionHint.visible = tagSuggestions.containsQuestionableTag(text)
+        }
+
+        val types = listOf(R.id.upload_type_sfw, R.id.upload_type_nsfp, R.id.upload_type_nsfw, R.id.upload_type_nsfl)
+        types.forEach { viewId ->
+            view.findOptional<CompoundButton>(viewId)?.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    upload.isEnabled = true
+                }
+            }
         }
     }
 
@@ -402,23 +411,24 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun selectedContentType(): ContentType {
-            val types = mapOf(
-                    R.id.upload_type_sfw to ContentType.SFW,
-                    R.id.upload_type_nsfp to ContentType.NSFP,
-                    R.id.upload_type_nsfw to ContentType.NSFW,
-                    R.id.upload_type_nsfl to ContentType.NSFL)
+        val types = mapOf(
+                R.id.upload_type_sfw to ContentType.SFW,
+                R.id.upload_type_nsfp to ContentType.NSFP,
+                R.id.upload_type_nsfw to ContentType.NSFW,
+                R.id.upload_type_nsfl to ContentType.NSFL)
 
-            val view = view
-            if (view != null) {
-                for ((key, value) in types) {
-                    val button = view.findOptional<RadioButton>(key)
-                    if (button?.isChecked == true)
-                        return value
-                }
+        val view = view
+        if (view != null) {
+            for ((key, value) in types) {
+                val button = view.findOptional<RadioButton>(key)
+                if (button?.isChecked == true)
+                    return value
             }
-
-            return ContentType.NSFL
         }
+
+        // fallback, this should not happen.
+        return ContentType.NSFL
+    }
 
     @SuppressLint("NewApi")
     private fun copy(context: Context, source: Uri): Observable<File> {
@@ -444,7 +454,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
                     val maxSize = 1024 * 1024 * 48L
                     val copied = BoundedInputStream(input, maxSize).copyTo(output)
-                    logger.info { "Copied ${ copied / 1024}kb" }
+                    logger.info { "Copied ${copied / 1024}kb" }
 
                     if (copied == maxSize) {
                         throw IOException("File too large.")
