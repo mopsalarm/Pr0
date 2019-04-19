@@ -9,7 +9,6 @@ import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -230,7 +229,7 @@ internal class CacheEntry(
             return try {
                 logger.debug { "Wait for totalSize future to be available" }
                 cacher.totalSize.get()
-            } catch(err: ExecutionException) {
+            } catch (err: ExecutionException) {
                 // throw the real error, not the wrapped one.
                 throw err.cause ?: err
             }
@@ -303,6 +302,19 @@ internal class CacheEntry(
                         response.code() == 404 ->
                             throw FileNotFoundException("File not found at " + response.request().url())
 
+                        response.code() == 416 -> {
+                            val range = response.header("Content-Range")
+                                    ?: throw IOException("Request for ${request.url()} failed with status ${response.code()}")
+
+                            logger.debug { "Got Content-Range header with $range" }
+                            val totalSize = parseRangeHeaderTotalSize(range)
+                            if (offset < totalSize) {
+                                throw IOException("Request for ${request.url()} failed with status ${response.code()}")
+                            } else {
+                                totalSize
+                            }
+                        }
+
                         else -> throw IOException("Request for ${request.url()} failed with status ${response.code()}")
                     }
 
@@ -316,17 +328,23 @@ internal class CacheEntry(
                     throw err
                 }
 
-                // we now know the size, publish it to waiting consumers
-                this.totalSize.setValue(totalSize)
+                response.body()?.use { body ->
+                    // we now know the size, publish it to waiting consumers
+                    this.totalSize.setValue(totalSize)
 
-                logger.debug { "Writing response to cache file" }
-                writeResponseToEntry(response)
+                    if (offset < totalSize) {
+                        logger.debug { "Writing response to cache file" }
+                        body.byteStream().use { stream ->
+                            writeResponseToEntry(stream)
+                        }
+                    }
 
-                // check if we need can now promote the cached file to the target file
-                promoteFullyCached(totalSize)
+                    // check if we need can now promote the cached file to the target file
+                    promoteFullyCached(totalSize)
+                }
 
             } catch (err: Exception) {
-                logger.error { "Error in caching thread (${err}" }
+                logger.error { "Error in caching thread ($err" }
                 this.totalSize.setError(err)
 
             } finally {
@@ -338,40 +356,36 @@ internal class CacheEntry(
          * Writes the response to the file. If [fp] disappears, we log a warning
          * and then we just return.
          */
-        private fun writeResponseToEntry(response: Response) {
+        private fun writeResponseToEntry(stream: InputStream) {
             val lockExpireTime = Instant.now().plus(1, TimeUnit.SECONDS)
 
-            response.body()?.use { body ->
-                body.byteStream().use { stream ->
-                    var localWritten = 0
+            var localWritten = 0
 
-                    readStream(stream, bufferSize = 64 * 1024) { buffer, byteCount ->
-                        lock.withLock {
-                            logger.debug { "Got $byteCount new bytes from cache." }
+            readStream(stream, bufferSize = 64 * 1024) { buffer, byteCount ->
+                lock.withLock {
+                    logger.debug { "Got $byteCount new bytes from cache." }
 
-                            val fp = fp
-                            if (fp == null) {
-                                logger.warn { "Error during caching, the file-handle went away: ${this}" }
-                                return
-                            }
+                    val fp = fp
+                    if (fp == null) {
+                        logger.warn { "Error during caching, the file-handle went away: ${this}" }
+                        return
+                    }
 
-                            write(fp, buffer, 0, byteCount)
+                    write(fp, buffer, 0, byteCount)
 
-                            if (canceled) {
-                                logger.info { "Caching canceled, stopping now." }
-                                return
-                            }
+                    if (canceled) {
+                        logger.info { "Caching canceled, stopping now." }
+                        return
+                    }
 
-                            debug {
-                                localWritten += byteCount
-                                if (localWritten > 1024 * 1024)
-                                    throw EOFException("DEBUG Simulate network loss")
-                            }
+                    debug {
+                        localWritten += byteCount
+                        if (localWritten > 1024 * 1024)
+                            throw EOFException("DEBUG Simulate network loss")
+                    }
 
-                            if (refCount.toInt() == 1 && lockExpireTime.isInPast) {
-                                throw TimeoutException("No one holds a reference to the cache entry, stop caching now.")
-                            }
-                        }
+                    if (refCount.toInt() == 1 && lockExpireTime.isInPast) {
+                        throw TimeoutException("No one holds a reference to the cache entry, stop caching now.")
                     }
                 }
             }
@@ -472,15 +486,16 @@ internal class CacheEntry(
         }
     }
 
-    override val fractionCached: Float get() {
-        delegate?.let { return it.fractionCached }
+    override val fractionCached: Float
+        get() {
+            delegate?.let { return it.fractionCached }
 
-        return if (totalSizeValue > 0) {
-            written / totalSizeValue.toFloat()
-        } else {
-            -1f
+            return if (totalSizeValue > 0) {
+                written / totalSizeValue.toFloat()
+            } else {
+                -1f
+            }
         }
-    }
 
     /**
      * Returns the number of bytes that are available too read without caching
