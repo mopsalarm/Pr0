@@ -37,7 +37,7 @@ data class Config(
 }
 
 private val DefaultReportReasons = listOf(
-        "Repost",
+        "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben",
         "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
         "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
         "Regel #3 - Tierporn",
@@ -51,7 +51,7 @@ private val DefaultReportReasons = listOf(
         "Regel #15 - reiner Musikupload",
         "Regel #18 - Hetze/Aufruf zu Gewalt",
         "Verstoß in den Tags",
-        "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben")
+        "Repost")
 
 private val DefaultUserClasses = listOf(
         Config.UserClass("#FFFFFF", "Schwuchtel"),
