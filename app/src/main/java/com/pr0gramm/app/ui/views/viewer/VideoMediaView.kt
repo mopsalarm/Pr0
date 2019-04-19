@@ -16,9 +16,9 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.LruCache
 import androidx.core.animation.doOnEnd
-import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -224,7 +224,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         val icon: Drawable = if (muted) {
             storeUnmuteTime(0)
 
-            ContextCompat.getDrawable(context, R.drawable.ic_volume_off_white_24dp)!!
+            AppCompatResources.getDrawable(context, R.drawable.ic_volume_off_white_24dp)!!
         } else {
             storeUnmuteTime(System.currentTimeMillis())
 

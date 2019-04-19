@@ -5,7 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
+import androidx.appcompat.content.res.AppCompatResources
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -63,7 +63,7 @@ class NavigationProvider(
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
         return lazy(LazyThreadSafetyMode.NONE) {
-            ContextCompat.getDrawable(context, id)!!
+            AppCompatResources.getDrawable(context, id)!!
         }
     }
 

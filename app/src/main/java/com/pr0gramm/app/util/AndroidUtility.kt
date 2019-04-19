@@ -19,6 +19,7 @@ import android.widget.EditText
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.core.content.res.ResourcesCompat
@@ -147,7 +148,7 @@ object AndroidUtility {
      */
     fun getTintedDrawable(context: Context, @DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable {
         val resources = context.resources
-        val icon = DrawableCompat.wrap(ResourcesCompat.getDrawable(resources, drawableId, null)!!)
+        val icon = DrawableCompat.wrap(AppCompatResources.getDrawable(context, drawableId)!!)
         DrawableCompat.setTint(icon, ResourcesCompat.getColor(resources, colorId, null))
         return icon
     }
