@@ -7,10 +7,12 @@
         android:id="@+id/action_zoom"
         android:icon="@drawable/ic_white_action_fullscreen"
         android:title="@string/zoom"
+        app:iconTint="?android:textColorPrimary"
         app:showAsAction="always"/>
 
     <item
         android:icon="@drawable/ic_white_action_share"
+        app:iconTint="?android:textColorPrimary"
         android:title="@string/share"
         app:showAsAction="always">
 
@@ -37,18 +39,21 @@
         android:id="@+id/action_download"
         android:icon="@drawable/ic_white_action_save"
         android:title="@string/action_download"
+        app:iconTint="?android:textColorPrimary"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_search_image"
         android:icon="@drawable/ic_white_action_image_search"
         android:title="@string/action_search_image"
+        app:iconTint="?android:textColorPrimary"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_white_action_refresh"
         android:title="@string/action_refresh"
+        app:iconTint="?android:textColorPrimary"
         app:showAsAction="ifRoom"/>
 
     <item

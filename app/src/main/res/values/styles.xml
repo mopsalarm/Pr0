@@ -8,7 +8,9 @@
         <item name="drawerTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="bottomSheetBackground">@drawable/bottomsheet</item>
-        <item name="android:textViewStyle">@style/MyTextViewStyle</item>
+        <item name="android:textViewStyle">@style/NoHyphenateTextViewStyle</item>
+
+        <item name="colorControlNormal">?android:textColorPrimary</item>
     </style>
 
     <style name="AppTheme.Orange">
@@ -367,5 +369,5 @@
     </style>
 
     <!-- disable hyphenation in v23+ -->
-    <style name="MyTextViewStyle" parent="android:Widget.TextView"/>
+    <style name="NoHyphenateTextViewStyle" parent="android:Widget.TextView"/>
 </resources>

@@ -6,5 +6,6 @@
         android:id="@+id/action_send"
         android:title="@string/write_message_send"
         android:icon="@drawable/ic_action_send"
+        app:iconTint="?android:textColorPrimary"
         app:showAsAction="always"/>
 </menu>
