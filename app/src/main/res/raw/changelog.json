@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Kaputtes Scrollen in der Nachrichtenansicht gefixt."
+      },
+      {
+        "type": "Fix",
         "change": "Links mit einer schließenden Klammer am Ende wurden nicht richtig hervorgehoben."
       }
     ]
