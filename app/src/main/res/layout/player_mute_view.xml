@@ -2,6 +2,7 @@
 <ImageView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mute"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
     android:background="?selectableItemBackgroundBorderless"
     android:padding="16dp"
     android:alpha="0.5"
-    android:src="@drawable/ic_volume_up_white_24dp"
+    app:srcCompat="@drawable/ic_volume_up_white_24dp"
     tools:showIn="@layout/player_kind_video"/>
 
     
