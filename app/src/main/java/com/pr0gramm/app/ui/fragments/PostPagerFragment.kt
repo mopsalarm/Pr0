@@ -185,7 +185,11 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     /**
      * Returns the feed filter for this fragment.
      */
-    override val currentFilter: FeedFilter get() = adapter.feed.filter
+    override val currentFilter: FeedFilter
+        get() = adapter.feed.filter
+
+    override val fragmentTitle: String?
+        get() = arguments?.getString(ARG_TITLE)
 
     fun onTagClicked(tag: Api.Tag) {
         (activity as MainActionHandler).onFeedFilterSelected(
@@ -294,15 +298,17 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     }
 
     companion object {
-        const val ARG_FEED = "PP.feed"
-        const val ARG_START_ITEM = "PP.startItem"
-        const val ARG_START_ITEM_COMMENT_REF = "PP.startItemComment"
+        private const val ARG_FEED = "PP.feed"
+        private const val ARG_TITLE = "PP.title"
+        private const val ARG_START_ITEM = "PP.startItem"
+        private const val ARG_START_ITEM_COMMENT_REF = "PP.startItemComment"
 
-        fun newInstance(feed: Feed, idx: Int, commentRef: CommentRef?): PostPagerFragment {
+        fun newInstance(feed: Feed, idx: Int, commentRef: CommentRef?, fragmentTitle: String?): PostPagerFragment {
             return PostPagerFragment().arguments {
                 putFreezable(ARG_FEED, feed.parcelAround(idx))
                 putFreezable(ARG_START_ITEM, feed[idx])
                 putParcelable(ARG_START_ITEM_COMMENT_REF, commentRef)
+                putString(ARG_TITLE, fragmentTitle)
             }
         }
     }

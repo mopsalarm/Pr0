@@ -301,13 +301,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun updateActionbarTitle() {
         supportActionBar?.let { bar ->
-            val filter = currentFeedFilter
-            if (filter == null) {
+            val fragment = currentFragment as? FilterFragment
+
+            if (fragment == null) {
                 bar.setTitle(R.string.pr0gramm)
                 bar.subtitle = null
             } else {
-                val feed = FeedFilterFormatter.format(this, filter)
-                bar.title = feed.title
+                val feed = FeedFilterFormatter.format(this, fragment.currentFilter)
+                bar.title = fragment.fragmentTitle ?: feed.title
                 bar.subtitle = feed.subtitle
             }
         }
@@ -497,8 +498,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return FeedFilter().withFeedType(type)
     }
 
-    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?) {
-        gotoFeedFragment(filter, true, start = startAt)
+    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?, title: String?) {
+        gotoFeedFragment(filter, true, start = startAt, title = title)
         drawerLayout.closeDrawers()
     }
 
@@ -551,9 +552,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,
                                  start: CommentRef? = null,
-                                 queryState: Bundle? = null) {
+                                 queryState: Bundle? = null,
+                                 title: String? = null) {
 
-        moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)
+        moveToFragment(FeedFragment.newInstance(newFilter, start, queryState, title), clear)
     }
 
     private fun moveToFragment(fragment: Fragment, clear: Boolean) {

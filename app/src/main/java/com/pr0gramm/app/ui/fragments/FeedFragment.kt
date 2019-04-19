@@ -981,7 +981,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         try {
             val generator: FancyExifThumbnailGenerator by instance()
 
-            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef)
+            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, fragmentTitle)
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
@@ -1015,6 +1015,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
      */
     override val currentFilter: FeedFilter
         get() = feed.filter
+
+    override val fragmentTitle: String?
+        get() = arguments?.getString(ARG_TITLE)
 
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
@@ -1374,11 +1377,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
         private const val ARG_FEED_START = "FeedFragment.start"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
+        private const val ARG_TITLE = "FeedFragment.title"
         private const val ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState"
 
         fun newInstance(feedFilter: FeedFilter,
                         start: CommentRef?,
-                        searchQueryState: Bundle?): FeedFragment {
+                        searchQueryState: Bundle?,
+                        title: String? = null): FeedFragment {
 
             return FeedFragment().apply {
                 arguments = bundle {
@@ -1386,6 +1391,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     putParcelable(ARG_FEED_START, start)
                     putBoolean(ARG_NORMAL_MODE, true)
                     putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
+
+                    title?.let { putString(ARG_TITLE, title) }
                 }
             }
         }

@@ -9,4 +9,9 @@ interface FilterFragment {
      * Returns the current filter of this instance.
      */
     val currentFilter: FeedFilter
+
+    /**
+     * Optional title directly provided by the fragment.
+     */
+    val fragmentTitle: String? get() = null
 }
