@@ -14,10 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.ui.InboxActivity
