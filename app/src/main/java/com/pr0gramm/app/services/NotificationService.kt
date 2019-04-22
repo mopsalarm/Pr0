@@ -100,11 +100,13 @@ class NotificationService(private val context: Application,
 
     fun showUpdateNotification(update: Update) {
         notify(Types.Update) {
+            val icon = if (Build.VERSION.SDK_INT >= 21) R.drawable.ic_white_action_save else android.R.drawable.stat_sys_download
+
             setContentIntent(updateActivityIntent(update))
             setContentTitle(context.getString(R.string.notification_update_available))
             setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
             setSmallIcon(R.drawable.ic_notify_new_message)
-            addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
+            addAction(icon, "Download", updateActivityIntent(update))
             setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
             color = context.getColorCompat(ThemeHelper.accentColor)
             setAutoCancel(true)
@@ -235,7 +237,9 @@ class NotificationService(private val context: Application,
                 .build()
 
         // add everything as an action
-        return NotificationCompat.Action.Builder(R.drawable.ic_reply, context.getString(R.string.notify_reply), pendingIntent)
+        val icon = if (Build.VERSION.SDK_INT >= 21) R.drawable.ic_reply else R.drawable.ic_reply_px
+
+        return NotificationCompat.Action.Builder(icon, context.getString(R.string.notify_reply), pendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                 .addRemoteInput(remoteInput)
                 .build()
