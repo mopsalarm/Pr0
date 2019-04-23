@@ -40,7 +40,7 @@ private val DefaultReportReasons = listOf(
         "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben",
         "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
         "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
-        "Regel #3 - Tierporn",
+        "Regel #3 - Tierporn/Tierquälerei",
         "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
         "Regel #5 - Werbung/Spam",
         "Regel #6 - Infos zu Privatpersonen",
