@@ -11,10 +11,12 @@ import android.view.*
 import android.widget.*
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.find
 import java.util.*
 
 typealias OnMenuItemClickListener = (MenuItem) -> Unit
@@ -28,7 +30,7 @@ typealias OnMenuItemClickListener = (MenuItem) -> Unit
  */
 @SuppressLint("ViewConstructor")
 class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenuItemClickListener) : FrameLayout(context) {
-    private val menu: Menu = PopupMenu(context, null).menu
+    private val menu: Menu = androidx.appcompat.widget.PopupMenu(context, this).menu
 
     private val items = ArrayList<SheetMenuItem>()
     private val absListView: AbsListView
@@ -64,7 +66,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
      */
     fun inflateMenu(@MenuRes menuRes: Int) {
         if (menuRes != -1) {
-            val inflater = MenuInflater(context)
+            val inflater = (context as AppCompatActivity).menuInflater
             inflater.inflate(menuRes, menu)
         }
 
@@ -241,23 +243,21 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         }
 
         internal inner class NormalViewHolder(root: View) {
-            val icon: ImageView
-            val label: TextView
-
-            init {
-                icon = root.findViewById<View>(R.id.icon) as ImageView
-                label = root.findViewById<View>(R.id.label) as TextView
-            }
+            val icon: ImageView = root.find(R.id.icon) as ImageView
+            val label: TextView = root.find(R.id.label) as TextView
 
             fun bindView(item: SheetMenuItem) {
                 val iconColor = AndroidUtility.resolveColorAttribute(icon.context,
                         android.R.attr.textColorSecondary)
 
-                val icon = item.menuItem!!.icon
-                icon.mutate().setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                val menuItem = item.menuItem ?: return
 
-                this.icon.setImageDrawable(icon)
-                label.text = item.menuItem.title
+                menuItem.icon?.let { icon ->
+                    icon.mutate().setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
+                    this.icon.setImageDrawable(icon)
+                }
+
+                label.text = menuItem.title
             }
         }
     }
