@@ -1,5 +1,18 @@
 [
   {
+    "version": 166,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Abstürze auf Android 4 behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Einige Benachrichtigungen wurden falsch formatiert."
+      }
+    ]
+  },
+  {
     "version": 165,
     "changes": [
       {
