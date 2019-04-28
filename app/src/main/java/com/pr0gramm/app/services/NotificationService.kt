@@ -426,7 +426,6 @@ class NotificationService(private val context: Application,
                 messages.sortedBy { it.creationTime }.takeLast(5).forEach { message ->
                     val line = if (isComment) {
                         buildSpannedString {
-                            bold { append(message.name).append(": ") }
                             append(message.message)
                         }
                     } else {
