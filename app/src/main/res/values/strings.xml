@@ -507,5 +507,6 @@
     <string name="pref_pseudo_restore_bookmarks_title">Restore bookmarks</string>
     <string name="pref_pseudo_restore_bookmarks_summary">Restores the pr0gramm default bookmarks. Will not delete any locally stored bookmarks.</string>
     <string name="error_bookmark">Error processing bookmarks: %s</string>
+    <string name="error_invalid_download_directory">The selected directory is not usable. Please select a different directory or storage provider.</string>
 </resources>
 

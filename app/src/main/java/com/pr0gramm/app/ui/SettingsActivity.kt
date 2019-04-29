@@ -229,7 +229,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
                 "pref_pseudo_download_target" -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), RequestCodes.SELECT_DOWNLOAD_PATH)
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                        startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
                     }
 
                     return true
@@ -239,21 +240,34 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
             }
         }
 
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        override fun onActivityResult(requestCode: Int, resultCode: Int, resultIntent: Intent?) {
             when (requestCode) {
                 RequestCodes.SELECT_DOWNLOAD_PATH -> {
                     if (resultCode == Activity.RESULT_OK) {
                         val fs = FileSystems.getDefault() as AndroidFileSystem
-                        fs.takePersistableUriPermission(data)
 
-                        val path = fs.getPath(data?.data ?: return)
+                        val uri = resultIntent?.data ?: return
+                        if (!AndroidFileSystem.isTreeUri(uri)) {
+                            showInvalidDownloadDirectorySelected()
+                            return
+                        }
+
+                        fs.takePersistableUriPermission(resultIntent)
+
                         Settings.get().edit {
-                            putString("pref_download_path", path.toString())
+                            putString("pref_download_path", fs.getPath(uri).toString())
                         }
                     }
                 }
 
-                else -> super.onActivityResult(requestCode, resultCode, data)
+                else -> super.onActivityResult(requestCode, resultCode, resultIntent)
+            }
+        }
+
+        private fun showInvalidDownloadDirectorySelected() {
+            showDialog(this) {
+                content(R.string.error_invalid_download_directory)
+                positive(R.string.okay)
             }
         }
 
