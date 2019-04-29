@@ -7,6 +7,9 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.crashlytics.android.Crashlytics
 import com.google.android.gms.ads.MobileAds
+import com.llamalab.safs.FileSystems
+import com.llamalab.safs.android.AndroidFileSystem
+import com.llamalab.safs.android.AndroidFileSystemProvider
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
@@ -37,23 +40,29 @@ open class ApplicationClass : Application(), InjectorAware {
 
     private val logger = Logger("Pr0grammApplication")
 
-    init {
-        if (BuildConfig.DEBUG) {
-            StrictMode.enableDefaults()
+    companion object {
+        init {
+            if (BuildConfig.DEBUG) {
+                StrictMode.enableDefaults()
 
-        } else {
-            // allow all the dirty stuff.
-            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
-            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
-        }
-
-        RxJavaPlugins.getInstance().registerSchedulersHook(object : RxJavaSchedulersHook() {
-            private val betterIoScheduler = CachedThreadScheduler("RxIoScheduler")
-
-            override fun getIOScheduler(): Scheduler {
-                return betterIoScheduler
+            } else {
+                // allow all the dirty stuff.
+                StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
+                StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
             }
-        })
+
+            RxJavaPlugins.getInstance().registerSchedulersHook(object : RxJavaSchedulersHook() {
+                private val betterIoScheduler = CachedThreadScheduler("RxIoScheduler")
+
+                override fun getIOScheduler(): Scheduler {
+                    return betterIoScheduler
+                }
+            })
+
+            System.setProperty(
+                    "com.llamalab.safs.spi.DefaultFileSystemProvider",
+                    AndroidFileSystemProvider::class.java.name)
+        }
     }
 
     override fun onCreate() {
@@ -73,6 +82,9 @@ open class ApplicationClass : Application(), InjectorAware {
 
         // handler to ignore certain exceptions before they reach crashlytics.
         ExceptionHandler.install(this)
+
+        val fs = FileSystems.getDefault() as AndroidFileSystem
+        fs.context = this
 
         Stats.init(buildVersionCode())
 

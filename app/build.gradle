@@ -168,6 +168,8 @@ dependencies {
 
     implementation "com.google.firebase:firebase-core:16.0.8"
 
+    implementation 'com.llamalab.safs:safs-android:0.2.0'
+
     implementation("com.google.android.gms:play-services-ads-lite:17.2.0@aar") {
         transitive true
     }

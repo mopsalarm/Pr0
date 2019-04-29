@@ -152,14 +152,6 @@
                     android:key="pref_audiofocus_transient"
                     android:summary="@string/pref_audiofocus_transient_summary"
                     android:title="@string/pref_audiofocus_transient_title"/>
-
-                <ListPreference
-                    android:defaultValue="@string/pref_downloadLocation_default"
-                    android:entries="@array/pref_downloadLocation_human"
-                    android:entryValues="@array/pref_downloadLocation_values"
-                    android:key="pref_downloadLocation"
-                    android:summary="@string/pref_downloadLocation_summary"
-                    android:title="@string/pref_downloadLocation_title"/>
             </PreferenceCategory>
 
             <PreferenceCategory
@@ -305,6 +297,12 @@
 
             </PreferenceCategory>
         </PreferenceScreen>
+
+        <Preference
+            android:icon="@drawable/ic_white_action_save"
+            android:key="pref_pseudo_download_target"
+            android:summary="@string/pref_downloadLocation_summary"
+            android:title="@string/pref_downloadLocation_title"/>
 
         <PreferenceScreen
             android:icon="@drawable/ic_settings_update"

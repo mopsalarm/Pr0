@@ -194,6 +194,7 @@ fun appInjector(app: Application) = Module.build {
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
     bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
     bind<BenisRecordService>() with singleton { BenisRecordService(instance()) }
+    bind<ShareService>() with singleton { ShareService(instance()) }
 
     bind<KVService>() with singleton { KVService(instance()) }
 

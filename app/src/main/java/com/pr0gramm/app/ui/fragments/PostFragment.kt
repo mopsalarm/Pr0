@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
@@ -19,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
+import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -92,6 +94,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val userService: UserService by instance()
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
+    private val shareService: ShareService by instance()
 
     private val swipeRefreshLayout: SwipeRefreshLayout? by bindOptionalView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
@@ -429,7 +432,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = alive
 
         menu.findItem(R.id.action_search_image)
-                ?.isVisible = isImage && settings.imageSearchEngine != ShareHelper.ImageSearchEngine.NONE && alive
+                ?.isVisible = isImage && settings.imageSearchEngine != ShareService.ImageSearchEngine.NONE && alive
 
         menu.findItem(R.id.action_delete_item)
                 ?.isVisible = adminMode && alive
@@ -560,9 +563,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    internal val isVideoFullScreen: Boolean get() {
-        return fullscreenAnimator != null
-    }
+    internal val isVideoFullScreen: Boolean
+        get() {
+            return fullscreenAnimator != null
+        }
 
     private fun onHomePressed(): Boolean {
         if (isVideoFullScreen) {
@@ -577,11 +581,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val activity = activity ?: return true
 
         return true == when (item.itemId) {
-            R.id.action_search_image -> ShareHelper.searchImage(activity, feedItem)
-            R.id.action_share_post -> ShareHelper.sharePost(activity, feedItem)
-            R.id.action_share_direct_link -> ShareHelper.shareDirectLink(activity, feedItem)
-            R.id.action_share_image -> ShareHelper.shareImage(activity, feedItem)
-            R.id.action_copy_link -> ShareHelper.copyLink(activity, feedItem)
+            R.id.action_search_image -> shareService.searchImage(activity, feedItem)
+            R.id.action_share_post -> shareService.sharePost(activity, feedItem)
+            R.id.action_share_direct_link -> shareService.shareDirectLink(activity, feedItem)
+            R.id.action_copy_link -> shareService.copyLink(activity, feedItem)
+            R.id.action_share_image -> shareImage()
             R.id.action_refresh -> refreshWithIndicator()
             R.id.action_download -> downloadPostMedia()
             R.id.action_delete_item -> showDeleteItemDialog()
@@ -590,6 +594,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             R.id.action_zoom -> enterFullscreen()
             MainActivity.ID_FAKE_HOME -> onHomePressed()
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun shareImage() {
+        launchWithErrorHandler(busyIndicator = true) {
+            shareService.shareImage(requireActivity(), feedItem)
         }
     }
 
@@ -603,7 +613,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostMedia() {
-        (activity as PermissionHelperActivity).requirePermission(WRITE_EXTERNAL_STORAGE) {
+        val activity = requireActivity() as PermissionHelperActivity
+
+        activity.requirePermission(WRITE_EXTERNAL_STORAGE) {
             downloadPostWithPermissionGranted()
         }
     }
@@ -611,6 +623,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun downloadPostWithPermissionGranted() {
         val bitmapDrawable = previewInfo.preview as? BitmapDrawable
         val preview = bitmapDrawable?.bitmap ?: previewInfo.fancy?.valueOrNull
+
+        val directory = AndroidFiles.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val files = directory.root.toList()
+        System.out.println("XXX" + files)
 
         downloadService
                 .downloadWithNotification(feedItem, preview)
@@ -836,7 +852,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // add the controls as child of the controls-container.
         viewer.controllerView()
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                .doOnNext { view -> logger.info{"Adding view $view to placeholder" } }
+                .doOnNext { view -> logger.info { "Adding view $view to placeholder" } }
                 .subscribe { mediaControlsContainer.addView(it) }
 
         // show sfw/nsfw as a little flag, if the user is admin
@@ -1138,7 +1154,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
+                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
+                        ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
         }
@@ -1247,7 +1264,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onCopyCommentLink(comment: Api.Comment) {
-            ShareHelper.copyLink(context ?: return, feedItem, comment)
+            shareService.copyLink(context ?: return, feedItem, comment)
         }
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {

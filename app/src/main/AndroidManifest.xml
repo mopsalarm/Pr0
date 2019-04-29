@@ -57,13 +57,6 @@
             android:exported="false"/>
 
         <provider
-            android:name=".services.ShareProvider"
-            android:authorities="${applicationId}.ShareProvider"
-            android:exported="true"
-            android:grantUriPermissions="true"
-            tools:ignore="ExportedContentProvider"/>
-
-        <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"
             android:exported="false"

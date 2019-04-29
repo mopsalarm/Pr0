@@ -3,6 +3,14 @@
     "version": 166,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Ihr habt es euch gewünscht, wir haben (endlich) gehört: Download Ordner ist in den Einstellungen nun frei wählbar"
+      },
+      {
+        "type": "Fix",
+        "change": "Direktes Teilen in Apps wie Telegram gefixt."
+      },
+      {
         "type": "Fix",
         "change": "Abstürze auf Android 4 behoben."
       },

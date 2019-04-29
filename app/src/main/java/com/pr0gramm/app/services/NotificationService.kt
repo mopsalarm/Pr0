@@ -10,11 +10,15 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.*
-import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pr0gramm.app.*
+import com.llamalab.safs.Path
+import com.llamalab.safs.android.AndroidFiles
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.ui.InboxActivity
@@ -25,7 +29,6 @@ import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.lruCache
 import com.squareup.picasso.Picasso
-import java.io.File
 import java.io.IOException
 import java.util.Collections.synchronizedSet
 import java.util.concurrent.atomic.AtomicInteger
@@ -113,11 +116,11 @@ class NotificationService(private val context: Application,
         }
     }
 
-    fun showDownloadNotification(file: File, progress: Float, preview: Bitmap? = null) {
-        val id = notificationIdCache["download:$file"]
+    fun showDownloadNotification(path: Path, progress: Float, preview: Bitmap? = null) {
+        val id = notificationIdCache["download:$path"]
 
         notify(Types.Download, id) {
-            setContentTitle(file.nameWithoutExtension)
+            setContentTitle(path.toFile().nameWithoutExtension)
             setSmallIcon(R.drawable.ic_notify_new_message)
             setCategory(NotificationCompat.CATEGORY_PROGRESS)
 
@@ -136,7 +139,7 @@ class NotificationService(private val context: Application,
 
                 // make it clickable
                 setAutoCancel(true)
-                setContentIntent(viewFileIntent(file))
+                setContentIntent(viewFileIntent(path))
             }
         }
     }
@@ -314,12 +317,11 @@ class NotificationService(private val context: Application,
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
-    private fun viewFileIntent(file: File): PendingIntent {
-        val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
-        val uri = FileProvider.getUriForFile(context, provider, file)
+    private fun viewFileIntent(file: Path): PendingIntent {
+        val uri = AndroidFiles.toUri(file)
 
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(file))
+        intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(file.toString()))
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }

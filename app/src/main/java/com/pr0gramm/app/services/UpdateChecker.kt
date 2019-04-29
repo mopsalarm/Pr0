@@ -127,7 +127,7 @@ class UpdateChecker {
             progress.filter { it.file != null }
                     .flatMap<Any> {
                         try {
-                            install(appContext, it.file!!)
+                            install(appContext, it.file!!.toFile())
                             Observable.empty()
 
                         } catch (error: IOException) {

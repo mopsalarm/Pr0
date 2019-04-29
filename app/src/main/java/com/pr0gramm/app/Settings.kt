@@ -4,12 +4,17 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.llamalab.safs.Path
+import com.llamalab.safs.Paths
+import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.services.ShareHelper
+import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
+import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -56,10 +61,16 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return result
         }
 
-    val downloadLocation: String
+    val downloadTarget: Path
         get() {
-            val def = app.getString(R.string.pref_downloadLocation_default)
-            return preferences.getString("pref_downloadLocation", def)!!
+            val defaultValue by lazy(LazyThreadSafetyMode.NONE) {
+                AndroidFiles
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                        .resolve("pr0gramm")
+            }
+
+            val path = preferences.getStringOrNull("pref_download_path")
+            return path?.let { Paths.get(path) } ?: defaultValue
         }
 
     val seenIndicatorStyle: IndicatorStyle
@@ -193,11 +204,11 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val feedScrollOnBack: Boolean
         get() = preferences.getBoolean("pref_feed_scroll_on_back", true)
 
-    val imageSearchEngine: ShareHelper.ImageSearchEngine
+    val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
             val pref = preferences.getString("pref_image_search_engine", null) ?: ""
-            val value = tryEnumValueOf<ShareHelper.ImageSearchEngine>(pref.toUpperCase())
-            return value ?: ShareHelper.ImageSearchEngine.GOOGLE
+            val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.toUpperCase())
+            return value ?: ShareService.ImageSearchEngine.GOOGLE
         }
 
     val privateInput: Boolean

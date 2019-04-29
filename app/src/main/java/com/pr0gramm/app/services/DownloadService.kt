@@ -4,9 +4,10 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Environment
+import com.llamalab.safs.Files
+import com.llamalab.safs.Path
+import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
@@ -16,8 +17,6 @@ import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.readStream
 import rx.Emitter
 import rx.Observable
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,30 +39,22 @@ class DownloadService(
         // download over proxy to use caching
         val uri = UriHelper.of(context).media(feedItem, true)
 
-        val external = when (settings.downloadLocation) {
-            context.getString(R.string.pref_downloadLocation_value_downloads) ->
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-            context.getString(R.string.pref_downloadLocation_value_pictures) ->
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val target = settings.downloadTarget
 
-            else ->
-                Environment.getExternalStorageDirectory()
+        if (Files.notExists(target)) {
+            try {
+                Files.createDirectories(target)
+            } catch (err: com.llamalab.safs.FileAlreadyExistsException) {
+                // ignored
+            } catch (err: IOException) {
+                logger.warn(err) { "Could not create download directory" }
+                throw CouldNotCreateDownloadDirectoryException()
+            }
         }
 
-        val targetDirectory = File(external, "pr0gramm")
-        if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-            throw CouldNotCreateDownloadDirectoryException()
-        }
-
-        val format = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
-        val fileType = feedItem.image.toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
-        val prefix = listOf(
-                feedItem.created.toString(format),
-                feedItem.user,
-                "id" + feedItem.id).joinToString("-")
-
-        val targetFile = File(targetDirectory, prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType)
+        val name = filenameOf(feedItem)
+        val targetFile = target.resolve(name)
 
         downloadToFile(uri, targetFile)
                 .startWith(Status(0f, null))
@@ -79,33 +70,38 @@ class DownloadService(
     }
 
     fun downloadUpdateFile(uri: Uri): Observable<Status> {
-        val directory = File(context.cacheDir, "updates")
-        if (!directory.exists() && !directory.mkdirs()) {
-            logger.warn { "Could not create download directory: $directory" }
-        }
+        val directory = AndroidFiles.getCacheDirectory().resolve("updates")
+        logger.info { "Use download directory at $directory" }
 
-        // clear all previous files
-        directory.listFiles()
-                .filter { it.name.matches("pr0gramm-update[.].*[.]apk".toRegex()) }
-                .forEach { file ->
-                    if (!file.delete()) {
+        logger.info { "Create temporary directory" }
+        Files.createDirectories(directory)
+
+        try {
+            Files.newDirectoryStream(directory).use { files ->
+                for (file in files.filter { Files.isRegularFile(it) }) {
+                    logger.info { "Delete previously downloaded update file $file" }
+
+                    if (!Files.deleteIfExists(file)) {
                         logger.warn { "Could not delete file $file" }
                     }
                 }
+            }
+        } catch (err: Exception) {
+            logger.warn(err) { "Error during cache cleanup" }
+        }
 
         // and download the new file.
-        val tempFile = File.createTempFile("pr0gramm-update", ".apk", directory)
-
-        return downloadToFile(uri, tempFile)
+        val target = Files.createTempFile(directory, "pr0gramm-update", ".apk")
+        return downloadToFile(uri, target)
     }
 
-    private fun downloadToFile(uri: Uri, target: File): Observable<Status> {
+    private fun downloadToFile(uri: Uri, target: Path): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
                 cache.get(uri).use { entry ->
                     val totalSize = entry.totalSize
 
-                    FileOutputStream(target).use { output ->
+                    Files.newOutputStream(target).use { output ->
                         val interval = Interval(250)
 
                         entry.inputStreamAt(0).use { body ->
@@ -151,11 +147,22 @@ class DownloadService(
 
     class CouldNotCreateDownloadDirectoryException : IOException()
 
-    data class Status(val progress: Float, val file: File?) {
+    data class Status(val progress: Float, val file: Path?) {
         val finished = file != null
     }
 
     companion object {
         private val logger = Logger("DownloadService")
+
+        fun filenameOf(feedItem: FeedItem): String {
+            val format = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
+            val fileType = feedItem.image.toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
+            val prefix = listOf(
+                    feedItem.created.toString(format),
+                    feedItem.user,
+                    "id" + feedItem.id).joinToString("-")
+
+            return prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType
+        }
     }
 }

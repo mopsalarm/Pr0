@@ -4,6 +4,10 @@
         name="updates"
         path="updates/"/>
 
+    <cache-path
+        name="share"
+        path="share/"/>
+
     <external-path
         name="external_storage_root"
         path="."/>

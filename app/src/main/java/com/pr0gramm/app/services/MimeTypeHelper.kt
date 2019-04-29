@@ -30,15 +30,17 @@ object MimeTypeHelper {
     }
 
     fun guess(file: File): String? {
-        try {
-            return FileInputStream(file).use { input -> guess(input) }
-        } catch(err: IOException) {
-            return guessFromFileExtension(file)
+        return try {
+            FileInputStream(file).use { input -> guess(input) }
+        } catch (err: IOException) {
+            guessFromFileExtension(file.name)
         }
     }
 
-    fun guessFromFileExtension(file: File): String? {
-        return EXTENSION_TO_TYPE[file.extension.toLowerCase()]
+    fun guessFromFileExtension(name: String): String? {
+        return EXTENSION_TO_TYPE.entries.firstOrNull { (ext, _) ->
+            name.endsWith(ext, ignoreCase = true)
+        }?.value
     }
 
     fun guess(input: InputStream): String? {

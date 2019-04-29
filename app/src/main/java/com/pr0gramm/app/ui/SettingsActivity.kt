@@ -1,7 +1,9 @@
 package com.pr0gramm.app.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -12,10 +14,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.llamalab.safs.FileSystems
+import com.llamalab.safs.android.AndroidFileSystem
+import com.pr0gramm.app.*
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.services.ThemeHelper
@@ -31,6 +32,7 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.observeOnMainThread
 import rx.schedulers.Schedulers
+
 
 /**
  */
@@ -101,6 +103,10 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
             if (!bookmarkService.canEdit) {
                 hidePreferenceByName("pref_pseudo_restore_bookmarks")
+            }
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                hidePreferenceByName("pref_pseudo_download_target")
             }
 
             tintPreferenceIcons(color = 0xffd0d0d0.toInt())
@@ -221,7 +227,33 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                     return true
                 }
 
+                "pref_pseudo_download_target" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), RequestCodes.SELECT_DOWNLOAD_PATH)
+                    }
+
+                    return true
+                }
+
                 else -> return super.onPreferenceTreeClick(preference)
+            }
+        }
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            when (requestCode) {
+                RequestCodes.SELECT_DOWNLOAD_PATH -> {
+                    if (resultCode == Activity.RESULT_OK) {
+                        val fs = FileSystems.getDefault() as AndroidFileSystem
+                        fs.takePersistableUriPermission(data)
+
+                        val path = fs.getPath(data?.data ?: return)
+                        Settings.get().edit {
+                            putString("pref_download_path", path.toString())
+                        }
+                    }
+                }
+
+                else -> super.onActivityResult(requestCode, resultCode, data)
             }
         }
 
