@@ -39,7 +39,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1"
 
     implementation "com.squareup.moshi:moshi:1.8.0"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
