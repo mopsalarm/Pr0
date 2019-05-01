@@ -14,6 +14,7 @@ import com.pr0gramm.app.orm.migrate
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
+import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import rx.Observable
@@ -82,23 +83,22 @@ class BookmarkService(
     suspend fun uploadLocalBookmarks() {
         val bookmarks = bookmarks.value
 
-        // sync back all bookmarks that are local only (legacy bookmarks from the app)
-        val localOnly = bookmarks.filter { it.link == null }
+        // sync back all bookmarks that are not yet synchronized (legacy bookmarks from the app)
+        val notSynchronized = bookmarks.filter { it.requiresSync }
 
-        if (localOnly.isNotEmpty() && bookmarkSyncService.isAuthorized) {
+        if (notSynchronized.isNotEmpty() && bookmarkSyncService.isAuthorized) {
             logger.info { "Uploading all non default bookmarks now" }
 
             // get the names of all default bookmarks on the server side
             val defaults = bookmarkSyncService.fetch(anonymous = true).map { it.title.toLowerCase() }
 
             // and filter all bookmarks from the app that are not in the default bookmarks
-            val custom = localOnly.filter { it.title.toLowerCase() !in defaults }
+            val custom = notSynchronized.filter { it.title.toLowerCase() !in defaults }
 
             // store those bookmarks on the remote side
             val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
 
-            // now all bookmarks are remote, we can publish them locally now.
-            this.bookmarks.onNext(remote ?: listOf())
+            mergeCurrentState(remote ?: listOf())
         }
     }
 
@@ -107,9 +107,6 @@ class BookmarkService(
      */
     fun isBookmarkable(filter: FeedFilter): Boolean {
         if (!canEdit || filter.isBasic || filter.likes != null)
-            return false
-
-        if (filter.feedType != FeedType.NEW && filter.feedType != FeedType.PROMOTED)
             return false
 
         return byFilter(filter) == null
@@ -133,7 +130,7 @@ class BookmarkService(
             bookmarks.onNext(newValues)
         }
 
-        if (bookmarkSyncService.isAuthorized) {
+        if (bookmarkSyncService.isAuthorized && !bookmark.localOnly) {
             mergeWithAsync {
                 // also delete bookmarks on the server
                 bookmarkSyncService.delete(bookmark.title)
@@ -160,10 +157,10 @@ class BookmarkService(
     private fun mergeCurrentState(update: List<Bookmark>) {
         synchronized(bookmarks) {
             // get the local ones that dont have a 'link' yet
-            val local = bookmarks.value.filter { it.link == null }
+            val local = bookmarks.value.filter { it.link == null || it.localOnly }
 
-            // and merge them together, with the local ones winning.
-            val merged = (local + update).distinctBy { it.title.toLowerCase() }
+            // and merge them together, with the remotes ones winning.
+            val merged = (update + local).distinctBy { it.title.toLowerCase() }
 
             bookmarks.onNext(merged)
         }
@@ -191,7 +188,7 @@ class BookmarkService(
      * Rename a bookmark
      */
     fun rename(existing: Bookmark, newTitle: String) {
-        val new = existing.migrate().copy(title = newTitle)
+        val new = existing.copy(title = newTitle).let { if (it.localOnly) it else it.migrate() }
 
         synchronized(bookmarks) {
             val values = bookmarks.value.toMutableList()
@@ -210,12 +207,20 @@ class BookmarkService(
         }
 
         if (bookmarkSyncService.isAuthorized) {
-            mergeWithAsync {
+            if (new.localOnly) {
                 if (existing.title != newTitle) {
-                    bookmarkSyncService.delete(existing.title)
+                    mergeWithAsync {
+                        bookmarkSyncService.delete(existing.title)
+                    }
                 }
+            } else {
+                mergeWithAsync {
+                    if (existing.title != newTitle) {
+                        bookmarkSyncService.delete(existing.title)
+                    }
 
-                bookmarkSyncService.add(new)
+                    bookmarkSyncService.add(new)
+                }
             }
         }
     }
@@ -238,4 +243,16 @@ class BookmarkService(
     private fun Bookmark.hasTitle(title: String): Boolean {
         return this.title.equals(title, ignoreCase = false)
     }
+
+    private val Bookmark.localOnly: Boolean
+        get() {
+            val feedType = tryEnumValueOf<FeedType>(filterFeedType)
+            if (feedType != null && feedType !in listOf(FeedType.NEW, FeedType.PROMOTED))
+                return true
+
+            val link = this.migrate().link
+            return title.length >= 255 && link != null && link.length >= 255
+        }
+
+    private val Bookmark.requiresSync: Boolean get() = link == null && !localOnly
 }

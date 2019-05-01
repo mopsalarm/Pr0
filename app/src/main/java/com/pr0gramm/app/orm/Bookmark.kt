@@ -65,4 +65,3 @@ fun Bookmark.migrate(): Bookmark {
 fun bookmarkOf(title: String, filter: FeedFilter): Bookmark {
     return Bookmark(title, filter.tags, filter.username, filter.feedType.name)
 }
-
