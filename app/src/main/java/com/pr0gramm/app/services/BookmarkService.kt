@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -87,6 +88,8 @@ class BookmarkService(
         val notSynchronized = bookmarks.filter { it.requiresSync }
 
         if (notSynchronized.isNotEmpty() && bookmarkSyncService.isAuthorized) {
+            Stats().increment("bookmarks.upload")
+
             logger.info { "Uploading all non default bookmarks now" }
 
             // get the names of all default bookmarks on the server side
@@ -98,7 +101,9 @@ class BookmarkService(
             // store those bookmarks on the remote side
             val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
 
-            mergeCurrentState(remote ?: listOf())
+            synchronized(this.bookmarks) {
+                this.bookmarks.onNext(this.bookmarks.value - notSynchronized + (remote ?: listOf()))
+            }
         }
     }
 
