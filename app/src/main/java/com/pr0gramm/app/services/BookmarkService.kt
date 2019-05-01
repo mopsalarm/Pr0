@@ -159,8 +159,8 @@ class BookmarkService(
             // get the local ones that dont have a 'link' yet
             val local = bookmarks.value.filter { it.link == null || it.localOnly }
 
-            // and merge them together, with the remotes ones winning.
-            val merged = (update + local).distinctBy { it.title.toLowerCase() }
+            // and merge them together, with the local ones winning.
+            val merged = (local + update).distinctBy { it.title.toLowerCase() }
 
             bookmarks.onNext(merged)
         }
