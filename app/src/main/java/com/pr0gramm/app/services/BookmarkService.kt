@@ -135,7 +135,7 @@ class BookmarkService(
             bookmarks.onNext(newValues)
         }
 
-        if (bookmarkSyncService.isAuthorized && !bookmark.localOnly) {
+        if (bookmarkSyncService.isAuthorized && bookmark.syncable) {
             mergeWithAsync {
                 // also delete bookmarks on the server
                 bookmarkSyncService.delete(bookmark.title)
@@ -162,7 +162,7 @@ class BookmarkService(
     private fun mergeCurrentState(update: List<Bookmark>) {
         synchronized(bookmarks) {
             // get the local ones that dont have a 'link' yet
-            val local = bookmarks.value.filter { it.link == null || it.localOnly }
+            val local = bookmarks.value.filter { it.link == null || it.notSyncable }
 
             // and merge them together, with the local ones winning.
             val merged = (local + update).distinctBy { it.title.toLowerCase() }
@@ -193,7 +193,7 @@ class BookmarkService(
      * Rename a bookmark
      */
     fun rename(existing: Bookmark, newTitle: String) {
-        val new = existing.copy(title = newTitle).let { if (it.localOnly) it else it.migrate() }
+        val new = existing.copy(title = newTitle).let { if (it.notSyncable) it else it.migrate() }
 
         synchronized(bookmarks) {
             val values = bookmarks.value.toMutableList()
@@ -212,7 +212,7 @@ class BookmarkService(
         }
 
         if (bookmarkSyncService.isAuthorized) {
-            if (new.localOnly) {
+            if (new.notSyncable) {
                 if (existing.title != newTitle) {
                     mergeWithAsync {
                         bookmarkSyncService.delete(existing.title)
@@ -249,15 +249,19 @@ class BookmarkService(
         return this.title.equals(title, ignoreCase = false)
     }
 
-    private val Bookmark.localOnly: Boolean
+    private val Bookmark.syncable: Boolean
         get() {
+            // can not be synced if feed type is e.g. RANDOM, CONTROVERSIAL, etc
             val feedType = tryEnumValueOf<FeedType>(filterFeedType)
             if (feedType != null && feedType !in listOf(FeedType.NEW, FeedType.PROMOTED))
-                return true
+                return false
 
-            val link = this.migrate().link
-            return title.length >= 255 && link != null && link.length >= 255
+            // can only by synced if strings are short.
+            val link = this.migrate().link!!
+            return title.length < 255 && link.length < 255
         }
 
-    private val Bookmark.requiresSync: Boolean get() = link == null && !localOnly
+    private val Bookmark.notSyncable: Boolean get() = !syncable
+
+    private val Bookmark.requiresSync: Boolean get() = link == null && syncable
 }
