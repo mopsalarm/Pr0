@@ -276,6 +276,12 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
+    data class Error(
+            val error: String,
+            val code: Int,
+            val msg: String)
+
+    @JsonClass(generateAdapter = true)
     data class AccountInfo(
             val account: Account,
             val invited: List<Invite> = listOf()) {

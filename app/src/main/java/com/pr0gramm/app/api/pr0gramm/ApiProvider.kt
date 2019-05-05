@@ -3,9 +3,13 @@ package com.pr0gramm.app.api.pr0gramm
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
+import okio.BufferedSource
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.InvocationTargetException
@@ -15,6 +19,8 @@ import java.util.concurrent.CancellationException
 
 class ApiProvider(base: String, client: OkHttpClient,
                   private val cookieJar: LoginCookieJar) {
+
+    private val logger = Logger("ApiProvider")
 
     val api = proxy(restAdapter(base, client))
 
@@ -32,7 +38,7 @@ class ApiProvider(base: String, client: OkHttpClient,
                 .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
-                .client(client)
+                .client(client.newBuilder().addInterceptor(ErrorInterceptor()).build())
                 .validateEagerly(BuildConfig.DEBUG)
                 .build()
                 .create(Api::class.java)
@@ -98,6 +104,34 @@ class ApiProvider(base: String, client: OkHttpClient,
         // track only sync calls in 5% of syncs
         if (method.name == "sync" && Math.random() < 0.05) {
             Track.trackSyncCall(millis, success)
+        }
+    }
+
+    private inner class ErrorInterceptor : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val response = chain.proceed(chain.request())
+
+            // if we get a valid "not allowed" error, we'll
+            if (response.code() == 403) {
+                val body = response.peekBody(1024)
+                val err = tryDecodeError(body.source())
+                if (err?.error == "forbidden" && err.msg == "Not logged in") {
+                    logger.warn { "Got 'Not logged in' error, will logout the user now." }
+                    cookieJar.clearLoginCookie()
+                    throw LoginCookieJar.LoginRequiredException()
+                }
+            }
+
+            // everything looks good, just return the response as usual
+            return response
+        }
+
+        private fun tryDecodeError(source: BufferedSource): Api.Error? {
+            catchAll {
+                return MoshiInstance.adapter<Api.Error>().fromJson(source)
+            }
+
+            return null
         }
     }
 }
