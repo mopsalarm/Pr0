@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
 import okhttp3.*
+import okhttp3.dnsoverhttps.DnsOverHttps
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -340,12 +341,14 @@ private class LoggingInterceptor : Interceptor {
 private class FallbackDNS(context: Context) : Dns {
     val logger = Logger("FallbackDNS")
 
-    private val client by lazy {
-        val okHttpClient = OkHttpClient.Builder()
+    private val okHttpClient by lazy {
+        OkHttpClient.Builder()
                 .cache(Cache(context.cacheDir.resolve("dns-cache"), 1024 * 1024))
                 .addInterceptor(LoggingInterceptor())
                 .build()
+    }
 
+    private val client by lazy {
         Retrofit.Builder()
                 .client(okHttpClient)
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
@@ -354,15 +357,28 @@ private class FallbackDNS(context: Context) : Dns {
                 .build().create<DoHClient>()
     }
 
+    private val doh by lazy {
+        DnsOverHttps.Builder()
+                .client(okHttpClient)
+                .resolvePrivateAddresses(false)
+                .resolvePublicAddresses(true)
+                .includeIPv6(false)
+                .url(HttpUrl.get("https://1.1.1.1/dns-query"))
+                .build()
+    }
+
     override fun lookup(hostname: String): List<InetAddress> {
         if (hostname == "127.0.0.1" || hostname == "localhost") {
             return listOf(InetAddress.getByName("127.0.0.1"))
         }
 
-        val resolvers = listOf(this::lookupOverHTTPS, this::lookupSystemResolver)
+        val resolvers = listOf(
+                NamedResolver("doh-okhttp", doh::lookup),
+                NamedResolver("doh-own", this::lookupOverHTTPS),
+                NamedResolver("system", this::lookupSystemResolver))
 
-        for ((idx, resolver) in resolvers.withIndex()) {
-            logger.debug { "Try resolver $idx" }
+        for ((name, resolver) in resolvers) {
+            logger.debug { "Try resolver $name" }
             val addresses = resolver(hostname)
                     .filterNot { it.isAnyLocalAddress }
                     .filterNot { it.isLinkLocalAddress }
@@ -376,7 +392,9 @@ private class FallbackDNS(context: Context) : Dns {
                     .filterNot { it.isMCOrgLocal }
 
             if (addresses.isNotEmpty()) {
-                logger.debug { "Resolver $idx for $hostname returned $addresses" }
+                Stats().increment("dns.okay", "resolver:$name")
+
+                logger.debug { "Resolver $name for $hostname returned $addresses" }
                 return addresses
             }
         }
@@ -421,6 +439,7 @@ private class FallbackDNS(context: Context) : Dns {
 
     private val dnsCache = ConcurrentHashMap<String, ValueWithExpireTime>()
 
+    private data class NamedResolver(val name: String, val resolver: (String) -> List<InetAddress>)
 
     private interface DoHClient {
         @GET("/dns-query?type=A&ct=application/dns-json")
