@@ -14,6 +14,7 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.model.dns.DNSResponse
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -28,14 +29,20 @@ import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
 import okhttp3.*
-import okhttp3.Cache
-import org.xbill.DNS.*
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
+import retrofit2.http.GET
+import retrofit2.http.Query
 import rx.schedulers.Schedulers
 import java.io.File
+import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 fun appInjector(app: Application) = Module.build {
@@ -74,7 +81,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }
 
-    bind<Dns>() with singleton { FallbackDns() }
+    bind<Dns>() with singleton { FallbackDNS(app) }
 
     bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
 
@@ -241,7 +248,7 @@ private class UpdateServerTimeInterceptor : Interceptor {
             response.header("Date")?.let { dateValue ->
                 val serverTime = try {
                     format.parse(dateValue)
-                } catch (err: Exception) {
+                } catch (err: Throwable) {
                     null
                 }
 
@@ -330,73 +337,93 @@ private class LoggingInterceptor : Interceptor {
     }
 }
 
-private class FallbackDns : Dns {
-    val logger = Logger("FallbackDns")
+private class FallbackDNS(context: Context) : Dns {
+    val logger = Logger("FallbackDNS")
 
-    val resolver = SimpleResolver("8.8.8.8")
-    val cache = org.xbill.DNS.Cache()
+    private val client by lazy {
+        val okHttpClient = OkHttpClient.Builder()
+                .cache(Cache(context.cacheDir.resolve("dns-cache"), 1024 * 1024))
+                .addInterceptor(LoggingInterceptor())
+                .build()
 
-    override fun lookup(hostname: String): MutableList<InetAddress> {
+        Retrofit.Builder()
+                .client(okHttpClient)
+                .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
+                .validateEagerly(BuildConfig.DEBUG)
+                .baseUrl("https://1.1.1.1")
+                .build().create<DoHClient>()
+    }
+
+    override fun lookup(hostname: String): List<InetAddress> {
         if (hostname == "127.0.0.1" || hostname == "localhost") {
-            return mutableListOf(InetAddress.getByName("127.0.0.1"))
+            return listOf(InetAddress.getByName("127.0.0.1"))
         }
 
-        val resolved = try {
+        val resolvers = listOf(this::lookupOverHTTPS, this::lookupSystemResolver)
+
+        for ((idx, resolver) in resolvers.withIndex()) {
+            logger.debug { "Try resolver $idx" }
+            val addresses = resolver(hostname)
+                    .filterNot { it.isAnyLocalAddress }
+                    .filterNot { it.isLinkLocalAddress }
+                    .filterNot { it.isLoopbackAddress }
+                    .filterNot { it.isMulticastAddress }
+                    .filterNot { it.isSiteLocalAddress }
+                    .filterNot { it.isMCSiteLocal }
+                    .filterNot { it.isMCGlobal }
+                    .filterNot { it.isMCLinkLocal }
+                    .filterNot { it.isMCNodeLocal }
+                    .filterNot { it.isMCOrgLocal }
+
+            if (addresses.isNotEmpty()) {
+                logger.debug { "Resolver $idx for $hostname returned $addresses" }
+                return addresses
+            }
+        }
+
+        return listOf()
+    }
+
+    private fun lookupSystemResolver(hostname: String): List<InetAddress> {
+        return try {
             Dns.SYSTEM.lookup(hostname)
         } catch (err: UnknownHostException) {
-            emptyList<InetAddress>()
-        }
-
-        val resolvedFiltered = resolved
-                .filterNot { it.isAnyLocalAddress }
-                .filterNot { it.isLinkLocalAddress }
-                .filterNot { it.isLoopbackAddress }
-                .filterNot { it.isMulticastAddress }
-                .filterNot { it.isSiteLocalAddress }
-                .filterNot { it.isMCSiteLocal }
-                .filterNot { it.isMCGlobal }
-                .filterNot { it.isMCLinkLocal }
-                .filterNot { it.isMCNodeLocal }
-                .filterNot { it.isMCOrgLocal }
-
-        if (resolvedFiltered.isNotEmpty()) {
-            debug {
-                logger.info { "System resolver for $hostname returned $resolved" }
-            }
-
-            return resolved.toMutableList()
-        } else {
-            val fallback = try {
-                fallbackLookup(hostname)
-            } catch (r: Throwable) {
-                if (r.causalChain.containsType<Error>()) {
-                    // sometimes the Lookup class does not initialize correctly, in that case, we'll
-                    // just return an empty array here and delegate back to the systems resolver.
-                    arrayListOf<InetAddress>()
-                } else {
-                    throw r
-                }
-            }
-
-            debug {
-                logger.info { "Fallback resolver for $hostname returned $fallback" }
-            }
-
-            if (fallback.isNotEmpty()) {
-                return fallback
-            }
-
-            // still nothing? lets just return whatever the system told us
-            return resolved.toMutableList()
+            listOf()
         }
     }
 
-    private fun fallbackLookup(hostname: String): MutableList<InetAddress> {
-        val lookup = Lookup(hostname, Type.A, DClass.IN)
-        lookup.setResolver(resolver)
-        lookup.setCache(cache)
+    private fun lookupOverHTTPS(hostname: String): List<InetAddress> {
+        val cached = dnsCache[hostname]
+        if (cached != null && cached.isValid())
+            return cached.value
 
-        val records: Array<Record> = lookup.run() ?: return mutableListOf()
-        return records.filterIsInstance<ARecord>().mapTo(mutableListOf()) { it.address }
+        return try {
+            val response = client.dnsQuery(hostname).execute().body() ?: return listOf()
+            val result = response.Answer.filter { it.type == 1 }.map { Inet4Address.getByName(it.data) }
+
+            if (result.isNotEmpty()) {
+                dnsCache[hostname] = ValueWithExpireTime(result)
+            }
+
+            result
+
+        } catch (err: Exception) {
+            logger.warn(err) { "DNS Lookup using https failed" }
+            listOf()
+        }
+    }
+
+    private class ValueWithExpireTime(val value: List<InetAddress>) {
+        val expiresAt = Instant.now().plus(Duration.minutes(1))
+
+        fun isValid(): Boolean = expiresAt.isInFuture
+    }
+
+    private val dnsCache = ConcurrentHashMap<String, ValueWithExpireTime>()
+
+
+    private interface DoHClient {
+        @GET("/dns-query?type=A&ct=application/dns-json")
+        fun dnsQuery(@Query("name") name: String): Call<DNSResponse>
     }
 }
