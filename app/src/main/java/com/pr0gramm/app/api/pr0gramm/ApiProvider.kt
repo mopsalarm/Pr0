@@ -118,7 +118,6 @@ class ApiProvider(base: String, client: OkHttpClient,
                 if (err?.error == "forbidden" && err.msg == "Not logged in") {
                     logger.warn { "Got 'Not logged in' error, will logout the user now." }
                     cookieJar.clearLoginCookie()
-                    throw LoginCookieJar.LoginRequiredException()
                 }
             }
 
