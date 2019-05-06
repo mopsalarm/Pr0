@@ -247,6 +247,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                         val fs = FileSystems.getDefault() as AndroidFileSystem
 
                         val uri = resultIntent?.data ?: return
+                        logger.warn { "Try to set $uri as new download directory" }
+
                         if (!AndroidFileSystem.isTreeUri(uri)) {
                             showInvalidDownloadDirectorySelected()
                             return
@@ -254,8 +256,12 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
                         fs.takePersistableUriPermission(resultIntent)
 
-                        Settings.get().edit {
-                            putString("pref_download_path", fs.getPath(uri).toString())
+                        try {
+                            val path = fs.getPath(uri).toString()
+                            Settings.get().edit { putString("pref_download_path", path) }
+                        } catch (err: Exception) {
+                            showInvalidDownloadDirectorySelected()
+                            return
                         }
                     }
                 }
