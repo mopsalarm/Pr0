@@ -53,7 +53,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         val encoded = bytes.encodeBase64()
 
         logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
-        api.post(name, feedback, version, encoded).await()
+        api.postAsync(name, feedback, version, encoded).await()
     }
 
     private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
@@ -92,7 +92,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     }
 
     private fun appendCodecInfo(result: StringBuilder) {
-        val decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false)
+        val decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false, false)
         for (info in decoderInfos) {
             result.append("codec: ").append(info.name).append("\n")
         }
@@ -109,10 +109,10 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     private interface Api {
         @FormUrlEncoded
         @POST("post")
-        fun post(@Field("name") name: String,
-                 @Field("feedback") feedback: String,
-                 @Field("version") version: String,
-                 @Field("logcat64") logcat: String): Deferred<Unit>
+        fun postAsync(@Field("name") name: String,
+                      @Field("feedback") feedback: String,
+                      @Field("version") version: String,
+                      @Field("logcat64") logcat: String): Deferred<Unit>
     }
 
 

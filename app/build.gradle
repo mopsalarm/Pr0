@@ -166,7 +166,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.0.1'
     implementation 'androidx.fragment:fragment-ktx:1.0.0'
 
-    implementation "com.google.firebase:firebase-core:16.0.8"
+    implementation "com.google.firebase:firebase-core:16.0.9"
 
     implementation 'com.llamalab.safs:safs-android:0.2.0'
 
@@ -174,7 +174,7 @@ dependencies {
         transitive true
     }
 
-    implementation 'com.google.android.gms:play-services-measurement-sdk-api:16.4.0'
+    implementation 'com.google.android.gms:play-services-measurement-sdk-api:16.5.0'
 
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-moshi:$VersionRetrofit"
@@ -201,7 +201,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:v5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.6'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.0'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
     debugImplementation "com.squareup.okhttp3:mockwebserver:3.12.2"

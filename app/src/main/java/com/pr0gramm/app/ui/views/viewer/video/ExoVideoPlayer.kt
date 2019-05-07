@@ -16,7 +16,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.FixedTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
@@ -66,18 +65,26 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val videoListener = VideoListener(callbacks, parentView)
 
-        exoVideoRenderer = MediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT_WITH_FALLBACK,
-                5000, handler, videoListener, -1)
+        // default values
+        val enableDecoderFallback = true
+        val playClearSamplesWithoutKey = false
+        val drmSessionManager = null
+        val allowedJoiningTimeMs = 5000L
 
-        val renderers = if (hasAudio) {
-            val renderer = MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT_WITH_FALLBACK)
+        // start with the video renderer
+        exoVideoRenderer = MediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
+                allowedJoiningTimeMs, drmSessionManager, playClearSamplesWithoutKey,
+                enableDecoderFallback, handler, videoListener, -1)
+
+        val renderers = mutableListOf<Renderer>(exoVideoRenderer)
+
+        if (hasAudio) {
+            val renderer = MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT)
             exoAudioRenderer = renderer
-            arrayOf(exoVideoRenderer, renderer)
-        } else {
-            arrayOf(exoVideoRenderer)
+            renderers += renderer
         }
 
-        exo = ExoPlayerFactory.newInstance(renderers, DefaultTrackSelector(FixedTrackSelection.Factory()))
+        exo = ExoPlayerFactory.newInstance(context, renderers.toTypedArray(), DefaultTrackSelector())
         exo.addListener(this)
 
         videoView.addOnDetachListener {
@@ -128,27 +135,31 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         }
     }
 
-    override val progress: Float get() {
-        val duration = exo.duration.toFloat()
-        return if (duration > 0) exo.currentPosition / duration else -1f
-    }
-
-    override val buffered: Float get() {
-        var buffered = exo.bufferedPercentage / 100f
-        if (buffered == 0f) {
-            buffered = -1f
+    override val progress: Float
+        get() {
+            val duration = exo.duration.toFloat()
+            return if (duration > 0) exo.currentPosition / duration else -1f
         }
 
-        return buffered
-    }
+    override val buffered: Float
+        get() {
+            var buffered = exo.bufferedPercentage / 100f
+            if (buffered == 0f) {
+                buffered = -1f
+            }
 
-    override val currentPosition: Int get() {
-        return exo.currentPosition.toInt()
-    }
+            return buffered
+        }
 
-    override val duration: Int get() {
-        return exo.duration.toInt()
-    }
+    override val currentPosition: Int
+        get() {
+            return exo.currentPosition.toInt()
+        }
+
+    override val duration: Int
+        get() {
+            return exo.duration.toInt()
+        }
 
     override fun pause() {
         logger.info { "Stopping exo player now" }
