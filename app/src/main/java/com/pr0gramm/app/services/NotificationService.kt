@@ -340,7 +340,7 @@ class NotificationService(private val context: Application,
         cancelAllByType(Types.NewMessage)
     }
 
-    private fun cancelAllByType(type: NotificationType) {
+    private fun cancelAllByType(type: NotificationType) = catchAll {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             nmSystem.activeNotifications.forEach { notification ->
                 if (notification.tag == type.channel) {
