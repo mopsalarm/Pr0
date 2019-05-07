@@ -1,5 +1,14 @@
 [
   {
+    "version": 167,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Die App verwendet nun DNS über HTTPS. Sie sollte nun auch in Netzwerken funktionieren, die das pr0gramm aktiv blockieren."
+      }
+    ]
+  },
+  {
     "version": 166,
     "changes": [
       {
