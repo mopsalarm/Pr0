@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.*
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.injector
@@ -22,10 +21,6 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         // get service and sync now.
         val syncService = context.injector.instance<SyncService>()
         catchAll { syncService.sync() }
-
-        // upload legacy bookmarks if any
-        val bookmarkService = context.injector.instance<BookmarkService>()
-        catchAll { bookmarkService.uploadLocalBookmarks() }
 
         return Result.success()
     }

@@ -2,7 +2,9 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.pr0gramm.app.*
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
@@ -31,8 +33,6 @@ class BookmarkService(
     private val bookmarks = BehaviorSubject.create<List<Bookmark>>(listOf())
 
     private val updateQueue = Channel<suspend () -> Unit>(Channel.UNLIMITED)
-
-    private var lastBookmarkUpload = Instant(0)
 
     init {
         // restore previous json
@@ -76,43 +76,6 @@ class BookmarkService(
 
         val json = MoshiInstance.adapter<List<Bookmark>>().toJson(bookmarks)
         preferences.edit { putString("Bookmarks.json", json) }
-
-        updateQueue.sendBlocking { uploadLocalBookmarks() }
-    }
-
-    suspend fun uploadLocalBookmarks() {
-        // only upload every 15 minutes in case of errors
-        synchronized(this) {
-            if (Duration.since(lastBookmarkUpload).convertTo(TimeUnit.MINUTES) < 15) {
-                return
-            }
-
-            lastBookmarkUpload = Instant.now()
-        }
-
-        val bookmarks = bookmarks.value
-
-        // sync back all bookmarks that are not yet synchronized (legacy bookmarks from the app)
-        val notSynchronized = bookmarks.filter { it.requiresSync }
-
-        if (notSynchronized.isNotEmpty() && bookmarkSyncService.isAuthorized) {
-            Stats().increment("bookmarks.upload")
-
-            logger.info { "Uploading all non default bookmarks now" }
-
-            // get the names of all default bookmarks on the server side
-            val defaults = bookmarkSyncService.fetch(anonymous = true).map { it.title.toLowerCase() }
-
-            // and filter all bookmarks from the app that are not in the default bookmarks
-            val custom = notSynchronized.filter { it.title.toLowerCase() !in defaults }
-
-            // store those bookmarks on the remote side
-            val remote = custom.map { bookmark -> bookmarkSyncService.add(bookmark) }.lastOrNull()
-
-            synchronized(this.bookmarks) {
-                this.bookmarks.onNext(this.bookmarks.value - notSynchronized + (remote ?: listOf()))
-            }
-        }
     }
 
     /**
