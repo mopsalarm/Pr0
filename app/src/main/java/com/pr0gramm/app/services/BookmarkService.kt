@@ -2,10 +2,7 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Stats
-import com.pr0gramm.app.adapter
+import com.pr0gramm.app.*
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
@@ -34,6 +31,8 @@ class BookmarkService(
     private val bookmarks = BehaviorSubject.create<List<Bookmark>>(listOf())
 
     private val updateQueue = Channel<suspend () -> Unit>(Channel.UNLIMITED)
+
+    private var lastBookmarkUpload = Instant(0)
 
     init {
         // restore previous json
@@ -82,6 +81,15 @@ class BookmarkService(
     }
 
     suspend fun uploadLocalBookmarks() {
+        // only upload every 15 minutes in case of errors
+        synchronized(this) {
+            if (Duration.since(lastBookmarkUpload).convertTo(TimeUnit.MINUTES) < 15) {
+                return
+            }
+
+            lastBookmarkUpload = Instant.now()
+        }
+
         val bookmarks = bookmarks.value
 
         // sync back all bookmarks that are not yet synchronized (legacy bookmarks from the app)

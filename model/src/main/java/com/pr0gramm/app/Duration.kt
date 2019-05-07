@@ -20,8 +20,12 @@ inline class Duration(private val nanos: Long) {
     companion object {
         val Zero = Duration(0)
 
-        fun between(first: Instant, second: Instant): Duration {
-            return Duration.millis(first.millis - second.millis)
+        fun between(later: Instant, earlier: Instant): Duration {
+            return Duration.millis(later.millis - earlier.millis)
+        }
+
+        fun since(other: Instant): Duration {
+            return between(Instant.now(), other)
         }
 
         fun millis(millis: Long): Duration {
