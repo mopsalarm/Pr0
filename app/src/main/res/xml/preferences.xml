@@ -348,13 +348,6 @@
             android:title="@string/pref_pseudo_changelog"/>
 
         <Preference
-            android:icon="@drawable/ic_settings_website"
-            android:key="pref_pseudo_recommend"
-            android:persistent="false"
-            android:summary="@string/pref_website_summary"
-            android:title="@string/pref_website_title"/>
-
-        <Preference
             android:icon="@drawable/ic_settings_cleanup"
             android:key="pref_pseudo_clean_preloaded"
             android:persistent="false"
@@ -369,10 +362,17 @@
             android:title="@string/pref_pseudo_onboarding_title"/>
 
         <Preference
-            android:icon="@drawable/ic_action_bookmark"
+            android:icon="@drawable/ic_settings_bookmarks"
             android:key="pref_pseudo_restore_bookmarks"
             android:summary="@string/pref_pseudo_restore_bookmarks_summary"
             android:title="@string/pref_pseudo_restore_bookmarks_title"/>
+
+        <Preference
+            android:icon="@drawable/ic_settings_website"
+            android:key="pref_pseudo_recommend"
+            android:persistent="false"
+            android:summary="@string/pref_website_summary"
+            android:title="@string/pref_website_title"/>
 
     </PreferenceCategory>
 
@@ -382,16 +382,16 @@
 
         <!-- This screen is hidden on non debug builds -->
         <PreferenceScreen
-            android:icon="@drawable/ic_acton_stelz"
+            android:icon="@drawable/ic_settings_privacy"
             android:key="prefcat_privacy_screen"
-            android:summary="Privacy settings"
-            android:title="Privacy">
+            android:summary="@string/prefcat_privacy_screen_summary"
+            android:title="@string/prefcat_privacy_screen_title">
 
             <SwitchPreferenceCompat
                 android:defaultValue="true"
                 android:key="pref_use_doh"
-                android:summary="Use DoH by default"
-                android:title="DNS over HTTPS"/>
+                android:summary="@string/pref_use_doh_summary"
+                android:title="@string/pref_use_doh_title"/>
 
             <SwitchPreferenceCompat
                 android:defaultValue="true"

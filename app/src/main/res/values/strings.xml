@@ -508,5 +508,9 @@
     <string name="pref_pseudo_restore_bookmarks_summary">Restores the pr0gramm default bookmarks. Will not delete any locally stored bookmarks.</string>
     <string name="error_bookmark">Error processing bookmarks: %s</string>
     <string name="error_invalid_download_directory">The selected directory is not usable. Please select a different directory or storage provider.</string>
+    <string name="prefcat_privacy_screen_title">Privacy</string>
+    <string name="prefcat_privacy_screen_summary">Privacy settings</string>
+    <string name="pref_use_doh_title">DNS over HTTPS</string>
+    <string name="pref_use_doh_summary">Use DoH to encrypt domain lookups. This might also prevent blocking of pr0gramm on some open wifi networks.</string>
 </resources>
 

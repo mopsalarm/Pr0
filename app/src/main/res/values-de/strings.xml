@@ -486,5 +486,10 @@
     <string name="hint_edit_bookmarks_premium">Lesezeichen können mit pr0mium bearbeitet werden.</string>
     <string name="pref_pseudo_restore_bookmarks_summary">Wiederherstellen aller Standard Lesenzeichen vom pr0gramm. Eigene lokale Lesezeichen werden dabei nicht gelöscht.</string>
     <string name="pref_pseudo_restore_bookmarks_title">Lesezeichen wiederherstellen</string>
+    <string name="prefcat_privacy_screen_title">Privatsphäre</string>
+    <string name="prefcat_privacy_screen_summary">Einstellungen zur Privatsphäre</string>
+    <string name="pref_use_doh_title">DNS über HTTPS</string>
+    <string name="pref_use_doh_summary">Verwende diese Option um DNS Anfragen verschlüsselt auszuführen. Dies kann auch in WLAN Netzwerken helfen, die das pr0gramm blockieren.</string>
+    <string name="error_invalid_download_directory">Das ausgewählte Verzeichnis kann nicht verwendet werden. Wähle einen anderen Ordner oder einen anderen Storage Provider aus.</string>
 
 </resources>
