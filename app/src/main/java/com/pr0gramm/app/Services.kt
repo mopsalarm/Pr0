@@ -15,6 +15,7 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
@@ -74,29 +75,18 @@ fun appInjector(app: Application) = Module.build {
 
     bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }
 
-    bind<Dns>() with singleton { CustomDNS(app) }
-
-    bind<String>(TagApiURL) with instance("https://pr0gramm.com/")
-
     bind<OkHttpClient>() with eagerSingleton {
         val cookieJar: LoginCookieJar = instance()
 
         val cacheDir = File(app.cacheDir, "imgCache")
 
-        OkHttpClient.Builder()
+        okHttpClientBuilder(app)
                 .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
                 .socketFactory(SmallBufferSocketFactory())
 
                 .cookieJar(cookieJar)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
-                .retryOnConnectionFailure(true)
-                .dns(instance())
-                .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
-
-                .configureSSLSocketFactoryAndSecurity(app)
+                .dns(CustomDNS(app))
 
                 .apply {
                     debug {
@@ -109,7 +99,6 @@ fun appInjector(app: Application) = Module.build {
 
                 .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
-                .addNetworkInterceptor(LoggingInterceptor())
                 .addNetworkInterceptor(UpdateServerTimeInterceptor())
                 .build()
     }
@@ -131,8 +120,7 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<Api>() with singleton {
-        val base = instance<String>(TagApiURL)
-        ApiProvider(base, instance(), instance()).api
+        ApiProvider("https://pr0gramm.com/", instance(), instance()).api
     }
 
     val seenService = SeenService(app)
@@ -195,30 +183,41 @@ fun appInjector(app: Application) = Module.build {
 
 const val TagApiURL = "api.baseurl"
 
-val connectionSpecs = ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS).run {
-    tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
+fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
+    val connectionSpecs = ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS).run {
+        tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
 
-    cipherSuites(
-            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-            CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-            CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+        cipherSuites(
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 
-            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-            CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
-            CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
-            CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
-            CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
-            CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+                CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+                CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
+                CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
+                CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
+                CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
+                CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
 
-            // and more from https://github.com/square/okhttp/issues/3894
-            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)
+                // and more from https://github.com/square/okhttp/issues/3894
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)
 
-    build()
+        build()
+    }
+
+    return OkHttpClient.Builder()
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
+            .configureSSLSocketFactoryAndSecurity(app)
+            .addNetworkInterceptor(LoggingInterceptor())
 }
 
 private class UpdateServerTimeInterceptor : Interceptor {
@@ -330,25 +329,16 @@ private class LoggingInterceptor : Interceptor {
     }
 }
 
-private class CustomDNS(context: Context) : Dns {
+private class CustomDNS(app: Application) : Dns {
     val logger = Logger("CustomDNS")
 
     private val okHttpClient by lazy {
-        OkHttpClient.Builder()
+        okHttpClientBuilder(app)
                 .cache(Cache(context.cacheDir.resolve("dns-cache"), 1024 * 1024))
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .retryOnConnectionFailure(true)
-                .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
-
-                .configureSSLSocketFactoryAndSecurity(context.applicationContext as Application)
-
-                .addInterceptor(LoggingInterceptor())
                 .build()
     }
 
-    private val doh by lazy {
+    private val dnsOverHttps by lazy {
         DnsOverHttps.Builder()
                 .client(okHttpClient)
                 .post(false)
@@ -372,7 +362,7 @@ private class CustomDNS(context: Context) : Dns {
         val resolvers = mutableListOf<NamedResolver>()
 
         if (Settings.get().useDoH) {
-            resolvers += NamedResolver("doh-okhttp", doh)
+            resolvers += NamedResolver("doh-okhttp", dnsOverHttps)
         }
 
         resolvers += NamedResolver("system", Dns.SYSTEM)
