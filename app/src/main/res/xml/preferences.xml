@@ -380,12 +380,25 @@
         android:key="pref_privacy"
         android:title="@string/pref_privacy">
 
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:icon="@drawable/ic_settings_sync"
-            android:key="pref_sync_backup"
-            android:summary="@string/pref_sync_backup_summary"
-            android:title="@string/perf_sync_backup_title"/>
+        <!-- This screen is hidden on non debug builds -->
+        <PreferenceScreen
+            android:icon="@drawable/ic_acton_stelz"
+            android:key="prefcat_privacy_screen"
+            android:summary="Privacy settings"
+            android:title="Privacy">
+
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="pref_use_doh"
+                android:summary="Use DoH by default"
+                android:title="DNS over HTTPS"/>
+
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="pref_sync_backup"
+                android:summary="@string/pref_sync_backup_summary"
+                android:title="@string/perf_sync_backup_title"/>
+        </PreferenceScreen>
 
     </PreferenceCategory>
 

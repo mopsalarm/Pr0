@@ -83,32 +83,6 @@ fun appInjector(app: Application) = Module.build {
 
         val cacheDir = File(app.cacheDir, "imgCache")
 
-        val spec = ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS).run {
-            tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
-
-            cipherSuites(
-                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-                    CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-                    CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-
-                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-                    CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
-                    CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
-                    CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
-                    CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
-                    CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
-
-                    // and more from https://github.com/square/okhttp/issues/3894
-                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)
-
-            build()
-        }
-
         OkHttpClient.Builder()
                 .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
                 .socketFactory(SmallBufferSocketFactory())
@@ -120,7 +94,7 @@ fun appInjector(app: Application) = Module.build {
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
                 .dns(instance())
-                .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
+                .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
                 .configureSSLSocketFactoryAndSecurity(app)
 
@@ -220,6 +194,32 @@ fun appInjector(app: Application) = Module.build {
 
 
 const val TagApiURL = "api.baseurl"
+
+val connectionSpecs = ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS).run {
+    tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
+
+    cipherSuites(
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
+
+            // and more from https://github.com/square/okhttp/issues/3894
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)
+
+    build()
+}
 
 private class UpdateServerTimeInterceptor : Interceptor {
     private val format by threadLocal {
@@ -336,6 +336,14 @@ private class CustomDNS(context: Context) : Dns {
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
                 .cache(Cache(context.cacheDir.resolve("dns-cache"), 1024 * 1024))
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
+                .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
+
+                .configureSSLSocketFactoryAndSecurity(context.applicationContext as Application)
+
                 .addInterceptor(LoggingInterceptor())
                 .build()
     }
@@ -361,14 +369,18 @@ private class CustomDNS(context: Context) : Dns {
             return listOf(Inet4Address.getByName(hostname))
         }
 
-        val resolvers = listOf(
-                NamedResolver("doh-okhttp", doh::lookup),
-                NamedResolver("system", this::lookupSystemResolver))
+        val resolvers = mutableListOf<NamedResolver>()
+
+        if (Settings.get().useDoH) {
+            resolvers += NamedResolver("doh-okhttp", doh)
+        }
+
+        resolvers += NamedResolver("system", Dns.SYSTEM)
 
         for ((name, resolver) in resolvers) {
             try {
                 logger.debug { "Try resolver $name" }
-                val addresses = resolver(hostname)
+                val addresses = resolver.lookup(hostname)
                         .filterNot { it.isAnyLocalAddress }
                         .filterNot { it.isLinkLocalAddress }
                         .filterNot { it.isLoopbackAddress }
@@ -397,13 +409,5 @@ private class CustomDNS(context: Context) : Dns {
         return listOf()
     }
 
-    private fun lookupSystemResolver(hostname: String): List<InetAddress> {
-        return try {
-            Dns.SYSTEM.lookup(hostname)
-        } catch (err: UnknownHostException) {
-            listOf()
-        }
-    }
-
-    private data class NamedResolver(val name: String, val resolver: (String) -> List<InetAddress>)
+    private data class NamedResolver(val name: String, val resolver: Dns)
 }

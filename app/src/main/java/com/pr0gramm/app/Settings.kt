@@ -211,6 +211,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return value ?: ShareService.ImageSearchEngine.GOOGLE
         }
 
+    val useDoH: Boolean
+        get() = preferences.getBoolean("pref_use_doh", true)
+
     val privateInput: Boolean
         get() = preferences.getBoolean("pref_private_input", false)
 
