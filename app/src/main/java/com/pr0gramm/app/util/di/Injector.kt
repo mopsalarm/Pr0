@@ -108,17 +108,17 @@ private object NoValue
 class Module private constructor() {
     val providers = mutableMapOf<Injector.Key, Provider<*>>()
 
-    inline fun <reified T : Any> bind(tag: String? = null): Binder<T> {
-        return Binder(T::class.java, tag)
+    inline fun <reified T : Any> bind(): Binder<T> {
+        return Binder(T::class.java)
     }
 
     fun register(key: Injector.Key, provider: Provider<*>) {
         providers[key] = provider
     }
 
-    inner class Binder<T : Any>(val type: Class<T>, val tag: String? = null) {
+    inner class Binder<T : Any>(val type: Class<T>) {
         infix fun with(provider: Provider<T>) {
-            register(Injector.Key(type, tag), provider)
+            register(Injector.Key(type), provider)
         }
     }
 
@@ -161,11 +161,7 @@ class Module private constructor() {
 
 class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
     inline fun <reified T : Any> instance(): T {
-        return instance(Key(T::class.java, null))
-    }
-
-    inline fun <reified T : Any> instance(tag: String): T {
-        return instance(Key(T::class.java, tag))
+        return instance(Key(T::class.java))
     }
 
     fun <T : Any> instance(key: Key): T {
@@ -187,7 +183,7 @@ class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
         }
     }
 
-    data class Key(val type: Class<*>, val tag: String?)
+    data class Key(val type: Class<*>)
 }
 
 inline val Context.injector: Injector get() = (applicationContext as ApplicationClass).injector
@@ -240,8 +236,8 @@ interface LazyInjectorAware {
     val injector: PropertyInjector
 }
 
-inline fun <reified T : Any> LazyInjectorAware.instance(tag: String? = null): ReadOnlyProperty<Any?, T> {
-    return injector.instance(Injector.Key(T::class.java, tag))
+inline fun <reified T : Any> LazyInjectorAware.instance(): ReadOnlyProperty<Any?, T> {
+    return injector.instance(Injector.Key(T::class.java))
 }
 
 interface InjectorAware {
@@ -252,12 +248,8 @@ inline fun <reified T : Any> InjectorAware.instance(): T {
     return injector.instance()
 }
 
-inline fun <reified T : Any> InjectorAware.instance(tag: String): T {
-    return injector.instance(tag)
-}
-
-inline fun <reified T : Any> lazyInject(tag: String? = null, crossinline injector: () -> Injector): Lazy<T> {
+inline fun <reified T : Any> lazyInject(crossinline injector: () -> Injector): Lazy<T> {
     return lazy(LazyThreadSafetyMode.PUBLICATION) {
-        injector().instance<T>(Injector.Key(T::class.java, tag))
+        injector().instance<T>(Injector.Key(T::class.java))
     }
 }
