@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -37,7 +38,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
     private val uploads: TextView = find(R.id.kpi_uploads)
     private val extraInfo: TextView = find(R.id.user_extra_info)
     private val writeNewMessage: View = find(R.id.action_new_message)
-    private val writeNewMessageTitle: View = find(R.id.action_new_message_title)
+    private val shareUserProfile: View = find(R.id.action_share)
     private val badgesContainer: RecyclerView = find(R.id.badges_container)
     private val userTypeName: TextView = find(R.id.user_type_name)
     private val showCommentsContainer: View = comments.parent as View
@@ -62,11 +63,15 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         showCommentsContainer.visible = comments.isNotEmpty()
 
         writeNewMessage.visible = !myself
-        writeNewMessageTitle.visible = !myself
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
             userActionListener.onWriteMessageClicked(user.name)
+        }
+
+        // open share popup
+        shareUserProfile.setOnClickListener {
+            userActionListener.shareUserProfile(user.name)
         }
 
         (this.comments.parent as View).setOnClickListener {
@@ -127,7 +132,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         badgesContainer.adapter = BadgeAdapter(badges)
-        badgesContainer.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
+        badgesContainer.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         badgesContainer.isHorizontalFadingEdgeEnabled = true
         badgesContainer.setFadingEdgeLength(context.dip2px(24))
 
@@ -158,6 +163,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         fun onUserFavoritesClicked(name: String)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)
+        fun shareUserProfile(name: String)
     }
 
     private data class BadgeInfo(val image: String, val description: String,

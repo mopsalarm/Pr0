@@ -39,6 +39,10 @@ class UriHelper private constructor(context: Context) {
         return start().build()
     }
 
+    fun user(name: String): Uri {
+        return start().appendPath("user").appendPath(name).build()
+    }
+
     fun post(type: FeedType, itemId: Long): Uri {
         return start().path(FEED_TYPES[type])
                 .appendPath(itemId.toString())

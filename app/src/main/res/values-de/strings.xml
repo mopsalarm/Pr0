@@ -407,7 +407,7 @@
     <string name="badge_comments">Mehr als %sk Kommentare</string>
     <string name="badge_time">Mehr als %s Jahre auf dem pr0gramm</string>
     <string name="add_tags_opinion_hint">Bedenke: Tags sind nicht als Ort für deine Meinung, sondern zur Beschreibung des Bildes gedacht.</string>
-    <string name="message">NACHRICHT</string>
+    <string name="action_actions">AKTIONEN</string>
     <string name="delete_comment_soft">Durch <i>[gelöscht]</i> ersetzen</string>
     <string name="benisgraph_empty">Es sind noch nicht genügend Daten verfügbar,\num deinen Graphen anzuzeigen.</string>
     <string name="could_not_load_feed_content_type__change">Möchtest du %s in deinen Filter mit aufnehmen?</string>

@@ -61,6 +61,17 @@ class ShareService(private val cache: Cache) {
     }
 
 
+    fun shareUserProfile(activity: Activity, user: String) {
+        val uri = UriHelper.of(activity).user(user).toString()
+
+        ShareCompat.IntentBuilder.from(activity)
+                .setType("text/plain")
+                .setText(uri)
+                .setChooserTitle(R.string.share_with)
+                .startChooser()
+    }
+
+
     suspend fun shareImage(activity: Activity, feedItem: FeedItem) {
         val mimetype = guessMimetype(activity, feedItem)
 

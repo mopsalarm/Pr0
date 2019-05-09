@@ -63,6 +63,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val followService: StalkService by instance()
     private val adService: AdService by instance()
     private val config: Config by instance()
+    private val shareService: ShareService by instance()
 
     private val recyclerView: RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
@@ -456,6 +457,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             if (userService.isAuthorized) {
                 state = state.copy(userInfoCommentsOpen = true)
             }
+        }
+
+        override fun shareUserProfile(name: String) {
+            shareService.shareUserProfile(requireActivity(), name)
         }
     }
 
