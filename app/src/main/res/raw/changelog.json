@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Die App verwendet nun DNS über HTTPS. Sie sollte nun auch in Netzwerken funktionieren, die das pr0gramm aktiv blockieren."
+      },
+      {
+        "type": "Neu",
+        "change": "Userprofile können nun direkt geteilt werden."
       }
     ]
   },
