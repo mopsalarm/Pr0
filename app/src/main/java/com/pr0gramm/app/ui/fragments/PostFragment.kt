@@ -1268,7 +1268,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {
-            val dialog = ItemUserAdminDialog.forComment(comment.id)
+            val dialog = ItemUserAdminDialog.forComment(comment.id, comment.name)
+            dialog.show(fragmentManager, null)
+            return true
+        }
+
+        override fun onBlockUserClicked(comment: Api.Comment): Boolean {
+            val dialog = ItemUserAdminDialog.forUser(comment.name)
             dialog.show(fragmentManager, null)
             return true
         }

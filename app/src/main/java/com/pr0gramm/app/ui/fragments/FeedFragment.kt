@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -91,6 +92,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private val activeUsername: String? get() = state.userInfo?.info?.user?.name
+
+    private val activeUserId: Int? get() = state.userInfo?.info?.user?.id
 
     private var scrollToolbar: Boolean = false
 
@@ -767,8 +770,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         menu.findItem(R.id.action_preload)
                 ?.isVisible = feedType.preloadable
 
-        menu.findItem(R.id.action_block_user)
-                ?.isVisible = userService.userIsAdmin && activeUsername != null
+        val adminOnUserProfile = userService.userIsAdmin && activeUsername != null
+        menu.findItem(R.id.action_block_user)?.isVisible = adminOnUserProfile
+        menu.findItem(R.id.action_open_in_admin)?.isVisible = adminOnUserProfile
 
         menu.findItem(R.id.action_feedtype)?.let { item ->
             item.isVisible = !filter.isBasic
@@ -865,9 +869,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             R.id.action_unfollow -> onUnfollowClicked()
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
+            R.id.action_open_in_admin -> openUserInAdmin()
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun openUserInAdmin() {
+        val uri = "https://pr0gramm.com/backend/admin/?view=users&action=show&id=$activeUserId"
+        BrowserHelper.openCustomTab(requireContext(), Uri.parse(uri), handover = true)
     }
 
     private fun switchFeedType() {

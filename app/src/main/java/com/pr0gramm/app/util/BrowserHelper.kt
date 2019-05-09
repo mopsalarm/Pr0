@@ -170,7 +170,7 @@ object BrowserHelper {
                 }
 
                 Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()
-                        .appendQueryParameter("path", uri.path)
+                        .appendQueryParameter("path", (uri.path ?: "/") + "?" + (uri.query ?: ""))
                         .appendQueryParameter("token", response.token)
                         .build()
 

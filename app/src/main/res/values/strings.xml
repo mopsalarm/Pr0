@@ -370,7 +370,7 @@
     <string name="error_check_file_permission">The app could not read selected image file. Please check the app\'s filesystem permissions.</string>
     <string name="error_generic">An error occurred.</string>
     <string name="hint_block_treeup">Ban TreeUp (inviters)</string>
-    <string name="block_user">Ban user</string>
+    <string name="action_block_user">Ban user</string>
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
     <string name="badge_comments">More than %sk comments</string>
@@ -512,5 +512,6 @@
     <string name="prefcat_privacy_screen_summary">Privacy settings</string>
     <string name="pref_use_doh_title">DNS over HTTPS</string>
     <string name="pref_use_doh_summary">Use DoH to encrypt domain lookups. This might also prevent blocking of pr0gramm on some open wifi networks.</string>
+    <string name="action_open_in_admin">Open in Admin</string>
 </resources>
 

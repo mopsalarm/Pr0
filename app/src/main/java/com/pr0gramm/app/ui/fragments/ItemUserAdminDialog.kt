@@ -41,9 +41,9 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layout = when {
+            comment != null -> R.layout.admin_delete_comment
             user != null -> R.layout.admin_ban_user
             item != null -> R.layout.admin_delete_item
-            comment != null -> R.layout.admin_delete_comment
             else -> throw IllegalArgumentException()
         }
 
@@ -60,17 +60,14 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 android.R.layout.simple_list_item_1, REASONS)
 
         blockUser?.let { blockUser ->
-            if (user != null) {
-                blockUser.isChecked = true
-                blockUser.isEnabled = false
-            }
+            blockTreeup?.isEnabled = blockUser.isChecked
 
-            blockUser.setOnCheckedChangeListener { buttonView, isChecked ->
+            blockUser.setOnCheckedChangeListener { _, isChecked ->
                 blockTreeup?.isEnabled = isChecked
             }
         }
 
-        reasonListView.setOnItemClickListener { parent, view, position, id ->
+        reasonListView.setOnItemClickListener { _, _, position, _ ->
             customReasonText.setText(REASONS[position])
         }
     }
@@ -99,6 +96,9 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     }
 
     private suspend fun blockUser(user: String, reason: String) {
+        if (blockUser?.isChecked != true)
+            return
+
         val treeup = blockTreeup?.isChecked ?: false
         val banUserDays = blockUserForDays?.text?.toString()?.toFloatOrNull() ?: 0f
         adminService.banUser(user, reason, banUserDays, treeup)
@@ -144,8 +144,9 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
             putString(KEY_USER, name)
         }
 
-        fun forComment(commentId: Long) = ItemUserAdminDialog().arguments {
+        fun forComment(commentId: Long, user: String) = ItemUserAdminDialog().arguments {
             putLong(KEY_COMMENT, commentId)
+            putString(KEY_USER, user)
         }
     }
 }

@@ -243,6 +243,10 @@ class CommentView(val parent: ViewGroup,
             item.isVisible = userService.userIsAdmin
         }
 
+        popup.menu.findItem(R.id.action_block_user)?.let { item ->
+            item.isVisible = userService.userIsAdmin
+        }
+
         popup.menu.findItem(R.id.action_collapse)?.let { item ->
             item.isVisible = entry.canCollapse
         }
@@ -257,6 +261,7 @@ class CommentView(val parent: ViewGroup,
         when (item.itemId) {
             R.id.action_copy_link -> l.onCopyCommentLink(entry.comment)
             R.id.action_delete_comment -> l.onDeleteCommentClicked(entry.comment)
+            R.id.action_block_user -> l.onBlockUserClicked(entry.comment)
             R.id.action_collapse -> l.collapseComment(entry.comment)
             R.id.action_report -> l.onReportCommentClicked(entry.comment)
         }
@@ -274,6 +279,8 @@ class CommentView(val parent: ViewGroup,
         fun onCopyCommentLink(comment: Api.Comment)
 
         fun onDeleteCommentClicked(comment: Api.Comment): Boolean
+
+        fun onBlockUserClicked(comment: Api.Comment): Boolean
 
         fun onReportCommentClicked(comment: Api.Comment)
 

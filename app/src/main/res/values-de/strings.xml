@@ -344,7 +344,7 @@
     <string name="hint_dont_like_ads">Wie bitte?\nWerbung ist doof?</string>
     <string name="error_check_file_permission">Die ausgewählte Datei konnte nicht gelesen werden. Prüfe bitte die Dateisystemberechtigungen der App.</string>
     <string name="error_generic">Es ist ein Fehler aufgetreten.</string>
-    <string name="block_user">Benutzer sperren</string>
+    <string name="action_block_user">Benutzer sperren</string>
     <string name="hint_block_treeup">TreeUp sperren (Einlader)</string>
     <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
     <string name="download_complete">Download abgeschlossen</string>
@@ -491,5 +491,6 @@
     <string name="pref_use_doh_title">DNS über HTTPS</string>
     <string name="pref_use_doh_summary">Verwende diese Option um DNS Anfragen verschlüsselt auszuführen. Dies kann auch in WLAN Netzwerken helfen, die das pr0gramm blockieren.</string>
     <string name="error_invalid_download_directory">Das ausgewählte Verzeichnis kann nicht verwendet werden. Wähle einen anderen Ordner oder einen anderen Storage Provider aus.</string>
+    <string name="action_open_in_admin">In Admin öffnen</string>
 
 </resources>
