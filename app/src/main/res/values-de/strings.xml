@@ -227,6 +227,7 @@
     <string name="error_json">Die Antwort des pr0gramm konnte nicht verarbeitet werden.</string>
     <string name="pref_pseudo_clear_tag_suggestions_summary">Klicke hier um alle Vorschläge für die Suche zu löschen</string>
     <string name="pref_pseudo_clear_tag_suggestions_title">Suchverlauf löschen</string>
+    <string name="pref_pseudo_clear_tag_suggestions_notification">Suchverlauf gelöscht</string>
     <string name="action_faq">FAQ</string>
     <string name="action_switch_to_new">In \'neu\' öffnen</string>
     <string name="action_switch_to_top">In \'top\' öffnen</string>
