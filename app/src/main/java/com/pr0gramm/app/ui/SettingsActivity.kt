@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -211,6 +212,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
                 "pref_pseudo_clear_tag_suggestions" -> {
                     recentSearchesServices.clearHistory()
+                    val msg = context?.getString(R.string.pref_pseudo_clear_tag_suggestions_notification)
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                     return true
                 }
 
