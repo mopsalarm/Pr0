@@ -369,7 +369,9 @@
     <string name="hint_dont_like_ads">Sorry,\nyou don\'t like ads?</string>
     <string name="error_check_file_permission">The app could not read selected image file. Please check the app\'s filesystem permissions.</string>
     <string name="error_generic">An error occurred.</string>
-    <string name="hint_block_treeup">Ban TreeUp (inviters)</string>
+    <string name="hint_block_mode__default">Default (Dieser Benutzer und seine Einlader)</string>
+    <string name="hint_block_mode__single">Single (Nur diesen Benutzer)</string>
+    <string name="hint_block_mode__branch">Invite-Ast (Dieser Benutzer und alle von ihm eingeladenen)</string>
     <string name="action_block_user">Ban user</string>
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>

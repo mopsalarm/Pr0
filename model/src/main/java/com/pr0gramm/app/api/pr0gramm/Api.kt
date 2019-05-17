@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.http.*
+import java.util.*
 
 interface Api {
     @GET("/api/items/get")
@@ -179,14 +180,12 @@ interface Api {
             @Field("days") days: Float?): Deferred<Unit>
 
     @FormUrlEncoded
-    @POST("api/user/ban")
+    @POST("backend/admin/?view=users&action=ban&reason=custom")
     fun userBanAsync(
-            @Field("_nonce") none: Nonce?,
             @Field("name") name: String,
-            @Field("reason") reason: String,
-            @Field("customReason") customReason: String,
+            @Field("customReason") reason: String,
             @Field("days") days: Float,
-            @Field("mode") mode: Int?): Deferred<Unit>
+            @Field("mode") mode: BanMode): Deferred<Unit>
 
     @GET("api/tags/details")
     fun tagDetailsAsync(
@@ -610,4 +609,11 @@ interface Api {
             val name: String,
             val link: String,
             val velocity: Float = 0.0f)
+
+
+    enum class BanMode {
+        Default, Single, Branch;
+
+        override fun toString(): String = name.toLowerCase(Locale.ROOT)
+    }
 }
