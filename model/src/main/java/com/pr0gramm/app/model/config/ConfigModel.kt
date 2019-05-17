@@ -15,6 +15,7 @@ data class Config(
         val trackVotes: Boolean = false,
         val commentsMaxLevels: Int = 18,
         val reportReasons: List<String> = DefaultReportReasons,
+        val adminReasons: List<String> = DefaultAdminReasons,
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
         val specialMenuItems: List<MenuItem> = listOf()) {
@@ -52,6 +53,28 @@ private val DefaultReportReasons = listOf(
         "Regel #18 - Hetze/Aufruf zu Gewalt",
         "Verstoß in den Tags",
         "Repost")
+
+private val DefaultAdminReasons = listOf(
+        "Repost",
+        "Auf Anfrage",
+        "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+        "Regel #1 - Falsche/Sinnlose Nutzung des NSFP Filters",
+        "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
+        "Regel #3 - Tierporn/Tierquälerei",
+        "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
+        "Regel #5 - Werbung/Spam",
+        "Regel #6 - Infos zu Privatpersonen",
+        "Regel #7 - Bildqualität",
+        "Regel #8 - Ähnliche Bilder in Reihe",
+        "Regel #11 - Multiaccount",
+        "Regel #12 - Warez/Logins zu Pay Sites",
+        "Regel #14 - Screamer/Sound-getrolle",
+        "Regel #15 - Reiner Musikupload",
+        "Regel #16 - Unnötiges Markieren von Mods",
+        "Regel #18 - Hetze/Aufruf zur Gewalt",
+        "DMCA Anfrage (Copyright)",
+        "Müllpost",
+        "Trollscheiße.")
 
 private val DefaultUserClasses = listOf(
         Config.UserClass("#FFFFFF", "Schwuchtel"),

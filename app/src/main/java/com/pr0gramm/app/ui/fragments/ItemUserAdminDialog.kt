@@ -9,6 +9,7 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.AdminService
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindOptionalView
 import com.pr0gramm.app.ui.base.bindView
@@ -22,6 +23,7 @@ import kotlinx.coroutines.NonCancellable
  */
 class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val adminService: AdminService by instance()
+    private val configService: ConfigService by instance()
 
     private val reasonListView: ListView by bindView(R.id.reason)
     private val customReasonText: EditText by bindView(R.id.custom_reason)
@@ -31,6 +33,8 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val blockMode: Spinner? by bindOptionalView(R.id.block_mode)
 
     private val deleteSoft: CheckBox? by bindOptionalView(R.id.soft_delete)
+
+    private val reasons: List<String> by lazy { configService.config().adminReasons }
 
     // one of those must be set.
     private val user: String? by lazy { arguments?.getString(KEY_USER) }
@@ -55,7 +59,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     override suspend fun onDialogViewCreated() {
         reasonListView.adapter = ArrayAdapter(dialog.context,
-                android.R.layout.simple_list_item_1, REASONS)
+                android.R.layout.simple_list_item_1, reasons)
 
         blockUser?.let { blockUser ->
             blockMode?.isEnabled = blockUser.isChecked
@@ -75,7 +79,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         blockMode?.setSelection(0)
 
         reasonListView.setOnItemClickListener { _, _, position, _ ->
-            customReasonText.setText(REASONS[position])
+            customReasonText.setText(reasons[position])
         }
     }
 
@@ -122,28 +126,6 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         private const val KEY_USER = "userId"
         private const val KEY_FEED_ITEM = "feedItem"
         private const val KEY_COMMENT = "commentId"
-
-        val REASONS = listOf(
-                "Repost",
-                "Auf Anfrage",
-                "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
-                "Regel #1 - Falsche/Sinnlose Nutzung des NSFP Filters",
-                "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
-                "Regel #3 - Tierporn/Tierquälerei",
-                "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
-                "Regel #5 - Werbung/Spam",
-                "Regel #6 - Infos zu Privatpersonen",
-                "Regel #7 - Bildqualität",
-                "Regel #8 - Ähnliche Bilder in Reihe",
-                "Regel #11 - Multiaccount",
-                "Regel #12 - Warez/Logins zu Pay Sites",
-                "Regel #14 - Screamer/Sound-getrolle",
-                "Regel #15 - Reiner Musikupload",
-                "Regel #16 - Unnötiges Markieren von Mods",
-                "Regel #18 - Hetze/Aufruf zur Gewalt",
-                "DMCA Anfrage (Copyright)",
-                "Müllpost",
-                "Trollscheiße.")
 
         fun forItem(item: FeedItem) = ItemUserAdminDialog().arguments {
             putFreezable(KEY_FEED_ITEM, item)
