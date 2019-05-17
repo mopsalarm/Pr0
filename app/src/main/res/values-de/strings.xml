@@ -346,7 +346,6 @@
     <string name="error_check_file_permission">Die ausgewählte Datei konnte nicht gelesen werden. Prüfe bitte die Dateisystemberechtigungen der App.</string>
     <string name="error_generic">Es ist ein Fehler aufgetreten.</string>
     <string name="action_block_user">Benutzer sperren</string>
-    <string name="hint_block_treeup">TreeUp sperren (Einlader)</string>
     <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="action_premium">PR0MIUM</string>

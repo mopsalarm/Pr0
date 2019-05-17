@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 
@@ -8,6 +9,8 @@ import com.pr0gramm.app.feed.FeedItem
  */
 
 class AdminService(private val api: Api, private val cacheService: InMemoryCacheService) {
+    private val logger = Logger("AdminService")
+
     suspend fun tagsDetails(itemId: Long): Api.TagDetails {
         return api.tagDetailsAsync(itemId).await()
     }
@@ -26,15 +29,22 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
         api.deleteTagAsync(null, itemId, pBlockUser, blockDays, tags).await()
     }
 
-    suspend fun banUser(name: String, reason: String, blockDays: Float, treeup: Boolean) {
+    suspend fun banUser(name: String, reason: String, days: Float, mode: Api.BanMode) {
+        logger.info { "Ban user $name for $days days (mode: $mode): $reason" }
         cacheService.invalidate()
 
-        val mode: Int? = if (treeup) null else 1
-        api.userBanAsync(null, name, "custom", reason, blockDays, mode).await()
+        api.userBanAsync(name, reason, days, mode).await()
     }
 
     suspend fun deleteComment(hard: Boolean, id: Long, reason: String) {
-        val func = if (hard) api::hardDeleteCommentAsync else api::softDeleteCommentAsync
-        func(null, id, reason).await()
+        val result = if (hard) {
+            logger.info { "Doing hard delete of comment $id: $reason" }
+            api.hardDeleteCommentAsync(null, id, reason)
+        } else {
+            logger.info { "Doing soft delete of comment $id: $reason" }
+            api.softDeleteCommentAsync(null, id, reason)
+        }
+
+        result.await()
     }
 }

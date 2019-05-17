@@ -2,11 +2,9 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ListView
+import android.widget.*
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
@@ -30,7 +28,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     private val blockUser: CheckBox? by bindOptionalView(R.id.block_user)
     private val blockUserForDays: EditText? by bindOptionalView(R.id.block_user_days)
-    private val blockTreeup: CheckBox? by bindOptionalView(R.id.block_treeup)
+    private val blockMode: Spinner? by bindOptionalView(R.id.block_mode)
 
     private val deleteSoft: CheckBox? by bindOptionalView(R.id.soft_delete)
 
@@ -60,12 +58,21 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 android.R.layout.simple_list_item_1, REASONS)
 
         blockUser?.let { blockUser ->
-            blockTreeup?.isEnabled = blockUser.isChecked
+            blockMode?.isEnabled = blockUser.isChecked
+            blockUserForDays?.isEnabled = blockUser.isChecked
 
             blockUser.setOnCheckedChangeListener { _, isChecked ->
-                blockTreeup?.isEnabled = isChecked
+                blockMode?.isEnabled = isChecked
+                blockUserForDays?.isEnabled = isChecked
             }
         }
+
+        blockMode?.adapter = ArrayAdapter(dialog.context, android.R.layout.simple_spinner_dropdown_item, listOf(
+                getString(R.string.hint_block_mode__default),
+                getString(R.string.hint_block_mode__single),
+                getString(R.string.hint_block_mode__branch)))
+
+        blockMode?.setSelection(0)
 
         reasonListView.setOnItemClickListener { _, _, position, _ ->
             customReasonText.setText(REASONS[position])
@@ -99,9 +106,11 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         if (blockUser?.isChecked != true)
             return
 
-        val treeup = blockTreeup?.isChecked ?: false
+        val modes = listOf(Api.BanMode.Default, Api.BanMode.Single, Api.BanMode.Branch)
+        val mode = modes.getOrNull(blockMode?.selectedItemPosition ?: 0) ?: Api.BanMode.Default
+
         val banUserDays = blockUserForDays?.text?.toString()?.toFloatOrNull() ?: 0f
-        adminService.banUser(user, reason, banUserDays, treeup)
+        adminService.banUser(user, reason, banUserDays, mode)
     }
 
     private suspend fun deleteComment(commentId: Long, reason: String) {
