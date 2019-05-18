@@ -180,10 +180,11 @@ interface Api {
             @Field("days") days: Float?): Deferred<Unit>
 
     @FormUrlEncoded
-    @POST("backend/admin/?view=users&action=ban&reason=custom")
+    @POST("backend/admin/?view=users&action=ban")
     fun userBanAsync(
             @Field("name") name: String,
-            @Field("customReason") reason: String,
+            @Field("reason") reason: String,
+            @Field("customReason") reasonCustom: String,
             @Field("days") days: Float,
             @Field("mode") mode: BanMode): Deferred<Unit>
 

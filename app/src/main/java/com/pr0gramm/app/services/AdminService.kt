@@ -33,7 +33,7 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
         logger.info { "Ban user $name for $days days (mode: $mode): $reason" }
         cacheService.invalidate()
 
-        api.userBanAsync(name, reason, days, mode).await()
+        api.userBanAsync(name, "custom", reason, days, mode).await()
     }
 
     suspend fun deleteComment(hard: Boolean, id: Long, reason: String) {
