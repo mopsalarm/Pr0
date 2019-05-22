@@ -47,8 +47,8 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
 
         pager.adapter = TabsAdapter(requireContext(), childFragmentManager).apply {
-            addTab(R.string.action_favorites, FeedFragment::class.java, feedFragmentArguments)
-            addTab(R.string.action_kfav, FavedCommentFragment::class.java)
+            addTab(R.string.action_favorites, feedFragmentArguments) { FeedFragment() }
+            addTab(R.string.action_kfav) { FavedCommentFragment() }
         }
 
         tabLayout.setupWithViewPager(pager)

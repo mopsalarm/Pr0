@@ -53,9 +53,9 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         InboxType.values().forEach { type ->
             when (type) {
-                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private, ConversationsFragment::class.java)
-                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in, CommentsInboxFragment::class.java)
-                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out, WrittenCommentsFragment::class.java)
+                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private) { ConversationsFragment() }
+                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in) { CommentsInboxFragment() }
+                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out) { WrittenCommentsFragment() }
             }
         }
 

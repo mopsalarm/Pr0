@@ -4,15 +4,16 @@ import android.content.Context
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
 
 /**
  */
-class TabsAdapter(private val context: Context, fragmentManager: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(fragmentManager) {
+class TabsAdapter(private val context: Context, fragmentManager: androidx.fragment.app.FragmentManager) : FragmentPagerAdapter(fragmentManager) {
     private val tabs: MutableList<TabInfo> = mutableListOf()
 
-    fun <T : Fragment> addTab(@StringRes titleId: Int, cls: Class<T>, args: Bundle? = null) {
+    fun addTab(@StringRes titleId: Int, args: Bundle? = null, fragmentConstructor: () -> Fragment) {
         val title = context.getString(titleId)
-        val info = TabInfo(title, cls, args)
+        val info = TabInfo(title, fragmentConstructor, args)
         tabs.add(info)
 
         notifyDataSetChanged()
@@ -28,8 +29,11 @@ class TabsAdapter(private val context: Context, fragmentManager: androidx.fragme
 
     override fun getItem(position: Int): Fragment {
         val info = tabs[position]
-        return Fragment.instantiate(context, info.type.name, info.args)
+
+        return info.fragmentConstructor().apply {
+            arguments = info.args
+        }
     }
 
-    private class TabInfo(val title: String, val type: Class<out Fragment>, val args: Bundle?)
+    private class TabInfo(val title: String, val fragmentConstructor: () -> Fragment, val args: Bundle?)
 }
