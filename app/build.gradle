@@ -170,7 +170,7 @@ dependencies {
 
     implementation 'com.llamalab.safs:safs-android:0.2.0'
 
-    implementation("com.google.android.gms:play-services-ads-lite:17.2.0@aar") {
+    implementation("com.google.android.gms:play-services-ads-lite:17.2.1@aar") {
         transitive true
     }
 
@@ -214,7 +214,7 @@ dependencies {
     implementation "com.trello:rxlifecycle-android:1.0"
     implementation "com.trello:rxlifecycle-components:1.0"
 
-    implementation "com.crashlytics.sdk.android:crashlytics:2.10.0"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.10.1"
 }
 
 configurations {
