@@ -1,5 +1,6 @@
 package com.pr0gramm.app.model.config
 
+import android.os.Build
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -18,6 +19,7 @@ data class Config(
         val adminReasons: List<String> = DefaultAdminReasons,
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
+        val endOfLifeAndroidVersion: Int = Build.VERSION_CODES.LOLLIPOP,
         val specialMenuItems: List<MenuItem> = listOf()) {
 
     enum class AdType {

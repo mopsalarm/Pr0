@@ -27,6 +27,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
+import retrofit2.http.Query
 import retrofit2.http.Url
 import rx.Observable
 import rx.functions.Action1
@@ -61,7 +62,9 @@ class UpdateChecker {
     }
 
     private suspend fun queryOne(endpoint: String): Update {
-        val update = Update(updateApi.fetchUpdateAsync(endpoint).await())
+        val update = Update(updateApi
+                .fetchUpdateAsync(endpoint, androidVersion = Build.VERSION.SDK_INT)
+                .await())
 
         // make path absolute if needed
         var apk = update.apk
@@ -105,7 +108,7 @@ class UpdateChecker {
 
     private interface UpdateApi {
         @GET
-        fun fetchUpdateAsync(@Url url: String): Deferred<UpdateModel>
+        fun fetchUpdateAsync(@Url url: String, @Query("androidVersion") androidVersion: Int): Deferred<UpdateModel>
     }
 
     companion object {

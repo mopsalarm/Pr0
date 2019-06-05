@@ -492,5 +492,6 @@
     <string name="pref_use_doh_summary">Verwende diese Option um DNS Anfragen verschlüsselt auszuführen. Dies kann auch in WLAN Netzwerken helfen, die das pr0gramm blockieren.</string>
     <string name="error_invalid_download_directory">Das ausgewählte Verzeichnis kann nicht verwendet werden. Wähle einen anderen Ordner oder einen anderen Storage Provider aus.</string>
     <string name="action_open_in_admin">In Admin öffnen</string>
+    <string name="old_android_reminder">Deine Android Version ist sehr alt. Der App Support wird bald eingestellt.</string>
 
 </resources>

@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,6 +25,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.info.InfoMessage
 import com.pr0gramm.app.orm.bookmarkOf
 import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -65,6 +67,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val toolbarContainer: View? by bindOptionalView(R.id.toolbar_container)
 
     private val userService: UserService by instance()
+    private val configService: ConfigService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val singleShotService: SingleShotService by instance()
     private val infoMessageService: InfoMessageService by instance()
@@ -154,29 +157,32 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         doInBackground { bookmarkService.update() }
     }
 
-    private fun preparePremiumHint() {
-        if (singleShotService.firstTimeToday("hint_ads_pr0mium:2")) {
-            val showAnyAds = adService.enabledForType(Config.AdType.FEED).take(1)
+    private fun shouldShowBuyPremiumHint(): Boolean {
+        return singleShotService.firstTimeToday("hint_ads_pr0mium:2") && !userService.userIsPremium
+    }
 
-            showAnyAds.takeFirst { v -> v }
-                    .observeOnMainThread()
-                    .bindToLifecycle()
-                    .onErrorResumeEmpty()
-                    .filter { !userService.userIsPremium }
-                    .subscribe {
-                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
-                            configureNewStyle()
+    private fun showBuyPremiumHint() {
+        val showAnyAds = adService.enabledForType(Config.AdType.FEED).take(1)
 
-                            setAction("pr0mium") {
-                                Track.registerLinkClicked()
-                                val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
-                                BrowserHelper.openCustomTab(this@MainActivity, uri)
-                            }
+        showAnyAds.takeFirst { v -> v }
+                .observeOnMainThread()
+                .bindToLifecycle()
+                .onErrorResumeEmpty()
+                .filter { !userService.userIsPremium }
+                .subscribe {
+                    Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
+                        configureNewStyle()
 
-                            show()
+                        setAction("pr0mium") {
+                            Track.registerLinkClicked()
+                            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
+                            BrowserHelper.openCustomTab(this@MainActivity, uri)
                         }
+
+                        show()
                     }
-        }
+                }
+
     }
 
     override fun hintBookmarksEditableWithPremium() {
@@ -459,7 +465,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     updateCheckDelay = true
                 }
 
-                else -> preparePremiumHint()
+                shouldShowBuyPremiumHint() -> {
+                    showBuyPremiumHint()
+                }
+
+                Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
+                    Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
+                            .configureNewStyle()
+                            .setAction(R.string.okay, { })
+                            .show()
+                }
             }
 
             if (updateCheck) {

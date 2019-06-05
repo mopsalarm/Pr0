@@ -19,33 +19,11 @@ import javax.net.ssl.X509TrustManager
 fun OkHttpClient.Builder.configureSSLSocketFactoryAndSecurity(app: Application): OkHttpClient.Builder {
     val logger = Logger("OkHttpSSL")
 
-    val availability = GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(app, 11925000)
-    when (availability) {
-        ConnectionResult.SUCCESS -> {
-            logger.info { "Found google services, installing SSL security provider" }
-
-            try {
-                logger.time("Trying to install security provider") {
-                    ProviderInstaller.installIfNeeded(app)
-                }
-
-                logger.info { "SSL security provider installed" }
-                return this
-
-            } catch (err: Throwable) {
-                logger.warn(err) { "Could not install SSL security provider" }
-            }
+    // try to install certificates on android 5.1+
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        if (installGmsTrustCertificates(app, logger)) {
+            return this
         }
-
-        ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> {
-            logger.warn { "Google services are too old." }
-        }
-
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        // no known problems on lollipop with ssl, just do nothing here.
-        return this
     }
 
     // Okay fuck, we don't have the google services available, and ssl doesn't work on older
@@ -75,6 +53,32 @@ fun OkHttpClient.Builder.configureSSLSocketFactoryAndSecurity(app: Application):
     // hostnameVerifier { hostname, session -> true }
 
     return this
+}
+
+private fun installGmsTrustCertificates(app: Application, logger: Logger): Boolean {
+    when (GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(app, 11925000)) {
+        ConnectionResult.SUCCESS -> {
+            logger.info { "Found google services, installing SSL security provider" }
+
+            try {
+                logger.time("Trying to install security provider") {
+                    ProviderInstaller.installIfNeeded(app)
+                }
+
+                logger.info { "SSL security provider installed" }
+                return true
+
+            } catch (err: Throwable) {
+                logger.warn(err) { "Could not install SSL security provider" }
+            }
+        }
+
+        ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED -> {
+            logger.warn { "Google services are too old." }
+        }
+    }
+
+    return false
 }
 
 
