@@ -25,7 +25,7 @@ class TagSuggestionService(api: Api) {
 
         AsyncScope.launch {
             retryUpTo(5, { delay(60 * 1000) }) {
-                val result = api.topTagsAsync().await()
+                val result = api.topTagsAsync()
 
                 tags = result.tags
                 questionableTags = result.blacklist

@@ -1,18 +1,17 @@
 package com.pr0gramm.app.services
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.model.kv.GetResult
 import com.pr0gramm.app.model.kv.PutResult
 import com.pr0gramm.app.ui.base.retryUpTo
-import kotlinx.coroutines.Deferred
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -25,9 +24,7 @@ class KVService(okHttpClient: OkHttpClient) {
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/kv/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .build()
-            .create(Api::class.java)
+            .build().create<Api>()
 
     suspend fun update(ident: String, key: String, fn: (previous: ByteArray?) -> ByteArray?): PutResult.Version? {
         return retryUpTo(3) {
@@ -46,7 +43,7 @@ class KVService(okHttpClient: OkHttpClient) {
 
     suspend fun get(ident: String, key: String): GetResult {
         return try {
-            api.getValueAsync(tokenOf(ident), key).await()
+            api.getValueAsync(tokenOf(ident), key)
         } catch (err: HttpException) {
             if (err.code() != 404)
                 throw err
@@ -61,7 +58,7 @@ class KVService(okHttpClient: OkHttpClient) {
         val body = RequestBody.create(MediaType.parse("application/octet"), value)
 
         return try {
-            api.putValueAsync(tokenOf(ident), key, version, body).await()
+            api.putValueAsync(tokenOf(ident), key, version, body)
         } catch (err: HttpException) {
             if (err.code() != 409)
                 throw err
@@ -74,16 +71,16 @@ class KVService(okHttpClient: OkHttpClient) {
 
     private interface Api {
         @GET("token/{token}/key/{key}")
-        fun getValueAsync(
+        suspend fun getValueAsync(
                 @Path("token") token: UUID,
-                @Path("key") key: String): Deferred<GetResult.Value>
+                @Path("key") key: String): GetResult.Value
 
         @POST("token/{token}/key/{key}/version/{version}")
-        fun putValueAsync(
+        suspend fun putValueAsync(
                 @Path("token") token: UUID,
                 @Path("key") key: String,
                 @Path("version") version: Int,
-                @Body body: RequestBody): Deferred<PutResult.Version>
+                @Body body: RequestBody): PutResult.Version
     }
 
     class VersionConflictException : RuntimeException("version conflict during update")

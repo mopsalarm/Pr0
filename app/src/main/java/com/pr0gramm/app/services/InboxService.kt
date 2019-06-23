@@ -49,14 +49,14 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets unread messages
      */
     suspend fun pending(): List<Api.Message> {
-        return api.inboxPendingAsync().await().messages
+        return api.inboxPendingAsync().messages
     }
 
     /**
      * Gets the list of inbox comments
      */
     suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
-        val comments = api.inboxCommentsAsync(olderThan?.epochSeconds).await().messages
+        val comments = api.inboxCommentsAsync(olderThan?.epochSeconds).messages
 
         // mark the most recent comment as read.
         comments.maxBy { it.creationTime }?.let { markAsRead(it) }
@@ -69,7 +69,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      */
     suspend fun getUserComments(user: String, contentTypes: Set<ContentType>, olderThan: Instant? = null): Api.UserComments {
         val beforeInSeconds = (olderThan ?: Instant.now().plus(Duration.days(1))).epochSeconds
-        return api.userCommentsAsync(user, beforeInSeconds, ContentType.combine(contentTypes)).await()
+        return api.userCommentsAsync(user, beforeInSeconds, ContentType.combine(contentTypes))
     }
 
     fun markAsRead(notifyId: String, timestamp: Instant) {
@@ -124,14 +124,14 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Sends a private message to a receiver
      */
     suspend fun send(receiverId: Long, message: String) {
-        api.sendMessageAsync(null, message, receiverId).await()
+        api.sendMessageAsync(null, message, receiverId)
     }
 
     /**
      * Sends a private message to a receiver
      */
     suspend fun send(recipient: String, message: String): Api.ConversationMessages {
-        val response = api.sendMessageAsync(null, message, recipient).await()
+        val response = api.sendMessageAsync(null, message, recipient)
         if (response.error == "senderIsRecipient") {
             throw StringException("senderIsRecipient", R.string.error_senderIsRecipient)
         }
@@ -139,11 +139,11 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     suspend fun listConversations(olderThan: Instant? = null): Api.Conversations {
-        return api.listConversationsAsync(olderThan?.epochSeconds).await()
+        return api.listConversationsAsync(olderThan?.epochSeconds)
     }
 
     suspend fun messagesInConversation(name: String, olderThan: Instant? = null): Api.ConversationMessages {
-        val result = api.messagesWithAsync(name, olderThan?.epochSeconds).await()
+        val result = api.messagesWithAsync(name, olderThan?.epochSeconds)
 
         // mark the latest message in the conversation as read
         result.messages.maxBy { it.creationTime }?.let { markAsRead(name, it.creationTime) }

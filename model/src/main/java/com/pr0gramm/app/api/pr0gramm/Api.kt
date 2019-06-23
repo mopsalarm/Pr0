@@ -4,14 +4,13 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.model.config.Rule
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.http.*
 import java.util.*
 
 interface Api {
     @GET("/api/items/get")
-    fun itemsGetAsync(
+    suspend fun itemsGetAsync(
             @Query("promoted") promoted: Int?,
             @Query("following") following: Int?,
             @Query("older") older: Long?,
@@ -21,255 +20,255 @@ interface Api {
             @Query("tags") tags: String?,
             @Query("likes") likes: String?,
             @Query("self") self: Boolean?,
-            @Query("user") user: String?): Deferred<Feed>
+            @Query("user") user: String?): Feed
 
     @FormUrlEncoded
     @POST("/api/items/vote")
-    fun voteAsync(
+    suspend fun voteAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<Unit>
+            @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
-    fun voteTagAsync(
+    suspend fun voteTagAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<Unit>
+            @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
-    fun voteCommentAsync(
+    suspend fun voteCommentAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Deferred<Unit>
+            @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/user/login")
-    fun loginAsync(
+    suspend fun loginAsync(
             @Field("name") username: String,
-            @Field("password") password: String): Deferred<retrofit2.Response<Login>>
+            @Field("password") password: String): retrofit2.Response<Login>
 
     @FormUrlEncoded
     @POST("/api/tags/add")
-    fun addTagsAsync(
+    suspend fun addTagsAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") lastId: Long,
-            @Field("tags") tags: String): Deferred<NewTag>
+            @Field("tags") tags: String): NewTag
 
     @GET("/api/tags/top")
-    fun topTagsAsync(): Deferred<TagTopList>
+    suspend fun topTagsAsync(): TagTopList
 
     @FormUrlEncoded
     @POST("/api/comments/post")
-    fun postCommentAsync(
+    suspend fun postCommentAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("parentId") parentId: Long,
-            @Field("comment") comment: String): Deferred<NewComment>
+            @Field("comment") comment: String): NewComment
 
     @FormUrlEncoded
     @POST("/api/comments/delete")
-    fun hardDeleteCommentAsync(
+    suspend fun hardDeleteCommentAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Deferred<Unit>
+            @Field("reason") reason: String): Unit
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
-    fun softDeleteCommentAsync(
+    suspend fun softDeleteCommentAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Deferred<Unit>
+            @Field("reason") reason: String): Unit
 
     @GET("/api/items/info")
-    fun infoAsync(
+    suspend fun infoAsync(
             @Query("itemId") itemId: Long,
-            @Query("bust") bust: Long?): Deferred<Post>
+            @Query("bust") bust: Long?): Post
 
     @GET("/api/user/sync")
-    fun syncAsync(
-            @Query("offset") offset: Long): Deferred<Sync>
+    suspend fun syncAsync(
+            @Query("offset") offset: Long): Sync
 
     @GET("/api/user/info")
-    fun accountInfoAsync(): Deferred<AccountInfo>
+    suspend fun accountInfoAsync(): AccountInfo
 
     @GET("/api/profile/info")
-    fun infoAsync(
+    suspend fun infoAsync(
             @Query("name") name: String,
-            @Query("flags") flags: Int?): Deferred<Info>
+            @Query("flags") flags: Int?): Info
 
     @GET("/api/inbox/pending")
-    fun inboxPendingAsync(): Deferred<MessageFeed>
+    suspend fun inboxPendingAsync(): MessageFeed
 
     @GET("/api/inbox/conversations")
-    fun listConversationsAsync(
-            @Query("older") older: Long?): Deferred<Conversations>
+    suspend fun listConversationsAsync(
+            @Query("older") older: Long?): Conversations
 
     @GET("/api/inbox/messages")
-    fun messagesWithAsync(
+    suspend fun messagesWithAsync(
             @Query("with") name: String,
-            @Query("older") older: Long?): Deferred<ConversationMessages>
+            @Query("older") older: Long?): ConversationMessages
 
     @GET("/api/inbox/comments")
-    fun inboxCommentsAsync(
-            @Query("older") older: Long?): Deferred<MessageFeed>
+    suspend fun inboxCommentsAsync(
+            @Query("older") older: Long?): MessageFeed
 
     @GET("/api/profile/comments")
-    fun userCommentsAsync(
+    suspend fun userCommentsAsync(
             @Query("name") user: String,
             @Query("before") before: Long?,
-            @Query("flags") flags: Int?): Deferred<UserComments>
+            @Query("flags") flags: Int?): UserComments
 
     @GET("/api/profile/commentlikes")
-    fun userCommentsLikeAsync(
+    suspend fun userCommentsLikeAsync(
             @Query("name") user: String,
             @Query("before") before: Long,
-            @Query("flags") flags: Int?): Deferred<FavedUserComments>
+            @Query("flags") flags: Int?): FavedUserComments
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
-    fun sendMessageAsync(
+    suspend fun sendMessageAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientId") recipient: Long): Deferred<Unit>
+            @Field("recipientId") recipient: Long): Unit
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
-    fun sendMessageAsync(
+    suspend fun sendMessageAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientName") recipient: String): Deferred<ConversationMessages>
+            @Field("recipientName") recipient: String): ConversationMessages
 
     @GET("/api/items/ratelimited")
-    fun ratelimitedAsync(): Deferred<Unit>
+    suspend fun ratelimitedAsync(): Unit
 
     @POST("/api/items/upload")
-    fun uploadAsync(
-            @Body body: RequestBody): Deferred<Upload>
+    suspend fun uploadAsync(
+            @Body body: RequestBody): Upload
 
     @FormUrlEncoded
     @POST("/api/items/post")
-    fun postAsync(
+    suspend fun postAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("sfwstatus") sfwStatus: String,
             @Field("tags") tags: String,
             @Field("checkSimilar") checkSimilar: Int,
             @Field("key") key: String,
-            @Field("processAsync") processAsync: Int?): Deferred<Posted>
+            @Field("processAsync") processAsync: Int?): Posted
 
     @GET("/api/items/queue")
-    fun queueAsync(
-            @Query("id") id: Long?): Deferred<QueueState>
+    suspend fun queueAsync(
+            @Query("id") id: Long?): QueueState
 
     @FormUrlEncoded
     @POST("/api/user/invite")
-    fun inviteAsync(
+    suspend fun inviteAsync(
             @Field("_nonce") nonce: Nonce?,
-            @Field("email") email: String): Deferred<Invited>
+            @Field("email") email: String): Invited
 
     // Extra stuff for admins
     @FormUrlEncoded
     @POST("api/items/delete")
-    fun deleteItemAsync(
+    suspend fun deleteItemAsync(
             @Field("_nonce") none: Nonce?,
             @Field("id") id: Long,
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("banUser") banUser: String?,
-            @Field("days") days: Float?): Deferred<Unit>
+            @Field("days") days: Float?): Unit
 
     @FormUrlEncoded
     @POST("backend/admin/?view=users&action=ban")
-    fun userBanAsync(
+    suspend fun userBanAsync(
             @Field("name") name: String,
             @Field("reason") reason: String,
             @Field("customReason") reasonCustom: String,
             @Field("days") days: Float,
-            @Field("mode") mode: BanMode): Deferred<Unit>
+            @Field("mode") mode: BanMode): Unit
 
     @GET("api/tags/details")
-    fun tagDetailsAsync(
-            @Query("itemId") itemId: Long): Deferred<TagDetails>
+    suspend fun tagDetailsAsync(
+            @Query("itemId") itemId: Long): TagDetails
 
     @FormUrlEncoded
     @POST("api/tags/delete")
-    fun deleteTagAsync(
+    suspend fun deleteTagAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
             @Field("days") days: Float?,
-            @Field("tags[]") tagId: List<Long> = listOf()): Deferred<Unit>
+            @Field("tags[]") tagId: List<Long> = listOf()): Unit
 
     @FormUrlEncoded
     @POST("api/profile/follow")
-    fun profileFollowAsync(
+    suspend fun profileFollowAsync(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Deferred<Unit>
+            @Field("name") username: String): Unit
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
-    fun profileUnfollowAsync(
+    suspend fun profileUnfollowAsync(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Deferred<Unit>
+            @Field("name") username: String): Unit
 
     @GET("api/profile/suggest")
-    fun suggestUsersAsync(
-            @Query("prefix") prefix: String): Deferred<Names>
+    suspend fun suggestUsersAsync(
+            @Query("prefix") prefix: String): Names
 
     @FormUrlEncoded
     @POST("api/contact/send")
-    fun contactSendAsync(
+    suspend fun contactSendAsync(
             @Field("subject") subject: String,
             @Field("email") email: String,
-            @Field("message") message: String): Deferred<Unit>
+            @Field("message") message: String): Unit
 
     @FormUrlEncoded
     @POST("api/contact/report")
-    fun reportAsync(
+    suspend fun reportAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
-            @Field("reason") reason: String): Deferred<Unit>
+            @Field("reason") reason: String): Unit
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
-    fun requestPasswordRecoveryAsync(
-            @Field("email") email: String): Deferred<Unit>
+    suspend fun requestPasswordRecoveryAsync(
+            @Field("email") email: String): Unit
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")
-    fun resetPasswordAsync(
+    suspend fun resetPasswordAsync(
             @Field("name") name: String,
             @Field("token") token: String,
-            @Field("password") password: String): Deferred<ResetPassword>
+            @Field("password") password: String): ResetPassword
 
     @FormUrlEncoded
     @POST("api/user/handoverrequest")
-    fun handoverTokenAsync(
-            @Field("_nonce") nonce: Nonce?): Deferred<HandoverToken>
+    suspend fun handoverTokenAsync(
+            @Field("_nonce") nonce: Nonce?): HandoverToken
 
     @GET("api/bookmarks/get")
-    fun bookmarksAsync(): Deferred<Bookmarks>
+    suspend fun bookmarksAsync(): Bookmarks
 
     @GET("api/bookmarks/get?default")
-    fun defaultBookmarksAsync(): Deferred<Bookmarks>
+    suspend fun defaultBookmarksAsync(): Bookmarks
 
     @FormUrlEncoded
     @POST("api/bookmarks/add")
-    fun bookmarksAddAsync(
+    suspend fun bookmarksAddAsync(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") name: String,
-            @Field("link") link: String): Deferred<Bookmarks>
+            @Field("link") link: String): Bookmarks
 
     @FormUrlEncoded
     @POST("api/bookmarks/delete")
-    fun bookmarksDeleteAsync(
+    suspend fun bookmarksDeleteAsync(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") name: String): Deferred<Bookmarks>
+            @Field("name") name: String): Bookmarks
 
     @GET("media/app-config.json")
-    fun remoteConfigAsync(@Query("bust") bust: Long): Deferred<List<Rule>>
+    suspend fun remoteConfigAsync(@Query("bust") bust: Long): List<Rule>
 
     data class Nonce(val value: String) {
         override fun toString(): String = value.take(16)

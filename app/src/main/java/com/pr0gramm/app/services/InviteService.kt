@@ -14,7 +14,7 @@ class InviteService(private val api: Api) {
         if (!matcher.matches())
             throw InviteException("email")
 
-        val response = api.inviteAsync(null, email).await()
+        val response = api.inviteAsync(null, email)
 
         response.error?.let { error -> throw InviteException(error) }
     }
@@ -23,7 +23,7 @@ class InviteService(private val api: Api) {
      * Returns an observable producing the invites of the current user once.
      */
     suspend fun invites(): Invites {
-        val info = api.accountInfoAsync().await()
+        val info = api.accountInfoAsync()
         return Invites(info.account.invites, info.invited)
     }
 

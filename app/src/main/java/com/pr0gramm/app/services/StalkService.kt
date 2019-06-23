@@ -15,12 +15,12 @@ class StalkService(private val api: Api) {
     private val changes = PublishSubject.create<String>()
 
     suspend fun follow(username: String) {
-        api.profileFollowAsync(null, username).await()
+        api.profileFollowAsync(null, username)
         markAsFollowing(username, true)
     }
 
     suspend fun unfollow(username: String) {
-        api.profileUnfollowAsync(null, username).await()
+        api.profileUnfollowAsync(null, username)
         markAsFollowing(username, false)
     }
 

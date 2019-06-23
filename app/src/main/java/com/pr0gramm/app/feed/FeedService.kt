@@ -83,14 +83,14 @@ class FeedServiceImpl(private val api: Api) : FeedService {
                 // do the normal query as is.
                 api.itemsGetAsync(promoted, following,
                         query.older, query.newer, query.around,
-                        flags, tags, likes, self, user).await()
+                        flags, tags, likes, self, user)
             }
         }
     }
 
     override suspend fun post(id: Long, bust: Boolean): Api.Post {
         val buster = if (bust) TimeFactory.currentTimeMillis() else null
-        return api.infoAsync(id, bust = buster).await()
+        return api.infoAsync(id, bust = buster)
     }
 
     override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {

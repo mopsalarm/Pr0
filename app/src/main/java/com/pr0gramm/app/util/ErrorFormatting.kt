@@ -310,8 +310,8 @@ object ErrorFormatting {
 
 private val HttpException.bodyContent: String
     get() {
-        val body = this.response().errorBody() ?: return ""
-        return kotlin.runCatching { body.string() }.getOrDefault("")
+        val body = this.response()?.errorBody() ?: return ""
+        return runCatching { body.string() }.getOrDefault("")
     }
 
 class StringException(errorKey: String, val messageProvider: (Context) -> String) : RuntimeException(errorKey) {

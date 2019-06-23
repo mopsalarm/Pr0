@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
@@ -20,7 +19,6 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.MainThreadScheduler
 import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import retrofit2.Retrofit
@@ -45,7 +43,6 @@ class UpdateChecker {
     private val updateApi = Retrofit.Builder()
             .baseUrl("https://example.com")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .validateEagerly(BuildConfig.DEBUG)
             .build().create<UpdateApi>()
 
@@ -62,9 +59,8 @@ class UpdateChecker {
     }
 
     private suspend fun queryOne(endpoint: String): Update {
-        val update = Update(updateApi
-                .fetchUpdateAsync(endpoint, androidVersion = Build.VERSION.SDK_INT)
-                .await())
+        val update = Update(updateApi.fetchUpdateAsync(
+                endpoint, androidVersion = Build.VERSION.SDK_INT))
 
         // make path absolute if needed
         var apk = update.apk
@@ -83,7 +79,7 @@ class UpdateChecker {
         }
 
         // wait for them to finish
-        val results = tasks.map { kotlin.runCatching { it.await() } }
+        val results = tasks.map { runCatching { it.await() } }
 
         if (results.all { it.isFailure }) {
             val err = results.first().exceptionOrNull() ?: return Response.NoUpdate
@@ -108,7 +104,7 @@ class UpdateChecker {
 
     private interface UpdateApi {
         @GET
-        fun fetchUpdateAsync(@Url url: String, @Query("androidVersion") androidVersion: Int): Deferred<UpdateModel>
+        suspend fun fetchUpdateAsync(@Url url: String, @Query("androidVersion") androidVersion: Int): UpdateModel
     }
 
     companion object {

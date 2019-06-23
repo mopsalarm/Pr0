@@ -19,7 +19,7 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
 
         val response = api.userCommentsLikeAsync(username,
                 (olderThan ?: Instant.now().plus(1, TimeUnit.DAYS)).epochSeconds,
-                ContentType.combine(contentType)).await()
+                ContentType.combine(contentType))
 
         return response.comments
     }

@@ -1,6 +1,5 @@
 package com.pr0gramm.app.api.pr0gramm
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.catchAll
@@ -12,6 +11,7 @@ import okhttp3.Response
 import okio.BufferedSource
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
@@ -37,11 +37,9 @@ class ApiProvider(base: String, client: OkHttpClient,
         return Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client.newBuilder().addInterceptor(ErrorInterceptor()).build())
                 .validateEagerly(BuildConfig.DEBUG)
-                .build()
-                .create(Api::class.java)
+                .build().create()
     }
 
     private fun proxy(backend: Api): Api {

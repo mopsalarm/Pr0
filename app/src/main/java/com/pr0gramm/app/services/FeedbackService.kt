@@ -2,14 +2,13 @@ package com.pr0gramm.app.services
 
 import android.os.Build
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ExceptionHandler
-import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
@@ -30,9 +29,8 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .validateEagerly(BuildConfig.DEBUG)
-            .build().create(Api::class.java)
+            .build().create()
 
     suspend fun post(name: String, feedback: String) {
         val version = AndroidUtility.buildVersionCode().toString()
@@ -53,7 +51,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         val encoded = bytes.encodeBase64()
 
         logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
-        api.postAsync(name, feedback, version, encoded).await()
+        api.postAsync(name, feedback, version, encoded)
     }
 
     private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
@@ -112,7 +110,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         fun postAsync(@Field("name") name: String,
                       @Field("feedback") feedback: String,
                       @Field("version") version: String,
-                      @Field("logcat64") logcat: String): Deferred<Unit>
+                      @Field("logcat64") logcat: String): Unit
     }
 
 

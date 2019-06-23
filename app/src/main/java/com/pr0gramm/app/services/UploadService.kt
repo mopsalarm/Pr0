@@ -164,7 +164,7 @@ class UploadService(private val api: Api,
         val size = file.length()
 
         // perform the upload!
-        toObservable { api.uploadAsync(body).await() }
+        toObservable { api.uploadAsync(body) }
                 .doOnEach { Track.upload(size) }
                 .map { response -> State.Uploaded(response.key) }
                 .subscribe(result)
@@ -192,7 +192,7 @@ class UploadService(private val api: Api,
             extraTags = tags.drop(4)
         }
 
-        return toObservable { api.postAsync(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1).await() }
+        return toObservable { api.postAsync(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1) }
                 .map { postedToState(key, it) }
 
                 .flatMap { state ->
@@ -245,7 +245,7 @@ class UploadService(private val api: Api,
     }
 
     private fun waitOnQueue(queue: Long): Observable<State> {
-        return toObservable { api.queueAsync(queue).await() }
+        return toObservable { api.queueAsync(queue) }
                 .map { info ->
                     val itemId = info.item?.id ?: 0
                     when {
@@ -307,7 +307,7 @@ class UploadService(private val api: Api,
      */
     suspend fun checkIsRateLimited(): Boolean {
         try {
-            api.ratelimitedAsync().await()
+            api.ratelimitedAsync()
             return false
         } catch (err: Throwable) {
             if (err is HttpException && err.code() == 403) {

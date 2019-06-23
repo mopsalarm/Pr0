@@ -24,7 +24,7 @@ class UserSuggestionService(private val api: Api) {
 
         logger.info { "Looking for users starting with prefix $prefix" }
         try {
-            val response = runBlocking { api.suggestUsersAsync(prefix).await() }
+            val response = runBlocking { api.suggestUsersAsync(prefix) }
             return response.users
 
         } catch (error: Exception) {

@@ -110,7 +110,7 @@ class UserService(private val api: Api,
     }
 
     suspend fun login(username: String, password: String): LoginResult {
-        val response = api.loginAsync(username, password).await()
+        val response = api.loginAsync(username, password)
 
         // in case of errors, just return the Failure
         val login = response.body() ?: run {
@@ -209,7 +209,7 @@ class UserService(private val api: Api,
         }
 
         try {
-            val response = api.syncAsync(lastLogOffset).await()
+            val response = api.syncAsync(lastLogOffset)
 
             inboxService.publishUnreadMessagesCount(response.inbox)
 
@@ -249,14 +249,14 @@ class UserService(private val api: Api,
      * Retrieves the user data and stores part of the data in the database.
      */
     suspend fun info(username: String): Api.Info {
-        return api.infoAsync(username, null).await()
+        return api.infoAsync(username, null)
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
     suspend fun info(username: String, contentTypes: Set<ContentType>): Api.Info {
-        return api.infoAsync(username, ContentType.combine(contentTypes)).await()
+        return api.infoAsync(username, ContentType.combine(contentTypes))
     }
 
     /**
@@ -366,11 +366,11 @@ class UserService(private val api: Api,
         get() = cookieJar.parsedCookie?.name
 
     suspend fun requestPasswordRecovery(email: String) {
-        api.requestPasswordRecoveryAsync(email).await()
+        api.requestPasswordRecoveryAsync(email)
     }
 
     suspend fun resetPassword(name: String, token: String, password: String): Boolean {
-        val result = api.resetPasswordAsync(name, token, password).await()
+        val result = api.resetPasswordAsync(name, token, password)
         return result.error == null
     }
 

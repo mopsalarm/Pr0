@@ -472,7 +472,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
                     Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
                             .configureNewStyle()
-                            .setAction(R.string.okay, { })
+                            .setAction(R.string.okay) { }
                             .show()
                 }
             }
