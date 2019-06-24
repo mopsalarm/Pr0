@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -60,6 +61,13 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
+
+        val tb = activity as? ScrollHideToolbarListener.ToolbarActivity
+        tb?.rxWindowInsets?.bindToLifecycle()?.subscribe { insets ->
+            messagesView.clipToPadding = false
+            messagesView.updatePadding(bottom = insets.bottom)
+        }
+
     }
 
     override suspend fun onResumeImpl() {

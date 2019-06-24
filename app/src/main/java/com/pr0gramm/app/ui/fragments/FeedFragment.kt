@@ -140,7 +140,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        this.scrollToolbar = useToolbarTopMargin()
+        this.scrollToolbar = isNormalMode
 
         val previousFeed = savedInstanceState?.getParcelable(ARG_FEED, Feed.FeedParcel)?.feed
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
@@ -187,20 +187,22 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-
-        if (useToolbarTopMargin()) {
-            // use height of the toolbar to configure swipe refresh layout.
-            val abHeight = AndroidUtility.getActionBarContentOffset(activity)
-            val offset = AndroidUtility.getStatusBarHeight(activity)
-            swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
-        }
-
         // apply insets if any
         (activity as? ToolbarActivity)?.let { toolbarActivity ->
             toolbarActivity.rxWindowInsets.bindToLifecycle().subscribe { insets ->
                 recyclerView.clipToPadding = false
 
-                recyclerView.updatePadding(top = insets.top, bottom = insets.bottom)
+                val top = if (useToolbarTopMargin()) insets.top else 0
+
+                recyclerView.updatePadding(top = top, bottom = insets.bottom)
+
+
+                if (useToolbarTopMargin()) {
+                    // use height of the toolbar to configure swipe refresh layout.
+                    val abHeight = AndroidUtility.getActionBarContentOffset(activity)
+                    val offset = insets.top
+                    swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
+                }
             }
         }
 

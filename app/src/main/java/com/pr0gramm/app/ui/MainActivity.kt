@@ -77,7 +77,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val infoMessageService: InfoMessageService by instance()
     private val adService: AdService by instance()
 
-    private val windowInsets: BehaviorSubject<CustomWindowInsets> = BehaviorSubject.create(CustomWindowInsets(0, 0))
+    private val windowInsets: BehaviorSubject<CustomWindowInsets> = BehaviorSubject.create()
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
@@ -88,7 +88,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     // how the app was started as seen by onCreate
     private var coldStart: Boolean = false
 
-    override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets
+    override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets.distinctUntilChanged()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
@@ -114,6 +114,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.addDrawerListener(drawerToggle)
 
+        if (Build.VERSION.SDK_INT < 21) {
+            // publish dummy value so we always have some insets on old versions
+            val hStatus = AndroidUtility.getStatusBarHeight(this)
+            windowInsets.onNext(CustomWindowInsets(hStatus, 0))
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { v, insets ->
             toolbar.updatePadding(top = insets.systemWindowInsetTop)
 
@@ -123,13 +129,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             windowInsets.onNext(CustomWindowInsets(insets))
 
             insets.consumeSystemWindowInsets()
-        }
-
-        if (Build.VERSION.SDK_INT < 21) {
-            val hStatus = AndroidUtility.getStatusBarHeight(this)
-
-            // publish dummy value that has no insets.
-            windowInsets.onNext(CustomWindowInsets(hStatus, 0))
         }
 
         // listen to fragment changes
