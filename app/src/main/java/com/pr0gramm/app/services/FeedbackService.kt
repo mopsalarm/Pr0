@@ -107,10 +107,10 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     private interface Api {
         @FormUrlEncoded
         @POST("post")
-        fun postAsync(@Field("name") name: String,
-                      @Field("feedback") feedback: String,
-                      @Field("version") version: String,
-                      @Field("logcat64") logcat: String): Unit
+        suspend fun postAsync(@Field("name") name: String,
+                              @Field("feedback") feedback: String,
+                              @Field("version") version: String,
+                              @Field("logcat64") logcat: String): Unit
     }
 
 

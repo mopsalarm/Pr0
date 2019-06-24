@@ -10,10 +10,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
@@ -40,6 +43,7 @@ import com.trello.rxlifecycle.android.ActivityEvent
 import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
+import rx.Observable
 import rx.subjects.BehaviorSubject
 import kotlin.properties.Delegates
 
@@ -73,6 +77,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val infoMessageService: InfoMessageService by instance()
     private val adService: AdService by instance()
 
+    private val windowInsets: BehaviorSubject<CustomWindowInsets> = BehaviorSubject.create(CustomWindowInsets(0, 0))
+
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
     private var startedWithIntent = false
@@ -81,6 +87,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     // how the app was started as seen by onCreate
     private var coldStart: Boolean = false
+
+    override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
@@ -105,6 +113,24 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name)
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.addDrawerListener(drawerToggle)
+
+        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { v, insets ->
+            toolbar.updatePadding(top = insets.systemWindowInsetTop)
+
+            toolbar.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    AndroidUtility.getActionBarHeight(v.context) + insets.systemWindowInsetTop)
+
+            windowInsets.onNext(CustomWindowInsets(insets))
+
+            insets.consumeSystemWindowInsets()
+        }
+
+        if (Build.VERSION.SDK_INT < 21) {
+            val hStatus = AndroidUtility.getStatusBarHeight(this)
+
+            // publish dummy value that has no insets.
+            windowInsets.onNext(CustomWindowInsets(hStatus, 0))
+        }
 
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
@@ -155,6 +181,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // schedule an update in the background
         doInBackground { bookmarkService.update() }
+
+        hintBookmarksEditableWithPremium()
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {
@@ -189,7 +217,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.closeDrawers()
 
         Snackbar.make(contentContainer, R.string.hint_edit_bookmarks_premium, 10000).apply {
-            configureNewStyle()
+            configureNewStyle(this@MainActivity)
 
             setAction("pr0mium") {
                 Track.registerLinkClicked()
@@ -238,7 +266,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (requestCode == RequestCodes.FEEDBACK && resultCode == Activity.RESULT_OK) {
             Snackbar.make(drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle()
+                    .configureNewStyle(this)
                     .setAction(R.string.okay, { })
                     .show()
         }
@@ -458,8 +486,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
                 shouldShowFeedbackReminder() -> {
                     Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                            .configureNewStyle()
-                            .setAction(R.string.okay, { })
+                            .configureNewStyle(this)
+                            .setAction(R.string.okay) { }
                             .show()
 
                     updateCheckDelay = true
@@ -471,7 +499,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
                 Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
                     Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
-                            .configureNewStyle()
+                            .configureNewStyle(this)
                             .setAction(R.string.okay) { }
                             .show()
                 }
@@ -499,7 +527,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             // show a short information.
             Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle()
+                    .configureNewStyle(this@MainActivity)
                     .setAction(R.string.okay) { }
                     .show()
 

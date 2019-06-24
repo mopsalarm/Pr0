@@ -397,7 +397,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun imageShrankSuccess() {
         view?.let { view ->
             Snackbar.make(view, R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
-                    .configureNewStyle()
+                    .configureNewStyle(activity)
                     .setAction(R.string.okay) {}
                     .show()
         }

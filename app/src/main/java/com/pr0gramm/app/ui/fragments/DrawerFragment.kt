@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
+import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -90,6 +91,12 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             NavigationProvider(requireActivity(), userService, inboxService,
                     bookmarkService, configService, singleShotService, picasso)
+        }
+
+        (activity as? ScrollHideToolbarListener.ToolbarActivity)?.let { activity ->
+            activity.rxWindowInsets.bindToLifecycle().subscribe { i ->
+                navItemsRecyclerView.updatePadding(bottom = i.bottom)
+            }
         }
 
         val rxNavItems = provider.navigationItems(currentSelection)

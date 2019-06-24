@@ -6,4 +6,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="?drawerTheme"
+    android:clipToPadding="false"
     tools:background="?android:windowBackground"/>

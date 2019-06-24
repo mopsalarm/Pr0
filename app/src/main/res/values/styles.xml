@@ -124,43 +124,31 @@
     <style name="AppTheme.Orange.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.Green.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.Olive.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.Pink.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.Blue.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.Black.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <!-- This one is used in the login page -->

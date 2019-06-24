@@ -65,7 +65,7 @@ object AndroidUtility {
     /**
      * Gets the height of the actionbar.
      */
-    private fun getActionBarHeight(context: Context): Int {
+    fun getActionBarHeight(context: Context): Int {
         context.obtainStyledAttributes(intArrayOf(R.attr.actionBarSize)).use {
             return it.getDimensionPixelSize(it.getIndex(0), -1)
         }

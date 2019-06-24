@@ -10,6 +10,7 @@ import androidx.core.net.toUri
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.Track.context
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.isLocalFile
 import java.io.File
 import java.io.FileOutputStream
@@ -70,7 +71,9 @@ class DownloadingRegionDecoder(private val cache: Cache, private val decoder: De
     private fun cleanup() {
         imageFileRef?.let { ref ->
             if (!ref.shared) {
-                ref.file.delete()
+                doInBackground {
+                    ref.file.delete()
+                }
             }
         }
     }
@@ -86,7 +89,7 @@ class DownloadingRegionDecoder(private val cache: Cache, private val decoder: De
             entry.file?.let { file ->
                 return FileRef(file, shared = true)
             }
-            
+
             val file = File.createTempFile("image", ".tmp", context.cacheDir)
             try {
                 FileOutputStream(file).use { output ->

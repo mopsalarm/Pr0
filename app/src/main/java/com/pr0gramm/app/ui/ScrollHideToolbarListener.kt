@@ -2,7 +2,9 @@ package com.pr0gramm.app.ui
 
 import android.view.View
 import android.view.ViewPropertyAnimator
+import com.pr0gramm.app.util.CustomWindowInsets
 import com.pr0gramm.app.util.visible
+import rx.Observable
 
 /**
  */
@@ -115,6 +117,8 @@ class ScrollHideToolbarListener(private val toolbar: View) {
 
     interface ToolbarActivity {
         val scrollHideToolbarListener: ScrollHideToolbarListener
+
+        val rxWindowInsets: Observable<CustomWindowInsets>
     }
 
     companion object {

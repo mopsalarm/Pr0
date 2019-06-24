@@ -17,6 +17,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
@@ -105,6 +106,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val repostHint: View by bindView(R.id.repost_hint)
 
     private var viewer: MediaView? = null
+    private var latestInsets: CustomWindowInsets = CustomWindowInsets(0, 0)
 
     // must only be accessed after injecting kodein
     private val feedItemVote: Observable<Vote> by lazy {
@@ -273,6 +275,24 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             if (!active) {
                 exitFullscreen()
             }
+        }
+
+        setupWindowInsets()
+    }
+
+    private fun setupWindowInsets() {
+        val activity = activity as? ToolbarActivity ?: return
+        val recyclerView = recyclerView ?: return
+
+        activity.rxWindowInsets.bindToLifecycle().subscribe { insets ->
+            recyclerView.clipToPadding = false
+
+            recyclerView.updatePadding(bottom = insets.bottom)
+
+            val abHeight = AndroidUtility.getActionBarHeight(requireActivity())
+            viewer?.updatePadding(top = insets.top + abHeight)
+
+            latestInsets = insets
         }
     }
 
@@ -625,8 +645,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val preview = bitmapDrawable?.bitmap ?: previewInfo.fancy?.valueOrNull
 
         val directory = AndroidFiles.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val files = directory.root.toList()
-        System.out.println("XXX" + files)
 
         downloadService
                 .downloadWithNotification(feedItem, preview)
@@ -779,8 +797,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val viewerConfig = Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo)
         val viewer = logger.time("MediaView.newInstance") {
-            MediaViews.newInstance(viewerConfig).also { this.viewer = it }
+            MediaViews.newInstance(viewerConfig)
         }
+
+        // remember for later
+        this.viewer = viewer
 
         viewer.viewed().subscribe {
             doInBackground { seenService.markAsSeen(feedItem.id) }
@@ -803,7 +824,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // add space to the top of the viewer or to the screen to compensate
         // for the action bar.
-        val viewerPaddingTop = AndroidUtility.getActionBarContentOffset(activity)
+        val viewerPaddingTop = AndroidUtility.getActionBarHeight(activity) + latestInsets.top
         if (isTabletMode) {
             view?.setPadding(0, viewerPaddingTop, 0, 0)
 
@@ -815,15 +836,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     Gravity.CENTER)
 
         } else {
-            viewer.setPadding(0, viewerPaddingTop, 0, 0)
+            viewer.updatePadding(top = viewerPaddingTop)
 
             if (feedItem.width > 0 && feedItem.height > 0) {
-                val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
-                val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
-                val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
-                state = state.copy(viewerBaseHeight = expectedViewerHeight)
+                val toolbarActivity = activity as? ToolbarActivity
 
-                logger.debug { "Initialized viewer height to $expectedViewerHeight" }
+                toolbarActivity?.rxWindowInsets?.bindToLifecycle()?.subscribe { insets ->
+                    val currentViewerPaddingTop = AndroidUtility.getActionBarHeight(activity) + insets.top
+
+                    val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
+                    val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
+                    val expectedViewerHeight = expectedMediaHeight + currentViewerPaddingTop
+                    state = state.copy(viewerBaseHeight = expectedViewerHeight)
+
+                    logger.debug { "Initialized viewer height to $expectedViewerHeight" }
+                }
             }
 
             viewer.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
@@ -1048,7 +1075,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         view?.let { fragmentView ->
             Snackbar.make(fragmentView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
-                    .configureNewStyle()
+                    .configureNewStyle(activity)
                     .setAction(R.string.okay) {}
                     .show()
         }
@@ -1103,6 +1130,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private class NoopScrollHandler : RecyclerView.OnScrollListener()
 
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
+        val fancyScrollVertical = settings.fancyScrollVertical
+
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
                 return
@@ -1116,7 +1145,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             val scrollY = scrollEstimate ?: viewer.height
             val viewerHeight = viewer.height
-            val doFancyScroll = viewerHeight < recyclerHeight && settings.fancyScrollVertical
+            val doFancyScroll = viewerHeight < recyclerHeight && fancyScrollVertical
 
             val toolbar = (activity as ToolbarActivity).scrollHideToolbarListener
             if (!doFancyScroll || dy < 0 || scrollY > toolbar.toolbarHeight) {
@@ -1310,7 +1339,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 } else {
                     val rootView = view ?: return false
                     Snackbar.make(rootView, R.string.hint_comment_not_found, Snackbar.LENGTH_SHORT)
-                            .configureNewStyle()
+                            .configureNewStyle(activity)
                             .setAction(R.string.doh) { }
                             .show()
                 }

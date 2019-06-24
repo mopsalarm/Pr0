@@ -7,6 +7,7 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -186,11 +187,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
+
         if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             val abHeight = AndroidUtility.getActionBarContentOffset(activity)
             val offset = AndroidUtility.getStatusBarHeight(activity)
             swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
+        }
+
+        // apply insets if any
+        (activity as? ToolbarActivity)?.let { toolbarActivity ->
+            toolbarActivity.rxWindowInsets.bindToLifecycle().subscribe { insets ->
+                recyclerView.clipToPadding = false
+
+                recyclerView.updatePadding(top = insets.top, bottom = insets.bottom)
+            }
         }
 
         resetToolbar()
@@ -293,7 +304,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         logger.time("Update adapter") {
             // add a little spacer to the top to account for the action bar
             if (useToolbarTopMargin()) {
-                val offset = AndroidUtility.getActionBarContentOffset(context)
+                val offset = AndroidUtility.getActionBarHeight(context)
                 if (offset > 0) {
                     entries += FeedAdapter.Entry.Spacer(1, height = offset)
                 }
@@ -666,7 +677,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val view = view ?: return
 
         val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG).apply {
-            configureNewStyle()
+            configureNewStyle(activity)
             setAction(R.string.hint_refresh_load) { refreshFeed() }
             show()
         }
