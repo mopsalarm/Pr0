@@ -1,11 +1,12 @@
 #!/bin/bash
 
+set -x
 set -eu -o pipefail
 
 VERSION_PREV=$(egrep -o '[0-9]+' <app/version.gradle)
 
 VERSION_NEXT=$(( VERSION_PREV + 1 ))
-VERSION_LIVE=$(curl -s https://app.pr0gramm.com/beta/open/update.json | jq .version)
+VERSION_LIVE=$(curl -s https://app.pr0gramm.com/updates/stable/update.json | jq .version)
 
 source upload_auth
 
