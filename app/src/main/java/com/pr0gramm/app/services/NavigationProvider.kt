@@ -353,7 +353,7 @@ class NavigationProvider(
                     NavigationItem(ActionType.URI, item.name, icon, uri = uri, layout = layout)
                 }
                 .retryWhen { err ->
-                    err.doOnNext { logger.warn(it) { "could not load item" } }.zipWith(Observable.range(1, 3)) { n, i -> i }.flatMap { idx ->
+                    err.doOnNext { logger.warn(it) { "could not load item" } }.zipWith(Observable.range(1, 3)) { _, i -> i }.flatMap { idx ->
                         logger.debug { "Delay retry by $idx second(s) because of $err" }
                         Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }

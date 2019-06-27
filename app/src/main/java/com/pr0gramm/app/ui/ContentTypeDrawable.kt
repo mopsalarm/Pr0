@@ -10,7 +10,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.save
-import java.util.Arrays.asList
+import java.util.*
 
 /**
  */
@@ -22,13 +22,12 @@ class ContentTypeDrawable(context: Context, types: Collection<ContentType>) : Dr
     init {
         textSize = 16f
 
-        if (types.containsAll(asList(*ContentType.values()))) {
+        if (ContentType.values().all { it in types }) {
             text = context.getString(R.string.all)
         } else {
             text = types
                     .filter { it !== ContentType.NSFP }
-                    .map { it.name.toLowerCase() }
-                    .joinToString("\n")
+                    .joinToString("\n") { it.name.toLowerCase(Locale.ROOT) }
         }
     }
 

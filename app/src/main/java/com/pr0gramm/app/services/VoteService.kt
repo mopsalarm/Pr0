@@ -15,7 +15,8 @@ import com.pr0gramm.app.util.checkNotMainThread
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
-import okio.Okio
+import okio.buffer
+import okio.source
 import rx.Observable
 import java.io.ByteArrayInputStream
 
@@ -113,7 +114,7 @@ class VoteService(private val api: Api,
 
 
         val actionCount = decoded.size / 5
-        val actionStream = Okio.buffer(Okio.source(ByteArrayInputStream(decoded)))
+        val actionStream = ByteArrayInputStream(decoded).source().buffer()
 
         val watch = Stopwatch()
         withTransaction(database) {

@@ -14,6 +14,7 @@ import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.toInt
 import com.squareup.picasso.Picasso
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okio.BufferedSink
@@ -115,9 +116,9 @@ class UploadService(private val api: Api,
 
         val output = object : RequestBody() {
             override fun contentType(): MediaType {
-                val fallback = MediaType.parse("image/jpeg")!!
+                val fallback = "image/jpeg".toMediaTypeOrNull()!!
                 return try {
-                    MimeTypeHelper.guess(file)?.let { MediaType.parse(it) } ?: fallback
+                    MimeTypeHelper.guess(file)?.let { it.toMediaTypeOrNull() } ?: fallback
                 } catch (ignored: IOException) {
                     fallback
                 }
@@ -157,7 +158,7 @@ class UploadService(private val api: Api,
         }
 
         val body = MultipartBody.Builder()
-                .setType(MediaType.parse("multipart/form-data")!!)
+                .setType("multipart/form-data".toMediaTypeOrNull()!!)
                 .addFormDataPart("image", file.name, output)
                 .build()
 

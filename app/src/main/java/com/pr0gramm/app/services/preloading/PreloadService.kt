@@ -296,7 +296,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         val request = Request.Builder().get().url(uri.toString()).build()
         val response = httpClient.newCall(request).execute()
 
-        response.body()?.use { body ->
+        response.body?.use { body ->
             val contentLength = body.contentLength()
 
             body.byteStream().use { inputStream ->

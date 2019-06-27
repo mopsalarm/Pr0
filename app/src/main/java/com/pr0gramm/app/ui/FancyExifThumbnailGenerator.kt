@@ -118,7 +118,7 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
             return null
 
         val response = downloader.load(Request.Builder().url(uri.toString()).build())
-        return response.body()?.use { body -> body.bytes().takeIf { it.isNotEmpty() } }
+        return response.body?.use { body -> body.bytes().takeIf { it.isNotEmpty() } }
     }
 
     private fun decode565(bytes: ByteArray): Bitmap? {

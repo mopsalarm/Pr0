@@ -11,9 +11,10 @@ import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
-import okio.ByteString
+import okio.ByteString.Companion.encode
 import rx.subjects.BehaviorSubject
 import java.net.URLDecoder
+import java.util.*
 
 /**
  */
@@ -25,7 +26,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
     private val uniqueToken: String by lazy {
         val input = ConfigService.makeUniqueIdentifier(context, preferences)
-        ByteString.encodeString(input, Charsets.UTF_8).md5().hex().toLowerCase()
+        input.encode(Charsets.UTF_8).md5().hex().toLowerCase(Locale.ROOT)
     }
 
     private var httpCookie: okhttp3.Cookie? = null
@@ -67,7 +68,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
             cookies += meCookie
         }
 
-        logger.debug { "Using cookies for request to $url: ${cookies.joinToString { it.name() }}" }
+        logger.debug { "Using cookies for request to $url: ${cookies.joinToString { it.name }}" }
 
         return cookies
     }
@@ -78,14 +79,14 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
         if (httpCookie != null) {
             // get login cookie candidate.
-            val loginCookie = cookies.firstOrNull { it.name() == "me" } ?: return
+            val loginCookie = cookies.firstOrNull { it.name == "me" } ?: return
             updateLoginCookie(loginCookie)
         }
     }
 
     private fun isNoApiRequest(uri: HttpUrl): Boolean {
-        val isApiRequest = uri.host().equals("pr0gramm.com", ignoreCase = true)
-                || uri.host().contains(Debug.mockApiHost)
+        val isApiRequest = uri.host.equals("pr0gramm.com", ignoreCase = true)
+                || uri.host.contains(Debug.mockApiHost)
 
         return !isApiRequest
     }
@@ -96,13 +97,13 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
     }
 
     fun updateLoginCookie(cookie: okhttp3.Cookie): Boolean {
-        logger.debug { "Want to update login cookie: ${cookie.value()}" }
+        logger.debug { "Want to update login cookie: ${cookie.value}" }
 
         synchronized(Lock) {
             val previousCookie = httpCookie
 
             // do nothing if the cookie value has not changed.
-            val notChanged = previousCookie?.value() == cookie.value()
+            val notChanged = previousCookie?.value == cookie.value
             if (notChanged)
                 return true
 
@@ -113,7 +114,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
                 // store cookie for next time
                 preferences.edit {
-                    putString(keyLoginCookie, cookie.value())
+                    putString(keyLoginCookie, cookie.value)
                 }
 
                 this.httpCookie = cookie
@@ -149,7 +150,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
      */
     private fun parseCookie(cookie: okhttp3.Cookie): LoginCookie? {
         return try {
-            val value = URLDecoder.decode(cookie.value(), "UTF-8")
+            val value = URLDecoder.decode(cookie.value, "UTF-8")
             MoshiInstance.adapter<LoginCookie>().fromJson(value)
         } catch (err: Exception) {
             null

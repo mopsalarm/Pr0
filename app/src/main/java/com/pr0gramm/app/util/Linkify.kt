@@ -139,7 +139,7 @@ private open class InternalURLSpan(url: String) : URLSpan(url) {
 
     companion object {
         @JvmField
-        val CREATOR = creator { p -> InternalURLSpan(p.readString()) }
+        val CREATOR = creator { p -> InternalURLSpan(p.readString() ?: "https://example.com") }
     }
 }
 

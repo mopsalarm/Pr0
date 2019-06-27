@@ -9,6 +9,7 @@ import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.time
 import okio.*
+import okio.ByteString.Companion.encodeUtf8
 import java.util.zip.Deflater
 import java.util.zip.Inflater
 import kotlin.contracts.contract
@@ -73,10 +74,10 @@ interface Freezable : Parcelable {
         }
 
         fun writeString(s: String) {
-            val bytes = ByteString.encodeUtf8(s)
-            writeInt(bytes.size())
+            val bytes = s.encodeUtf8()
+            writeInt(bytes.size)
 
-            if (bytes.size() > 0) {
+            if (bytes.size > 0) {
                 sink.write(bytes)
             }
         }
@@ -157,13 +158,13 @@ object Freezer {
         // freeze it to the raw buffer
         f.freeze(Freezable.Sink(raw))
 
-        if (raw.size() < 64) {
+        if (raw.size < 64) {
             // no compression needed
             return raw.readByteArray()
 
         } else {
             val watch = Stopwatch()
-            val uncompressedSize = raw.size()
+            val uncompressedSize = raw.size
 
             // assumption of not needing compression failed, skipping zero byte.
             raw.skip(1)
@@ -172,13 +173,13 @@ object Freezer {
             buffer.writeByte(1)
 
             DeflaterSink(buffer, Deflater(6)).use { sink ->
-                sink.write(raw, raw.size())
+                sink.write(raw, raw.size)
             }
 
             logger.debug {
                 "Compressed %d bytes to %d (%1.2f%%) took %s".format(
-                        uncompressedSize, buffer.size(),
-                        buffer.size() * 100.0 / uncompressedSize, watch)
+                        uncompressedSize, buffer.size,
+                        buffer.size * 100.0 / uncompressedSize, watch)
             }
 
             return buffer.readByteArray()
@@ -195,7 +196,7 @@ object Freezer {
 
             } else {
                 InflaterSource(rawSource, Inflater()).use { source ->
-                    c.unfreeze(Freezable.Source(Okio.buffer(source)))
+                    c.unfreeze(Freezable.Source(source.buffer()))
                 }
             }
         }

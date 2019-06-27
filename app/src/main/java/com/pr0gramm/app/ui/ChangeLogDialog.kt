@@ -21,7 +21,8 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.setTextFuture
-import okio.Okio
+import okio.buffer
+import okio.source
 import java.io.IOException
 
 
@@ -95,7 +96,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
         private fun loadChangelog(context: Context): List<ChangeGroup> {
             try {
                 context.resources.openRawResource(R.raw.changelog).use { input ->
-                    val source = Okio.buffer(Okio.source(input))
+                    val source = input.source().buffer()
                     return MoshiInstance.adapter<List<ChangeGroup>>().nonNull().fromJson(source)!!
                 }
             } catch (error: IOException) {

@@ -44,7 +44,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         // Inflate the appropriate view and set up the absListView
         View.inflate(context, R.layout.list_sheet_view, this)
         absListView = findViewById<View>(R.id.list) as AbsListView
-        absListView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        absListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, id ->
             val item = absListView.adapter.getItem(position) as? SheetMenuItem
             if (item?.menuItem != null) {
                 listener(item.menuItem)

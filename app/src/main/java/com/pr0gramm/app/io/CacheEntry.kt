@@ -279,16 +279,16 @@ internal class CacheEntry(
 
                 val totalSize = try {
                     logger.debug { "Response is $response" }
-                    val body = response.body()
+                    val body = response.body
                             ?: throw IllegalStateException("no body in media response")
 
                     when {
-                        response.code() == 200 -> {
+                        response.code == 200 -> {
                             written = 0
                             body.contentLength().toInt()
                         }
 
-                        response.code() == 206 -> {
+                        response.code == 206 -> {
                             val range = response.header("Content-Range")
                                     ?: throw IOException("Expected Content-Range header")
 
@@ -296,26 +296,26 @@ internal class CacheEntry(
                             parseRangeHeaderTotalSize(range)
                         }
 
-                        response.code() == 403 ->
+                        response.code == 403 ->
                             throw IOException("Not allowed to read file, are you on a public wifi?")
 
-                        response.code() == 404 ->
-                            throw FileNotFoundException("File not found at " + response.request().url())
+                        response.code == 404 ->
+                            throw FileNotFoundException("File not found at " + response.request.url)
 
-                        response.code() == 416 -> {
+                        response.code == 416 -> {
                             val range = response.header("Content-Range")
-                                    ?: throw IOException("Request for ${request.url()} failed with status ${response.code()}")
+                                    ?: throw IOException("Request for ${request.url} failed with status ${response.code}")
 
                             logger.debug { "Got Content-Range header with $range" }
                             val totalSize = parseRangeHeaderTotalSize(range)
                             if (offset < totalSize) {
-                                throw IOException("Request for ${request.url()} failed with status ${response.code()}")
+                                throw IOException("Request for ${request.url} failed with status ${response.code}")
                             } else {
                                 totalSize
                             }
                         }
 
-                        else -> throw IOException("Request for ${request.url()} failed with status ${response.code()}")
+                        else -> throw IOException("Request for ${request.url} failed with status ${response.code}")
                     }
 
                     // we now know the size of the full file
@@ -328,7 +328,7 @@ internal class CacheEntry(
                     throw err
                 }
 
-                response.body()?.use { body ->
+                response.body?.use { body ->
                     // we now know the size, publish it to waiting consumers
                     this.totalSize.setValue(totalSize)
 

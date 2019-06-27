@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.dnsoverhttps.DnsOverHttps
 import rx.schedulers.Schedulers
 import java.io.File
@@ -236,7 +237,7 @@ private class UpdateServerTimeInterceptor : Interceptor {
         // we need the time of the network request
         val requestTime = System.currentTimeMillis() - requestStartTime
 
-        if (response.isSuccessful && request.url().host() == "pr0gramm.com") {
+        if (response.isSuccessful && request.url.host == "pr0gramm.com") {
             response.header("Date")?.let { dateValue ->
                 val serverTime = try {
                     format.parse(dateValue)
@@ -266,17 +267,17 @@ private class DebugInterceptor : Interceptor {
 
         val watch = Stopwatch()
         try {
-            if ("pr0gramm.com" in request.url().toString()) {
+            if ("pr0gramm.com" in request.url.toString()) {
                 TimeUnit.MILLISECONDS.sleep(750)
             } else {
                 TimeUnit.MILLISECONDS.sleep(500)
             }
 
             val response = chain.proceed(request)
-            logger.debug { "Delayed request to ${request.url()} took $watch (status=${response.code()})" }
+            logger.debug { "Delayed request to ${request.url} took $watch (status=${response.code})" }
             return response
         } catch (err: Throwable) {
-            logger.debug { "Delayed request to ${request.url()} took $watch, error $err" }
+            logger.debug { "Delayed request to ${request.url} took $watch, error $err" }
             throw err
         }
     }
@@ -300,8 +301,8 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
         val request = chain.request()
         val response = chain.proceed(request)
 
-        if (domains.contains(request.url().host())) {
-            logger.debug { "Disable caching for ${request.url()}" }
+        if (domains.contains(request.url.host)) {
+            logger.debug { "Disable caching for ${request.url}" }
             response.header("Cache-Control", "no-store")
         }
 
@@ -316,14 +317,14 @@ private class LoggingInterceptor : Interceptor {
         val watch = Stopwatch()
         val request = chain.request()
 
-        okLogger.info { "performing ${request.method()} http request for ${request.url()}" }
+        okLogger.info { "performing ${request.method} http request for ${request.url}" }
         try {
             val response = chain.proceed(request)
-            okLogger.info { "${request.url()} (${response.code()}) took $watch" }
+            okLogger.info { "${request.url} (${response.code}) took $watch" }
             return response
 
         } catch (error: Exception) {
-            okLogger.warn { "${request.url()} produced error: $error" }
+            okLogger.warn { "${request.url} produced error: $error" }
             throw error
         }
     }
@@ -345,7 +346,7 @@ private class CustomDNS(app: Application) : Dns {
                 .resolvePrivateAddresses(false)
                 .resolvePublicAddresses(true)
                 .includeIPv6(false)
-                .url(HttpUrl.get("https://1.1.1.1/dns-query"))
+                .url("https://1.1.1.1/dns-query".toHttpUrl())
                 .build()
     }
 

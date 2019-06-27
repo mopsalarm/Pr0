@@ -131,8 +131,8 @@ class UserService(private val api: Api,
 
         // extract login cookie from response
         val loginCookie = Cookie
-                .parseAll(response.raw().request().url(), response.raw().headers())
-                .firstOrNull { cookie -> cookie.name() == "me" }
+                .parseAll(response.raw().request.url, response.raw().headers)
+                .firstOrNull { cookie -> cookie.name == "me" }
 
         if (loginCookie == null) {
             logger.debug { "No login cookie found" }

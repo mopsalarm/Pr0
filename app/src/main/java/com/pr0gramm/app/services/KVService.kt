@@ -5,9 +5,10 @@ import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.model.kv.GetResult
 import com.pr0gramm.app.model.kv.PutResult
 import com.pr0gramm.app.ui.base.retryUpTo
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -55,7 +56,7 @@ class KVService(okHttpClient: OkHttpClient) {
     suspend fun put(ident: String, key: String, version: Int, value: ByteArray): PutResult {
         // hash the ident to generate the token
 
-        val body = RequestBody.create(MediaType.parse("application/octet"), value)
+        val body = value.toRequestBody("application/octet".toMediaTypeOrNull())
 
         return try {
             api.putValueAsync(tokenOf(ident), key, version, body)

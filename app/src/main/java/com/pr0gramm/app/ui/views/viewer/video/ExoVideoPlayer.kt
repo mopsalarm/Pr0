@@ -11,9 +11,8 @@ import com.google.android.exoplayer2.decoder.DecoderCounters
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
-import com.google.android.exoplayer2.mediacodec.MediaCodecInfo
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
@@ -32,6 +31,8 @@ import com.pr0gramm.app.util.di.injector
  */
 class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayout) :
         RxVideoPlayer(), VideoPlayer, Player.EventListener {
+
+    private val logger = Logger("ExoVideoPlayer")
 
     private val context = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
@@ -112,8 +113,8 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         val extractorsFactory = ExtractorsFactory { arrayOf(FragmentedMp4Extractor(), Mp4Extractor()) }
 
-        val mediaSource = ExtractorMediaSource.Factory(DataSourceFactory(context))
-                .setExtractorsFactory(extractorsFactory)
+        val mediaSource = ProgressiveMediaSource
+                .Factory(DataSourceFactory(context), extractorsFactory)
                 .createMediaSource(uri)
 
         // apply volume before starting the player
@@ -273,6 +274,8 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     private class VideoListener(callbacks: VideoPlayer.Callbacks, parentView: AspectLayout) : VideoRendererEventListener {
+        private val logger = Logger("ExoVideoPlayer.Listener")
+
         private val callbacks by weakref(callbacks)
         private val parentView by weakref(parentView)
 
@@ -310,27 +313,6 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         override fun createDataSource(): DataSource {
             val cache = context.injector.instance<Cache>()
             return InputStreamCacheDataSource(cache)
-        }
-    }
-
-    companion object {
-        private val logger = Logger("ExoVideoPlayer")
-
-        private fun bestMatchingCodec(codecs: List<MediaCodecInfo>, videoCodecName: String): MediaCodecInfo? {
-            return when (videoCodecName) {
-                "software" -> codecs.firstOrNull { isSoftwareDecoder(it) }
-                "hardware" -> codecs.firstOrNull { isHardwareDecoder(it) }
-                else -> codecs.firstOrNull { it.name.equals(videoCodecName, ignoreCase = true) }
-            }
-        }
-
-        private fun isSoftwareDecoder(codec: MediaCodecInfo): Boolean {
-            val name = codec.name.toLowerCase()
-            return name.startsWith("omx.google.") || name.startsWith("omx.ffmpeg.") || name.contains(".sw.")
-        }
-
-        private fun isHardwareDecoder(codec: MediaCodecInfo): Boolean {
-            return !isSoftwareDecoder(codec)
         }
     }
 }

@@ -8,7 +8,7 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.retryUpTo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okio.ByteString
+import okio.ByteString.Companion.encode
 
 /**
  */
@@ -52,7 +52,7 @@ class TagSuggestionService(api: Api) {
     private fun isQuestionableTag(tag: CharSequence): Boolean {
         val lower = tag.toString().toLowerCase()
 
-        val hash = ByteString.encodeString(lower, Charsets.UTF_8)
+        val hash = lower.encode(Charsets.UTF_8)
                 .md5().hex().substring(0, 8)
 
         return hash in questionableTags

@@ -10,7 +10,9 @@ import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.runEvery
 import okhttp3.*
-import okio.Okio
+import okhttp3.ResponseBody.Companion.asResponseBody
+import okio.buffer
+import okio.source
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
@@ -188,9 +190,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         override fun close()
 
         fun toResponse(request: Request, mediaType: MediaType? = null): Response {
-            val body = ResponseBody.create(
-                    mediaType, totalSize.toLong(),
-                    Okio.buffer(Okio.source(inputStreamAt(0))))
+            val body = inputStreamAt(0).source().buffer().asResponseBody(mediaType, totalSize.toLong())
 
             return Response.Builder()
                     .request(request)

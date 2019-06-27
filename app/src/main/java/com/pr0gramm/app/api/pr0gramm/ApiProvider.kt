@@ -4,7 +4,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.Deferred
-import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -29,9 +29,9 @@ class ApiProvider(base: String, client: OkHttpClient,
 
         val baseUrl = if (BuildConfig.DEBUG && settings.mockApi) {
             // activate this to use a mock
-            HttpUrl.get("http://" + Debug.mockApiHost + ":8888")
+            ("http://" + Debug.mockApiHost + ":8888").toHttpUrl()
         } else {
-            HttpUrl.get(base)
+            base.toHttpUrl()
         }
 
         return Retrofit.Builder()
@@ -110,7 +110,7 @@ class ApiProvider(base: String, client: OkHttpClient,
             val response = chain.proceed(chain.request())
 
             // if we get a valid "not allowed" error, we'll
-            if (response.code() == 403) {
+            if (response.code == 403) {
                 val body = response.peekBody(1024)
                 val err = tryDecodeError(body.source())
                 if (err?.error == "forbidden" && err.msg == "Not logged in") {

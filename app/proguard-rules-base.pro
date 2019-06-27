@@ -69,30 +69,9 @@
     <fields>;
 }
 
-# Assume that we run on android 17 and up. This is an r8 config to improve
-# dead code elimination on old devices.
+# Assume that we run on android 21 and up. This is an r8 config to improve
+# dead code elimination on old devices. Should already be added automatically, but be on
+# the sure side here.
 -assumevalues class android.os.Build$VERSION {
-    int SDK_INT return 17..2147483647;
+    int SDK_INT return 21..2147483647;
 }
-
-
-### required for retrofit in 2.5
-
-# Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
-# EnclosingMethod is required to use InnerClasses.
--keepattributes Signature, InnerClasses, EnclosingMethod
-
-# Retrofit does reflection on method and parameter annotations.
--keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
-
-# Retain service method parameters when optimizing.
--keepclassmembers,allowshrinking,allowobfuscation interface * {
-    @retrofit2.http.* <methods>;
-}
-
-# With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
-# and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface <1>
-
-

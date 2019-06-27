@@ -8,13 +8,13 @@ import rx.Observable
 
 /**
  */
+@Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class ScrollHideToolbarListener(private val toolbar: View) {
     private var toolbarMarginOffset: Int = 0
     private var animation: ViewPropertyAnimator? = null
     private var hidden: Boolean = false
 
     init {
-
         toolbar.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             val newHeight = bottom - top
             val oldHeight = oldBottom - oldTop

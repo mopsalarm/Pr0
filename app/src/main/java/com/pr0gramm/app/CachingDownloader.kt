@@ -5,6 +5,8 @@ import androidx.collection.LruCache
 import com.pr0gramm.app.io.Cache
 import com.squareup.picasso.Downloader
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody.Companion.toResponseBody
 
 class CachingDownloader(private val cache: Cache, private val httpClient: OkHttpClient) : Downloader {
     private val memoryCache = object : LruCache<String, ByteArray>(4 * 1024 * 1024) {
@@ -12,7 +14,7 @@ class CachingDownloader(private val cache: Cache, private val httpClient: OkHttp
     }
 
     override fun load(request: Request): Response {
-        val url = request.url()
+        val url = request.url
 
         // load thumbnails normally
         if (shouldUseMemoryCache(url)) {
@@ -25,13 +27,13 @@ class CachingDownloader(private val cache: Cache, private val httpClient: OkHttp
             val response = httpClient.newCall(request).execute()
 
             // check if we want to cache the response in memory
-            val body = response.body()
+            val body = response.body
             if (body != null && body.contentLength() in (1 until 20 * 1024)) {
                 val bytes = response.use { body.bytes() }
 
                 memoryCache.put(url.toString(), bytes)
                 return response.newBuilder()
-                        .body(ResponseBody.create(body.contentType(), bytes))
+                        .body(bytes.toResponseBody(body.contentType()))
                         .build()
             }
 
@@ -42,11 +44,11 @@ class CachingDownloader(private val cache: Cache, private val httpClient: OkHttp
     }
 
     private fun shouldUseMemoryCache(url: HttpUrl): Boolean {
-        return url.host() == "thumb.pr0gramm.com" || url.toString().endsWith("thumb.jpg")
+        return url.host == "thumb.pr0gramm.com" || url.toString().endsWith("thumb.jpg")
     }
 
     private fun useCache(request: Request, cache: Cache): Response {
-        cache.get(Uri.parse(request.url().toString())).use { response ->
+        cache.get(Uri.parse(request.url.toString())).use { response ->
             return response.toResponse(request)
         }
     }
@@ -57,7 +59,7 @@ class CachingDownloader(private val cache: Cache, private val httpClient: OkHttp
                 .protocol(Protocol.HTTP_1_0)
                 .code(200)
                 .message("OK")
-                .body(ResponseBody.create(MediaType.parse("image/jpeg"), body))
+                .body(body.toResponseBody("image/jpeg".toMediaTypeOrNull()))
                 .build()
     }
 
