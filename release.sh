@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 set -eu -o pipefail
 
 VERSION_PREV=$(egrep -o '[0-9]+' <app/version.gradle)
