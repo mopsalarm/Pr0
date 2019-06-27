@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -104,9 +103,10 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .startWith(listOf<NavigationItem>())
 
         rx.Observable
-                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems) { state, navItems ->
+                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.updates) { state, navItems, _ ->
                     mutableListOf<Any>().also { items ->
-                        items += TitleInfo(state.loginState.name, state.loginState.mark)
+                        val userClass = userClassesService.get(state.loginState.mark)
+                        items += TitleInfo(state.loginState.name, userClass)
 
                         if (state.loginState.authorized) {
                             items += BenisInfo(state.loginState.score, state.benisGraph)
@@ -169,7 +169,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_divider)
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_special)
 
-            delegates += TitleDelegateAdapter(callbacks, userClassesService)
+            delegates += TitleDelegateAdapter(callbacks)
             delegates += BenisGraphDelegateAdapter(callbacks)
 
             delegates += SpacerAdapterDelegate
@@ -405,9 +405,9 @@ private class NavigationDelegateAdapter(
 }
 
 
-data class TitleInfo(val name: String?, val mark: Int = 0)
+data class TitleInfo(val name: String?, val userClass: UserClassesService.UserClass)
 
-private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks, private val userClassesService: UserClassesService)
+private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
     : ListItemTypeAdapterDelegate<TitleInfo, TitleViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): TitleViewHolder {
@@ -424,10 +424,9 @@ private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbac
             holder.title.text = value.name
             holder.title.setOnClickListener { callbacks.onUsernameClicked() }
 
-            val userClass = userClassesService.get(value.mark)
             holder.subtitle.visible = true
-            holder.subtitle.text = userClass.name
-            holder.subtitle.setTextColor(userClass.color)
+            holder.subtitle.text = value.userClass.name
+            holder.subtitle.setTextColor(value.userClass.color)
             holder.subtitle.setOnClickListener { callbacks.onUsernameClicked() }
         }
     }
@@ -438,10 +437,7 @@ private class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
     val subtitle = find<TextView>(R.id.subtitle)
 
     init {
-        // add some space on the top for the translucent status bar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            itemView.updatePaddingRelative(top = getStatusBarHeight(itemView.context))
-        }
+        itemView.updatePaddingRelative(top = getStatusBarHeight(itemView.context))
     }
 }
 

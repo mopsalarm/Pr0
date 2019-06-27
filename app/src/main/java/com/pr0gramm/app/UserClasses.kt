@@ -5,16 +5,26 @@ import androidx.annotation.ColorInt
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import rx.Observable
+import rx.subjects.PublishSubject
+import java.util.*
 
 class UserClassesService(configObservable: Observable<Config>) {
-    class UserClass(val name: String, val symbol: String, @get:ColorInt val color: Int)
+    data class UserClass(val name: String, val symbol: String, @get:ColorInt val color: Int)
 
     private var userClasses: List<UserClass> = listOf()
+
+    val updates: PublishSubject<Unit> = PublishSubject.create()
 
     init {
         configObservable
                 .map { config -> config.userClasses.map { parseClass(it) } }
-                .subscribe { userClasses = it }
+                .distinctUntilChanged()
+                .subscribe {
+                    userClasses = it
+
+                    // publish changes
+                    updates.onNext(Unit)
+                }
     }
 
     private fun parseClass(inputValue: Config.UserClass): UserClass {
@@ -24,7 +34,7 @@ class UserClassesService(configObservable: Observable<Config>) {
             Color.WHITE
         }
 
-        return UserClass(inputValue.name.toUpperCase(), inputValue.symbol, color)
+        return UserClass(inputValue.name.toUpperCase(Locale.GERMANY), inputValue.symbol, color)
     }
 
     fun get(mark: Int): UserClass {
