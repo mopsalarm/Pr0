@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -195,13 +194,7 @@ private object PlaceholderItemAdapterDelegate
             pv.viewer = item.viewer
             pv.fixedHeight = item.height
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                pv.requestLayout()
-            } else {
-                // it looks like a requestLayout is not honored on pre kitkat devices
-                // if already in a layout pass.
-                pv.post { pv.requestLayout() }
-            }
+            pv.requestLayout()
 
             if (item.mediaControlsContainer != null) {
                 // only move media controls if they are attached to a different placeholder view.

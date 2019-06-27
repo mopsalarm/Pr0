@@ -1,7 +1,6 @@
 package com.pr0gramm.app
 
 import android.content.Context
-import android.os.Build
 import android.os.Debug
 import android.os.StrictMode
 import androidx.multidex.MultiDex
@@ -14,19 +13,17 @@ class DebugApplicationClass : ApplicationClass() {
         StrictMode.enableDefaults()
 
         if (true) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    // Debug.startMethodTracing(null, 128 * 1024 * 1024)
-                    Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 500)
+            try {
+                // Debug.startMethodTracing(null, 128 * 1024 * 1024)
+                Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 500)
 
-                    doInBackground {
-                        delay(6000)
-                        Debug.stopMethodTracing()
-                    }
-                } catch (err: Throwable) {
-                    Logger("DebugApplicationClass").error(err) {
-                        "Could not start method sampling during bootup."
-                    }
+                doInBackground {
+                    delay(6000)
+                    Debug.stopMethodTracing()
+                }
+            } catch (err: Throwable) {
+                Logger("DebugApplicationClass").error(err) {
+                    "Could not start method sampling during bootup."
                 }
             }
         }

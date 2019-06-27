@@ -8,9 +8,7 @@ import android.content.Intent
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
@@ -21,7 +19,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
-import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -499,7 +496,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 activity.scrollHideToolbarListener.hide()
             }
 
-            viewer.setClipBoundsCompat(null)
+            viewer.clipBounds = null
             viewer.visible = true
 
             activity.invalidateOptionsMenu()
@@ -643,8 +640,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun downloadPostWithPermissionGranted() {
         val bitmapDrawable = previewInfo.preview as? BitmapDrawable
         val preview = bitmapDrawable?.bitmap ?: previewInfo.fancy?.valueOrNull
-
-        val directory = AndroidFiles.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
         downloadService
                 .downloadWithNotification(feedItem, preview)
@@ -858,13 +853,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 if (newHeight != state.viewerBaseHeight) {
                     logger.debug { "Change in viewer height detected, setting height to ${state.viewerBaseHeight} to $newHeight" }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        state = state.copy(viewerBaseHeight = newHeight)
-                    } else {
-                        // it looks like a requestLayout is not honored on pre kitkat devices
-                        // if already in a layout pass.
-                        viewer.post { state = state.copy(viewerBaseHeight = newHeight) }
-                    }
+                    state = state.copy(viewerBaseHeight = newHeight)
 
                     if (isVideoFullScreen) {
                         realignFullScreen()
@@ -1159,14 +1148,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 val clipBottom = viewer.height - (scrollY - scroll + 0.5f).toInt()
 
                 if (clipTop < clipBottom) {
-                    viewer.setClipBoundsCompat(Rect(0, clipTop, viewer.right, clipBottom))
+                    viewer.clipBounds = Rect(0, clipTop, viewer.right, clipBottom)
                 } else {
                     viewerVisible = false
                 }
             } else {
                 // reset bounds. we might have set some previously and want
                 // to clear those bounds now.
-                viewer.setClipBoundsCompat(null)
+                viewer.clipBounds = null
             }
 
             offsetMediaView(viewerVisible, scroll)

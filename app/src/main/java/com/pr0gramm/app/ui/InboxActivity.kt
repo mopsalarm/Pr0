@@ -3,6 +3,9 @@ package com.pr0gramm.app.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.updatePadding
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
@@ -25,6 +28,7 @@ import kotterknife.bindView
 class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageChangeListener {
     private val userService: UserService by instance()
 
+    private val coordinator: CoordinatorLayout by bindView(R.id.coordinator)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
     private val viewPager: ViewPager by bindView(R.id.pager)
 
@@ -42,7 +46,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         setContentView(R.layout.activity_inbox)
 
-        setSupportActionBar(find(R.id.toolbar))
+        val toolbar = find<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)
@@ -79,6 +84,13 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         intent.getStringExtra(EXTRA_CONVERSATION_NAME)?.let { name ->
             ConversationActivity.start(this, name, skipInbox = true)
+        }
+
+        coordinator.setOnApplyWindowInsetsListener { v, insets ->
+            coordinator.updatePadding(top = insets.systemWindowInsetTop)
+            viewPager.updatePadding(bottom = insets.systemWindowInsetBottom)
+            insets.consumeSystemWindowInsets()
+            // insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
         }
     }
 

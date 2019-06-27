@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Looper
 import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
@@ -77,12 +76,10 @@ object AndroidUtility {
     fun getStatusBarHeight(context: Context): Int {
         var result = 0
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val resources = context.resources
-            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-            if (resourceId > 0) {
-                result = resources.getDimensionPixelSize(resourceId)
-            }
+        val resources = context.resources
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            result = resources.getDimensionPixelSize(resourceId)
         }
 
         return result
@@ -227,8 +224,7 @@ object AndroidUtility {
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
         val decorView = activity.window.decorView
@@ -239,11 +235,7 @@ object AndroidUtility {
         val screenSize = Point()
         val display = activity.windowManager.defaultDisplay
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            display.getRealSize(screenSize)
-        } else {
-            display.getSize(screenSize)
-        }
+        display.getRealSize(screenSize)
 
         return screenSize
     }

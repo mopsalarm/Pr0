@@ -5,7 +5,6 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Outline
 import android.graphics.PorterDuff
-import android.os.Build
 import android.text.TextUtils
 import android.view.*
 import android.widget.*
@@ -79,10 +78,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        // Necessary for showing elevation on 5.0+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            outlineProvider = ShadowOutline(w, h)
-        }
+        outlineProvider = ShadowOutline(w, h)
     }
 
     /**

@@ -103,7 +103,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .startWith(listOf<NavigationItem>())
 
         rx.Observable
-                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.updates) { state, navItems, _ ->
+                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.changes.startWith(Unit)) { state, navItems, _ ->
                     mutableListOf<Any>().also { items ->
                         val userClass = userClassesService.get(state.loginState.mark)
                         items += TitleInfo(state.loginState.name, userClass)

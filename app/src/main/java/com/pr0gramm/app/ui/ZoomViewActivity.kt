@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -87,8 +86,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
             decorView.systemUiVisibility = flags
         }

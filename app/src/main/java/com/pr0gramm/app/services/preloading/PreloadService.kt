@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -100,7 +99,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
         // update notification
         show {
-            val icon = if (Build.VERSION.SDK_INT >= 21) R.drawable.ic_white_action_clear else android.R.drawable.ic_menu_close_clear_cancel
+            val icon = R.drawable.ic_white_action_clear
             addAction(icon, getString(R.string.cancel), cancelIntent)
 
             setProgress(100 * items.size, 0, false)

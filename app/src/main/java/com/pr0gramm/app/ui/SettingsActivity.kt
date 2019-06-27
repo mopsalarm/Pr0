@@ -5,8 +5,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.drawable.DrawableCompat
@@ -231,10 +231,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_download_target" -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                        startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
-                    }
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                    startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
 
                     return true
                 }

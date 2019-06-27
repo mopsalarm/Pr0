@@ -124,31 +124,37 @@
     <style name="AppTheme.Orange.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppTheme.Green.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppTheme.Olive.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppTheme.Pink.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppTheme.Blue.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppTheme.Black.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <!-- This one is used in the login page -->
@@ -188,30 +194,67 @@
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
-    <!-- Just placeholder for newer versions of androids -->
-    <style name="AppTheme.Orange.NoActionBar.Fullscreen"/>
 
-    <style name="AppTheme.Green.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Orange.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Olive.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Green.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Pink.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Olive.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Blue.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Pink.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Black.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Blue.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Orange.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Black.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Green.NoActionBar.TranslucentStatus"/>
 
-    <style name="AppTheme.Olive.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Orange.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Pink.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Green.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Blue.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Olive.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
-    <style name="AppTheme.Black.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Pink.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="AppTheme.Blue.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="AppTheme.Black.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
     <style name="Button" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.Button</item>
@@ -236,7 +279,10 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="AppTheme.Intro.TranslucentStatus"/>
+    <style name="AppTheme.Intro.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
 
     <style name="DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
         <item name="android:layout_width">match_parent</item>
@@ -357,5 +403,5 @@
     </style>
 
     <!-- disable hyphenation in v23+ -->
-    <style name="NoHyphenateTextViewStyle" parent="android:Widget.TextView"/>
+    <style name="NoHyphenateTextViewStyle" parent="android:Widget.Material.TextView" />
 </resources>

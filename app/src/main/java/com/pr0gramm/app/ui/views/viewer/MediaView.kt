@@ -4,12 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
@@ -59,7 +56,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     private val gestureDetector: GestureDetector
 
     private var mediaShown: Boolean = false
-    private var compatClipBounds: Rect? = null
 
     protected val picasso: Picasso by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
@@ -372,44 +368,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             if (!onViewListener.hasCompleted()) {
                 onViewListener.onNext(null)
                 onViewListener.onCompleted()
-            }
-        }
-    }
-
-    override fun dispatchDraw(canvas: Canvas) {
-        drawWithClipBounds(canvas, { super.dispatchDraw(it) })
-    }
-
-    @SuppressLint("MissingSuperCall")
-    override fun draw(canvas: Canvas) {
-        drawWithClipBounds(canvas, { super.draw(it) })
-    }
-
-    private fun drawWithClipBounds(canvas: Canvas, action: (Canvas) -> Unit) {
-        if (compatClipBounds != null) {
-            canvas.save()
-
-            // clip and draw!
-            canvas.clipRect(compatClipBounds!!)
-            action(canvas)
-
-            canvas.restore()
-
-        } else {
-            action(canvas)
-        }
-    }
-
-    fun setClipBoundsCompat(clipBounds: Rect?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setClipBounds(clipBounds)
-
-        } else if (this.compatClipBounds !== clipBounds) {
-            this.compatClipBounds = clipBounds
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                setClipBounds(clipBounds)
-            } else {
-                invalidate()
             }
         }
     }

@@ -13,7 +13,7 @@ class UserClassesService(configObservable: Observable<Config>) {
 
     private var userClasses: List<UserClass> = listOf()
 
-    val updates: PublishSubject<Unit> = PublishSubject.create()
+    val changes: PublishSubject<Unit> = PublishSubject.create()
 
     init {
         configObservable
@@ -23,7 +23,7 @@ class UserClassesService(configObservable: Observable<Config>) {
                     userClasses = it
 
                     // publish changes
-                    updates.onNext(Unit)
+                    changes.onNext(Unit)
                 }
     }
 

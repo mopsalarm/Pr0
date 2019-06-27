@@ -2,7 +2,10 @@ package com.pr0gramm.app.ui.intro
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
+import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import com.github.paolorotolo.appintro.AppIntro
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
@@ -13,11 +16,14 @@ import com.pr0gramm.app.ui.intro.slides.SettingsActionItemsSlide
 import com.pr0gramm.app.ui.intro.slides.ThemeActionItemsSlide
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.startActivity
 import com.pr0gramm.app.util.tryEnumValueOf
 
 class IntroActivity : AppIntro(), LazyInjectorAware {
     override val injector: PropertyInjector = PropertyInjector()
+
+    override fun getLayoutId(): Int = R.layout.activity_intro
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +85,14 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
         setDoneText(getString(R.string.action_done))
 
         setFadeAnimation()
+
+        find<View>(R.id.bottom).setOnApplyWindowInsetsListener { v, insets ->
+            v.updateLayoutParams<RelativeLayout.LayoutParams> {
+                bottomMargin = insets.systemWindowInsetBottom
+            }
+
+            insets.consumeSystemWindowInsets()
+        }
     }
 
     override fun onDonePressed(currentFragment: androidx.fragment.app.Fragment?) {
