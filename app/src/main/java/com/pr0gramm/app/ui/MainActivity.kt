@@ -180,8 +180,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // schedule an update in the background
         doInBackground { bookmarkService.update() }
-
-        hintBookmarksEditableWithPremium()
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {
