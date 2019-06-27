@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="72dp"
-             android:background="?selectableItemBackground"
-             tools:showIn="@layout/fragment_conversations">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="?selectableItemBackground"
+    tools:showIn="@layout/fragment_conversations">
 
     <ImageView
         android:id="@+id/image"
@@ -14,7 +14,7 @@
         android:layout_gravity="start|center_vertical"
         android:layout_marginLeft="16dp"
         tools:background="@color/blue_primary"
-        android:layout_marginStart="16dp"/>
+        android:layout_marginStart="16dp" />
 
     <com.pr0gramm.app.ui.views.UsernameView
         android:id="@+id/name"
@@ -40,7 +40,7 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         app:firstBaselineToTopHeight="52dp"
-        tools:text="vor 4 Stunden"/>
+        tools:text="vor 4 Stunden" />
 
     <TextView
         android:id="@+id/unread_count"
@@ -52,5 +52,5 @@
         android:background="?roundedCornerBackground"
         android:gravity="center"
         android:maxLines="1"
-        tools:text="12"/>
+        tools:text="12" />
 </FrameLayout>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-                                       xmlns:tools="http://schemas.android.com/tools"
-                                       android:layout_width="match_parent"
-                                       android:layout_height="match_parent"
-                                       android:orientation="vertical"
-                                       tools:context=".ui.WriteMessageActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.WriteMessageActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
         <com.pr0gramm.app.ui.MessageView
             android:id="@+id/message_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
                 android:id="@+id/auto_complete_popup_anchor"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
             <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
                 android:id="@+id/new_message_text"
@@ -37,10 +37,9 @@
                 android:hint="@string/write_message_placeholder"
                 android:inputType="textMultiLine|textCapSentences"
                 android:minLines="5"
-                android:padding="8sp"
-                >
+                android:padding="8sp">
 
-                <requestFocus/>
+                <requestFocus />
             </com.pr0gramm.app.ui.LineMultiAutoCompleteTextView>
         </FrameLayout>
 
@@ -52,7 +51,7 @@
             android:layout_marginTop="8dp"
             android:enabled="false"
             android:text="@string/action_send"
-            tools:ignore="UnusedAttribute"/>
+            tools:ignore="UnusedAttribute" />
 
         <TextView
             android:id="@+id/authors_title"
@@ -61,7 +60,7 @@
             android:paddingTop="24dp"
             android:text="@string/authors_hint"
             android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/authors"
@@ -69,6 +68,6 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             tools:listitem="@layout/row_comment_excerpt"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

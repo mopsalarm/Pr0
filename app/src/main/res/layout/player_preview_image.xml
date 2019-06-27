@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.pr0gramm.app.ui.views.AspectImageView
-    android:id="@+id/preview"
+<com.pr0gramm.app.ui.views.AspectImageView android:id="@+id/preview"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,6 +8,6 @@
     android:layout_gravity="center_horizontal"
     android:scaleType="fitCenter"
     app:aspect="1.75"
-    tools:showIn="@layout/player_gif"/>
+    tools:showIn="@layout/player_gif" />
     
     

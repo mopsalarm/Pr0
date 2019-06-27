@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.pr0gramm.app.ui.views.CommentSpacerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.pr0gramm.app.ui.views.CommentSpacerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -21,7 +20,7 @@
         app:markedColor="?colorAccent"
         app:orientation="vertical"
         app:spacing="2dp"
-        app:textSize="24dp"/>
+        app:textSize="24dp" />
 
     <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
         android:id="@+id/comment"
@@ -32,7 +31,7 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
         tools:text="@string/dummy_text"
-        android:layout_marginStart="32dp"/>
+        android:layout_marginStart="32dp" />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/sender_info"
@@ -41,7 +40,7 @@
         android:layout_marginLeft="32dp"
         android:layout_below="@+id/comment"
         android:layout_gravity="bottom"
-        android:layout_marginStart="32dp"/>
+        android:layout_marginStart="32dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -58,7 +57,7 @@
             android:layout_height="24dp"
             android:background="?selectableItemBackgroundBorderless"
             app:tint="@color/grey_700"
-            app:srcCompat="@drawable/ic_more_vert_vec"/>
+            app:srcCompat="@drawable/ic_more_vert_vec" />
 
         <Button
             android:id="@+id/action_expand"
@@ -76,7 +75,7 @@
             android:textColor="@color/white"
             android:visibility="gone"
             tools:text="+10"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <ImageButton
             android:id="@+id/action_kfav"
@@ -85,7 +84,7 @@
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
             app:tint="@color/grey_700"
-            app:srcCompat="@drawable/ic_vote_fav_outline"/>
+            app:srcCompat="@drawable/ic_vote_fav_outline" />
 
         <ImageButton
             android:id="@+id/action_reply"
@@ -94,7 +93,7 @@
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
             app:tint="?colorAccent"
-            app:srcCompat="@drawable/ic_reply_vec"/>
+            app:srcCompat="@drawable/ic_reply_vec" />
 
     </LinearLayout>
 

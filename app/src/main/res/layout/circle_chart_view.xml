@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <LinearLayout
@@ -14,23 +14,23 @@
         <TextView
             android:id="@+id/value"
             style="@style/Statistics.VoteBehaviour.Value"
-            tools:text="432"/>
+            tools:text="432" />
 
         <TextView
             android:id="@+id/line1"
             style="@style/Statistics.VoteBehaviour.Subtitle"
-            android:text="BENIS FÜR"/>
+            android:text="BENIS FÜR" />
 
         <TextView
             android:id="@+id/line2"
             style="@style/Statistics.VoteBehaviour.Subtitle"
             android:text="POSTS"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/line3"
             style="@style/Statistics.VoteBehaviour.Subtitle"
-            android:text="VERGEBEN"/>
+            android:text="VERGEBEN" />
 
     </LinearLayout>
 </merge>

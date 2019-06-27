@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
         android:id="@+id/player_container"
@@ -22,7 +22,7 @@
             app:tint="?colorAccent"
             tools:srcCompat="@drawable/ic_vote_fav"
             tools:visibility="visible"
-            tools:ignore="NegativeMargin"/>
+            tools:ignore="NegativeMargin" />
 
         <TextView
             android:id="@+id/repost_hint"
@@ -39,7 +39,7 @@
             android:transformPivotX="100dp"
             android:transformPivotY="-32sp"
             android:translationX="100dp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
     </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
@@ -55,6 +55,6 @@
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
             tools:listitem="@layout/comment_layout"
-            android:overScrollMode="never"/>
+            android:overScrollMode="never" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </FrameLayout>

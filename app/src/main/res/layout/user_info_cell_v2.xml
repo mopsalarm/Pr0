@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:id="@+id/user_cell_container"
+<LinearLayout android:id="@+id/user_cell_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,7 +12,7 @@
         layout="@layout/user_info_head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -28,7 +27,7 @@
             android:layout_marginLeft="16dp"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            tools:text="Datei seit 3 Jahren und 2 Monaten"/>
+            tools:text="Datei seit 3 Jahren und 2 Monaten" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,7 +36,7 @@
             android:layout_marginRight="16dp"
             android:text="@string/action_actions"
             android:textAllCaps="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
     </FrameLayout>
 
@@ -55,7 +54,7 @@
             android:layout_weight="1"
             android:clipToPadding="false"
             android:layout_marginRight="8dp"
-            android:orientation="horizontal"/>
+            android:orientation="horizontal" />
 
         <ImageView
             android:id="@+id/action_share"
@@ -65,7 +64,7 @@
             android:padding="4dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_white_action_share"
-            app:tint="@color/white"/>
+            app:tint="@color/white" />
 
         <ImageView
             android:id="@+id/action_new_message"
@@ -75,7 +74,7 @@
             android:padding="4dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_action_email"
-            app:tint="@color/white"/>
+            app:tint="@color/white" />
     </LinearLayout>
 
     <LinearLayout
@@ -84,8 +83,7 @@
         android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
-        <LinearLayout
-            style="@style/UserInfo_KpiContainer">
+        <LinearLayout style="@style/UserInfo_KpiContainer">
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
@@ -93,16 +91,15 @@
                 app:autoSizeMaxTextSize="12sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeStepGranularity="1sp"
-                app:autoSizeTextType="uniform"/>
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:id="@+id/kpi_uploads"
                 style="@style/UserInfo_Kpi_Value"
-                tools:text="56"/>
+                tools:text="56" />
         </LinearLayout>
 
-        <LinearLayout
-            style="@style/UserInfo_KpiContainer">
+        <LinearLayout style="@style/UserInfo_KpiContainer">
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
@@ -110,16 +107,15 @@
                 app:autoSizeMaxTextSize="12sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeStepGranularity="1sp"
-                app:autoSizeTextType="uniform"/>
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:id="@+id/kpi_favorites"
                 style="@style/UserInfo_Kpi_Value"
-                tools:text="96"/>
+                tools:text="96" />
         </LinearLayout>
 
-        <LinearLayout
-            style="@style/UserInfo_KpiContainer">
+        <LinearLayout style="@style/UserInfo_KpiContainer">
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
@@ -127,17 +123,16 @@
                 app:autoSizeMaxTextSize="12sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeStepGranularity="1sp"
-                app:autoSizeTextType="uniform"/>
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:id="@+id/kpi_comments"
                 style="@style/UserInfo_Kpi_Value"
-                tools:text="85"/>
+                tools:text="85" />
 
         </LinearLayout>
 
-        <LinearLayout
-            style="@style/UserInfo_KpiContainer">
+        <LinearLayout style="@style/UserInfo_KpiContainer">
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
@@ -145,12 +140,12 @@
                 app:autoSizeMaxTextSize="12sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeStepGranularity="1sp"
-                app:autoSizeTextType="uniform"/>
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:id="@+id/kpi_tags"
                 style="@style/UserInfo_Kpi_Value"
-                tools:text="1827"/>
+                tools:text="1827" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

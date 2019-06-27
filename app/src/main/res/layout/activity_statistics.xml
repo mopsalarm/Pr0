@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -16,7 +15,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="8dp"
         android:fitsSystemWindows="true"
-        app:title="Deine Statistik"/>
+        app:title="Deine Statistik" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,14 +39,14 @@
                 <View
                     android:id="@+id/benis_graph"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
 
                 <TextView
                     android:id="@+id/benis_graph_loading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/hint_loading"/>
+                    android:text="@string/hint_loading" />
 
                 <TextView
                     android:id="@+id/benis_graph_empty"
@@ -59,7 +58,7 @@
                     android:text="@string/benisgraph_empty"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:visibility="gone"
-                    tools:visibility="visible"/>
+                    tools:visibility="visible" />
             </com.pr0gramm.app.ui.views.AspectLayout>
 
             <com.pr0gramm.app.ui.views.TimeRangeSelectorView
@@ -73,7 +72,7 @@
                 android:visibility="gone"
                 app:trs_defaultColor="#8fff"
                 app:trs_selectedColor="?colorAccent"
-                tools:visibility="visible"/>
+                tools:visibility="visible" />
 
 
             <androidx.cardview.widget.CardView
@@ -92,7 +91,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/stats_title_benis_change"
-                        android:textColor="?colorAccent"/>
+                        android:textColor="?colorAccent" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -100,50 +99,47 @@
                         android:layout_marginTop="16dp"
                         android:orientation="horizontal">
 
-                        <LinearLayout
-                            style="@style/Statistics.Change.Block">
+                        <LinearLayout style="@style/Statistics.Change.Block">
 
                             <TextView
                                 style="@style/Statistics.Change.Block_Title"
-                                android:text="@string/stats_day"/>
+                                android:text="@string/stats_day" />
 
                             <TextView
                                 android:id="@+id/stats_change_day"
                                 style="@style/Statistics.Change.Block_Value"
                                 tools:text="2,5%"
-                                tools:textColor="@color/stats_up"/>
+                                tools:textColor="@color/stats_up" />
                         </LinearLayout>
 
-                        <View style="@style/Statistics.Change.Sep"/>
+                        <View style="@style/Statistics.Change.Sep" />
 
-                        <LinearLayout
-                            style="@style/Statistics.Change.Block">
+                        <LinearLayout style="@style/Statistics.Change.Block">
 
                             <TextView
                                 style="@style/Statistics.Change.Block_Title"
-                                android:text="@string/stats_week"/>
+                                android:text="@string/stats_week" />
 
                             <TextView
                                 android:id="@+id/stats_change_week"
                                 style="@style/Statistics.Change.Block_Value"
                                 tools:text="5,5%"
-                                tools:textColor="@color/stats_up"/>
+                                tools:textColor="@color/stats_up" />
                         </LinearLayout>
 
-                        <View style="@style/Statistics.Change.Sep"/>
+                        <View style="@style/Statistics.Change.Sep" />
 
-                        <LinearLayout
-                            style="@style/Statistics.Change.Block">
+                        <LinearLayout style="@style/Statistics.Change.Block">
 
                             <TextView
                                 style="@style/Statistics.Change.Block_Title"
-                                android:text="@string/monat"/>
+                                android:text="@string/monat" />
 
                             <TextView
                                 android:id="@+id/stats_change_month"
                                 style="@style/Statistics.Change.Block_Value"
                                 tools:text="8,5%"
-                                tools:textColor="@color/stats_up"/>
+                                tools:textColor="@color/stats_up" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -168,7 +164,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/stats_title_votes"
-                        android:textColor="?colorAccent"/>
+                        android:textColor="?colorAccent" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -178,25 +174,25 @@
 
                         <TextView
                             style="@style/Statistics.VoteCount"
-                            android:text="TOTAL:"/>
+                            android:text="TOTAL:" />
 
                         <TextView
                             android:id="@+id/stats_up"
                             style="@style/Statistics.VoteCount"
                             android:textColor="@color/stats_up"
-                            tools:text="UP 512"/>
+                            tools:text="UP 512" />
 
                         <TextView
                             android:id="@+id/stats_down"
                             style="@style/Statistics.VoteCount"
                             android:textColor="@color/stats_down"
-                            tools:text="DOWN 486"/>
+                            tools:text="DOWN 486" />
 
                         <TextView
                             android:id="@+id/stats_fav"
                             style="@style/Statistics.VoteCount"
                             android:textColor="@color/stats_fav"
-                            tools:text="FAVS 64"/>
+                            tools:text="FAVS 64" />
 
                     </LinearLayout>
 
@@ -214,8 +210,7 @@
                             android:layout_weight="1"
                             app:chartType="POSTS"
                             app:lineBottom="VERGEBEN"
-                            app:lineTop="BENIS FÜR"
-                            />
+                            app:lineTop="BENIS FÜR" />
 
                         <com.pr0gramm.app.ui.views.CircleChartView
                             android:id="@+id/votes_by_tags"
@@ -224,8 +219,7 @@
                             android:layout_weight="1"
                             app:chartType="TAGS"
                             app:lineBottom="VERGEBEN"
-                            app:lineTop="BENIS FÜR"
-                            />
+                            app:lineTop="BENIS FÜR" />
 
                         <com.pr0gramm.app.ui.views.CircleChartView
                             android:id="@+id/votes_by_comments"
@@ -235,7 +229,7 @@
                             android:layout_weight="1"
                             app:chartType="KOMMENTARE"
                             app:lineBottom="VERGEBEN"
-                            app:lineTop="BENIS FÜR"/>
+                            app:lineTop="BENIS FÜR" />
 
                     </LinearLayout>
 
@@ -262,7 +256,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/stats_title_uploads_favs"
-                        android:textColor="?colorAccent"/>
+                        android:textColor="?colorAccent" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -279,7 +273,7 @@
                             android:layout_weight="1"
                             app:chartType="UPLOADS"
                             app:lineBottom="N/SFW/L"
-                            app:lineTop="VERTEILUNG"/>
+                            app:lineTop="VERTEILUNG" />
 
                         <com.pr0gramm.app.ui.views.CircleChartView
                             android:id="@+id/types_favorites"
@@ -289,7 +283,7 @@
                             android:layout_weight="1"
                             app:chartType="FAVORITEN"
                             app:lineBottom="N/SFW/L"
-                            app:lineTop="VERTEILUNG"/>
+                            app:lineTop="VERTEILUNG" />
 
                     </LinearLayout>
 
@@ -305,8 +299,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/type_sfw_upper"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                            android:textColor="@color/type_sfw"
-                            />
+                            android:textColor="@color/type_sfw" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -314,7 +307,7 @@
                             android:layout_marginLeft="4dp"
                             android:text="@string/type_nsfw_upper"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                            android:textColor="@color/type_nsfw"/>
+                            android:textColor="@color/type_nsfw" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -322,7 +315,7 @@
                             android:layout_marginLeft="4dp"
                             android:text="@string/type_nsfl_upper"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                            android:textColor="@color/type_nsfl"/>
+                            android:textColor="@color/type_nsfl" />
 
                     </LinearLayout>
 

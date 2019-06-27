@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:clickable="true"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/search_term_container"
@@ -21,7 +21,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="?actionBarSize"
             android:layout_height="?actionBarSize"
-            app:srcCompat="@drawable/ic_white_action_back"/>
+            app:srcCompat="@drawable/ic_white_action_back" />
 
         <com.pr0gramm.app.ui.views.PlainTextAutoCompleteTextView
             android:id="@+id/search_term"
@@ -33,22 +33,21 @@
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:lines="1"
-            android:minHeight="?actionBarSize"/>
+            android:minHeight="?actionBarSize" />
 
         <ImageButton
             android:id="@+id/reset_button"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="?actionBarSize"
             android:layout_height="?actionBarSize"
-            app:srcCompat="@drawable/ic_white_action_clear"/>
+            app:srcCompat="@drawable/ic_white_action_clear" />
 
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:background="?dropshadowPrimaryDark"
-        />
+        android:background="?dropshadowPrimaryDark" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,7 +64,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="12dp"
             android:text="@string/search_score"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <SeekBar
             android:id="@+id/minimum_benis_slider"
@@ -75,7 +74,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="12dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
             android:layout_width="match_parent"
@@ -84,7 +83,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
             android:text="@string/search_without_tags"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <LinearLayout
             android:id="@+id/without_checks"
@@ -106,7 +105,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:text="@string/search_without_custom_tags"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <com.pr0gramm.app.ui.views.PlainEditText
             android:id="@+id/without_tags_text"
@@ -119,7 +118,7 @@
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:lines="1"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -134,7 +133,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
                 android:minWidth="64dp"
-                android:text="@string/search_advanced"/>
+                android:text="@string/search_advanced" />
 
             <Button
                 android:id="@+id/search_button"
@@ -144,7 +143,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
                 android:minWidth="64dp"
-                android:text="@string/search_search"/>
+                android:text="@string/search_search" />
 
         </LinearLayout>
     </LinearLayout>
@@ -152,6 +151,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:background="@drawable/dropshadow_light"/>
+        android:background="@drawable/dropshadow_light" />
 
 </LinearLayout>

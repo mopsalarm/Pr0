@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_marginTop="8dp"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="8dp"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="Du möchtest diesen Beitrag melden"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <TextView
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:text="Bitte stelle sicher, dass der Beitrag tatsächlich gegen unsere Regeln verstößt. Missbrauch der Melden Funktion wird nicht geduldet."
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <ListView
         android:id="@+id/reason"
@@ -27,7 +27,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:choiceMode="singleChoice"/>
+        android:choiceMode="singleChoice" />
 
 
 </LinearLayout>

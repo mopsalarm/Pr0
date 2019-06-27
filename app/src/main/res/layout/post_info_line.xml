@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:app="http://schemas.android.com/apk/res-auto"
-       xmlns:tools="http://schemas.android.com/tools"
-       tools:context=".ui.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             app:markedColor="?colorAccent"
             app:orientation="horizontal"
             android:padding="4dp"
-            app:textSize="28dp"/>
+            app:textSize="28dp" />
 
         <TextView
             android:id="@+id/rating"
@@ -29,7 +29,7 @@
             android:layout_height="48dp"
             android:layout_marginLeft="12dp"
             android:gravity="center_vertical"
-            tools:text="-315"/>
+            tools:text="-315" />
 
         <ImageView
             android:id="@+id/action_favorite"
@@ -38,7 +38,7 @@
             android:layout_height="48dp"
             android:padding="10dp"
             app:tint="?android:textColorSecondary"
-            app:srcCompat="@drawable/ic_vote_fav"/>
+            app:srcCompat="@drawable/ic_vote_fav" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -53,12 +53,12 @@
                 style="@style/TextAppearance.AppCompat.Caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="@string/dummy_post_date"/>
+                tools:text="@string/dummy_post_date" />
 
             <com.pr0gramm.app.ui.views.UsernameView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </LinearLayout>
 </merge>

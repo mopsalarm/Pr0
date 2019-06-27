@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="?bottomSheetBackground"
-              android:orientation="vertical"
-              android:theme="?popupTheme"
-              tools:context=".ui.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?bottomSheetBackground"
+    android:orientation="vertical"
+    android:theme="?popupTheme"
+    tools:context=".ui.MainActivity">
 
     <TextView
         android:id="@+id/title"
@@ -17,12 +17,12 @@
         android:paddingRight="24dp"
         android:paddingTop="@dimen/abc_dialog_padding_top_material"
         android:visibility="gone"
-        tools:text="Some dialog title"/>
+        tools:text="Some dialog title" />
 
     <android.widget.Space
         android:id="@+id/titleSpacerNoTitle"
         android:layout_width="match_parent"
-        android:layout_height="12dp"/>
+        android:layout_height="12dp" />
 
     <FrameLayout
         android:id="@+id/custom"
@@ -34,14 +34,14 @@
 
         <android.widget.Space
             android:layout_width="match_parent"
-            android:layout_height="18dp"/>
+            android:layout_height="18dp" />
 
         <TextView
             android:id="@+id/textContent"
             style="@style/TextAppearance.AppCompat.Subhead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Lorem ipsumn dolot sit amet, consectetur adipisicing elit, ..."/>
+            tools:text="Lorem ipsumn dolot sit amet, consectetur adipisicing elit, ..." />
 
     </FrameLayout>
 
@@ -62,13 +62,13 @@
             android:layout_height="wrap_content"
             android:minWidth="0dp"
             android:visibility="gone"
-            tools:text="Neutral"/>
+            tools:text="Neutral" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
         <Button
             android:id="@android:id/button2"
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:minWidth="0dp"
             android:visibility="gone"
-            tools:text="Cancel"/>
+            tools:text="Cancel" />
 
         <Button
             android:id="@android:id/button1"
@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:minWidth="0dp"
             android:visibility="gone"
-            tools:text="Okay"/>
+            tools:text="Okay" />
 
     </LinearLayout>
 

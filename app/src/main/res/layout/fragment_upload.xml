@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    android:id="@+id/scroll_view"
+<ScrollView android:id="@+id/scroll_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,7 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="96dp"
-                tools:background="@drawable/ic_app_blue"/>
+                tools:background="@drawable/ic_app_blue" />
 
             <!-- Catch all the click events. At least we try it -->
             <FrameLayout
@@ -28,7 +27,7 @@
                 android:layout_height="match_parent"
                 android:clickable="true"
                 android:focusable="true"
-                tools:ignore="UselessLeaf"/>
+                tools:ignore="UselessLeaf" />
 
             <LinearLayout
                 android:id="@+id/busy_container"
@@ -45,7 +44,7 @@
                     android:id="@+id/busy_indicator"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:layout_gravity="center_horizontal"/>
+                    android:layout_gravity="center_horizontal" />
 
                 <TextView
                     android:id="@+id/busy_state"
@@ -53,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    tools:text="Upload wird verarbeitet..."/>
+                    tools:text="Upload wird verarbeitet..." />
             </LinearLayout>
 
         </FrameLayout>
@@ -70,28 +69,28 @@
                 android:id="@+id/upload_type_sfw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/type_sfw"/>
+                android:text="@string/type_sfw" />
 
             <RadioButton
                 android:id="@+id/upload_type_nsfp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="@string/type_nsfp"/>
+                android:text="@string/type_nsfp" />
 
             <RadioButton
                 android:id="@+id/upload_type_nsfw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="@string/type_nsfw"/>
+                android:text="@string/type_nsfw" />
 
             <RadioButton
                 android:id="@+id/upload_type_nsfl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="@string/type_nsfl"/>
+                android:text="@string/type_nsfl" />
         </RadioGroup>
 
         <TextView
@@ -101,7 +100,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="24dp"
             android:text="@string/add_tags_hint"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
             android:id="@+id/opinion_hint"
@@ -114,7 +113,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="?colorAccent"
             android:visibility="gone"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <com.pr0gramm.app.ui.views.PlainMultiTextAutoCompleteTextView
             android:id="@+id/tags"
@@ -127,7 +126,7 @@
             android:layout_marginTop="12dp"
             android:background="@color/input_background"
             android:hint="@string/upload_tags"
-            android:padding="8dp"/>
+            android:padding="8dp" />
 
         <TextView
             android:id="@+id/similar_hint"
@@ -142,8 +141,7 @@
             android:text="@string/hint_similar_image"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="?colorAccent"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
         <com.pr0gramm.app.ui.upload.SimilarImageView
             android:id="@+id/similar_list"
@@ -154,8 +152,7 @@
             android:paddingBottom="8dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/upload"
@@ -164,7 +161,7 @@
             android:layout_gravity="right"
             android:layout_marginRight="12dp"
             android:enabled="false"
-            android:text="@string/action_upload"/>
+            android:text="@string/action_upload" />
 
 
         <TextView
@@ -175,7 +172,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:text="@string/upload_small_print_header"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/small_print"
@@ -184,7 +181,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp" />
 
         <TextView
             android:id="@+id/small_print_footer"
@@ -196,7 +193,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
             android:text="@string/upload_small_print_footer"
-            android:textColor="?colorAccent"/>
+            android:textColor="?colorAccent" />
 
     </LinearLayout>
 </ScrollView>

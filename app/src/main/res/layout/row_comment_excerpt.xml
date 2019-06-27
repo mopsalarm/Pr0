@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CheckedTextView
-    android:id="@+id/excerpt"
+<CheckedTextView android:id="@+id/excerpt"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,4 +11,4 @@
     android:focusable="true"
     android:paddingBottom="8dp"
     android:paddingTop="8dp"
-    tools:text="@tools:sample/lorem"/>
+    tools:text="@tools:sample/lorem" />

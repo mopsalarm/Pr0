@@ -1,5 +1,4 @@
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
+<androidx.drawerlayout.widget.DrawerLayout android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,9 +12,9 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
-        <include layout="@layout/toolbar"/>
+        <include layout="@layout/toolbar" />
     </FrameLayout>
 
     <FrameLayout
@@ -24,6 +23,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="?android:windowBackground"
-        android:theme="?drawerTheme"/>
+        android:theme="?drawerTheme" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
