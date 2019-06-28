@@ -9,7 +9,7 @@ import com.pr0gramm.app.ui.fragments.CommentRef
 
 object FilterParser {
     fun parse(uri: Uri, notificationTime: Instant? = null): FeedFilterWithStart? {
-        val uriPath = uri.path!!
+        val uriPath = uri.encodedPath ?: "/"
 
         val commentId = extractCommentId(uriPath)
 
@@ -21,20 +21,21 @@ object FilterParser {
             if (!matcher.matches())
                 continue
 
-            val groups = matcher.namedGroups().firstOrNull() ?: continue
+            val encodedGroups = matcher.namedGroups().firstOrNull()?.toMap() ?: continue
+            val values = encodedGroups.mapValues { decodeUrlComponent(it.value) }
 
             var filter = FeedFilter().withFeedType(FeedType.NEW)
 
-            if ("top" == groups["type"])
+            if ("top" == values["type"])
                 filter = filter.withFeedType(FeedType.PROMOTED)
 
-            if ("stalk" == groups["type"])
+            if ("stalk" == values["type"])
                 filter = filter.withFeedType(FeedType.PREMIUM)
 
             // filter by user
-            val user = groups["user"]
+            val user = values["user"]
             if (user != null && user.isNotBlank()) {
-                val subcategory = groups["subcategory"]
+                val subcategory = values["subcategory"]
 
                 filter = if ("likes" == subcategory) {
                     filter.withLikes(user)
@@ -44,7 +45,7 @@ object FilterParser {
             }
 
             // filter by tag
-            val tag = groups["tag"]
+            val tag = values["tag"]
             if (tag != null && tag.isNotBlank()) {
                 filter = filter.withTags(tag)
 
@@ -54,11 +55,15 @@ object FilterParser {
                 }
             }
 
-            val itemId = groups["id"]?.toLongOrNull()
+            val itemId = values["id"]?.toLongOrNull()
             return FeedFilterWithStart(filter, itemId, commentId, notificationTime)
         }
 
         return null
+    }
+
+    private fun decodeUrlComponent(value: String): String {
+        return Uri.decode(value)
     }
 
     /**
