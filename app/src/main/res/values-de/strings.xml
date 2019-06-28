@@ -9,7 +9,7 @@
     <string name="action_search_simple">Suchen</string>
     <string name="action_upload">HOCHLADEN</string>
     <string name="app_name">pr0gramm</string>
-    <string name="banned">Du bist bis in %1$s gebannt. Grund: %2$s</string>
+    <string name="banned">Du bist bis in %1$s geblockt. Grund: %2$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="install_update">Installieren</string>
     <string name="dummy_post_date">3 hours ago</string>
@@ -19,7 +19,7 @@
     <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden. Bist du vielleicht nicht korrekt im aktuellen WLAN angemeldet?</string>
     <string name="error_exception_of_type">Es ist ein Fehler vom Typ %s aufgetreten</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
-    <string name="error_not_authorized">Schaut so aus, als wärst du nicht angemeldet oder gebannt.</string>
+    <string name="error_not_authorized">Schaut so aus, als wärst du nicht angemeldet oder geblockt.</string>
     <string name="error_not_found">Die angefragte Ressource konnte nicht gefunden werden (Fehler 404).</string>
     <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Eventuell ist es dein altes Smartphone oder ein Bug in der App.</string>

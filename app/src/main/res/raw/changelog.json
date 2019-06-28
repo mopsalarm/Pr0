@@ -1,5 +1,18 @@
 [
   {
+    "version": 168,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Design leicht verbessert. Die Navigationsleiste ist nun transparent oder dunkel. Sie war auf einigen Geräten weiß (Danke OnePlus)."
+      },
+      {
+        "type": "Neu",
+        "change": "Userprofile können nun direkt geteilt werden."
+      }
+    ]
+  },
+  {
     "version": 167,
     "changes": [
       {
@@ -639,7 +652,7 @@
       },
       {
         "type": "Neu",
-        "change": "Warnung beim Hinzufügen von Tags für die du vermutlich gebannt wirst."
+        "change": "Warnung beim Hinzufügen von Tags für die du vermutlich geblockt wirst."
       }
     ]
   },
