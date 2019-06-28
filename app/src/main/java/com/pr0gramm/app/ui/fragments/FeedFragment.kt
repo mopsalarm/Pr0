@@ -491,7 +491,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val queryString = filter.username ?: filter.tags ?: filter.likes
 
-        if (queryString != null && queryString.matches("[A-Za-z0-9]{2,}".toRegex())) {
+        if (queryString != null && queryString.matches("[A-Za-z0-9_]{2,}".toRegex())) {
             val contentTypes = selectedContentType
 
             val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
