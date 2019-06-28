@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.View.SYSTEM_UI_FLAG_IMMERSIVE
 import android.widget.ImageView
 import androidx.annotation.ColorRes
 import com.davemorrissey.labs.subscaleview.ImageSource
@@ -81,20 +82,35 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         }
 
         imageView.setOnClickListener {
-            switchToFullScreen()
+            toggleSystemUI()
         }
     }
 
-    private fun switchToFullScreen() {
-        val flags = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    private fun hideSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
 
-        val dv = window.decorView
-        dv.systemUiVisibility = dv.systemUiVisibility or flags
+    private fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+    }
+
+    private fun toggleSystemUI() {
+        val immersive = window.decorView.systemUiVisibility and SYSTEM_UI_FLAG_IMMERSIVE == 0
+        if (immersive) {
+            hideSystemUI()
+        } else {
+            showSystemUI()
+        }
     }
 
     override fun onDestroy() {
