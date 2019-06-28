@@ -1,8 +1,8 @@
 package com.pr0gramm.app.util
 
-import androidx.core.view.WindowInsetsCompat
+import android.view.WindowInsets
 
 
 data class CustomWindowInsets(val top: Int, val bottom: Int) {
-    constructor(insets: WindowInsetsCompat) : this(insets.systemWindowInsetTop, insets.systemWindowInsetBottom)
+    constructor(insets: WindowInsets) : this(insets.systemWindowInsetTop, insets.systemWindowInsetBottom)
 }

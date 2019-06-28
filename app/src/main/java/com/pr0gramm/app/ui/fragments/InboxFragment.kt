@@ -62,12 +62,12 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
-        val tb = activity as? ScrollHideToolbarListener.ToolbarActivity
-        tb?.rxWindowInsets?.bindToLifecycle()?.subscribe { insets ->
-            messagesView.clipToPadding = false
-            messagesView.updatePadding(bottom = insets.bottom)
+        (activity as? ScrollHideToolbarListener.ToolbarActivity)?.let { tb ->
+            tb.rxWindowInsets.bindToLifecycle().subscribe { insets ->
+                messagesView.clipToPadding = false
+                messagesView.updatePadding(bottom = insets.bottom)
+            }
         }
-
     }
 
     override suspend fun onResumeImpl() {

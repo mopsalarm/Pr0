@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -104,10 +103,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
 
             if (!bookmarkService.canEdit) {
                 hidePreferenceByName("pref_pseudo_restore_bookmarks")
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                hidePreferenceByName("pref_pseudo_download_target")
             }
 
             tintPreferenceIcons(color = 0xffd0d0d0.toInt())

@@ -15,7 +15,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -114,13 +113,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.addDrawerListener(drawerToggle)
 
-        if (Build.VERSION.SDK_INT < 21) {
-            // publish dummy value so we always have some insets on old versions
-            val hStatus = AndroidUtility.getStatusBarHeight(this)
-            windowInsets.onNext(CustomWindowInsets(hStatus, 0))
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { v, insets ->
+        drawerLayout.setOnApplyWindowInsetsListener { v, insets ->
             toolbar.updatePadding(top = insets.systemWindowInsetTop)
 
             toolbar.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
