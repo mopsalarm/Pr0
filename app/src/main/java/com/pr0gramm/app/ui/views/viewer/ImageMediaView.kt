@@ -11,13 +11,13 @@ import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
+import kotlin.math.max
 
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
     private val CAP_IMAGE_RATIO = 1f / 30f
 
     private val tag = "ImageMediaView" + System.identityHashCode(this)
-    private val zoomView = findViewById<View>(R.id.tabletlayout) != null
 
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)
@@ -77,7 +77,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
 
     internal fun applyScaling() {
         val ratio = imageView.sWidth.toFloat() / imageView.sHeight.toFloat()
-        val ratioCapped = Math.max(ratio, CAP_IMAGE_RATIO)
+        val ratioCapped = max(ratio, CAP_IMAGE_RATIO)
 
         viewAspect = ratioCapped
 
@@ -92,14 +92,6 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         imageView.resetScaleAndCenter()
     }
-
-    override var viewAspect: Float
-        get() = super.viewAspect
-        set(viewAspect) {
-            if (!zoomView) {
-                super.viewAspect = viewAspect
-            }
-        }
 
     override fun onMediaShown() {
         imageView.visible = true

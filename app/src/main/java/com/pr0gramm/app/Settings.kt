@@ -85,9 +85,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val doubleTapToSeek: Boolean
         get() = preferences.getBoolean("pref_double_tap_to_seek", true)
 
-    val fullscreenZoomView: Boolean
-        get() = preferences.getBoolean("pref_fullscreen_zoom_view", true)
-
     val fancyScrollVertical: Boolean
         get() = preferences.getBoolean("pref_fancy_scroll_vertical", true)
 

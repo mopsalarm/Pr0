@@ -26,6 +26,8 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
+import kotlin.math.max
+import kotlin.math.min
 
 class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val tag = "ZoomViewActivity" + System.currentTimeMillis()
@@ -58,10 +60,15 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
             override fun onImageLoaded() {
                 hideBusyIndicator()
 
-                imageView.maxScale = Math.max(
+                imageView.minScale = min(
+                        0.5f * imageView.width.toFloat() / imageView.sWidth,
+                        0.5f * imageView.height.toFloat() / imageView.sWidth)
+
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+
+                imageView.maxScale = max(
                         2 * imageView.width.toFloat() / imageView.sWidth,
-                        2 * imageView.height.toFloat() / imageView.sWidth
-                )
+                        2 * imageView.height.toFloat() / imageView.sWidth)
             }
         })
 
@@ -72,24 +79,22 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         } else {
             loadImage()
         }
+
+        imageView.setOnClickListener {
+            switchToFullScreen()
+        }
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
+    private fun switchToFullScreen() {
+        val flags = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
 
-        if (hasFocus && Settings.get().fullscreenZoomView) {
-            val decorView = window.decorView
-            var flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-
-            flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-
-            flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-
-            decorView.systemUiVisibility = flags
-        }
+        val dv = window.decorView
+        dv.systemUiVisibility = dv.systemUiVisibility or flags
     }
 
     override fun onDestroy() {

@@ -205,12 +205,6 @@
 
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
-                    android:key="pref_fullscreen_zoom_view"
-                    android:summary="@string/pref_fullscreen_zoom_view_summary"
-                    android:title="@string/pref_fullscreen_zoom_view"/>
-
-                <SwitchPreferenceCompat
-                    android:defaultValue="true"
                     android:key="pref_show_pin_button"
                     android:summary="@string/pref_show_pin_button_summary"
                     android:title="@string/pref_show_pin_button"/>

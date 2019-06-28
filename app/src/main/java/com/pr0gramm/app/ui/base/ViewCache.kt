@@ -9,33 +9,37 @@ import kotlin.reflect.KProperty
 class ViewCache(val lookupView: (Int) -> View?) {
     private val cache: SparseArrayCompat<Any> = SparseArrayCompat(64)
 
-    fun <R, V : View> bindView(@IdRes id: Int): ReadOnlyProperty<R, V> {
-        return object : ReadOnlyProperty<R, V> {
-            override fun getValue(thisRef: R, property: KProperty<*>): V {
-                val result = cache[id] ?: run {
-                    val view = lookupView(id)
-                            ?: throw IllegalArgumentException("Could not find view ${property.name} on $thisRef")
-
-                    cache.put(id, view)
-                    view
+    fun <V : View> bindView(viewType: Class<V>, @IdRes id: Int): ReadOnlyProperty<Any, V> {
+        return object : ReadOnlyProperty<Any, V> {
+            override fun getValue(thisRef: Any, property: KProperty<*>): V {
+                val result = cache[id]
+                if (result != null) {
+                    return viewType.cast(result) as V
                 }
 
-                @Suppress("UNCHECKED_CAST")
-                return result as V
+                val view = lookupView(id)
+                        ?: throw IllegalArgumentException("Could not find view ${property.name} on $thisRef")
+
+                cache.put(id, view)
+
+                return viewType.cast(view) as V
             }
         }
     }
 
-    fun <R, V> bindOptionalView(id: Int): ReadOnlyProperty<R, V?> {
-        return object : ReadOnlyProperty<R, V?> {
-            override fun getValue(thisRef: R, property: KProperty<*>): V? {
-                val result = cache[id] ?: run {
-                    val view = lookupView(id)?.also { cache.put(id, it) }
-                    view
+    fun <V : View> bindOptionalView(viewType: Class<V>, @IdRes id: Int): ReadOnlyProperty<Any, V?> {
+        return object : ReadOnlyProperty<Any, V?> {
+            override fun getValue(thisRef: Any, property: KProperty<*>): V? {
+                val result = cache[id]
+                if (result != null)
+                    return viewType.cast(result)
+
+                val view = lookupView(id)
+                if (view != null) {
+                    cache.put(id, view)
                 }
 
-                @Suppress("UNCHECKED_CAST")
-                return result as V?
+                return viewType.cast(view)
             }
         }
     }
@@ -49,6 +53,6 @@ interface HasViewCache {
     val viewCache: ViewCache
 }
 
-fun <T, V : View> HasViewCache.bindView(id: Int) = viewCache.bindView<T, V>(id)
+inline fun <reified V : View> HasViewCache.bindView(id: Int) = viewCache.bindView(V::class.java, id)
 
-fun <T, V : View> HasViewCache.bindOptionalView(id: Int) = viewCache.bindOptionalView<T, V?>(id)
+inline fun <reified V : View> HasViewCache.bindOptionalView(id: Int) = viewCache.bindOptionalView(V::class.java, id)
