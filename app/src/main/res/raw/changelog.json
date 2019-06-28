@@ -7,8 +7,12 @@
         "change": "Design leicht verbessert. Die Navigationsleiste ist nun transparent oder dunkel. Sie war auf einigen Geräten weiß (Danke OnePlus)."
       },
       {
-        "type": "Neu",
-        "change": "Userprofile können nun direkt geteilt werden."
+        "type": "Fix",
+        "change": "Tags, die einen Slash enthalten, können nun in Links angeklickt werden."
+      },
+      {
+        "type": "Vorbei",
+        "change": "Android 4 Support wurde eingestellt. Tut mir leid, Jungs."
       }
     ]
   },
