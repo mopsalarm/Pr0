@@ -24,14 +24,7 @@
 # Keep api names for metrics
 -keepnames interface com.pr0gramm.app.api.pr0gramm.Api
 
-# evernote android job library
--keep public class com.evernote.android.job.v21.PlatformJobService
--keep public class com.evernote.android.job.v14.PlatformAlarmService
--keep public class com.evernote.android.job.v14.PlatformAlarmReceiver
--keep public class com.evernote.android.job.JobBootReceiver
--keep public class com.evernote.android.job.JobRescheduleService
-
-
+# This is instantiated using reflection
 -keep class com.llamalab.safs.android.AndroidFileSystemProvider {
     <init>(...);
 }
@@ -51,14 +44,8 @@
 -keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,SourceFile
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
--keepclasseswithmembernames class * {
+-keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;
-}
-
-# Keep setters in Views so that animations can still work.
--keepclassmembers public class * extends android.view.View {
-    void set*(***);
-    *** get*();
 }
 
 -keepclassmembers class * implements android.os.Parcelable {
