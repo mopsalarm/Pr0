@@ -38,7 +38,7 @@ import java.util.logging.LogManager
 open class ApplicationClass : Application(), InjectorAware {
     private val bootupWatch = Stopwatch()
 
-    private val logger = Logger("Pr0grammApplication")
+    private val logger = Logger("Pr0grammApp")
 
     companion object {
         init {

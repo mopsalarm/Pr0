@@ -11,6 +11,7 @@ import com.pr0gramm.app.util.di.PropertyInjector
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -42,7 +43,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
 
         // bind dialog. It is only created in on start.
         dialog?.let {
-            onStartScope.launchUndispatched {
+            onStartScope.launch(Main.immediate) {
                 onDialogViewCreated()
             }
         }

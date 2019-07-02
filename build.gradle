@@ -28,11 +28,6 @@ dependencyUpdates.resolutionStrategy {
                 selection.candidate.version.contains(qualifier)
             }
 
-            if(selection.candidate.group == "com.squareup.okhttp3") {
-                rejected |= selection.candidate.version.contains("3.13.")
-                rejected |= selection.candidate.version.contains("3.14.")
-            }
-
             if (rejected) {
                 selection.reject('Release candidate')
             }

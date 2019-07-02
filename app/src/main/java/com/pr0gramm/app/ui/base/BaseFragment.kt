@@ -15,6 +15,7 @@ import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import rx.Observable
 import rx.Subscription
 
@@ -63,7 +64,7 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         super.onStart()
 
         onStartScope = newChild()
-        onStartScope.launchUndispatched {
+        onStartScope.launch(Main.immediate) {
             onStartImpl()
         }
     }
@@ -75,7 +76,7 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         super.onResume()
 
         onResumeScope = onStartScope.newChild()
-        onResumeScope.launchUndispatched {
+        onResumeScope.launch(Main.immediate) {
             onResumeImpl()
         }
     }

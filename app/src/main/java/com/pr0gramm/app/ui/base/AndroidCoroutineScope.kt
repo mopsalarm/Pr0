@@ -11,7 +11,6 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import retrofit2.HttpException
 import rx.Observable
 import rx.Scheduler
@@ -76,13 +75,6 @@ fun CoroutineScope.launchIgnoreErrors(
     }
 }
 
-fun CoroutineScope.launchUndispatched(
-        context: CoroutineContext = EmptyCoroutineContext,
-        block: suspend CoroutineScope.() -> Unit): Job {
-
-    return launch(context, CoroutineStart.UNDISPATCHED, block)
-}
-
 inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
     checkMainThread()
 
@@ -138,7 +130,7 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 val Async = Dispatchers.IO
 val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
-val Main = Looper.getMainLooper().asHandler().asCoroutineDispatcher("Main")
+val Main = Dispatchers.Main
 
 suspend fun <T : Any?> Observable<T>.await(): T {
     val def = CompletableDeferred<T>()

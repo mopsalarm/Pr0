@@ -10,6 +10,7 @@ import com.pr0gramm.app.util.di.PropertyInjector
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import rx.Observable
 
 /**
@@ -43,7 +44,7 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
         super.onStart()
 
         onStartScope = newChild()
-        onStartScope.launchUndispatched {
+        onStartScope.launch(Main.immediate) {
             onStartImpl()
         }
     }
@@ -54,7 +55,8 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), Lazy
         super.onResume()
 
         onResumeScope = onStartScope.newChild()
-        onResumeScope.launchUndispatched {
+
+        onResumeScope.launch(Main.immediate) {
             onResumeImpl()
         }
     }

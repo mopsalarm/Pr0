@@ -65,13 +65,16 @@
     public static final ** CREATOR;
 }
 
--keepclassmembers class **$WhenMappings {
-    <fields>;
-}
-
 # Assume that we run on android 21 and up. This is an r8 config to improve
 # dead code elimination on old devices. Should already be added automatically, but be on
 # the sure side here.
 -assumevalues class android.os.Build$VERSION {
     int SDK_INT return 21..2147483647;
 }
+
+# Ensure the custom, fast service loader implementation is removed and R8 can
+# optimize the class loading & service discovery
+-assumevalues class kotlinx.coroutines.internal.MainDispatcherLoader {
+  boolean FAST_SERVICE_LOADER_ENABLED return false;
+}
+-checkdiscard class kotlinx.coroutines.internal.FastServiceLoader
