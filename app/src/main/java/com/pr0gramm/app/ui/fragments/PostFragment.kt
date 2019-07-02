@@ -347,7 +347,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun submitItemsToAdapter(items: MutableList<PostAdapter.Item>) {
-        recyclerView.postAdapter?.submitList(items)
+        if (view != null) {
+            recyclerView.postAdapter?.submitList(items)
+        }
     }
 
     override fun onDestroyView() {
