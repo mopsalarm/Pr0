@@ -21,9 +21,9 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private var longClickEnabled: Boolean = false
     private var longPressTriggered: Boolean = false
 
-    val itemClicked = itemClickedSubject as Observable<View>
-    val itemLongClicked = itemLongClickedSubject as Observable<View>
-    val itemLongClickEnded = itemLongClickEndedSubject as Observable<Unit>
+    val itemClicked get() = itemClickedSubject as Observable<View>
+    val itemLongClicked get() = itemLongClickedSubject as Observable<View>
+    val itemLongClickEnded get() = itemLongClickEndedSubject as Observable<Unit>
 
     init {
         mGestureDetector = GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
@@ -51,7 +51,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         longPressTriggered = longPressTriggered and enabled
     }
 
-    private inner class Listener() : RecyclerView.SimpleOnItemTouchListener() {
+    private inner class Listener : RecyclerView.SimpleOnItemTouchListener() {
         override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
             val childView = view.findChildViewUnder(e.x, e.y)
 
@@ -86,7 +86,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         }
     }
 
-    private inner class ScrollListener() : RecyclerView.OnScrollListener() {
+    private inner class ScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             when (newState) {
                 RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
