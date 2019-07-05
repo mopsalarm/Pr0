@@ -296,8 +296,14 @@ class UserService(private val api: Api,
         val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
         return info(name).also { userInfo ->
-            val loginState = createLoginStateFromInfo(userInfo.user, cookieJar.parsedCookie, token)
-            updateLoginState(loginState)
+            val updatedLoginState = createLoginStateFromInfo(userInfo.user,
+                    cookieJar.parsedCookie, token ?: loginState.uniqueToken)
+
+            loginStateLock.withLock {
+                if (this.loginState.authorized) {
+                    updateLoginState(updatedLoginState)
+                }
+            }
         }
     }
 
