@@ -23,6 +23,8 @@ import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 
 class UserService(private val api: Api,
@@ -43,10 +45,12 @@ class UserService(private val api: Api,
 
     private val fullSyncInProgress = AtomicBoolean()
 
+    private val loginStateLock = ReentrantLock()
     private val loginStateSubject = BehaviorSubject.create(NotAuthorized)
 
     val loginState: LoginState get() = loginStateSubject.value
     val loginStates: Observable<LoginState> = loginStateSubject.distinctUntilChanged()
+
 
     init {
         restoreLatestUserInfo()
@@ -63,6 +67,26 @@ class UserService(private val api: Api,
 
     private fun updateLoginState(newLoginState: LoginState) {
         this.loginStateSubject.onNext(newLoginState)
+    }
+
+
+    private fun updateUniqueTokenIfNeeded() {
+        val state = loginState
+        if (state.authorized && state.uniqueToken == null) {
+            doInBackground {
+                val result = api.identifier()
+                updateUniqueToken(result.identifier)
+            }
+        }
+    }
+
+    private fun updateUniqueToken(uniqueToken: String?) {
+        if (uniqueToken == null)
+            return
+
+        loginStateLock.withLock {
+            updateLoginState(loginState.copy(uniqueToken = uniqueToken))
+        }
     }
 
     /**
@@ -94,6 +118,8 @@ class UserService(private val api: Api,
 
                 logger.debug { "Restoring login state: $loginState" }
                 updateLoginState(loginState)
+
+                updateUniqueTokenIfNeeded()
 
             } catch (err: Exception) {
                 logger.warn("Could not restore login state:", err)
@@ -218,10 +244,12 @@ class UserService(private val api: Api,
                 // save the current benis value
                 benisService.storeValue(userId, response.score)
 
-                // and update login state
-                val updatedLoginState = loginState.copy(score = response.score)
-                if (updatedLoginState.authorized) {
-                    updateLoginState(updatedLoginState)
+                loginStateLock.withLock {
+                    // and update login state
+                    val updatedLoginState = loginState.copy(score = response.score)
+                    if (updatedLoginState.authorized) {
+                        updateLoginState(updatedLoginState)
+                    }
                 }
             }
 
@@ -267,7 +295,9 @@ class UserService(private val api: Api,
         val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
         return info(name).also { userInfo ->
-            updateLoginState(createLoginStateFromInfo(userInfo, token))
+            loginStateLock.withLock {
+                updateLoginState(createLoginStateFromInfo(userInfo, token))
+            }
         }
     }
 
