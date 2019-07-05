@@ -11,8 +11,12 @@
         "change": "Tags, die einen Slash enthalten, können nun in Links angeklickt werden."
       },
       {
+        "type": "Fix",
+        "change": "Synchronisierung der bereits gesehenen Posts funktioniert wieder."
+      },
+      {
         "type": "Vorbei",
-        "change": "Android 4 Support wurde eingestellt. Im gleichen Schritt wird der gesonderte Tablet Support eingestellt. Lohnt sich einfach nicht. Tut mir leid, Junsg."
+        "change": "Android 4 und Tablet Support wurde eingestellt. Lohnt sich einfach nicht. Tut mir leid, Jungs."
       }
     ]
   },

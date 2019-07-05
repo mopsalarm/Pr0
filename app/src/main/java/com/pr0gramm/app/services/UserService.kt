@@ -85,7 +85,8 @@ class UserService(private val api: Api,
             return
 
         loginStateLock.withLock {
-            updateLoginState(loginState.copy(uniqueToken = uniqueToken))
+            val updatedLoginState = loginState.copy(uniqueToken = uniqueToken)
+            updateLoginState(updatedLoginState)
         }
     }
 
@@ -295,9 +296,8 @@ class UserService(private val api: Api,
         val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
         return info(name).also { userInfo ->
-            loginStateLock.withLock {
-                updateLoginState(createLoginStateFromInfo(userInfo, token))
-            }
+            val loginState = createLoginStateFromInfo(userInfo.user, cookieJar.parsedCookie, token)
+            updateLoginState(loginState)
         }
     }
 
@@ -323,18 +323,6 @@ class UserService(private val api: Api,
             logger.warn("Could not persist latest user info", error)
         }
 
-    }
-
-    private fun createLoginStateFromInfo(info: Api.Info, token: String?): LoginState {
-        return LoginState(
-                authorized = true,
-                id = info.user.id,
-                name = info.user.name,
-                mark = info.user.mark,
-                score = info.user.score,
-                premium = userIsPremium,
-                admin = userIsAdmin,
-                uniqueToken = token ?: loginState.uniqueToken)
     }
 
     val isAuthorized: Boolean
@@ -413,10 +401,20 @@ class UserService(private val api: Api,
 
         class Banned(val ban: Api.Login.BanInfo) : LoginResult()
     }
+}
 
-    companion object {
-        private const val KEY_LAST_LOF_OFFSET = "UserService.lastLogLength"
-        private const val KEY_LAST_USER_INFO = "UserService.lastUserInfo"
-        private const val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
-    }
+private const val KEY_LAST_LOF_OFFSET = "UserService.lastLogLength"
+private const val KEY_LAST_USER_INFO = "UserService.lastUserInfo"
+private const val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
+
+private fun createLoginStateFromInfo(user: Api.Info.User, cookie: LoginCookie?, token: String?): LoginState {
+    return LoginState(
+            authorized = true,
+            id = user.id,
+            name = user.name,
+            mark = user.mark,
+            score = user.score,
+            premium = cookie?.paid == true,
+            admin = cookie?.admin == true,
+            uniqueToken = token)
 }
