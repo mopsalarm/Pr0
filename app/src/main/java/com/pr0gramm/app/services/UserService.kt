@@ -300,7 +300,7 @@ class UserService(private val api: Api,
                     cookieJar.parsedCookie, token ?: loginState.uniqueToken)
 
             loginStateLock.withLock {
-                if (this.loginState.authorized) {
+                if (cookieJar.parsedCookie != null) {
                     updateLoginState(updatedLoginState)
                 }
             }
