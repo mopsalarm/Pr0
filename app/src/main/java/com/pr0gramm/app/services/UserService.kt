@@ -145,7 +145,7 @@ class UserService(private val api: Api,
             return LoginResult.Failure
         }
 
-        val userInfo = updateCachedUserInfo()
+        val userInfo = updateCachedUserInfo(login.identifier)
         if (userInfo == null) {
             catchAll { logout() }
             throw IllegalStateException("Could not fetch initial user info")
@@ -263,11 +263,11 @@ class UserService(private val api: Api,
      * Update the cached user info in the background. Will throw an exception if
      * the user info can not be updated.
      */
-    suspend fun updateCachedUserInfo(): Api.Info? {
+    suspend fun updateCachedUserInfo(token: String? = null): Api.Info? {
         val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
         return info(name).also { userInfo ->
-            updateLoginState(createLoginStateFromInfo(userInfo))
+            updateLoginState(createLoginStateFromInfo(userInfo, token))
         }
     }
 
@@ -295,7 +295,7 @@ class UserService(private val api: Api,
 
     }
 
-    private fun createLoginStateFromInfo(info: Api.Info): LoginState {
+    private fun createLoginStateFromInfo(info: Api.Info, token: String?): LoginState {
         return LoginState(
                 authorized = true,
                 id = info.user.id,
@@ -304,7 +304,7 @@ class UserService(private val api: Api,
                 score = info.user.score,
                 premium = userIsPremium,
                 admin = userIsAdmin,
-                uniqueToken = loginState.uniqueToken)
+                uniqueToken = token ?: loginState.uniqueToken)
     }
 
     val isAuthorized: Boolean
