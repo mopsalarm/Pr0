@@ -1,9 +1,6 @@
 package com.pr0gramm.app.services
 
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import okhttp3.OkHttpClient
 import proguard.annotation.KeepPublicClassMemberNames
 import retrofit2.Retrofit
@@ -18,7 +15,7 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
     private val settings: Settings = Settings.get()
 
     private val httpInterface: HttpInterface = Retrofit.Builder()
-            .baseUrl("https://pr0.wibbly-wobbly.de/")
+            .baseUrl("$ServiceBaseURL/")
             .client(httpClient)
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .validateEagerly(BuildConfig.DEBUG)

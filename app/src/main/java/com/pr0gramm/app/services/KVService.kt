@@ -2,6 +2,7 @@ package com.pr0gramm.app.services
 
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.ServiceBaseURL
 import com.pr0gramm.app.model.kv.GetResult
 import com.pr0gramm.app.model.kv.PutResult
 import com.pr0gramm.app.ui.base.retryUpTo
@@ -23,7 +24,7 @@ class KVService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .validateEagerly(BuildConfig.DEBUG)
             .client(okHttpClient)
-            .baseUrl("https://pr0.wibbly-wobbly.de/api/kv/v1/")
+            .baseUrl("$ServiceBaseURL/api/kv/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .build().create<Api>()
 

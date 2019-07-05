@@ -8,10 +8,7 @@ import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.model.update.UpdateModel
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
@@ -48,11 +45,11 @@ class UpdateChecker {
 
     private val endpoints: List<String> = mutableListOf<String>().also { urls ->
         if (Settings.get().useBetaChannel) {
-            urls += "https://pr0.wibbly-wobbly.de/beta/update.json"
+            urls += "$ServiceBaseURL/beta/update.json"
             urls += "https://github.com/mopsalarm/pr0gramm-updates/raw/beta/update.json"
             urls += "https://app.pr0gramm.com/updates/beta/update.json"
         } else {
-            urls += "https://pr0.wibbly-wobbly.de/stable/update.json"
+            urls += "$ServiceBaseURL/stable/update.json"
             urls += "https://github.com/mopsalarm/pr0gramm-updates/raw/master/update.json"
             urls += "https://app.pr0gramm.com/updates/stable/update.json"
         }

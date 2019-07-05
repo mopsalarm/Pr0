@@ -27,7 +27,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
 
     private val api: Api = Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
+            .baseUrl("$ServiceBaseURL/api/feedback/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .validateEagerly(BuildConfig.DEBUG)
             .build().create()

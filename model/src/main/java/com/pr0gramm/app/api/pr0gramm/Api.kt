@@ -5,6 +5,7 @@ import com.pr0gramm.app.model.config.Rule
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.*
 import java.util.*
 
@@ -47,7 +48,10 @@ interface Api {
     @POST("/api/user/login")
     suspend fun loginAsync(
             @Field("name") username: String,
-            @Field("password") password: String): retrofit2.Response<Login>
+            @Field("password") password: String): Response<Login>
+
+    @GET("/api/user/identifier")
+    suspend fun identifier(): Identifier
 
     @FormUrlEncoded
     @POST("/api/tags/add")
@@ -377,6 +381,9 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class Invited(val error: String?)
+
+    @JsonClass(generateAdapter = true)
+    data class Identifier(val identifier: String)
 
     @JsonClass(generateAdapter = true)
     data class Login(

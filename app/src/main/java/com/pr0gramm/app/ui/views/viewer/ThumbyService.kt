@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.net.Uri
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.ServiceBaseURL
 import com.pr0gramm.app.encodeBase64
 import java.util.regex.Pattern
 
@@ -26,7 +27,7 @@ object ThumbyService {
                 .replace(".webm", ".mp4")
 
         val encoded = url.toByteArray().encodeBase64(urlSafe = true)
-        return Uri.parse("https://pr0.wibbly-wobbly.de/api/thumby/v1/$encoded/thumb.jpg")
+        return Uri.parse("$ServiceBaseURL/api/thumby/v1/$encoded/thumb.jpg")
     }
 
 
