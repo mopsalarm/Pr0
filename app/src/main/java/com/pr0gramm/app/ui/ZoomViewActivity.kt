@@ -39,6 +39,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private val hq: ImageView by bindView(R.id.hq)
+
     private val busyIndicator: View by bindView(R.id.busy_indicator)
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
 
@@ -84,6 +85,9 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         imageView.setOnClickListener {
             toggleSystemUI()
         }
+
+        // set the correct flags on startup
+        showSystemUI()
     }
 
     private fun hideSystemUI() {

@@ -16,17 +16,23 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
-    <ImageView
-        android:id="@+id/hq"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|right"
+        android:layout_gravity="top|end"
         android:layout_margin="8dp"
         android:layout_marginTop="24dp"
-        android:alpha="0"
-        android:background="?roundedCornerBackground"
-        android:padding="8dp"
-        app:backgroundTint="#3fff"
-        app:srcCompat="@drawable/ic_action_high_quality" />
+        android:fitsSystemWindows="true">
+
+        <ImageView
+            android:id="@+id/hq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:background="?roundedCornerBackground"
+            android:padding="8dp"
+            app:backgroundTint="#3fff"
+            app:srcCompat="@drawable/ic_action_high_quality" />
+    </FrameLayout>
 
 </FrameLayout>
