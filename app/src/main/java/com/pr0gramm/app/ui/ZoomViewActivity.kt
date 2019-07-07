@@ -74,12 +74,16 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
             }
         })
 
-        hq.setImageDrawable(getColoredHqIcon(R.color.grey_700))
 
         if (Settings.get().loadHqInZoomView && isHqImageAvailable) {
+            // dont show the hq button if we load the hq image directly
+            hq.visible = false
+
             loadHqImage()
         } else {
-            loadImage()
+            hq.setImageDrawable(getColoredHqIcon(R.color.grey_700))
+
+            loadNormalImage()
         }
 
         imageView.setOnClickListener {
@@ -122,7 +126,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         super.onDestroy()
     }
 
-    private fun loadImage() {
+    private fun loadNormalImage() {
         val url = UriHelper.of(this).media(item)
         loadImageWithUrl(url)
 
@@ -130,7 +134,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
             hq.setOnClickListener { loadHqImage() }
             hq.animate().alpha(1f).start()
         } else {
-            hq.visibility = View.GONE
+            hq.visible = false
         }
     }
 
@@ -138,9 +142,11 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         get() = item.fullsize.isNotBlank()
 
     private fun loadHqImage() {
-        hq.setOnClickListener(null)
-        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.accentColor))
-        hq.animate().alpha(1f).start()
+        if (hq.visible) {
+            hq.setOnClickListener(null)
+            hq.setImageDrawable(getColoredHqIcon(ThemeHelper.accentColor))
+            hq.animate().alpha(1f).start()
+        }
 
         val url = UriHelper.of(this).media(item, true)
         loadImageWithUrl(url)
