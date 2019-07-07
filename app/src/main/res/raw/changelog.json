@@ -12,11 +12,11 @@
       },
       {
         "type": "Fix",
-        "change": "Synchronisierung der bereits gesehenen Posts funktioniert wieder."
+        "change": "Synchronisierung der bereits gesehenen Posts zwischen verschiedenen Geräten funktioniert wieder. Das war kaputt."
       },
       {
         "type": "Vorbei",
-        "change": "Android 4 und Tablet Support wurde eingestellt. Lohnt sich einfach nicht. Tut mir leid, Jungs."
+        "change": "Android 4 und Tablet Support wurde eingestellt. Lohnt sich einfach nicht. Tut mir leid, Jungs. (Ein paar neue/andere Tabletoptimierungen kommen voraussichtlich mit der nächsten Version)"
       }
     ]
   },
