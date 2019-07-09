@@ -193,7 +193,7 @@
         <activity
             android:name=".ui.ZoomViewActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Orange.NoActionBar.Fullscreen">
+            android:theme="@style/AppTheme.Orange.NoActionBar.TranslucentStatus">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
