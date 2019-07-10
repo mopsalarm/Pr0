@@ -11,7 +11,6 @@ import android.widget.*
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.dip2px
@@ -55,7 +54,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         originalListPaddingTop = absListView.paddingTop
         setTitle(context.getString(titleRes))
 
-        ViewCompat.setElevation(this, getContext().dip2px(16).toFloat())
+        this.elevation = getContext().dip2px(16).toFloat()
     }
 
     /**
