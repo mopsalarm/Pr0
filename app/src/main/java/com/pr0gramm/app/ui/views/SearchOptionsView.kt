@@ -181,17 +181,18 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         // add minimum benis score selector
         val score = roundScoreValue(minimumScoreSlider.progress)
         if (score > 0) {
-            specialTerms.add(String.format("s:%d", score))
+            specialTerms.add("s:$score")
         }
 
         // add tags to ignore
         val withoutTags = buildCurrentExcludedTags()
         if (withoutTags.isNotEmpty()) {
-            specialTerms.add(String.format("-(%s)", withoutTags.joinToString("|")))
+            val joined = withoutTags.joinToString("|")
+            specialTerms.add("-($joined)")
         }
 
         var searchTerm = if (specialTerms.isNotEmpty()) {
-            Tags.join(specialTerms.joinToString(" & ", prefix = "!"), baseTerm)
+            Tags.join(specialTerms.joinToString("&", prefix = "!"), baseTerm)
         } else {
             baseTerm
         }
