@@ -152,7 +152,7 @@ object Tags {
 
         val extendedQuery = isExtendedQuery(lhs) || isExtendedQuery(rhs)
         if (extendedQuery) {
-            return "! ($lhsTrimmed) ($rhsTrimmed)"
+            return "! ($rhsTrimmed) ($lhsTrimmed)"
         } else {
             return "$lhsTrimmed $rhsTrimmed"
         }

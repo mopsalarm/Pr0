@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.os.bundleOf
 import com.pr0gramm.app.R
+import com.pr0gramm.app.feed.Tags
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
@@ -171,44 +172,28 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun handleSearchButtonClicked() {
-        var extendedSearch = false
-
-        val terms = mutableListOf<String>()
 
         // get the base search-term
-        var baseTerm = searchTermView.text.toString().trim()
-        if (baseTerm.startsWith("?") || baseTerm.startsWith("!")) {
-            extendedSearch = true
-            baseTerm = baseTerm.substring(1).trim()
-        }
+        val baseTerm = searchTermView.text.toString().trim()
 
-        if (!baseTerm.isEmpty()) {
-            terms.add(baseTerm)
-        }
+        val specialTerms = mutableListOf<String>()
 
         // add minimum benis score selector
         val score = roundScoreValue(minimumScoreSlider.progress)
         if (score > 0) {
-            extendedSearch = true
-            terms.add(String.format("s:%d", score))
+            specialTerms.add(String.format("s:%d", score))
         }
 
         // add tags to ignore
         val withoutTags = buildCurrentExcludedTags()
         if (withoutTags.isNotEmpty()) {
-            extendedSearch = true
-            terms.add(String.format("-(%s)", withoutTags.joinToString("|")))
+            specialTerms.add(String.format("-(%s)", withoutTags.joinToString("|")))
         }
 
-        // empty or actually simple search?
-        if (terms.all { term -> term.all { it.isWhitespace() || it.isLetterOrDigit() } }) {
-            extendedSearch = false
-        }
-
-        // combine everything together
-        var searchTerm = terms.joinToString(" & ")
-        if (extendedSearch || terms.size > 1) {
-            searchTerm = "! $searchTerm"
+        var searchTerm = if (specialTerms.isNotEmpty()) {
+            Tags.join(specialTerms.joinToString(" & ", prefix = "!"), baseTerm)
+        } else {
+            baseTerm
         }
 
         // replace all new line characters (why would you add a new line?)
