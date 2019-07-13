@@ -98,7 +98,7 @@ class FallbackRegionDecoder(private val decoder: Decoder,
                 return chain.first()
             } else {
                 val tail = chain.drop(1)
-                return FallbackRegionDecoder(chain.first(), { chain(tail) })
+                return FallbackRegionDecoder(chain.first()) { chain(tail) }
             }
         }
     }
