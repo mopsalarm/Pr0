@@ -17,7 +17,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.29.0'
+        classpath 'io.fabric.tools:gradle:1.30.0'
         classpath 'com.google.gms:google-services:4.3.0'
     }
 }
@@ -164,11 +164,11 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.fragment:fragment-ktx:1.0.0'
 
-    implementation "com.google.firebase:firebase-core:17.0.0"
+    implementation "com.google.firebase:firebase-core:17.0.1"
 
     implementation 'com.llamalab.safs:safs-android:0.2.0'
 
-    implementation("com.google.android.gms:play-services-ads-lite:18.0.0@aar") {
+    implementation("com.google.android.gms:play-services-ads-lite:18.1.0@aar") {
         transitive true
     }
 
@@ -194,7 +194,7 @@ dependencies {
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
 
-    implementation "androidx.work:work-runtime-ktx:2.0.1"
+    implementation "androidx.work:work-runtime-ktx:2.1.0"
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
@@ -222,9 +222,11 @@ configurations {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
     sourceCompatibility = JavaVersion.VERSION_1_6
-    targetCompatibility = JavaVersion.VERSION_1_6
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     kotlinOptions {
+        jvmTarget = "1.8"
+
         freeCompilerArgs += [
                 "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
                 "-XXLanguage:+InlineClasses",
