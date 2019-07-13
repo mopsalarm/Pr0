@@ -23,7 +23,7 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
     private val maskV = BitmapFactory.decodeResource(context.resources, R.raw.mask_v)
     private val maskH = BitmapFactory.decodeResource(context.resources, R.raw.mask_h)
 
-    private val zero = Bitmap.createBitmap(64, 64, Bitmap.Config.RGB_565)
+    private val zero = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
 
     fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap {
         return fancyThumbnail0(uri, aspect) ?: zero
@@ -34,11 +34,11 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
 
         // almost square? fall back on non fancy normal image
         if (1 / 1.05 < aspect && aspect < 1.05) {
-            return decode565(bytes)
+            return decodeToBitmap(bytes)
         }
 
         // load exif thumbnail or fall back to square image, if loading fails
-        val low = exifThumbnail(bytes) ?: return decode565(bytes)
+        val low = exifThumbnail(bytes) ?: return decodeToBitmap(bytes)
 
         // decode the image mutable so that we can paint on it
         val normal = decodeMutableBitmap(bytes)
@@ -121,9 +121,9 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
         return response.body?.use { body -> body.bytes().takeIf { it.isNotEmpty() } }
     }
 
-    private fun decode565(bytes: ByteArray): Bitmap? {
+    private fun decodeToBitmap(bytes: ByteArray): Bitmap? {
         val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.RGB_565
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
     }
 }

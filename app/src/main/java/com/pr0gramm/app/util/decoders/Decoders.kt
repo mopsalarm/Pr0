@@ -14,10 +14,10 @@ object Decoders {
     fun regionDecoderFactory(cache: Cache): DecoderFactory<ImageRegionDecoder> {
         return DecoderFactory {
             adapt(DownloadingRegionDecoder(cache, FallbackRegionDecoder.chain(listOf(
-                    AndroidRegionDecoder(Bitmap.Config.RGB_565),
                     AndroidRegionDecoder(Bitmap.Config.ARGB_8888),
-                    SimpleRegionDecoder(Bitmap.Config.RGB_565),
-                    SimpleRegionDecoder(Bitmap.Config.ARGB_8888)))))
+                    AndroidRegionDecoder(Bitmap.Config.RGB_565),
+                    SimpleRegionDecoder(Bitmap.Config.ARGB_8888),
+                    SimpleRegionDecoder(Bitmap.Config.RGB_565)))))
         }
     }
 

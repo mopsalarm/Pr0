@@ -17,7 +17,7 @@ class PicassoDecoder(private val tag: String, private val picasso: Picasso) : Im
     override fun decode(context: Context, uri: Uri): Bitmap {
         try {
             val bitmap = picasso.load(uri).tag(tag)
-                    .config(Bitmap.Config.RGB_565)
+                    .config(Bitmap.Config.ARGB_8888)
                     .memoryPolicy(MemoryPolicy.NO_CACHE)
                     .get()
 
