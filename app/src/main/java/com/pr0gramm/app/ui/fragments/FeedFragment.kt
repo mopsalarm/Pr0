@@ -1050,20 +1050,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
 
-        listener.itemClicked.subscribeIgnoreError { view ->
+        listener.itemClicked.bindToLifecycle().subscribeIgnoreError { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 onItemClicked(holder.item, preview = holder.imageView)
             }
         }
 
-        listener.itemLongClicked.subscribeIgnoreError { view ->
+        listener.itemLongClicked.bindToLifecycle().subscribeIgnoreError { view ->
             val holder = extractFeedItemHolder(view) ?: return@subscribeIgnoreError
             val activity = this.activity ?: return@subscribeIgnoreError
             PopupPlayer.open(activity, holder.item)
             swipeRefreshLayout.isEnabled = false
         }
 
-        listener.itemLongClickEnded.subscribeIgnoreError {
+        listener.itemLongClickEnded.bindToLifecycle().subscribeIgnoreError {
             PopupPlayer.close(activity ?: return@subscribeIgnoreError)
             swipeRefreshLayout.isEnabled = true
         }
