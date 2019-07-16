@@ -176,8 +176,8 @@ dependencies {
 
     implementation "com.squareup.retrofit2:retrofit:2.6.0"
     implementation "com.squareup.retrofit2:converter-moshi:2.6.0"
-    implementation "com.squareup.okhttp3:okhttp:4.0.0"
-    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.0.0"
+    implementation "com.squareup.okhttp3:okhttp:4.0.1"
+    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.0.1"
     implementation "com.squareup.picasso:picasso:2.71828"
 
     implementation "com.squareup.moshi:moshi:1.8.0"
@@ -198,7 +198,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.3'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 

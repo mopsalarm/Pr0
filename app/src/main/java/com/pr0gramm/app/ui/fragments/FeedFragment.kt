@@ -46,6 +46,7 @@ import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 /**
  */
@@ -755,7 +756,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val portrait = config.screenWidthDp < config.screenHeightDp
 
         val screenWidth = config.screenWidthDp
-        Math.min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
+        min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -1287,6 +1288,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun performAutoOpen(ref: CommentRef) {
+        if (isStateSaved || view == null)
+            return
+
         logger.info { "Trying to do auto load of $ref" }
         val idx = feed.indexById(ref.itemId) ?: return
 
