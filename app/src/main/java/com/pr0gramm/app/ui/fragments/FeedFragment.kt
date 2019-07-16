@@ -1059,13 +1059,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         listener.itemLongClicked.bindToLifecycle().subscribeIgnoreError { view ->
             val holder = extractFeedItemHolder(view) ?: return@subscribeIgnoreError
             val activity = this.activity ?: return@subscribeIgnoreError
-            PopupPlayer.open(activity, holder.item)
-            swipeRefreshLayout.isEnabled = false
+
+            if (!this@FeedFragment.isStateSaved) {
+                PopupPlayer.open(activity, holder.item)
+                swipeRefreshLayout.isEnabled = false
+            }
         }
 
         listener.itemLongClickEnded.bindToLifecycle().subscribeIgnoreError {
-            PopupPlayer.close(activity ?: return@subscribeIgnoreError)
-            swipeRefreshLayout.isEnabled = true
+            if (!this@FeedFragment.isStateSaved) {
+                PopupPlayer.close(activity ?: return@subscribeIgnoreError)
+                swipeRefreshLayout.isEnabled = true
+            }
         }
 
         settings.changes()
