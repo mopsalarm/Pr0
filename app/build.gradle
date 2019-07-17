@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
+apply plugin: 'io.sentry.android.gradle'
 
 apply from: 'version.gradle'
 
@@ -19,6 +20,7 @@ buildscript {
     dependencies {
         classpath 'io.fabric.tools:gradle:1.30.0'
         classpath 'com.google.gms:google-services:4.3.0'
+        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.24'
     }
 }
 
@@ -136,6 +138,18 @@ android.applicationVariants.all { variant ->
     }
 }
 
+sentry {
+    // Disables or enables the automatic configuration of proguard
+    // for Sentry.  This injects a default config for proguard so
+    // you don't need to do it manually.
+    autoProguardConfig true
+
+    // Enables or disables the automatic upload of mapping files
+    // during a build.  If you disable this you'll need to manually
+    // upload the mapping files with sentry-cli when you do a release.
+    autoUpload true
+}
+
 repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://maven.google.com" }
@@ -171,6 +185,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-ads-lite:18.1.0@aar") {
         transitive true
     }
+
+    implementation 'io.sentry:sentry-android:1.7.24'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
 
     implementation 'com.google.android.gms:play-services-measurement-sdk-api:17.0.0'
 

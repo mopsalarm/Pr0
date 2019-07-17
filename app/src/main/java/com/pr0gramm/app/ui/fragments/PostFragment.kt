@@ -223,7 +223,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         // listen to comment changes
-        commentTreeHelper.itemsObservable.subscribe { commentItems ->
+        commentTreeHelper.itemsObservable.bindToLifecycle().subscribe { commentItems ->
             logger.info { "Got new list of ${commentItems.size} comments" }
             state = state.copy(comments = commentItems, commentsLoading = false)
         }
@@ -653,10 +653,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        // track that the user visited this post.
-        if (configService.config().trackItemView) {
-            Track.screen(activity, "Item")
-        }
+        Track.screen(activity, "Item")
     }
 
     /**
@@ -980,6 +977,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      */
     fun setActive(active: Boolean) {
         activeStateSubject.onNext(active)
+
+        if (active) {
+            Track.viewItem(feedItem.id)
+        }
     }
 
     override fun onAddNewTags(tags: List<String>) {

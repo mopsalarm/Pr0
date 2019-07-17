@@ -31,11 +31,14 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.PermissionHelper
 import com.pr0gramm.app.ui.base.AsyncScope
+import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import rx.exceptions.OnErrorNotImplementedException
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -85,19 +88,28 @@ object AndroidUtility {
         return result
     }
 
-    fun logToCrashlytics(error: Throwable?) {
-        if (error == null)
+    fun logToCrashlytics(error_: Throwable?) {
+        if (error_ == null)
             return
 
+        var error = error_
         val causalChain = error.causalChain
 
         if (causalChain.containsType<CancellationException>()) {
             return
         }
 
+        if (causalChain.containsType<PermissionHelper.PermissionNotGranted>()) {
+            return
+        }
+
         if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
             logger.warn(error) { "Ignoring network exception" }
             return
+        }
+
+        if (causalChain.containsType<OnErrorNotImplementedException>()) {
+            error = error.rootCause
         }
 
         try {
@@ -118,6 +130,9 @@ object AndroidUtility {
             } else {
                 cache.put(key, Unit)
             }
+
+            // log to sentry if a client is configured
+            Sentry.getStoredClient()?.sendException(error)
 
             // log to crashlytics for fast error reporting.
             Crashlytics.getInstance().core.logException(error)

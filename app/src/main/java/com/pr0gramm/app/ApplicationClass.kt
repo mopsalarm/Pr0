@@ -25,6 +25,8 @@ import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.doInBackground
 import io.fabric.sdk.android.Fabric
 import io.fabric.sdk.android.SilentLogger
+import io.sentry.Sentry
+import io.sentry.android.AndroidSentryClientFactory
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
@@ -79,6 +81,11 @@ open class ApplicationClass : Application(), InjectorAware {
             // setup log forwarding in production
             Logging.remoteLoggingHandler = Crashlytics.getInstance().core::log
         }
+
+        // setup sentry
+        val sentryToken = "https://a16a17b965a44a9eb100bc0af7f4d684@sentry.io/1507302"
+        val sentry = Sentry.init(sentryToken, AndroidSentryClientFactory(this))
+        sentry.environment = if (BuildConfig.DEBUG) "debug" else "prod"
 
         // handler to ignore certain exceptions before they reach crashlytics.
         ExceptionHandler.install(this)

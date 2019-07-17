@@ -15,7 +15,6 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
@@ -28,6 +27,9 @@ import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
+import io.sentry.Sentry
+import io.sentry.event.Breadcrumb
+import io.sentry.event.BreadcrumbBuilder
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.dnsoverhttps.DnsOverHttps
@@ -182,8 +184,6 @@ fun appInjector(app: Application) = Module.build {
 }
 
 
-const val TagApiURL = "api.baseurl"
-
 fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
     val connectionSpecs = ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS).run {
         tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
@@ -218,6 +218,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .retryOnConnectionFailure(true)
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
+            .addInterceptor(SentryInterceptor())
             .addNetworkInterceptor(LoggingInterceptor())
 }
 
@@ -310,6 +311,43 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
     }
 }
 
+private class SentryInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        // get the current sentry context if set
+        val sentryContext = Sentry.getStoredClient()?.context
+                ?: return chain.proceed(chain.request())
+
+        val request = chain.request()
+
+        val bc = BreadcrumbBuilder()
+                .setType(Breadcrumb.Type.HTTP)
+                .setCategory("http")
+                .withData("method", request.method)
+                .withData("url", request.url.toString())
+
+        val stopwatch = Stopwatch()
+
+        try {
+            val response = chain.proceed(request)
+
+            bc.withData("status_code", response.code.toString())
+
+            return response
+
+        } catch (err: Exception) {
+            bc.withData("error", err.toString())
+
+            throw err
+
+        } finally {
+            // log request duration
+            bc.withData("duration", stopwatch.toString())
+
+            sentryContext.recordBreadcrumb(bc.build())
+        }
+    }
+}
+
 private class LoggingInterceptor : Interceptor {
     val okLogger = Logger("OkHttpClient")
 
@@ -330,12 +368,12 @@ private class LoggingInterceptor : Interceptor {
     }
 }
 
-private class CustomDNS(app: Application) : Dns {
+private class CustomDNS(appContext: Application) : Dns {
     val logger = Logger("CustomDNS")
 
     private val okHttpClient by lazy {
-        okHttpClientBuilder(app)
-                .cache(Cache(context.cacheDir.resolve("dns-cache"), 1024 * 1024))
+        okHttpClientBuilder(appContext)
+                .cache(Cache(appContext.cacheDir.resolve("dns-cache"), 1024 * 1024))
                 .build()
     }
 

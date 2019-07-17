@@ -139,6 +139,10 @@ class SyncService(private val userService: UserService,
                 }
             }
 
+        } catch (err: KVService.VersionConflictException) {
+            // we should just retry.
+            logger.warn(err) { "Version conflict during update." }
+
         } catch (err: Exception) {
             Stats().incrementCounter("seen.sync.error")
             throw err

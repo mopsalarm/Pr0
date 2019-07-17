@@ -24,10 +24,7 @@ import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
-import com.pr0gramm.app.util.UserDrawables
-import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.getColorCompat
-import com.pr0gramm.app.util.lruCache
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import java.io.IOException
 import java.util.Collections.synchronizedSet
@@ -341,16 +338,20 @@ class NotificationService(private val context: Application,
 
     private fun cancelAllByType(type: NotificationType) = catchAll {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            nmSystem.activeNotifications.forEach { notification ->
-                if (notification.tag == type.channel) {
-                    nm.cancel(notification.tag, notification.id)
+            ignoreAllExceptions {
+                nmSystem.activeNotifications.forEach { notification ->
+                    if (notification.tag == type.channel) {
+                        nm.cancel(notification.tag, notification.id)
+                    }
                 }
             }
 
         } else {
             inboxNotificationCache.forEach {
                 if (it.tag == type.channel) {
-                    nm.cancel(it.tag, it.id)
+                    ignoreAllExceptions {
+                        nm.cancel(it.tag, it.id)
+                    }
                 }
             }
         }
@@ -360,7 +361,9 @@ class NotificationService(private val context: Application,
     }
 
     fun cancelForUpdate() {
-        nm.cancel(Types.Update.id)
+        ignoreAllExceptions {
+            nm.cancel(Types.Update.id)
+        }
     }
 
 

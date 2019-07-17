@@ -559,9 +559,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
     override suspend fun onResumeImpl(): Unit = stateTransaction {
-        if (config.trackItemView) {
-            Track.screen(activity, "Feed")
-        }
+        Track.screen(activity, "Feed")
+        Track.openFeed(currentFilter)
 
         // check if we should show the pin button or not.
         if (settings.showPinButton) {

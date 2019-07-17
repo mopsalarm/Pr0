@@ -377,6 +377,14 @@ inline fun catchAll(block: () -> Unit) {
     }
 }
 
+inline fun ignoreAllExceptions(block: () -> Unit) {
+    try {
+        block()
+    } catch (err: Throwable) {
+        // i don't care.
+    }
+}
+
 fun Context.canStartIntent(intent: Intent): Boolean {
     return packageManager.resolveActivity(intent, 0) != null
 }

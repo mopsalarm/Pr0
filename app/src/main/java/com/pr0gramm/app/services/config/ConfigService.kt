@@ -105,7 +105,7 @@ class ConfigService(context: Application,
         debug {
             // update config for development.
             return configState.copy(
-                    trackItemView = true, adType = Config.AdType.FEED,
+                    adType = Config.AdType.FEED,
                     specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
                             ?: listOf(Config.MenuItem(
                                     name = "Wichteln",
