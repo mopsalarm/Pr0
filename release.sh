@@ -56,7 +56,7 @@ trap 'git checkout app/version.gradle' ERR
 
 # compile code and create apks
 rm -rf -- model/build/* app/build/*
-./gradlew --no-daemon assembleRelease
+./gradlew --console=plain --no-daemon assembleRelease
 
 # verify apk
 if ! unzip -t app/build/outputs/apk/release/app-release.apk | grep publicsuffixes.gz ; then
@@ -85,7 +85,8 @@ git push --tags
 deploy_upload_apk
 
 # generate debug sources in a final step.
-./gradlew --no-daemon generateDebugSources
+echo "Prepare next dev cycle..."
+./gradlew --console=plain --no-daemon generateDebugSources > /dev/null
 
 # link to the release manager
 echo "Go to the release manager at https://$CREDENTIALS_UPDATE@app.pr0gramm.com/update-manager/"
