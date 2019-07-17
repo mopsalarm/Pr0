@@ -96,3 +96,5 @@ upload_auth
 mount.sh
 
 proguard-final.pro
+
+/sentry.properties
