@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+
 apply plugin: 'io.sentry.android.gradle'
 
 apply from: 'version.gradle'
@@ -10,13 +11,10 @@ buildscript {
     }
 
     repositories {
-        jcenter()
         mavenCentral()
-        maven { url "https://maven.google.com" }
     }
 
     dependencies {
-        classpath 'com.google.gms:google-services:4.3.0'
         classpath 'io.sentry:sentry-android-gradle-plugin:1.7.24'
     }
 }
@@ -250,5 +248,3 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
         }
     }
 }
-
-apply plugin: 'com.google.gms.google-services'
