@@ -603,11 +603,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .throttleFirst(1, TimeUnit.SECONDS, MainThreadScheduler)
                 .bindToLifecycle()
                 .subscribe { it() }
-
-        debug {
-            class JustForTestException : RuntimeException("exception just for test")
-            AndroidUtility.logToCrashlytics(JustForTestException())
-        }
     }
 
     private fun performAutoScroll() {
