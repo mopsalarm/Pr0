@@ -17,13 +17,15 @@ data class Graph(val firstX: Double, val lastX: Double, val points: List<Graph.P
     val isEmpty: Boolean
         get() = points.isEmpty()
 
-    val maxValue: Double get() {
-        return points.maxBy { it.y }!!.y
-    }
+    val maxValue: Double
+        get() {
+            return points.maxBy { it.y }!!.y
+        }
 
-    val minValue: Double get() {
-        return points.minBy { it.y }!!.y
-    }
+    val minValue: Double
+        get() {
+            return points.minBy { it.y }!!.y
+        }
 
     operator fun get(idx: Int): Point {
         return points[idx]

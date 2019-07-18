@@ -559,7 +559,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
     override suspend fun onResumeImpl(): Unit = stateTransaction {
-        Track.screen(activity, "Feed")
         Track.openFeed(currentFilter)
 
         // check if we should show the pin button or not.
@@ -604,6 +603,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .throttleFirst(1, TimeUnit.SECONDS, MainThreadScheduler)
                 .bindToLifecycle()
                 .subscribe { it() }
+
+        debug {
+            class JustForTestException : RuntimeException("exception just for test")
+            AndroidUtility.logToCrashlytics(JustForTestException())
+        }
     }
 
     private fun performAutoScroll() {
@@ -649,7 +653,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun checkForNewItems() {
         if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM || feed.isEmpty()) {
-            logger.info { "Not checking for new items as we are not at the beginning of the feed" }
+            logger.debug { "Not checking for new items as we are not at the beginning of the feed" }
             return
         }
 
@@ -993,8 +997,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (query.queryTerm.isNotBlank()) {
             recentSearchesServices.storeTerm(query.queryTerm)
         }
-
-        Track.search(query.combined)
     }
 
     private fun onItemClicked(item: FeedItem, commentRef: CommentRef? = null, preview: ImageView? = null) {

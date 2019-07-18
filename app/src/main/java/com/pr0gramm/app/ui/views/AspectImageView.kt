@@ -23,7 +23,8 @@ class AspectImageView @JvmOverloads constructor(context: Context, attrs: Attribu
             return if (field > 0) {
                 field
             } else {
-                drawable?.run { intrinsicWidth.toFloat() / intrinsicHeight }?.takeIf { it > 0 } ?: 1.75f
+                drawable?.run { intrinsicWidth.toFloat() / intrinsicHeight }?.takeIf { it > 0 }
+                        ?: 1.75f
             }
         }
         set(value) {

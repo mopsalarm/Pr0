@@ -332,7 +332,7 @@ class NavigationProvider(
     }
 
     private fun loadMenuItem(item: Config.MenuItem): Observable<NavigationItem> {
-        logger.info { "Loading item $item" }
+        logger.debug { "Loading item $item" }
 
         return Observable.just(item)
 

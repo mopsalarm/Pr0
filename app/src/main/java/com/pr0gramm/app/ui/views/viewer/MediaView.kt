@@ -347,7 +347,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         get() = mediaUri.baseUri
 
     open fun playMedia() {
-        logger.info { "Should start playing media" }
+        logger.debug { "Should start playing media" }
         isPlaying = true
 
         if (mediaShown) {
@@ -356,7 +356,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     }
 
     open fun stopMedia() {
-        logger.info { "Should stop playing media" }
+        logger.debug { "Should stop playing media" }
         isPlaying = false
     }
 

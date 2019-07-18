@@ -41,7 +41,6 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     private val httpClient: OkHttpClient by instance()
     private val preloadManager: PreloadManager by instance()
-    private val notificationService: NotificationService by instance()
 
     @Volatile
     private var canceled: Boolean = false
@@ -52,7 +51,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     private val preloadCache: File by lazy {
         File(cacheDir, "preload").also { path ->
             if (!path.exists() && path.mkdirs()) {
-                logger.info { "preload directory created at ${this}" }
+                logger.debug { "preload directory created at ${this}" }
             }
         }
     }
@@ -69,12 +68,12 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         super.onCreate()
 
         injector.inject(this)
-
-        // send out the initial notification and bring the service into foreground mode!
-        startForeground(NotificationService.Types.Preload.id, notification.build())
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // send out the initial notification and bring the service into foreground mode!
+        startForeground(NotificationService.Types.Preload.id, notification.build())
+
         if (intent?.getLongExtra(EXTRA_CANCEL, -1) == jobId) {
             canceled = true
             return Service.START_NOT_STICKY
@@ -238,7 +237,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
         // if the file exists, we dont need to download it again
         if (targetFile.exists()) {
-            logger.info { "File $targetFile already exists" }
+            logger.debug { "File $targetFile already exists" }
 
             if (!targetFile.updateTimestamp()) {
                 logger.warn { "Could not touch file $targetFile" }

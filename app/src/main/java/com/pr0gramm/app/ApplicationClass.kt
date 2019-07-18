@@ -5,7 +5,6 @@ import android.os.StrictMode
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.crashlytics.android.Crashlytics
 import com.google.android.gms.ads.MobileAds
 import com.llamalab.safs.FileSystems
 import com.llamalab.safs.android.AndroidFileSystem
@@ -15,18 +14,15 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
-import com.pr0gramm.app.ui.AdMobWorkaround
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
-import com.pr0gramm.app.util.CachedThreadScheduler
-import com.pr0gramm.app.util.ExceptionHandler
-import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.InjectorAware
-import com.pr0gramm.app.util.doInBackground
-import io.fabric.sdk.android.Fabric
-import io.fabric.sdk.android.SilentLogger
 import io.sentry.Sentry
 import io.sentry.android.AndroidSentryClientFactory
+import io.sentry.context.Context
+import io.sentry.context.ContextManager
+import io.sentry.event.Breadcrumb
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
@@ -70,24 +66,9 @@ open class ApplicationClass : Application(), InjectorAware {
     override fun onCreate() {
         super.onCreate()
 
-        if (!BuildConfig.DEBUG) {
-            Log.i("pr0gramm", "Initialize fabric/crashlytics in Application::onCreate")
-            Fabric.with(Fabric.Builder(this)
-                    .debuggable(false)
-                    .logger(SilentLogger())
-                    .kits(Crashlytics())
-                    .build())
+        setupSentry()
 
-            // setup log forwarding in production
-            Logging.remoteLoggingHandler = Crashlytics.getInstance().core::log
-        }
-
-        // setup sentry
-        val sentryToken = "https://a16a17b965a44a9eb100bc0af7f4d684@sentry.io/1507302"
-        val sentry = Sentry.init(sentryToken, AndroidSentryClientFactory(this))
-        sentry.environment = if (BuildConfig.DEBUG) "debug" else "prod"
-
-        // handler to ignore certain exceptions before they reach crashlytics.
+        // handler to ignore certain exceptions before they reach sentry
         ExceptionHandler.install(this)
 
         val fs = FileSystems.getDefault() as AndroidFileSystem
@@ -97,8 +78,6 @@ open class ApplicationClass : Application(), InjectorAware {
 
         Settings.initialize(this)
         Track.initialize(this)
-
-        AdMobWorkaround.install(this)
 
         WorkManager.initialize(this, Configuration.Builder()
                 .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
@@ -134,6 +113,30 @@ open class ApplicationClass : Application(), InjectorAware {
         Stats().histogram("app.boot.time", bootupWatch.elapsed().millis)
     }
 
+    private fun setupSentry() {
+        // setup sentry
+        val sentryToken = "https://a16a17b965a44a9eb100bc0af7f4d684@sentry.io/1507302"
+
+        val sentry = Sentry.init(sentryToken, CustomSentryClientFactory(this))
+        sentry.environment = if (BuildConfig.DEBUG) "debug" else "prod"
+        sentry.context
+
+        val levels = arrayOf(null, null, Breadcrumb.Level.DEBUG, Breadcrumb.Level.DEBUG,
+                Breadcrumb.Level.INFO, Breadcrumb.Level.WARNING, Breadcrumb.Level.ERROR,
+                Breadcrumb.Level.CRITICAL)
+
+        // add log messages to sentry breadcrumbs
+        Logging.remoteLoggingHandler = { level, tag, message ->
+            if (level >= Log.INFO) {
+                recordBreadcrumb {
+                    setCategory("log")
+                    setLevel(levels.getOrNull(level) ?: Breadcrumb.Level.INFO)
+                    setMessage("$tag: $message")
+                }
+            }
+        }
+    }
+
     private fun forceInjectorInstance() {
         // ensure that the lazy creates the instance
         System.identityHashCode(injector)
@@ -161,3 +164,18 @@ open class ApplicationClass : Application(), InjectorAware {
     override val injector by lazy { appInjector(this) }
 }
 
+
+private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx) {
+}
+
+private class SentryContextManager : ContextManager {
+    private val context = Context(256)
+
+    override fun clear() {
+        context.clear()
+    }
+
+    override fun getContext(): Context {
+        return context
+    }
+}

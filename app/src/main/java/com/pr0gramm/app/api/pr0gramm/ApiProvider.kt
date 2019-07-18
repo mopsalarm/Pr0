@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.*
-import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -98,11 +97,6 @@ class ApiProvider(base: String, client: OkHttpClient,
         val millis = watch.elapsed().millis
 
         Stats().time("api.call", millis, "method:${method.name}", "success:$success")
-
-        // track only sync calls in 5% of syncs
-        if (method.name == "sync" && Math.random() < 0.05) {
-            Track.trackSyncCall(millis, success)
-        }
     }
 
     private inner class ErrorInterceptor : Interceptor {

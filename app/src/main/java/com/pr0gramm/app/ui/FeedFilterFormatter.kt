@@ -82,8 +82,9 @@ object FeedFilterFormatter {
     }
 
     class FeedTitle(val title: String, private val separator: String, val subtitle: String) {
-        val singleline: String get() {
-            return title + separator + subtitle
-        }
+        val singleline: String
+            get() {
+                return title + separator + subtitle
+            }
     }
 }

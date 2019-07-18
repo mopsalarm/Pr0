@@ -15,8 +15,9 @@ class BetaActionItemsSlide : ActionItemsSlide("BetaActionItemsSlide") {
             "aktiviere die Beta Updates. Beta Updates kommen jedoch viel öfter und " +
             "enthalten möglicherweise Fehler."
 
-    override val introActionItems: List<ActionItem> get() {
-        val settings = Settings.get()
-        return listOf(SettingActionItem(settings, "Beta aktivieren", "pref_use_beta_channel"))
-    }
+    override val introActionItems: List<ActionItem>
+        get() {
+            val settings = Settings.get()
+            return listOf(SettingActionItem(settings, "Beta aktivieren", "pref_use_beta_channel"))
+        }
 }

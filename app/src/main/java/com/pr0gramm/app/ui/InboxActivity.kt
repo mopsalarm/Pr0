@@ -105,6 +105,12 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         }
     }
 
+    override suspend fun onStartImpl() {
+        super.onStartImpl()
+
+        Track.inboxActivity()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleNewIntent(intent)
@@ -130,18 +136,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
         val index = viewPager.currentItem
         if (index >= 0 && index < tabsAdapter.count) {
             title = tabsAdapter.getPageTitle(index)
-            trackScreen(index)
-        }
-    }
-
-    /**
-     * Might not be the most beautiful code, but works for now.
-     */
-    private fun trackScreen(index: Int) {
-        when (index) {
-            // TODO adjust
-            0 -> Track.screen(this, "InboxPrivate")
-            1 -> Track.screen(this, "InboxComments")
         }
     }
 

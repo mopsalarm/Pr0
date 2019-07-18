@@ -374,7 +374,7 @@ internal class CacheEntry(
                     write(fp, buffer, 0, byteCount)
 
                     if (canceled) {
-                        logger.info { "Caching canceled, stopping now." }
+                        logger.debug { "Caching canceled, stopping now." }
                         return
                     }
 

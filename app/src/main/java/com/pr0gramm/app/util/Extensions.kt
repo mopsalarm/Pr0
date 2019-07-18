@@ -34,6 +34,9 @@ import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import io.sentry.Sentry
+import io.sentry.event.Breadcrumb
+import io.sentry.event.BreadcrumbBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
 import rx.Emitter
@@ -683,4 +686,11 @@ fun <W : WorkRequest, B : WorkRequest.Builder<B, W>> B.setConstraintsCompat(cons
         return this
 
     return setConstraints(constraints)
+}
+
+inline fun recordBreadcrumb(type: Breadcrumb.Type = Breadcrumb.Type.DEFAULT, builder: BreadcrumbBuilder.() -> Unit) {
+    Sentry.getStoredClient()?.context?.let { context ->
+        val bc = BreadcrumbBuilder().setType(type).setLevel(Breadcrumb.Level.INFO).apply(builder).build()
+        context.recordBreadcrumb(bc)
+    }
 }

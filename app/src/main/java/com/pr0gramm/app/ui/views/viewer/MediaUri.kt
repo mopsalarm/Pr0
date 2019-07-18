@@ -31,7 +31,8 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
          */
 
         fun of(id: Long, uri: Uri): MediaUri {
-            val name = uri.lastPathSegment ?: throw IllegalArgumentException("uri must have a file component")
+            val name = uri.lastPathSegment
+                    ?: throw IllegalArgumentException("uri must have a file component")
 
             var type = MediaType.IMAGE
             if (name.toLowerCase().endsWith(".gif"))

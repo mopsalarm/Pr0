@@ -224,7 +224,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // listen to comment changes
         commentTreeHelper.itemsObservable.bindToLifecycle().subscribe { commentItems ->
-            logger.info { "Got new list of ${commentItems.size} comments" }
+            logger.debug { "Got new list of ${commentItems.size} comments" }
             state = state.copy(comments = commentItems, commentsLoading = false)
         }
 
@@ -248,7 +248,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         repostHint.visible = inMemoryCacheService.isRepost(feedItem)
 
         activeState.bindToLifecycle().subscribe { active ->
-            logger.info { "Switching viewer state to $active" }
+            logger.debug { "Switching viewer state to $active" }
             if (active) {
                 playMediaOnViewer()
             } else {
@@ -652,8 +652,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 simulateScroll()
             }
         }
-
-        Track.screen(activity, "Item")
     }
 
     /**
@@ -817,7 +815,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // add the controls as child of the controls-container.
         viewer.controllerView()
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                .doOnNext { view -> logger.info { "Adding view $view to placeholder" } }
+                .doOnNext { view -> logger.debug { "Adding view $view to placeholder" } }
                 .subscribe { mediaControlsContainer.addView(it) }
 
         // show sfw/nsfw as a little flag, if the user is admin

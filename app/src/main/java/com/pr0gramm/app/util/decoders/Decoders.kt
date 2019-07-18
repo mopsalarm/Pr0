@@ -17,7 +17,7 @@ object Decoders {
 
             val decoders = mutableListOf<Decoder>()
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 // try to decode for hardware first
                 decoders += AndroidRegionDecoder(Bitmap.Config.HARDWARE)
             }
@@ -40,12 +40,12 @@ object Decoders {
             private var recycled: Boolean = false
 
             override fun init(context: Context, uri: Uri): Point {
-                logger.info { "Decoder.init(context, $uri) called" }
+                logger.debug { "Decoder.init(context, $uri) called" }
                 return dec.takeUnless { recycled }?.init(context, uri) ?: Point(64, 64)
             }
 
             override fun decodeRegion(sRect: Rect, sampleSize: Int): Bitmap {
-                logger.info { "Decoder.decodeRegion($sRect, $sampleSize) called" }
+                logger.debug { "Decoder.decodeRegion($sRect, $sampleSize) called" }
                 val fallback by lazy { Bitmap.createBitmap(sRect.width(), sRect.height(), Bitmap.Config.RGB_565) }
                 if (recycled) {
                     return fallback
@@ -59,7 +59,7 @@ object Decoders {
             }
 
             override fun recycle() {
-                logger.info { "Decoder.recycle() called" }
+                logger.debug { "Decoder.recycle() called" }
 
                 recycled = true
                 dec.recycle()

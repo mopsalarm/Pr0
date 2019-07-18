@@ -24,9 +24,9 @@ object Reducer {
 
                 emitter.onCompleted()
 
-            } catch(err: ExecutionException) {
+            } catch (err: ExecutionException) {
                 emitter.onError(err.cause ?: err)
-            } catch(err: Throwable) {
+            } catch (err: Throwable) {
                 emitter.onError(err)
             }
         }

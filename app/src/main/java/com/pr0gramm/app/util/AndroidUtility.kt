@@ -26,7 +26,6 @@ import androidx.core.content.res.use
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
-import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.Logger
@@ -134,15 +133,8 @@ object AndroidUtility {
             // log to sentry if a client is configured
             Sentry.getStoredClient()?.sendException(error)
 
-            // log to crashlytics for fast error reporting.
-            Crashlytics.getInstance().core.logException(error)
-
-        } catch (_: IllegalStateException) {
-            // most certainly crashlytics was not activated.
-            logger.warn("Looks like crashlytics was not activated. Here is the error:", error)
-
         } catch (err: Throwable) {
-            logger.warn("Could not send error to crashlytics", err)
+            logger.warn(err) { "Could not send error $error to sentry" }
         }
     }
 

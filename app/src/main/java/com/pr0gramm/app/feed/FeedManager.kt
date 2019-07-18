@@ -25,9 +25,10 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
 
     private val feedType: FeedType get() = feed.feedType
 
-    val updates: Observable<Update> get() = subject
-            .observeOn(MainThreadScheduler)
-            .startWith(Update.NewFeed(feed))
+    val updates: Observable<Update>
+        get() = subject
+                .observeOn(MainThreadScheduler)
+                .startWith(Update.NewFeed(feed))
 
     /**
      * Stops all loading operations and resets the feed to the given value.
@@ -84,7 +85,7 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
     private fun load(block: suspend () -> Api.Feed) {
         stop()
 
-        logger.info { "Start new load request now." }
+        logger.debug { "Start new load request now." }
         job = AsyncScope.launch {
             try {
                 val update = try {

@@ -74,7 +74,7 @@ class ConfigService(context: Application,
     }
 
     private fun persistConfigState() {
-        logger.info { "Persisting current config state" }
+        logger.debug { "Persisting current config state" }
         try {
             val jsonCoded = MoshiInstance.adapter<Config>().toJson(configState)
             preferences.edit {
@@ -86,7 +86,7 @@ class ConfigService(context: Application,
     }
 
     private fun publishState() {
-        logger.info { "Publishing change in config state" }
+        logger.debug { "Publishing change in config state" }
         try {
             configSubject.onNext(config())
         } catch (err: Throwable) {
@@ -136,7 +136,7 @@ class ConfigService(context: Application,
                 }
 
                 // now cache the new id
-                logger.info { "Caching new device id." }
+                logger.debug { "Caching new device id." }
                 preferences.edit()
                         .putString(PREF_ID_KEY, cached)
                         .apply()

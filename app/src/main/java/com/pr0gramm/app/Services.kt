@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.os.Build
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
@@ -71,10 +70,6 @@ fun appInjector(app: Application) = Module.build {
                 .build()
                 .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), Schedulers.computation())
     }
-
-    bind<FirebaseAnalytics>() with instance(FirebaseAnalytics.getInstance(app).apply {
-        setAnalyticsCollectionEnabled(true)
-    })
 
     bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }
 
@@ -211,7 +206,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
         build()
     }
 
-    return OkHttpClient.Builder()
+    val builder = OkHttpClient.Builder()
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -219,7 +214,12 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
             .addInterceptor(SentryInterceptor())
-            .addNetworkInterceptor(LoggingInterceptor())
+
+    debug {
+        builder.addNetworkInterceptor(LoggingInterceptor())
+    }
+
+    return builder
 }
 
 private class UpdateServerTimeInterceptor : Interceptor {
@@ -342,27 +342,27 @@ private class SentryInterceptor : Interceptor {
         } finally {
             // log request duration
             bc.withData("duration", stopwatch.toString())
-
             sentryContext.recordBreadcrumb(bc.build())
         }
     }
 }
 
 private class LoggingInterceptor : Interceptor {
-    val okLogger = Logger("OkHttpClient")
+    private val okLogger = Logger("OkHttpClient")
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val watch = Stopwatch()
         val request = chain.request()
 
-        okLogger.info { "performing ${request.method} http request for ${request.url}" }
         try {
             val response = chain.proceed(request)
-            okLogger.info { "${request.url} (${response.code}) took $watch" }
+
+            okLogger.info { "[${request.method}] ${request.url} ($response.code, $watch)" }
+
             return response
 
         } catch (error: Exception) {
-            okLogger.warn { "${request.url} produced error: $error" }
+            okLogger.warn { "[${request.method}] ${request.url} ($watch, error=$error)" }
             throw error
         }
     }

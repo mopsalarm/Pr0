@@ -87,7 +87,7 @@ class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loa
                 logger.warn { "Start loading" }
                 val (data, endValue) = loadCallback(endStateRef.get().value)
 
-                logger.info { "Loading finished, updating state" }
+                logger.debug { "Loading finished, updating state" }
                 endStateRef.set(EndState(value = endValue, hasMore = endValue != null))
 
                 // publish the current state

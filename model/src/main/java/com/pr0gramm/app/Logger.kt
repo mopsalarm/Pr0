@@ -53,7 +53,7 @@ object Logging {
             var message: String = "",
             var thread: String = "")
 
-    private val array = arrayOf("0", "1", "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR", "ASSERT")
+    private val levels = arrayOf("0", "1", "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR", "ASSERT")
 
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
@@ -65,10 +65,11 @@ object Logging {
         val tag = "[$thread] $name"
 
         if (BuildConfig.DEBUG) {
-            // only log to logcat.
+            // also log to logcat.
             Log.println(level, tag, message)
+        }
 
-        } else {
+        if (name != "OkHttpClient") {
             // only log to crashlytics
             remoteLoggingHandler(level, tag, message)
         }
@@ -96,9 +97,7 @@ object Logging {
                 val entry = entries[(beginIndex + offset) % entries.size]
                 entry.takeIf { it.time != 0L }?.let {
                     "%4.3fs [%16s] [%5s] %s: %s".format(0.001f * (entry.time - now),
-                            entry.thread,
-                            array.getOrNull(entry.level) ?: "DEBUG",
-                            entry.name, entry.message)
+                            entry.thread, levelToString(entry.level), entry.name, entry.message)
                 }
             }
 
@@ -110,6 +109,10 @@ object Logging {
 
         return result
     }
+
+    private fun levelToString(level: Int): String {
+        return levels.getOrNull(level) ?: "DEBUG"
+    }
 }
 
 inline fun <T> Logger.time(name: String, supplier: () -> T): T {
@@ -119,11 +122,11 @@ inline fun <T> Logger.time(name: String, supplier: () -> T): T {
         val result = try {
             supplier()
         } catch (err: Exception) {
-            this.info { "$name failed after $watch" }
+            this.warn { "$name failed after $watch" }
             throw err
         }
 
-        this.info { "$name took $watch" }
+        this.debug { "$name took $watch" }
         return result
 
     } else {

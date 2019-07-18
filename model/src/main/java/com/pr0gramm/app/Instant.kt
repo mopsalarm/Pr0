@@ -98,7 +98,7 @@ object TimeFactory {
         synchronized(buffer) {
             val delta = serverTime.millis - System.currentTimeMillis()
 
-            logger.info { "Storing time delta of ${deltaInMillis}ms" }
+            logger.debug { "Storing time delta of ${deltaInMillis}ms" }
             buffer[bufferIdx++ % buffer.size] = delta
 
             // calculate average server/client delta

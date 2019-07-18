@@ -1,5 +1,18 @@
 [
   {
+    "version": 169,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Endlich gibt es das 'richtige Grau' auch in der App - ab Android 8.1."
+      },
+      {
+        "type": "Bugfixes",
+        "change": "Viele kleine Bugfixes, die die Stabilität der App verbessern."
+      }
+    ]
+  },
+  {
     "version": 168,
     "changes": [
       {

@@ -24,7 +24,7 @@ import com.pr0gramm.app.util.observeChange
 
 /**
  */
-class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
+class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
     private val viewPager: ViewPager by bindView(R.id.pager)
@@ -259,12 +259,12 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         override fun getItem(position: Int): androidx.fragment.app.Fragment {
             if (!manager.isLoading) {
                 if (position > feed.size - 12) {
-                    logger.info { "Requested pos=$position, load next page" }
+                    logger.debug { "Requested pos=$position, load next page" }
                     manager.next()
                 }
 
                 if (position < 12) {
-                    logger.info { "Requested pos=$position, load prev page" }
+                    logger.debug { "Requested pos=$position, load prev page" }
                     manager.previous()
                 }
             }

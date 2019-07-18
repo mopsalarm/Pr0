@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'io.fabric'
 apply plugin: 'io.sentry.android.gradle'
 
 apply from: 'version.gradle'
@@ -13,12 +12,10 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
-        maven { url 'https://maven.fabric.io/public' }
         maven { url "https://maven.google.com" }
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.30.0'
         classpath 'com.google.gms:google-services:4.3.0'
         classpath 'io.sentry:sentry-android-gradle-plugin:1.7.24'
     }
@@ -153,7 +150,6 @@ sentry {
 repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://maven.google.com" }
-    maven { url "https://maven.fabric.io/public" }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
@@ -177,8 +173,6 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.fragment:fragment-ktx:1.0.0'
-
-    implementation "com.google.firebase:firebase-core:17.0.1"
 
     implementation 'com.llamalab.safs:safs-android:0.2.0'
 
@@ -226,8 +220,6 @@ dependencies {
     implementation "com.trello:rxlifecycle:1.0"
     implementation "com.trello:rxlifecycle-android:1.0"
     implementation "com.trello:rxlifecycle-components:1.0"
-
-    implementation "com.crashlytics.sdk.android:crashlytics:2.10.1"
 }
 
 configurations {

@@ -132,7 +132,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         get() {
             val oneHourAgo = Instant.now() - Duration.hours(1)
             return feedItem?.created?.isBefore(oneHourAgo) ?: false
-    }
+        }
 }
 
 interface PostActions {

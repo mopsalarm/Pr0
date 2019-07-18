@@ -54,7 +54,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private var statsSent: Boolean = false
 
     init {
-        logger.info { "Using exo player to play videos." }
+        logger.debug { "Using exo player to play videos." }
         videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
 
         muteButtonView = LayoutInflater
@@ -284,7 +284,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private fun storePlaybackPosition() {
         val currentPosition = videoPlayer.currentPosition
         seekToCache.put(config.mediaUri.id, ExpiringTimestamp(currentPosition))
-        logger.info { "Stored current position $currentPosition" }
+        logger.debug { "Stored current position $currentPosition" }
     }
 
     override fun rewind() {

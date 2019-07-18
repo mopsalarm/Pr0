@@ -1,41 +1,28 @@
 package com.pr0gramm.app.services
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.FirebaseAnalytics.Event
-import com.google.firebase.analytics.FirebaseAnalytics.Param
 import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.ignoreAllExceptions
+import com.pr0gramm.app.util.recordBreadcrumb
 import io.sentry.Sentry
 import io.sentry.event.Breadcrumb
-import io.sentry.event.BreadcrumbBuilder
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
  */
 @SuppressLint("StaticFieldLeak")
 object Track : InjectorAware {
-    private const val GA_CUSTOM_AUTHORIZED = "authorized"
-    private const val GA_CUSTOM_PREMIUM = "premium"
-    private const val GA_CUSTOM_ADS = "ads"
-
     lateinit var context: Context
     override val injector by lazy { context.injector }
 
-    private val fa by lazy { instance<FirebaseAnalytics>() }
     private val settingsTracker by lazy { instance<SettingsTrackerService>() }
-    private val config by lazy { instance<ConfigService>() }
 
     fun initialize(context: Context) {
         this.context = context.applicationContext
@@ -45,40 +32,28 @@ object Track : InjectorAware {
         ignoreAllExceptions {
             val extras = KeyValueAdapter().apply(b)
 
-            // send to firebase
-            fa.logEvent(eventType, extras.bundle)
-
             // and also to sentry
-            val bc = BreadcrumbBuilder()
-                    .setCategory(eventType)
-                    .setType(bcType)
-                    .setData(extras.map)
-                    .build()
-
-            Sentry.getStoredClient()?.context?.recordBreadcrumb(bc)
+            recordBreadcrumb(bcType) {
+                setCategory(eventType)
+                setData(extras.map)
+            }
         }
     }
 
     fun loginSuccessful() {
-        send(Event.LOGIN) {
-            putBoolean(Param.SUCCESS, true)
+        send("login") {
+            putBoolean("success", true)
         }
     }
 
     fun loginFailed() {
-        send(Event.LOGIN) {
-            putBoolean(Param.SUCCESS, false)
+        send("login") {
+            putBoolean("success", false)
         }
     }
 
     fun logout() {
         send("logout")
-    }
-
-    fun search(query: String) {
-        send(Event.SEARCH) {
-            putString(Param.SEARCH_TERM, query)
-        }
     }
 
     fun writeComment() {
@@ -174,35 +149,15 @@ object Track : InjectorAware {
         }
     }
 
-    fun screen(activity: Activity?, name: String) {
-        activity?.let {
-            fa.setCurrentScreen(it, name, name)
-        }
-    }
-
     fun updateUserState(state: AuthState) {
-        fa.setUserProperty(GA_CUSTOM_AUTHORIZED, state.authorized.toString())
-        fa.setUserProperty(GA_CUSTOM_PREMIUM, state.premium.toString())
-
         Sentry.getStoredClient()?.let { client ->
-            client.context.addTag("premium", state.premium.toString())
-            client.context.addTag("authorized", state.authorized.toString())
-        }
-    }
-
-    fun updateAdType(adType: Config.AdType) {
-        fa.setUserProperty(GA_CUSTOM_ADS, adType.toString())
-    }
-
-    fun trackSyncCall(millis: Long, success: Boolean) {
-        send("sync_api") {
-            putBoolean("success", success)
-            putLong("duration", millis)
+            client.context.addTag("pr0.premium", state.premium.toString())
+            client.context.addTag("pr0.authorized", state.authorized.toString())
         }
     }
 
     fun openFeed(filter: FeedFilter) {
-        send("view_feed") {
+        send("view_feed", Breadcrumb.Type.NAVIGATION) {
             filter.tags?.let { putString("tags", it) }
             filter.likes?.let { putString("likes", it) }
             filter.username?.let { putString("username", it) }
@@ -210,9 +165,13 @@ object Track : InjectorAware {
     }
 
     fun viewItem(itemId: Long) {
-        send("view_item") {
+        send("view_item", Breadcrumb.Type.NAVIGATION) {
             putLong("id", itemId)
         }
+    }
+
+    fun inboxActivity() {
+        send("inbox", Breadcrumb.Type.NAVIGATION)
     }
 
     suspend fun statistics() {
@@ -225,27 +184,22 @@ object Track : InjectorAware {
 
 
     private class KeyValueAdapter {
-        val bundle = Bundle()
         val map = mutableMapOf<String, String>()
 
         fun putString(key: String, value: String) {
             map[key] = value
-            bundle.putString(key, value)
         }
 
         fun putBoolean(key: String, value: Boolean) {
             map[key] = value.toString()
-            bundle.putBoolean(key, value)
         }
 
         fun putInt(key: String, value: Int) {
             map[key] = value.toString()
-            bundle.putInt(key, value)
         }
 
         fun putLong(key: String, value: Long) {
             map[key] = value.toString()
-            bundle.putLong(key, value)
         }
     }
 }
