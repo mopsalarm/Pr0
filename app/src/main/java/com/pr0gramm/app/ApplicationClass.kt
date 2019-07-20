@@ -155,7 +155,13 @@ open class ApplicationClass : Application(), InjectorAware {
                 "ca-app-pub-2308657767126505~4138045673"
             }
 
-            MobileAds.initialize(this@ApplicationClass, id)
+            try {
+                MobileAds.initialize(this@ApplicationClass, id)
+            } catch (ignored: NullPointerException) {
+                // for some reason an internal getVersionString returns null,
+                // and the resulti s not checked. We ignore the error in that case
+            }
+
             MobileAds.setAppVolume(0f)
             MobileAds.setAppMuted(true)
         }
@@ -165,8 +171,7 @@ open class ApplicationClass : Application(), InjectorAware {
 }
 
 
-private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx) {
-}
+private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx)
 
 private class SentryContextManager : ContextManager {
     private val context = Context(256)
