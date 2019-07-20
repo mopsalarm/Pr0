@@ -119,7 +119,8 @@ open class ApplicationClass : Application(), InjectorAware {
 
         val sentry = Sentry.init(sentryToken, CustomSentryClientFactory(this))
         sentry.environment = if (BuildConfig.DEBUG) "debug" else "prod"
-        sentry.context
+        sentry.release = BuildConfig.VERSION_NAME
+
 
         val levels = arrayOf(null, null, Breadcrumb.Level.DEBUG, Breadcrumb.Level.DEBUG,
                 Breadcrumb.Level.INFO, Breadcrumb.Level.WARNING, Breadcrumb.Level.ERROR,
