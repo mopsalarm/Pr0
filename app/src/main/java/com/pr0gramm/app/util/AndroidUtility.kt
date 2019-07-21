@@ -33,6 +33,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.PermissionHelper
 import com.pr0gramm.app.ui.base.AsyncScope
 import io.sentry.Sentry
+import io.sentry.event.Event
+import io.sentry.event.EventBuilder
+import io.sentry.event.interfaces.ExceptionInterface
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -131,7 +134,10 @@ object AndroidUtility {
             }
 
             // log to sentry if a client is configured
-            Sentry.getStoredClient()?.sendException(error)
+            Sentry.getStoredClient()?.sendEvent(EventBuilder()
+                    .withMessage(error.message)
+                    .withLevel(Event.Level.WARNING)
+                    .withSentryInterface(ExceptionInterface(error)))
 
         } catch (err: Throwable) {
             logger.warn(err) { "Could not send error $error to sentry" }
