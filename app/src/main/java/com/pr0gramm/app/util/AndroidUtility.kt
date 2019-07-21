@@ -27,7 +27,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Debug
+import com.pr0gramm.app.DebugConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.PermissionHelper
@@ -187,7 +187,7 @@ object AndroidUtility {
 
     fun buildVersionCode(): Int {
         if (BuildConfig.DEBUG) {
-            return Debug.versionOverride ?: BuildConfig.VERSION_CODE
+            return DebugConfig.versionOverride ?: BuildConfig.VERSION_CODE
         } else {
             return BuildConfig.VERSION_CODE
         }

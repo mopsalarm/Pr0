@@ -87,10 +87,10 @@ open class ApplicationClass : Application(), InjectorAware {
 
         doInBackground {
             // schedule first sync 30seconds after bootup.
-            SyncWorker.scheduleNextSyncIn(30, TimeUnit.SECONDS)
+            SyncWorker.scheduleNextSyncIn(this@ApplicationClass, 30, TimeUnit.SECONDS)
 
             // also schedule the nightly update job
-            SyncStatsWorker.schedule()
+            SyncStatsWorker.schedule(this@ApplicationClass)
         }
 
         // initialize this to show errors always in the context of the current activity.

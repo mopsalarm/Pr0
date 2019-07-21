@@ -16,7 +16,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         logger.info { "Sync worker started." }
 
         // schedule next sync
-        scheduleNextSyncIn(nextIntervalInMillis(), TimeUnit.MILLISECONDS, append = true)
+        scheduleNextSyncIn(context, nextIntervalInMillis(), TimeUnit.MILLISECONDS, append = true)
 
         // get service and sync now.
         val syncService = context.injector.instance<SyncService>()
@@ -37,16 +37,16 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         private val logger = Logger("SyncWorker")
         private val DEFAULT_SYNC_DELAY_MS = TimeUnit.MINUTES.toMillis(5)
 
-        fun syncNow() {
+        fun syncNow(ctx: Context) {
             // start normal sync cycle now.
-            scheduleNextSyncIn(0, TimeUnit.MILLISECONDS)
+            scheduleNextSyncIn(ctx, 0, TimeUnit.MILLISECONDS)
         }
 
-        fun scheduleNextSync() {
-            scheduleNextSyncIn(DEFAULT_SYNC_DELAY_MS, TimeUnit.MILLISECONDS)
+        fun scheduleNextSync(ctx: Context) {
+            scheduleNextSyncIn(ctx, DEFAULT_SYNC_DELAY_MS, TimeUnit.MILLISECONDS)
         }
 
-        fun scheduleNextSyncIn(delay: Long = DEFAULT_SYNC_DELAY_MS, unit: TimeUnit = TimeUnit.MILLISECONDS, append: Boolean = false) = doInBackground {
+        fun scheduleNextSyncIn(ctx: Context, delay: Long = DEFAULT_SYNC_DELAY_MS, unit: TimeUnit = TimeUnit.MILLISECONDS, append: Boolean = false) = doInBackground {
 
             val delayInMilliseconds = unit.toMillis(delay)
             logger.info { "Scheduling sync-job to run in ${Duration.millis(delayInMilliseconds)} (append=$append)" }
@@ -64,7 +64,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
             val policy = if (append) ExistingWorkPolicy.APPEND else ExistingWorkPolicy.REPLACE
 
-            val wm = WorkManager.getInstance()
+            val wm = WorkManager.getInstance(ctx)
             wm.enqueueUniqueWork("Sync", policy, request)
         }
     }

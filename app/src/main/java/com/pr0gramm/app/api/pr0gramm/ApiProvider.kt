@@ -28,7 +28,7 @@ class ApiProvider(base: String, client: OkHttpClient,
 
         val baseUrl = if (BuildConfig.DEBUG && settings.mockApi) {
             // activate this to use a mock
-            ("http://" + Debug.mockApiHost + ":8888").toHttpUrl()
+            ("http://" + DebugConfig.mockApiHost + ":8888").toHttpUrl()
         } else {
             base.toHttpUrl()
         }

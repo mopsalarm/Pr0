@@ -40,7 +40,7 @@ class SyncService(private val userService: UserService,
                 .subscribe { AsyncScope.launch { performSyncSeenService(it) } }
     }
 
-    suspend fun syncStatistics() {
+    suspend fun dailySync() {
         Stats().incrementCounter("jobs.sync-stats")
 
         logger.info { "Doing some statistics related trackings" }

@@ -89,7 +89,7 @@ fun appInjector(app: Application) = Module.build {
                 .apply {
                     debug {
                         @Suppress("ConstantConditionIf")
-                        if (Debug.debugInterceptor) {
+                        if (DebugConfig.debugInterceptor) {
                             addInterceptor(DebugInterceptor())
                         }
                     }

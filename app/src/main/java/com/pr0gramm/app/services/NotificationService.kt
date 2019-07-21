@@ -21,6 +21,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
+import com.pr0gramm.app.parcel.Freezer
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
@@ -104,7 +105,7 @@ class NotificationService(private val context: Application,
 
             setContentIntent(updateActivityIntent(update))
             setContentTitle(context.getString(R.string.notification_update_available))
-            setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
+            setContentText(context.getString(R.string.notification_update_available_text, update.versionStr))
             setSmallIcon(R.drawable.ic_notify_new_message)
             addAction(icon, "Download", updateActivityIntent(update))
             setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
@@ -304,7 +305,7 @@ class NotificationService(private val context: Application,
 
     private fun updateActivityIntent(update: Update): PendingIntent {
         val intent = Intent(context, UpdateActivity::class.java)
-        intent.putExtra(UpdateActivity.EXTRA_UPDATE, update)
+        intent.putExtra(UpdateActivity.EXTRA_UPDATE, Freezer.freeze(update))
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)

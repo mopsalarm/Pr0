@@ -1,35 +1,33 @@
 package com.pr0gramm.app.services
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.pr0gramm.app.model.update.UpdateModel
-import com.pr0gramm.app.parcel.creator
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.parcel.parcelableCreator
 
 /**
  * Update
  */
-data class Update(val version: Int, val apk: String, val changelog: String) : Parcelable {
+data class Update(val version: Int, val apk: String, val changelog: String) : Freezable {
     constructor(update: UpdateModel) : this(update.version, update.apk, update.changelog)
 
-    fun versionStr(): String {
-        return String.format("1.%d.%d", version / 10, version % 10)
+    val versionStr: String
+        get() {
+            return "1.${version / 10}.${version % 10}"
+        }
+
+    override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
+        writeInt(version)
+        writeString(apk)
+        writeString(changelog)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(dest: Parcel, f: Int) {
-        dest.writeInt(version)
-        dest.writeString(apk)
-        dest.writeString(changelog)
-    }
-
-    companion object {
+    companion object : Unfreezable<Update> {
         @JvmField
-        val CREATOR = creator {
-            Update(it.readInt(), it.readString()!!, it.readString()!!)
+        val CREATOR = parcelableCreator()
+
+        override fun unfreeze(source: Freezable.Source): Update = with(source) {
+            return Update(version = readInt(), apk = readString(), changelog = readString())
         }
     }
 }
-

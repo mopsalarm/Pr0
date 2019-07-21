@@ -459,7 +459,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override suspend fun onStartImpl() {
         launchIgnoreErrors {
-            runEvery(Duration.seconds(45)) { SyncWorker.syncNow() }
+            runEvery(Duration.seconds(45)) { SyncWorker.syncNow(this@MainActivity) }
         }
 
         if (coldStart) {

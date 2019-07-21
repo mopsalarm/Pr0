@@ -3,7 +3,7 @@ package com.pr0gramm.app.api.pr0gramm
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.pr0gramm.app.Debug
+import com.pr0gramm.app.DebugConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.adapter
@@ -86,7 +86,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
     private fun isNoApiRequest(uri: HttpUrl): Boolean {
         val isApiRequest = uri.host.equals("pr0gramm.com", ignoreCase = true)
-                || uri.host.contains(Debug.mockApiHost)
+                || uri.host.contains(DebugConfig.mockApiHost)
 
         return !isApiRequest
     }

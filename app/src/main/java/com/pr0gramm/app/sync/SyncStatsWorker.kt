@@ -3,7 +3,9 @@ package com.pr0gramm.app.sync
 import android.content.Context
 import androidx.work.*
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.setConstraintsCompat
 import java.util.concurrent.TimeUnit
 
@@ -15,13 +17,13 @@ class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWor
 
         // get service and sync now.
         val syncService = applicationContext.injector.instance<SyncService>()
-        syncService.syncStatistics()
+        syncService.dailySync()
 
         return Result.success()
     }
 
     companion object {
-        fun schedule() {
+        fun schedule(ctx: Context) {
             val builder = PeriodicWorkRequestBuilder<SyncStatsWorker>(
                     repeatInterval = 24, repeatIntervalTimeUnit = TimeUnit.HOURS,
                     flexTimeInterval = 6, flexTimeIntervalUnit = TimeUnit.HOURS)
@@ -30,9 +32,16 @@ class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWor
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
-            WorkManager.getInstance().enqueueUniquePeriodicWork(
+            WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
                     "SyncStats", ExistingPeriodicWorkPolicy.KEEP,
                     builder.setConstraintsCompat(constraints).build())
+
+            debug {
+                doInBackground {
+                    val syncService = ctx.injector.instance<SyncService>()
+                    syncService.dailySync()
+                }
+            }
         }
     }
 }
