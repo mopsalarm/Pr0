@@ -180,6 +180,12 @@ object Track : InjectorAware {
         }
     }
 
+    fun openZoomView(itemId: Long) {
+        send("zoom_view", Breadcrumb.Type.NAVIGATION) {
+            putLong("id", itemId)
+        }
+    }
+
     data class AuthState(val authorized: Boolean, val premium: Boolean)
 
 
