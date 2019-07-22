@@ -725,6 +725,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun findLastVisibleFeedItem(
             contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
 
+        // if we don't have a view, there wont be a visible item either.
+        if (view == null) {
+            return null
+        }
+
         val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
 
         val layoutManager = recyclerView.layoutManager as? GridLayoutManager

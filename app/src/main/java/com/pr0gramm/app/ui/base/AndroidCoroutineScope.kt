@@ -1,9 +1,6 @@
 package com.pr0gramm.app.ui.base
 
 import android.content.Context
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
@@ -180,26 +177,4 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T):
     }
 
     throw error
-}
-
-/**
- * Copied from coroutines-android
- */
-private fun Looper.asHandler(): Handler {
-    if (Build.VERSION.SDK_INT >= 28) {
-        return Handler.createAsync(this)
-    }
-
-    try {
-        val constructor = Handler::class.java.getDeclaredConstructor(
-                Looper::class.java,
-                Handler.Callback::class.java,
-                Boolean::class.javaPrimitiveType)
-
-        return constructor.newInstance(this, null, true)
-
-    } catch (ignored: NoSuchMethodException) {
-        // Hidden constructor absent. Fall back to non-async constructor.
-        return Handler(this)
-    }
 }

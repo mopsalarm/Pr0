@@ -104,8 +104,10 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
             return
         }
 
+        val filesInRoot = root.listFiles() ?: return
+
         // cache times to sort without someone modifying timestamps during sorting between
-        val modificationTimes = root.listFiles().associate { Pair(it, it.lastModified()) }
+        val modificationTimes = filesInRoot.associate { Pair(it, it.lastModified()) }
         val files = modificationTimes.keys.sortedByDescending { modificationTimes[it] }
 
         // The space already in use by the cache
