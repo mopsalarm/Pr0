@@ -22,4 +22,4 @@ class Memorizer<in T, out R>(val provider: (T) -> R) : ReadOnlyProperty<Any?, (T
     }
 }
 
-fun <T, R> memorize(provider: (T) -> R) = Memorizer<T, R>(provider)
+fun <T, R> memorize(provider: (T) -> R) = Memorizer(provider)

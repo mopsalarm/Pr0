@@ -2,16 +2,23 @@ package com.pr0gramm.app.ui.views
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.DashPathEffect
 import android.graphics.Paint
-import android.graphics.Path
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.time
+import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.memorize
 import com.pr0gramm.app.util.observeChangeEx
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
@@ -22,14 +29,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     private val lineWidth = context.dip2px(1f)
     private val lineMargin = context.dip2px(8f)
 
-    private val linePaint: Paint = paint {
-        isAntiAlias = false
-        color = context.getColorCompat(R.color.comment_line)
-        style = Paint.Style.STROKE
-        strokeWidth = 0f
-    }
-
-    val path = Path()
+    private val logger = Logger("CommentSpacerView")
 
     var depth: Int by observeChangeEx(-1) { oldValue, newValue ->
         if (oldValue != newValue) {
@@ -49,30 +49,33 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun spaceAtDepth(depth: Int): Float {
-        return basePaddingLeft + lineMargin * Math.pow(depth.toDouble(), 1 / 1.2).toFloat()
+        return basePaddingLeft + lineMargin * depth.toDouble().pow(1 / 1.2).toFloat()
     }
 
-    override fun onDraw(canvas: Canvas) {
-        canvas.drawPath(path, linePaint)
-    }
+    override fun onDraw(canvas: Canvas) = logger.time("Draw spacer at depth $depth") {
+        super.onDraw(canvas)
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
+        val colorful = Settings.get().colorfulCommentLines
 
-        if (changed) {
-            path.reset()
+        val height = height.toFloat()
 
-            val height = (b - t + 1).toFloat()
+        val paint = paint {
+            isAntiAlias = false
+            style = Paint.Style.STROKE
+            color = initialColor(context)
+            strokeWidth = context.dip2px(1f)
+        }
 
-            for (i in 1 until depth) {
-                val x = (spaceAtDepth(i) - lineWidth).toInt().toFloat()
+        for (idx in 1 until depth) {
+            val x = (spaceAtDepth(idx) - lineWidth).roundToInt().toFloat()
 
-                path.moveTo(x, 0f)
-                path.lineTo(x, height)
+            if (colorful) {
+                paint.color = colorValue(context, idx)
             }
 
-            linePaint.pathEffect = dashPathEffect(height)
+            canvas.drawLine(x, 0f, x, height, paint)
         }
+
     }
 
     private fun dashPathEffect(height: Float): DashPathEffect {
@@ -83,4 +86,57 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
 
         return DashPathEffect(floatArrayOf(modifiedSize, modifiedSize), 0f)
     }
+
+    companion object {
+        private val initialColor by memorize<Context, Int> { context ->
+            context.getColorCompat(R.color.comment_line)
+        }
+
+        private val cachedColorValues by memorize<Context, IntArray> { context ->
+            // themes we want to use
+            val themes = listOf(
+                    Themes.ORANGE, Themes.BLUE, Themes.OLIVE, Themes.PINK, Themes.GREEN,
+                    Themes.ORANGE, Themes.BLUE, Themes.OLIVE, Themes.PINK, Themes.GREEN)
+
+            // start at our currently configured theme
+            val themeSelection = themes.dropWhile { it !== ThemeHelper.theme }.take(5)
+
+            // get a list of the accent colors
+            val colors = listOf(initialColor(context)) + themeSelection.map { theme ->
+                blendColors(0.3f, initialColor(context), context.getColorCompat(theme.accentColor))
+            }
+
+            colors.toIntArray()
+        }
+
+        private fun colorValue(context: Context, depth: Int): Int {
+            if (depth < 3) {
+                return initialColor(context)
+            }
+
+            val colorValues = cachedColorValues(context)
+            return colorValues[(depth - 3) % colorValues.size]
+        }
+    }
+}
+
+private fun blendColors(factor: Float, source: Int, target: Int): Int {
+    val f = factor.coerceIn(0f, 1f)
+
+    val sa = Color.alpha(source)
+    val sr = Color.red(source)
+    val sg = Color.green(source)
+    val sb = Color.blue(source)
+
+    val ta = Color.alpha(target)
+    val tr = Color.red(target)
+    val tg = Color.green(target)
+    val tb = Color.blue(target)
+
+    val a = (sa + f * (ta - sa)).roundToInt() and 0xff
+    val r = (sr + f * (tr - sr)).roundToInt() and 0xff
+    val g = (sg + f * (tg - sg)).roundToInt() and 0xff
+    val b = (sb + f * (tb - sb)).roundToInt() and 0xff
+
+    return (a shl 24) or (r shl 16) or (g shl 8) or b
 }

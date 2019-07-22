@@ -515,5 +515,7 @@
     <string name="pref_use_doh_summary">Use DoH to encrypt domain lookups. This might also prevent blocking of pr0gramm on some open wifi networks.</string>
     <string name="action_open_in_admin">Open in Admin</string>
     <string name="old_android_reminder">Your android version is very old. App support will be discontinued soon.</string>
+    <string name="pref_colorful_comment_lines_title">Colorful comment lines</string>
+    <string name="pref_colorful_comment_lines_summary">Colorizes the lines indicating the comment depth and parent comment.</string>
 </resources>
 

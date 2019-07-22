@@ -214,6 +214,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val privateInput: Boolean
         get() = preferences.getBoolean("pref_private_input", false)
 
+    val colorfulCommentLines: Boolean
+        get() = preferences.getBoolean("pref_colorful_comment_lines", false)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit {

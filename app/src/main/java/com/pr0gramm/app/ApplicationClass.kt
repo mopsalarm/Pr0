@@ -22,6 +22,7 @@ import io.sentry.Sentry
 import io.sentry.android.AndroidSentryClientFactory
 import io.sentry.context.Context
 import io.sentry.context.ContextManager
+import io.sentry.dsn.Dsn
 import io.sentry.event.Breadcrumb
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
@@ -63,10 +64,14 @@ open class ApplicationClass : Application(), InjectorAware {
         }
     }
 
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(base)
+
+        initializeSentry()
+    }
+
     override fun onCreate() {
         super.onCreate()
-
-        setupSentry()
 
         // handler to ignore certain exceptions before they reach sentry
         ExceptionHandler.install(this)
@@ -113,7 +118,7 @@ open class ApplicationClass : Application(), InjectorAware {
         Stats().histogram("app.boot.time", bootupWatch.elapsed().millis)
     }
 
-    private fun setupSentry() {
+    private fun initializeSentry() {
         // setup sentry
         val sentryToken = "https://a16a17b965a44a9eb100bc0af7f4d684@sentry.io/1507302"
 
@@ -172,7 +177,11 @@ open class ApplicationClass : Application(), InjectorAware {
 }
 
 
-private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx)
+private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx) {
+    private val manager = SentryContextManager()
+
+    override fun getContextManager(dsn: Dsn?): ContextManager = manager
+}
 
 private class SentryContextManager : ContextManager {
     private val context = Context(256)
