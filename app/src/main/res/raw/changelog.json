@@ -1,5 +1,14 @@
 [
   {
+    "version": 170,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Nachdem Mowa gemeckert hat, dass er die Beziehung zwischen Kommentaren nicht erkennen kann, gibt es nun eine Einstellung um die Kommentarlinien einzufärben."
+      }
+    ]
+  },
+  {
     "version": 169,
     "changes": [
       {
