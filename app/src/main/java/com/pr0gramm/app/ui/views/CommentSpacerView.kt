@@ -98,11 +98,15 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
                     Themes.ORANGE, Themes.BLUE, Themes.OLIVE, Themes.PINK, Themes.GREEN,
                     Themes.ORANGE, Themes.BLUE, Themes.OLIVE, Themes.PINK, Themes.GREEN)
 
-            // start at our currently configured theme
-            val themeSelection = themes.dropWhile { it !== ThemeHelper.theme }.take(5)
+            // start at our currently configured theme (if it is in the list of themes)
+            val themeSelection = if (ThemeHelper.theme in themes) {
+                themes.dropWhile { it !== ThemeHelper.theme }
+            } else {
+                themes
+            }
 
             // get a list of the accent colors
-            val colors = listOf(initialColor(context)) + themeSelection.map { theme ->
+            val colors = listOf(initialColor(context)) + themeSelection.take(5).map { theme ->
                 blendColors(0.3f, initialColor(context), context.getColorCompat(theme.accentColor))
             }
 
