@@ -39,12 +39,19 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
+    var spacings: Long by observeChangeEx(0L) { oldValue, newValue ->
+        if (oldValue != newValue) {
+            invalidate()
+        }
+    }
+
     init {
         // we need to overwrite the default of the view group.
         setWillNotDraw(false)
 
         if (isInEditMode) {
-            depth = 1
+            depth = 5
+            spacings = 5L
         }
     }
 
@@ -66,7 +73,14 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             strokeWidth = context.dip2px(1f)
         }
 
+        val spacings = spacings
         for (idx in 1 until depth) {
+            val bit = 1L shl (idx + 1)
+
+            if (spacings and bit == 0L) {
+                continue
+            }
+
             val x = (spaceAtDepth(idx) - lineWidth).roundToInt().toFloat()
 
             if (colorful) {
@@ -74,6 +88,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             }
 
             canvas.drawLine(x, 0f, x, height, paint)
+
         }
 
     }

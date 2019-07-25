@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui.views
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.core.content.ContextCompat
 import com.pnikosis.materialishprogress.ProgressWheel
 import com.pr0gramm.app.services.ThemeHelper.accentColor
+import com.pr0gramm.app.util.getColorCompat
 
 /**
  * A busy indicator in the apps accent color.
@@ -13,7 +13,7 @@ class BusyIndicator @JvmOverloads constructor(context: Context, attrs: Attribute
         ProgressWheel(context, attrs) {
 
     init {
-        barColor = ContextCompat.getColor(context, accentColor)
+        barColor = context.getColorCompat(accentColor)
         spin()
     }
 }

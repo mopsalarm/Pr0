@@ -14,7 +14,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
@@ -463,7 +462,7 @@ private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Ca
 
             val delta = (graph.last.y - graph.first.y).toInt()
             val color = if (delta < 0) R.color.benis_delta_negative else R.color.benis_delta_positive
-            holder.delta.setTextColor(ContextCompat.getColor(context, color))
+            holder.delta.setTextColor(context.getColorCompat(color))
             holder.delta.text = (if (delta < 0) "↓" else "↑") + delta
             holder.delta.visible = true
         } else {

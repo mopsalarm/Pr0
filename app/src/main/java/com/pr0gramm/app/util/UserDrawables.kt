@@ -3,7 +3,6 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import androidx.core.content.ContextCompat
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.pr0gramm.app.R
@@ -14,7 +13,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
  */
 class UserDrawables(context: Context) {
     private val shapes = TextDrawable.builder().beginConfig()
-            .textColor(ContextCompat.getColor(context, R.color.feed_background))
+            .textColor(context.getColorCompat(R.color.feed_background))
             .fontSize(context.dip2px(18))
             .bold()
             .endConfig()

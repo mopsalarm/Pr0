@@ -7,12 +7,12 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.use
 
 /**
@@ -37,9 +37,9 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         var textSize = 24
         var spacing = context.dip2px(4)
 
-        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, accentColor))
-        markedColorDown = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
-        defaultColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
+        markedColor = ColorStateList.valueOf(context.getColorCompat(accentColor))
+        markedColorDown = ColorStateList.valueOf(context.getColorCompat(R.color.white))
+        defaultColor = ColorStateList.valueOf(context.getColorCompat(R.color.white))
 
         if (attrs != null) {
             context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
@@ -158,6 +157,8 @@ class CommentView(val parent: ViewGroup,
         val changed = id.update(comment.id)
 
         commentView.depth = item.depth
+        commentView.spacings = item.spacings
+
         reply.visible = item.depth < maxLevels
 
         senderInfo.setSenderName(comment.name, comment.mark)
@@ -192,7 +193,7 @@ class CommentView(val parent: ViewGroup,
         }
 
         if (item.selectedComment) {
-            val color = ContextCompat.getColor(context, R.color.selected_comment_background)
+            val color = context.getColorCompat(R.color.selected_comment_background)
             itemView.setBackgroundColor(color)
         } else {
             ViewCompat.setBackground(itemView, null)
@@ -203,11 +204,11 @@ class CommentView(val parent: ViewGroup,
             val newVote = if (isFavorite) Vote.UP else Vote.FAVORITE
 
             if (isFavorite) {
-                val color = ContextCompat.getColor(context, ThemeHelper.accentColor)
+                val color = context.getColorCompat(ThemeHelper.accentColor)
                 fav.setColorFilter(color)
                 fav.setImageResource(R.drawable.ic_vote_fav)
             } else {
-                val color = ContextCompat.getColor(context, R.color.grey_700)
+                val color = context.getColorCompat(R.color.grey_700)
                 fav.setColorFilter(color)
                 fav.setImageResource(R.drawable.ic_vote_fav_outline)
             }
@@ -305,8 +306,6 @@ class CommentTree(val state: Input) {
      */
     private val linearizedComments: List<Api.Comment> = run {
         // bring op comments to top, then order by confidence.
-        // actually we'll sort in reverse. We use this fact to optimize the
-        // linearize step
         val ordering = compareBy<Api.Comment> { it.name == state.op }.thenBy { it.confidence }
         byParent.values.forEach { children -> children.sortWith(ordering) }
 
@@ -330,21 +329,48 @@ class CommentTree(val state: Input) {
     }
 
     val visibleComments: List<Item> = run {
-        linearizedComments.map { comment ->
+        val depths = IntArray(linearizedComments.size)
+        val spacings = LongArray(linearizedComments.size)
+
+        for ((idx, comment) in linearizedComments.withIndex()) {
             val depth = depthOf(comment)
+
+            // cache depths by index so we can easily scan back later
+            depths[idx] = depth
+
+            // the bit we want to set for this comment
+            val bit = 1L shl depth
+
+            // set bit for the current comment
+            spacings[idx] = spacings[idx] or bit
+
+            // scan back until we find a comment with the same depth,
+            // or the parent comment
+            for (offset in (1..idx)) {
+                if (depths[idx - offset] <= depth) {
+                    break
+                }
+
+                spacings[idx - offset] = spacings[idx - offset] or bit
+            }
+
+        }
+
+        linearizedComments.mapIndexed { idx, comment ->
             val vote = currentVote(comment)
-            val score = commentScore(comment, vote)
-
             val isCollapsed = comment.id in state.collapsed
-            val hiddenCount = if (isCollapsed) countSubTreeComments(comment) else null
 
-            val hasChildren = comment.id in byParent
-            val hasOpBadge = state.op == comment.name
-            val pointsVisible = state.isAdmin || state.self == comment.name
-            val selectedComment = state.selectedCommentId == comment.id
-
-            Item(comment, vote, depth, hasChildren, score, hasOpBadge, hiddenCount,
-                    pointsVisible, selectedComment)
+            return@mapIndexed Item(
+                    comment = comment,
+                    vote = vote,
+                    depth = depths[idx],
+                    spacings = spacings[idx],
+                    hasChildren = comment.id in byParent,
+                    currentScore = commentScore(comment, vote),
+                    hasOpBadge = state.op == comment.name,
+                    hiddenCount = if (isCollapsed) countSubTreeComments(comment) else null,
+                    pointsVisible = state.isAdmin || state.self == comment.name,
+                    selectedComment = state.selectedCommentId == comment.id)
         }
     }
 
@@ -413,6 +439,7 @@ class CommentTree(val state: Input) {
     data class Item(val comment: Api.Comment,
                     val vote: Vote,
                     val depth: Int,
+                    val spacings: Long,
                     val hasChildren: Boolean,
                     val currentScore: CommentScore,
                     val hasOpBadge: Boolean,

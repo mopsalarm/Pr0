@@ -12,7 +12,6 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import androidx.core.content.ContextCompat
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -164,7 +163,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             val preloadHint = TextView(context)
             preloadHint.text = "preloaded"
             preloadHint.layoutParams = DEFAULT_PARAMS
-            preloadHint.setTextColor(ContextCompat.getColor(context, ThemeHelper.accentColor))
+            preloadHint.setTextColor(context.getColorCompat(ThemeHelper.accentColor))
             addView(preloadHint)
         }
     }
