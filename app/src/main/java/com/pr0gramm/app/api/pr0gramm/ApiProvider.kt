@@ -2,7 +2,6 @@ package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.catchAll
-import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -14,7 +13,6 @@ import retrofit2.create
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
-import java.util.concurrent.CancellationException
 
 class ApiProvider(base: String, client: OkHttpClient,
                   private val cookieJar: LoginCookieJar) {
@@ -70,33 +68,8 @@ class ApiProvider(base: String, client: OkHttpClient,
                 }
             }
 
-            val watch = Stopwatch()
-
-            try {
-                val result = doInvoke(method, args)
-                if (result is Deferred<*>) {
-                    result.invokeOnCompletion { err ->
-                        if (err !is CancellationException) {
-                            measureApiCall(watch, method, err == null)
-                        }
-                    }
-                } else {
-                    measureApiCall(watch, method, true)
-                }
-
-                return result
-
-            } catch (err: Exception) {
-                measureApiCall(watch, method, false)
-                throw err
-            }
+            return doInvoke(method, args)
         }
-    }
-
-    private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
-        val millis = watch.elapsed().millis
-
-        Stats().time("api.call", millis, "method:${method.name}", "success:$success")
     }
 
     private inner class ErrorInterceptor : Interceptor {
