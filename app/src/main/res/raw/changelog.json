@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Nachdem Mowa gemeckert hat, dass er die Beziehung zwischen Kommentaren nicht erkennen kann, gibt es nun eine Einstellung um die Kommentarlinien einzufärben."
+        "change": "Nachdem Mowa gemeckert hat, dass er die Beziehung zwischen Kommentaren nicht erkennen kann, gibt es nun eine Einstellung um die Kommentarlinien einzufärben. Sie zeigen nun auch klarer an, zu welchem Elternkommentar sie gehören."
       }
     ]
   },
