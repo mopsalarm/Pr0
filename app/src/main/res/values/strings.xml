@@ -286,7 +286,7 @@
     <string name="action_invite">INVITES</string>
     <string name="invites_title">Invites</string>
     <string name="invite_description" translatable="false">Wenn Du keine Neuschwuchtel oder Fliesentischbesitzer bist und ein paar Invites übrig hast, kannst du hier Deine Freunde zu pr0gramm einladen.</string>
-    <string name="invite_description_warning" translatable="false">Beachte, dass Du für jeden eingeladenen Benutzer bürgst und automatisch bei jedem Ban für die halbe Zeit mit geblockt wirst!</string>
+    <string name="invite_description_warning" translatable="false">Beachte, dass Du für jeden eingeladenen Benutzer bürgst und automatisch bei jedem Ban für die halbe Zeit mit gesperrt wirst!</string>
     <string name="invite_send">Send invite</string>
     <string name="invite_email_hint" translatable="false">gamb@pr0gramm.com</string>
     <string name="error_email">Must be a valid email</string>
