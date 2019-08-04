@@ -650,8 +650,7 @@ fun File.updateTimestamp(): Boolean {
 val Uri.isLocalFile get(): Boolean = scheme == "file"
 
 fun AppCompatTextView.setTextFuture(text: CharSequence) {
-    setTextFuture(PrecomputedTextCompat.getTextFuture(
-            text, textMetricsParamsCompat, null))
+    setTextFuture(PrecomputedTextCompat.getTextFuture(text, textMetricsParamsCompat, null))
 }
 
 fun TextView.setTextFuture(text: CharSequence) {

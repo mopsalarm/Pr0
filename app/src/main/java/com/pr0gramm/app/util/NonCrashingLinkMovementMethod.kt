@@ -28,8 +28,8 @@ object NonCrashingLinkMovementMethod : LinkMovementMethod() {
         }
     }
 
-    override fun onTouchEvent(widget: TextView, buffer: Spannable,
-                              event: MotionEvent): Boolean {
+    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
+
         val action = event.action
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {

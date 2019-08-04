@@ -359,7 +359,6 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
             }
         }
 
-        holder.message.movementMethod = NonCrashingLinkMovementMethod
         holder.message.setTextFuture(text)
 
         holder.time.text = value.creationTime.toString(format)
