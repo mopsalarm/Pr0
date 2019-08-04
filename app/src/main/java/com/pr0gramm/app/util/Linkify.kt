@@ -86,8 +86,7 @@ object Linkify {
                 when {
                     // direct link to a comment
                     parsed.itemId > 0 && parsed.commentId != null ->
-                        CommentSpan(callback, url,
-                                Comment(parsed.itemId, parsed.commentId))
+                        CommentSpan(callback, url, Comment(parsed.itemId, parsed.commentId))
 
                     // direct link to an item
                     parsed.itemId > 0 ->

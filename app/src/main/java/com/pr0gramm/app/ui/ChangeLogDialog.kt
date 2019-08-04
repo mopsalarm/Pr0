@@ -73,7 +73,7 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
                             .append(" ")
                             .append(change.change)
 
-                    if (change.change.contains("://")) {
+                    if ("://" in change.change || "@" in change.change) {
                         // might contains links that we want to display?
                         Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
                     } else {
