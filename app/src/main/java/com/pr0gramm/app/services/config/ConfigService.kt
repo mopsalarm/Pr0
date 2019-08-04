@@ -58,7 +58,7 @@ class ConfigService(context: Application,
 
             val config = kotlin.runCatching {
                 val bust = Instant.now().millis / (60 * 1000L)
-                val rules = api.remoteConfigAsync(bust)
+                val rules = api.remoteConfig(bust)
                 ConfigEvaluator.evaluate(context, rules)
             }
 

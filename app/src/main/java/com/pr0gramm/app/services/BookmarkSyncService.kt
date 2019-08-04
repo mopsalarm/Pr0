@@ -20,17 +20,17 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
         val link = "/" + bookmark.migrate().link!!.trimStart('/')
 
         logger.info { "add bookmark '$title' ($link)" }
-        val bookmarks = api.bookmarksAddAsync(null, title, link)
+        val bookmarks = api.bookmarksAdd(null, title, link)
         return translate(bookmarks)
     }
 
     suspend fun fetch(anonymous: Boolean = !isAuthorized): List<Bookmark> {
-        val def = if (anonymous) api.defaultBookmarksAsync() else api.bookmarksAsync()
+        val def = if (anonymous) api.defaultBookmarks() else api.bookmarks()
         return translate(def)
     }
 
     suspend fun delete(title: String): List<Bookmark> {
-        return translate(api.bookmarksDeleteAsync(null, title))
+        return translate(api.bookmarksDelete(null, title))
     }
 }
 

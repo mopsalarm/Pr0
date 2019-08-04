@@ -26,11 +26,11 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
             .create<Api>()
 
     suspend fun fetch(): InfoMessage {
-        return api.getAsync()
+        return api.get()
     }
 
     private interface Api {
         @GET("info-message.json")
-        suspend fun getAsync(): InfoMessage
+        suspend fun get(): InfoMessage
     }
 }

@@ -11,7 +11,7 @@ import java.util.*
 
 interface Api {
     @GET("/api/items/get")
-    suspend fun itemsGetAsync(
+    suspend fun itemsGet(
             @Query("promoted") promoted: Int?,
             @Query("following") following: Int?,
             @Query("older") older: Long?,
@@ -25,28 +25,28 @@ interface Api {
 
     @FormUrlEncoded
     @POST("/api/items/vote")
-    suspend fun voteAsync(
+    suspend fun vote(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
             @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
-    suspend fun voteTagAsync(
+    suspend fun voteTag(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
             @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
-    suspend fun voteCommentAsync(
+    suspend fun voteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
             @Field("vote") voteValue: Int): Unit
 
     @FormUrlEncoded
     @POST("/api/user/login")
-    suspend fun loginAsync(
+    suspend fun login(
             @Field("name") username: String,
             @Field("password") password: String): Response<Login>
 
@@ -55,17 +55,17 @@ interface Api {
 
     @FormUrlEncoded
     @POST("/api/tags/add")
-    suspend fun addTagsAsync(
+    suspend fun addTags(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") lastId: Long,
             @Field("tags") tags: String): NewTag
 
     @GET("/api/tags/top")
-    suspend fun topTagsAsync(): TagTopList
+    suspend fun topTags(): TagTopList
 
     @FormUrlEncoded
     @POST("/api/comments/post")
-    suspend fun postCommentAsync(
+    suspend fun postComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("parentId") parentId: Long,
@@ -73,87 +73,87 @@ interface Api {
 
     @FormUrlEncoded
     @POST("/api/comments/delete")
-    suspend fun hardDeleteCommentAsync(
+    suspend fun hardDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
             @Field("reason") reason: String): Unit
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
-    suspend fun softDeleteCommentAsync(
+    suspend fun softDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
             @Field("reason") reason: String): Unit
 
     @GET("/api/items/info")
-    suspend fun infoAsync(
+    suspend fun info(
             @Query("itemId") itemId: Long,
             @Query("bust") bust: Long?): Post
 
     @GET("/api/user/sync")
-    suspend fun syncAsync(
+    suspend fun sync(
             @Query("offset") offset: Long): Sync
 
     @GET("/api/user/info")
-    suspend fun accountInfoAsync(): AccountInfo
+    suspend fun accountInfo(): AccountInfo
 
     @GET("/api/profile/info")
-    suspend fun infoAsync(
+    suspend fun info(
             @Query("name") name: String,
             @Query("flags") flags: Int?): Info
 
     @GET("/api/inbox/pending")
-    suspend fun inboxPendingAsync(): MessageFeed
+    suspend fun inboxPending(): MessageFeed
 
     @GET("/api/inbox/conversations")
-    suspend fun listConversationsAsync(
+    suspend fun listConversations(
             @Query("older") older: Long?): Conversations
 
     @GET("/api/inbox/messages")
-    suspend fun messagesWithAsync(
+    suspend fun messagesWith(
             @Query("with") name: String,
             @Query("older") older: Long?): ConversationMessages
 
     @GET("/api/inbox/comments")
-    suspend fun inboxCommentsAsync(
+    suspend fun inboxComments(
             @Query("older") older: Long?): MessageFeed
 
     @GET("/api/profile/comments")
-    suspend fun userCommentsAsync(
+    suspend fun userComments(
             @Query("name") user: String,
             @Query("before") before: Long?,
             @Query("flags") flags: Int?): UserComments
 
     @GET("/api/profile/commentlikes")
-    suspend fun userCommentsLikeAsync(
+    suspend fun userCommentsLike(
             @Query("name") user: String,
             @Query("before") before: Long,
             @Query("flags") flags: Int?): FavedUserComments
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
-    suspend fun sendMessageAsync(
+    suspend fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
             @Field("recipientId") recipient: Long): Unit
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
-    suspend fun sendMessageAsync(
+    suspend fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
             @Field("recipientName") recipient: String): ConversationMessages
 
     @GET("/api/items/ratelimited")
-    suspend fun ratelimitedAsync(): Unit
+    suspend fun ratelimited(): Unit
 
     @POST("/api/items/upload")
-    suspend fun uploadAsync(
+    suspend fun upload(
             @Body body: RequestBody): Upload
 
     @FormUrlEncoded
     @POST("/api/items/post")
-    suspend fun postAsync(
+    suspend fun post(
             @Field("_nonce") nonce: Nonce?,
             @Field("sfwstatus") sfwStatus: String,
             @Field("tags") tags: String,
@@ -162,19 +162,19 @@ interface Api {
             @Field("processAsync") processAsync: Int?): Posted
 
     @GET("/api/items/queue")
-    suspend fun queueAsync(
+    suspend fun queue(
             @Query("id") id: Long?): QueueState
 
     @FormUrlEncoded
     @POST("/api/user/invite")
-    suspend fun inviteAsync(
+    suspend fun invite(
             @Field("_nonce") nonce: Nonce?,
             @Field("email") email: String): Invited
 
     // Extra stuff for admins
     @FormUrlEncoded
     @POST("api/items/delete")
-    suspend fun deleteItemAsync(
+    suspend fun deleteItem(
             @Field("_nonce") none: Nonce?,
             @Field("id") id: Long,
             @Field("reason") reason: String,
@@ -184,7 +184,7 @@ interface Api {
 
     @FormUrlEncoded
     @POST("backend/admin/?view=users&action=ban")
-    suspend fun userBanAsync(
+    suspend fun userBan(
             @Field("name") name: String,
             @Field("reason") reason: String,
             @Field("customReason") reasonCustom: String,
@@ -192,12 +192,12 @@ interface Api {
             @Field("mode") mode: BanMode): Unit
 
     @GET("api/tags/details")
-    suspend fun tagDetailsAsync(
+    suspend fun tagDetails(
             @Query("itemId") itemId: Long): TagDetails
 
     @FormUrlEncoded
     @POST("api/tags/delete")
-    suspend fun deleteTagAsync(
+    suspend fun deleteTag(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
@@ -206,30 +206,30 @@ interface Api {
 
     @FormUrlEncoded
     @POST("api/profile/follow")
-    suspend fun profileFollowAsync(
+    suspend fun profileFollow(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") username: String): Unit
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
-    suspend fun profileUnfollowAsync(
+    suspend fun profileUnfollow(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") username: String): Unit
 
     @GET("api/profile/suggest")
-    suspend fun suggestUsersAsync(
+    suspend fun suggestUsers(
             @Query("prefix") prefix: String): Names
 
     @FormUrlEncoded
     @POST("api/contact/send")
-    suspend fun contactSendAsync(
+    suspend fun contactSend(
             @Field("subject") subject: String,
             @Field("email") email: String,
             @Field("message") message: String): Unit
 
     @FormUrlEncoded
     @POST("api/contact/report")
-    suspend fun reportAsync(
+    suspend fun report(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
@@ -237,42 +237,42 @@ interface Api {
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
-    suspend fun requestPasswordRecoveryAsync(
+    suspend fun requestPasswordRecovery(
             @Field("email") email: String): Unit
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")
-    suspend fun resetPasswordAsync(
+    suspend fun resetPassword(
             @Field("name") name: String,
             @Field("token") token: String,
             @Field("password") password: String): ResetPassword
 
     @FormUrlEncoded
     @POST("api/user/handoverrequest")
-    suspend fun handoverTokenAsync(
+    suspend fun handoverToken(
             @Field("_nonce") nonce: Nonce?): HandoverToken
 
     @GET("api/bookmarks/get")
-    suspend fun bookmarksAsync(): Bookmarks
+    suspend fun bookmarks(): Bookmarks
 
     @GET("api/bookmarks/get?default")
-    suspend fun defaultBookmarksAsync(): Bookmarks
+    suspend fun defaultBookmarks(): Bookmarks
 
     @FormUrlEncoded
     @POST("api/bookmarks/add")
-    suspend fun bookmarksAddAsync(
+    suspend fun bookmarksAdd(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") name: String,
             @Field("link") link: String): Bookmarks
 
     @FormUrlEncoded
     @POST("api/bookmarks/delete")
-    suspend fun bookmarksDeleteAsync(
+    suspend fun bookmarksDelete(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") name: String): Bookmarks
 
     @GET("media/app-config.json")
-    suspend fun remoteConfigAsync(@Query("bust") bust: Long): List<Rule>
+    suspend fun remoteConfig(@Query("bust") bust: Long): List<Rule>
 
     data class Nonce(val value: String) {
         override fun toString(): String = value.take(16)

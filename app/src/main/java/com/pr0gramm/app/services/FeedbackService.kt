@@ -51,7 +51,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         val encoded = bytes.encodeBase64()
 
         logger.info { "Sending feedback with ${encoded.length}bytes of logcat" }
-        api.postAsync(name, feedback, version, encoded)
+        api.post(name, feedback, version, encoded)
     }
 
     private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
@@ -107,10 +107,10 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     private interface Api {
         @FormUrlEncoded
         @POST("post")
-        suspend fun postAsync(@Field("name") name: String,
-                              @Field("feedback") feedback: String,
-                              @Field("version") version: String,
-                              @Field("logcat64") logcat: String): Unit
+        suspend fun post(@Field("name") name: String,
+                         @Field("feedback") feedback: String,
+                         @Field("version") version: String,
+                         @Field("logcat64") logcat: String): Unit
     }
 
 

@@ -45,7 +45,7 @@ class KVService(okHttpClient: OkHttpClient) {
 
     suspend fun get(ident: String, key: String): GetResult {
         return try {
-            api.getValueAsync(tokenOf(ident), key)
+            api.getValue(tokenOf(ident), key)
         } catch (err: HttpException) {
             if (err.code() != 404)
                 throw err
@@ -60,7 +60,7 @@ class KVService(okHttpClient: OkHttpClient) {
         val body = value.toRequestBody("application/octet".toMediaTypeOrNull())
 
         return try {
-            api.putValueAsync(tokenOf(ident), key, version, body)
+            api.putValue(tokenOf(ident), key, version, body)
         } catch (err: HttpException) {
             if (err.code() != 409)
                 throw err
@@ -73,12 +73,12 @@ class KVService(okHttpClient: OkHttpClient) {
 
     private interface Api {
         @GET("token/{token}/key/{key}")
-        suspend fun getValueAsync(
+        suspend fun getValue(
                 @Path("token") token: UUID,
                 @Path("key") key: String): GetResult.Value
 
         @POST("token/{token}/key/{key}/version/{version}")
-        suspend fun putValueAsync(
+        suspend fun putValue(
                 @Path("token") token: UUID,
                 @Path("key") key: String,
                 @Path("version") version: Int,
