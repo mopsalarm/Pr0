@@ -1,5 +1,6 @@
 package com.pr0gramm.app.model.bookmark
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -14,4 +15,5 @@ data class Bookmark(
         val trending: Boolean = false,
 
         // new optional field for migrated bookmarks
-        val link: String? = null)
+        @Json(name = "link")
+        val _link: String? = null)

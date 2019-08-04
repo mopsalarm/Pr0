@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Die App kann nun direkt mit einem Lesezeichen gestartet werden. Lesezeichen können jetzt auch als Icons im Launcher angelegt werden."
+      },
+      {
+        "type": "Neu",
         "change": "Nachdem Mowa gemeckert hat, dass er die Beziehung zwischen Kommentaren nicht erkennen kann, gibt es nun eine Einstellung um die Kommentarlinien einzufärben. Sie zeigen nun auch klarer an, zu welchem Elternkommentar sie gehören."
       }
     ]

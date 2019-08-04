@@ -4,7 +4,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.bookmark.Bookmark
-import com.pr0gramm.app.orm.migrate
+import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.util.StringException
 
 class BookmarkSyncService(private val api: Api, private val userService: UserService) {
@@ -17,7 +17,7 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
     suspend fun add(bookmark: Bookmark): List<Bookmark> {
         val title = bookmark.title
 
-        val link = "/" + bookmark.migrate().link!!.trimStart('/')
+        val link = "/" + bookmark.link.trimStart('/')
 
         logger.info { "add bookmark '$title' ($link)" }
         val bookmarks = api.bookmarksAdd(null, title, link)
@@ -53,5 +53,5 @@ private fun isAppSpecialCategory(bookmark: Api.Bookmark): Boolean {
 }
 
 private fun bookmarkOf(b: Api.Bookmark, trending: Boolean): Bookmark {
-    return Bookmark(b.name, link = b.link, trending = trending)
+    return Bookmark(b.name, _link = b.link, trending = trending)
 }

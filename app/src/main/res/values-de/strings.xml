@@ -164,7 +164,7 @@
     <string name="pref_website_summary">Empfehle https://app.pr0gramm.com/ deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
     <string name="pref_feed_start_at_new_title">Starte mit Neu</string>
-    <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet.</string>
+    <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet und du kein Lesezeichen als deine Standardansicht verwendest.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
     <string name="repost">repost</string>
     <string name="pref_single_tap_for_fullscreen_title">Klick für Vollbild</string>
@@ -230,7 +230,7 @@
     <string name="action_switch_to_new">In \'neu\' öffnen</string>
     <string name="action_switch_to_top">In \'top\' öffnen</string>
     <string name="action_delete_item">Löschen</string>
-    <string name="delete">Löschen</string>
+    <string name="action_delete">Löschen</string>
     <string name="hint_block_user_for">User sperren (Tage)</string>
     <string name="pref_theme_title">Theme auswählen</string>
     <string name="pref_theme_summary">Du kannst zwischen verschiedenen Themes wählen. Gefällt dir <i>Bewährtes Orange</i> oder stehst du eher auf <i>Angenehmes Grün</i>?</string>
@@ -493,5 +493,10 @@
     <string name="old_android_reminder">Deine Android Version ist sehr alt. Der App Support wird bald eingestellt.</string>
     <string name="pref_colorful_comment_lines_title">Farbige Kommentarlinien</string>
     <string name="pref_colorful_comment_lines_summary">Färbt die Kommentarlinien unterschiedlich ein um die jewilige Tiefe und den Elternkommentar hervorzuheben.</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_shortcut">Verknüpfung</string>
+    <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen TItel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
+    <string name="hint_bookmark_onload">Dieses Lesezeichen beim Starten der App anstelle von Neu oder Beliebt verwenden.</string>
+    <string name="action_rename">Umnennen</string>
 
 </resources>

@@ -216,6 +216,9 @@ class UserService(private val api: Api,
         // and reset the content user, because only signed in users can
         // see the nsfw and nsfl stuff.
         Settings.get().resetContentTypeSettings()
+
+        // do not load automatically anymore
+        Settings.get().feedStartWithUri = null
     }
 
     /**

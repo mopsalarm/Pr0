@@ -10,6 +10,7 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.orm.isImmutable
+import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.orm.migrate
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
@@ -133,7 +134,7 @@ class BookmarkService(
     private fun mergeCurrentState(update: List<Bookmark>) {
         synchronized(bookmarks) {
             // get the local ones that dont have a 'link' yet
-            val local = bookmarks.value.filter { it.link == null || it.notSyncable }
+            val local = bookmarks.value.filter { it._link == null || it.notSyncable }
 
             // and merge them together, with the local ones winning.
             val merged = (local + update).distinctBy { it.title.toLowerCase() }
@@ -228,11 +229,9 @@ class BookmarkService(
                 return false
 
             // can only by synced if strings are short.
-            val link = this.migrate().link!!
+            val link = this.link
             return title.length < 255 && link.length < 255
         }
 
     private val Bookmark.notSyncable: Boolean get() = !syncable
-
-    private val Bookmark.requiresSync: Boolean get() = link == null && syncable
 }

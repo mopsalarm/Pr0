@@ -13,9 +13,8 @@ val Bookmark.isImmutable: Boolean get() = trending
  * Create a feed filter from this bookmark.
  */
 fun Bookmark.asFeedFilter(): FeedFilter {
-    val link = this.link
+    val link = this._link
     if (link != null) {
-        val uri = Uri.parse("https://pr0gramm.com/").buildUpon().encodedPath(link).build()
         return FilterParser.parse(uri)?.filter ?: FeedFilter()
 
     } else {
@@ -36,7 +35,7 @@ fun Bookmark.asFeedFilter(): FeedFilter {
 
 fun Bookmark.migrate(): Bookmark {
     // return directly if already migrated
-    if (link != null) {
+    if (_link != null) {
         return this
     }
 
@@ -59,8 +58,14 @@ fun Bookmark.migrate(): Bookmark {
         uri.appendPath(filter.tags)
     }
 
-    return Bookmark(title, link = uri.build().encodedPath, trending = trending)
+    return Bookmark(title, _link = uri.build().encodedPath, trending = trending)
 }
+
+val Bookmark.link: String
+    get() = migrate()._link!!
+
+val Bookmark.uri: Uri
+    get() = Uri.parse("https://pr0gramm.com").buildUpon().encodedPath(link).build()
 
 fun bookmarkOf(title: String, filter: FeedFilter): Bookmark {
     return Bookmark(title, filter.tags, filter.username, filter.feedType.name)

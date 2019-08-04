@@ -527,6 +527,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun defaultFeedFilter(): FeedFilter {
+        if (userService.userIsPremium) {
+            // try to parse bookmark filter first
+            settings.feedStartWithUri?.let { uri ->
+                val parsed = FilterParser.parse(uri)
+                if (parsed != null)
+                    return parsed.filter
+            }
+        }
+
+        // fall back to NEW or PROMOTED otherwise.
         val type = if (settings.feedStartAtNew) FeedType.NEW else FeedType.PROMOTED
         return FeedFilter().withFeedType(type)
     }

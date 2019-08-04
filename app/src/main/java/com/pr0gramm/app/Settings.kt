@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Environment
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
@@ -133,6 +134,10 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val feedStartAtNew: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_new", false)
+
+    var feedStartWithUri: Uri?
+        get() = preferences.getStringOrNull("pref_feed_start_with_uri")?.let { Uri.parse(it) }
+        set(uri) = preferences.edit { putString("pref_feed_start_with_uri", uri?.toString()) }
 
     val feedStartAtSfw: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_sfw", false)

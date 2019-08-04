@@ -185,7 +185,7 @@
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://app.pr0gramm.com to your friends</string>
     <string name="pref_feed_start_at_new_title">Default to new</string>
-    <string name="pref_feed_start_at_new_summary">Default to showing the \'new\' feed instead of \'top\' on starting the app.</string>
+    <string name="pref_feed_start_at_new_summary">Default to showing the \'new\' feed instead of \'top\' on starting the app. Setting a custom bookmark as default feed will override this option.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
     <string name="repost">repost</string>
     <string name="pref_single_tap_for_fullscreen_title">Tap for fullscreen</string>
@@ -252,7 +252,7 @@
     <string name="action_switch_to_top">Switch to \'top\'</string>
     <string name="hint_block_user_for">Ban user for (days)</string>
     <string name="reason">Reason</string>
-    <string name="delete">Delete</string>
+    <string name="action_delete">Delete</string>
     <string name="action_delete_item">Delete item</string>
     <string name="prefcat_theme">Theme</string>
     <string name="pref_theme_summary">You can select one out of multiple themes. Do you like <i>Bewährtes Orange</i> or do you prefer <i>Angenehmes Grün</i>?</string>
@@ -368,9 +368,9 @@
     <string name="hint_dont_like_ads">Sorry,\nyou don\'t like ads?</string>
     <string name="error_check_file_permission">The app could not read selected image file. Please check the app\'s filesystem permissions.</string>
     <string name="error_generic">An error occurred.</string>
-    <string name="hint_block_mode__default">Default (Dieser Benutzer und seine Einlader)</string>
-    <string name="hint_block_mode__single">Single (Nur diesen Benutzer)</string>
-    <string name="hint_block_mode__branch">Invite-Ast (Dieser Benutzer und alle von ihm eingeladenen)</string>
+    <string name="hint_block_mode__default" translatable="false">Default (Dieser Benutzer und seine Einlader)</string>
+    <string name="hint_block_mode__single" translatable="false">Single (Nur diesen Benutzer)</string>
+    <string name="hint_block_mode__branch" translatable="false">Invite-Ast (Dieser Benutzer und alle von ihm eingeladenen)</string>
     <string name="action_block_user">Ban user</string>
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
@@ -517,5 +517,10 @@
     <string name="old_android_reminder">Your android version is very old. App support will be discontinued soon.</string>
     <string name="pref_colorful_comment_lines_title">Colorful comment lines</string>
     <string name="pref_colorful_comment_lines_summary">Colorizes the lines indicating the comment depth and parent comment.</string>
+    <string name="action_save">Save</string>
+    <string name="action_shortcut">Create shortcut</string>
+    <string name="hint_edit_bookmark">You can give the bookmark a short and descriptive name. The name will also be used as label if you create a shortcut to this bookmark on your homescreen.</string>
+    <string name="hint_bookmark_onload">Always start the app with this bookmark instead of the normal feed.</string>
+    <string name="action_rename">Rename</string>
 </resources>
 

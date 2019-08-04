@@ -38,7 +38,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         return dialog(requireContext()) {
             layout(R.layout.admin_tags_details)
             negative(R.string.cancel) { dismiss() }
-            positive(R.string.delete) { onDeleteClicked() }
+            positive(R.string.action_delete) { onDeleteClicked() }
             noAutoDismiss()
         }
     }
