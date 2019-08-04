@@ -74,25 +74,27 @@ object Linkify {
             val end = text.getSpanEnd(span)
             val flags = text.getSpanFlags(span)
 
-            val replacement: URLSpan? = if (url.contains("://pr0gramm.com/")) {
-                // if we dont have a callback, we won't create extra spans
-                if (callback == null) {
-                    continue
-                }
+            val uri = Uri.parse(url)
 
+            val replacement: URLSpan? = if (uri.host == "pr0gramm.com") {
                 // try to parse the span as a pr0gramm link with a item/comment reference
-                val parsed = FilterParser.parse(Uri.parse(url))?.start ?: continue
+                val parsed = FilterParser.parse(uri)
+                val ref = parsed?.start?.takeIf { it.itemId > 0 }
 
                 when {
                     // direct link to a comment
-                    parsed.itemId > 0 && parsed.commentId != null ->
-                        CommentSpan(callback, url, Comment(parsed.itemId, parsed.commentId))
+                    ref?.commentId != null ->
+                        CommentSpan(callback, url, Comment(ref.itemId, ref.commentId))
 
                     // direct link to an item
-                    parsed.itemId > 0 ->
-                        ItemSpan(callback, url, Item(parsed.itemId))
+                    ref != null ->
+                        ItemSpan(callback, url, Item(ref.itemId))
 
-                    // don't touch this span
+                    // open it internally in the app, looks like we understand the format.
+                    parsed != null ->
+                        InternalURLSpan(url)
+
+                    // nope, never seen this kind of url
                     else -> null
                 }
             } else {
@@ -126,10 +128,10 @@ private open class InternalURLSpan(url: String) : URLSpan(url) {
     val url: String get() = getURL()
 
     override fun onClick(widget: View) {
-        val intent = Intent(widget.context, MainActivity::class.java)
-        intent.action = Intent.ACTION_VIEW
-        intent.data = Uri.parse(url)
-        widget.context.startActivity(intent)
+        widget.context.startActivity<MainActivity> { intent ->
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse(url)
+        }
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
