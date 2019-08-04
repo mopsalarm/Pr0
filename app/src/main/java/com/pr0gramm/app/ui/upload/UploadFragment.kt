@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.upload
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -42,7 +41,10 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
-import rx.Observable
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -304,10 +306,20 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         busyContainer.visible = true
 
-        logger.info { "copy image to private memory" }
-        copy(activity, image)
-                .bindToLifecycleAsync()
-                .subscribe({ this.onMediaFile(it) }, { this.onError(it) })
+        launch {
+            logger.info { "copy image to private memory" }
+
+            try {
+                val copied = withContext((Dispatchers.IO)) { copy(activity, image) }
+                onMediaFile(copied)
+
+            } catch (err: CancellationException) {
+                // ignored
+
+            } catch (err: Exception) {
+                onError(err)
+            }
+        }
     }
 
     private fun onError(throwable: Throwable) {
@@ -430,39 +442,36 @@ class UploadFragment : BaseFragment("UploadFragment") {
         return ContentType.NSFL
     }
 
-    @SuppressLint("NewApi")
-    private fun copy(context: Context, source: Uri): Observable<File> {
-        return Observable.fromCallable<File> {
-            context.contentResolver.openInputStream(source).use { input ->
-                requireNotNull(input) { "Could not open input stream" }
+    private fun copy(context: Context, source: Uri): File {
+        context.contentResolver.openInputStream(source).use { input ->
+            requireNotNull(input) { "Could not open input stream" }
 
-                // read the "header"
-                val bytes = ByteArray(512)
-                val count = input.readSimple(bytes)
+            // read the "header"
+            val bytes = ByteArray(512)
+            val count = input.readSimple(bytes)
 
-                // and guess the type
-                val ext = MimeTypeHelper.guess(bytes)
-                        ?.let { MimeTypeHelper.extension(it) }
-                        ?: throw MediaNotSupported()
+            // and guess the type
+            val ext = MimeTypeHelper.guess(bytes)
+                    ?.let { MimeTypeHelper.extension(it) }
+                    ?: throw MediaNotSupported()
 
-                // fail if we couldn't get an extension (and thereby a type)
+            // fail if we couldn't get an extension (and thereby a type)
 
-                val target = makeTempUploadFile(context, ext)
+            val target = makeTempUploadFile(context, ext)
 
-                FileOutputStream(target).use { output ->
-                    output.write(bytes, 0, count)
+            FileOutputStream(target).use { output ->
+                output.write(bytes, 0, count)
 
-                    val maxSize = 1024 * 1024 * 48L
-                    val copied = BoundedInputStream(input, maxSize).copyTo(output)
-                    logger.info { "Copied ${copied / 1024}kb" }
+                val maxSize = 1024 * 1024 * 48L
+                val copied = BoundedInputStream(input, maxSize).copyTo(output)
+                logger.info { "Copied ${copied / 1024}kb" }
 
-                    if (copied == maxSize) {
-                        throw IOException("File too large.")
-                    }
+                if (copied == maxSize) {
+                    throw IOException("File too large.")
                 }
-
-                target
             }
+
+            return target
         }
     }
 
