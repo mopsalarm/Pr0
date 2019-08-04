@@ -331,6 +331,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 bar.setTitle(R.string.pr0gramm)
                 bar.subtitle = null
             } else {
+
                 val feed = FeedFilterFormatter.format(this, fragment.currentFilter)
                 bar.title = fragment.fragmentTitle ?: feed.title
                 bar.subtitle = feed.subtitle

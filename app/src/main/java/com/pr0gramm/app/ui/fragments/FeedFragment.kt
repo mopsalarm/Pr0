@@ -1038,16 +1038,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    /**
-     * Gets the current filter from this feed.
-
-     * @return The filter this feed uses.
-     */
     override val currentFilter: FeedFilter
         get() = feed.filter
 
     override val fragmentTitle: String?
-        get() = arguments?.getString(ARG_TITLE)
+        get() = arguments?.getString(ARG_TITLE) ?: bookmarkService.byFilter(feed.filter)?.title
 
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
