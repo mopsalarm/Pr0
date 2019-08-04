@@ -93,7 +93,7 @@ object Linkify {
                     parsed.itemId > 0 ->
                         ItemSpan(callback, url, Item(parsed.itemId))
 
-                    // dont touch this span
+                    // don't touch this span
                     else -> null
                 }
             } else {
