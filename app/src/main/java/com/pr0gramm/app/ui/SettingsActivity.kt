@@ -38,9 +38,8 @@ import rx.schedulers.Schedulers
 class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
-        super.onCreate(savedInstanceState)
 
-        // AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
             val fragment = SettingsFragment().arguments {
