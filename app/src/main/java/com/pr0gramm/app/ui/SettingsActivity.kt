@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.transaction
 import androidx.preference.Preference
@@ -41,7 +40,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        // AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         if (savedInstanceState == null) {
             val fragment = SettingsFragment().arguments {

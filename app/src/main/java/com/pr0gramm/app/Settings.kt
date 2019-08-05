@@ -266,7 +266,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         private lateinit var instance: Settings
 
         fun initialize(context: Context) {
-            PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
+            PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
             instance = Settings(context.applicationContext as Application)
         }
 
