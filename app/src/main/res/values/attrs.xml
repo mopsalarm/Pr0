@@ -1,57 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="AppTheme">
-        <attr name="loginBackground" format="reference"/>
-        <attr name="roundedCornerBackground" format="reference"/>
-        <attr name="drawerTheme" format="reference"/>
-        <attr name="appIcon" format="reference"/>
-        <attr name="searchTheme" format="reference"/>
-        <attr name="bottomSheetBackground" format="reference"/>
-        <attr name="dropshadowPrimaryDark" format="reference"/>
+        <attr name="loginBackground" format="reference" />
+        <attr name="roundedCornerBackground" format="reference" />
+        <attr name="drawerTheme" format="reference" />
+        <attr name="appIcon" format="reference" />
+        <attr name="searchTheme" format="reference" />
+        <attr name="bottomSheetBackground" format="reference" />
+        <attr name="bottomSheetHandle" format="reference" />
+        <attr name="dropshadowPrimaryDark" format="reference" />
 
-        <attr name="secondaryBackground" format="color"/>
+        <attr name="secondaryBackground" format="color" />
     </declare-styleable>
 
     <declare-styleable name="VoteView">
         <attr name="orientation" format="enum">
-            <enum name="horizontal" value="0"/>
-            <enum name="vertical" value="1"/>
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
         </attr>
 
-        <attr name="markedColor" format="color|reference"/>
-        <attr name="markedColorDown" format="color|reference"/>
-        <attr name="defaultColor" format="color|reference"/>
-        <attr name="textSize" format="dimension"/>
-        <attr name="spacing" format="dimension"/>
+        <attr name="markedColor" format="color|reference" />
+        <attr name="markedColorDown" format="color|reference" />
+        <attr name="defaultColor" format="color|reference" />
+        <attr name="textSize" format="dimension" />
+        <attr name="spacing" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="CommentSpacerView">
-        <attr name="lineMargin" format="dimension"/>
-        <attr name="lineWidth" format="dimension"/>
-        <attr name="lineColor" format="color"/>
-        <attr name="depth" format="integer"/>
+        <attr name="lineMargin" format="dimension" />
+        <attr name="lineWidth" format="dimension" />
+        <attr name="lineColor" format="color" />
+        <attr name="depth" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="AspectView">
-        <attr name="aspect" format="float"/>
+        <attr name="aspect" format="float" />
     </declare-styleable>
 
     <declare-styleable name="MessageView">
-        <attr name="viewLayout" format="reference"/>
+        <attr name="viewLayout" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="MaxWidthFrameLayout">
-        <attr name="mwfl_maxWidth" format="dimension"/>
+        <attr name="mwfl_maxWidth" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="CircleChartView">
-        <attr name="chartType" format="string"/>
-        <attr name="lineTop" format="string"/>
-        <attr name="lineBottom" format="string"/>
+        <attr name="chartType" format="string" />
+        <attr name="lineTop" format="string" />
+        <attr name="lineBottom" format="string" />
     </declare-styleable>
 
     <declare-styleable name="TimeRangeSelectorView">
-        <attr name="trs_defaultColor" format="color"/>
-        <attr name="trs_selectedColor" format="color"/>
+        <attr name="trs_defaultColor" format="color" />
+        <attr name="trs_selectedColor" format="color" />
     </declare-styleable>
 </resources>

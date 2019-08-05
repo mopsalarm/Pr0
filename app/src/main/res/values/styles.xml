@@ -8,6 +8,7 @@
         <item name="drawerTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="bottomSheetBackground">@drawable/bottomsheet</item>
+        <item name="bottomSheetHandle">@drawable/bottomsheet_handle</item>
         <item name="android:textViewStyle">@style/NoHyphenateTextViewStyle</item>
 
         <item name="colorControlNormal">?android:textColorPrimary</item>
@@ -87,7 +88,9 @@
         <item name="drawerTheme">@style/DrawerTheme.Black</item>
         <item name="secondaryBackground">@color/black_secondary_background</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
+
         <item name="bottomSheetBackground">@drawable/bottomsheet_dark</item>
+        <item name="bottomSheetHandle">@drawable/bottomsheet_handle_dark</item>
 
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Black</item>
 
@@ -303,9 +306,9 @@
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
     </style>
 
-    <style name="Statistics"/>
+    <style name="Statistics" />
 
-    <style name="Statistics.Change"/>
+    <style name="Statistics.Change" />
 
     <style name="Statistics.Change.Block">
         <item name="android:layout_width">0dp</item>
@@ -342,7 +345,7 @@
         <item name="android:layout_marginRight">6dp</item>
     </style>
 
-    <style name="Statistics.VoteBehaviour"/>
+    <style name="Statistics.VoteBehaviour" />
 
     <style name="Statistics.VoteBehaviour.Value">
         <item name="android:layout_width">wrap_content</item>

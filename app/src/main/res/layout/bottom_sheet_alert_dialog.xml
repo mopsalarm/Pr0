@@ -8,16 +8,24 @@
     android:theme="?popupTheme"
     tools:context=".ui.MainActivity">
 
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:src="?bottomSheetHandle" />
+
     <TextView
         android:id="@+id/title"
-        style="?android:attr/windowTitleStyle"
+        style="?android:attr/dialogTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:paddingTop="@dimen/abc_dialog_padding_top_material"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="24dp"
         android:visibility="gone"
-        tools:text="Some dialog title" />
+        tools:text="Some dialog title"
+        tools:visibility="visible" />
 
     <android.widget.Space
         android:id="@+id/titleSpacerNoTitle"
@@ -28,9 +36,9 @@
         android:id="@+id/custom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp">
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="12dp">
 
         <android.widget.Space
             android:layout_width="match_parent"
@@ -48,10 +56,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginTop="4dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
         android:gravity="end"
         android:orientation="horizontal">
 

@@ -6,9 +6,18 @@
     android:layout_marginTop="16dp"
     android:orientation="vertical">
 
+    <Switch
+        android:id="@+id/action_bookmark_default"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:switchPadding="8dp"
+        android:text="@string/hint_bookmark_onload"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/hint_edit_bookmark"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -17,18 +26,8 @@
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:maxLines="1"
         tools:text="original content in Neu" />
-
-    <Switch
-        android:id="@+id/action_bookmark_default"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:switchPadding="8dp"
-        android:text="@string/hint_bookmark_onload"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,7 +40,7 @@
 
         <Button
             android:id="@+id/action_shortcut"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="0dp"
@@ -56,7 +55,7 @@
 
         <Button
             android:id="@+id/action_delete"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="0dp"
