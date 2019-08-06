@@ -61,6 +61,8 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         usernameView.addTextChangedListener { updateSubmitViewEnabled() }
         passwordView.addTextChangedListener { updateSubmitViewEnabled() }
+
+        updateSubmitViewEnabled()
     }
 
     private fun updateSubmitViewEnabled() {
