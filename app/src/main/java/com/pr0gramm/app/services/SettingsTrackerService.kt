@@ -25,13 +25,18 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
     suspend fun track() {
         val values = settings.raw().all.filterKeys { it.startsWith("pref_") }
 
-        httpInterface.track(mapOf("settings" to values))
-        logger.info { "Tracked settings successfully." }
+        val payload = mapOf(
+                "version" to BuildConfig.VERSION_CODE,
+                "settings" to values)
+
+        httpInterface.track(payload)
+
+        logger.debug { "Tracked settings successfully." }
     }
 
     @KeepPublicClassMemberNames
     private interface HttpInterface {
         @POST("track-settings")
-        suspend fun track(@Body values: Any): Unit
+        suspend fun track(@Body values: Any)
     }
 }
