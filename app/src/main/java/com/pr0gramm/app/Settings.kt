@@ -268,6 +268,15 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         fun initialize(context: Context) {
             PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
             instance = Settings(context.applicationContext as Application)
+
+            // Add some random string to the settings. We do this, so that we can better
+            // analyse the setting selection and know what the users want. This is completelly
+            // anonymous.
+            if (!instance.preferences.contains("__unique_settings_id")) {
+                instance.edit {
+                    putString("__unique_settings_id", UUID.randomUUID().toString())
+                }
+            }
         }
 
         fun get(): Settings {

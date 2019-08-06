@@ -51,6 +51,10 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
             supportFragmentManager.transaction {
                 replace(android.R.id.content, fragment)
             }
+
+            Settings.get().edit {
+                putLong("_settings_last_seen", Instant.now().millis)
+            }
         }
     }
 
