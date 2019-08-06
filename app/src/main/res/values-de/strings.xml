@@ -495,7 +495,7 @@
     <string name="pref_colorful_comment_lines_summary">Färbt die Kommentarlinien unterschiedlich ein um die jewilige Tiefe und den Elternkommentar hervorzuheben.</string>
     <string name="action_save">Speichern</string>
     <string name="action_shortcut">Verknüpfung</string>
-    <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen TItel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
+    <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen Titel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
     <string name="hint_bookmark_onload">Dieses Lesezeichen beim Starten der App anstelle von Neu oder Beliebt verwenden.</string>
     <string name="action_rename">Umnennen</string>
 

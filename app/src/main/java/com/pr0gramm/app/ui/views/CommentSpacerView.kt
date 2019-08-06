@@ -1,18 +1,16 @@
 package com.pr0gramm.app.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.DashPathEffect
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.Themes
+import com.pr0gramm.app.ui.fragments.Spacings
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.getColorCompat
@@ -20,6 +18,7 @@ import com.pr0gramm.app.util.memorize
 import com.pr0gramm.app.util.observeChangeEx
 import kotlin.math.pow
 import kotlin.math.roundToInt
+
 
 /**
  */
@@ -31,6 +30,15 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
 
     private val logger = Logger("CommentSpacerView")
 
+    private val paint by lazy(LazyThreadSafetyMode.NONE) {
+        paint {
+            isAntiAlias = true
+            style = Paint.Style.STROKE
+            color = initialColor(context)
+            strokeWidth = context.dip2px(1f)
+        }
+    }
+
     var depth: Int by observeChangeEx(-1) { oldValue, newValue ->
         if (oldValue != newValue) {
             val paddingLeft = spaceAtDepth(newValue).toInt()
@@ -39,7 +47,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
-    var spacings: Long by observeChangeEx(0L) { oldValue, newValue ->
+    var spacings: Spacings by observeChangeEx(Spacings(0)) { oldValue, newValue ->
         if (oldValue != newValue) {
             invalidate()
         }
@@ -51,7 +59,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
 
         if (isInEditMode) {
             depth = 5
-            spacings = 5L
+            spacings = Spacings(5)
         }
     }
 
@@ -59,52 +67,61 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         return basePaddingLeft + lineMargin * depth.toDouble().pow(1 / 1.2).toFloat()
     }
 
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) = logger.time("Draw spacer at depth $depth") {
         super.onDraw(canvas)
+
+        if (!spacings.hasLines)
+            return
 
         val colorful = Settings.get().colorfulCommentLines
 
         val height = height.toFloat()
 
-        val paint = paint {
-            isAntiAlias = false
-            style = Paint.Style.STROKE
-            color = initialColor(context)
-            strokeWidth = context.dip2px(1f)
+        // height of the little connector thing
+        val connectHeight = context.dip2px(12f)
+
+        val lines = spacings.lines(from = 2)
+
+        for ((idx, line) in lines.withIndex()) {
+            val depth = line - 1
+
+            val x = (spaceAtDepth(depth) - lineWidth).roundToInt().toFloat()
+
+            // set the color for the next line
+            paint.color = if (colorful) colorValue(context, depth) else initialColor(context)
+
+            if (depth < 2 || idx < lines.lastIndex || !spacings.isFirstChild) {
+                paint.shader = null
+
+                canvas.drawLine(x, 0f, x, height, paint)
+
+            } else {
+                if (colorful) {
+                    paint.shader = LinearGradient(
+                            0f, 0f, 0f, connectHeight,
+                            colorValue(context, depth - 1),
+                            colorValue(context, depth),
+                            Shader.TileMode.CLAMP)
+                }
+
+                val xLeft = (spaceAtDepth(depth - 1) - lineWidth).roundToInt().toFloat()
+
+                val path = Path().apply {
+                    moveTo(xLeft, 0f)
+                    cubicTo(xLeft, connectHeight * 0.5f, x, connectHeight * 0.5f, x, connectHeight)
+                    lineTo(x, height)
+                }
+
+                canvas.drawPath(path, paint)
+            }
         }
 
-        val spacings = spacings
-        for (idx in 1 until depth) {
-            val bit = 1L shl (idx + 1)
-
-            if (spacings and bit == 0L) {
-                continue
-            }
-
-            val x = (spaceAtDepth(idx) - lineWidth).roundToInt().toFloat()
-
-            if (colorful) {
-                paint.color = colorValue(context, idx)
-            }
-
-            canvas.drawLine(x, 0f, x, height, paint)
-
-        }
-
-    }
-
-    private fun dashPathEffect(height: Float): DashPathEffect {
-        // calculate how many full repetitions of the given size we need.
-        val size = context.dip2px(5f)
-        val repetitions = (height / (2 * size)).roundToInt()
-        val modifiedSize = 0.5f * height / repetitions
-
-        return DashPathEffect(floatArrayOf(modifiedSize, modifiedSize), 0f)
     }
 
     companion object {
         private val initialColor by memorize<Context, Int> { context ->
-            context.getColorCompat(R.color.comment_line)
+            context.getColorCompat(com.pr0gramm.app.R.color.comment_line)
         }
 
         private val cachedColorValues by memorize<Context, IntArray> { context ->

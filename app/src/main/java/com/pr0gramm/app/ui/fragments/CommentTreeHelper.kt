@@ -330,7 +330,7 @@ class CommentTree(val state: Input) {
 
     val visibleComments: List<Item> = run {
         val depths = IntArray(linearizedComments.size)
-        val spacings = LongArray(linearizedComments.size)
+        val spacings = IntArray(linearizedComments.size)
 
         for ((idx, comment) in linearizedComments.withIndex()) {
             val depth = depthOf(comment)
@@ -338,11 +338,12 @@ class CommentTree(val state: Input) {
             // cache depths by index so we can easily scan back later
             depths[idx] = depth
 
-            // the bit we want to set for this comment
-            val bit = 1L shl depth
-
             // set bit for the current comment
-            spacings[idx] = spacings[idx] or bit
+            spacings[idx] = Spacings(spacings[idx]).withLineAt(depth).value
+
+            if (idx > 0 && Spacings(spacings[idx - 1]).maxLineIsAt < depth) {
+                spacings[idx] = Spacings(spacings[idx]).withIsFirstChild().value
+            }
 
             // scan back until we find a comment with the same depth,
             // or the parent comment
@@ -351,7 +352,7 @@ class CommentTree(val state: Input) {
                     break
                 }
 
-                spacings[idx - offset] = spacings[idx - offset] or bit
+                spacings[idx - offset] = Spacings(spacings[idx - offset]).withLineAt(depth).value
             }
 
         }
@@ -364,7 +365,7 @@ class CommentTree(val state: Input) {
                     comment = comment,
                     vote = vote,
                     depth = depths[idx],
-                    spacings = spacings[idx],
+                    spacings = Spacings(spacings[idx]),
                     hasChildren = comment.id in byParent,
                     currentScore = commentScore(comment, vote),
                     hasOpBadge = state.op == comment.name,
@@ -439,7 +440,7 @@ class CommentTree(val state: Input) {
     data class Item(val comment: Api.Comment,
                     val vote: Vote,
                     val depth: Int,
-                    val spacings: Long,
+                    val spacings: Spacings,
                     val hasChildren: Boolean,
                     val currentScore: CommentScore,
                     val hasOpBadge: Boolean,
@@ -453,3 +454,21 @@ class CommentTree(val state: Input) {
     }
 }
 
+inline class Spacings(val value: Int) {
+    private fun hasLineAt(depth: Int): Boolean = value and (1 shl (4 + depth)) != 0
+
+    /** At least one line is set */
+    val hasLines: Boolean get() = value and 0xf.inv() != 0
+
+    val isFirstChild: Boolean get() = value and 0x1 != 0
+
+    val maxLineIsAt: Int get() = (20 downTo 0).firstOrNull { hasLineAt(it) } ?: -1
+
+    /** Returns list of lines */
+    fun lines(from: Int): List<Int> = (from until 20).filter { hasLineAt(it) }
+
+    fun withLineAt(depth: Int): Spacings = Spacings(value or (1 shl (4 + depth)))
+
+    fun withIsFirstChild(): Spacings = Spacings(value or 0x1)
+
+}
