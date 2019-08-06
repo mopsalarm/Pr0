@@ -71,7 +71,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     override fun onDraw(canvas: Canvas) = logger.time("Draw spacer at depth $depth") {
         super.onDraw(canvas)
 
-        if (!spacings.hasLines)
+        if (spacings.maxLineIsAt < 2)
             return
 
         val colorful = Settings.get().colorfulCommentLines
@@ -83,13 +83,18 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
 
         val lines = spacings.lines(from = 2)
 
+        paint.color = initialColor(context)
+
         for ((idx, line) in lines.withIndex()) {
             val depth = line - 1
 
             val x = (spaceAtDepth(depth) - lineWidth).roundToInt().toFloat()
 
-            // set the color for the next line
-            paint.color = if (colorful) colorValue(context, depth) else initialColor(context)
+            if (colorful) {
+                // set the color for the next line
+                paint.color = colorValue(context, depth)
+            }
+
 
             if (depth < 2 || idx < lines.lastIndex || !spacings.isFirstChild) {
                 paint.shader = null
@@ -105,11 +110,12 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
                             Shader.TileMode.CLAMP)
                 }
 
-                val xLeft = (spaceAtDepth(depth - 1) - lineWidth).roundToInt().toFloat()
+                // x of the previous line. We use this to connect using the connector
+                val previousX = (spaceAtDepth(depth - 1) - lineWidth).roundToInt().toFloat()
 
                 val path = Path().apply {
-                    moveTo(xLeft, 0f)
-                    cubicTo(xLeft, connectHeight * 0.5f, x, connectHeight * 0.5f, x, connectHeight)
+                    moveTo(previousX, 0f)
+                    cubicTo(previousX, connectHeight * 0.5f, x, connectHeight * 0.5f, x, connectHeight)
                     lineTo(x, height)
                 }
 

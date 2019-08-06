@@ -339,11 +339,15 @@ class CommentTree(val state: Input) {
             depths[idx] = depth
 
             // set bit for the current comment
-            spacings[idx] = Spacings(spacings[idx]).withLineAt(depth).value
+            var spacing = Spacings(spacings[idx]).withLineAt(depth)
 
-            if (idx > 0 && Spacings(spacings[idx - 1]).maxLineIsAt < depth) {
-                spacings[idx] = Spacings(spacings[idx]).withIsFirstChild().value
+            if (idx > 0 && depths[idx - 1] < depth) {
+                // mark as first child
+                spacing = spacing.withIsFirstChild()
             }
+
+            // and cache the spacing value for later
+            spacings[idx] = spacing.value
 
             // scan back until we find a comment with the same depth,
             // or the parent comment
@@ -455,10 +459,9 @@ class CommentTree(val state: Input) {
 }
 
 inline class Spacings(val value: Int) {
-    private fun hasLineAt(depth: Int): Boolean = value and (1 shl (4 + depth)) != 0
+    private fun hasLineAt(depth: Int): Boolean = value and (1 shl (1 + depth)) != 0
 
-    /** At least one line is set */
-    val hasLines: Boolean get() = value and 0xf.inv() != 0
+    fun withLineAt(depth: Int): Spacings = Spacings(value or (1 shl (1 + depth)))
 
     val isFirstChild: Boolean get() = value and 0x1 != 0
 
@@ -467,7 +470,6 @@ inline class Spacings(val value: Int) {
     /** Returns list of lines */
     fun lines(from: Int): List<Int> = (from until 20).filter { hasLineAt(it) }
 
-    fun withLineAt(depth: Int): Spacings = Spacings(value or (1 shl (4 + depth)))
 
     fun withIsFirstChild(): Spacings = Spacings(value or 0x1)
 
