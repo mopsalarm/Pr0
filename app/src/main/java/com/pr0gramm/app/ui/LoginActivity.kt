@@ -66,7 +66,11 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private fun updateSubmitViewEnabled() {
         val usernameSet = usernameView.text.isNotBlank()
         val passwordSet = passwordView.text.isNotBlank()
-        submitView.isEnabled = usernameSet && passwordSet
+
+        // only accept usernames
+        val isNotEmail = "@" !in usernameView.text
+
+        submitView.isEnabled = usernameSet && passwordSet && isNotEmail
     }
 
     private fun updateActivityBackground() {
@@ -91,10 +95,10 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     }
 
 
-    private fun enableView(enable: Boolean) {
-        usernameView.isEnabled = enable
-        passwordView.isEnabled = enable
-        submitView.isEnabled = enable
+    private fun enableView() {
+        usernameView.isEnabled = true
+        passwordView.isEnabled = true
+        submitView.isEnabled = true
     }
 
     private fun onLoginClicked() {
@@ -152,7 +156,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
                 val msg = getString(R.string.login_not_successful)
                 showErrorString(supportFragmentManager, msg)
-                enableView(true)
+                enableView()
             }
         }
     }
