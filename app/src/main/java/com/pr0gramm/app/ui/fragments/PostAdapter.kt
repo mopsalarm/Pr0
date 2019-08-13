@@ -88,8 +88,16 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
             return oldItem.id == newItem.id
         }
 
+        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
             return oldItem == newItem
+        }
+    }
+
+    companion object {
+        fun configureRecyclerViewPool(pool: RecyclerView.RecycledViewPool) {
+            // increase maximum number number of comment views to be cached.
+            pool.setMaxRecycledViews(0, 32)
         }
     }
 }

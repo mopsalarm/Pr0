@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
-import com.pr0gramm.app.ui.PermissionHelper
+import com.pr0gramm.app.ui.PermissionHelperDelegate
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import retrofit2.HttpException
@@ -251,7 +251,7 @@ object ErrorFormatting {
             format { it.messageProvider(this) }
         }
 
-        formatters.add<PermissionHelper.PermissionNotGranted> {
+        formatters.add<PermissionHelperDelegate.PermissionNotGranted> {
             format {
                 var permissionName: CharSequence = it.permission
                 try {

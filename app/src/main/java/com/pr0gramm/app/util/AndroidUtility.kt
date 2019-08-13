@@ -30,7 +30,7 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.DebugConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.PermissionHelper
+import com.pr0gramm.app.ui.PermissionHelperDelegate
 import com.pr0gramm.app.ui.base.AsyncScope
 import io.sentry.Sentry
 import io.sentry.event.Event
@@ -101,7 +101,7 @@ object AndroidUtility {
             return
         }
 
-        if (causalChain.containsType<PermissionHelper.PermissionNotGranted>()) {
+        if (causalChain.containsType<PermissionHelperDelegate.PermissionNotGranted>()) {
             return
         }
 

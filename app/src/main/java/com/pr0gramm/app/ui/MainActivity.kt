@@ -18,7 +18,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
@@ -53,16 +53,16 @@ import kotlin.properties.Delegates
  */
 class MainActivity : BaseAppCompatActivity("MainActivity"),
         DrawerFragment.Callbacks,
-        androidx.fragment.app.FragmentManager.OnBackStackChangedListener,
+        FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler,
         PermissionHelperActivity,
-        RecyclerViewPoolProvider,
+        RecyclerViewPoolProvider by RecyclerViewPoolMap(),
         AdControl {
 
     private val handler = Handler(Looper.getMainLooper())
     private val doNotShowAds = BehaviorSubject.create(false)
-    private var permissionHelper = PermissionHelper(this)
+    private var permissionHelper = PermissionHelperDelegate(this)
     private val settings = Settings.get()
 
     private val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
@@ -90,8 +90,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private var coldStart: Boolean = false
 
     override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets.distinctUntilChanged()
-
-    override val recyclerViewPool = RecyclerView.RecycledViewPool()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
@@ -464,7 +462,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override suspend fun onStartImpl() {
         launchIgnoreErrors {
-            runEvery(Duration.seconds(45)) { SyncWorker.syncNow(this@MainActivity) }
+            runEvery(seconds(45)) { SyncWorker.syncNow(this@MainActivity) }
         }
 
         if (coldStart) {
@@ -636,7 +634,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun clearBackStack() {
         try {
-            supportFragmentManager.popBackStackImmediate(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         } catch (err: Exception) {
             AndroidUtility.logToCrashlytics(RuntimeException(
                     "Ignoring exception from popBackStackImmediate:", err))

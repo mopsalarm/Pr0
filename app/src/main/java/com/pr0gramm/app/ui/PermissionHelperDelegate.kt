@@ -2,15 +2,15 @@ package com.pr0gramm.app.ui
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import androidx.collection.ArrayMap
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
+import com.pr0gramm.app.util.LongSparseArray
 
 /**
  */
-class PermissionHelper(private val activity: Activity) : ActivityCompat.OnRequestPermissionsResultCallback {
-    private val requests = ArrayMap<Int, () -> Unit>()
+class PermissionHelperDelegate(private val activity: Activity) : ActivityCompat.OnRequestPermissionsResultCallback {
+    private val requests = LongSparseArray<() -> Unit>()
 
     fun requirePermission(permission: String, callback: () -> Unit) {
         val result = ContextCompat.checkSelfPermission(activity, permission)
@@ -18,10 +18,10 @@ class PermissionHelper(private val activity: Activity) : ActivityCompat.OnReques
             callback()
 
         } else {
-            val requestCode = ++PermissionHelper.nextId
+            val requestCode = ++nextId
 
             // remember for later
-            requests[requestCode] = callback
+            requests.put(requestCode.toLong(), callback)
 
             // request permission now!
             ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
@@ -32,7 +32,7 @@ class PermissionHelper(private val activity: Activity) : ActivityCompat.OnReques
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
 
-        val callback = requests.remove(requestCode) ?: return
+        val callback = requests.delete(requestCode.toLong()) ?: return
 
         // permission request was interrupted, basically a cancellation
         if (permissions.isEmpty() && grantResults.isEmpty()) {

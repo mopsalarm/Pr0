@@ -180,15 +180,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // react to scrolling
         scrollHandler = ScrollHandler()
 
-        if (activity is RecyclerViewPoolProvider) {
-            recyclerView.setRecycledViewPool(activity.recyclerViewPool)
-        }
-
         recyclerView.addOnScrollListener(scrollHandler)
 
         recyclerView.itemAnimator = null
         recyclerView.layoutManager = recyclerView.LinearLayoutManager(getActivity())
         recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
+
+        if (activity is RecyclerViewPoolProvider) {
+            activity.configureRecyclerView("Post", recyclerView)
+        }
 
         logger.time("Initialize media view") {
             initializeMediaView()
@@ -603,9 +603,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostMedia() {
-        val activity = requireActivity() as PermissionHelperActivity
+        val helper = requireActivity() as PermissionHelperActivity
 
-        activity.requirePermission(WRITE_EXTERNAL_STORAGE) {
+        helper.requirePermission(WRITE_EXTERNAL_STORAGE) {
             downloadPostWithPermissionGranted()
         }
     }

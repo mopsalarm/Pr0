@@ -97,7 +97,7 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
 
         try {
             val id = getItemId(position)
-            mFragments.remove(id)
+            mFragments.delete(id)
 
             mSavedState.remove(id)
             mFragmentManager.saveFragmentInstanceState(fragment)?.let { state ->

@@ -498,6 +498,33 @@ inline fun <T : Any> T.trace(msg: () -> String) {
     }
 }
 
+inline fun <T : Any, R : Any?> T.trace(msg: String, block: () -> R): R {
+    if (BuildConfig.DEBUG) {
+        val type = traceType(this)
+
+        val watch = Stopwatch()
+        try {
+            return block()
+        } finally {
+            traceLogger.debug { "$type.$msg took $watch" }
+        }
+
+    } else {
+        return block()
+    }
+}
+
+fun traceType(obj: Any): String {
+    // jump to parent class if inside a companion object.
+    var clazz: Class<*> = obj.javaClass
+    if (clazz.directName == "Companion") {
+        clazz = clazz.enclosingClass ?: clazz
+    }
+
+    val type = clazz.directName
+    return type
+}
+
 fun Closeable?.closeQuietly() {
     try {
         this?.close()

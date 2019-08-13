@@ -11,6 +11,7 @@ import com.pr0gramm.app.R.id.value
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.trace
 import java.lang.reflect.ParameterizedType
 
 interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
@@ -70,7 +71,10 @@ class AdapterDelegateManager<T : Any>(
 
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val delegate = delegates[viewType]
-        return delegate.onCreateViewHolder(parent)
+
+        delegate.trace("onCreateViewHolder()") {
+            return delegate.onCreateViewHolder(parent)
+        }
     }
 
     fun onBindViewHolder(holder: RecyclerView.ViewHolder, values: List<T>, index: Int) {

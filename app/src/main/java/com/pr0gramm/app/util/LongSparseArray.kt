@@ -89,19 +89,19 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
     /**
      * Removes the mapping from the specified key, if there was any.
      */
-    fun delete(key: Long) {
+    @Suppress("UNCHECKED_CAST")
+    fun delete(key: Long): E? {
         val i = mKeys.binarySearch(key, toIndex = mSize)
-        if (i >= 0 && mValues[i] !== DELETED) {
+        return if (i >= 0 && mValues[i] !== DELETED) {
+            val deletedValue = mValues[i]
+
             mValues[i] = DELETED
             mGarbage = true
-        }
-    }
 
-    /**
-     * Alias for [.delete].
-     */
-    fun remove(key: Long) {
-        delete(key)
+            deletedValue as E?
+        } else {
+            null
+        }
     }
 
     private fun gc() {
