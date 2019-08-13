@@ -29,16 +29,16 @@ private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
     return (idOffset shl 8) or cat
 }
 
-class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostActions)
+class PostAdapter
     : DelegateAdapter<PostAdapter.Item>(ItemCallback(), name = "PostAdapter") {
 
     init {
         setHasStableIds(true)
 
-        delegates += CommentItemAdapterDelegate(commentViewListener)
-        delegates += InfoLineItemAdapterDelegate(postActions)
-        delegates += TagsViewHolderAdapterDelegate(postActions)
-        delegates += CommentPostLineAdapterDelegate(postActions)
+        delegates += CommentItemAdapterDelegate
+        delegates += InfoLineItemAdapterDelegate
+        delegates += TagsViewHolderAdapterDelegate
+        delegates += CommentPostLineAdapterDelegate
         delegates += PlaceholderItemAdapterDelegate
         delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading, Item.CommentsLoadingItem)
         delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err, Item.LoadErrorItem)
@@ -58,13 +58,13 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
         }
 
-        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean)
+        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val actions: PostActions)
             : Item(idInCategory(1))
 
-        data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>)
+        data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
             : Item(idInCategory(2))
 
-        data class CommentInputItem(val text: String)
+        data class CommentInputItem(val text: String, val actions: PostActions)
             : Item(idInCategory(3))
 
         object CommentsLoadingItem
@@ -79,7 +79,7 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
         object NoCommentsWithoutAccount
             : Item(idInCategory(7))
 
-        data class CommentItem(val commentTreeItem: CommentTree.Item)
+        data class CommentItem(val commentTreeItem: CommentTree.Item, val listener: CommentView.Listener)
             : Item(idInCategory(8, commentTreeItem.comment.id))
     }
 
@@ -95,26 +95,27 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
     }
 }
 
-private class CommentItemAdapterDelegate(private val commentActionListener: CommentView.Listener)
+private object CommentItemAdapterDelegate
     : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, CommentView>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentView {
-        return CommentView(parent, commentActionListener)
+        return CommentView(parent)
     }
 
     override fun onBindViewHolder(holder: CommentView, value: PostAdapter.Item.CommentItem) {
-        holder.set(value.commentTreeItem)
+        holder.set(value.commentTreeItem, value.listener)
     }
 }
 
-private class TagsViewHolderAdapterDelegate(private val postActions: PostActions)
+private object TagsViewHolderAdapterDelegate
     : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        return ViewHolder(TagsView(parent.context, postActions))
+        return ViewHolder(TagsView(parent.context))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.TagsItem) {
+        holder.tagsView.actions = value.actions
         holder.tagsView.updateTags(value.tags, value.votes)
     }
 
@@ -122,7 +123,7 @@ private class TagsViewHolderAdapterDelegate(private val postActions: PostActions
 }
 
 
-private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
+private object InfoLineItemAdapterDelegate
     : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, InfoLineItemAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -132,7 +133,7 @@ private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
     override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.InfoItem) {
         // display the feed item in the view
         holder.infoView.setFeedItem(value.item, value.isOurPost, value.vote)
-        holder.infoView.onDetailClickedListener = postActions
+        holder.infoView.onDetailClickedListener = value.actions
     }
 
     private class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
@@ -145,7 +146,7 @@ private class InfoLineItemAdapterDelegate(private val postActions: PostActions)
 }
 
 
-private class CommentPostLineAdapterDelegate(private val postActions: PostActions)
+private object CommentPostLineAdapterDelegate
     : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentInputItem, CommentPostLineAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -156,7 +157,7 @@ private class CommentPostLineAdapterDelegate(private val postActions: PostAction
         holder.set(value)
     }
 
-    private inner class ViewHolder(val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
+    private class ViewHolder(val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
         var latestText: String? = null
 
         init {
@@ -165,16 +166,16 @@ private class CommentPostLineAdapterDelegate(private val postActions: PostAction
                     ViewGroup.LayoutParams.WRAP_CONTENT)
 
             line.onTextChanged = { text -> latestText = text }
-
-            line.onPostCommentClicked = { text ->
-                if (postActions.writeCommentClicked(text)) {
-                    line.clear()
-                }
-            }
         }
 
         fun set(item: PostAdapter.Item.CommentInputItem) {
             line.setCommentDraft(latestText ?: item.text)
+
+            line.onPostCommentClicked = { text ->
+                if (item.actions.writeCommentClicked(text)) {
+                    line.clear()
+                }
+            }
         }
     }
 }

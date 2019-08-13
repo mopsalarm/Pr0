@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 /**
  */
 @SuppressLint("ViewConstructor")
-class UserInfoView(context: Context, private val userActionListener: UserActionListener) : FrameLayout(context) {
+class UserInfoView(context: Context) : FrameLayout(context) {
     init {
         View.inflate(context, R.layout.user_info_cell_v2, this)
     }
@@ -45,7 +45,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
 
     private val userClassesService = context.injector.instance<UserClassesService>()
 
-    fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean) {
+    fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean, actions: UserInfoView.UserActionListener) {
         // user info
         val user = info.user
         username.setUsername(user.name, user.mark)
@@ -66,27 +66,27 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
-            userActionListener.onWriteMessageClicked(user.name)
+            actions.onWriteMessageClicked(user.name)
         }
 
         // open share popup
         shareUserProfile.setOnClickListener {
-            userActionListener.shareUserProfile(user.name)
+            actions.shareUserProfile(user.name)
         }
 
         (this.comments.parent as View).setOnClickListener {
-            userActionListener.onShowCommentsClicked()
+            actions.onShowCommentsClicked()
         }
 
         (uploads.parent as View).setOnClickListener {
-            userActionListener.onShowUploadsClicked(user.name)
+            actions.onShowUploadsClicked(user.name)
         }
 
         if (info.likesArePublic && info.likeCount > 0) {
             favorites.text = info.likeCount.toString()
 
             (favorites.parent as View).setOnClickListener {
-                userActionListener.onUserFavoritesClicked(user.name)
+                actions.onUserFavoritesClicked(user.name)
             }
         } else {
             // remove the view

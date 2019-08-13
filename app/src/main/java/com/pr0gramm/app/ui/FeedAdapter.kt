@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -26,6 +27,7 @@ import com.pr0gramm.app.ui.views.UserHintView
 import com.pr0gramm.app.ui.views.UserInfoLoadingView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import com.squareup.picasso.Picasso
 
 @Suppress("NOTHING_TO_INLINE")
@@ -33,22 +35,17 @@ private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
     return (idOffset shl 8) or cat
 }
 
-class FeedAdapter(picasso: Picasso,
-                  userHintClickedListener: OnUserClickedListener,
-                  userActionListener: UserInfoView.UserActionListener)
-
+class FeedAdapter(adViewAdapter: AdViewAdapter)
     : DelegateAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
-
-    private val adAdapter = AdViewAdapter()
 
     init {
         setHasStableIds(true)
 
-        delegates += FeedItemEntryAdapter(picasso)
+        delegates += FeedItemEntryAdapter
         delegates += CommentEntryAdapter
-        delegates += adAdapter
-        delegates += UserEntryAdapter(userActionListener)
-        delegates += UserHintEntryAdapter(userHintClickedListener)
+        delegates += adViewAdapter
+        delegates += UserEntryAdapter
+        delegates += UserHintEntryAdapter
         delegates += UserLoadingEntryAdapter
         delegates += SpacerEntryAdapter
         delegates += ErrorAdapterDelegate(R.layout.feed_error)
@@ -62,10 +59,6 @@ class FeedAdapter(picasso: Picasso,
     @Volatile
     var latestEntries: List<Entry> = listOf()
         private set
-
-    fun destroyAdView() {
-        adAdapter.destroy()
-    }
 
     override fun submitList(newList: List<Entry>, forceSync: Boolean) {
         latestEntries = newList
@@ -81,19 +74,20 @@ class FeedAdapter(picasso: Picasso,
             return oldItem.id == newItem.id
         }
 
+        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: FeedAdapter.Entry, newItem: FeedAdapter.Entry): Boolean {
             return oldItem == newItem
         }
     }
 
     sealed class Entry(val id: Long) {
-        data class UserHint(val user: UserAndMark)
+        data class UserHint(val user: UserAndMark, val action: OnUserClickedListener)
             : Entry(idInCategory(0))
 
         data class UserLoading(val user: UserAndMark)
             : Entry(idInCategory(1))
 
-        data class User(val user: UserInfo, val myself: Boolean)
+        data class User(val user: UserInfo, val myself: Boolean, val actions: UserInfoView.UserActionListener)
             : Entry(idInCategory(2))
 
         data class Error(override val errorText: String)
@@ -132,7 +126,7 @@ class FeedAdapter(picasso: Picasso,
 data class UserAndMark(val name: String, val mark: Int)
 
 
-private class AdViewAdapter
+class AdViewAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Ad, AdViewHolder>() {
 
     private var lastSeenAdview: AdView? = null
@@ -153,7 +147,7 @@ private class AdViewAdapter
     }
 }
 
-private class FeedItemEntryAdapter(private val picasso: Picasso)
+private object FeedItemEntryAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Item, FeedItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): FeedItemViewHolder {
@@ -161,7 +155,7 @@ private class FeedItemEntryAdapter(private val picasso: Picasso)
     }
 
     override fun onBindViewHolder(holder: FeedItemViewHolder, value: FeedAdapter.Entry.Item) {
-        holder.bindTo(picasso, value)
+        holder.bindTo(value)
     }
 }
 
@@ -211,11 +205,11 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
         view.visible = true
     }
 
-    fun bindTo(picasso: Picasso, entry: FeedAdapter.Entry.Item) {
+    fun bindTo(entry: FeedAdapter.Entry.Item) {
         val item = entry.item
 
         val imageUri = UriHelper.of(itemView.context).thumbnail(item.asThumbnail())
-        picasso.load(imageUri)
+        itemView.context.injector.instance<Picasso>().load(imageUri)
                 .config(Bitmap.Config.RGB_565)
                 .placeholder(ColorDrawable(0xff333333.toInt()))
                 .into(imageView)
@@ -237,7 +231,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     }
 }
 
-private class UserHintEntryAdapter(private val onClick: OnUserClickedListener)
+private object UserHintEntryAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserHint, UserHintEntryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -245,7 +239,7 @@ private class UserHintEntryAdapter(private val onClick: OnUserClickedListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, value: FeedAdapter.Entry.UserHint) {
-        holder.hintView.update(value.user.name, value.user.mark, onClick)
+        holder.hintView.update(value.user.name, value.user.mark, value.action)
     }
 
     private class ViewHolder(val hintView: UserHintView) : RecyclerView.ViewHolder(hintView)
@@ -327,15 +321,15 @@ private object CommentEntryAdapter
     }
 }
 
-private class UserEntryAdapter(private val userActionListener: UserInfoView.UserActionListener)
+private object UserEntryAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.User, UserEntryAdapter.UserInfoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): UserInfoViewHolder {
-        return UserInfoViewHolder(UserInfoView(parent.context, userActionListener))
+        return UserInfoViewHolder(UserInfoView(parent.context))
     }
 
     override fun onBindViewHolder(holder: UserInfoViewHolder, value: FeedAdapter.Entry.User) {
-        holder.view.updateUserInfo(value.user.info, value.user.comments, value.myself)
+        holder.view.updateUserInfo(value.user.info, value.user.comments, value.myself, value.actions)
     }
 
     private class UserInfoViewHolder(val view: UserInfoView) : RecyclerView.ViewHolder(view)

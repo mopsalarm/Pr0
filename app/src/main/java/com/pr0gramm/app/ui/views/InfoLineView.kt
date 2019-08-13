@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -171,10 +172,12 @@ interface PostActions {
 }
 
 @SuppressLint("ViewConstructor")
-class TagsView(context: Context, private val onDetailClickedListener: PostActions) : FrameLayout(context) {
+class TagsView(context: Context) : FrameLayout(context) {
     private val alwaysVoteViews = !Settings.get().hideTagVoteButtons
 
     private val adapter = TagsAdapter()
+
+    var actions: PostActions? = null
 
     private var selectedTagId = -1L
     private var tags: List<Api.Tag> = listOf()
@@ -183,7 +186,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     init {
         View.inflate(context, R.layout.post_tags, this)
 
-        val recyclerView = find<androidx.recyclerview.widget.RecyclerView>(R.id.tags)
+        val recyclerView = find<RecyclerView>(R.id.tags)
         recyclerView.adapter = adapter
 
         if (Settings.get().tagCloudView) {
@@ -222,7 +225,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
     private data class VotedTag(val tag: Api.Tag, val vote: Vote, val selected: Boolean)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
-            androidx.recyclerview.widget.RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
+            RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
 
         override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
             val dummyTag = VotedTag(Api.Tag(-2L, 0f, "dummy"), Vote.NEUTRAL, false)
@@ -233,7 +236,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
             return if (position == 0) 0 else 1
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return when (viewType) {
                 0 -> ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false))
                 1 -> TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
@@ -241,20 +244,20 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
             }
         }
 
-        override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             when (holder) {
                 is TagViewHolder -> holder.set(items[position])
             }
         }
     }
 
-    private inner class ButtonHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
+    private inner class ButtonHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.setOnClickListener { onDetailClickedListener.writeNewTagClicked() }
+            itemView.setOnClickListener { actions?.writeNewTagClicked() }
         }
     }
 
-    private inner class TagViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
+    private inner class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val id = LongValueHolder(0L)
         private val tagView: TextView = itemView.find(R.id.tag_text)
         private val voteView: VoteView = itemView.find(R.id.tag_vote)
@@ -265,7 +268,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
 
             tagView.text = tag.tag
             tagView.setOnClickListener {
-                onDetailClickedListener.onTagClicked(tag)
+                actions?.onTagClicked(tag)
             }
 
             // mark tags based on their confidence.
@@ -282,9 +285,7 @@ class TagsView(context: Context, private val onDetailClickedListener: PostAction
                     }
                 }
 
-                voteView.onVote = { newVote ->
-                    onDetailClickedListener.voteTagClicked(tag, newVote)
-                }
+                voteView.onVote = { newVote -> actions?.voteTagClicked(tag, newVote) == true }
 
             } else {
                 voteView.visibility = View.GONE

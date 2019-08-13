@@ -89,6 +89,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     // how the app was started as seen by onCreate
     private var coldStart: Boolean = false
 
+    val adViewAdapter = AdViewAdapter()
+
     override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets.distinctUntilChanged()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -266,6 +268,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override fun onDestroy() {
         supportFragmentManager.removeOnBackStackChangedListener(this)
+
+        adViewAdapter.destroy()
 
         try {
             super.onDestroy()

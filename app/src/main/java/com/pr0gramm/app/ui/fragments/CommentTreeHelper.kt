@@ -133,9 +133,7 @@ abstract class CommentTreeHelper : CommentView.Listener {
     }
 }
 
-class CommentView(
-        parent: ViewGroup,
-        private val actionListener: Listener) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
+class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
 
     private val maxLevels = ConfigService.get(itemView.context).commentsMaxLevels
 
@@ -163,7 +161,7 @@ class CommentView(
     }
 
     @SuppressLint("SetTextI18n")
-    fun set(item: CommentTree.Item) {
+    fun set(item: CommentTree.Item, actionListener: Listener) {
         val comment = item.comment
         val context = itemView.context
 
@@ -245,13 +243,13 @@ class CommentView(
             }
 
             more.visible = true
-            more.setOnClickListener { view -> showCommentMenu(view, item) }
+            more.setOnClickListener { view -> showCommentMenu(actionListener, view, item) }
         }
 
         Linkify.linkifyClean(this.content, comment.content, actionListener)
     }
 
-    private fun showCommentMenu(view: View, entry: CommentTree.Item) {
+    private fun showCommentMenu(listener: CommentView.Listener, view: View, entry: CommentTree.Item) {
         val userService = view.context.injector.instance<UserService>()
 
         val popup = PopupMenu(view.context, view)
@@ -269,13 +267,11 @@ class CommentView(
             item.isVisible = entry.canCollapse
         }
 
-        popup.setOnMenuItemClickListener { item -> onMenuItemClicked(item, entry) }
+        popup.setOnMenuItemClickListener { item -> onMenuItemClicked(listener, item, entry) }
         popup.show()
     }
 
-    private fun onMenuItemClicked(item: MenuItem, entry: CommentTree.Item): Boolean {
-        val l = actionListener
-
+    private fun onMenuItemClicked(l: CommentView.Listener, item: MenuItem, entry: CommentTree.Item): Boolean {
         when (item.itemId) {
             R.id.action_copy_link -> l.onCopyCommentLink(entry.comment)
             R.id.action_delete_comment -> l.onDeleteCommentClicked(entry.comment)

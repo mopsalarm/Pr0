@@ -184,7 +184,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         recyclerView.itemAnimator = null
         recyclerView.layoutManager = recyclerView.LinearLayoutManager(getActivity())
-        recyclerView.adapter = PostAdapter(commentTreeHelper, Actions())
+        recyclerView.adapter = PostAdapter()
 
         if (activity is RecyclerViewPoolProvider) {
             activity.configureRecyclerView("Post", recyclerView)
@@ -323,20 +323,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         val isOurPost = userService.name.equals(state.item.user, ignoreCase = true)
-        items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost)
+        items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost, actions)
 
         if (state.item.deleted) {
             items += PostAdapter.Item.PostIsDeletedItem
 
         } else {
-            items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes)
-            items += PostAdapter.Item.CommentInputItem(text = "")
+            items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes, actions)
+            items += PostAdapter.Item.CommentInputItem(text = "", actions = actions)
 
             if (state.commentsVisible) {
                 if (state.commentsLoadError) {
                     items += PostAdapter.Item.LoadErrorItem
                 } else {
-                    items += state.comments.map { PostAdapter.Item.CommentItem(it) }
+                    items += state.comments.map { PostAdapter.Item.CommentItem(it, commentTreeHelper) }
 
                     if (state.commentsLoading && state.comments.isEmpty()) {
                         items += PostAdapter.Item.CommentsLoadingItem
@@ -1285,7 +1285,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private inner class Actions : PostActions {
+    private val actions = object : PostActions {
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
             return doIfAuthorizedHelper.runWithRetry {
                 launchWithErrorHandler {

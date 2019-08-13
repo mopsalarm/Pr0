@@ -37,7 +37,6 @@ import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
-import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -54,7 +53,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val settings = Settings.get()
 
     private val feedService: FeedService by instance()
-    private val picasso: Picasso by instance()
     private val seenService: SeenService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val userService: UserService by instance()
@@ -65,7 +63,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val recentSearchesServices: RecentSearchesServices by instance()
     private val followService: StalkService by instance()
     private val adService: AdService by instance()
-    private val config: Config by instance()
     private val shareService: ShareService by instance()
 
     private val recyclerView: RecyclerView by bindView(R.id.list)
@@ -88,9 +85,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private lateinit var loader: FeedManager
 
     private val feedAdapter by lazy {
-        FeedAdapter(picasso,
-                userHintClickedListener = { name -> openUserUploads(name) },
-                userActionListener = UserActionListener())
+        val mainActivity = requireActivity() as MainActivity
+        FeedAdapter(mainActivity.adViewAdapter)
     }
 
     private val activeUsername: String? get() = state.userInfo?.info?.user?.name
@@ -330,11 +326,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 if (filter.tags != null) {
                     if (!isSelfInfo) {
                         val userAndMark = userInfo.info.user.run { UserAndMark(name, mark) }
-                        entries += FeedAdapter.Entry.UserHint(userAndMark)
+                        entries += FeedAdapter.Entry.UserHint(userAndMark, this::openUserUploads)
                     }
 
                 } else {
-                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
+                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo, userActionListener)
 
                     if (state.userInfoCommentsOpen) {
                         val user = userService.name
@@ -449,7 +445,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return isNormalMode
     }
 
-    private inner class UserActionListener : UserInfoView.UserActionListener {
+    private val userActionListener = object : UserInfoView.UserActionListener {
         override fun onWriteMessageClicked(name: String) {
             doIfAuthorizedHelper.run {
                 ConversationActivity.start(requireContext(), name)
@@ -526,7 +522,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         recyclerView.removeOnScrollListener(onScrollListener)
 
         // destroy any ad views that might still exist
-        feedAdapter.destroyAdView()
+        // feedAdapter.destroyAdView()
 
         super.onDestroyView()
     }
