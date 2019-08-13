@@ -180,6 +180,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // react to scrolling
         scrollHandler = ScrollHandler()
 
+        if (activity is RecyclerViewPoolProvider) {
+            recyclerView.setRecycledViewPool(activity.recyclerViewPool)
+        }
+
         recyclerView.addOnScrollListener(scrollHandler)
 
         recyclerView.itemAnimator = null

@@ -31,6 +31,7 @@ import io.sentry.event.Breadcrumb
 import io.sentry.event.BreadcrumbBuilder
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.brotli.BrotliInterceptor
 import okhttp3.dnsoverhttps.DnsOverHttps
 import rx.schedulers.Schedulers
 import java.io.File
@@ -214,6 +215,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
             .addInterceptor(SentryInterceptor())
+            .addInterceptor(BrotliInterceptor)
 
     debug {
         builder.addNetworkInterceptor(LoggingInterceptor())

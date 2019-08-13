@@ -18,6 +18,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
@@ -56,6 +57,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler,
         PermissionHelperActivity,
+        RecyclerViewPoolProvider,
         AdControl {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -88,6 +90,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private var coldStart: Boolean = false
 
     override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets.distinctUntilChanged()
+
+    override val recyclerViewPool = RecyclerView.RecycledViewPool()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
