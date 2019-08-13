@@ -2,10 +2,10 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -125,7 +125,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
 
         val color = if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor
-        ImageViewCompat.setImageTintList(voteFavoriteView, color)
+        voteFavoriteView.imageTintList = ColorStateList.valueOf(color)
     }
 
     private val isOneHourOld: Boolean

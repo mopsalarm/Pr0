@@ -1,16 +1,16 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.widget.ImageViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.ThemeHelper.accentColor
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.use
@@ -24,9 +24,16 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private var voteState: Vote = Vote.NEUTRAL
 
-    var markedColor: ColorStateList
-    var markedColorDown: ColorStateList
-    var defaultColor: ColorStateList
+    var markedColor: Int
+        private set
+
+    var markedColorDown: Int
+        private set
+
+    var defaultColor: Int
+        private set
+
+    private var wasAnimated: Boolean = false
 
     var onVote: (Vote) -> Boolean = { false }
 
@@ -37,20 +44,14 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         var textSize = 24
         var spacing = context.dip2px(4)
 
-        markedColor = ColorStateList.valueOf(context.getColorCompat(accentColor))
-        markedColorDown = ColorStateList.valueOf(context.getColorCompat(R.color.white))
-        defaultColor = ColorStateList.valueOf(context.getColorCompat(R.color.white))
+        context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->
+            orientation = a.getInteger(R.styleable.VoteView_orientation, orientation)
+            textSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, textSize)
+            spacing = a.getDimensionPixelSize(R.styleable.VoteView_spacing, spacing)
 
-        if (attrs != null) {
-            context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->
-                orientation = a.getInteger(R.styleable.VoteView_orientation, orientation)
-                textSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, textSize)
-                spacing = a.getDimensionPixelSize(R.styleable.VoteView_spacing, spacing)
-
-                a.getColorStateList(R.styleable.VoteView_markedColor)?.let { markedColor = it }
-                a.getColorStateList(R.styleable.VoteView_markedColorDown)?.let { markedColorDown = it }
-                a.getColorStateList(R.styleable.VoteView_defaultColor)?.let { defaultColor = it }
-            }
+            markedColor = a.getColor(R.styleable.VoteView_markedColor, context.getColorCompat(ThemeHelper.accentColor))
+            markedColorDown = a.getColor(R.styleable.VoteView_markedColorDown, context.getColorCompat(R.color.white))
+            defaultColor = a.getColor(R.styleable.VoteView_defaultColor, context.getColorCompat(R.color.white))
         }
 
         this.gravity = Gravity.CENTER
@@ -58,12 +59,10 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         viewRateUp = AppCompatImageView(context)
         viewRateUp.layoutParams = ViewGroup.LayoutParams(textSize, textSize)
-        viewRateUp.setImageResource(R.drawable.ic_vote_up)
-        viewRateUp.setImageTintCompat(defaultColor)
+        viewRateUp.setImageDrawable(drawableCache.get(R.drawable.ic_vote_up, defaultColor))
 
         viewRateDown = AppCompatImageView(context)
-        viewRateDown.setImageResource(R.drawable.ic_vote_down)
-        viewRateDown.setImageTintCompat(defaultColor)
+        viewRateDown.setImageDrawable(drawableCache.get(R.drawable.ic_vote_down, defaultColor))
 
         viewRateDown.layoutParams = MarginLayoutParams(textSize, textSize).apply {
             if (orientation == VERTICAL) {
@@ -118,31 +117,59 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun updateVoteViewState(animated: Boolean) {
-        val duration = if (animated) 500 else 0
-
         if (voteState === Vote.NEUTRAL) {
-            viewRateUp.setImageTintCompat(defaultColor)
-            viewRateDown.setImageTintCompat(defaultColor)
-            viewRateUp.animate().rotation(0f).alpha(1f).setDuration(duration.toLong()).start()
-            viewRateDown.animate().rotation(0f).alpha(1f).setDuration(duration.toLong()).start()
+            viewRateUp.setImageDrawable(drawableCache.get(R.drawable.ic_vote_up, defaultColor))
+            viewRateDown.setImageDrawable(drawableCache.get(R.drawable.ic_vote_down, defaultColor))
+
+            updateViewState(viewRateUp, animated, rotation = 0f, alpha = 1f)
+            updateViewState(viewRateDown, animated, rotation = 0f, alpha = 1f)
         }
 
         if (voteState === Vote.UP || voteState === Vote.FAVORITE) {
-            viewRateUp.setImageTintCompat(markedColor)
-            viewRateDown.setImageTintCompat(defaultColor)
-            viewRateUp.animate().rotation(360f).alpha(1f).setDuration(duration.toLong()).start()
-            viewRateDown.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()
+            viewRateUp.setImageDrawable(drawableCache.get(R.drawable.ic_vote_up, markedColor))
+            viewRateDown.setImageDrawable(drawableCache.get(R.drawable.ic_vote_down, defaultColor))
+
+            updateViewState(viewRateUp, animated, rotation = 360f, alpha = 1f)
+            updateViewState(viewRateDown, animated, rotation = 0f, alpha = 0.5f)
         }
 
         if (voteState === Vote.DOWN) {
-            viewRateUp.setImageTintCompat(defaultColor)
-            viewRateDown.setImageTintCompat(markedColorDown)
-            viewRateUp.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()
-            viewRateDown.animate().rotation(360f).alpha(1f).setDuration(duration.toLong()).start()
+            viewRateUp.setImageDrawable(drawableCache.get(R.drawable.ic_vote_up, defaultColor))
+            viewRateDown.setImageDrawable(drawableCache.get(R.drawable.ic_vote_down, markedColorDown))
+
+            updateViewState(viewRateUp, animated, rotation = 0f, alpha = 0.5f)
+            updateViewState(viewRateDown, animated, rotation = 360f, alpha = 1f)
         }
     }
 
-    private fun AppCompatImageView.setImageTintCompat(color: ColorStateList) {
-        ImageViewCompat.setImageTintList(this, color)
+    private fun updateViewState(view: View, animated: Boolean, rotation: Float, alpha: Float) {
+        if (animated) {
+
+            // no need to animate if nothing to do
+            if (!wasAnimated && view.rotation == rotation && view.alpha == alpha)
+                return
+
+            // okay, actually start animating
+            wasAnimated = true
+            view.animate().rotation(rotation).alpha(alpha).setDuration(500L).start()
+
+        } else {
+            if (wasAnimated) {
+                // maybe there is some animation still running
+                view.animate().cancel()
+            }
+
+            if (view.alpha != alpha) {
+                view.alpha = alpha
+            }
+
+            if (view.rotation != rotation) {
+                view.rotation = rotation
+            }
+        }
+    }
+
+    companion object {
+        private val drawableCache = DrawableCache()
     }
 }

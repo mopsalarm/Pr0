@@ -1,11 +1,10 @@
 package com.pr0gramm.app.util
 
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 private object Empty
 
-class Memorizer<in T, out R>(val provider: (T) -> R) : ReadOnlyProperty<Any?, (T) -> R> {
+class Memorizer<in T, out R>(val provider: (T) -> R) {
     private var value: Any? = Empty
 
     @Suppress("UNCHECKED_CAST")
@@ -17,7 +16,7 @@ class Memorizer<in T, out R>(val provider: (T) -> R) : ReadOnlyProperty<Any?, (T
         value as R
     }
 
-    override fun getValue(thisRef: Any?, property: KProperty<*>): (T) -> R {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): (T) -> R {
         return getter
     }
 }

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewStub
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
@@ -18,6 +20,7 @@ import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CommentScore
 import com.pr0gramm.app.ui.views.CommentSpacerView
@@ -130,8 +133,9 @@ abstract class CommentTreeHelper : CommentView.Listener {
     }
 }
 
-class CommentView(val parent: ViewGroup,
-                  private val actionListener: Listener) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
+class CommentView(
+        parent: ViewGroup,
+        private val actionListener: Listener) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
 
     private val maxLevels = ConfigService.get(itemView.context).commentsMaxLevels
 
@@ -142,11 +146,21 @@ class CommentView(val parent: ViewGroup,
     private val content: TextView = itemView.find(R.id.comment)
     private val senderInfo: SenderInfoView = itemView.find(R.id.sender_info)
 
-    private val more: View = itemView.find(R.id.action_more)
-    private val fav: ImageView = itemView.find(R.id.action_kfav)
-    private val expand: TextView = itemView.find(R.id.action_expand)
+    private val more: ImageButton = itemView.find(R.id.action_more)
+    private val fav: ImageButton = itemView.find(R.id.action_kfav)
+
+    private var expand: TextView? = null
 
     private val commentView = itemView as CommentSpacerView
+
+    init {
+        val grey = itemView.context.getColorCompat(R.color.grey_700)
+        val accent = itemView.context.getColorCompat(ThemeHelper.accentColor)
+
+        more.setImageDrawable(drawableCache.get(R.drawable.ic_more_vert_vec, grey))
+        fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, grey))
+        reply.setImageDrawable(drawableCache.get(R.drawable.ic_reply_vec, accent))
+    }
 
     @SuppressLint("SetTextI18n")
     fun set(item: CommentTree.Item) {
@@ -161,7 +175,7 @@ class CommentView(val parent: ViewGroup,
 
         reply.visible = item.depth < maxLevels
 
-        senderInfo.setSenderName(comment.name, comment.mark)
+        senderInfo.setSenderName(comment.name, comment.mark, item.hasOpBadge)
         senderInfo.setOnSenderClickedListener {
             actionListener.onCommentAuthorClicked(comment)
         }
@@ -176,9 +190,6 @@ class CommentView(val parent: ViewGroup,
 
         // and the date of the post
         senderInfo.setDate(comment.created)
-
-        // enable or disable the badge
-        senderInfo.setBadgeOpVisible(item.hasOpBadge)
 
         // and register a vote handler
         vote.setVoteState(item.vote, animate = !changed)
@@ -205,12 +216,10 @@ class CommentView(val parent: ViewGroup,
 
             if (isFavorite) {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                fav.setColorFilter(color)
-                fav.setImageResource(R.drawable.ic_vote_fav)
+                fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav, color))
             } else {
                 val color = context.getColorCompat(R.color.grey_700)
-                fav.setColorFilter(color)
-                fav.setImageResource(R.drawable.ic_vote_fav_outline)
+                fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, color))
             }
 
             fav.visible = true
@@ -220,12 +229,20 @@ class CommentView(val parent: ViewGroup,
         if (item.isCollapsed) {
             more.visible = false
 
-            expand.visible = true
-            expand.text = "+" + item.hiddenCount
-            expand.setOnClickListener { actionListener.expandComment(comment) }
+            if (expand == null) {
+                expand = itemView.find<ViewStub>(R.id.action_expand_stub).inflate() as TextView
+            }
+
+            expand?.let { expand ->
+                expand.visible = true
+                expand.text = "+" + item.hiddenCount
+                expand.setOnClickListener { actionListener.expandComment(comment) }
+            }
 
         } else {
-            expand.visible = false
+            expand?.let { expand ->
+                expand.visible = false
+            }
 
             more.visible = true
             more.setOnClickListener { view -> showCommentMenu(view, item) }
@@ -288,6 +305,10 @@ class CommentView(val parent: ViewGroup,
         fun collapseComment(comment: Api.Comment)
 
         fun expandComment(comment: Api.Comment)
+    }
+
+    companion object {
+        private val drawableCache = DrawableCache()
     }
 }
 

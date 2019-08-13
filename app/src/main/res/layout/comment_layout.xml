@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="4dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="16dp"
-    android:paddingTop="4dp"
     android:paddingStart="8dp"
-    android:paddingEnd="16dp">
+    android:paddingLeft="8dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="4dp">
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/voting"
@@ -26,29 +26,29 @@
         android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
         android:layout_marginBottom="36dp"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
-        tools:text="@string/dummy_text"
-        android:layout_marginStart="32dp" />
+        tools:text="@string/dummy_text" />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/sender_info"
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:layout_marginLeft="32dp"
         android:layout_below="@+id/comment"
         android:layout_gravity="bottom"
-        android:layout_marginStart="32dp" />
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="24dp"
         android:layout_alignBottom="@id/sender_info"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="4dp"
         android:layout_gravity="bottom|end"
+        android:layout_marginBottom="4dp"
         android:orientation="horizontal">
 
         <ImageButton
@@ -56,26 +56,15 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:tint="@color/grey_700"
-            app:srcCompat="@drawable/ic_more_vert_vec" />
+            tools:src="@drawable/ic_more_vert_vec"
+            tools:tint="@color/grey_700" />
 
-        <Button
-            android:id="@+id/action_expand"
+        <ViewStub
+            android:id="@+id/action_expand_stub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="?attr/roundedCornerBackground"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:paddingBottom="2dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingTop="2dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            android:textColor="@color/white"
-            android:visibility="gone"
-            tools:text="+10"
-            tools:visibility="visible" />
+            android:layout="@layout/action_expand"
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/action_kfav"
@@ -83,8 +72,8 @@
             android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:tint="@color/grey_700"
-            app:srcCompat="@drawable/ic_vote_fav_outline" />
+            tools:src="@drawable/ic_vote_fav_outline"
+            tools:tint="@color/grey_700" />
 
         <ImageButton
             android:id="@+id/action_reply"
@@ -92,8 +81,8 @@
             android:layout_height="24dp"
             android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
-            app:tint="?colorAccent"
-            app:srcCompat="@drawable/ic_reply_vec" />
+            tools:src="@drawable/ic_reply_vec"
+            tools:tint="?colorAccent" />
 
     </LinearLayout>
 

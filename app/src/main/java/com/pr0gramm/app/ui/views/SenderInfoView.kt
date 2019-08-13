@@ -9,9 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.DurationFormat
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
 
 /**
  */
@@ -19,24 +17,28 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     : FrameLayout(context, attrs, defStyleAttr), View.OnLongClickListener {
 
     private val nameView: UsernameView
-    private val pointsView: TextView
-    private val dateView: TextView
-    private val answerView: View
-    private val badgeOpView: View
+    private val statsView: TextView
+    private val answerView: View?
+
+    private var date: Instant = Instant.now()
+    private var pointsText: String? by observeChange(null) { buildStatsViewText(apply = true) }
 
     private var score: CommentScore? = null
 
     init {
-        View.inflate(getContext(), R.layout.sender_info, this)
+        val useFullLayout = context.obtainStyledAttributes(attrs, R.styleable.SenderInfoView).use { arr ->
+            arr.getBoolean(R.styleable.SenderInfoView_siv_reply, false)
+        }
+
+        val layout = if (useFullLayout) R.layout.sender_info_answer else R.layout.sender_info
+        View.inflate(getContext(), layout, this)
+
         nameView = find(R.id.username)
-        pointsView = find(R.id.points)
-        dateView = find(R.id.date)
-        answerView = find(R.id.answer)
-        badgeOpView = find(R.id.badge_op)
+        statsView = find(R.id.stats)
+        answerView = findOptional(R.id.answer)
 
-        pointsView.setOnLongClickListener(this)
+        statsView.setOnLongClickListener(this)
 
-        setBadgeOpVisible(false)
         setOnAnswerClickedListener(null)
         hidePointView()
     }
@@ -50,14 +52,31 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private fun setPoints(points: Int, score: CommentScore?) {
-        pointsView.text = context.getString(R.string.points, points)
-        pointsView.visible = true
-
+        this.pointsText = context.getString(R.string.points, points)
         this.score = score
     }
 
+    private fun buildStatsViewText(apply: Boolean = false): String {
+        val sb = StringBuilder()
+
+        if (pointsText != null) {
+            sb.append(pointsText)
+            sb.append("     ")
+        }
+
+        sb.append(DurationFormat.timeSincePastPointInTime(context, date, short = true))
+
+        val text = sb.toString()
+
+        if (apply) {
+            statsView.text = text
+        }
+
+        return text
+    }
+
     override fun onLongClick(v: View?): Boolean {
-        if (v === pointsView) {
+        if (v === statsView) {
             val score = this.score ?: return false
             val msg = String.format("%d up, %d down", score.up, score.down)
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
@@ -68,34 +87,31 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun hidePointView() {
-        pointsView.visible = false
-        this.score = null
+        pointsText = null
     }
 
     @SuppressLint("SetTextI18n")
     fun setPointsUnknown() {
-        pointsView.text = "\u25CF\u25CF\u25CF"
-        pointsView.visible = true
+        statsView.text = "\u25CF\u25CF\u25CF"
+        statsView.visible = true
         this.score = null
     }
 
     fun setDate(date: Instant) {
-        ViewUpdater.replaceText(dateView, date) {
-            DurationFormat.timeSincePastPointInTime(context, date, short = true)
+        this.date = date
+
+        ViewUpdater.replaceText(statsView, date) {
+            buildStatsViewText(apply = false)
         }
     }
 
-    fun setBadgeOpVisible(visible: Boolean) {
-        badgeOpView.visible = visible
-    }
-
     fun setOnAnswerClickedListener(onClickListener: View.OnClickListener?) {
-        answerView.visible = onClickListener != null
-        answerView.setOnClickListener(onClickListener)
+        answerView?.visible = onClickListener != null
+        answerView?.setOnClickListener(onClickListener)
     }
 
-    fun setSenderName(name: String, mark: Int) {
-        nameView.setUsername(name, mark)
+    fun setSenderName(name: String, mark: Int, op: Boolean = false) {
+        nameView.setUsername(name, mark, op)
     }
 
     fun setOnSenderClickedListener(onClickListener: () -> Unit) {

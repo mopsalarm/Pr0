@@ -55,4 +55,8 @@
         <attr name="trs_defaultColor" format="color" />
         <attr name="trs_selectedColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="SenderInfoView">
+        <attr name="siv_reply" format="boolean" />
+    </declare-styleable>
 </resources>

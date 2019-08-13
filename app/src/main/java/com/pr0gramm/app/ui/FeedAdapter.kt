@@ -28,19 +28,6 @@ import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 
-private enum class Offset(val offset: Long) {
-    UserHint(200),
-    UserInfoLoading(201),
-    UserInfo(202),
-    Error(203),
-    EmptyHint(204),
-    LoadingHint(205),
-    Spacer(300),
-    Item(1000),
-    Ad(900_000_000),
-    Comments(1_000_000_000)
-}
-
 @Suppress("NOTHING_TO_INLINE")
 private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
     return (idOffset shl 8) or cat

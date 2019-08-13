@@ -162,7 +162,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 }
 
-private fun blendColors(factor: Float, source: Int, target: Int): Int {
+fun blendColors(factor: Float, source: Int, target: Int): Int {
     val f = factor.coerceIn(0f, 1f)
 
     val sa = Color.alpha(source)

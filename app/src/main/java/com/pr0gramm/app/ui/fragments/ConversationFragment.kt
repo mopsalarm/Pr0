@@ -388,11 +388,11 @@ class DividerAdapterDelegate
     data class Value(val text: String)
 }
 
-private class SpaceSpan(private val width: Int) : ReplacementSpan(), Parcelable {
+private class SpaceSpan(private val pxWidth: Int) : ReplacementSpan(), Parcelable {
     constructor(parcel: Parcel) : this(parcel.readInt())
 
     override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
-        return width
+        return pxWidth
     }
 
     override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {}
@@ -402,7 +402,7 @@ private class SpaceSpan(private val width: Int) : ReplacementSpan(), Parcelable 
     override fun updateDrawState(tp: TextPaint?) {}
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(width)
+        parcel.writeInt(pxWidth)
     }
 
     override fun describeContents(): Int {

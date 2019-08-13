@@ -93,13 +93,6 @@ class PostAdapter(commentViewListener: CommentView.Listener, postActions: PostAc
             return oldItem == newItem
         }
     }
-
-    companion object {
-        fun configureRecyclerViewPool(pool: RecyclerView.RecycledViewPool) {
-            // increase maximum number number of comment views to be cached.
-            pool.setMaxRecycledViews(0, 32)
-        }
-    }
 }
 
 private class CommentItemAdapterDelegate(private val commentActionListener: CommentView.Listener)

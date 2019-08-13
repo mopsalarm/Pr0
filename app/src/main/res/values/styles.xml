@@ -270,17 +270,6 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="OpBadge" parent="Base.TextAppearance.AppCompat.Caption">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">?attr/roundedCornerBackground</item>
-        <item name="android:text">@string/badge_op</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingLeft">2dp</item>
-        <item name="android:paddingRight">2dp</item>
-    </style>
-
     <style name="UserInfo_Kpi_Header">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">24dp</item>
