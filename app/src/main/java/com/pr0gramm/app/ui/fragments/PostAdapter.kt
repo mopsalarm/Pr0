@@ -198,6 +198,13 @@ private object PlaceholderItemAdapterDelegate
 
             pv.requestLayout()
 
+            // remove all views we do not expect
+            while (pv.childCount > 0) {
+                if (pv.getChildAt(0) !== item.mediaControlsContainer) {
+                    pv.removeViewAt(0)
+                }
+            }
+
             if (item.mediaControlsContainer != null) {
                 // only move media controls if they are attached to a different placeholder view.
                 // the reason to do so is that we could just have received an update after the
