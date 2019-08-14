@@ -7,6 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.get
+import androidx.core.view.size
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
@@ -20,7 +22,10 @@ import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.LongSparseArray
+import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.weakref
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
@@ -194,10 +199,12 @@ private object PlaceholderItemAdapterDelegate
             pv.viewer = item.viewer
             pv.fixedHeight = item.height
 
+            pv.requestLayout()
+
             // remove all views we do not expect
-            while (pv.childCount > 0) {
-                if (pv.getChildAt(0) !== item.mediaControlsContainer) {
-                    pv.removeViewAt(0)
+            for (idx in pv.size - 1 downTo 0) {
+                if (pv[idx] !== item.mediaControlsContainer) {
+                    pv.removeViewAt(idx)
                 }
             }
 
@@ -222,7 +229,7 @@ private object PlaceholderItemAdapterDelegate
 @SuppressLint("ViewConstructor")
 private class PlaceholderView(context: Context) : FrameLayout(context) {
     var viewer by weakref<View?>(null)
-    var fixedHeight by observeChange(context.dip2px(150)) { requestLayout() }
+    var fixedHeight = context.dip2px(150)
 
     init {
         val v = View(context)

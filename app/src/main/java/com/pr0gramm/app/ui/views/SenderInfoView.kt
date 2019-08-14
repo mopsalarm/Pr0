@@ -61,7 +61,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
 
         if (pointsText != null) {
             sb.append(pointsText)
-            sb.append("     ")
+            sb.append("   ")
         }
 
         sb.append(DurationFormat.timeSincePastPointInTime(context, date, short = true))
@@ -92,9 +92,8 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     @SuppressLint("SetTextI18n")
     fun setPointsUnknown() {
-        statsView.text = "\u25CF\u25CF\u25CF"
-        statsView.visible = true
-        this.score = null
+        pointsText = "\u25CF\u25CF\u25CF"
+        score = null
     }
 
     fun setDate(date: Instant) {
