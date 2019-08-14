@@ -62,9 +62,7 @@ class NotificationService(private val context: Application,
 
         // update the icon to show the current inbox count.
         this.inboxService.unreadMessagesCount().subscribe { unreadCount ->
-            if (settings.showNotifications) {
-                BadgeService().update(context, unreadCount.total)
-            }
+            BadgeService().update(context, unreadCount.total)
         }
     }
 
@@ -142,14 +140,8 @@ class NotificationService(private val context: Application,
         }
     }
 
-    suspend fun showUnreadMessagesNotification() {
-        if (!settings.showNotifications)
-            return
-
-        // try to get the new messages, ignore all errors.
-        catchAll {
-            showInboxNotification(inboxService.pending())
-        }
+    suspend fun showUnreadMessagesNotification() = catchAll {
+        showInboxNotification(inboxService.pending())
     }
 
     private val Api.Message.isUnread: Boolean get() = inboxService.messageIsUnread(this)

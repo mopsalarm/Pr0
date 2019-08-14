@@ -34,7 +34,10 @@ import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
-import com.pr0gramm.app.ui.fragments.*
+import com.pr0gramm.app.ui.fragments.CommentRef
+import com.pr0gramm.app.ui.fragments.DrawerFragment
+import com.pr0gramm.app.ui.fragments.FavoritesFragment
+import com.pr0gramm.app.ui.fragments.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
@@ -289,44 +292,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
             "Stack: $stack"
         }
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        val navigationType = settings.volumeNavigation
-
-        val fragment = currentFragment
-        if (fragment is PostPagerNavigation) {
-            // volume keys navigation (only if enabled)
-            if (navigationType !== Settings.VolumeNavigationType.DISABLED) {
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (navigationType === Settings.VolumeNavigationType.UP) {
-                        fragment.moveToNext()
-                    } else {
-                        fragment.moveToPrev()
-                    }
-
-                    return true
-                }
-
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (navigationType === Settings.VolumeNavigationType.UP) {
-                        fragment.moveToPrev()
-                    } else {
-                        fragment.moveToNext()
-                    }
-
-                    return true
-                }
-            }
-
-            // keyboard or d-pad navigation (always possible)
-            when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> fragment.moveToNext()
-                KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT -> fragment.moveToPrev()
-            }
-        }
-
-        return super.onKeyDown(keyCode, event)
     }
 
     fun updateActionbarTitle() {

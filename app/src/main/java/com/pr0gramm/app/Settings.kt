@@ -101,9 +101,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val useBetaChannel: Boolean
         get() = preferences.getBoolean("pref_use_beta_channel", false)
 
-    val showNotifications: Boolean
-        get() = preferences.getBoolean("pref_show_notifications", true)
-
     val keepScreenOn: Boolean
         get() = preferences.getBoolean("pref_keep_screen_on", true)
 
@@ -178,13 +175,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val enableQuickPeek: Boolean
         get() = preferences.getBoolean("pref_enable_quick_peek", true)
 
-    val volumeNavigation: VolumeNavigationType
-        get() {
-            val pref = preferences.getString("pref_volume_navigation", null) ?: ""
-            val value = tryEnumValueOf<VolumeNavigationType>(pref.toUpperCase())
-            return value ?: VolumeNavigationType.DISABLED
-        }
-
     val showContentTypeFlag: Boolean
         get() = preferences.getBoolean("pref_show_content_type_flag_2", false)
 
@@ -212,9 +202,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.toUpperCase())
             return value ?: ShareService.ImageSearchEngine.GOOGLE
         }
-
-    val useDoH: Boolean
-        get() = preferences.getBoolean("pref_use_doh", true)
 
     val privateInput: Boolean
         get() = preferences.getBoolean("pref_private_input", false)
@@ -255,10 +242,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         NONE(R.string.pref_confirm_play_on_mobile_values__play_direct),
         VIDEO(R.string.pref_confirm_play_on_mobile_values__video_only),
         ALL(R.string.pref_confirm_play_on_mobile_values__all)
-    }
-
-    enum class VolumeNavigationType {
-        DISABLED, UP, DOWN
     }
 
     companion object {

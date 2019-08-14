@@ -400,13 +400,9 @@ private class CustomDNS(appContext: Application) : Dns {
             return listOf(Inet4Address.getByName(hostname))
         }
 
-        val resolvers = mutableListOf<NamedResolver>()
-
-        if (Settings.get().useDoH) {
-            resolvers += NamedResolver("doh-okhttp", dnsOverHttps)
-        }
-
-        resolvers += NamedResolver("system", Dns.SYSTEM)
+        val resolvers = listOf(
+                NamedResolver("doh-okhttp", dnsOverHttps),
+                NamedResolver("system", Dns.SYSTEM))
 
         for ((name, resolver) in resolvers) {
             try {

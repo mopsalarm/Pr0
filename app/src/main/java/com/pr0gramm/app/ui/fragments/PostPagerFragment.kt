@@ -21,7 +21,7 @@ import com.pr0gramm.app.util.observeChange
 
 /**
  */
-class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PostPagerNavigation, PreviewInfoSource {
+class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
     private val viewPager: ViewPager by bindView(R.id.pager)
@@ -233,20 +233,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
      */
     fun setPreviewInfo(previewInfo: PreviewInfo) {
         this.previewInfo = previewInfo
-    }
-
-    override fun moveToNext() {
-        viewPager.adapter?.let { adapter ->
-            val newIndex = viewPager.currentItem + 1
-            if (newIndex < adapter.count)
-                viewPager.currentItem = newIndex
-        }
-    }
-
-    override fun moveToPrev() {
-        val newIndex = viewPager.currentItem - 1
-        if (newIndex >= 0)
-            viewPager.currentItem = newIndex
     }
 
     private inner class PostAdapter(feed: Feed, val manager: FeedManager) : IdFragmentStatePagerAdapter(childFragmentManager) {

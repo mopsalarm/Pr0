@@ -108,14 +108,6 @@
                 android:key="prefcat_behaviour__post"
                 android:title="@string/prefcat_post">
 
-                <ListPreference
-                    android:defaultValue="@string/pref_volume_navigation_default"
-                    android:entries="@array/pref_volume_navigation_human"
-                    android:entryValues="@array/pref_volume_navigation_values"
-                    android:key="pref_volume_navigation"
-                    android:summary="@string/pref_volume_navigation_summary"
-                    android:title="@string/pref_volume_navigation_title" />
-
                 <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_single_tap_for_fullscreen"
@@ -178,17 +170,6 @@
 
             </PreferenceCategory>
 
-            <PreferenceCategory
-                android:key="prefcat_behaviour__notifications"
-                android:title="@string/prefcat_behaviour__notificatons_title">
-
-                <SwitchPreferenceCompat
-                    android:defaultValue="true"
-                    android:key="pref_show_notifications"
-                    android:summary="@string/pref_show_notifications_summary"
-                    android:title="@string/pref_show_notifications_title" />
-
-            </PreferenceCategory>
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -380,18 +361,11 @@
         android:key="pref_privacy"
         android:title="@string/pref_privacy">
 
-        <!-- This screen is hidden on non debug builds -->
         <PreferenceScreen
             android:icon="@drawable/ic_settings_privacy"
             android:key="prefcat_privacy_screen"
             android:summary="@string/prefcat_privacy_screen_summary"
             android:title="@string/prefcat_privacy_screen_title">
-
-            <SwitchPreferenceCompat
-                android:defaultValue="true"
-                android:key="pref_use_doh"
-                android:summary="@string/pref_use_doh_summary"
-                android:title="@string/pref_use_doh_title" />
 
             <SwitchPreferenceCompat
                 android:defaultValue="true"
