@@ -61,7 +61,7 @@ import kotlin.math.min
 /**
  * This fragment shows the content of one post.
  */
-class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, BackAwareFragment {
+class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, TitleFragment, BackAwareFragment {
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
@@ -104,6 +104,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private var viewer: MediaView? = null
     private var latestInsets: CustomWindowInsets = CustomWindowInsets(0, 0)
+
+    override var title: TitleFragment.Title = TitleFragment.Title("pr0gramm")
 
     // must only be accessed after injecting kodein
     private val feedItemVote: Observable<Vote> by lazy {
@@ -242,7 +244,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             loadItemDetails(firstLoad = true, bust = requiresCacheBust ?: false)
         }
 
-        apiTags.subscribe { hideProgressIfLoop(it) }
+        apiTags.subscribe { tags ->
+            hideProgressIfLoop(tags)
+            updateTitle(tags)
+        }
 
         feedItemVote.observeOnMainThread().bindToLifecycle().subscribe { vote ->
             state = state.copy(itemVote = vote)
@@ -265,6 +270,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         setupWindowInsets()
+    }
+
+    private fun updateTitle(tags: List<Api.Tag>) {
+        val exclude = setOf(
+                "sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound",
+                "text", "porn", "richtiges grau", "achtung laut", "repost", "loop")
+
+        // take the best rated tag that is not excluded
+        val title = tags.sortedByDescending { it.confidence }.firstOrNull {
+            val tag = it.tag.toLowerCase(Locale.GERMANY)
+            tag !in exclude && "loop" !in tag
+        } ?: return
+
+        // use the tag as the title for this fragment.
+        this.title = TitleFragment.Title(title.tag)
+
+        // and ping the activity to update the title
+        val mainActivity = activity as? MainActivity
+        mainActivity?.updateActionbarTitle()
     }
 
     private fun setupWindowInsets() {
@@ -1342,9 +1366,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val mediaControlsContainer: View? = null)
 
     companion object {
-        const val ARG_FEED_ITEM = "PF.post"
-        const val ARG_COMMENT_DRAFT = "PF.comment-draft"
-        const val ARG_COMMENT_REF = "PF.commentRef"
+        private const val ARG_FEED_ITEM = "PF.post"
+        private const val ARG_COMMENT_REF = "PF.commentRef"
 
         /**
          * Creates a new instance of a [PostFragment] displaying the

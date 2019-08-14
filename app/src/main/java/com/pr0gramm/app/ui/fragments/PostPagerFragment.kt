@@ -11,10 +11,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
-import com.pr0gramm.app.ui.FilterFragment
-import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter
-import com.pr0gramm.app.ui.MainActionHandler
-import com.pr0gramm.app.ui.PreviewInfo
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
@@ -24,7 +21,7 @@ import com.pr0gramm.app.util.observeChange
 
 /**
  */
-class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
+class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PostPagerNavigation, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
     private val viewPager: ViewPager by bindView(R.id.pager)
@@ -144,6 +141,9 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Pos
         activePostFragment = newActiveFragment.also { fragment ->
             fragment.setActive(true)
         }
+
+        val mainActivity = activity as? MainActivity
+        mainActivity?.updateActionbarTitle()
     }
 
     override fun previewInfoFor(item: FeedItem): PreviewInfo? {
@@ -188,8 +188,17 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Pos
     override val currentFilter: FeedFilter
         get() = adapter.feed.filter
 
-    override val fragmentTitle: String?
-        get() = arguments?.getString(ARG_TITLE)
+    override val title: TitleFragment.Title?
+        get() {
+            val title = activePostFragment?.title
+
+            // if the caller gave us a more specific title, we'll use that one.
+            val override = arguments?.getString(ARG_TITLE)
+            if (override != null)
+                return title?.copy(subTitle = override) ?: TitleFragment.Title(override)
+
+            return title
+        }
 
     fun onTagClicked(tag: Api.Tag) {
         (activity as MainActionHandler).onFeedFilterSelected(

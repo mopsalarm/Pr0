@@ -329,18 +329,17 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return super.onKeyDown(keyCode, event)
     }
 
-    private fun updateActionbarTitle() {
+    fun updateActionbarTitle() {
         supportActionBar?.let { bar ->
-            val fragment = currentFragment as? FilterFragment
+            val title = (currentFragment as? TitleFragment)?.title
 
-            if (fragment == null) {
+            if (title != null) {
+                bar.title = title.title
+                bar.subtitle = title.subTitle
+
+            } else {
                 bar.setTitle(R.string.pr0gramm)
                 bar.subtitle = null
-            } else {
-
-                val feed = FeedFilterFormatter.format(this, fragment.currentFilter)
-                bar.title = fragment.fragmentTitle ?: feed.title
-                bar.subtitle = feed.subtitle
             }
         }
     }

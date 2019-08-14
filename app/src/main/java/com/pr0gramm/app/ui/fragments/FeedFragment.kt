@@ -49,7 +49,7 @@ import kotlin.math.min
 
 /**
  */
-class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFragment {
+class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
     private val settings = Settings.get()
 
     private val feedService: FeedService by instance()
@@ -1011,7 +1011,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         try {
             val generator: FancyExifThumbnailGenerator by instance()
 
-            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, fragmentTitle)
+            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, title?.title)
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
@@ -1041,8 +1041,23 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     override val currentFilter: FeedFilter
         get() = feed.filter
 
-    override val fragmentTitle: String?
-        get() = arguments?.getString(ARG_TITLE) ?: bookmarkService.byFilter(feed.filter)?.title
+    override val title: TitleFragment.Title?
+        get() {
+            val context = context ?: return null
+
+            // format the current filter
+            val feed = FeedFilterFormatter.format(context, feed.filter)
+
+            // get a more specific title if possible
+            val title = arguments?.getString(ARG_TITLE)
+                    ?: bookmarkService.byFilter(this.feed.filter)?.title
+
+            return if (title != null) {
+                TitleFragment.Title(title, feed.singleline, title)
+            } else {
+                TitleFragment.Title(feed.title, feed.subtitle, feed.singleline)
+            }
+        }
 
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)

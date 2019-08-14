@@ -9,9 +9,13 @@ interface FilterFragment {
      * Returns the current filter of this instance.
      */
     val currentFilter: FeedFilter
+}
 
+interface TitleFragment {
     /**
      * Optional title directly provided by the fragment.
      */
-    val fragmentTitle: String? get() = null
+    val title: Title?
+
+    data class Title(val title: String, val subTitle: String? = null, val single: String? = null)
 }
