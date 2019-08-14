@@ -1,5 +1,18 @@
 [
   {
+    "version": 171,
+    "changes": [
+      {
+        "type": "Performance",
+        "change": "Die App sollte auf nicht High-End-Geräten viel flüssiger laufen - insbesondere wenn man durch die Kommentare scrollt."
+      },
+      {
+        "type": "Neu",
+        "change": "Wie auf der Website wird nun der Top Tag als Titel angezeigt."
+      }
+    ]
+  },
+  {
     "version": 170,
     "changes": [
       {
