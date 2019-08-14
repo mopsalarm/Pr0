@@ -83,9 +83,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val doubleTapToUpvote: Boolean
         get() = preferences.getBoolean("pref_double_tap_to_upvote", true)
 
-    val doubleTapToSeek: Boolean
-        get() = preferences.getBoolean("pref_double_tap_to_seek", true)
-
     val fancyScrollVertical: Boolean
         get() = preferences.getBoolean("pref_fancy_scroll_vertical", true)
 

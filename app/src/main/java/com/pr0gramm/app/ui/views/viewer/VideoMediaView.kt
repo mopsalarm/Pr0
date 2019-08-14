@@ -97,7 +97,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     override fun onDoubleTap(event: MotionEvent): Boolean {
-        if (userSeekable() && settings.doubleTapToSeek) {
+        if (userSeekable()) {
             val tapPosition = event.x / width
 
             // always seek 10 seconds or 25%, whatever is less

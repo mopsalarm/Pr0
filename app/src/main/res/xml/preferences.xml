@@ -127,12 +127,6 @@
                     android:title="@string/pref_double_tap_to_upvote" />
 
                 <SwitchPreferenceCompat
-                    android:defaultValue="true"
-                    android:key="pref_double_tap_to_seek"
-                    android:summary="@string/pref_double_tap_to_seek_summary"
-                    android:title="@string/pref_double_tap_to_seek" />
-
-                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_audiofocus_transient"
                     android:summary="@string/pref_audiofocus_transient_summary"
