@@ -206,6 +206,10 @@ private object PlaceholderItemAdapterDelegate
                     item.mediaControlsContainer.removeFromParent()
                     pv.addView(item.mediaControlsContainer)
                 }
+
+            } else {
+                // clear already bound media controlls
+                pv.removeAllViews()
             }
         }
     }
@@ -213,7 +217,8 @@ private object PlaceholderItemAdapterDelegate
 
 
 @SuppressLint("ViewConstructor")
-private class PlaceholderView(context: Context, var viewer: View? = null) : FrameLayout(context) {
+private class PlaceholderView(context: Context) : FrameLayout(context) {
+    var viewer: View? = null
     var fixedHeight = context.dip2px(150)
 
     init {
