@@ -1,7 +1,6 @@
 package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -68,8 +67,8 @@ class FeedServiceImpl(private val api: Api) : FeedService {
             }
 
             FeedType.BESTOF -> {
-                // add a s:3000 tag to the query.
-                val tagsQuery = Tags.join("!s:${Settings.get().bestOfBenisThreshold}", feedFilter.tags)
+                // add a s:2000 tag to the query.
+                val tagsQuery = Tags.join("!s:2000", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 

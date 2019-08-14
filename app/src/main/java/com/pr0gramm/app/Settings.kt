@@ -145,12 +145,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val showCategoryPremium: Boolean
         get() = preferences.getBoolean("pref_show_category_premium", true)
 
-    val bestOfBenisThreshold: Int
-        get() {
-            val value = preferences.getString("pref_bestof_threshold", "2000")!!
-            return value.toIntOrNull() ?: 0
-        }
-
     val useIncognitoBrowser: Boolean
         get() = preferences.getBoolean("pref_use_incognito_browser", false)
 
@@ -159,9 +153,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val themeName: String
         get() = preferences.getString("pref_theme", Themes.ORANGE.name)!!
-
-    val showCategoryBestOf: Boolean
-        get() = bestOfBenisThreshold > 0
 
     val mockApi: Boolean
         get() = BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false)

@@ -71,14 +71,6 @@
                 android:key="prefcat_behaviour__categories"
                 android:title="@string/prefcat_behaviour__categories_title">
 
-                <ListPreference
-                    android:defaultValue="2000"
-                    android:entries="@array/pref_bestof_benis_human"
-                    android:entryValues="@array/pref_bestof_benis_human"
-                    android:key="pref_bestof_threshold"
-                    android:summary="@string/pref_bestof_threshold_summary"
-                    android:title="@string/pref_bestof_threshold_title" />
-
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_show_category_random"

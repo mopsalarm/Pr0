@@ -165,12 +165,10 @@ class NavigationProvider(
 
         val settings = Settings.get()
 
-        if (settings.showCategoryBestOf) {
-            items += makeItem(
-                    title = getString(R.string.action_feed_type_bestof),
-                    icon = iconFeedTypeBestOf,
-                    filter = FeedFilter().withFeedType(FeedType.BESTOF))
-        }
+        items += makeItem(
+                title = getString(R.string.action_feed_type_bestof),
+                icon = iconFeedTypeBestOf,
+                filter = FeedFilter().withFeedType(FeedType.BESTOF))
 
         if (settings.showCategoryControversial) {
             items += makeItem(
