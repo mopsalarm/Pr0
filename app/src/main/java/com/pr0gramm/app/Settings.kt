@@ -187,9 +187,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
 
-    val feedScrollOnBack: Boolean
-        get() = preferences.getBoolean("pref_feed_scroll_on_back", true)
-
     val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
             val pref = preferences.getString("pref_image_search_engine", null) ?: ""

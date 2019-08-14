@@ -640,10 +640,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     fun updateFeedItemTarget(feed: Feed, item: FeedItem) {
-        if (settings.feedScrollOnBack) {
-            logger.info { "Want to resume from $item" }
-            autoScrollRef = ScrollRef(CommentRef(item), feed, smoothScroll = true)
-        }
+        logger.info { "Want to resume from $item" }
+        autoScrollRef = ScrollRef(CommentRef(item), feed, smoothScroll = true)
     }
 
     private fun checkForNewItems() {

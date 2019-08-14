@@ -65,12 +65,6 @@
                     android:summary="@string/pref_feed_start_at_sfw_summary"
                     android:title="@string/pref_feed_start_at_sfw_title" />
 
-                <SwitchPreferenceCompat
-                    android:defaultValue="true"
-                    android:key="pref_feed_scroll_on_back"
-                    android:summary="@string/pref_feed_scroll_on_back_sumary"
-                    android:title="@string/pref_feed_scroll_on_back_title" />
-
             </PreferenceCategory>
 
             <PreferenceCategory
