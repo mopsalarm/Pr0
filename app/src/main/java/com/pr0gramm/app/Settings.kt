@@ -101,9 +101,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val useBetaChannel: Boolean
         get() = preferences.getBoolean("pref_use_beta_channel", false)
 
-    val keepScreenOn: Boolean
-        get() = preferences.getBoolean("pref_keep_screen_on", true)
-
     val confirmPlayOnMobile: ConfirmOnMobile
         get() {
             var prefValue = preferences.getString("pref_confirm_play_on_mobile_list", null)

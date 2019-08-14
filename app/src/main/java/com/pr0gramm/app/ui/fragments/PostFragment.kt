@@ -172,9 +172,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        // if the user requests "keep screen on", we apply the flag to the view of the fragment.
+        // apply the flag to the view of the fragment.
         // as long as the fragment is visible, the screen stays on.
-        view.keepScreenOn = settings.keepScreenOn
+        view.keepScreenOn = true
 
         // default to no scrolling
         scrollHandler = NoopScrollHandler()
