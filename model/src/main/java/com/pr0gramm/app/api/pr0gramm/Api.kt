@@ -48,7 +48,9 @@ interface Api {
     @POST("/api/user/login")
     suspend fun login(
             @Field("name") username: String,
-            @Field("password") password: String): Response<Login>
+            @Field("password") password: String,
+            @Field("token") token: String,
+            @Field("captcha") answer: String): Response<Login>
 
     @GET("/api/user/identifier")
     suspend fun identifier(): Identifier
@@ -274,28 +276,31 @@ interface Api {
     @GET("media/app-config.json")
     suspend fun remoteConfig(@Query("bust") bust: Long): List<Rule>
 
-    data class Nonce(val value: String) {
+    @GET("api/user/captcha")
+    suspend fun userCaptcha(): UserCaptcha
+
+    class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
 
     @JsonClass(generateAdapter = true)
-    data class Error(
+    class Error(
             val error: String,
             val code: Int,
             val msg: String)
 
     @JsonClass(generateAdapter = true)
-    data class AccountInfo(
+    class AccountInfo(
             val account: Account,
             val invited: List<Invite> = listOf()) {
 
         @JsonClass(generateAdapter = true)
-        data class Account(
+        class Account(
                 val email: String,
                 val invites: Int)
 
         @JsonClass(generateAdapter = true)
-        data class Invite(
+        class Invite(
                 val email: String,
                 val created: Instant,
                 val name: String?,
@@ -303,7 +308,7 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    data class Comment(
+    class Comment(
             val id: Long,
             val confidence: Float,
             val name: String,
@@ -328,7 +333,7 @@ interface Api {
         val items = _items.orEmpty()
 
         @JsonClass(generateAdapter = true)
-        data class Item(
+        class Item(
                 val id: Long,
                 val promoted: Long,
                 val image: String,
@@ -348,7 +353,7 @@ interface Api {
 
 
     @JsonClass(generateAdapter = true)
-    data class Info(
+    class Info(
             val user: User,
             val badges: List<Badge> = listOf(),
             val likeCount: Int,
@@ -359,14 +364,14 @@ interface Api {
             val following: Boolean) {
 
         @JsonClass(generateAdapter = true)
-        data class Badge(
+        class Badge(
                 val created: Instant,
                 val link: String,
                 val image: String,
                 val description: String?)
 
         @JsonClass(generateAdapter = true)
-        data class User(
+        class User(
                 val id: Int,
                 val mark: Int,
                 val score: Int,
@@ -380,26 +385,27 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    data class Invited(val error: String?)
+    class Invited(val error: String?)
 
     @JsonClass(generateAdapter = true)
-    data class Identifier(val identifier: String)
+    class Identifier(val identifier: String)
 
     @JsonClass(generateAdapter = true)
-    data class Login(
+    class Login(
             val success: Boolean,
             val identifier: String?,
+            val error: String? = null,
             @Json(name = "ban") val banInfo: BanInfo? = null) {
 
         @JsonClass(generateAdapter = true)
-        data class BanInfo(
+        class BanInfo(
                 val banned: Boolean,
                 val reason: String,
                 @Json(name = "till") val endTime: Instant?)
     }
 
     @JsonClass(generateAdapter = true)
-    data class Message(
+    class Message(
             val id: Long,
             val itemId: Long = 0,
             val mark: Int,
@@ -417,32 +423,32 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    data class MessageFeed(val messages: List<Message> = listOf())
+    class MessageFeed(val messages: List<Message> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class NewComment(
+    class NewComment(
             val commentId: Long,
             val comments: List<Comment> = listOf())
 
 
     @JsonClass(generateAdapter = true)
-    data class NewTag(
+    class NewTag(
             val tagIds: List<Long> = listOf(),
             val tags: List<Tag> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class Post(
+    class Post(
             val tags: List<Tag> = listOf(),
             val comments: List<Comment> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class QueueState(
+    class QueueState(
             val position: Long,
             val item: Posted.PostedItem?,
             val status: String)
 
     @JsonClass(generateAdapter = true)
-    data class Posted(
+    class Posted(
             val error: String?,
             val item: PostedItem?,
             val similar: List<SimilarItem> = listOf(),
@@ -452,16 +458,16 @@ interface Api {
         val itemId: Long = item?.id ?: -1
 
         @JsonClass(generateAdapter = true)
-        data class PostedItem(val id: Long?)
+        class PostedItem(val id: Long?)
 
         @JsonClass(generateAdapter = true)
-        data class SimilarItem(
+        class SimilarItem(
                 val id: Long,
                 val image: String,
                 @Json(name = "thumb") val thumbnail: String)
 
         @JsonClass(generateAdapter = true)
-        data class VideoReport(
+        class VideoReport(
                 val duration: Float = 0f,
                 val height: Int = 0,
                 val width: Int = 0,
@@ -470,20 +476,20 @@ interface Api {
                 val streams: List<MediaStream> = listOf())
 
         @JsonClass(generateAdapter = true)
-        data class MediaStream(
+        class MediaStream(
                 val codec: String?,
                 val type: String)
     }
 
     @JsonClass(generateAdapter = true)
-    data class Sync(
+    class Sync(
             val logLength: Long,
             val log: String,
             val score: Int,
             val inbox: InboxCounts = InboxCounts())
 
     @JsonClass(generateAdapter = true)
-    data class InboxCounts(
+    class InboxCounts(
             val comments: Int = 0,
             val mentions: Int = 0,
             val messages: Int = 0) {
@@ -492,7 +498,7 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    data class Tag(
+    class Tag(
             val id: Long,
             val confidence: Float,
             val tag: String) {
@@ -503,15 +509,15 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    data class Upload(val key: String)
+    class Upload(val key: String)
 
     @JsonClass(generateAdapter = true)
-    data class UserComments(
+    class UserComments(
             val user: UserInfo,
             val comments: List<UserComment> = listOf()) {
 
         @JsonClass(generateAdapter = true)
-        data class UserComment(
+        class UserComment(
                 val id: Long,
                 val itemId: Long,
                 val created: Instant,
@@ -524,19 +530,19 @@ interface Api {
         }
 
         @JsonClass(generateAdapter = true)
-        data class UserInfo(
+        class UserInfo(
                 val id: Int,
                 val mark: Int,
                 val name: String)
     }
 
     @JsonClass(generateAdapter = true)
-    data class FavedUserComments(
+    class FavedUserComments(
             val user: UserComments.UserInfo,
             val comments: List<FavedUserComment> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class FavedUserComment(
+    class FavedUserComment(
             val id: Long,
             val itemId: Long,
             val created: Instant,
@@ -549,14 +555,14 @@ interface Api {
             @Json(name = "ccreated") val commentCreated: Instant)
 
     @JsonClass(generateAdapter = true)
-    data class ResetPassword(val error: String?)
+    class ResetPassword(val error: String?)
 
     @JsonClass(generateAdapter = true)
-    data class TagDetails(
+    class TagDetails(
             val tags: List<TagInfo> = listOf()) {
 
         @JsonClass(generateAdapter = true)
-        data class TagInfo(
+        class TagInfo(
                 val id: Long,
                 val up: Int,
                 val down: Int,
@@ -566,22 +572,22 @@ interface Api {
                 val votes: List<Vote> = listOf())
 
         @JsonClass(generateAdapter = true)
-        data class Vote(val vote: Int, val user: String)
+        class Vote(val vote: Int, val user: String)
     }
 
     @JsonClass(generateAdapter = true)
-    data class HandoverToken(val token: String)
+    class HandoverToken(val token: String)
 
     @JsonClass(generateAdapter = true)
-    data class Names(val users: List<String> = listOf())
+    class Names(val users: List<String> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class TagTopList(
+    class TagTopList(
             val tags: List<String> = listOf(),
             val blacklist: List<String> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class Conversations(
+    class Conversations(
             val conversations: List<Conversation>,
             val atEnd: Boolean)
 
@@ -593,30 +599,35 @@ interface Api {
             val unreadCount: Int)
 
     @JsonClass(generateAdapter = true)
-    data class ConversationMessages(
+    class ConversationMessages(
             val atEnd: Boolean = true,
             val error: String? = null,
             val messages: List<ConversationMessage> = listOf())
 
     @JsonClass(generateAdapter = true)
-    data class ConversationMessage(
+    class ConversationMessage(
             val id: Long,
             @Json(name = "created") val creationTime: Instant,
             val message: String,
             val sent: Boolean)
 
     @JsonClass(generateAdapter = true)
-    data class Bookmarks(
+    class Bookmarks(
             val bookmarks: List<Bookmark> = listOf(),
             val trending: List<Bookmark> = listOf(),
             val error: String? = null)
 
     @JsonClass(generateAdapter = true)
-    data class Bookmark(
+    class Bookmark(
             val name: String,
             val link: String,
             val velocity: Float = 0.0f)
 
+    @Suppress("ArrayInDataClass")
+    @JsonClass(generateAdapter = true)
+    class UserCaptcha(
+            val token: String,
+            @Json(name = "captcha") val image: String)
 
     enum class BanMode {
         Default, Single, Branch;

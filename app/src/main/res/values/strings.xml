@@ -522,5 +522,6 @@
     <string name="hint_edit_bookmark">You can give the bookmark a short and descriptive name. The name will also be used as label if you create a shortcut to this bookmark on your homescreen.</string>
     <string name="hint_bookmark_onload">Always start the app with this bookmark instead of the normal feed.</string>
     <string name="action_rename">Rename</string>
+    <string name="hint_captcha">Captcha</string>
 </resources>
 

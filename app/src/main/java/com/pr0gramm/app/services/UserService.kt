@@ -136,12 +136,18 @@ class UserService(private val api: Api,
         }
     }
 
-    suspend fun login(username: String, password: String): LoginResult {
-        val response = api.login(username, password)
+    suspend fun login(username: String, password: String, captchaToken: String, captchaAnswer: String): LoginResult {
+        val response = api.login(username, password, captchaToken, captchaAnswer)
 
         // in case of errors, just return the Failure
         val login = response.body() ?: run {
             logger.debug { "Request failed, no body." }
+            return LoginResult.Failure
+        }
+
+        val error = login.error
+        if (error != null) {
+            logger.debug { "Got error: $error" }
             return LoginResult.Failure
         }
 
@@ -399,6 +405,10 @@ class UserService(private val api: Api,
     suspend fun resetPassword(name: String, token: String, password: String): Boolean {
         val result = api.resetPassword(name, token, password)
         return result.error == null
+    }
+
+    suspend fun userCaptcha(): Api.UserCaptcha {
+        return api.userCaptcha()
     }
 
     class LoginStateWithBenisGraph(

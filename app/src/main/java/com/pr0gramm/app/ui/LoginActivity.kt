@@ -1,8 +1,11 @@
 package com.pr0gramm.app.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +18,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.ThemeHelper.primaryColorDark
 import com.pr0gramm.app.services.Track
@@ -23,6 +28,8 @@ import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
+import com.pr0gramm.app.ui.views.AspectImageView
+import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
@@ -39,6 +46,12 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private val usernameView: EditText by bindView(R.id.username)
     private val passwordView: EditText by bindView(R.id.password)
     private val submitView: Button by bindView(R.id.login)
+
+    private val captchaBusy: BusyIndicator by bindView(R.id.captcha_busy)
+    private val captchaImage: AspectImageView by bindView(R.id.captcha_image)
+    private val captchaAnswerView: EditText by bindView(R.id.captcha_answer)
+
+    private var captchaToken: String? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.whiteAccent)
@@ -61,18 +74,44 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         usernameView.addTextChangedListener { updateSubmitViewEnabled() }
         passwordView.addTextChangedListener { updateSubmitViewEnabled() }
+        captchaAnswerView.addTextChangedListener { updateSubmitViewEnabled() }
 
         updateSubmitViewEnabled()
+
+        updateUserCaptcha()
+    }
+
+    private fun updateUserCaptcha() {
+        captchaImage.aspect = 360.0f / 90.0f;
+
+        launchWithErrorHandler {
+            val captcha = userService.userCaptcha()
+            captchaToken = captcha.token
+
+            // decode the image
+            val image = captcha.decodeImage(androidContext)
+            val aspect = image.intrinsicWidth.toFloat() / image.intrinsicHeight.toFloat()
+
+            // and set it on the view
+            captchaImage.setImageDrawable(image)
+            captchaImage.aspect = aspect
+            captchaImage.visible = true
+
+            captchaBusy.visible = false
+
+            captchaAnswerView.isEnabled = true
+        }
     }
 
     private fun updateSubmitViewEnabled() {
         val usernameSet = usernameView.text.isNotBlank()
         val passwordSet = passwordView.text.isNotBlank()
+        val captchaSet = captchaAnswerView.text.isNotBlank()
 
         // only accept usernames
         val isNotEmail = "@" !in usernameView.text
 
-        submitView.isEnabled = usernameSet && passwordSet && isNotEmail
+        submitView.isEnabled = usernameSet && passwordSet && captchaSet && isNotEmail
     }
 
     private fun updateActivityBackground() {
@@ -96,16 +135,12 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 ResourcesCompat.getDrawable(resources, drawableId, theme)!!)
     }
 
-
-    private fun enableView() {
-        usernameView.isEnabled = true
-        passwordView.isEnabled = true
-        submitView.isEnabled = true
-    }
-
     private fun onLoginClicked() {
+        val token = captchaToken ?: return
+
         val username = usernameView.text.toString()
         val password = passwordView.text.toString()
+        val captchaAnswer = captchaAnswerView.text.toString()
 
         if (username.isEmpty()) {
             usernameView.error = getString(R.string.must_not_be_empty)
@@ -117,12 +152,17 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             return
         }
 
+        if(captchaAnswer.isEmpty()) {
+            captchaAnswerView.error = getString(R.string.must_not_be_empty)
+            return
+        }
+
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply()
 
         launchWithErrorHandler(busyIndicator = true) {
             withViewDisabled(usernameView, passwordView, submitView) {
-                handleLoginResult(userService.login(username, password))
+                handleLoginResult(userService.login(username, password, token, captchaAnswer))
             }
         }
     }
@@ -158,7 +198,6 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
                 val msg = getString(R.string.login_not_successful)
                 showErrorString(supportFragmentManager, msg)
-                enableView()
             }
         }
     }
@@ -231,4 +270,13 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          */
         fun helper(fragment: androidx.fragment.app.Fragment) = DoIfAuthorizedHelper(fragment)
     }
+}
+
+fun Api.UserCaptcha.decodeImage(context: Context): Drawable {
+    val index = image.indexOf(',')
+    val offset = if (index < 0) 0 else index + 1
+
+    val bytes = image.substring(offset).decodeBase64(urlSafe = false)
+    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    return BitmapDrawable(context.resources, bitmap)
 }
