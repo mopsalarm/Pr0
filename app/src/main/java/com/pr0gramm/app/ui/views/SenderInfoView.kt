@@ -53,7 +53,8 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private fun setPoints(points: Int, score: CommentScore?) {
-        this.pointsText = context.getString(R.string.points, points)
+        val id = if (points == 1) R.string.points_one else R.string.points_more
+        this.pointsText = context.getString(id, points)
         this.score = score
     }
 

@@ -37,7 +37,8 @@
     <string name="new_update_available">New update available. Short overview about what is new: %s</string>
     <string name="okay">Okay</string>
     <string name="please_wait">please wait…</string>
-    <string name="points">%d points</string>
+    <string name="points_one">%d point</string>
+    <string name="points_more">%d points</string>
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_privacy">Privacy</string>
     <string name="settings">Settings</string>
@@ -69,8 +70,6 @@
 
     <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote.</string>
-    <string name="pref_double_tap_to_seek">Seek with double tap</string>
-    <string name="pref_double_tap_to_seek_summary">Double tap on the side of a video to seek the video ~10s.</string>
 
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed_https">Can not load the feed. Please try again.</string>
@@ -104,11 +103,6 @@
     <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
     <string name="notify_new_comment_title">One new comment</string>
     <string name="notify_new_comments_title">%d new comments</string>
-    <string name="pref_show_notifications_title">Notifications</string>
-    <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
-    <string name="badge_op">OP</string>
-    <string name="pref_keep_screen_on">Keep screen on</string>
-    <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
     <string name="inbox_activity_title">Inbox</string>
     <string name="action_inbox">MESSAGES</string>
     <string name="inbox_type_private">Private</string>
@@ -131,9 +125,6 @@
     <string name="pref_hide_tag_vote_buttons_summary">Hide the little vote buttons on tags. You can make them visible by long-tapping the tag.</string>
     <string name="pref_downloadLocation_title">Download folder</string>
     <string name="pref_downloadLocation_summary">Downloaded files are saved here</string>
-    <string name="downloadLocation_downloads" translatable="false">/Downloads/pr0gramm</string>
-    <string name="downloadLocation_pictures" translatable="false">/Pictures/pr0gramm</string>
-    <string name="downloadLocation_root" translatable="false">/pr0gramm</string>
     <string name="feedback_feedback">Your feedback</string>
     <string name="feedback_submit">Submit</string>
     <string name="feedback_title">Feedback</string>
@@ -183,7 +174,6 @@
     <string name="prefcat_visual__menu_items_title">Menu items</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="prefcat_behaviour__datausage_title">Data usage</string>
-    <string name="prefcat_behaviour__notificatons_title">Notifications</string>
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://app.pr0gramm.com to your friends</string>
     <string name="pref_feed_start_at_new_title">Default to new</string>
@@ -231,9 +221,6 @@
     <string name="filter_format_bestof">Best of</string>
     <string name="action_feed_type_bestof">BEST OF</string>
 
-    <string name="pref_bestof_benis_human__dont_show">Hide category</string>
-    <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
-    <string name="pref_bestof_threshold_title">Category \'best of\'</string>
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
 
     <string name="user_banned">Banned for %s</string>
@@ -261,11 +248,6 @@
     <string name="pref_theme_title">Select app theme</string>
     <string name="pref_enable_quick_peek_title">Quick preview</string>
     <string name="pref_enable_quick_peek_summary">Hold the finger on an item in the feed to quickly show an item.</string>
-    <string name="pref_volume_navigation_title">Volume keys</string>
-    <string name="pref_volume_navigation_summary">You can use the volume keys for navigation between images.</string>
-    <string name="pref_volume_navigation_human__disabled">Disabled</string>
-    <string name="pref_volume_navigation_human__up">Volume up shows next image</string>
-    <string name="pref_volume_navigation_human__down">Volume up shows previous image</string>
     <string name="please_wait_update_hint">Please wait while update gets downloaded.</string>
     <string name="down_size">Shrink</string>
     <string name="hint_image_too_large">The image you are trying to upload is too large. Do you want the app to shrink the image down?</string>
@@ -490,8 +472,6 @@
     <string name="hint_comment_not_found">This comment does not exist.</string>
     <string name="doh">D\'oh!</string>
     <string name="hint_loading">Loading…</string>
-    <string name="pref_feed_scroll_on_back_title">Sync feed scroll</string>
-    <string name="pref_feed_scroll_on_back_sumary">Sync scroll of the feed to the current thumbnail when you come back from a post to the feed.</string>
     <string name="error_item_was_deleted">Comments are disabled, this upload was deleted by its original poster.</string>
     <string name="error_no_comments_without_account">You need an account to see the comments on pr0gramm.</string>
     <string name="pref_private_input_title">Incognito keyboard</string>
@@ -513,13 +493,10 @@
     <string name="error_invalid_download_directory">The selected directory is not usable. Please select a different directory or storage provider.</string>
     <string name="prefcat_privacy_screen_title">Privacy</string>
     <string name="prefcat_privacy_screen_summary">Privacy settings</string>
-    <string name="pref_use_doh_title">DNS over HTTPS</string>
-    <string name="pref_use_doh_summary">Use DoH to encrypt domain lookups. This might also prevent blocking of pr0gramm on some open wifi networks.</string>
     <string name="action_open_in_admin">Open in Admin</string>
     <string name="old_android_reminder">Your android version is very old. App support will be discontinued soon.</string>
     <string name="pref_colorful_comment_lines_title">Colorful comment lines</string>
     <string name="pref_colorful_comment_lines_summary">Colorizes the lines indicating the comment depth and parent comment.</string>
-    <string name="action_save">Save</string>
     <string name="action_shortcut">Create shortcut</string>
     <string name="hint_edit_bookmark">You can give the bookmark a short and descriptive name. The name will also be used as label if you create a shortcut to this bookmark on your homescreen.</string>
     <string name="hint_bookmark_onload">Always start the app with this bookmark instead of the normal feed.</string>

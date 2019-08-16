@@ -2,24 +2,6 @@
 <resources>
     <string translatable="false" name="banner_ad_unit_id">ca-app-pub-2308657767126505/5614778874</string>
 
-    <string name="pref_downloadLocation_value_pictures" translatable="false">pictures</string>
-    <string name="pref_downloadLocation_value_downloads" translatable="false">downloads</string>
-    <string name="pref_downloadLocation_value_root" translatable="false">root</string>
-
-    <string-array name="pref_downloadLocation_values">
-        <item>@string/pref_downloadLocation_value_pictures</item>
-        <item>@string/pref_downloadLocation_value_downloads</item>
-        <item>@string/pref_downloadLocation_value_root</item>
-    </string-array>
-
-    <string-array name="pref_downloadLocation_human">
-        <item>@string/downloadLocation_pictures</item>
-        <item>@string/downloadLocation_downloads</item>
-        <item>@string/downloadLocation_root</item>
-    </string-array>
-
-    <string name="pref_downloadLocation_default" translatable="false">@string/pref_downloadLocation_value_downloads</string>
-
     <string-array name="pref_seen_indicator_style_human">
         <item>@string/indicator_none</item>
         <item>@string/indicator_icon</item>
@@ -65,23 +47,6 @@
         <item>@string/pref_confirm_play_on_mobile_values__all</item>
     </string-array>
 
-    <string-array name="pref_bestof_benis_human">
-        <item>@string/pref_bestof_benis_human__dont_show</item>
-        <item>1000</item>
-        <item>1500</item>
-        <item>2000</item>
-        <item>2500</item>
-        <item>3000</item>
-        <item>3500</item>
-        <item>4000</item>
-        <item>4500</item>
-        <item>5000</item>
-        <item>5500</item>
-        <item>6000</item>
-        <item>6500</item>
-        <item>7000</item>
-    </string-array>
-
 
     <string name="pref_theme_default" translatable="false">ORANGE</string>
     <string name="theme_olive" translatable="false">Olivgrün des Friedens</string>
@@ -109,19 +74,6 @@
         <item>@string/theme_black</item>
     </string-array>
 
-    <string name="pref_volume_navigation_default" translatable="false">disabled</string>
     <string name="search_engine_none">None</string>
-
-    <string-array name="pref_volume_navigation_values">
-        <item>disabled</item>
-        <item>up</item>
-        <item>down</item>
-    </string-array>
-
-    <string-array name="pref_volume_navigation_human">
-        <item>@string/pref_volume_navigation_human__disabled</item>
-        <item>@string/pref_volume_navigation_human__up</item>
-        <item>@string/pref_volume_navigation_human__down</item>
-    </string-array>
 
 </resources>

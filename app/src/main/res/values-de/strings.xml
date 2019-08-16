@@ -5,7 +5,7 @@
     <string name="action_favorites">FAVORITEN</string>
     <string name="action_feed_type_new">NEU</string>
     <string name="action_feed_type_promoted">TOP</string>
-    <string name="action_search">Suchen in %s…</string>
+    <string name="action_search">Suche in %s…</string>
     <string name="action_search_simple">Suchen</string>
     <string name="action_upload">HOCHLADEN</string>
     <string name="app_name">pr0gramm</string>
@@ -16,12 +16,12 @@
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>
     <string name="error_connect_exception_https">HTTPS Verbindung konnte nicht aufgebaut werden: %s</string>
-    <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden. Bist du vielleicht nicht korrekt im aktuellen WLAN angemeldet?</string>
+    <string name="error_conversion">Die Antwort des pr0gramms konnte nicht verarbeitet werden. Möglicherweise blockiert dein aktuelles WLAN das pr0gramm.</string>
     <string name="error_exception_of_type">Es ist ein Fehler vom Typ %s aufgetreten</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
     <string name="error_not_authorized">Schaut so aus, als wärst du nicht angemeldet oder gesperrt.</string>
     <string name="error_not_found">Die angefragte Ressource konnte nicht gefunden werden (Fehler 404).</string>
-    <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen</string>
+    <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen. Bitte versuche es noch einmal.</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Eventuell ist es dein altes Smartphone oder ein Bug in der App.</string>
     <string name="error_service_unavailable">Pr0gramm ist gerade nicht verfügbar. Informationen zu Störungen auch auf https://twitter.com/pr0gramm</string>
     <string name="hint_password">Passwort</string>
@@ -34,7 +34,8 @@
     <string name="new_update_available">Neues Update verfügbar: %s</string>
     <string name="okay">Okay</string>
     <string name="please_wait">Bitte warten</string>
-    <string name="points">%d Punkte</string>
+    <string name="points_one">%d Punkt</string>
+    <string name="points_more">%d Punkte</string>
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_privacy">Privatsphäre</string>
     <string name="settings">Einstellungen</string>
@@ -64,8 +65,6 @@
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
     <string name="pref_double_tap_to_upvote">Doppelttap für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltap auf ein Bild oder Video führt einen Upvote aus</string>
-    <string name="pref_double_tap_to_seek">Doppelttap zum vorspulen</string>
-    <string name="pref_double_tap_to_seek_summary">Doppelttap auf den Rand eines Videos spult zehn Sekunden vor oder zurück.</string>
     <string name="could_not_load_feed_https">Kann den Feed nicht laden.</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fancy_scroll_vertical">Vertikales parallaxes Scrollen</string>
@@ -95,11 +94,6 @@
     <string name="error_login_required_exception">Schaut so aus, als wäre deine Sitzung abgelaufen. Hast du Dich vielleicht im Browser abgemeldet?</string>
     <string name="feedback_reminder">Dies ist eine Betaversion. Bei Problemen sende bitte Feedback.</string>
     <string name="filter_format_premium">Stelz</string>
-    <string name="pref_show_notifications_title">Benachrichtigungen</string>
-    <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
-    <string name="badge_op">OP</string>
-    <string name="pref_keep_screen_on">Bildschirm anlassen</string>
-    <string name="pref_keep_screen_on_summary">Der Bildschirm geht nicht aus, während du dir einen Post anguckst.</string>
     <string name="action_inbox">NACHRICHTEN</string>
     <string name="action_send">Senden</string>
     <string name="inbox_activity_title">Inbox</string>
@@ -160,7 +154,6 @@
     <string name="pref_image_search_engine_summary">Wähle den Service für die Rückwärtssuche von Bildern aus.</string>
     <string name="pref_image_search_engine_title">Rückwärtssuche für Bilder</string>
     <string name="prefcat_behaviour__datausage_title">Datenverbrauch</string>
-    <string name="prefcat_behaviour__notificatons_title">Benachrichtigungen</string>
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="pref_website_summary">Empfehle https://app.pr0gramm.com/ deinen Freunden</string>
@@ -208,10 +201,7 @@
     <string name="filter_format_controversial">Kontrovers</string>
     <string name="prefcat_behaviour__categories_title">Kategorien</string>
 
-    <string name="pref_bestof_benis_human__dont_show">Nicht anzeigen</string>
-    <string name="pref_bestof_threshold_title">Best of-Kategorie</string>
     <string name="filter_format_bestof">Best of</string>
-    <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
     <string name="action_feed_type_bestof">BEST OF</string>
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
     <string name="user_registered">Dabei seit %s</string>
@@ -240,11 +230,6 @@
     <string name="reason">Grund</string>
     <string name="pref_enable_quick_peek_title">Schnell Vorschau</string>
     <string name="pref_enable_quick_peek_summary">Halte den Finger auf ein Bild im Feed gedrückt um eine Vorschau zu bekommen.</string>
-    <string name="pref_volume_navigation_human__disabled">Deaktiviert</string>
-    <string name="pref_volume_navigation_human__down">\'Lauter\' zeigt das vorige Bild</string>
-    <string name="pref_volume_navigation_human__up">\'Lauter\' zeigt das nächste Bild</string>
-    <string name="pref_volume_navigation_summary">Benutze die Lautstärketasten um zwischen Bildern zu navigieren.</string>
-    <string name="pref_volume_navigation_title">Lautstärketasten</string>
     <string name="please_wait_update_hint">Bitte warte, während das Update heruntergeladen wird.</string>
     <string name="down_size">Verkleinern</string>
     <string name="hint_image_too_large">Das Bild, dass du versuchst hochzuladen, ist zu groß. Soll die App es für Dich verkleinern?</string>
@@ -461,8 +446,6 @@
     <string name="hint_comment_not_found">Dieser Kommentar existiert nicht.</string>
     <string name="doh">Mist</string>
     <string name="hint_loading">Wird geladen…</string>
-    <string name="pref_feed_scroll_on_back_title">Feed automatisch scrollen</string>
-    <string name="pref_feed_scroll_on_back_sumary">Wenn du von einem Post zum Feed zurückkehrst, scrollt der Feed zu ebendiesem Vorschaubildchen.</string>
     <string name="search_engine_none">Keine</string>
     <string name="error_item_was_deleted">Kommentare deaktiviert, Hochlad wurde vom Nutzer gelöscht.</string>
     <string name="badge_deleted_comments">Hat %d eigene Kommentare löschen lassen</string>
@@ -488,14 +471,11 @@
     <string name="pref_pseudo_restore_bookmarks_title">Lesezeichen wiederherstellen</string>
     <string name="prefcat_privacy_screen_title">Privatsphäre</string>
     <string name="prefcat_privacy_screen_summary">Einstellungen zur Privatsphäre</string>
-    <string name="pref_use_doh_title">DNS über HTTPS</string>
-    <string name="pref_use_doh_summary">Verwende diese Option um DNS Anfragen verschlüsselt auszuführen. Dies kann auch in WLAN Netzwerken helfen, die das pr0gramm blockieren.</string>
     <string name="error_invalid_download_directory">Das ausgewählte Verzeichnis kann nicht verwendet werden. Wähle einen anderen Ordner oder einen anderen Storage Provider aus.</string>
     <string name="action_open_in_admin">In Admin öffnen</string>
     <string name="old_android_reminder">Deine Android Version ist sehr alt. Der App Support wird bald eingestellt.</string>
     <string name="pref_colorful_comment_lines_title">Farbige Kommentarlinien</string>
     <string name="pref_colorful_comment_lines_summary">Färbt die Kommentarlinien unterschiedlich ein um die jewilige Tiefe und den Elternkommentar hervorzuheben.</string>
-    <string name="action_save">Speichern</string>
     <string name="action_shortcut">Verknüpfung</string>
     <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen Titel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
     <string name="hint_bookmark_onload">Dieses Lesezeichen beim Starten der App anstelle von Neu oder Beliebt verwenden.</string>
