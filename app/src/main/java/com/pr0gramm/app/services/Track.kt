@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.catchAll
@@ -40,16 +41,26 @@ object Track : InjectorAware {
         }
     }
 
+    fun loginStarted() {
+        send("loginStarted")
+        Stats().increment("login.started")
+    }
+
     fun loginSuccessful() {
         send("login") {
             putBoolean("success", true)
         }
+
+        Stats().increment("login.succeeded")
     }
 
-    fun loginFailed() {
+    fun loginFailed(type: String) {
         send("login") {
             putBoolean("success", false)
+            putString("type", type)
         }
+
+        Stats().increment("login.failed", "reason:$type")
     }
 
     fun logout() {

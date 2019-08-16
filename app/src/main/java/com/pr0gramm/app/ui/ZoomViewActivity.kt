@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.SYSTEM_UI_FLAG_IMMERSIVE
 import android.widget.ImageView
 import androidx.annotation.ColorRes
+import androidx.core.view.isVisible
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.BuildConfig
@@ -25,7 +26,6 @@ import com.pr0gramm.app.util.AndroidUtility.getTintedDrawable
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
 import kotlin.math.max
@@ -80,7 +80,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
 
         if (Settings.get().loadHqInZoomView && isHqImageAvailable) {
             // dont show the hq button if we load the hq image directly
-            hq.visible = false
+            hq.isVisible = false
 
             loadHqImage()
         } else {
@@ -137,7 +137,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
             hq.setOnClickListener { loadHqImage() }
             hq.animate().alpha(1f).start()
         } else {
-            hq.visible = false
+            hq.isVisible = false
         }
     }
 
@@ -145,7 +145,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         get() = item.fullsize.isNotBlank()
 
     private fun loadHqImage() {
-        if (hq.visible) {
+        if (hq.isVisible) {
             hq.setOnClickListener(null)
             hq.setImageDrawable(getColoredHqIcon(ThemeHelper.accentColor))
             hq.animate().alpha(1f).start()
@@ -166,11 +166,11 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private fun showBusyIndicator() {
-        busyIndicator.visible = true
+        busyIndicator.isVisible = true
     }
 
     private fun hideBusyIndicator() {
-        busyIndicator.visible = false
+        busyIndicator.isVisible = false
     }
 
     companion object {

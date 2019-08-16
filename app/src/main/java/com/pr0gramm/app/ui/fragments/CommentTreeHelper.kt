@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -171,7 +172,7 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         commentView.depth = item.depth
         commentView.spacings = item.spacings
 
-        reply.visible = item.depth < maxLevels
+        reply.isVisible = item.depth < maxLevels
 
         senderInfo.setSenderName(comment.name, comment.mark, item.hasOpBadge)
         senderInfo.setOnSenderClickedListener {
@@ -220,29 +221,29 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                 fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, color))
             }
 
-            fav.visible = true
+            fav.isVisible = true
             fav.setOnClickListener { actionListener.onCommentVoteClicked(item.comment, newVote) }
         }
 
         if (item.isCollapsed) {
-            more.visible = false
+            more.isVisible = false
 
             if (expand == null) {
                 expand = itemView.find<ViewStub>(R.id.action_expand_stub).inflate() as TextView
             }
 
             expand?.let { expand ->
-                expand.visible = true
+                expand.isVisible = true
                 expand.text = "+" + item.hiddenCount
                 expand.setOnClickListener { actionListener.expandComment(comment) }
             }
 
         } else {
             expand?.let { expand ->
-                expand.visible = false
+                expand.isVisible = false
             }
 
-            more.visible = true
+            more.isVisible = true
             more.setOnClickListener { view -> showCommentMenu(actionListener, view, item) }
         }
 

@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pr0gramm.app.Logger
@@ -352,22 +353,22 @@ private class BottomSheetAlertDialog(ctx: Context, theme: Int = R.style.MyBottom
         super.setTitle(text)
 
         title.text = text
-        title.visible = true
-        titleSpacerNoTitle.visible = false
+        title.isVisible = true
+        titleSpacerNoTitle.isVisible = false
     }
 
     fun setPositiveButton(text: String) {
-        buttonPositive.visible = true
+        buttonPositive.isVisible = true
         buttonPositive.text = text
     }
 
     fun setNegativeButton(text: String) {
-        buttonNegative.visible = true
+        buttonNegative.isVisible = true
         buttonNegative.text = text
     }
 
     fun setNeutralButton(text: String) {
-        buttonNeutral.visible = true
+        buttonNeutral.isVisible = true
         buttonNeutral.text = text
     }
 

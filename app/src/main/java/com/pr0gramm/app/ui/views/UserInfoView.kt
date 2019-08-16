@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
@@ -17,8 +18,11 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.layoutInflater
 import com.squareup.picasso.Picasso
 import java.util.concurrent.TimeUnit
 
@@ -60,9 +64,9 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         userTypeName.setTextColor(userClass.color)
         userTypeName.text = userClass.name
 
-        showCommentsContainer.visible = comments.isNotEmpty()
+        showCommentsContainer.isVisible = comments.isNotEmpty()
 
-        writeNewMessage.visible = !myself
+        writeNewMessage.isVisible = !myself
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
@@ -191,9 +195,9 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
         fun set(badge: BadgeInfo, firstItem: Boolean) {
             if (badge.text == null) {
-                textView.visible = false
+                textView.isVisible = false
             } else {
-                textView.visible = true
+                textView.isVisible = true
                 textView.text = badge.text
                 textView.setTextColor(badge.textColor)
             }

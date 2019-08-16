@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
+import kotlin.math.abs
 
 /**
  * A [FrameLayout] that keeps a aspect ratio and calculates it height
@@ -31,7 +32,7 @@ open class AspectLayout @JvmOverloads constructor(context: Context, attrs: Attri
         var height = measuredHeight
         val viewAspectRatio = width.toFloat() / height
         val aspectDeformation = aspect / viewAspectRatio - 1
-        if (Math.abs(aspectDeformation) <= MAX_ASPECT_RATIO_DEFORMATION_FRACTION) {
+        if (abs(aspectDeformation) <= MAX_ASPECT_RATIO_DEFORMATION_FRACTION) {
             // We're within the allowed tolerance.
             return
         }

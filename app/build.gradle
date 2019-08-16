@@ -202,7 +202,7 @@ dependencies {
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
 
-    implementation "androidx.work:work-runtime-ktx:2.2.0-rc01"
+    implementation "androidx.work:work-runtime-ktx:2.2.0"
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 

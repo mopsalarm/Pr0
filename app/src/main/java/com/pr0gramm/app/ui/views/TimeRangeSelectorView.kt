@@ -6,11 +6,11 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
-import com.pr0gramm.app.util.visible
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
@@ -67,7 +67,7 @@ class TimeRangeSelectorView @JvmOverloads constructor(
 
     var maxRangeInMillis: Long by observeChange(ALL) {
         steps.drop(1).forEach { step ->
-            step.view?.visible = step.millis <= maxRangeInMillis
+            step.view?.isVisible = step.millis <= maxRangeInMillis
         }
     }
 

@@ -2,13 +2,14 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
+import androidx.fragment.app.FragmentManager
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.checkMainThread
+import com.pr0gramm.app.util.bundle
+import com.pr0gramm.app.util.weakref
 import rx.functions.Action1
-import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
 
 /**
@@ -29,26 +30,9 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
     companion object {
         private val logger = Logger("ErrorDialogFragment")
 
-        private var GlobalErrorDialogHandler: WeakReference<OnErrorDialogHandler?> = WeakReference(null)
-        private var PreviousError = WeakReference<Throwable>(null)
+        private var previousError by weakref<Throwable>(null)
 
-        fun unsetGlobalErrorDialogHandler(handler: OnErrorDialogHandler) {
-            checkMainThread()
-
-            GlobalErrorDialogHandler.get()?.let { oldHandler ->
-                if (oldHandler === handler) {
-                    GlobalErrorDialogHandler = WeakReference(null)
-                }
-            }
-        }
-
-
-        var globalErrorDialogHandler: OnErrorDialogHandler?
-            get() = GlobalErrorDialogHandler.get()
-            set(handler) {
-                checkMainThread()
-                GlobalErrorDialogHandler = WeakReference(handler)
-            }
+        var GlobalErrorDialogHandler by weakref<OnErrorDialogHandler>(null)
 
         private fun processError(error: Throwable, handler: OnErrorDialogHandler?) {
             logger.error("An error occurred", error)
@@ -60,8 +44,9 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
 
             try {
                 // do some checking so we don't log this exception twice
-                val sendToCrashlytics = PreviousError.get() !== error
-                PreviousError = WeakReference<Throwable>(error)
+                val sendToCrashlytics = previousError !== error
+
+                previousError = error
 
                 // format and log
                 val formatter = ErrorFormatting.getFormatter(error)
@@ -77,20 +62,18 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
         }
 
 
-        fun showErrorString(fragmentManager: androidx.fragment.app.FragmentManager?, message: String) {
+        fun showErrorString(fragmentManager: FragmentManager?, message: String) {
             logger.info { message }
 
-            fragmentManager ?: return
+            if (fragmentManager == null)
+                return
 
             try {
-                val arguments = Bundle()
-                arguments.putString("content", message)
-
                 // remove previous dialog, if any
                 dismissErrorDialog(fragmentManager)
 
                 val dialog = ErrorDialogFragment()
-                dialog.arguments = arguments
+                dialog.arguments = bundle { putString("content", message) }
                 dialog.show(fragmentManager, "ErrorDialog")
 
             } catch (error: Exception) {
@@ -101,7 +84,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
         /**
          * Dismisses any previously shown error dialog.
          */
-        private fun dismissErrorDialog(fm: androidx.fragment.app.FragmentManager) {
+        private fun dismissErrorDialog(fm: FragmentManager) {
             try {
                 val previousFragment = fm.findFragmentByTag("ErrorDialog")
                 (previousFragment as? androidx.fragment.app.DialogFragment)?.dismissAllowingStateLoss()
@@ -117,7 +100,7 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
          */
 
         fun defaultOnError(): Action1<Throwable> {
-            return Action1 { error -> processError(error, globalErrorDialogHandler) }
+            return Action1 { error -> processError(error, GlobalErrorDialogHandler) }
         }
     }
 }

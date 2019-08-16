@@ -6,6 +6,7 @@ import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -23,7 +24,6 @@ import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.rootCause
-import com.pr0gramm.app.util.visible
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
@@ -104,7 +104,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
     private fun enableInputViews() {
         formFields.forEach {
-            it.visible = true
+            it.isVisible = true
             it.isEnabled = true
         }
     }

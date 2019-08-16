@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,8 +27,11 @@ import com.pr0gramm.app.ui.views.OnUserClickedListener
 import com.pr0gramm.app.ui.views.UserHintView
 import com.pr0gramm.app.ui.views.UserInfoLoadingView
 import com.pr0gramm.app.ui.views.UserInfoView
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.inflate
+import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.removeFromParent
 import com.squareup.picasso.Picasso
 
 @Suppress("NOTHING_TO_INLINE")
@@ -196,13 +200,13 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     private fun setItemFlag(@DrawableRes res: Int) {
         val view = ensureFlagView()
         view.setImageResource(res)
-        view.visible = true
+        view.isVisible = true
     }
 
     private fun setItemOverlay(@DrawableRes res: Int) {
         val view = ensureOverlayView()
         view.setImageResource(res)
-        view.visible = true
+        view.isVisible = true
     }
 
     fun bindTo(entry: FeedAdapter.Entry.Item) {
@@ -220,13 +224,13 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
         when {
             entry.repost -> setItemOverlay(R.drawable.ic_repost)
             entry.seen -> setItemOverlay(R.drawable.ic_check)
-            else -> overlayView?.visible = false
+            else -> overlayView?.isVisible = false
         }
 
         when {
             entry.item.isPinned -> setItemFlag(R.drawable.feed_pinned)
             entry.preloaded -> setItemFlag(R.drawable.feed_offline)
-            else -> flagView?.visible = false
+            else -> flagView?.isVisible = false
         }
     }
 }

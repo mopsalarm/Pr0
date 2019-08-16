@@ -97,7 +97,8 @@ fun appInjector(app: Application) = Module.build {
                 }
 
                 .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
-                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
+                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${DebugConfig.versionOverride
+                        ?: BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
                 .addNetworkInterceptor(UpdateServerTimeInterceptor())
                 .build()
     }
@@ -359,7 +360,7 @@ private class LoggingInterceptor : Interceptor {
         try {
             val response = chain.proceed(request)
 
-            okLogger.info { "[${request.method}] ${request.url} ($response.code, $watch)" }
+            okLogger.info { "[${request.method}] ${request.url} (${response.code}, $watch)" }
 
             return response
 

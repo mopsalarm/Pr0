@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckedTextView
 import androidx.core.text.bold
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +29,6 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.observeChangeEx
-import com.pr0gramm.app.util.visible
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
 import kotlin.collections.set
@@ -101,8 +101,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         if (shouldShowParentComments) {
             // make the views visible
-            find<View>(R.id.authors_title).visible = true
-            parentCommentsView.visible = true
+            find<View>(R.id.authors_title).isVisible = true
+            parentCommentsView.isVisible = true
 
             parentCommentsView.adapter = Adapter()
             parentCommentsView.layoutManager = LinearLayoutManager(this)
@@ -214,14 +214,14 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
     private fun updateMessageView() {
         // hide view by default and only show, if we found data
-        messageView.visible = false
+        messageView.isVisible = false
 
         val extras = intent?.extras ?: return
 
         val message = extras.getFreezable(ARGUMENT_MESSAGE, MessageParceler)?.message
         if (message != null) {
             messageView.update(message, userService.name)
-            messageView.visible = true
+            messageView.isVisible = true
         }
     }
 

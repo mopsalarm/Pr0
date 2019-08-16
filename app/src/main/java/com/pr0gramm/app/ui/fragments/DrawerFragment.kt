@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
@@ -282,7 +283,7 @@ private class NavigationDelegateAdapter(
         if (value.action === NavigationProvider.ActionType.MESSAGES) {
             holder.unread?.apply {
                 text = value.unreadCount.total.toString()
-                visible = value.unreadCount.total > 0
+                isVisible = value.unreadCount.total > 0
             }
         }
     }
@@ -418,12 +419,12 @@ private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbac
             holder.title.setText(R.string.pr0gramm)
             holder.title.setOnClickListener(null)
 
-            holder.subtitle.visible = false
+            holder.subtitle.isVisible = false
         } else {
             holder.title.text = value.name
             holder.title.setOnClickListener { callbacks.onUsernameClicked() }
 
-            holder.subtitle.visible = true
+            holder.subtitle.isVisible = true
             holder.subtitle.text = value.userClass.name
             holder.subtitle.setTextColor(value.userClass.color)
             holder.subtitle.setOnClickListener { callbacks.onUsernameClicked() }
@@ -458,18 +459,18 @@ private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Ca
         val graph = value.graph
         if (graph != null && graph.points.size >= 2) {
             holder.graph.setImageDrawable(GraphDrawable(graph))
-            holder.graph.visible = true
+            holder.graph.isVisible = true
 
             val delta = (graph.last.y - graph.first.y).toInt()
             val color = if (delta < 0) R.color.benis_delta_negative else R.color.benis_delta_positive
             holder.delta.setTextColor(context.getColorCompat(color))
             holder.delta.text = (if (delta < 0) "↓" else "↑") + delta
-            holder.delta.visible = true
+            holder.delta.isVisible = true
         } else {
             holder.graph.setImageDrawable(null)
-            holder.graph.visible = false
+            holder.graph.isVisible = false
 
-            holder.delta.visible = false
+            holder.delta.isVisible = false
         }
 
         holder.itemView.setOnClickListener {

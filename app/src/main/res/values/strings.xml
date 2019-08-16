@@ -30,7 +30,9 @@
     <string name="hint_password">Password</string>
     <string name="hint_username">Your username</string>
     <string name="login">Login</string>
-    <string name="login_not_successful">Login not successful. Did you check your password? You might be temporarily banned if you failed to login too often.</string>
+    <string name="login_not_successful_error">Login not successful. An error occurred during login. Please try again.</string>
+    <string name="login_not_successful_login">Login not successful. You might be temporarily banned if you fail to login too often.</string>
+    <string name="login_not_successful_captcha">The captcha was wrong, please try again.</string>
     <string name="must_not_be_empty">Must not be empty</string>
     <string name="new_update_available">New update available. Short overview about what is new: %s</string>
     <string name="okay">Okay</string>
@@ -523,5 +525,6 @@
     <string name="hint_bookmark_onload">Always start the app with this bookmark instead of the normal feed.</string>
     <string name="action_rename">Rename</string>
     <string name="hint_captcha">Captcha</string>
+    <string name="hint_no_email">Username, not Email</string>
 </resources>
 

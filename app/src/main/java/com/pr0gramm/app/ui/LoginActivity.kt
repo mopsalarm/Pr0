@@ -12,10 +12,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -28,7 +30,7 @@ import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
-import com.pr0gramm.app.ui.views.AspectImageView
+import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
@@ -48,9 +50,11 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private val submitView: Button by bindView(R.id.login)
 
     private val captchaBusy: BusyIndicator by bindView(R.id.captcha_busy)
-    private val captchaImage: AspectImageView by bindView(R.id.captcha_image)
+    private val captchaImageView: ImageView by bindView(R.id.captcha_image)
+    private val captchaAspect: AspectLayout by bindView(R.id.captcha_aspect)
     private val captchaAnswerView: EditText by bindView(R.id.captcha_answer)
 
+    private var captchaIsLoading: Boolean = false
     private var captchaToken: String? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +65,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         // restore last username
         val defaultUsername = prefs.getString(PREF_USERNAME, "")
-        if (!defaultUsername.isNullOrEmpty()) {
+        if (!defaultUsername.isNullOrEmpty() && "@" !in defaultUsername) {
             usernameView.setText(defaultUsername)
         }
 
@@ -76,30 +80,52 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         passwordView.addTextChangedListener { updateSubmitViewEnabled() }
         captchaAnswerView.addTextChangedListener { updateSubmitViewEnabled() }
 
+        captchaAspect.setOnClickListener { updateUserCaptcha() }
+
         updateSubmitViewEnabled()
 
         updateUserCaptcha()
     }
 
     private fun updateUserCaptcha() {
-        captchaImage.aspect = 360.0f / 90.0f;
+        if (captchaIsLoading) {
+            return
+        }
+
+        captchaIsLoading = true
+
+        captchaToken = null
+
+        // show busy indicator while loading image
+        captchaBusy.isVisible = true
+        captchaImageView.isVisible = false
+
+        // clear previous input value
+        captchaAnswerView.setText("")
+        captchaAnswerView.isEnabled = false
 
         launchWithErrorHandler {
-            val captcha = userService.userCaptcha()
-            captchaToken = captcha.token
+            try {
+                val captcha = userService.userCaptcha()
 
-            // decode the image
-            val image = captcha.decodeImage(androidContext)
-            val aspect = image.intrinsicWidth.toFloat() / image.intrinsicHeight.toFloat()
+                // decode the image
+                val image = captcha.decodeImage(androidContext)
+                val aspect = image.intrinsicWidth.toFloat() / image.intrinsicHeight.toFloat()
 
-            // and set it on the view
-            captchaImage.setImageDrawable(image)
-            captchaImage.aspect = aspect
-            captchaImage.visible = true
+                // and set it on the view
+                captchaImageView.setImageDrawable(image)
+                captchaImageView.isVisible = true
 
-            captchaBusy.visible = false
+                // also correct the aspect ratio
+                captchaAspect.aspect = aspect
 
-            captchaAnswerView.isEnabled = true
+                captchaAnswerView.isEnabled = true
+
+                captchaToken = captcha.token
+            } finally {
+                captchaIsLoading = false
+                captchaBusy.isVisible = false
+            }
         }
     }
 
@@ -109,9 +135,13 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         val captchaSet = captchaAnswerView.text.isNotBlank()
 
         // only accept usernames
-        val isNotEmail = "@" !in usernameView.text
+        val isMailAddress = "@" in usernameView.text
 
-        submitView.isEnabled = usernameSet && passwordSet && captchaSet && isNotEmail
+        if (isMailAddress) {
+            usernameView.error = getString(R.string.hint_no_email)
+        }
+
+        submitView.isEnabled = usernameSet && passwordSet && captchaSet && !isMailAddress
     }
 
     private fun updateActivityBackground() {
@@ -152,13 +182,15 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             return
         }
 
-        if(captchaAnswer.isEmpty()) {
+        if (captchaAnswer.isEmpty()) {
             captchaAnswerView.error = getString(R.string.must_not_be_empty)
             return
         }
 
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply()
+
+        Track.loginStarted()
 
         launchWithErrorHandler(busyIndicator = true) {
             withViewDisabled(usernameView, passwordView, submitView) {
@@ -179,6 +211,8 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             }
 
             is UserService.LoginResult.Banned -> {
+                Track.loginFailed("ban")
+
                 val date = response.ban.endTime?.let { date ->
                     DurationFormat.timeToPointInTime(this, date, short = false)
                 }
@@ -191,13 +225,35 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 }
 
                 showErrorString(supportFragmentManager, message)
+
+                updateUserCaptcha()
             }
 
-            is UserService.LoginResult.Failure -> {
-                Track.loginFailed()
+            is UserService.LoginResult.FailureLogin -> {
+                Track.loginFailed("generic")
 
-                val msg = getString(R.string.login_not_successful)
+                val msg = getString(R.string.login_not_successful_login)
                 showErrorString(supportFragmentManager, msg)
+
+                updateUserCaptcha()
+            }
+
+            is UserService.LoginResult.FailureCaptcha -> {
+                Track.loginFailed("captcha")
+
+                val msg = getString(R.string.login_not_successful_captcha)
+                showErrorString(supportFragmentManager, msg)
+
+                updateUserCaptcha()
+            }
+
+            else -> {
+                Track.loginFailed("error")
+
+                val msg = getString(R.string.login_not_successful_error)
+                showErrorString(supportFragmentManager, msg)
+
+                updateUserCaptcha()
             }
         }
     }

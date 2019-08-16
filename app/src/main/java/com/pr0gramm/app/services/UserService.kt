@@ -137,29 +137,34 @@ class UserService(private val api: Api,
     }
 
     suspend fun login(username: String, password: String, captchaToken: String, captchaAnswer: String): LoginResult {
+        logger.debug {
+            // 'debug' is not compiled into release builds, this is only visible during development!
+            "Login with $username/$password (token=$captchaToken, captcha=$captchaAnswer)"
+        }
+
         val response = api.login(username, password, captchaToken, captchaAnswer)
 
         // in case of errors, just return the Failure
         val login = response.body() ?: run {
             logger.debug { "Request failed, no body." }
-            return LoginResult.Failure
+            return LoginResult.FailureError
         }
 
-        val error = login.error
-        if (error != null) {
-            logger.debug { "Got error: $error" }
-            return LoginResult.Failure
+        // handle error codes
+        when (login.error) {
+            "invalidLogin" -> return LoginResult.FailureLogin
+            "invalidCaptcha" -> return LoginResult.FailureCaptcha
         }
 
-        val banInfo = login.banInfo
-        if (banInfo != null) {
+        login.banInfo?.let { banInfo ->
             logger.debug { "User is banned." }
             return LoginResult.Banned(banInfo)
         }
 
-        if (!login.success) {
+        // probably redundant.
+        if (login.success == false) {
             logger.debug { "Field login.success is false" }
-            return LoginResult.Failure
+            return LoginResult.FailureLogin
         }
 
         // extract login cookie from response
@@ -169,13 +174,13 @@ class UserService(private val api: Api,
 
         if (loginCookie == null) {
             logger.debug { "No login cookie found" }
-            return LoginResult.Failure
+            return LoginResult.FailureError
         }
 
         // store the cookie
         if (!cookieJar.updateLoginCookie(loginCookie)) {
             logger.debug { "CookieJar did not accept cookie $loginCookie" }
-            return LoginResult.Failure
+            return LoginResult.FailureError
         }
 
         val userInfo = updateCachedUserInfo(login.identifier)
@@ -416,7 +421,10 @@ class UserService(private val api: Api,
 
     sealed class LoginResult {
         object Success : LoginResult()
-        object Failure : LoginResult()
+
+        object FailureError : LoginResult()
+        object FailureCaptcha : LoginResult()
+        object FailureLogin : LoginResult()
 
         class Banned(val ban: Api.Login.BanInfo) : LoginResult()
     }

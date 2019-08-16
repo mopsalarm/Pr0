@@ -5,7 +5,6 @@
     android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     tools:context=".ui.LoginActivity">
@@ -23,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="64dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="64dp">
 
         <com.pr0gramm.app.ui.views.PlainEditText
@@ -40,8 +39,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="64dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="64dp">
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="64dp"
+        app:passwordToggleEnabled="true">
 
         <com.pr0gramm.app.ui.views.PlainEditText
             android:id="@+id/password"
@@ -53,39 +53,55 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp">
+        android:background="#2000"
+        android:orientation="vertical"
+        android:paddingLeft="64dp"
+        android:paddingTop="8dp"
+        android:paddingRight="64dp"
+        android:paddingBottom="8dp">
 
-        <com.pr0gramm.app.ui.views.PlainEditText
-            android:id="@+id/captcha_answer"
-            style="@style/Widget.AppCompat.EditText"
+        <com.pr0gramm.app.ui.views.AspectLayout
+            android:id="@+id/captcha_aspect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:hint="@string/hint_captcha"
-            android:importantForAutofill="no"
-            android:inputType="textPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:background="#2000"
+            app:aspect="4">
 
-    <com.pr0gramm.app.ui.views.BusyIndicator
-        android:id="@+id/captcha_busy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+            <com.pr0gramm.app.ui.views.BusyIndicator
+                android:id="@+id/captcha_busy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
 
-    <com.pr0gramm.app.ui.views.AspectImageView
-        android:id="@+id/captcha_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="64dp"
-        android:layout_marginRight="64dp"
-        android:scaleType="fitCenter"
-        android:visibility="gone" />
+            <ImageView
+                android:id="@+id/captcha_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
+        </com.pr0gramm.app.ui.views.AspectLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <com.pr0gramm.app.ui.views.PlainEditText
+                android:id="@+id/captcha_answer"
+                style="@style/Widget.AppCompat.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:hint="@string/hint_captcha"
+                android:importantForAutofill="no"
+                android:inputType="textVisiblePassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/login"
@@ -109,19 +125,22 @@
         <Button
             android:id="@+id/register"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="4dp"
-            android:layout_weight="1"
             android:text="@string/login_register" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/password_recovery"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
-            android:layout_weight="1"
             android:text="@string/login_password_recovery" />
     </LinearLayout>
 </LinearLayout>

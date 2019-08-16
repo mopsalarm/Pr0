@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -189,7 +190,7 @@ private class ConversationAdapterDelegate(
         holder.image.setImageDrawable(userIconService.drawable(value.name))
         holder.itemView.setOnClickListener { conversationClicked(value) }
 
-        holder.unreadCount.visible = value.unreadCount > 0
+        holder.unreadCount.isVisible = value.unreadCount > 0
         holder.unreadCount.text = value.unreadCount.toString()
 
         ViewUpdater.replaceText(holder.date, value.lastMessage) {

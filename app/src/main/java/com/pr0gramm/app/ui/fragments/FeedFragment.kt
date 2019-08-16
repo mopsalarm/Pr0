@@ -7,6 +7,7 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -1276,7 +1277,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun searchContainerIsVisible(): Boolean {
-        return view != null && searchContainer.visible
+        return view != null && searchContainer.isVisible
     }
 
     private fun hideSearchContainer() {
@@ -1285,7 +1286,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         val containerView = this.searchContainer
         containerView.animate()
-                .withEndAction { containerView.visible = false }
+                .withEndAction { containerView.isVisible = false }
                 .alpha(0f)
 
         val height = view?.height ?: 0

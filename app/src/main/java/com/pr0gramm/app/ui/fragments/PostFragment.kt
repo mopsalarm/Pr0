@@ -15,6 +15,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -254,7 +255,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         // show the repost badge if this is a repost
-        repostHint.visible = inMemoryCacheService.isRepost(feedItem)
+        repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
         activeState.bindToLifecycle().subscribe { active ->
             logger.debug { "Switching viewer state to $active" }
@@ -486,10 +487,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 start()
             }
 
-            repostHint.visible = false
+            repostHint.isVisible = false
 
             // hide content below
-            swipeRefreshLayout?.visible = false
+            swipeRefreshLayout?.isVisible = false
 
             if (activity is ToolbarActivity) {
                 // hide the toolbar if required necessary
@@ -497,7 +498,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
 
             viewer.clipBounds = null
-            viewer.visible = true
+            viewer.isVisible = true
 
             activity.invalidateOptionsMenu()
 
@@ -541,7 +542,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         fullscreenAnimator?.cancel()
         fullscreenAnimator = null
 
-        swipeRefreshLayout?.visible = true
+        swipeRefreshLayout?.isVisible = true
 
         // reset the values correctly
         viewer?.apply {
@@ -767,7 +768,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ofFloat(View.SCALE_X, 0.7f, 1.3f),
                 ofFloat(View.SCALE_Y, 0.7f, 1.3f)).apply {
 
-            doOnEnd { voteAnimationIndicator.visible = false }
+            doOnEnd { voteAnimationIndicator.isVisible = false }
             start()
         }
     }
@@ -1169,12 +1170,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             // position the repost badge, if it is visible
             if (inMemoryCacheService.isRepost(feedItem)) {
-                repostHint.visible = true
+                repostHint.isVisible = true
                 repostHint.translationY = viewer.paddingTop.toFloat() - repostHint.pivotY - offset
             }
         } else {
-            viewer.visible = false
-            repostHint.visible = false
+            viewer.isVisible = false
+            repostHint.isVisible = false
         }
     }
 

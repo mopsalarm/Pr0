@@ -27,7 +27,9 @@
     <string name="hint_password">Passwort</string>
     <string name="hint_username">Benutzername</string>
     <string name="login">Login</string>
-    <string name="login_not_successful">Login nicht erfolgreich. Passwort/Benutzer falsch.</string>
+    <string name="login_not_successful_error">Login nicht erfolgreich. Es ist ein Fehler aufgetreten, bitte versuche es noch einmal.</string>
+    <string name="login_not_successful_login">Login nicht erfolgreich. Wahrscheinlich hast du deinen Benutzernamen oder das Passwort falsch eingegeben. Bei zu vielen Fehlversuchen wird der Login außerdem temporär gesperrt.</string>
+    <string name="login_not_successful_captcha">Du hast das Captcha falsch eingegeben, bitte versuche es noch einmal.</string>
     <string name="must_not_be_empty">Darf nicht leer sein</string>
     <string name="new_update_available">Neues Update verfügbar: %s</string>
     <string name="okay">Okay</string>
@@ -498,5 +500,7 @@
     <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen Titel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
     <string name="hint_bookmark_onload">Dieses Lesezeichen beim Starten der App anstelle von Neu oder Beliebt verwenden.</string>
     <string name="action_rename">Umnennen</string>
+    <string name="hint_captcha">Captcha</string>
+    <string name="hint_no_email">Benutzername, nicht E-Mail</string>
 
 </resources>

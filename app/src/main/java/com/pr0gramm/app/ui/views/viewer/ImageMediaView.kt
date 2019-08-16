@@ -3,13 +3,17 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.addOnDetachListener
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.removeFromParent
 import kotterknife.bindView
 import kotlin.math.max
 
@@ -94,7 +98,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
     }
 
     override fun onMediaShown() {
-        imageView.visible = true
+        imageView.isVisible = true
 
         if (imageView.alpha == 0f) {
             imageView.animate().alpha(1f)

@@ -20,6 +20,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.LruCache
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -119,7 +120,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     private fun animateMediaControls(imageView: ImageView, direction: Int) {
-        imageView.visible = true
+        imageView.isVisible = true
 
         val xTrans = imageView.width * 0.25f * direction
         ObjectAnimator.ofPropertyValuesHolder(imageView,
@@ -129,7 +130,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             duration = 300
             interpolator = AccelerateDecelerateInterpolator()
 
-            doOnEnd { imageView.visible = false }
+            doOnEnd { imageView.isVisible = false }
 
             start()
         }
@@ -168,7 +169,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             muteButtonView.animate()
                     .alpha(0f)
                     .translationY(muteButtonView.height.toFloat())
-                    .withEndAction { muteButtonView.visible = false }
+                    .withEndAction { muteButtonView.isVisible = false }
                     .setInterpolator(AccelerateInterpolator())
                     .start()
         } else {

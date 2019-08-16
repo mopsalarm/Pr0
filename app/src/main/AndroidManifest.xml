@@ -185,6 +185,7 @@
             android:name=".ui.LoginActivity"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange.NoActionBar.WhiteAccent"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

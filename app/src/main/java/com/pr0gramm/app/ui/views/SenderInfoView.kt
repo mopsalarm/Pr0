@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.*
@@ -105,7 +106,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun setOnAnswerClickedListener(onClickListener: View.OnClickListener?) {
-        answerView?.visible = onClickListener != null
+        answerView?.isVisible = onClickListener != null
         answerView?.setOnClickListener(onClickListener)
     }
 

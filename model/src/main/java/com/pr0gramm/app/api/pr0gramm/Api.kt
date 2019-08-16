@@ -392,8 +392,8 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     class Login(
-            val success: Boolean,
-            val identifier: String?,
+            val success: Boolean? = null,
+            val identifier: String? = null,
             val error: String? = null,
             @Json(name = "ban") val banInfo: BanInfo? = null) {
 
@@ -623,7 +623,6 @@ interface Api {
             val link: String,
             val velocity: Float = 0.0f)
 
-    @Suppress("ArrayInDataClass")
     @JsonClass(generateAdapter = true)
     class UserCaptcha(
             val token: String,

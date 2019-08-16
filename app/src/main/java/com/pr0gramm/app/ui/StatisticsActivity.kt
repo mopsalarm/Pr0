@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
@@ -147,8 +148,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private fun redrawBenisGraph() {
-        benisGraphLoading.visible = false
-        benisGraphTimeSelector.visible = true
+        benisGraphLoading.isVisible = false
+        benisGraphTimeSelector.isVisible = true
 
         var records = optimizeValuesBy(benisValues) { it.benis.toDouble() }
 
@@ -157,8 +158,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 records.all { it.benis == records[0].benis } ||
                 System.currentTimeMillis() - records[0].time < 60 * 1000) {
 
-            benisGraphEmpty.visible = true
-            benisGraphTimeSelector.visible = false
+            benisGraphEmpty.isVisible = true
+            benisGraphTimeSelector.isVisible = false
             records = randomBenisGraph()
         }
 

@@ -12,6 +12,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
@@ -24,7 +25,6 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.matches
-import com.pr0gramm.app.util.visible
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -105,9 +105,9 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private fun updateSubmitButtonActivation() {
-        var enabled = groupAllTextViews.none { it.visible && it.text.toString().trim().isEmpty() }
+        var enabled = groupAllTextViews.none { it.isVisible && it.text.toString().trim().isEmpty() }
 
-        if (vMail.visible && !vMail.text.matches(Patterns.EMAIL_ADDRESS)) {
+        if (vMail.isVisible && !vMail.text.matches(Patterns.EMAIL_ADDRESS)) {
             enabled = false
         }
 

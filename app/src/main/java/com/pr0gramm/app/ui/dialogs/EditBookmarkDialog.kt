@@ -10,6 +10,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.bookmark.Bookmark
@@ -24,7 +25,6 @@ import com.pr0gramm.app.ui.bottomSheet
 import com.pr0gramm.app.util.activityIntent
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.fragmentArgument
-import com.pr0gramm.app.util.visible
 import okio.ByteString.Companion.encodeUtf8
 
 class EditBookmarkDialog : BaseDialogFragment("EditBookmarkDialog") {
@@ -81,7 +81,7 @@ class EditBookmarkDialog : BaseDialogFragment("EditBookmarkDialog") {
         buttonDelete.setOnClickListener { deleteClicked() }
 
         if (ShortcutManagerCompat.isRequestPinShortcutSupported(requireContext())) {
-            buttonShortcut.visible = true
+            buttonShortcut.isVisible = true
             buttonShortcut.setOnClickListener { shortcutClicked() }
         }
 

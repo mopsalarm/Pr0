@@ -14,7 +14,7 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.di.InjectorAware
@@ -99,7 +99,7 @@ open class ApplicationClass : Application(), InjectorAware {
         }
 
         // initialize this to show errors always in the context of the current activity.
-        globalErrorDialogHandler = ActivityErrorHandler(this)
+        GlobalErrorDialogHandler = ActivityErrorHandler(this)
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme()

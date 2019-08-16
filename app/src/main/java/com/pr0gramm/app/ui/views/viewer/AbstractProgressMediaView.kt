@@ -8,10 +8,10 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.dip2px
-import com.pr0gramm.app.util.visible
 
 /**
  */
@@ -92,7 +92,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             viewToHide.animate()
                     .alpha(0f)
                     .translationY(deltaY.toFloat())
-                    .withEndAction { viewToHide.visible = false }
+                    .withEndAction { viewToHide.isVisible = false }
                     .setInterpolator(AccelerateInterpolator())
                     .start()
 
@@ -142,7 +142,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             if (info != null && shouldShowView(info)) {
                 if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false
-                    progressView.visible = true
+                    progressView.isVisible = true
                     progressView.alpha = 1f
                     progressView.translationY = 0f
                 }
@@ -158,8 +158,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             } else {
                 lastUserInteraction = -1
                 firstTimeProgressValue = true
-                seekBarView.visible = false
-                progressView.visible = false
+                seekBarView.isVisible = false
+                progressView.isVisible = false
             }
         }
 
@@ -194,8 +194,8 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
 
         lastUserInteraction = -1
         firstTimeProgressValue = true
-        seekBarView.visible = false
-        progressView.visible = false
+        seekBarView.isVisible = false
+        progressView.isVisible = false
     }
 
     class ProgressInfo(val progress: Float, val buffered: Float)

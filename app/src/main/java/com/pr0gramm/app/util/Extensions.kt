@@ -264,12 +264,6 @@ inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
             "View ${itemView.resources.getResourceName(id)} not found")
 }
 
-inline var View.visible: Boolean
-    inline get() = visibility == View.VISIBLE
-    inline set(v) {
-        visibility = if (v) View.VISIBLE else View.GONE
-    }
-
 inline fun Canvas.save(block: () -> Unit) {
     val count = save()
     try {

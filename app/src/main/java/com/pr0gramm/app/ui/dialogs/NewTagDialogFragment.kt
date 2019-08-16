@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.MultiAutoCompleteTextView
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
@@ -12,7 +13,6 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.visible
 
 /**
  */
@@ -35,7 +35,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
         tagSuggestions.setupView(tagInput)
 
         tagInput.addTextChangedListener { text ->
-            opinionHint.visible = tagSuggestions.containsQuestionableTag(text)
+            opinionHint.isVisible = tagSuggestions.containsQuestionableTag(text)
         }
     }
 

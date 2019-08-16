@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.base
 
 import android.content.Context
 import android.view.View
+import androidx.core.view.isVisible
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
@@ -86,11 +87,11 @@ inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
 inline fun <T> withViewVisible(vararg views: View, block: () -> T): T {
     checkMainThread()
 
-    views.forEach { it.visible = true }
+    views.forEach { it.isVisible = true }
     try {
         return block()
     } finally {
-        views.forEach { it.visible = true }
+        views.forEach { it.isVisible = true }
     }
 }
 

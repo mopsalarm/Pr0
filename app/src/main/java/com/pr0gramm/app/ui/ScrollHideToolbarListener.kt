@@ -2,8 +2,8 @@ package com.pr0gramm.app.ui
 
 import android.view.View
 import android.view.ViewPropertyAnimator
+import androidx.core.view.isVisible
 import com.pr0gramm.app.util.CustomWindowInsets
-import com.pr0gramm.app.util.visible
 import rx.Observable
 
 /**
@@ -38,7 +38,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
         val targetVisible = toolbar.height > toolbarMarginOffset
         if (animated) {
             if (targetVisible) {
-                toolbar.visible = true
+                toolbar.isVisible = true
             }
 
             animation = toolbar.animate()
@@ -46,13 +46,13 @@ class ScrollHideToolbarListener(private val toolbar: View) {
                     .setDuration(250)
                     .withEndAction {
                         if (!targetVisible) {
-                            toolbar.visible = false
+                            toolbar.isVisible = false
                         }
                     }
                     .apply { start() }
         } else {
             toolbar.translationY = y.toFloat()
-            toolbar.visible = targetVisible
+            toolbar.isVisible = targetVisible
         }
     }
 

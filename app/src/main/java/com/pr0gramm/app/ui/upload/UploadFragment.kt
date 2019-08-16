@@ -15,6 +15,7 @@ import android.widget.*
 import androidx.annotation.MainThread
 import androidx.core.text.bold
 import androidx.core.text.inSpans
+import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -105,7 +106,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         // react on change in the tag input window
         tags.addTextChangedListener { text ->
-            tagOpinionHint.visible = tagSuggestions.containsQuestionableTag(text)
+            tagOpinionHint.isVisible = tagSuggestions.containsQuestionableTag(text)
         }
 
         val types = listOf(R.id.upload_type_sfw, R.id.upload_type_nsfp, R.id.upload_type_nsfw, R.id.upload_type_nsfl)
@@ -170,9 +171,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
 
         if (text == null) {
-            busyState.visible = false
+            busyState.isVisible = false
         } else {
-            busyState.visible = true
+            busyState.isVisible = true
             busyState.text = text
         }
     }
@@ -191,7 +192,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val uploadInfo = uploadInfo
 
-        busyContainer.visible = true
+        busyContainer.isVisible = true
 
         // start the upload
         val upload = if (uploadInfo == null) {
@@ -204,7 +205,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         logger.info { "Start upload of type $type with tags $tags" }
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .doAfterTerminate { busyContainer.visible = false }
+                .doAfterTerminate { busyContainer.isVisible = false }
                 .subscribe({ state ->
                     updateUploadState(state)
 
@@ -255,8 +256,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun showSimilarPosts(similar: List<Api.Posted.SimilarItem>) {
-        similarHintView.visible = true
-        similarImages.visible = true
+        similarHintView.isVisible = true
+        similarImages.isVisible = true
         similarImages.items = similar
 
         similarHintView.requestFocus()
@@ -304,7 +305,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         checkMainThread()
         val activity = activity ?: return
 
-        busyContainer.visible = true
+        busyContainer.isVisible = true
 
         launch {
             logger.info { "copy image to private memory" }
@@ -376,7 +377,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         preview.removeAllViews()
         preview.addView(viewer)
 
-        busyContainer.visible = false
+        busyContainer.isVisible = false
     }
 
     private fun handleSizeNotOkay() {
