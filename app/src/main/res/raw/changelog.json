@@ -9,6 +9,10 @@
       {
         "type": "Neu",
         "change": "Wie auf der Website wird nun der Top Tag als Titel angezeigt."
+      },
+      {
+        "type": "Entfernt",
+        "change": "Einige Einstellungsmöglichkeiten sind aus den Optionen entfernt worden, da sie so gut wie nicht verwendet wurden. In so einem Fall lohnt sich der extra Aufwand den Code zu pflegen und zu testen leider nicht."
       }
     ]
   },
