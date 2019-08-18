@@ -113,6 +113,12 @@
                     android:title="@string/pref_double_tap_to_upvote" />
 
                 <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:key="pref_use_tag_as_title"
+                    android:summary="@string/pref_use_tag_as_title_sumary"
+                    android:title="@string/pref_use_tag_as_title_title" />
+
+                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_audiofocus_transient"
                     android:summary="@string/pref_audiofocus_transient_summary"

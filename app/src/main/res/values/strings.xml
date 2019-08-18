@@ -503,5 +503,7 @@
     <string name="action_rename">Rename</string>
     <string name="hint_captcha">Captcha</string>
     <string name="hint_no_email">Username, not Email</string>
+    <string name="pref_use_tag_as_title_title">Top tag as title</string>
+    <string name="pref_use_tag_as_title_sumary">Use the top tag of a post as the post views title.</string>
 </resources>
 

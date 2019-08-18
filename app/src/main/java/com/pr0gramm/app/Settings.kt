@@ -172,6 +172,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val audioFocusTransient: Boolean
         get() = preferences.getBoolean("pref_audiofocus_transient", false)
 
+    val useTopTagAsTitle: Boolean
+        get() = preferences.getBoolean("pref_use_tag_as_title", true)
+
     val secureApp: Boolean
         get() = preferences.getBoolean("pref_secure_app", false)
 

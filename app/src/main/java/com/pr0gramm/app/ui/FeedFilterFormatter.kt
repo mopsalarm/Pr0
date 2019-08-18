@@ -4,6 +4,8 @@ import android.content.Context
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.services.BookmarkService
+import com.pr0gramm.app.util.di.injector
 
 object FeedFilterFormatter {
     /**
@@ -79,6 +81,22 @@ object FeedFilterFormatter {
         }
 
         return mid
+    }
+
+    fun toTitle(context: Context, filter: FeedFilter, titleOverride: String? = null): TitleFragment.Title {
+        val bookmarkService: BookmarkService = context.injector.instance()
+
+        // format the current filter
+        val formatted = FeedFilterFormatter.format(context, filter)
+
+        // get a more specific title if possible
+        val title = titleOverride ?: bookmarkService.byFilter(filter)?.title
+
+        return if (title != null) {
+            TitleFragment.Title(title, formatted.singleline, title)
+        } else {
+            TitleFragment.Title(formatted.title, formatted.subtitle, formatted.singleline)
+        }
     }
 
     class FeedTitle(val title: String, private val separator: String, val subtitle: String) {

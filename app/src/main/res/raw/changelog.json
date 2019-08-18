@@ -1,5 +1,14 @@
 [
   {
+    "version": 172,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Option um den Top Tag nicht als Titel anzeigen zu lassen."
+      }
+    ]
+  },
+  {
     "version": 171,
     "changes": [
       {

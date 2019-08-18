@@ -1043,19 +1043,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     override val title: TitleFragment.Title?
         get() {
             val context = context ?: return null
-
-            // format the current filter
-            val feed = FeedFilterFormatter.format(context, feed.filter)
-
-            // get a more specific title if possible
-            val title = arguments?.getString(ARG_TITLE)
-                    ?: bookmarkService.byFilter(this.feed.filter)?.title
-
-            return if (title != null) {
-                TitleFragment.Title(title, feed.singleline, title)
-            } else {
-                TitleFragment.Title(feed.title, feed.subtitle, feed.singleline)
-            }
+            return FeedFilterFormatter.toTitle(context, feed.filter,
+                    titleOverride = arguments?.getString(ARG_TITLE))
         }
 
     private fun createRecyclerViewClickListener() {

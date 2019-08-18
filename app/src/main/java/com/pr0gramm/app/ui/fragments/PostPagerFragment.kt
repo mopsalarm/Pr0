@@ -190,14 +190,22 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     override val title: TitleFragment.Title?
         get() {
-            val title = activePostFragment?.title
+            val titleOverride = arguments?.getString(ARG_TITLE)
 
-            // if the caller gave us a more specific title, we'll use that one.
-            val override = arguments?.getString(ARG_TITLE)
-            if (override != null)
-                return title?.copy(subTitle = override) ?: TitleFragment.Title(override)
+            if (settings.useTopTagAsTitle) {
+                val title = activePostFragment?.title
 
-            return title
+                if (titleOverride != null) {
+                    // if the caller gave us a more specific title, we'll use that one.
+                    return title?.copy(subTitle = titleOverride)
+                            ?: TitleFragment.Title(titleOverride)
+                }
+
+                return title
+            } else {
+                val context = this.context ?: return null
+                return FeedFilterFormatter.toTitle(context, currentFilter)
+            }
         }
 
     fun onTagClicked(tag: Api.Tag) {
