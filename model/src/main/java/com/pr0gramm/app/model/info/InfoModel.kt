@@ -4,4 +4,7 @@ import com.squareup.moshi.JsonClass
 
 
 @JsonClass(generateAdapter = true)
-class InfoMessage(val message: String? = null, val endOfLife: Int = 0)
+class InfoMessage(
+        val message: String? = null,
+        val messageId: String? = null,
+        val endOfLife: Int?)

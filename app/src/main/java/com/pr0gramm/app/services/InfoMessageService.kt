@@ -17,13 +17,12 @@ import retrofit2.http.GET
  */
 
 class InfoMessageService(okHttpClient: OkHttpClient) {
-    private val api = Retrofit.Builder()
+    private val api: Api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("$ServiceBaseURL/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .validateEagerly(BuildConfig.DEBUG)
-            .build()
-            .create<Api>()
+            .build().create()
 
     suspend fun fetch(): InfoMessage {
         return api.get()

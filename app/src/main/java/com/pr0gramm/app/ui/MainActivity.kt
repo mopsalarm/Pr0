@@ -233,8 +233,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun checkForInfoMessage() {
         launch {
             catchAll {
-                val message = infoMessageService.fetch()
-                showInfoMessage(message)
+                showInfoMessage(infoMessageService.fetch())
             }
         }
     }
@@ -398,10 +397,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun showInfoMessage(message: InfoMessage) {
-        if (message.endOfLife >= AndroidUtility.buildVersionCode()) {
+        if (message.endOfLife ?: 0 >= AndroidUtility.buildVersionCode()) {
             showDialog(this) {
                 contentWithLinks("Support für deine Version ist eingestellt. " +
-                        "Um die pr0gramm-App weiter benutzen zu können, lade eine " +
+                        "Um die pr0gramm-App weiter benutzen zu können, lade die " +
                         "aktuelle Version von https://app.pr0gramm.com herunter.")
 
                 positive(R.string.okay) {
@@ -415,11 +414,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             return
         }
 
-        val text = message.message?.takeIf(String::isNotBlank)
-        if (text != null) {
-            showDialog(this) {
-                contentWithLinks(text)
-                positive()
+        message.message?.takeUnless { it.isBlank() }?.let { text ->
+            singleShotService.doOnce(message.messageId) {
+                showDialog(this) {
+                    contentWithLinks(text)
+                    positive()
+                }
             }
         }
     }

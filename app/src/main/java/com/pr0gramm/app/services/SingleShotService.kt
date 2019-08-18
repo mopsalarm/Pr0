@@ -53,8 +53,10 @@ class SingleShotService(private val preferences: SharedPreferences) {
         }
     }
 
-    inline fun doOnce(action: String, block: () -> Unit) {
-        if (markAsDoneOnce(action)) {
+    inline fun doOnce(action: String?, block: () -> Unit) {
+        if (action == null) {
+            block()
+        } else if (markAsDoneOnce(action)) {
             block()
         }
     }
