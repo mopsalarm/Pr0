@@ -14,7 +14,6 @@ import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
-import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
 import rx.Observable
@@ -74,11 +73,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return path?.let { Paths.get(path) } ?: defaultValue
         }
 
-    val seenIndicatorStyle: IndicatorStyle
-        get() {
-            val value = preferences.getString("pref_seen_indicator_style", null)
-            return tryEnumValueOf<IndicatorStyle>(value) ?: IndicatorStyle.NONE
-        }
+    val markItemsAsSeen: Boolean
+        get() = preferences.getBoolean("pref_mark_items_as_seen", false)
 
     val doubleTapToUpvote: Boolean
         get() = preferences.getBoolean("pref_double_tap_to_upvote", true)
@@ -237,11 +233,21 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
             instance = Settings(context.applicationContext as Application)
 
+            val p = instance.preferences
+
+            // migrate the old "mark item as seen" property.
+            p.getStringOrNull("pref_seen_indicator_style")?.let { previousValue ->
+                p.edit {
+                    putBoolean("pref_mark_items_as_seen", previousValue != "NONE")
+                    remove("pref_seen_indicator_style")
+                }
+            }
+
             // Add some random string to the settings. We do this, so that we can better
             // analyse the setting selection and know what the users want. This is completelly
             // anonymous.
-            if (!instance.preferences.contains("__unique_settings_id")) {
-                instance.edit {
+            if (!p.contains("__unique_settings_id")) {
+                p.edit {
                     putString("__unique_settings_id", UUID.randomUUID().toString())
                 }
             }

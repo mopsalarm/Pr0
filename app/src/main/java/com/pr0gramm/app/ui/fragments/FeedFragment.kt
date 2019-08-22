@@ -104,7 +104,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             val ownUsername: String? = null,
             val userInfo: UserInfo? = null,
             val adsVisible: Boolean = false,
-            val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
+            val markItemsAsSeen: Boolean = false,
             val userInfoCommentsOpen: Boolean = false,
             val repostRefreshTime: Long = 0,
             val empty: Boolean = false,
@@ -355,7 +355,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
             if (!state.userInfoCommentsOpen) {
                 // check if we need to check if the posts are 'seen'
-                val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
+                val markAsSeen = state.markItemsAsSeen && !(
                         state.ownUsername != null && state.ownUsername.equals(filter.likes
                                 ?: filter.username, ignoreCase = true))
 
@@ -570,8 +570,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         recheckContentTypes()
 
-        if (state.seenIndicatorStyle !== settings.seenIndicatorStyle) {
-            state = state.copy(seenIndicatorStyle = settings.seenIndicatorStyle)
+        if (state.markItemsAsSeen != settings.markItemsAsSeen) {
+            state = state.copy(markItemsAsSeen = settings.markItemsAsSeen)
         }
 
         if (state.ownUsername != userService.name) {

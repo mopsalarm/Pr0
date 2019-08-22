@@ -113,12 +113,6 @@
                     android:title="@string/pref_double_tap_to_upvote" />
 
                 <SwitchPreferenceCompat
-                    android:defaultValue="true"
-                    android:key="pref_use_tag_as_title"
-                    android:summary="@string/pref_use_tag_as_title_sumary"
-                    android:title="@string/pref_use_tag_as_title_title" />
-
-                <SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="pref_audiofocus_transient"
                     android:summary="@string/pref_audiofocus_transient_summary"
@@ -205,14 +199,17 @@
                 android:key="prefcat_visual__misc"
                 android:title="@string/prefcat_misc">
 
-                <ListPreference
-                    android:defaultValue="@string/pref_seen_indicator_style_default"
-                    android:entries="@array/pref_seen_indicator_style_human"
-                    android:entryValues="@array/pref_seen_indicator_style_values"
-                    android:key="pref_seen_indicator_style"
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_mark_items_as_seen"
                     android:summary="@string/pref_seen_indicator_style_summary"
                     android:title="@string/pref_seen_indicator_style" />
 
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:key="pref_use_tag_as_title"
+                    android:summary="@string/pref_use_tag_as_title_sumary"
+                    android:title="@string/pref_use_tag_as_title_title" />
 
                 <SwitchPreferenceCompat
                     android:defaultValue="false"

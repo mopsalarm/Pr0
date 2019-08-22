@@ -6,7 +6,6 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.fragments.IndicatorStyle
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.mapNotNull
 import com.pr0gramm.app.util.unless
@@ -106,9 +105,10 @@ class SyncService(private val userService: UserService,
     }
 
     private suspend fun syncSeenService() {
-        val shouldSync = settings.backup && when (settings.seenIndicatorStyle) {
-            IndicatorStyle.NONE -> singleShotService.firstTimeToday("sync-seen")
-            else -> singleShotService.firstTimeInHour("sync-seen")
+        val shouldSync = settings.backup && if (settings.markItemsAsSeen) {
+            singleShotService.firstTimeInHour("sync-seen")
+        } else {
+            singleShotService.firstTimeToday("sync-seen")
         }
 
         val token = userService.loginState.uniqueToken
