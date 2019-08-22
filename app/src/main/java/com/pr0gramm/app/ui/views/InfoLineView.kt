@@ -6,6 +6,7 @@ import android.content.res.ColorStateList
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Duration
@@ -175,6 +176,7 @@ interface PostActions {
 class TagsView(context: Context) : FrameLayout(context) {
     private val alwaysVoteViews = !Settings.get().hideTagVoteButtons
 
+    private val recyclerView: RecyclerView by bindView(R.id.tags)
     private val adapter = TagsAdapter()
 
     var actions: PostActions? = null
@@ -186,9 +188,6 @@ class TagsView(context: Context) : FrameLayout(context) {
     init {
         View.inflate(context, R.layout.post_tags, this)
 
-        val recyclerView = find<RecyclerView>(R.id.tags)
-        recyclerView.adapter = adapter
-
         if (Settings.get().tagCloudView) {
             val tagGaps = resources.getDimensionPixelSize(R.dimen.tag_gap_size)
             recyclerView.layoutManager = TagCloudLayoutManager(tagGaps, tagGaps, 3)
@@ -196,11 +195,21 @@ class TagsView(context: Context) : FrameLayout(context) {
         } else {
             recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
 
-            recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply {
+            recyclerView.itemAnimator = DefaultItemAnimator().apply {
                 supportsChangeAnimations = false
             }
 
         }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        recyclerView.adapter = adapter
+    }
+
+    override fun onDetachedFromWindow() {
+        recyclerView.adapter = null
+        super.onDetachedFromWindow()
     }
 
     fun updateTags(tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
@@ -216,7 +225,7 @@ class TagsView(context: Context) : FrameLayout(context) {
 
     private fun rebuildAdapterState() {
         adapter.submitList(tags.map { tag ->
-            val vote = votes.get(tag.id) ?: Vote.NEUTRAL
+            val vote = votes[tag.id] ?: Vote.NEUTRAL
             val selected = alwaysVoteViews || tag.id == selectedTagId
             VotedTag(tag, vote, selected)
         })
