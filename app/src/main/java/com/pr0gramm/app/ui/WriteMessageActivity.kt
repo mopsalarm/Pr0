@@ -25,13 +25,13 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.util.TextViewCache
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.observeChangeEx
 import kotlinx.coroutines.NonCancellable
 import kotterknife.bindView
-import kotlin.collections.set
 
 /**
  */
@@ -82,11 +82,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                 val empty = s.toString().trim().isEmpty()
                 buttonSubmit.isEnabled = !empty
                 invalidateOptionsMenu()
-
-                // cache to restore it later.
-                CACHE[messageCacheKey] = s.toString()
             }
         })
+
+        val cacheKey = if (isCommentAnswer) "$itemId-$parentCommentId" else "msg-$receiverId"
+        TextViewCache.addCaching(messageText, cacheKey)
 
         messageText.setTokenizer(UsernameTokenizer())
         messageText.setAdapter(UsernameAutoCompleteAdapter(suggestionService, this,
@@ -108,12 +108,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             parentCommentsView.layoutManager = LinearLayoutManager(this)
             parentCommentsView.itemAnimator = null
             updateViewState()
-        }
-
-        // restore cached text.
-        val cached = CACHE[messageCacheKey]
-        if (cached != null) {
-            messageText.setText(cached)
         }
     }
 
@@ -158,7 +152,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     private fun finishAfterSending() {
-        CACHE.remove(messageCacheKey)
         finish()
     }
 
@@ -225,15 +218,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-    internal val messageCacheKey: String
-        get() {
-            if (isCommentAnswer) {
-                return itemId.toString() + "-" + parentCommentId
-            } else {
-                return "msg-$receiverId"
-            }
-        }
-
     companion object {
         private const val ARGUMENT_MESSAGE = "WriteMessageFragment.message"
         private const val ARGUMENT_RECEIVER_ID = "WriteMessageFragment.userId"
@@ -242,8 +226,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private const val ARGUMENT_ITEM_ID = "WriteMessageFragment.itemId"
         private const val ARGUMENT_EXCERPTS = "WriteMessageFragment.excerpts"
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
-
-        private val CACHE = mutableMapOf<String, String>()
 
         fun intent(context: Context, message: Api.Message): Intent {
             val intent = intent(context, message.senderId.toLong(), message.name)

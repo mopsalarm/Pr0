@@ -9,14 +9,10 @@ import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.UsernameTokenizer
-import com.pr0gramm.app.util.ViewUtility
-import com.pr0gramm.app.util.addTextChangedListener
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.*
 import kotterknife.bindView
 
 typealias OnSendCommentListener = (text: String) -> Unit
-typealias OnCommentChangedListener = (text: String) -> Unit
 
 /**
  */
@@ -29,7 +25,6 @@ class CommentPostLine @JvmOverloads constructor(
 
     private val userSuggestionService: UserSuggestionService by instance()
 
-    var onTextChanged: OnCommentChangedListener? = null
     var onPostCommentClicked: OnSendCommentListener? = null
 
     init {
@@ -57,7 +52,6 @@ class CommentPostLine @JvmOverloads constructor(
         commentTextView.addTextChangedListener { text ->
             // The post button is only enabled if we have at least one letter.
             postButton.isEnabled = text.trim().isNotEmpty()
-            onTextChanged?.invoke(text.toString())
         }
     }
 
@@ -65,9 +59,7 @@ class CommentPostLine @JvmOverloads constructor(
         commentTextView.setText("")
     }
 
-    fun setCommentDraft(text: String) {
-        if (this.commentTextView.text.toString() != text) {
-            this.commentTextView.setText(text)
-        }
+    fun updateItemId(itemId: Long) {
+        TextViewCache.addCaching(this.commentTextView, "post:comment:$itemId")
     }
 }

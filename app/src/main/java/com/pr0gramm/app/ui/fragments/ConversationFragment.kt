@@ -84,17 +84,13 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         refreshLayout.setOnRefreshListener { reloadConversation() }
         refreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
-        // restore backup if available
-        messageText.text = BACKUP[conversationName] ?: ""
-
         messageText.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 buttonSend.isEnabled = s.toString().isNotBlank()
-
-                // backup to restore it later.
-                BACKUP[conversationName] = s.toString()
             }
         })
+
+        TextViewCache.addCaching(messageText, "conversation:$conversationName")
 
         buttonSend.setOnClickListener {
             sendInboxMessage()
@@ -215,9 +211,6 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
                 // clear the input field
                 messageText.text = ""
-
-                // remove backup value
-                BACKUP.remove(conversationName)
             }
         }
     }
@@ -274,10 +267,6 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
                         value = messages.lastOrNull(), hasMore = hasMore))
             }
         }
-    }
-
-    companion object {
-        private val BACKUP = mutableMapOf<String, String>()
     }
 }
 

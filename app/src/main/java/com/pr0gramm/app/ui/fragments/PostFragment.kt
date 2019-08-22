@@ -355,7 +355,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         } else {
             items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes, actions)
-            items += PostAdapter.Item.CommentInputItem(text = "", actions = actions)
+            items += PostAdapter.Item.CommentInputItem(state.item.id, actions = actions)
 
             if (state.commentsVisible) {
                 if (state.commentsLoadError) {

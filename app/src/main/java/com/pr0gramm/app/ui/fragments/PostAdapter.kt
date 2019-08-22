@@ -67,7 +67,7 @@ class PostAdapter
         data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
             : Item(idInCategory(2))
 
-        data class CommentInputItem(val text: String, val actions: PostActions)
+        data class CommentInputItem(val itemId: Long, val actions: PostActions)
             : Item(idInCategory(3))
 
         object CommentsLoadingItem
@@ -161,18 +161,14 @@ private object CommentPostLineAdapterDelegate
     }
 
     private class ViewHolder(val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
-        var latestText: String? = null
-
         init {
             line.layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT)
-
-            line.onTextChanged = { text -> latestText = text }
         }
 
         fun set(item: PostAdapter.Item.CommentInputItem) {
-            line.setCommentDraft(latestText ?: item.text)
+            line.updateItemId(item.itemId)
 
             line.onPostCommentClicked = { text ->
                 if (item.actions.writeCommentClicked(text)) {
