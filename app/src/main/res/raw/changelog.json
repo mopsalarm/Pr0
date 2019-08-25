@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Option um den Top Tag nicht als Titel anzeigen zu lassen."
+      },
+      {
+        "type": "Fix",
+        "change": "Korrekte Meldung wenn der Benutzer beim Login gebannt ist."
       }
     ]
   },
