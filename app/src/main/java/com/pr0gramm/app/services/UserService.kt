@@ -150,15 +150,15 @@ class UserService(private val api: Api,
             return LoginResult.FailureError
         }
 
+        login.banInfo?.let { banInfo ->
+            logger.debug { "User is banned." }
+            return LoginResult.Banned(banInfo)
+        }
+
         // handle error codes
         when (login.error) {
             "invalidLogin" -> return LoginResult.FailureLogin
             "invalidCaptcha" -> return LoginResult.FailureCaptcha
-        }
-
-        login.banInfo?.let { banInfo ->
-            logger.debug { "User is banned." }
-            return LoginResult.Banned(banInfo)
         }
 
         // probably redundant.
