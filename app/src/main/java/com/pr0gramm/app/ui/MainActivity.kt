@@ -318,7 +318,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         get() = (currentFragment as? FilterFragment)?.currentFilter
 
     private val currentFragment: Fragment?
-        get() = supportFragmentManager?.findFragmentById(R.id.content)
+        get() = supportFragmentManager.findFragmentById(R.id.content)
 
     private val shouldClearOnIntent: Boolean
         get() = currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
@@ -430,7 +430,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override suspend fun onStartImpl() {
         launchIgnoreErrors {
-            runEvery(seconds(45)) { SyncWorker.syncNow(this@MainActivity) }
+            runEvery(period = seconds(45)) {
+                logger.debug { "Sync from MainActivity" }
+                SyncWorker.syncNow(this@MainActivity)
+            }
         }
 
         if (coldStart) {

@@ -92,7 +92,7 @@ open class ApplicationClass : Application(), InjectorAware {
 
         doInBackground {
             // schedule first sync 30seconds after bootup.
-            SyncWorker.scheduleNextSyncIn(this@ApplicationClass, 30, TimeUnit.SECONDS)
+            SyncWorker.scheduleNextSyncIn(this@ApplicationClass, 30, TimeUnit.SECONDS, sourceTag = "Bootup")
 
             // also schedule the nightly update job
             SyncStatsWorker.schedule(this@ApplicationClass)

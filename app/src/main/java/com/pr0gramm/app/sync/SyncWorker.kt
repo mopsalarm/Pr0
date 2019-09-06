@@ -13,10 +13,13 @@ import java.util.concurrent.TimeUnit
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result = retryOnError {
-        logger.info { "Sync worker started." }
+        val sourceTag = inputData.getString("sourceTag") ?: "unknown"
+        logger.info { "Sync worker started (started by $sourceTag)" }
 
         // schedule next sync
-        scheduleNextSyncIn(context, nextIntervalInMillis(), TimeUnit.MILLISECONDS, append = true)
+        scheduleNextSyncIn(context,
+                nextIntervalInMillis(), TimeUnit.MILLISECONDS,
+                append = true, sourceTag = "NextSync (triggered by ${sourceTag.take(64)}...)")
 
         // get service and sync now.
         val syncService = context.injector.instance<SyncService>()
@@ -39,14 +42,14 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
         fun syncNow(ctx: Context) {
             // start normal sync cycle now.
-            scheduleNextSyncIn(ctx, 0, TimeUnit.MILLISECONDS)
+            scheduleNextSyncIn(ctx, 0, TimeUnit.MILLISECONDS, sourceTag = "SyncNow")
         }
 
-        fun scheduleNextSync(ctx: Context) {
-            scheduleNextSyncIn(ctx, DEFAULT_SYNC_DELAY_MS, TimeUnit.MILLISECONDS)
+        fun scheduleNextSync(ctx: Context, sourceTag: String) {
+            scheduleNextSyncIn(ctx, DEFAULT_SYNC_DELAY_MS, TimeUnit.MILLISECONDS, sourceTag = sourceTag)
         }
 
-        fun scheduleNextSyncIn(ctx: Context, delay: Long = DEFAULT_SYNC_DELAY_MS, unit: TimeUnit = TimeUnit.MILLISECONDS, append: Boolean = false) = doInBackground {
+        fun scheduleNextSyncIn(ctx: Context, delay: Long = DEFAULT_SYNC_DELAY_MS, unit: TimeUnit = TimeUnit.MILLISECONDS, append: Boolean = false, sourceTag: String? = null) = doInBackground {
 
             val delayInMilliseconds = unit.toMillis(delay)
             logger.info { "Scheduling sync-job to run in ${Duration.millis(delayInMilliseconds)} (append=$append)" }
@@ -55,10 +58,12 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
+            val data = workDataOf("delay" to delayInMilliseconds, "sourceTag" to sourceTag)
+
             val request = OneTimeWorkRequestBuilder<SyncWorker>()
                     .setInitialDelay(delay, unit)
                     .setConstraintsCompat(constraints)
-                    .setInputData(workDataOf("delay" to delayInMilliseconds))
+                    .setInputData(data)
                     .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES)
                     .build()
 

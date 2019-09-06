@@ -202,7 +202,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private fun handleLoginResult(response: UserService.LoginResult) {
         when (response) {
             is UserService.LoginResult.Success -> {
-                SyncWorker.scheduleNextSync(this)
+                SyncWorker.scheduleNextSync(this, sourceTag = "Login")
                 Track.loginSuccessful()
 
                 // signal success
