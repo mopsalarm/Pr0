@@ -206,6 +206,9 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.10.4'
 
+    debugImplementation "com.github.ChuckerTeam.Chucker:library:3.0.1"
+    releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.0.1"
+
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 
     // rx java

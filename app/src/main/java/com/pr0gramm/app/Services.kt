@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.os.Build
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
@@ -215,6 +216,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .retryOnConnectionFailure(true)
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
+            .addInterceptor(ChuckerInterceptor(app))
             .addInterceptor(SentryInterceptor())
             .addInterceptor(BrotliInterceptor)
 
