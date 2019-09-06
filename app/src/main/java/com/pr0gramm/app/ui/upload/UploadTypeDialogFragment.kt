@@ -38,7 +38,7 @@ class UploadTypeDialogFragment : BottomSheetDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             setOnShowListener {
-                val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                val bottomSheet = requireDialog().findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 if (bottomSheet is FrameLayout) {
                     catchAll {
                         BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED)

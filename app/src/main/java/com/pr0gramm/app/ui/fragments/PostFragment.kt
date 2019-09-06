@@ -730,17 +730,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun showDeleteItemDialog() {
         val dialog = ItemUserAdminDialog.forItem(feedItem)
-        dialog.show(fragmentManager, null)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showTagsDetailsDialog() {
         val dialog = TagsDetailsDialog.newInstance(feedItem.id)
-        dialog.show(fragmentManager, null)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showReportDialog() {
         val dialog = ReportDialog.forItem(feedItem)
-        dialog.show(fragmentManager, null)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showPostVoteAnimation(vote: Vote?) {
@@ -1259,19 +1259,19 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forComment(comment.id, comment.name)
-            dialog.show(fragmentManager, null)
+            dialog.maybeShow(fragmentManager)
             return true
         }
 
         override fun onBlockUserClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forUser(comment.name)
-            dialog.show(fragmentManager, null)
+            dialog.maybeShow(fragmentManager)
             return true
         }
 
         override fun onReportCommentClicked(comment: Api.Comment) {
             val dialog = ReportDialog.forComment(feedItem, comment.id)
-            dialog.show(fragmentManager, null)
+            dialog.maybeShow(fragmentManager)
         }
 
         override fun itemClicked(ref: Linkify.Item): Boolean {

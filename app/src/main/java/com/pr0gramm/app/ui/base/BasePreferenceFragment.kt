@@ -56,7 +56,7 @@ abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat()
         super.onAttach(context)
     }
 
-    override fun onAttach(activity: Activity?) {
+    override fun onAttach(activity: Activity) {
         super.onAttach(activity)
         lifecycleSubject.onNext(FragmentEvent.ATTACH)
     }

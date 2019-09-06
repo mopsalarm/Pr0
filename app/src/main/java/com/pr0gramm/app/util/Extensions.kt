@@ -28,7 +28,9 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
 import androidx.core.text.PrecomputedTextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
@@ -712,5 +714,11 @@ inline fun recordBreadcrumb(type: Breadcrumb.Type = Breadcrumb.Type.DEFAULT, bui
     Sentry.getStoredClient()?.context?.let { context ->
         val bc = BreadcrumbBuilder().setType(type).setLevel(Breadcrumb.Level.INFO).apply(builder).build()
         context.recordBreadcrumb(bc)
+    }
+}
+
+fun DialogFragment.maybeShow(fm: FragmentManager?, tag: String? = null) {
+    if (fm != null) {
+        show(fm, tag)
     }
 }

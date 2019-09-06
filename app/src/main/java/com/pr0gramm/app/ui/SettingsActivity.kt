@@ -145,7 +145,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         }
 
         private fun updatePreloadInfo() {
-            val preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
+            val preference: Preference? = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
             if (preference != null) {
                 preloadManager.items
                         .subscribeOn(Schedulers.io())

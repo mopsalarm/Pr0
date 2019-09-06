@@ -45,7 +45,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
     override suspend fun onDialogViewCreated() {
         tagsView.layoutManager = LinearLayoutManager(
-                dialog.context, RecyclerView.VERTICAL, false)
+                requireDialog().context, RecyclerView.VERTICAL, false)
 
         launchWithErrorHandler {
             showTagsDetails(adminService.tagsDetails(itemId))

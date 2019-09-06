@@ -39,12 +39,13 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     }
 
     override suspend fun onDialogViewCreated() {
+        val dialog = requireDialog()
+
         reasonListView.adapter = ArrayAdapter(dialog.context,
                 android.R.layout.simple_list_item_single_choice,
                 config.reportReasons)
 
-        val dialog = this.dialog as? AlertDialog
-        dialog?.let {
+        if (dialog is AlertDialog) {
             val button = dialog.getButton(Dialog.BUTTON_POSITIVE)
 
             button?.isEnabled = false

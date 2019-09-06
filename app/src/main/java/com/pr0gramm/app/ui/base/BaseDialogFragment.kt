@@ -21,7 +21,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
 
     override val injector: PropertyInjector = PropertyInjector()
 
-    override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
+    override val viewCache: ViewCache = ViewCache { dialog?.findViewById(it) }
 
     override lateinit var job: Job
     private lateinit var onStartScope: AndroidCoroutineScope
@@ -57,6 +57,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
     }
 
     override fun onDestroyView() {
+        val dialog = this.dialog
         if (dialog != null && retainInstance)
             dialog.setDismissMessage(null)
 
@@ -66,7 +67,7 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
         viewCache.reset()
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
+    override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
 
         val activity = activity

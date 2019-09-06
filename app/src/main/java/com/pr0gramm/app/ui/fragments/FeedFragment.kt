@@ -955,21 +955,25 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun onFollowClicked() {
-        activeUsername?.let { name ->
+        val name = this.activeUsername
+        if (name != null) {
             doInBackground { followService.follow(name) }
         }
     }
 
     private fun onUnfollowClicked() {
-        activeUsername?.let { name ->
+        val name = this.activeUsername
+        if (name != null) {
             doInBackground { followService.unfollow(name) }
         }
     }
 
     private fun onBlockUserClicked() {
-        activeUsername?.let { name ->
+        val name = this.activeUsername
+        val fm = this.fragmentManager
+        if (name != null) {
             val dialog = ItemUserAdminDialog.forUser(name)
-            dialog.show(fragmentManager, "BlockUserDialog")
+            dialog.maybeShow(fragmentManager, "BlockUserDialog")
         }
     }
 

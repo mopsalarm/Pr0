@@ -54,7 +54,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         tabLayout.setupWithViewPager(pager)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true
     }
 
