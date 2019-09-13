@@ -152,6 +152,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     private fun finishAfterSending() {
+        TextViewCache.invalidate(messageText)
+
         finish()
     }
 
