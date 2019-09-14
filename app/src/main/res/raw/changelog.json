@@ -1,5 +1,14 @@
 [
   {
+    "version": 173,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Das Eingabefeld für Kommentare wurde manchmal nicht richtig geleert."
+      }
+    ]
+  },
+  {
     "version": 172,
     "changes": [
       {
