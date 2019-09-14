@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.database.sqlite.SQLiteFullException
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
@@ -107,6 +108,11 @@ object AndroidUtility {
 
         if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
             logger.warn(error) { "Ignoring network exception" }
+            return
+        }
+
+        if (causalChain.containsType<SQLiteFullException>()) {
+            logger.warn { "Database is full: $error" }
             return
         }
 
