@@ -8,12 +8,13 @@ import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.Holder
+import com.pr0gramm.app.util.then
 
 /**
  * Info about a pixels. Can be given to a post fragment to create
  * the fragment animation on newer versions of android.
  */
-class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val width: Int, val height: Int, val preview: Drawable? = null) {
+class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val fullThumbUri: Uri?, val width: Int, val height: Int, val preview: Drawable? = null) {
     var fancy: Holder<Bitmap>? = null
 
     /**
@@ -32,8 +33,11 @@ class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val
 
     companion object {
         fun of(context: Context, item: FeedItem, drawable: Drawable? = null): PreviewInfo {
-            val thumbnail = UriHelper.of(context).thumbnail(item.asThumbnail())
-            return PreviewInfo(item.id, thumbnail, item.width, item.height, drawable)
+            val uriHelper = UriHelper.of(context)
+            val thumbnail = uriHelper.thumbnail(item.asThumbnail())
+            val fullThumbnail = item.isVideo.then { uriHelper.fullThumbnail(item.asThumbnail()) }
+
+            return PreviewInfo(item.id, thumbnail, fullThumbnail, item.width, item.height, drawable)
         }
     }
 }

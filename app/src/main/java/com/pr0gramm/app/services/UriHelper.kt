@@ -24,6 +24,14 @@ class UriHelper private constructor(context: Context) {
         return NoPreload.thumbnail(item)
     }
 
+    fun fullThumbnail(item: Thumbnail): Uri {
+        val preloaded = preloadManager[item.id]
+        if (preloaded?.thumbnailFull != null)
+            return preloaded.thumbnailFull.toUri()
+
+        return NoPreload.thumbnail(item, full = true)
+    }
+
     fun media(item: FeedItem, hq: Boolean = false): Uri {
         if (hq && item.fullsize.isNotEmpty())
             return NoPreload.media(item, true)
@@ -94,8 +102,13 @@ class UriHelper private constructor(context: Context) {
                 absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.image)
         }
 
-        fun thumbnail(item: Thumbnail): Uri {
-            return absoluteJoin(start("thumb"), item.thumbnail ?: "")
+        fun thumbnail(item: Thumbnail, full: Boolean = false): Uri {
+            var path = item.thumbnail ?: ""
+            if (full) {
+                path = path.replace(".jpg", "-original.webp")
+            }
+
+            return absoluteJoin(start("thumb"), path)
         }
 
         private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {

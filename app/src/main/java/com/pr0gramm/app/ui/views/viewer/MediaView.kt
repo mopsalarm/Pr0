@@ -126,14 +126,13 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             thumbnail.onCompleted()
         }
 
-        if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
+        if (hasPreviewView() && config.previewInfo?.fullThumbUri != null) {
             addOnAttachListener {
                 // test if we need to request the thumby preview.
                 if (hasPreviewView()) {
-                    val uri = ThumbyService.thumbUri(mediaUri)
 
-                    logger.debug { "Requesting thumby preview image." }
-                    RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
+                    logger.debug { "Requesting full preview image at (${config.previewInfo.fullThumbUri})." }
+                    RxPicasso.load(picasso, picasso.load(config.previewInfo.fullThumbUri).noPlaceholder())
                             .onErrorResumeEmpty()
                             .compose(RxLifecycleAndroid.bindView(this))
                             .subscribe(previewTarget)

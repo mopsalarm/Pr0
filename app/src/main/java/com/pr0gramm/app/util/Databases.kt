@@ -29,7 +29,7 @@ object Databases {
     }
 
     // remember to update the database version if you add new migrations.
-    private const val DATABASE_VERSION: Int = 11
+    private const val DATABASE_VERSION: Int = 12
 
     class PlainOpenHelper(context: Context) : SQLiteOpenHelper(context, "pr0gramm.db", null, DATABASE_VERSION) {
         override fun onCreate(db: SQLiteDatabase) {
@@ -67,6 +67,15 @@ object Databases {
             upgradeTo(version = 11) {
                 db.execSQL("ALTER TABLE preload_2 RENAME TO preload_items")
             }
+
+            upgradeTo(version = 12) {
+                db.execSQL("ALTER TABLE preload_items ADD COLUMN thumbnail_full TEXT DEFAULT NULL")
+            }
+
+            //
+            // Update DATABASE_VERSION above if you add a new migration here
+            //
+
         } catch (err: SQLiteException) {
             AndroidUtility.logToCrashlytics(err)
 

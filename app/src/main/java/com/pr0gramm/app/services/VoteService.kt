@@ -217,7 +217,7 @@ class VoteService(private val api: Api,
         }
     }
 
-    private class VoteAction internal constructor(internal val type: CachedVote.Type, internal val vote: Vote)
+    private class VoteAction(internal val type: CachedVote.Type, internal val vote: Vote)
 
     data class Summary(val up: Int, val down: Int, val fav: Int)
 

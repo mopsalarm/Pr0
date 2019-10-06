@@ -3,6 +3,7 @@ package com.pr0gramm.app.services.preloading
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.database.getStringOrNull
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.*
@@ -63,12 +64,14 @@ class PreloadManager(private val database: BriteDatabase) {
         val cCreation = cursor.getColumnIndexOrThrow("creation")
         val cMedia = cursor.getColumnIndexOrThrow("media")
         val cThumbnail = cursor.getColumnIndexOrThrow("thumbnail")
+        val cThumbnailFull = cursor.getColumnIndexOrThrow("thumbnail_full")
 
         return PreloadItem(
                 itemId = cursor.getLong(cItemId),
                 creation = Instant(cursor.getLong(cCreation)),
                 media = File(cursor.getString(cMedia)),
-                thumbnail = File(cursor.getString(cThumbnail)))
+                thumbnail = File(cursor.getString(cThumbnail)),
+                thumbnailFull = cursor.getStringOrNull(cThumbnailFull)?.let { File(it) })
     }
 
     /**
@@ -82,6 +85,7 @@ class PreloadManager(private val database: BriteDatabase) {
         values.put("creation", entry.creation.millis)
         values.put("media", entry.media.path)
         values.put("thumbnail", entry.thumbnail.path)
+        values.put("thumbnail_full", entry.thumbnailFull?.path)
         database.insert(TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
@@ -117,11 +121,17 @@ class PreloadManager(private val database: BriteDatabase) {
         for (item in items) {
             logger.info { "Removing files for itemId=${item.itemId}" }
 
-            if (!item.media.delete())
+            if (!item.media.delete()) {
                 logger.warn { "Could not delete media file ${item.media}" }
+            }
 
-            if (!item.thumbnail.delete())
+            if (!item.thumbnail.delete()) {
                 logger.warn { "Could not delete thumbnail file ${item.thumbnail}" }
+            }
+
+            if (item.thumbnailFull?.delete() == false) {
+                logger.warn { "Could not delete thumbnail file ${item.thumbnailFull}" }
+            }
 
             // delete entry from database
             db.delete(TABLE_NAME, "itemId=?", item.itemId.toString())
@@ -136,7 +146,7 @@ class PreloadManager(private val database: BriteDatabase) {
     /**
      * A item that was preloaded.
      */
-    class PreloadItem(val itemId: Long, val creation: Instant, val media: File, val thumbnail: File) {
+    class PreloadItem(val itemId: Long, val creation: Instant, val media: File, val thumbnail: File, val thumbnailFull: File?) {
         override fun hashCode(): Int = itemId.hashCode()
 
         override fun equals(other: Any?): Boolean {

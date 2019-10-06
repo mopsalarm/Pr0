@@ -722,3 +722,5 @@ fun DialogFragment.maybeShow(fm: FragmentManager?, tag: String? = null) {
         show(fm, tag)
     }
 }
+
+inline fun <T> Boolean.then(block: () -> T): T? = if (this) block() else null

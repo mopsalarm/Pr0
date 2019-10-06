@@ -165,15 +165,32 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                     setProgress(items.size, idx, false)
                 }
 
-                if (!mediaUri.isLocalFile)
+                if (!mediaUri.isLocalFile) {
                     download(2 * idx, 2 * items.size, mediaUri, mediaFile)
+                }
 
-                if (!thumbUri.isLocalFile)
+                if (!thumbUri.isLocalFile) {
                     download(2 * idx + 1, 2 * items.size, thumbUri, thumbFile)
+                }
+
+                var fullThumbFile: File? = null
+                if (item.isVideo) {
+                    val fullThumbUri = uriHelper.fullThumbnail(item.asThumbnail())
+                    val fullThumbFileTemp = if (fullThumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
+
+                    try {
+                        download(2 * idx + 1, 2 * items.size, thumbUri, thumbFile)
+                        fullThumbFile = fullThumbFileTemp
+
+                    } catch (err: IOException) {
+                        // if the extended thumbnail is not available, just ignore the error.
+                        logger.warn { "Full thumbnail $fullThumbUri not available" }
+                    }
+                }
 
                 // store entry in the database
                 preloadManager.store(PreloadManager.PreloadItem(
-                        item.id, startTime, mediaFile, thumbFile))
+                        item.id, startTime, mediaFile, thumbFile, fullThumbFile))
 
                 statsDownloaded += 1
 
