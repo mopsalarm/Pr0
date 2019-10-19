@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
+import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.model.config.Config
@@ -40,6 +41,11 @@ import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -113,11 +119,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val feed: Feed get() = state.feed
 
-    private var state by observeChange(State()) {
+    private var state: State by observeChange(State()) {
         updateAdapterState()
+        stateCh.offer(state)
     }
 
     private var stateTransaction = StateTransaction({ state }, { updateAdapterState() })
+
+    private val stateCh = ConflatedBroadcastChannel<State>()
+
+    private var followState: FollowState? by observeChange(null) {
+        activity?.invalidateOptionsMenu()
+    }
 
     /**
      * Initialize a new feed fragment.
@@ -211,13 +224,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         resetToolbar()
 
         createRecyclerViewClickListener()
-
-        // observe changes so we can update the menu
-        followService.changes()
-                .observeOnMainThread()
-                .compose(bindToLifecycle<String>())
-                .filter { name -> name.equals(activeUsername, ignoreCase = true) }
-                .subscribe { activity.invalidateOptionsMenu() }
 
         // execute a search when we get a search term
         searchView.searchQuery().bindToLifecycle().subscribe { this.performSearch(it) }
@@ -559,51 +565,59 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             return settings.contentType
         }
 
-    override suspend fun onResumeImpl(): Unit = stateTransaction {
-        Track.openFeed(currentFilter)
+    override suspend fun onResumeImpl(): Unit {
+        stateTransaction {
+            Track.openFeed(currentFilter)
 
-        // check if we should show the pin button or not.
-        if (settings.showPinButton) {
-            val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
-            onBookmarkableStateChanged(bookmarkable)
-        }
+            // check if we should show the pin button or not.
+            if (settings.showPinButton) {
+                val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
+                onBookmarkableStateChanged(bookmarkable)
+            }
 
-        recheckContentTypes()
+            recheckContentTypes()
 
-        if (state.markItemsAsSeen != settings.markItemsAsSeen) {
-            state = state.copy(markItemsAsSeen = settings.markItemsAsSeen)
-        }
+            if (state.markItemsAsSeen != settings.markItemsAsSeen) {
+                state = state.copy(markItemsAsSeen = settings.markItemsAsSeen)
+            }
 
-        if (state.ownUsername != userService.name) {
-            state = state.copy(ownUsername = userService.name)
-        }
+            if (state.ownUsername != userService.name) {
+                state = state.copy(ownUsername = userService.name)
+            }
 
-        // we might want to check for new items on reload, but only once every two minutes.
-        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
-        val threshold = Instant.now().minus(checkForNewItemInterval)
-        if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
-            lastCheckForNewItemsTime = Instant.now()
-            checkForNewItems()
-        }
+            // we might want to check for new items on reload, but only once every two minutes.
+            val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
+            val threshold = Instant.now().minus(checkForNewItemInterval)
+            if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
+                lastCheckForNewItemsTime = Instant.now()
+                checkForNewItems()
+            }
 
-        // Observe all preloaded items to get them into the cache and to show the
-        // correct state in the ui once they are loaded
-        preloadManager.items.let { preloadItems ->
-            preloadItems
-                    .skip(1)
-                    .throttleLast(1, TimeUnit.SECONDS)
-                    .startWith(preloadItems.first())
-                    .observeOnMainThread()
+            // Observe all preloaded items to get them into the cache and to show the
+            // correct state in the ui once they are loaded
+            preloadManager.items.let { preloadItems ->
+                preloadItems
+                        .skip(1)
+                        .throttleLast(1, TimeUnit.SECONDS)
+                        .startWith(preloadItems.first())
+                        .observeOnMainThread()
+                        .bindToLifecycle()
+                        .subscribe { items ->
+                            state = state.copy(preloadedItemIds = items)
+                        }
+            }
+
+            requestLoadFeedSubject
+                    .throttleFirst(1, TimeUnit.SECONDS, MainThreadScheduler)
                     .bindToLifecycle()
-                    .subscribe { items ->
-                        state = state.copy(preloadedItemIds = items)
-                    }
+                    .subscribe { it() }
+
         }
 
-        requestLoadFeedSubject
-                .throttleFirst(1, TimeUnit.SECONDS, MainThreadScheduler)
-                .bindToLifecycle()
-                .subscribe { it() }
+        stateCh.asFlow()
+                .mapNotNull { it.userInfo?.info?.user?.id }
+                .flatMapLatest { userId -> followService.isFollowing(userId.toLong()) }
+                .collect { followState -> this.followState = followState }
     }
 
     private fun performAutoScroll() {
@@ -823,16 +837,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             unfollow.isVisible = false
 
             if (filter.username != null) {
-                activeUsername?.let { activeUsername ->
-                    if (userService.userIsPremium) {
-                        val following = followService.isFollowing(activeUsername)
-                        follow.isVisible = !following
-                        unfollow.isVisible = following
-                    }
-
-                    // never bookmark a user
-                    bookmark.isVisible = false
+                if (userService.userIsPremium) {
+                    follow.isVisible = this.followState?.following != true
+                    unfollow.isVisible = this.followState?.following == true
                 }
+
+                // never bookmark a user
+                bookmark.isVisible = false
             }
         }
     }
@@ -955,16 +966,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun onFollowClicked() {
-        val name = this.activeUsername
-        if (name != null) {
-            doInBackground { followService.follow(name) }
+        val user = this.state.userInfo?.info?.user
+        if (user != null) {
+            doInBackground {
+                followService.update(FollowAction.FOLLOW, user.id.toLong(), user.name)
+            }
         }
     }
 
     private fun onUnfollowClicked() {
-        val name = this.activeUsername
-        if (name != null) {
-            doInBackground { followService.unfollow(name) }
+        val user = this.state.userInfo?.info?.user
+        if (user != null) {
+            doInBackground {
+                followService.update(FollowAction.NONE, user.id.toLong(), user.name)
+            }
         }
     }
 

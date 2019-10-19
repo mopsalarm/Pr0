@@ -7,9 +7,9 @@ import android.graphics.Rect
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.isLocalFile
 import java.io.File
@@ -90,7 +90,7 @@ class DownloadingRegionDecoder(private val cache: Cache, private val decoder: De
                 return FileRef(file, shared = true)
             }
 
-            val file = File.createTempFile("image", ".tmp", context.cacheDir)
+            val file = File.createTempFile("image", ".tmp", ApplicationClass.appContext.cacheDir)
             try {
                 FileOutputStream(file).use { output ->
                     entry.inputStreamAt(0).use { inputStream ->

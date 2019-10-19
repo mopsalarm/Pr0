@@ -4,14 +4,13 @@ import android.content.Context
 import androidx.work.*
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.services.Track.context
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.setConstraintsCompat
 import java.util.concurrent.TimeUnit
 
-class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+class SyncWorker(private val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result = retryOnError {
         val sourceTag = inputData.getString("sourceTag") ?: "unknown"
         logger.info { "Sync worker started (started by $sourceTag)" }

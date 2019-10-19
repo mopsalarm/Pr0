@@ -11,6 +11,7 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
+import com.pr0gramm.app.db.AppDB
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
@@ -27,6 +28,7 @@ import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
+import com.squareup.sqldelight.android.AndroidSqliteDriver
 import io.sentry.Sentry
 import io.sentry.event.Breadcrumb
 import io.sentry.event.BreadcrumbBuilder
@@ -71,6 +73,10 @@ fun appInjector(app: Application) = Module.build {
                 .logger { logger.info { it } }
                 .build()
                 .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), Schedulers.computation())
+    }
+
+    bind<AppDB>() with singleton {
+        AppDB(AndroidSqliteDriver(AppDB.Schema, app, "pr0gramm-app.db"))
     }
 
     bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }
@@ -138,7 +144,7 @@ fun appInjector(app: Application) = Module.build {
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
-    bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
+    bind<VoteService>() with singleton { VoteService(instance(), instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
@@ -170,7 +176,7 @@ fun appInjector(app: Application) = Module.build {
     bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance()) }
 
     bind<RulesService>() with singleton { RulesService(instance()) }
-    bind<StalkService>() with singleton { StalkService(instance()) }
+    bind<StalkService>() with singleton { StalkService(instance(), instance()) }
 
     bind<UploadService>() with singleton {
         UploadService(instance(), instance(), instance(), instance(), instance(), instance())

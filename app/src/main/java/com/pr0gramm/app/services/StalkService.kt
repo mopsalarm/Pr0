@@ -1,46 +1,46 @@
 package com.pr0gramm.app.services
 
 import com.pr0gramm.app.api.pr0gramm.Api
-import rx.Observable
-import rx.subjects.PublishSubject
-import java.util.*
+import com.pr0gramm.app.db.AppDB
+import com.pr0gramm.app.db.FollowState
+import com.pr0gramm.app.ui.base.Async
+import com.pr0gramm.app.ui.base.withBackgroundContext
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToOne
+import kotlinx.coroutines.flow.Flow
 
 
 /**
  * Service to handle stalking.
  */
 
-class StalkService(private val api: Api) {
-    private val following = Collections.synchronizedSet(HashSet<String>())
-    private val changes = PublishSubject.create<String>()
+class StalkService(private val api: Api, private val db: AppDB) {
+    suspend fun update(action: FollowAction, userId: Long, name: String) {
+        withBackgroundContext {
+            when (action) {
+                FollowAction.NONE ->
+                    api.profileUnfollow(null, name)
 
-    suspend fun follow(username: String) {
-        api.profileFollow(null, username)
-        markAsFollowing(username, true)
-    }
+                FollowAction.FOLLOW ->
+                    api.profileFollow(null, name)
 
-    suspend fun unfollow(username: String) {
-        api.profileUnfollow(null, username)
-        markAsFollowing(username, false)
-    }
+                FollowAction.SUBSCRIBED -> {
+                    api.profileFollow(null, name)
+                    api.profileSubscribe(null, name)
+                }
+            }
 
-    private fun markAsFollowing(username: String, following: Boolean) {
-        val changed = if (following) {
-            this.following.add(username.toLowerCase())
-        } else {
-            this.following.remove(username.toLowerCase())
-        }
-
-        if (changed) {
-            changes.onNext(username.toLowerCase())
+            db.followStateQueries.updateUser(userId, action.following, action.subscribed)
         }
     }
 
-    fun isFollowing(username: String): Boolean {
-        return following.contains(username.toLowerCase())
+    fun isFollowing(userId: Long): Flow<FollowState> {
+        return db.followStateQueries.forUser(userId).asFlow().mapToOne(Async)
     }
+}
 
-    fun changes(): Observable<String> {
-        return changes.asObservable()
-    }
+enum class FollowAction(val following: Boolean, val subscribed: Boolean) {
+    NONE(following = false, subscribed = false),
+    FOLLOW(following = true, subscribed = false),
+    SUBSCRIBED(following = true, subscribed = true)
 }

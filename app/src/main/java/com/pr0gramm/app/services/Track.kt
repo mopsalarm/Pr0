@@ -20,7 +20,7 @@ import io.sentry.event.Breadcrumb
  */
 @SuppressLint("StaticFieldLeak")
 object Track : InjectorAware {
-    lateinit var context: Context
+    private lateinit var context: Context
     override val injector by lazy { context.injector }
 
     private val settingsTracker by lazy { instance<SettingsTrackerService>() }

@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.db.AppDB
 import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
@@ -26,7 +27,8 @@ import java.io.ByteArrayInputStream
 
 class VoteService(private val api: Api,
                   private val seenService: SeenService,
-                  private val database: BriteDatabase) {
+                  private val database: BriteDatabase,
+                  private val appDB: AppDB) {
 
     /**
      * Votes a post. This sends a request to the server, so you need to be signed in
@@ -118,19 +120,35 @@ class VoteService(private val api: Api,
 
         val watch = Stopwatch()
         withTransaction(database) {
-            logger.info { "Applying $actionCount vote actions" }
-            for (idx in 0 until actionCount) {
-                val id = actionStream.readIntLe().toLong()
-                val action = VOTE_ACTIONS[actionStream.readByte().unsigned] ?: continue
+            appDB.followStateQueries.transaction {
+                logger.info { "Applying $actionCount vote actions" }
+                for (idx in 0 until actionCount) {
+                    val id = actionStream.readIntLe().toLong()
+                    val action = actionStream.readByte().unsigned
 
-                storeVoteValue(action.type, id, action.vote)
-                if (action.type == ITEM) {
-                    seenService.markAsSeen(id)
+                    val voteAction = VOTE_ACTIONS[action]
+                    if (voteAction != null) {
+                        storeVoteValue(voteAction.type, id, voteAction.vote)
+                        if (voteAction.type == ITEM) {
+                            seenService.markAsSeen(id)
+                        }
+                    }
+
+                    val followAction = FOLLOW_ACTION[action]
+                    if (followAction != null) {
+                        storeFollowAction(id, followAction)
+                    }
                 }
             }
         }
 
         logger.info { "Applying vote actions took $watch" }
+    }
+
+    private fun storeFollowAction(userId: Long, action: FollowAction) {
+        appDB.followStateQueries.updateUser(userId,
+                following = action.following,
+                subscribed = action.subscribed)
     }
 
     /**
@@ -236,5 +254,11 @@ class VoteService(private val api: Api,
                 9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
                 10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE),
                 11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
+
+        private val FOLLOW_ACTION = mapOf(
+                12 to FollowAction.FOLLOW,
+                13 to FollowAction.NONE,
+                14 to FollowAction.SUBSCRIBED,
+                15 to FollowAction.FOLLOW)
     }
 }

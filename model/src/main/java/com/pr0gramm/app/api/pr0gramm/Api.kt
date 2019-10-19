@@ -218,6 +218,18 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("name") username: String): Unit
 
+    @FormUrlEncoded
+    @POST("api/profile/subscribe")
+    suspend fun profileSubscribe(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("name") username: String): Unit
+
+    @FormUrlEncoded
+    @POST("api/profile/unsubscribe")
+    suspend fun profileUnsubscribe(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("name") username: String): Unit
+
     @GET("api/profile/suggest")
     suspend fun suggestUsers(
             @Query("prefix") prefix: String): Names

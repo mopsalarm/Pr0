@@ -39,6 +39,10 @@ open class ApplicationClass : Application(), InjectorAware {
 
     private val logger = Logger("Pr0grammApp")
 
+    init {
+        appContext = this
+    }
+
     companion object {
         init {
             if (BuildConfig.DEBUG) {
@@ -62,6 +66,8 @@ open class ApplicationClass : Application(), InjectorAware {
                     "com.llamalab.safs.spi.DefaultFileSystemProvider",
                     AndroidFileSystemProvider::class.java.name)
         }
+
+        lateinit var appContext: android.content.Context
     }
 
     override fun attachBaseContext(base: android.content.Context) {
