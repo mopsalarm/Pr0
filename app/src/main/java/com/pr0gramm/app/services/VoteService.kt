@@ -16,9 +16,10 @@ import com.pr0gramm.app.util.checkNotMainThread
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import okio.buffer
 import okio.source
-import rx.Observable
 import java.io.ByteArrayInputStream
 
 
@@ -65,9 +66,8 @@ class VoteService(private val api: Api,
      * Observes the votes for an item.
      * @param item The item to get the vote for.
      */
-    fun getVote(item: FeedItem): Observable<Vote> {
-        return CachedVote.find(database, ITEM, item.id)
-                .map<Vote> { vote -> vote.vote }
+    fun getVote(item: FeedItem): Flow<Vote> {
+        return CachedVote.find(appDB.cachedVoteQueries, ITEM, item.id).map { vote -> vote.vote }
     }
 
     /**
@@ -79,7 +79,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValueInTx(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        withTransaction(database) {
+        appDB.cachedVoteQueries.transaction {
             storeVoteValue(type, itemId, vote)
         }
     }
@@ -97,7 +97,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValue(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        CachedVote.quickSave(database, type, itemId, vote)
+        CachedVote.quickSave(appDB.cachedVoteQueries, type, itemId, vote)
     }
 
     /**
@@ -119,25 +119,23 @@ class VoteService(private val api: Api,
         val actionStream = ByteArrayInputStream(decoded).source().buffer()
 
         val watch = Stopwatch()
-        withTransaction(database) {
-            appDB.followStateQueries.transaction {
-                logger.info { "Applying $actionCount vote actions" }
-                for (idx in 0 until actionCount) {
-                    val id = actionStream.readIntLe().toLong()
-                    val action = actionStream.readByte().unsigned
+        appDB.transaction {
+            logger.info { "Applying $actionCount vote actions" }
+            for (idx in 0 until actionCount) {
+                val id = actionStream.readIntLe().toLong()
+                val action = actionStream.readByte().unsigned
 
-                    val voteAction = VOTE_ACTIONS[action]
-                    if (voteAction != null) {
-                        storeVoteValue(voteAction.type, id, voteAction.vote)
-                        if (voteAction.type == ITEM) {
-                            seenService.markAsSeen(id)
-                        }
+                val voteAction = VOTE_ACTIONS[action]
+                if (voteAction != null) {
+                    storeVoteValue(voteAction.type, id, voteAction.vote)
+                    if (voteAction.type == ITEM) {
+                        seenService.markAsSeen(id)
                     }
+                }
 
-                    val followAction = FOLLOW_ACTION[action]
-                    if (followAction != null) {
-                        storeFollowAction(id, followAction)
-                    }
+                val followAction = FOLLOW_ACTION[action]
+                if (followAction != null) {
+                    storeFollowAction(id, followAction)
                 }
             }
         }
@@ -191,7 +189,7 @@ class VoteService(private val api: Api,
      */
     fun clear() {
         logger.info { "Removing all items from vote cache" }
-        CachedVote.clear(database)
+        CachedVote.clear(appDB.cachedVoteQueries)
     }
 
     /**
@@ -201,18 +199,18 @@ class VoteService(private val api: Api,
      * *
      * @return A map containing the vote from commentId to vote
      */
-    fun getCommentVotes(comments: List<Api.Comment>): Observable<LongSparseArray<Vote>> {
+    fun getCommentVotes(comments: List<Api.Comment>): Flow<LongSparseArray<Vote>> {
         val ids = comments.map { it.id }
         return findCachedVotes(CachedVote.Type.COMMENT, ids)
     }
 
-    fun getTagVotes(tags: List<Api.Tag>): Observable<LongSparseArray<Vote>> {
+    fun getTagVotes(tags: List<Api.Tag>): Flow<LongSparseArray<Vote>> {
         val ids = tags.map { it.id }
         return findCachedVotes(CachedVote.Type.TAG, ids)
     }
 
     suspend fun summary(): Map<CachedVote.Type, Summary> = withBackgroundContext {
-        val counts = CachedVote.count(database.readableDatabase)
+        val counts = CachedVote.count(appDB.cachedVoteQueries)
 
         counts.mapValues { entry ->
             Summary(up = entry.value[Vote.UP] ?: 0,
@@ -221,15 +219,16 @@ class VoteService(private val api: Api,
         }
     }
 
-    private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Observable<LongSparseArray<Vote>> {
-        return CachedVote.find(database, type, ids).map { cachedVotes ->
+    private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Flow<LongSparseArray<Vote>> {
+        return CachedVote.find(appDB.cachedVoteQueries, type, ids).map { cachedVotes ->
             val result = LongSparseArray<Vote>(cachedVotes.size)
 
             // add "NEUTRAL" votes for every unknown item
             ids.forEach { result.put(it, Vote.NEUTRAL) }
 
-            for (cachedVote in cachedVotes)
+            for (cachedVote in cachedVotes) {
                 result.put(cachedVote.itemId, cachedVote.vote)
+            }
 
             result
         }

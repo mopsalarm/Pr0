@@ -1,85 +1,71 @@
 package com.pr0gramm.app.orm
 
-import android.annotation.SuppressLint
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.db.CachedVoteQueries
 import com.pr0gramm.app.time
-import com.pr0gramm.app.util.forEach
-import com.squareup.sqlbrite.BriteDatabase
-import rx.Observable
+import com.pr0gramm.app.ui.base.Async
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * A cached vote.
  */
-data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vote) {
+data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
     enum class Type {
         ITEM, COMMENT, TAG
     }
 
     companion object {
         private val logger = Logger("CachedVote")
+        private val allTypes = Type.values()
 
         private fun voteId(type: Type, itemId: Long): Long {
             return itemId * 10 + type.ordinal
         }
 
-        fun find(db: BriteDatabase, type: Type, itemId: Long): Observable<CachedVote> {
-            val query = "SELECT item_id, type, vote FROM cached_vote WHERE id=?"
-            return db
-                    .createQuery("cached_vote", query, voteId(type, itemId).toString())
-                    .mapToOneOrDefault(this::ofCursor, CachedVote(itemId, type, Vote.NEUTRAL))
+        private fun toCachedVote(itemId: Long, itemType: Int, voteValue: Int): CachedVote {
+            return CachedVote(itemId, type = allTypes[itemType], vote = Vote.ofVoteValue(voteValue))
         }
 
-        private fun ofCursor(cursor: Cursor): CachedVote {
-            return CachedVote(itemId = cursor.getLong(0),
-                    type = Type.valueOf(cursor.getString(1)),
-                    vote = Vote.valueOf(cursor.getString(2)))
+        fun find(cv: CachedVoteQueries, type: Type, itemId: Long): Flow<CachedVote> {
+            return cv.findOne(voteId(type, itemId), this::toCachedVote)
+                    .asFlow()
+                    .mapToOneOrDefault(CachedVote(itemId, type, Vote.NEUTRAL), Async)
         }
 
-        fun find(db: BriteDatabase, type: Type, ids: List<Long>): Observable<List<CachedVote>> {
-            if (ids.isEmpty())
-                return Observable.just(emptyList())
-
-            val encodedIds = StringBuilder().apply {
-                append(voteId(type, ids[0]))
-
-                for (index in 1 until ids.size) {
-                    append(',')
-                    append(voteId(type, ids[index]))
-                }
-
-                toString()
+        fun find(cv: CachedVoteQueries, type: Type, ids: List<Long>): Flow<List<CachedVote>> {
+            if (ids.isEmpty()) {
+                return flowOf(listOf())
             }
 
-            val query = "SELECT item_id, type, vote FROM cached_vote WHERE id IN ($encodedIds)"
-            return db.createQuery("cached_vote", query).mapToList(this::ofCursor)
+            return cv.findSome(ids.map { voteId(type, it) }, this::toCachedVote)
+                    .asFlow()
+                    .mapToList(Async)
         }
 
-        fun quickSave(database: BriteDatabase, type: Type, itemId: Long, vote: Vote) {
-            database.executeAndTrigger("cached_vote", """
-                INSERT OR REPLACE INTO cached_vote (id, item_id, type, vote)
-                VALUES (${voteId(type, itemId)}, $itemId, "${type.name}", "${vote.name}")
-            """)
+        fun quickSave(cv: CachedVoteQueries, type: Type, itemId: Long, vote: Vote) {
+            cv.saveVote(voteId(type, itemId), itemId, type.ordinal, vote.voteValue)
         }
 
-        fun clear(database: BriteDatabase) {
-            database.executeAndTrigger("cached_vote", "DELETE FROM cached_vote")
+        fun clear(cv: CachedVoteQueries) {
+            cv.deleteAll()
         }
 
-        @SuppressLint("Recycle")
-        fun count(db: SQLiteDatabase): Map<Type, Map<Vote, Int>> {
-            val result = HashMap<Type, HashMap<Vote, Int>>()
+        fun count(cv: CachedVoteQueries): Map<Type, Map<Vote, Int>> {
+            val result = HashMap<Type, EnumMap<Vote, Int>>()
 
             logger.time("Counting number of votes") {
-                val cursor = db.rawQuery("SELECT type, vote, COUNT(*) FROM cached_vote GROUP BY type, vote", emptyArray())
-                cursor.forEach {
-                    val type = Type.valueOf(getString(0))
-                    val vote = Vote.valueOf(getString(1))
-                    val count = getInt(2)
+                cv.count().executeAsList().forEach { count ->
+                    val type = allTypes[count.itemType]
+                    val vote = Vote.ofVoteValue(count.voteValue)
 
-                    val votes = result.getOrPut(type, { HashMap() })
-                    votes[vote] = (votes[vote] ?: 0) + count
+                    val votes = result.getOrPut(type, { EnumMap<Vote, Int>(Vote::class.java) })
+                    votes[vote] = (votes[vote] ?: 0) + count.count.toInt()
                 }
             }
 

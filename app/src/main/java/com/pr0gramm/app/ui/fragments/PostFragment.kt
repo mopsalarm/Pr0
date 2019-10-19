@@ -37,7 +37,6 @@ import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView
 import com.pr0gramm.app.ui.views.viewer.MediaUri
@@ -47,11 +46,9 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import rx.Observable
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.*
 import rx.Observable.combineLatest
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -82,8 +79,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
 
-    private val apiComments = BehaviorSubject.create(listOf<Api.Comment>())
-    private val apiTags = BehaviorSubject.create(listOf<Api.Tag>())
+    private val apiCommentsCh = ConflatedBroadcastChannel(listOf<Api.Comment>())
+    private val apiTagsCh = ConflatedBroadcastChannel(listOf<Api.Tag>())
 
     private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
 
@@ -108,11 +105,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override var title: TitleFragment.Title = TitleFragment.Title("pr0gramm")
 
-    // must only be accessed after injecting kodein
-    private val feedItemVote: Observable<Vote> by lazy {
-        voteService.getVote(feedItem).replay(1).refCount()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.NEVER) {
         super.onCreate(savedInstanceState)
 
@@ -121,12 +113,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         savedInstanceState?.let { state ->
             val tags = state.getFreezable("PostFragment.tags", TagListParceler)?.tags
             if (tags != null) {
-                this.apiTags.onNext(tags)
+                this.apiTagsCh.offer(tags)
             }
 
             val comments = state.getFreezable("PostFragment.comments", CommentListParceler)?.comments
             if (comments != null) {
-                this.apiComments.onNext(comments)
+                this.apiCommentsCh.offer(comments)
             }
         }
 
@@ -134,9 +126,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         userService.loginStates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
             activity?.invalidateOptionsMenu()
         }
-
-        // observe changes to it as long as the fragment lives.
-        feedItemVote.ignoreError().bindToLifecycle().subscribe()
     }
 
     private fun stopMediaOnViewer() {
@@ -216,8 +205,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     }
                 }
 
-        val tags = this.apiTags.value.orEmpty()
-        val comments = this.apiComments.value.orEmpty()
+        val tags = this.apiTagsCh.value.orEmpty()
+        val comments = this.apiCommentsCh.value.orEmpty()
 
         if (comments.isNotEmpty()) {
             // if we have saved comments we need to apply immediately to ensure
@@ -245,13 +234,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             loadItemDetails(firstLoad = true, bust = requiresCacheBust ?: false)
         }
 
-        apiTags.subscribe { tags ->
-            hideProgressIfLoop(tags)
-            updateTitle(tags)
-        }
-
-        feedItemVote.observeOnMainThread().bindToLifecycle().subscribe { vote ->
-            state = state.copy(itemVote = vote)
+        launch(start = CoroutineStart.UNDISPATCHED) {
+            apiTagsCh.asFlow().collect { tags ->
+                hideProgressIfLoop(tags)
+                updateTitle(tags)
+            }
         }
 
         // show the repost badge if this is a repost
@@ -395,12 +382,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        val tags = apiTags.value.orEmpty()
+        val tags = apiTagsCh.value.orEmpty()
         if (tags.isNotEmpty()) {
             outState.putFreezable("PostFragment.tags", TagListParceler(tags))
         }
 
-        val comments = apiComments.value.orEmpty()
+        val comments = apiCommentsCh.value.orEmpty()
         if (comments.isNotEmpty()) {
             outState.putFreezable("PostFragment.comments", CommentListParceler(comments))
         }
@@ -657,22 +644,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private class DownloadException(cause: Throwable) : Exception(cause)
 
     override suspend fun onResumeImpl() {
-        apiComments
-                .switchMap { comments ->
-                    voteService.getCommentVotes(comments).onErrorResumeEmpty()
-                }
-                .observeOnMainThread()
-                .bindToLifecycle()
-                .subscribe { votes -> commentTreeHelper.updateVotes(votes) }
+        launch {
+            voteService.getVote(feedItem).collect { vote ->
+                state = state.copy(itemVote = vote)
+            }
+        }
 
-        apiTags
-                .switchMap { votes ->
-                    voteService.getTagVotes(votes).onErrorResumeEmpty()
-                }
-                .observeOnMainThread()
-                .bindToLifecycle()
-                .subscribe { votes -> state = state.copy(tagVotes = votes) }
+        launch {
+            apiCommentsCh
+                    .asFlow()
+                    .flatMapLatest { comments -> voteService.getCommentVotes(comments).catch {} }
+                    .collect { votes -> commentTreeHelper.updateVotes(votes) }
+        }
 
+        launch {
+            apiTagsCh
+                    .asFlow()
+                    .flatMapLatest { votes -> voteService.getTagVotes(votes).catch {} }
+                    .collect { votes -> state = state.copy(tagVotes = votes) }
+        }
 
         // observeOnMainThread uses post to scroll in the next frame.
         // this prevents the viewer from getting bad clipping.
@@ -701,7 +691,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // update state to show "loading" items
         state = state.copy(
-                commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
+                commentsLoading = firstLoad || state.commentsLoadError || apiCommentsCh.value.isEmpty(),
                 commentsLoadError = false)
 
         launchIgnoreErrors {
@@ -926,7 +916,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private suspend fun doVoteOnDoubleTap() {
-        val currentVote = feedItemVote.first().await()
+        val currentVote = voteService.getVote(feedItem).first()
         doVoteFeedItem(currentVote.nextUpVote)
     }
 
@@ -956,7 +946,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .enhanceTags(feedItem.id, tags_)
                 .sortedWith(comparator)
 
-        apiTags.onNext(tags)
+        apiTagsCh.offer(tags)
 
         state = state.copy(tags = tags)
     }
@@ -979,7 +969,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             updateSync: Boolean = false,
             extraChanges: (CommentTree.Input) -> CommentTree.Input = { it }): Unit = stateTransaction {
 
-        this.apiComments.onNext(comments.toList())
+        this.apiCommentsCh.offer(comments.toList())
 
         // show comments now
         logger.info { "Sending ${comments.size} comments to tree helper" }
@@ -1011,7 +1001,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        val previousTags = this.apiTags.value.orEmpty()
+        val previousTags = this.apiTagsCh.value.orEmpty()
 
         // allow op to tag a more restrictive content type.
         val op = feedItem.user.equals(userService.name, true) || userService.userIsAdmin
@@ -1230,7 +1220,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onReplyClicked(comment: Api.Comment) {
-            val byId = apiComments.value.associateBy { it.id }
+            val byId = apiCommentsCh.value.associateBy { it.id }
 
             val parentComments = mutableListOf<WriteMessageActivity.ParentComment>()
 

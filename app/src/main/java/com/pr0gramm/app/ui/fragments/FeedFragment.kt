@@ -614,10 +614,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         }
 
-        stateCh.asFlow()
-                .mapNotNull { it.userInfo?.info?.user?.id }
-                .flatMapLatest { userId -> followService.isFollowing(userId.toLong()) }
-                .collect { followState -> this.followState = followState }
+        launch {
+            stateCh.asFlow()
+                    .mapNotNull { it.userInfo?.info?.user?.id }
+                    .flatMapLatest { userId -> followService.isFollowing(userId.toLong()) }
+                    .collect { followState -> this@FeedFragment.followState = followState }
+        }
     }
 
     private fun performAutoScroll() {

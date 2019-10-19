@@ -1,0 +1,25 @@
+
+CREATE TABLE cachedVote (
+    id INTEGER PRIMARY KEY NOT NULL,
+    itemId INTEGER NOT NULL,
+    itemType INTEGER as Int NOT NULL,
+    voteValue INTEGER as Int NOT NULL
+);
+
+saveVote:
+INSERT OR REPLACE INTO cachedVote (id, itemId, itemType, voteValue)
+VALUES (?, ?, ?, ?);
+
+findOne:
+SELECT itemId, itemType, voteValue FROM cachedVote WHERE id=?;
+
+findSome:
+SELECT itemId, itemType, voteValue FROM cachedVote WHERE id IN ?;
+
+count:
+SELECT itemType, voteValue, COUNT(*) AS count
+FROM cachedVote GROUP BY itemType, voteValue;
+
+deleteAll:
+DELETE FROM cachedVote;
+
