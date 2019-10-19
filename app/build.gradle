@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.27'
+        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.28'
     }
 }
 
@@ -176,14 +176,14 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-ads-lite:18.2.0"
 
-    implementation 'io.sentry:sentry-android:1.7.27'
+    implementation 'io.sentry:sentry-android:1.7.28'
     implementation 'org.slf4j:slf4j-nop:1.7.28'
 
     implementation "com.squareup.retrofit2:retrofit:2.6.2"
     implementation "com.squareup.retrofit2:converter-moshi:2.6.2"
-    implementation "com.squareup.okhttp3:okhttp:4.2.1"
-    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.2.1"
-    implementation "com.squareup.okhttp3:okhttp-brotli:4.2.1"
+    implementation "com.squareup.okhttp3:okhttp:4.2.2"
+    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.2.2"
+    implementation "com.squareup.okhttp3:okhttp-brotli:4.2.2"
     implementation "com.squareup.picasso:picasso:2.71828"
 
     implementation "com.squareup.moshi:moshi:1.8.0"
@@ -204,7 +204,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.6'
 
     debugImplementation "com.github.ChuckerTeam.Chucker:library:3.0.1"
     releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.0.1"
