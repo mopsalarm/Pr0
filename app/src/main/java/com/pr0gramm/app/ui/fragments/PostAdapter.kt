@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.ui.DelegateAdapter
@@ -61,7 +62,7 @@ class PostAdapter
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
         }
 
-        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val actions: PostActions)
+        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val followState: FollowState?, val actions: PostActions)
             : Item(idInCategory(1))
 
         data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
@@ -137,6 +138,9 @@ private object InfoLineItemAdapterDelegate
         // display the feed item in the view
         holder.infoView.setFeedItem(value.item, value.isOurPost, value.vote)
         holder.infoView.onDetailClickedListener = value.actions
+
+        if (!value.isOurPost && value.followState != null)
+            holder.infoView.updateFollowState(value.followState)
     }
 
     private class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {

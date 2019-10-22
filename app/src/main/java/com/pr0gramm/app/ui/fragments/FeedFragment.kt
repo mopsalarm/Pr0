@@ -68,7 +68,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     private val preloadManager: PreloadManager by instance()
     private val inboxService: InboxService by instance()
     private val recentSearchesServices: RecentSearchesServices by instance()
-    private val followService: StalkService by instance()
+    private val followService: FollowService by instance()
     private val adService: AdService by instance()
     private val shareService: ShareService by instance()
 

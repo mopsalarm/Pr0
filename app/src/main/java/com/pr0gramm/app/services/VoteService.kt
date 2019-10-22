@@ -16,6 +16,7 @@ import com.pr0gramm.app.util.checkNotMainThread
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.unsigned
 import com.squareup.sqlbrite.BriteDatabase
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import okio.buffer
@@ -172,12 +173,14 @@ class VoteService(private val api: Api,
      * Writes a comment to the given post.
      */
     suspend fun postComment(itemId: Long, parentId: Long, comment: String): Api.NewComment {
-        val response = api.postComment(null, itemId, parentId, comment)
+        return withBackgroundContext(NonCancellable) {
+            val response = api.postComment(null, itemId, parentId, comment)
 
-        // store the implicit upvote for the comment.
-        storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)
+            // store the implicit upvote for the comment.
+            storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)
 
-        return response
+            response
+        }
     }
 
     suspend fun postComment(item: FeedItem, parentId: Long, comment: String): Api.NewComment {

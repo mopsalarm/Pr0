@@ -176,7 +176,7 @@ fun appInjector(app: Application) = Module.build {
     bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance()) }
 
     bind<RulesService>() with singleton { RulesService(instance()) }
-    bind<StalkService>() with singleton { StalkService(instance(), instance()) }
+    bind<FollowService>() with singleton { FollowService(instance(), instance()) }
 
     bind<UploadService>() with singleton {
         UploadService(instance(), instance(), instance(), instance(), instance(), instance())

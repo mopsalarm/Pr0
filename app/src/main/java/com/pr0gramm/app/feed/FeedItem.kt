@@ -16,6 +16,7 @@ class FeedItem : Freezable {
     val image: String
     val fullsize: String
     val user: String
+    val userId: Long
     val id: Long
     val promotedId: Long
     val width: Int
@@ -30,6 +31,7 @@ class FeedItem : Freezable {
     constructor(item: Api.Feed.Item) {
         id = item.id
         promotedId = item.promoted
+        userId = item.userId
         thumbnail = item.thumb
         image = item.image
         fullsize = item.fullsize
@@ -80,6 +82,7 @@ class FeedItem : Freezable {
     override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
         sink.writeLong(id)
         sink.writeLong(promotedId)
+        sink.writeLong(userId)
 
         sink.writeString(thumbnail)
         sink.writeString(image)
@@ -101,6 +104,7 @@ class FeedItem : Freezable {
     constructor(source: Freezable.Source) {
         id = source.readLong()
         promotedId = source.readLong()
+        userId = source.readLong()
 
         thumbnail = source.readString()
         image = source.readString()

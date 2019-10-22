@@ -64,7 +64,7 @@ class SimilarImageView @JvmOverloads constructor(
                 id = item.id, image = item.image, thumb = item.thumbnail,
                 promoted = 0L, audio = false, created = Instant.now(),
                 up = 0, down = 0, fullsize = "", width = 0, height = 0, user = "",
-                mark = 0, deleted = false, flags = 0))
+                mark = 0, deleted = false, flags = 0, userId = 0))
 
         PopupPlayer.open(activity, fakeItem)
     }

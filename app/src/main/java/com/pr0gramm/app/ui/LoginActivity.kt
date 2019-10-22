@@ -287,7 +287,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          * Executes the given runnable if a user is signed in. If not, this method shows
          * the login screen. After a successful login, the given 'retry' runnable will be called.
          */
-        fun run(runnable: Callback, retry: Callback? = null): Boolean {
+        private fun runAuth(runnable: Callback, retry: Callback? = null): Boolean {
             val context = fragment.context ?: return false
 
             val userService: UserService = context.injector.instance()
@@ -304,12 +304,24 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             }
         }
 
-        fun runWithRetry(runnable: Callback): Boolean {
-            return run(runnable, runnable)
+        fun runAuthWithRetry(runnable: Callback): Boolean {
+            return runAuth(runnable, runnable)
         }
 
-        fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
-            return run({ runnable.run() }, { retry?.run() })
+        fun runAuth(runnable: Runnable, retry: Runnable? = null): Boolean {
+            return runAuth({ runnable.run() }, { retry?.run() })
+        }
+
+        suspend fun runAuthSuspend(runnable: suspend () -> Unit): Boolean {
+            val context = fragment.context ?: return false
+            val userService: UserService = context.injector.instance()
+
+            if (!userService.isAuthorized)
+                return false
+
+            runnable()
+
+            return true
         }
 
         private fun startActivityForResult(intent: Intent, requestCode: Int) {

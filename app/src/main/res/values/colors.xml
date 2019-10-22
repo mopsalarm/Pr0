@@ -8,6 +8,8 @@
     <color name="green_500">#259b24</color>
 
     <color name="grey_200">#eeeeee</color>
+    <color name="grey_500">#9E9E9E</color>
+    <color name="grey_600">#757575</color>
     <color name="grey_700">#616161</color>
 
     <color name="grey_800">#424242</color>

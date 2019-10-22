@@ -375,7 +375,7 @@ private class NavigationDelegateAdapter(
             activity.startActivity(intent)
         }
 
-        doIfAuthorizedHelper.run(run, run)
+        doIfAuthorizedHelper.runAuth(run, run)
     }
 
     private fun showUploadActivity() {
@@ -383,7 +383,7 @@ private class NavigationDelegateAdapter(
             (activity as MainActionHandler).showUploadBottomSheet()
         }
 
-        doIfAuthorizedHelper.run(run, run)
+        doIfAuthorizedHelper.runAuth(run, run)
     }
 
     /**

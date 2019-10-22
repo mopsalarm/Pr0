@@ -45,7 +45,7 @@ class NavigationProvider(
     private val iconFeedTypeBestOf by drawable(R.drawable.ic_action_bestof)
     private val iconFeedTypeControversial by drawable(R.drawable.ic_action_controversial)
     private val iconFeedTypeNew by drawable(R.drawable.ic_action_new)
-    private val iconFeedTypePremium by drawable(R.drawable.ic_acton_stelz)
+    private val iconFeedTypePremium by drawable(R.drawable.ic_action_follow_full)
     private val iconFeedTypePromoted by drawable(R.drawable.ic_action_promoted)
     private val iconFeedTypeRandom by drawable(R.drawable.ic_action_random)
     private val iconInbox by drawable(R.drawable.ic_action_email)

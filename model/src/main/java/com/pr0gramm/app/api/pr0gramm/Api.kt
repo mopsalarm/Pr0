@@ -348,6 +348,7 @@ interface Api {
         class Item(
                 val id: Long,
                 val promoted: Long,
+                val userId: Long,
                 val image: String,
                 val thumb: String,
                 val fullsize: String,

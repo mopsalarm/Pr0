@@ -6,17 +6,18 @@ import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.ui.base.Async
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToOne
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 
 
 /**
- * Service to handle stalking.
+ * Service to handle follow & subscription.
  */
 
-class StalkService(private val api: Api, private val db: AppDB) {
+class FollowService(private val api: Api, private val db: AppDB) {
     suspend fun update(action: FollowAction, userId: Long, name: String) {
-        withBackgroundContext {
+        withBackgroundContext(NonCancellable) {
             when (action) {
                 FollowAction.NONE ->
                     api.profileUnfollow(null, name)
@@ -35,7 +36,11 @@ class StalkService(private val api: Api, private val db: AppDB) {
     }
 
     fun isFollowing(userId: Long): Flow<FollowState> {
-        return db.followStateQueries.forUser(userId).asFlow().mapToOne(Async)
+        val defaultValue = FollowState.Impl(userId, following = false, subscribed = false)
+
+        return db.followStateQueries.forUser(userId)
+                .asFlow()
+                .mapToOneOrDefault(defaultValue, Async)
     }
 }
 

@@ -22,6 +22,7 @@
         <attr name="markedColor" format="color|reference" />
         <attr name="markedColorDown" format="color|reference" />
         <attr name="defaultColor" format="color|reference" />
+        <attr name="fav" format="boolean" />
         <attr name="textSize" format="dimension" />
         <attr name="spacing" format="dimension" />
     </declare-styleable>

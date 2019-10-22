@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_follow_full"
+        android:icon="@drawable/ic_action_follow_full"
+        android:title="@string/action_follow_full" />
+
+    <item
+        android:id="@+id/action_follow_normal"
+        android:icon="@drawable/ic_action_follow_normal"
+        android:title="@string/action_follow_normal" />
+
+    <item
+        android:id="@+id/action_follow_off"
+        android:icon="@drawable/ic_action_follow_off"
+        android:title="@string/action_follow_off" />
+</menu>

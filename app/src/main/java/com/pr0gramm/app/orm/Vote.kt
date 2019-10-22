@@ -7,8 +7,6 @@ enum class Vote(val voteValue: Int) {
 
     val nextUpVote: Vote get() = if (this === Vote.UP || this === Vote.FAVORITE) Vote.NEUTRAL else Vote.UP
 
-    val nextDownVote: Vote get() = if (this === Vote.DOWN) Vote.NEUTRAL else Vote.DOWN
-
     companion object {
         private val votes = Vote.values()
 

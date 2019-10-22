@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
@@ -48,7 +49,10 @@ import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import rx.Observable.combineLatest
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
@@ -67,8 +71,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
-    private var state by LazyObservableProperty({ FragmentState(feedItem) }) { _, _ -> updateAdapterState() }
-    private val stateTransaction = StateTransaction({ state }, { updateAdapterState() })
+    private var state by LazyObservableProperty({ FragmentState(feedItem) }) { _, _ -> adapterStateUpdated() }
+    private val stateTransaction = StateTransaction({ state }, { adapterStateUpdated() })
 
     // start with an empty adapter here
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
@@ -88,6 +92,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val feedService: FeedService by instance()
     private val voteService: VoteService by instance()
     private val seenService: SeenService by instance()
+    private val followService: FollowService by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val userService: UserService by instance()
     private val downloadService: DownloadService by instance()
@@ -308,7 +313,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         combined.distinctUntilChanged()
     }
 
-    private fun updateAdapterState() {
+    private fun adapterStateUpdated() {
         checkMainThread()
 
         if (stateTransaction.isActive) {
@@ -335,7 +340,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         val isOurPost = userService.name.equals(state.item.user, ignoreCase = true)
-        items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost, actions)
+        items += PostAdapter.Item.InfoItem(state.item, state.itemVote, isOurPost, state.followState, actions)
 
         if (state.item.deleted) {
             items += PostAdapter.Item.PostIsDeletedItem
@@ -653,15 +658,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         launch {
             apiCommentsCh
                     .asFlow()
-                    .flatMapLatest { comments -> voteService.getCommentVotes(comments).catch {} }
+                    .flatMapLatest { comments -> voteService.getCommentVotes(comments) }
                     .collect { votes -> commentTreeHelper.updateVotes(votes) }
         }
 
         launch {
             apiTagsCh
                     .asFlow()
-                    .flatMapLatest { votes -> voteService.getTagVotes(votes).catch {} }
+                    .flatMapLatest { tags -> voteService.getTagVotes(tags) }
                     .collect { votes -> state = state.copy(tagVotes = votes) }
+        }
+
+        launch {
+            followService.isFollowing(feedItem.userId).collect { followState ->
+                state = state.copy(followState = followState)
+            }
         }
 
         // observeOnMainThread uses post to scroll in the next frame.
@@ -1190,7 +1201,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun doVoteFeedItem(vote: Vote): Boolean {
-        return doIfAuthorizedHelper.runWithRetry {
+        return doIfAuthorizedHelper.runAuthWithRetry {
             showPostVoteAnimation(vote)
 
             launchWithErrorHandler {
@@ -1230,8 +1241,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 current = byId[current.parent]
             }
 
-            doIfAuthorizedHelper.runWithRetry {
-                val context = context ?: return@runWithRetry
+            doIfAuthorizedHelper.runAuthWithRetry {
+                val context = context ?: return@runAuthWithRetry
                 startActivityForResult(
                         WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
                         RequestCodes.WRITE_COMMENT)
@@ -1302,7 +1313,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private val actions = object : PostActions {
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
-            return doIfAuthorizedHelper.runWithRetry {
+            return doIfAuthorizedHelper.runAuthWithRetry {
                 launchWithErrorHandler {
                     withBackgroundContext(NonCancellable) {
                         voteService.vote(tag, vote)
@@ -1334,12 +1345,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun writeCommentClicked(text: String): Boolean {
             AndroidUtility.hideSoftKeyboard(view)
-            return doIfAuthorizedHelper.runWithRetry {
+            return doIfAuthorizedHelper.runAuthWithRetry {
                 launchWithErrorHandler(busyIndicator = true) {
-                    onNewComments(withBackgroundContext(NonCancellable) {
-                        voteService.postComment(feedItem, 0, text)
-                    })
+                    onNewComments(voteService.postComment(feedItem, 0, text))
                 }
+            }
+        }
+
+        override suspend fun updateFollowUser(follow: FollowAction) {
+            doIfAuthorizedHelper.runAuthSuspend {
+                followService.update(follow, feedItem.userId, feedItem.user)
             }
         }
     }
@@ -1354,6 +1369,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val commentsVisible: Boolean = true,
             val commentsLoading: Boolean = false,
             val commentsLoadError: Boolean = false,
+            val followState: FollowState? = null,
             val mediaControlsContainer: View? = null)
 
     companion object {

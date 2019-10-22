@@ -2,10 +2,17 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
+import android.text.style.ImageSpan
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.text.buildSpannedString
+import androidx.core.text.inSpans
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -14,26 +21,30 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.services.FollowAction
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
+import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.ui.TagCloudLayoutManager
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
-import java.lang.Math.min
+import kotlin.math.min
 
 /**
  */
 class InfoLineView(context: Context) : LinearLayout(context) {
-    private val ratingView: TextView by bindView(R.id.rating)
     private val dateView: TextView by bindView(R.id.date)
     private val usernameView: UsernameView by bindView(R.id.username)
-    private val voteFavoriteView: ImageView by bindView(R.id.action_favorite)
-
     private val voteView: VoteView by bindView(R.id.voting)
+    private val followStateView: ImageView by bindView(R.id.action_follow)
+
+    private val drawableCache = DrawableCache()
 
     private val admin: Boolean = !isInEditMode && context.injector.instance<UserService>().userIsAdmin
 
@@ -56,14 +67,14 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             changed
         }
 
-        voteFavoriteView.setOnClickListener {
-            val currentVote = voteView.vote
-            if (currentVote === Vote.FAVORITE) {
-                voteView.doVote(Vote.UP)
-            } else {
-                voteView.doVote(Vote.FAVORITE)
-            }
+        followStateView.setOnClickListener {
+            val popup = PopupMenu(context, followStateView)
+            MenuInflater(context).inflate(R.menu.menu_follow, popup.menu)
+            popup.setOnMenuItemClickListener { followMenuClicked(it.itemId); true }
+            popup.show()
         }
+
+        updateFollowState(followState = FollowState.Impl(0, false, false))
     }
 
     /**
@@ -81,16 +92,25 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         // update the views!
         usernameView.setUsername(item.user, item.mark)
 
-        ViewUpdater.replaceText(dateView, item.created) {
-            DurationFormat.timeSincePastPointInTime(context, item.created, short = true)
-        }
-
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)
         }
 
         voteView.setVoteState(vote, animate = false)
+
         updateViewState(vote)
+    }
+
+    private fun formatScore(vote: Vote): String {
+        val feedItem = this.feedItem ?: return ""
+
+        if (isOneHourOld || isSelfPost || admin) {
+            val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
+            return rating.toString()
+
+        } else {
+            return "\u2022\u2022\u2022"
+        }
     }
 
     /**
@@ -106,28 +126,79 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
         // also hide the vote view.
         voteView.visibility = viewVisibility
-        voteFavoriteView.visibility = viewVisibility
 
-        if (isOneHourOld || isSelfPost || admin) {
-            val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
-            ratingView.text = rating.toString()
-            ratingView.setOnLongClickListener {
-                Toast.makeText(context,
-                        String.format("%d up, %d down", feedItem.up, feedItem.down),
-                        Toast.LENGTH_SHORT).show()
+        val textColor = dateView.currentTextColor
 
-                true
+        val dClock = drawableCache.get(R.drawable.ic_clock, textColor).mutate()
+        dClock.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
+
+        val dPlus = drawableCache.get(R.drawable.ic_plus, textColor)
+        dPlus.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
+
+        ViewUpdater.replaceText(dateView, feedItem.created) {
+            val date = DurationFormat.timeSincePastPointInTime(context, feedItem.created, short = true)
+            val score = formatScore(vote)
+
+            buildSpannedString {
+                append(date)
+                append("\u2009")
+                inSpans(ImageSpan(dClock, ImageSpan.ALIGN_BOTTOM)) {
+                    append(" ")
+                }
+
+                if (score.isNotEmpty()) {
+                    append("   ")
+                    append(score)
+                    append("\u2009")
+                    inSpans(ImageSpan(dPlus, ImageSpan.ALIGN_BOTTOM)) {
+                        append(" ")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun followMenuClicked(selectedItemId: Int) {
+        requireBaseActivity().launchWithErrorHandler {
+            followStateView.isEnabled = false
+            try {
+                when (selectedItemId) {
+                    R.id.action_follow_off -> {
+                        updateFollowState(FollowState.Impl(0, false, false))
+                        onDetailClickedListener?.updateFollowUser(FollowAction.NONE)
+                    }
+                    R.id.action_follow_normal -> {
+                        updateFollowState(FollowState.Impl(0, true, false))
+                        onDetailClickedListener?.updateFollowUser(FollowAction.FOLLOW)
+                    }
+                    R.id.action_follow_full -> {
+                        updateFollowState(FollowState.Impl(0, true, true))
+                        onDetailClickedListener?.updateFollowUser(FollowAction.SUBSCRIBED)
+                    }
+                }
+            } finally {
+                followStateView.isEnabled = true
+            }
+        }
+    }
+
+    fun updateFollowState(followState: FollowState) {
+        when {
+            followState.subscribed -> {
+                val color = context.getColorCompat(ThemeHelper.accentColor)
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_full, color))
             }
 
-            ratingView.visibility = viewVisibility
+            followState.following -> {
+                val color = context.getColorCompat(ThemeHelper.accentColor)
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_normal, color))
+            }
 
-        } else {
-            ratingView.text = "\u2022\u2022\u2022"
-            ratingView.setOnLongClickListener(null)
+            else -> {
+                val color = context.getStyledColor(android.R.attr.textColorSecondary)
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_off, color))
+            }
         }
-
-        val color = if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor
-        voteFavoriteView.imageTintList = ColorStateList.valueOf(color)
     }
 
     private val isOneHourOld: Boolean
@@ -170,6 +241,11 @@ interface PostActions {
      * Writes a new comment
      */
     fun writeCommentClicked(text: String): Boolean
+
+    /**
+     * Follow the user
+     */
+    suspend fun updateFollowUser(follow: FollowAction)
 }
 
 @SuppressLint("ViewConstructor")

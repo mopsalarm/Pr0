@@ -15,15 +15,13 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.LayoutRes
-import androidx.annotation.NonNull
+import androidx.annotation.*
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
@@ -35,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import io.sentry.Sentry
 import io.sentry.event.Breadcrumb
@@ -351,6 +350,18 @@ inline fun Context.dip2px(dpValue: Float): Float {
 @Suppress("NOTHING_TO_INLINE")
 inline fun Context.dip2px(dpValue: Int): Int {
     return dip2px(dpValue.toFloat()).toInt()
+}
+
+@ColorInt
+fun Context.getStyledColor(@AttrRes id: Int): Int {
+    val tv = TypedValue()
+    theme.resolveAttribute(id, tv, true)
+    return getColorCompat(tv.resourceId)
+}
+
+fun View.requireBaseActivity(): BaseAppCompatActivity {
+    return AndroidUtility.activityFromContext(context) as? BaseAppCompatActivity
+            ?: throw IllegalArgumentException("Expected BaseAppCompatActivity for context $context")
 }
 
 /**
