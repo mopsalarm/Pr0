@@ -22,6 +22,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.matches
@@ -47,7 +48,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private val choiceApp: RadioButton by bindView(R.id.action_feedback_app)
     private val choiceGeneral: RadioButton by bindView(R.id.action_feedback_general)
 
-    private val groupAllTextViews: List<TextView> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_text)
+    private val groupAllInputViews: List<TextView> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_text)
 
     private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint, R.id.feedback_type_app_hint)
     private val groupNormalSupport: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_deletion_hint)
@@ -66,13 +67,15 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary))
 
         // register all the change listeners
-        for (textView in groupAllTextViews) {
+        for (textView in groupAllInputViews) {
             textView.addTextChangedListener(object : SimpleTextWatcher() {
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                     updateSubmitButtonActivation()
                 }
             })
         }
+
+        Linkify.linkify(find(R.id.feedback_deletion_hint))
 
         userService.name?.let { vName.setText(it) }
 
@@ -105,7 +108,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private fun updateSubmitButtonActivation() {
-        var enabled = groupAllTextViews.none { it.isVisible && it.text.toString().trim().isEmpty() }
+        var enabled = groupAllInputViews.none { it.isVisible && it.text.toString().trim().isEmpty() }
 
         if (vMail.isVisible && !vMail.text.matches(Patterns.EMAIL_ADDRESS)) {
             enabled = false

@@ -1345,18 +1345,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun writeCommentClicked() {
             doIfAuthorizedHelper.runAuthWithRetry {
+                val text = apiTagsCh.value.take(10).joinToString(", ") { it.tag }
+
                 val context = context ?: return@runAuthWithRetry
                 startActivityForResult(
-                        WriteMessageActivity.addNewComment(context, feedItem),
+                        WriteMessageActivity.addNewComment(context, feedItem, text),
                         RequestCodes.WRITE_COMMENT)
 
             }
-
-//            return doIfAuthorizedHelper.runAuthWithRetry {
-//                launchWithErrorHandler(busyIndicator = true) {
-//                    onNewComments(voteService.postComment(feedItem, 0, text))
-//                }
-//            }
         }
 
         override suspend fun updateFollowUser(follow: FollowState) {

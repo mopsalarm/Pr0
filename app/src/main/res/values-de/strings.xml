@@ -284,7 +284,7 @@
     <string name="error_cloudflare">Die Anfrage ist fehlgeschlagen, da Cloudflare scheinbar deine Adresse gesperrt hat.</string>
     <string name="error_proxy_timeout">Ein Timeout ist beim Kontaktieren des pr0gramms aufgetreten.</string>
     <string name="feedback_appfeedback">Feedback zur App</string>
-    <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Als Uploader des Bildes musst du keine Beweise vorlegen.</string>
+    <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Ist es dein eigener Upload, kannst du ihn auch selbst löschen, schaue dafür in die FAQ: https://pr0gramm.com/faq:delete</string>
     <string name="feedback_email">E-Mail Adresse</string>
     <string name="feedback_general">Normaler pr0gramm Support</string>
     <string name="feedback_name">Name</string>

@@ -39,7 +39,7 @@ object Linkify {
         linkify(view, SpannableStringBuilder.valueOf(cleanedContent), callback)
     }
 
-    fun linkify(view: TextView, text: SpannableStringBuilder, callback: Callback? = null) {
+    fun linkify(view: TextView, text: SpannableStringBuilder = SpannableStringBuilder(view.text), callback: Callback? = null) {
         view.movementMethod = NonCrashingLinkMovementMethod
         view.setTextFuture(linkify(view.context, text, callback))
     }

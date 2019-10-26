@@ -27,8 +27,8 @@
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="4dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
             android:background="@color/secondary_background" />
 
         <LinearLayout

@@ -250,8 +250,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             return intent
         }
 
-        fun addNewComment(context: Context, item: FeedItem): Intent {
-            return intent(context, MessageConverter.of(item, text = "")).apply {
+        fun addNewComment(context: Context, item: FeedItem, text: String): Intent {
+            return intent(context, MessageConverter.of(item, text = text)).apply {
                 putExtra(ARGUMENT_ITEM_ID, item.id)
                 putExtra(ARGUMENT_COMMENT_ID, 0L)
                 putExtra(ARGUMENT_TITLE, context.getString(R.string.write_comment, item.user))

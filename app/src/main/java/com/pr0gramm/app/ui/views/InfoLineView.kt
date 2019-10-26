@@ -101,15 +101,14 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         updateViewState(vote)
     }
 
-    private fun formatScore(vote: Vote): String {
-        val feedItem = this.feedItem ?: return ""
+    private fun formatScore(vote: Vote): String? {
+        val feedItem = this.feedItem ?: return null
 
         if (isOneHourOld || isSelfPost || admin) {
             val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
             return rating.toString()
-
         } else {
-            return "\u2022\u2022\u2022"
+            return null
         }
     }
 
@@ -140,43 +139,44 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             val score = formatScore(vote)
 
             buildSpannedString {
+                if (score != null) {
+                    append(score)
+                    append(" Benis\u2009")
+                    inSpans(ImageSpan(dPlus, ImageSpan.ALIGN_BOTTOM)) {
+                        append(" ")
+                    }
+
+                    append("   ")
+                }
+
                 append(date)
                 append("\u2009")
                 inSpans(ImageSpan(dClock, ImageSpan.ALIGN_BOTTOM)) {
                     append(" ")
                 }
 
-                if (score.isNotEmpty()) {
-                    append("   ")
-                    append(score)
-                    append("\u2009")
-                    inSpans(ImageSpan(dPlus, ImageSpan.ALIGN_BOTTOM)) {
-                        append(" ")
-                    }
-                }
             }
         }
     }
 
     private fun followMenuClicked(selectedItemId: Int) {
         requireBaseActivity().launchWithErrorHandler {
-            followStateView.isEnabled = false
-            try {
-                val state = when (selectedItemId) {
-                    R.id.action_follow_normal -> FollowState.FOLLOW
-                    R.id.action_follow_full -> FollowState.SUBSCRIBED
-                    else -> FollowState.NONE
-                }
-
-                // update view
-                updateFollowState(state)
-
-                // publish follow state to backend
-                onDetailClickedListener?.updateFollowUser(state)
-
-            } finally {
-                followStateView.isEnabled = true
+            val state = when (selectedItemId) {
+                R.id.action_follow_normal -> FollowState.FOLLOW
+                R.id.action_follow_full -> FollowState.SUBSCRIBED
+                else -> FollowState.NONE
             }
+
+            followStateView.animate()
+                    .rotationYBy(360f)
+                    .setDuration(500L)
+                    .start()
+
+            // update view
+            updateFollowState(state)
+
+            // publish follow state to backend
+            onDetailClickedListener?.updateFollowUser(state)
         }
     }
 
