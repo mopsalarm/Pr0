@@ -116,9 +116,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val hideTagVoteButtons: Boolean
         get() = preferences.getBoolean("pref_hide_tag_vote_buttons", false)
 
-    val tagCloudView: Boolean
-        get() = preferences.getBoolean("pref_tag_cloud_view", false)
-
     val feedStartAtNew: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_new", false)
 

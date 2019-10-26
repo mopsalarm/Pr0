@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.transaction
+import androidx.fragment.app.commit
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -61,7 +61,7 @@ class ConversationActivity : BaseAppCompatActivity("ConversationActivity") {
             val name = extras.getString(EXTRA_CONVERSATION_NAME) ?: return
             val fragment = ConversationFragment().apply { conversationName = name }
 
-            supportFragmentManager.transaction {
+            supportFragmentManager.commit {
                 add(R.id.content, fragment)
             }
         }

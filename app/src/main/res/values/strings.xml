@@ -508,5 +508,6 @@
     <string name="action_follow_off">None</string>
     <string name="action_follow_normal">Follow in Stelz</string>
     <string name="action_follow_full">Notifications</string>
+    <string name="write_comment">Comment to %s</string>
 </resources>
 

@@ -1,0 +1,24 @@
+
+
+CREATE TABLE userFollowEntry (
+    userId INTEGER NOT NULL PRIMARY KEY,
+
+    -- 0 for "no follow"
+    -- 1 for "follow, but not subscribed"
+    -- 2 for "subscribed"
+    state INTEGER AS Int NOT NULL DEFAULT 0
+);
+
+
+all:
+SELECT *
+FROM userFollowEntry;
+
+forUser:
+SELECT *
+FROM userFollowEntry
+WHERE userId=?;
+
+updateUser:
+INSERT OR REPLACE INTO userFollowEntry (userId, state)
+VALUES (?, ?);

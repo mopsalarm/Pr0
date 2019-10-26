@@ -22,7 +22,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
@@ -347,7 +346,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         } else {
             items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes, actions)
-            items += PostAdapter.Item.CommentInputItem(state.item.id, actions = actions)
 
             if (state.commentsVisible) {
                 if (state.commentsLoadError) {
@@ -416,7 +414,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
 
         if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK && data != null) {
-            onNewComments(WriteMessageActivity.getNewComment(data))
+            onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(data))
         }
     }
 
@@ -670,7 +668,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launch {
-            followService.isFollowing(feedItem.userId).collect { followState ->
+            followService.getState(feedItem.userId).collect { followState ->
                 state = state.copy(followState = followState)
             }
         }
@@ -1343,16 +1341,23 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        override fun writeCommentClicked(text: String): Boolean {
-            AndroidUtility.hideSoftKeyboard(view)
-            return doIfAuthorizedHelper.runAuthWithRetry {
-                launchWithErrorHandler(busyIndicator = true) {
-                    onNewComments(voteService.postComment(feedItem, 0, text))
-                }
+        override fun writeCommentClicked() {
+            doIfAuthorizedHelper.runAuthWithRetry {
+                val context = context ?: return@runAuthWithRetry
+                startActivityForResult(
+                        WriteMessageActivity.addNewComment(context, feedItem),
+                        RequestCodes.WRITE_COMMENT)
+
             }
+
+//            return doIfAuthorizedHelper.runAuthWithRetry {
+//                launchWithErrorHandler(busyIndicator = true) {
+//                    onNewComments(voteService.postComment(feedItem, 0, text))
+//                }
+//            }
         }
 
-        override suspend fun updateFollowUser(follow: FollowAction) {
+        override suspend fun updateFollowUser(follow: FollowState) {
             doIfAuthorizedHelper.runAuthSuspend {
                 followService.update(follow, feedItem.userId, feedItem.user)
             }

@@ -13,13 +13,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.services.FollowState
 import com.pr0gramm.app.ui.DelegateAdapter
 import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
 import com.pr0gramm.app.ui.staticLayoutAdapterDelegate
-import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
@@ -42,7 +41,6 @@ class PostAdapter
         delegates += CommentItemAdapterDelegate
         delegates += InfoLineItemAdapterDelegate
         delegates += TagsViewHolderAdapterDelegate
-        delegates += CommentPostLineAdapterDelegate
         delegates += PlaceholderItemAdapterDelegate
         delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading, Item.CommentsLoadingItem)
         delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err, Item.LoadErrorItem)
@@ -67,9 +65,6 @@ class PostAdapter
 
         data class TagsItem(val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
             : Item(idInCategory(2))
-
-        data class CommentInputItem(val itemId: Long, val actions: PostActions)
-            : Item(idInCategory(3))
 
         object CommentsLoadingItem
             : Item(idInCategory(4))
@@ -148,37 +143,6 @@ private object InfoLineItemAdapterDelegate
             infoView.layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-    }
-}
-
-
-private object CommentPostLineAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentInputItem, CommentPostLineAdapterDelegate.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        return ViewHolder(CommentPostLine(parent.context))
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.CommentInputItem) {
-        holder.set(value)
-    }
-
-    private class ViewHolder(val line: CommentPostLine) : RecyclerView.ViewHolder(line) {
-        init {
-            line.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-
-        fun set(item: PostAdapter.Item.CommentInputItem) {
-            line.updateItemId(item.itemId)
-
-            line.onPostCommentClicked = { text ->
-                if (item.actions.writeCommentClicked(text)) {
-                    line.clear()
-                }
-            }
         }
     }
 }

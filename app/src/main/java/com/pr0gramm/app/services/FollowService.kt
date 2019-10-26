@@ -2,13 +2,13 @@ package com.pr0gramm.app.services
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.AppDB
-import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.ui.base.Async
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 
 /**
@@ -16,35 +16,42 @@ import kotlinx.coroutines.flow.Flow
  */
 
 class FollowService(private val api: Api, private val db: AppDB) {
-    suspend fun update(action: FollowAction, userId: Long, name: String) {
+    suspend fun update(state: FollowState, userId: Long, name: String) {
         withBackgroundContext(NonCancellable) {
-            when (action) {
-                FollowAction.NONE ->
+            when (state) {
+                FollowState.NONE ->
                     api.profileUnfollow(null, name)
 
-                FollowAction.FOLLOW ->
+                FollowState.FOLLOW ->
                     api.profileFollow(null, name)
 
-                FollowAction.SUBSCRIBED -> {
+                FollowState.SUBSCRIBED -> {
                     api.profileFollow(null, name)
                     api.profileSubscribe(null, name)
                 }
             }
 
-            db.followStateQueries.updateUser(userId, action.following, action.subscribed)
+            db.userFollowEntryQueries.updateUser(userId, state.ordinal)
         }
     }
 
-    fun isFollowing(userId: Long): Flow<FollowState> {
-        val defaultValue = FollowState.Impl(userId, following = false, subscribed = false)
-
-        return db.followStateQueries.forUser(userId)
+    fun getState(userId: Long): Flow<FollowState> {
+        return db.userFollowEntryQueries.forUser(userId)
                 .asFlow()
-                .mapToOneOrDefault(defaultValue, Async)
+                .mapToOneOrNull(Async)
+                .map { value -> mapToState(value?.state) }
+    }
+
+    private fun mapToState(value: Int?): FollowState {
+        val idx = value ?: return FollowState.NONE
+        return FollowState.values().getOrNull(idx) ?: FollowState.NONE
     }
 }
 
-enum class FollowAction(val following: Boolean, val subscribed: Boolean) {
+/**
+ * Follow state, do not reorder, ordinal is used in database..
+ */
+enum class FollowState(val following: Boolean, val subscribed: Boolean) {
     NONE(following = false, subscribed = false),
     FOLLOW(following = true, subscribed = false),
     SUBSCRIBED(following = true, subscribed = true)

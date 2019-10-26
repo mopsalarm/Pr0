@@ -16,7 +16,7 @@
         android:paddingTop="8dp"
         android:paddingRight="8dp"
         android:paddingBottom="8dp"
-        android:src="@drawable/ic_action_add_tag"
+        android:src="@drawable/ic_action_add_comment"
         android:tint="?android:textColorSecondary" />
 
 </FrameLayout>

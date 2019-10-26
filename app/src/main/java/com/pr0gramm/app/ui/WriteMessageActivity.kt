@@ -51,6 +51,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     private val isCommentAnswer: Boolean by lazy { intent.hasExtra(ARGUMENT_COMMENT_ID) }
     private val parentCommentId: Long by lazy { intent.getLongExtra(ARGUMENT_COMMENT_ID, 0) }
     private val itemId: Long by lazy { intent.getLongExtra(ARGUMENT_ITEM_ID, 0) }
+    private val titleOverride: String? by lazy { intent.getStringExtra(ARGUMENT_TITLE) }
 
     private val parentComments: List<ParentComment> by lazy {
         intent.getFreezableExtra(ARGUMENT_EXCERPTS, ParentComments)?.comments ?: listOf()
@@ -70,7 +71,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
 
         // set title
-        title = getString(R.string.write_message_title, receiverName)
+        title = titleOverride ?: getString(R.string.write_message_title, receiverName)
 
         // and previous message
         updateMessageView()
@@ -94,6 +95,10 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
+        if (isCommentAnswer) {
+            messageText.hint = getString(R.string.comment_hint)
+        }
+
         // only show if we can link to someone else
         val shouldShowParentComments = this.parentComments.any {
             it.user != receiverName && it.user != userService.loginState.name
@@ -107,6 +112,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             parentCommentsView.adapter = Adapter()
             parentCommentsView.layoutManager = LinearLayoutManager(this)
             parentCommentsView.itemAnimator = null
+
             updateViewState()
         }
     }
@@ -227,6 +233,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private const val ARGUMENT_COMMENT_ID = "WriteMessageFragment.commentId"
         private const val ARGUMENT_ITEM_ID = "WriteMessageFragment.itemId"
         private const val ARGUMENT_EXCERPTS = "WriteMessageFragment.excerpts"
+        private const val ARGUMENT_TITLE = "WriteMessageFragment.title"
+
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
 
         fun intent(context: Context, message: Api.Message): Intent {
@@ -240,6 +248,14 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             intent.putExtra(ARGUMENT_RECEIVER_ID, userId)
             intent.putExtra(ARGUMENT_RECEIVER_NAME, userName)
             return intent
+        }
+
+        fun addNewComment(context: Context, item: FeedItem): Intent {
+            return intent(context, MessageConverter.of(item, text = "")).apply {
+                putExtra(ARGUMENT_ITEM_ID, item.id)
+                putExtra(ARGUMENT_COMMENT_ID, 0L)
+                putExtra(ARGUMENT_TITLE, context.getString(R.string.write_comment, item.user))
+            }
         }
 
         fun answerToComment(
@@ -257,13 +273,13 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val commentId = message.id
 
             return intent(context, message).apply {
-                putExtra(ARGUMENT_COMMENT_ID, commentId)
                 putExtra(ARGUMENT_ITEM_ID, itemId)
+                putExtra(ARGUMENT_COMMENT_ID, commentId)
                 putExtra(ARGUMENT_EXCERPTS, ParentComments(parentComments))
             }
         }
 
-        fun getNewComment(data: Intent): Api.NewComment {
+        fun getNewCommentFromActivityResult(data: Intent): Api.NewComment {
             val newComment = data.getFreezableExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)?.value
             return newComment ?: throw IllegalArgumentException("no comment found in Intent")
         }

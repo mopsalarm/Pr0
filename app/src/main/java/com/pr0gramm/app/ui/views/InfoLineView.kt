@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Rect
 import android.text.style.ImageSpan
 import android.view.MenuInflater
 import android.view.View
@@ -13,6 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -21,16 +23,14 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.FollowAction
+import com.pr0gramm.app.services.FollowState
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.DrawableCache
-import com.pr0gramm.app.ui.TagCloudLayoutManager
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
@@ -74,7 +74,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             popup.show()
         }
 
-        updateFollowState(followState = FollowState.Impl(0, false, false))
+        updateFollowState(followState = FollowState.NONE)
     }
 
     /**
@@ -162,20 +162,18 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         requireBaseActivity().launchWithErrorHandler {
             followStateView.isEnabled = false
             try {
-                when (selectedItemId) {
-                    R.id.action_follow_off -> {
-                        updateFollowState(FollowState.Impl(0, false, false))
-                        onDetailClickedListener?.updateFollowUser(FollowAction.NONE)
-                    }
-                    R.id.action_follow_normal -> {
-                        updateFollowState(FollowState.Impl(0, true, false))
-                        onDetailClickedListener?.updateFollowUser(FollowAction.FOLLOW)
-                    }
-                    R.id.action_follow_full -> {
-                        updateFollowState(FollowState.Impl(0, true, true))
-                        onDetailClickedListener?.updateFollowUser(FollowAction.SUBSCRIBED)
-                    }
+                val state = when (selectedItemId) {
+                    R.id.action_follow_normal -> FollowState.FOLLOW
+                    R.id.action_follow_full -> FollowState.SUBSCRIBED
+                    else -> FollowState.NONE
                 }
+
+                // update view
+                updateFollowState(state)
+
+                // publish follow state to backend
+                onDetailClickedListener?.updateFollowUser(state)
+
             } finally {
                 followStateView.isEnabled = true
             }
@@ -240,12 +238,12 @@ interface PostActions {
     /**
      * Writes a new comment
      */
-    fun writeCommentClicked(text: String): Boolean
+    fun writeCommentClicked()
 
     /**
      * Follow the user
      */
-    suspend fun updateFollowUser(follow: FollowAction)
+    suspend fun updateFollowUser(follow: FollowState)
 }
 
 @SuppressLint("ViewConstructor")
@@ -264,18 +262,21 @@ class TagsView(context: Context) : FrameLayout(context) {
     init {
         View.inflate(context, R.layout.post_tags, this)
 
-        if (Settings.get().tagCloudView) {
-            val tagGaps = resources.getDimensionPixelSize(R.dimen.tag_gap_size)
-            recyclerView.layoutManager = TagCloudLayoutManager(tagGaps, tagGaps, 3)
-            recyclerView.itemAnimator = null
-        } else {
-            recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
+        recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
 
-            recyclerView.itemAnimator = DefaultItemAnimator().apply {
-                supportsChangeAnimations = false
-            }
-
+        recyclerView.itemAnimator = DefaultItemAnimator().apply {
+            supportsChangeAnimations = false
         }
+
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            val spacing = context.dip2px(8)
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                outRect.setEmpty()
+
+                val index = parent.getChildAdapterPosition(view)
+                outRect.left = if (index == 0) 2 * spacing else spacing
+            }
+        })
     }
 
     override fun onAttachedToWindow() {
@@ -300,31 +301,53 @@ class TagsView(context: Context) : FrameLayout(context) {
     }
 
     private fun rebuildAdapterState() {
+        val lastTag = tags.lastOrNull()
+
         adapter.submitList(tags.map { tag ->
             val vote = votes[tag.id] ?: Vote.NEUTRAL
             val selected = alwaysVoteViews || tag.id == selectedTagId
-            VotedTag(tag, vote, selected)
+            val lastItem = tag === lastTag
+            VotedTag(tag, vote, selected, lastItem)
         })
     }
 
-    private data class VotedTag(val tag: Api.Tag, val vote: Vote, val selected: Boolean)
+    private data class VotedTag(val tag: Api.Tag, val vote: Vote = Vote.NEUTRAL, val selected: Boolean = false, val lastItem: Boolean = false)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
             RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
 
+        private val viewTypeWriteComment = 0
+        private val viewTypeWriteTag = 1
+        private val viewTypeTag = 2
+
+        private val placeholders = listOf(
+                VotedTag(Api.Tag(-3L, 0f, "placeholder write comment")),
+                VotedTag(Api.Tag(-2L, 0f, "placeholder write tag")))
+
+
         override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
-            val dummyTag = VotedTag(Api.Tag(-2L, 0f, "dummy"), Vote.NEUTRAL, false)
-            super.submitList(listOf(dummyTag) + newList, forceSync)
+            super.submitList(placeholders + newList, forceSync)
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (position == 0) 0 else 1
+            return position.coerceAtMost(placeholders.size)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return when (viewType) {
-                0 -> ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false))
-                1 -> TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
+                viewTypeTag ->
+                    TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
+
+                viewTypeWriteTag ->
+                    ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false)) {
+                        actions?.writeNewTagClicked()
+                    }
+
+                viewTypeWriteComment ->
+                    ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_comment, parent, false)) {
+                        actions?.writeCommentClicked()
+                    }
+
                 else -> throw IllegalArgumentException("Unknown view type")
             }
         }
@@ -336,9 +359,9 @@ class TagsView(context: Context) : FrameLayout(context) {
         }
     }
 
-    private inner class ButtonHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class ButtonHolder(itemView: View, onClick: () -> Unit) : RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.setOnClickListener { actions?.writeNewTagClicked() }
+            itemView.setOnClickListener { onClick() }
         }
     }
 
@@ -346,6 +369,8 @@ class TagsView(context: Context) : FrameLayout(context) {
         private val id = LongValueHolder(0L)
         private val tagView: TextView = itemView.find(R.id.tag_text)
         private val voteView: VoteView = itemView.find(R.id.tag_vote)
+
+        private val lastTagSpacing = context.dip2px(16)
 
         fun set(votedTag: VotedTag) {
             val (tag, vote, selected) = votedTag
@@ -378,6 +403,10 @@ class TagsView(context: Context) : FrameLayout(context) {
                     updateSelection(tag.id)
                     true
                 }
+            }
+
+            itemView.updateLayoutParams<MarginLayoutParams> {
+                rightMargin = if (votedTag.lastItem) lastTagSpacing else 0
             }
         }
     }

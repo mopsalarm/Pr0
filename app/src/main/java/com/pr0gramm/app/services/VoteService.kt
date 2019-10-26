@@ -144,10 +144,8 @@ class VoteService(private val api: Api,
         logger.info { "Applying vote actions took $watch" }
     }
 
-    private fun storeFollowAction(userId: Long, action: FollowAction) {
-        appDB.followStateQueries.updateUser(userId,
-                following = action.following,
-                subscribed = action.subscribed)
+    private fun storeFollowAction(userId: Long, state: FollowState) {
+        appDB.userFollowEntryQueries.updateUser(userId, state.ordinal)
     }
 
     /**
@@ -181,10 +179,6 @@ class VoteService(private val api: Api,
 
             response
         }
-    }
-
-    suspend fun postComment(item: FeedItem, parentId: Long, comment: String): Api.NewComment {
-        return postComment(item.id, parentId, comment)
     }
 
     /**
@@ -258,9 +252,9 @@ class VoteService(private val api: Api,
                 11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
 
         private val FOLLOW_ACTION = mapOf(
-                12 to FollowAction.FOLLOW,
-                13 to FollowAction.NONE,
-                14 to FollowAction.SUBSCRIBED,
-                15 to FollowAction.FOLLOW)
+                12 to FollowState.FOLLOW,
+                13 to FollowState.NONE,
+                14 to FollowState.SUBSCRIBED,
+                15 to FollowState.FOLLOW)
     }
 }

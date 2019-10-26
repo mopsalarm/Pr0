@@ -16,7 +16,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
-import com.pr0gramm.app.db.FollowState
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.model.config.Config
@@ -617,7 +616,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         launch {
             stateCh.asFlow()
                     .mapNotNull { it.userInfo?.info?.user?.id }
-                    .flatMapLatest { userId -> followService.isFollowing(userId.toLong()) }
+                    .flatMapLatest { userId -> followService.getState(userId.toLong()) }
                     .collect { followState -> this@FeedFragment.followState = followState }
         }
     }
@@ -971,7 +970,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val user = this.state.userInfo?.info?.user
         if (user != null) {
             doInBackground {
-                followService.update(FollowAction.FOLLOW, user.id.toLong(), user.name)
+                followService.update(FollowState.FOLLOW, user.id.toLong(), user.name)
             }
         }
     }
@@ -980,7 +979,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val user = this.state.userInfo?.info?.user
         if (user != null) {
             doInBackground {
-                followService.update(FollowAction.NONE, user.id.toLong(), user.name)
+                followService.update(FollowState.NONE, user.id.toLong(), user.name)
             }
         }
     }

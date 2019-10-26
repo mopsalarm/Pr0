@@ -26,6 +26,19 @@ object MessageConverter {
                 thumbnail = item.thumbnail)
     }
 
+    fun of(item: FeedItem, text: String): Api.Message {
+        return Api.Message(
+                id = 0,
+                itemId = item.id,
+                mark = item.mark,
+                name = item.user,
+                senderId = 0,
+                message = text,
+                score = item.up - item.down,
+                creationTime = item.created,
+                thumbnail = item.thumbnail)
+    }
+
     fun of(senderId: Int, name: String, mark: Int, comment: Api.UserComments.UserComment): Api.Message {
         return Api.Message(
                 id = comment.id,
