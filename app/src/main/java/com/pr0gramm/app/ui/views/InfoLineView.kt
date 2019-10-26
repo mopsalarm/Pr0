@@ -138,22 +138,25 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             val date = DurationFormat.timeSincePastPointInTime(context, feedItem.created, short = true)
             val score = formatScore(vote)
 
+            val thinsp = "\u2009"
+
             buildSpannedString {
                 if (score != null) {
-                    append(score)
-                    append(" Benis\u2009")
                     inSpans(ImageSpan(dPlus, ImageSpan.ALIGN_BOTTOM)) {
                         append(" ")
                     }
+                    append(thinsp)
+                    append(score)
+                    append(" Benis")
 
                     append("   ")
                 }
 
-                append(date)
-                append("\u2009")
                 inSpans(ImageSpan(dClock, ImageSpan.ALIGN_BOTTOM)) {
                     append(" ")
                 }
+                append(thinsp)
+                append(date)
 
             }
         }
