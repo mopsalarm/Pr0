@@ -352,11 +352,15 @@ inline fun Context.dip2px(dpValue: Int): Int {
     return dip2px(dpValue.toFloat()).toInt()
 }
 
-@ColorInt
-fun Context.getStyledColor(@AttrRes id: Int): Int {
+fun Context.getStyledResourceId(@AttrRes id: Int): Int {
     val tv = TypedValue()
     theme.resolveAttribute(id, tv, true)
-    return getColorCompat(tv.resourceId)
+    return tv.resourceId
+}
+
+@ColorInt
+fun Context.getStyledColor(@AttrRes id: Int): Int {
+    return getColorCompat(getStyledResourceId(id))
 }
 
 fun View.requireBaseActivity(): BaseAppCompatActivity {

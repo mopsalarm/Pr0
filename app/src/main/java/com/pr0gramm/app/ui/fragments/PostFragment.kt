@@ -925,8 +925,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private suspend fun doVoteOnDoubleTap() {
-        val currentVote = voteService.getVote(feedItem).first()
-        doVoteFeedItem(currentVote.nextUpVote)
+        doVoteFeedItem(when (voteService.getVote(feedItem).first()) {
+            Vote.UP -> Vote.NEUTRAL
+            else -> Vote.UP
+        })
     }
 
     /**

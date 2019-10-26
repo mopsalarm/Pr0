@@ -13,6 +13,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.util.dip2px
 import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.getStyledResourceId
 import com.pr0gramm.app.util.use
 
 enum class VoteIconColor {
@@ -33,7 +34,7 @@ private val iconsDef = mapOf(
                 Vote.NEUTRAL to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.NEUTRAL),
                 Vote.UP to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.MARKED_UP, rotated = true),
                 Vote.DOWN to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.INACTIVE),
-                Vote.FAVORITE to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.MARKED_UP)
+                Vote.FAVORITE to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.MARKED_UP, rotated = true)
         ),
 
         Vote.DOWN to VoteState(Vote.NEUTRAL,
@@ -54,6 +55,7 @@ private val iconsDef = mapOf(
  * A plus and a minus sign to handle votes.
  */
 class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+    private val drawableCache = DrawableCache()
     private val views: Map<Vote, AppCompatImageView>
 
     private var voteState: Vote = Vote.NEUTRAL
@@ -97,6 +99,9 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         val votes = if (fav) listOf(Vote.UP, Vote.DOWN, Vote.FAVORITE) else listOf(Vote.UP, Vote.DOWN)
 
+        // ripple effect
+        val backgroundId = context.getStyledResourceId(android.R.attr.selectableItemBackgroundBorderless)
+
         views = votes
                 .mapIndexed { idx, vote ->
                     val def = iconsDef.getValue(vote)
@@ -113,6 +118,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
                     // create the actual view
                     val view = AppCompatImageView(context)
+                    view.setBackgroundResource(backgroundId)
                     view.setImageDrawable(iconOf(def.icons.getValue(Vote.NEUTRAL)))
                     view.layoutParams = lp
                     view.setOnClickListener { triggerVoteClicked(vote) }
@@ -223,9 +229,5 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 view.rotation = targetRotation
             }
         }
-    }
-
-    companion object {
-        private val drawableCache = DrawableCache()
     }
 }
