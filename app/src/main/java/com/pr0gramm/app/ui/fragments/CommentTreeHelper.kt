@@ -157,10 +157,14 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     private var parentChain: List<View>? = null
 
     val onScrollListener = object : RecyclerView.OnScrollListener() {
+        private val minimalScrollSpace = itemView.context.dip2px(16f)
+
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val availableSpace = (content.height - vote.height).toFloat()
-            if (availableSpace <= 1f)
+            if (availableSpace <= minimalScrollSpace) {
+                vote.translationY = 0f
                 return
+            }
 
             parentChain?.let { parentChain ->
                 var y = 0.0f
