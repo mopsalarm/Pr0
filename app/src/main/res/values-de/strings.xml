@@ -484,5 +484,9 @@
     <string name="hint_no_email">Benutzername, nicht E-Mail</string>
     <string name="pref_use_tag_as_title_title">Top Tag als Titel</string>
     <string name="pref_use_tag_as_title_sumary">Verwende den jeweiligen Top Tag als Titel in der Ansicht eines Posts.</string>
+    <string name="action_follow_full">Benachrichtigen</string>
+    <string name="action_follow_normal">Stelzen</string>
+    <string name="action_follow_off">Unstelzen</string>
+    <string name="write_comment">%s kommentieren</string>
 
 </resources>
