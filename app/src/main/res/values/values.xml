@@ -16,14 +16,12 @@
     </string-array>
 
     <string-array name="pref_image_search_engine_values">
-        <item>GOOGLE</item>
-        <item>TINEYE</item>
+        <item>IMGOPS</item>
         <item>NONE</item>
     </string-array>
 
     <string-array name="pref_image_search_engine_human">
-        <item>Google Images</item>
-        <item>TinEye</item>
+        <item>ImgOps</item>
         <item>@string/search_engine_none</item>
     </string-array>
 

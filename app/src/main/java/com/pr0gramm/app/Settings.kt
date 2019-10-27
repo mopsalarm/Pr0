@@ -177,8 +177,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
             val pref = preferences.getString("pref_image_search_engine", null) ?: ""
-            val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.toUpperCase())
-            return value ?: ShareService.ImageSearchEngine.GOOGLE
+            val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.toUpperCase(Locale.ROOT))
+            return value ?: ShareService.ImageSearchEngine.IMGOPS
         }
 
     val privateInput: Boolean

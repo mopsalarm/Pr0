@@ -9,6 +9,14 @@
       {
         "type": "Neu",
         "change": "Stelzen von Usern und über neue Posts benachrichtigen lassen."
+      },
+      {
+        "type": "Neu",
+        "change": "Die (+) und (-) Knöpfe links neben einem Kommentar scrollen jetzt mit."
+      },
+      {
+        "type": "Neu",
+        "change": "Bildersuche nutzt nun ImgOps"
       }
     ]
   },

@@ -20,6 +20,7 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.BrowserHelper
 import proguard.annotation.KeepPublicClassMemberNames
+import java.util.*
 
 /**
  * This class helps starting "Share with"-chooser for a [FeedItem].
@@ -149,7 +150,7 @@ class ShareService(private val cache: Cache) {
                 ".mp4" to "video/mp4",
                 ".gif" to "image/gif")
 
-        val extension = url.substring(url.length - 4).toLowerCase()
+        val extension = url.substring(url.length - 4).toLowerCase(Locale.ROOT)
         return types[extension] ?: "application/binary"
     }
 
@@ -162,21 +163,10 @@ class ShareService(private val cache: Cache) {
             }
         },
 
-        GOOGLE {
+        IMGOPS {
             override fun searchUri(url: String): Uri? {
-                return Uri.parse("https://www.google.com/searchbyimage").buildUpon()
-                        .appendQueryParameter("hl", "en")
-                        .appendQueryParameter("safe", "off")
-                        .appendQueryParameter("site", "search")
-                        .appendQueryParameter("image_url", url)
-                        .build()
-            }
-        },
-
-        TINEYE {
-            override fun searchUri(url: String): Uri? {
-                return Uri.parse("https://tineye.com/search").buildUpon()
-                        .appendQueryParameter("url", url)
+                return Uri.parse("https://imgops.com").buildUpon()
+                        .appendEncodedPath(url)
                         .build()
             }
         };
