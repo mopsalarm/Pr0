@@ -202,11 +202,11 @@ fun arrayOfStrings(vararg args: Any): Array<String> {
     return Array(args.size) { args[it].toString() }
 }
 
-inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<R, T> {
+inline fun <T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<Any?, T> {
     return Delegates.observable(def) { _, _, _ -> onChange() }
 }
 
-inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (oldValue: T, newValue: T) -> Unit): ReadWriteProperty<R, T> {
+inline fun <T> observeChangeEx(def: T, crossinline onChange: (oldValue: T, newValue: T) -> Unit): ReadWriteProperty<Any?, T> {
     return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 

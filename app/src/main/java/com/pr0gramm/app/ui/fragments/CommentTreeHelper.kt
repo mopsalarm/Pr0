@@ -22,6 +22,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.DrawableCache
+import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CommentScore
 import com.pr0gramm.app.ui.views.CommentSpacerView
@@ -152,6 +153,36 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
     private val commentView = itemView as CommentSpacerView
 
+    private var parentScrollView: RecyclerView? = null
+    private var parentChain: List<View>? = null
+
+    val onScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            val availableSpace = (content.height - vote.height).toFloat()
+            if (availableSpace <= 1f)
+                return
+
+            parentChain?.let { parentChain ->
+                var y = 0.0f
+                for (view in parentChain) {
+                    y += view.translationY + view.top
+                }
+
+                AndroidUtility.activityFromContext(itemView.context)?.let { activity ->
+                    if (activity is ScrollHideToolbarListener.ToolbarActivity) {
+                        y -= activity.scrollHideToolbarListener.visibleHeight
+                    }
+                }
+
+                vote.translationY = (-y).coerceIn(0f, availableSpace)
+
+                trace { "OffsetY: $y for comment: ${content.text.take(80)}" }
+            }
+
+            super.onScrolled(recyclerView, dx, dy)
+        }
+    }
+
     init {
         val grey = itemView.context.getColorCompat(R.color.grey_700)
         val accent = itemView.context.getColorCompat(ThemeHelper.accentColor)
@@ -159,7 +190,36 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         more.setImageDrawable(drawableCache.get(R.drawable.ic_more_vert_vec, grey))
         fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, grey))
         reply.setImageDrawable(drawableCache.get(R.drawable.ic_reply_vec, accent))
+
+        itemView.addOnAttachStateChangeListener { isAttached ->
+            if (parentScrollView != null) {
+                trace { "Removing scroll listener" }
+                parentScrollView?.removeOnScrollListener(onScrollListener)
+                parentScrollView = null
+                parentChain = null
+            }
+
+            if (isAttached) {
+                itemView.translationY = 0f
+
+                val parents = mutableListOf<View>(itemView)
+                var parentView: View? = itemView.parent as View?
+                while (parentView != null && parentView !is RecyclerView) {
+                    parents.add(parentView)
+                    parentView = parentView.parent as? View?
+                }
+
+                if (parentView is RecyclerView) {
+                    trace { "Adding scroll listener to RecyclerView" }
+
+                    parentView.addOnScrollListener(onScrollListener)
+                    parentScrollView = parentView
+                    parentChain = parents
+                }
+            }
+        }
     }
+
 
     @SuppressLint("SetTextI18n")
     fun set(item: CommentTree.Item, actionListener: Listener) {

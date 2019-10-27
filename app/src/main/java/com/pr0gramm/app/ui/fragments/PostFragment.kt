@@ -78,7 +78,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
 
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
-    private var scrollHandler: RecyclerView.OnScrollListener = NoopScrollHandler()
 
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
@@ -171,13 +170,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // as long as the fragment is visible, the screen stays on.
         view.keepScreenOn = true
 
-        // default to no scrolling
-        scrollHandler = NoopScrollHandler()
-
-        // react to scrolling
-        scrollHandler = ScrollHandler()
-
-        recyclerView.addOnScrollListener(scrollHandler)
+        recyclerView.primaryScrollListener = ScrollHandler()
 
         recyclerView.itemAnimator = null
         recyclerView.layoutManager = recyclerView.LinearLayoutManager(getActivity())
@@ -373,7 +366,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onDestroyView() {
-        recyclerView.removeOnScrollListener(scrollHandler)
+        recyclerView.primaryScrollListener = null
 
         activity?.let {
             // restore orientation if the user closes this view
@@ -885,13 +878,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
-        val handler = scrollHandler
-        if (handler is ScrollHandler) {
-            handler.onScrolled(this.recyclerView, 0, 0)
-        } else {
-            // simulate a scroll to "null"
-            offsetMediaView(true, 0.0f)
-        }
+        recyclerView.primaryScrollListener?.onScrolled(this.recyclerView, 0, 0)
     }
 
     /**
