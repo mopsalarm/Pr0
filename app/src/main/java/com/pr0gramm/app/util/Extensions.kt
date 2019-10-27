@@ -206,7 +206,7 @@ inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadW
     return Delegates.observable(def) { _, _, _ -> onChange() }
 }
 
-inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit): ReadWriteProperty<R, T> {
+inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (oldValue: T, newValue: T) -> Unit): ReadWriteProperty<R, T> {
     return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 

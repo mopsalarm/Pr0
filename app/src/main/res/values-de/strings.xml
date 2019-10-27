@@ -61,7 +61,7 @@
     <string name="comment_hint">Kommentar…</string>
     <string name="error_could_not_create_download_directory">Downloadordner konnte nicht angelegt werden.</string>
     <string name="logout">Abmelden</string>
-    <string name="post_comment">Absenden</string>
+    <string name="post_comment">Abschicken</string>
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
     <string name="pref_double_tap_to_upvote">Doppelttap für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltap auf ein Bild oder Video führt einen Upvote aus</string>
@@ -95,7 +95,7 @@
     <string name="feedback_reminder">Dies ist eine Betaversion. Bei Problemen sende bitte Feedback.</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="action_inbox">NACHRICHTEN</string>
-    <string name="action_send">Senden</string>
+    <string name="action_send">Abschicken</string>
     <string name="inbox_activity_title">Inbox</string>
     <string name="inbox_type_private">Privat</string>
     <string name="inbox_type_unread">Ungelesen</string>
@@ -118,7 +118,7 @@
     <string name="pref_hide_tag_vote_buttons_summary">Versteckt die kleinen Vote-Buttons bei den Tags. Tag lang gedrückt halten zum Anzeigen.</string>
     <string name="feedback_feedback">Dein Feedback</string>
     <string name="feedback_sent">Danke für dein Feedback!</string>
-    <string name="feedback_submit">Absenden</string>
+    <string name="feedback_submit">Abschicken</string>
     <string name="share">Teilen</string>
     <string name="feedback_title">Feedback</string>
     <string name="pref_tag_cloud_view_summary">Alle Tags werden in mehreren Zeilen dargestellt</string>
@@ -179,7 +179,7 @@
     <string name="pseudo_clean_preloaded_summary">Drücke hier um alle vorgeladenen Dateien zu löschen</string>
     <string name="pseudo_clean_preloaded_summary_with_size">Drücke hier um alle vorgeladenen Dateien (%1.2fmb) zu löschen</string>
     <string name="write_message_placeholder">Nachricht</string>
-    <string name="write_message_send">SENDEN</string>
+    <string name="write_message_send">ABSCHICKEN</string>
     <string name="write_message_title">An %s</string>
     <string name="message_must_not_be_empty">Nachricht darf nicht leer sein</string>
     <string name="pref_confirm_play_on_mobile_human__all">Alles bestätigen</string>
@@ -296,7 +296,7 @@
     <string name="password_recovery_success">Passwort wurde erfolgreich geändert. Versuche Dich jetzt anzumelden.</string>
     <string name="request_password_recovery_popup_hint">Eine E-Mail mit einem Link zum Ändern des Passwortes wurde an die angegebene Adresse gesendet.</string>
     <string name="request_password_recovery_title">Passwort zurücksetzen</string>
-    <string name="submit">Absenden</string>
+    <string name="submit">Abschicken</string>
     <string name="invites_no_invites_sent">Keine Invites versendet</string>
     <string name="pref_pseudo_onboarding_summary">Zeigt den Willkommensbildschirm noch mal</string>
     <string name="pref_pseudo_onboarding_title">Willkommensbildschirm</string>

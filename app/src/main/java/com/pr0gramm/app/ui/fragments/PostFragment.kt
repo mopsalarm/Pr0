@@ -38,6 +38,7 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.views.PostActions
+import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
@@ -319,7 +320,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
         }
 
-        val state = this.state
+        val state: FragmentState = this.state
 
         logger.debug {
             "Applying post fragment state: h=${state.viewerBaseHeight}, " +
@@ -345,7 +346,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             items += PostAdapter.Item.PostIsDeletedItem
 
         } else {
-            items += PostAdapter.Item.TagsItem(state.tags, state.tagVotes, actions)
+            items += PostAdapter.Item.TagsItem(state.item.id, state.tags, state.tagVotes, state.tagViewState, actions)
 
             if (state.commentsVisible) {
                 if (state.commentsLoadError) {
@@ -1334,6 +1335,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return doVoteFeedItem(vote)
         }
 
+        override fun updateTagsViewViewState(viewState: TagsView.ViewState) {
+            state = state.copy(tagViewState = viewState)
+        }
+
         override fun writeNewTagClicked() {
             doIfAuthorizedHelper.run {
                 if (!childFragmentManager.isStateSaved) {
@@ -1343,15 +1348,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        override fun writeCommentClicked() {
-            doIfAuthorizedHelper.runAuthWithRetry {
-                val text = apiTagsCh.value.take(10).joinToString(", ") { it.tag }
-
-                val context = context ?: return@runAuthWithRetry
-                startActivityForResult(
-                        WriteMessageActivity.addNewComment(context, feedItem, text),
-                        RequestCodes.WRITE_COMMENT)
-
+        override suspend fun writeCommentClicked(text: String) {
+            doIfAuthorizedHelper.runAuthSuspend {
+                onNewComments(voteService.postComment(feedItem.id, 0, text))
             }
         }
 
@@ -1367,6 +1366,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val itemVote: Vote = Vote.NEUTRAL,
             val tags: List<Api.Tag> = emptyList(),
             val tagVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
+            val tagViewState: TagsView.ViewState = TagsView.ViewState.CLOSED,
             val viewerBaseHeight: Int = 0,
             val comments: List<CommentTree.Item> = emptyList(),
             val commentsVisible: Boolean = true,

@@ -144,6 +144,58 @@ suspend fun <T : Any?> Observable<T>.await(): T {
     return def.await()
 }
 
+fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit) {
+    if (!isAttachedToWindow) {
+        return
+    }
+
+    val job = Job()
+
+    CoroutineScope(job + Main + DefaultCoroutineExceptionHandler).launch(block = block)
+
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            removeOnAttachStateChangeListener(this)
+            job.cancel()
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+        }
+    })
+}
+
+/**
+ * Executes the given code block everytime the view is attached.
+ * It will cancel the scope once the view is detached.
+ */
+fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit) {
+    var job: Job? = null
+
+    val listener: (Boolean) -> Unit = { isAttached ->
+        if (isAttached) {
+            // someone did not cancel the previous job?
+            job?.cancel()
+
+            // create a new job
+            val newJob = Job()
+            job = newJob
+
+            // and launch the new coroutine
+            CoroutineScope(newJob + Main + DefaultCoroutineExceptionHandler).launch(block = block)
+        } else {
+            job?.cancel()
+            job = null
+        }
+    }
+
+    addOnAttachStateChangeListener(listener)
+
+    // initial event if already attached
+    if (isAttachedToWindow) {
+        listener(true)
+    }
+}
+
 fun <T> toObservable(scheduler: Scheduler = Schedulers.computation(), block: suspend () -> T): Observable<T> {
     val observable = createObservable<T> { emitter ->
         val job = AsyncScope.launch {

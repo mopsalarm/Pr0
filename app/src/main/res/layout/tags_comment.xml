@@ -7,7 +7,7 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/tag_text"
+        android:id="@+id/tag_button"
         android:layout_width="36sp"
         android:layout_height="36sp"
         android:layout_gravity="center_vertical"

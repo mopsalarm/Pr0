@@ -6,7 +6,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.SimpleTextWatcher
 
 object TextViewCache {
-    private val cache = LruCache<String, String>(128)
+    private val cache = LruCache<String, CharSequence>(128)
 
     fun invalidate(view: TextView) {
         val previousWatcher = view.getTag(R.id.textContent) as? Watcher
@@ -24,8 +24,11 @@ object TextViewCache {
             view.removeTextChangedListener(previousWatcher)
         }
 
-        // restore previous value or set default
-        view.text = cache[key] ?: defaultText
+        val targetText = cache[key] ?: defaultText
+        if (view.text != targetText) {
+            // restore previous value or set default
+            view.setTextKeepState(cache[key] ?: defaultText)
+        }
 
         // register a new watcher
         val watcher = Watcher(key)
@@ -36,7 +39,7 @@ object TextViewCache {
     private class Watcher(val key: String) : SimpleTextWatcher() {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             trace { "Caching $key: '$s'" }
-            cache.put(key, s.toString())
+            cache.put(key, s)
         }
     }
 }
