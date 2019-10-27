@@ -1,5 +1,14 @@
 [
   {
+    "version": 174,
+    "changes": [
+      {
+        "type": "Update",
+        "change": "Layout der Infos unter einem Posts überarbeitet."
+      }
+    ]
+  },
+  {
     "version": 173,
     "changes": [
       {
