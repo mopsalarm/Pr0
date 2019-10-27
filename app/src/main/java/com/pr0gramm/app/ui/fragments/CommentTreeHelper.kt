@@ -156,13 +156,16 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     private var parentScrollView: RecyclerView? = null
     private var parentChain: List<View>? = null
 
-    val onScrollListener = object : RecyclerView.OnScrollListener() {
+    private val onScrollListener = object : RecyclerView.OnScrollListener() {
         private val minimalScrollSpace = itemView.context.dip2px(16f)
+
+        private val toolbar = (AndroidUtility.activityFromContext(itemView.context)
+                as? ScrollHideToolbarListener.ToolbarActivity)?.scrollHideToolbarListener
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val availableSpace = (content.height - vote.height).toFloat()
             if (availableSpace <= minimalScrollSpace) {
-                vote.translationY = 0f
+                removeOnScrollListener()
                 return
             }
 
@@ -172,10 +175,8 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                     y += view.translationY + view.top
                 }
 
-                AndroidUtility.activityFromContext(itemView.context)?.let { activity ->
-                    if (activity is ScrollHideToolbarListener.ToolbarActivity) {
-                        y -= activity.scrollHideToolbarListener.visibleHeight
-                    }
+                if (toolbar != null) {
+                    y -= toolbar.visibleHeight
                 }
 
                 vote.translationY = (-y).coerceIn(0f, availableSpace)
@@ -196,16 +197,9 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         reply.setImageDrawable(drawableCache.get(R.drawable.ic_reply_vec, accent))
 
         itemView.addOnAttachStateChangeListener { isAttached ->
-            if (parentScrollView != null) {
-                trace { "Removing scroll listener" }
-                parentScrollView?.removeOnScrollListener(onScrollListener)
-                parentScrollView = null
-                parentChain = null
-            }
+            removeOnScrollListener()
 
             if (isAttached) {
-                itemView.translationY = 0f
-
                 val parents = mutableListOf<View>(itemView)
                 var parentView: View? = itemView.parent as View?
                 while (parentView != null && parentView !is RecyclerView) {
@@ -222,6 +216,17 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                 }
             }
         }
+    }
+
+    private fun removeOnScrollListener() {
+        if (parentScrollView != null) {
+            trace { "Removing scroll listener" }
+            parentScrollView?.removeOnScrollListener(onScrollListener)
+            parentScrollView = null
+            parentChain = null
+        }
+
+        vote.translationY = 0f
     }
 
 
