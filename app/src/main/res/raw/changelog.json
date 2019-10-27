@@ -5,6 +5,10 @@
       {
         "type": "Update",
         "change": "Layout der Infos unter einem Posts überarbeitet."
+      },
+      {
+        "type": "Neu",
+        "change": "Stelzen von Usern und über neue Posts benachrichtigen lassen."
       }
     ]
   },
