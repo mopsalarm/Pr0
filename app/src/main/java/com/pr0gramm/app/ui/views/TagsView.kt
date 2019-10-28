@@ -78,6 +78,8 @@ class TagsView(context: Context) : FrameLayout(context) {
 
         recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        recyclerView.adapter = adapter
+
         recyclerView.itemAnimator = DefaultItemAnimator().apply {
             supportsChangeAnimations = false
         }
@@ -129,16 +131,6 @@ class TagsView(context: Context) : FrameLayout(context) {
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        recyclerView.adapter = adapter
-    }
-
-    override fun onDetachedFromWindow() {
-        recyclerView.adapter = null
-        super.onDetachedFromWindow()
-    }
-
     fun updateTags(itemId: Long, tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
         if (this.tags != tags && this.votes != votes) {
             this.tags = tags
@@ -146,7 +138,14 @@ class TagsView(context: Context) : FrameLayout(context) {
             rebuildAdapterState()
         }
 
-        this.itemId = itemId
+        if (this.itemId != itemId) {
+            this.itemId = itemId
+
+            // the view was recycled, so we need to scroll back to the beginning of the list.
+            if (adapter.itemCount > 0) {
+                recyclerView.scrollToPosition(0)
+            }
+        }
 
         if (viewStateCh.value !== ViewState.CLOSED) {
             TextViewCache.addCaching(commentInputView, "tagsView:$itemId")
@@ -161,6 +160,7 @@ class TagsView(context: Context) : FrameLayout(context) {
     private fun rebuildAdapterState() {
         val lastTag = tags.lastOrNull()
 
+        trace { "Submit list of ${tags.size} items" }
         adapter.submitList(tags.map { tag ->
             val vote = votes[tag.id] ?: Vote.NEUTRAL
             val selected = alwaysVoteViews || tag.id == selectedTagId
