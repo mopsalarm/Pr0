@@ -162,6 +162,8 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         private val toolbar = (AndroidUtility.activityFromContext(itemView.context)
                 as? ScrollHideToolbarListener.ToolbarActivity)?.scrollHideToolbarListener
 
+        private val statusBarHeight = AndroidUtility.getStatusBarHeight(itemView.context)
+
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val availableSpace = (content.height - vote.height).toFloat()
             if (availableSpace <= minimalScrollSpace) {
@@ -176,12 +178,10 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                 }
 
                 if (toolbar != null) {
-                    y -= toolbar.visibleHeight
+                    y -= toolbar.visibleHeight.coerceAtLeast(statusBarHeight)
                 }
 
                 vote.translationY = (-y).coerceIn(0f, availableSpace)
-
-                trace { "OffsetY: $y for comment: ${content.text.take(80)}" }
             }
 
             super.onScrolled(recyclerView, dx, dy)
@@ -208,8 +208,6 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                 }
 
                 if (parentView is RecyclerView) {
-                    trace { "Adding scroll listener to RecyclerView" }
-
                     parentView.addOnScrollListener(onScrollListener)
                     parentScrollView = parentView
                     parentChain = parents
@@ -220,7 +218,6 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
     private fun removeOnScrollListener() {
         if (parentScrollView != null) {
-            trace { "Removing scroll listener" }
             parentScrollView?.removeOnScrollListener(onScrollListener)
             parentScrollView = null
             parentChain = null
