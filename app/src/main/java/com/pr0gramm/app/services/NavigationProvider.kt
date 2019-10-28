@@ -184,7 +184,7 @@ class NavigationProvider(
                     filter = FeedFilter().withFeedType(FeedType.RANDOM))
         }
 
-        if (settings.showCategoryPremium && userService.userIsPremium) {
+        if (settings.showCategoryPremium && userService.canViewFollowCategory) {
             items += makeItem(
                     title = getString(R.string.action_feed_type_premium),
                     icon = iconFeedTypePremium,

@@ -62,6 +62,16 @@ private fun childAndroidScope(parent: AndroidCoroutineScope): AndroidCoroutineSc
     }
 }
 
+inline fun withErrorDialog(block: () -> Unit): Unit {
+    try {
+        return block()
+    } catch (err: Throwable) {
+        if (err !is CancellationException) {
+            ErrorDialogFragment.defaultOnError().call(err)
+        }
+    }
+}
+
 
 fun CoroutineScope.launchIgnoreErrors(
         context: CoroutineContext = EmptyCoroutineContext,

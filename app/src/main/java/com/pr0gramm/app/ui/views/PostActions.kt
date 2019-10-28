@@ -46,5 +46,5 @@ interface PostActions {
     /**
      * Follow the user
      */
-    suspend fun updateFollowUser(follow: FollowState)
+    suspend fun updateFollowUser(follow: FollowState): Boolean
 }

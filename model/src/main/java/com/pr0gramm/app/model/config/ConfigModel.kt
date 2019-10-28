@@ -18,6 +18,7 @@ data class Config(
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
         val endOfLifeAndroidVersion: Int = Build.VERSION_CODES.LOLLIPOP,
+        var followIsFreeForAll: Boolean = false,
         val specialMenuItems: List<MenuItem> = listOf()) {
 
     enum class AdType {

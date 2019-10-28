@@ -661,9 +661,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     .collect { votes -> state = state.copy(tagVotes = votes) }
         }
 
-        launch {
-            followService.getState(feedItem.userId).collect { followState ->
-                state = state.copy(followState = followState)
+        if (userService.userIsPremium) {
+            launch {
+                followService.getState(feedItem.userId).collect { followState ->
+                    state = state.copy(followState = followState)
+                }
             }
         }
 
@@ -1341,8 +1343,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        override suspend fun updateFollowUser(follow: FollowState) {
-            doIfAuthorizedHelper.runAuthSuspend {
+        override suspend fun updateFollowUser(follow: FollowState): Boolean {
+            return doIfAuthorizedHelper.runAuthSuspend {
                 followService.update(follow, feedItem.userId, feedItem.user)
             }
         }

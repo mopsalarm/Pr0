@@ -828,24 +828,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-
-        val follow = menu.findItem(R.id.action_follow)
-        val unfollow = menu.findItem(R.id.action_unfollow)
         val bookmark = menu.findItem(R.id.action_bookmark)
-        if (follow != null && unfollow != null && bookmark != null) {
-            // go to default state.
-            follow.isVisible = false
-            unfollow.isVisible = false
-
-            if (filter.username != null) {
-                if (userService.userIsPremium) {
-                    follow.isVisible = this.followState?.following != true
-                    unfollow.isVisible = this.followState?.following == true
-                }
-
-                // never bookmark a user
-                bookmark.isVisible = false
-            }
+        if (bookmark != null && filter.username != null) {
+            // never bookmark a user
+            bookmark.isVisible = false
         }
     }
 
@@ -893,8 +879,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             R.id.action_refresh -> refreshFeedWithIndicator()
             R.id.action_bookmark -> pinCurrentFeedFilter()
             R.id.action_preload -> preloadCurrentFeed()
-            R.id.action_follow -> onFollowClicked()
-            R.id.action_unfollow -> onUnfollowClicked()
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
             R.id.action_open_in_admin -> openUserInAdmin()
@@ -962,24 +946,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             showDialog(this) {
                 content(R.string.preload_info_hint)
                 positive()
-            }
-        }
-    }
-
-    private fun onFollowClicked() {
-        val user = this.state.userInfo?.info?.user
-        if (user != null) {
-            doInBackground {
-                followService.update(FollowState.FOLLOW, user.id.toLong(), user.name)
-            }
-        }
-    }
-
-    private fun onUnfollowClicked() {
-        val user = this.state.userInfo?.info?.user
-        if (user != null) {
-            doInBackground {
-                followService.update(FollowState.NONE, user.id.toLong(), user.name)
             }
         }
     }

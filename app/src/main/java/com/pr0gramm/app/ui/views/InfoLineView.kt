@@ -11,6 +11,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.menuPopupHelper
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -20,6 +21,9 @@ import com.pr0gramm.app.services.FollowState
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.DrawableCache
+import com.pr0gramm.app.ui.base.whileIsAttachedScope
+import com.pr0gramm.app.ui.base.withErrorDialog
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import kotterknife.bindView
@@ -29,10 +33,10 @@ import kotlin.math.min
 /**
  */
 class InfoLineView(context: Context) : LinearLayout(context) {
-    private val dateView: TextView by bindView(com.pr0gramm.app.R.id.date)
-    private val usernameView: UsernameView by bindView(com.pr0gramm.app.R.id.username)
-    private val voteView: VoteView by bindView(com.pr0gramm.app.R.id.voting)
-    private val followStateView: ImageView by bindView(com.pr0gramm.app.R.id.action_follow)
+    private val dateView: TextView by bindView(R.id.date)
+    private val usernameView: UsernameView by bindView(R.id.username)
+    private val voteView: VoteView by bindView(R.id.voting)
+    private val followStateView: ImageView by bindView(R.id.action_follow)
 
     private val drawableCache = DrawableCache()
 
@@ -44,9 +48,9 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     var onDetailClickedListener: PostActions? = null
 
     init {
-        orientation = LinearLayout.VERTICAL
+        orientation = VERTICAL
 
-        inflate(context, com.pr0gramm.app.R.layout.post_info_line, this)
+        inflate(context, R.layout.post_info_line, this)
 
         voteView.onVote = { newVote ->
             val changed = onDetailClickedListener?.votePostClicked(newVote) ?: false
@@ -62,7 +66,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
             val popup = PopupMenu(context, followStateView)
             popup.menuPopupHelper.setForceShowIcon(true)
-            popup.inflate(com.pr0gramm.app.R.menu.menu_follow)
+            popup.inflate(R.menu.menu_follow)
             popup.setOnMenuItemClickListener { followMenuClicked(it.itemId); true }
 
             popup.menu.findItem(R.id.action_follow_off)?.icon = drawableCache
@@ -131,10 +135,10 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
         val textColor = dateView.currentTextColor
 
-        val dClock = drawableCache.get(com.pr0gramm.app.R.drawable.ic_clock, textColor).mutate()
+        val dClock = drawableCache.get(R.drawable.ic_clock, textColor).mutate()
         dClock.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
 
-        val dPlus = drawableCache.get(com.pr0gramm.app.R.drawable.ic_plus, textColor)
+        val dPlus = drawableCache.get(R.drawable.ic_plus, textColor)
         dPlus.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
 
         ViewUpdater.replaceText(dateView, feedItem.created) {
@@ -166,23 +170,34 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     }
 
     private fun followMenuClicked(selectedItemId: Int) {
-        requireBaseActivity().launchWithErrorHandler {
-            val state = when (selectedItemId) {
-                com.pr0gramm.app.R.id.action_follow_normal -> FollowState.FOLLOW
-                com.pr0gramm.app.R.id.action_follow_full -> FollowState.SUBSCRIBED
-                else -> FollowState.NONE
+        val state = when (selectedItemId) {
+            R.id.action_follow_normal -> FollowState.FOLLOW
+            R.id.action_follow_full -> FollowState.SUBSCRIBED
+            else -> FollowState.NONE
+        }
+        followStateView.animate()
+                .rotationYBy(360f)
+                .setDuration(500L)
+                .start()
+
+        // update view
+        updateFollowState(state)
+
+        whileIsAttachedScope {
+            withErrorDialog {
+                // publish follow state to backend
+                onDetailClickedListener?.updateFollowUser(state)
             }
+        }
 
-            followStateView.animate()
-                    .rotationYBy(360f)
-                    .setDuration(500L)
-                    .start()
+        // show a small hint that this is only viewable with pr0mium
+        val userService: UserService = context.injector.instance()
 
-            // update view
-            updateFollowState(state)
-
-            // publish follow state to backend
-            onDetailClickedListener?.updateFollowUser(state)
+        if (state != FollowState.NONE && !userService.canViewFollowCategory) {
+            Snackbar.make(this@InfoLineView, R.string.hint_follow_premium_only, Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.okay) {}
+                    .configureNewStyle(AndroidUtility.activityFromContext(context))
+                    .show()
         }
     }
 
@@ -190,17 +205,17 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         when {
             followState.subscribed -> {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                followStateView.setImageDrawable(drawableCache.get(com.pr0gramm.app.R.drawable.ic_action_follow_full, color))
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_full, color))
             }
 
             followState.following -> {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                followStateView.setImageDrawable(drawableCache.get(com.pr0gramm.app.R.drawable.ic_action_follow_normal, color))
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_normal, color))
             }
 
             else -> {
                 val color = context.getStyledColor(android.R.attr.textColorSecondary)
-                followStateView.setImageDrawable(drawableCache.get(com.pr0gramm.app.R.drawable.ic_action_follow_off, color))
+                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_off, color))
             }
         }
     }

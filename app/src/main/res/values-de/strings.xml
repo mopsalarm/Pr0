@@ -488,5 +488,6 @@
     <string name="action_follow_normal">Stelzen</string>
     <string name="action_follow_off">Unstelzen</string>
     <string name="write_comment">%s kommentieren</string>
+    <string name="hint_follow_premium_only">Gespeichert. Um die Posts von Benutzern zu sehen die Du stelzt, benötigst Du einen pr0mium-Account.</string>
 
 </resources>
