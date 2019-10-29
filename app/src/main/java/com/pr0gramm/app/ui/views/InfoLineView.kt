@@ -11,6 +11,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.menuPopupHelper
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -201,7 +202,12 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
     }
 
-    fun updateFollowState(followState: FollowState) {
+    fun updateFollowState(followState: FollowState?) {
+        if (followState == null) {
+            followStateView.isVisible = false
+            return
+        }
+
         when {
             followState.subscribed -> {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
