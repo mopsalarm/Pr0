@@ -316,8 +316,11 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             val context = fragment.context ?: return false
             val userService: UserService = context.injector.instance()
 
-            if (!userService.isAuthorized)
+            if (!userService.isAuthorized) {
+                val intent = Intent(context, LoginActivity::class.java)
+                startActivityForResult(intent, RequestCodes.AUTHORIZED_HELPER)
                 return false
+            }
 
             runnable()
 
