@@ -9,6 +9,8 @@ import android.content.res.Resources
 import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -739,3 +741,8 @@ fun DialogFragment.maybeShow(fm: FragmentManager?, tag: String? = null) {
 }
 
 inline fun <T> Boolean.then(block: () -> T): T? = if (this) block() else null
+
+
+fun Drawable.withInsets(left: Int = 0, top: Int = 0, right: Int = 0, bottom: Int = 0): InsetDrawable {
+    return InsetDrawable(this, left, top, right, bottom)
+}

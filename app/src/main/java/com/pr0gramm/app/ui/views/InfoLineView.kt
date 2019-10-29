@@ -34,7 +34,7 @@ import kotlin.math.min
 /**
  */
 class InfoLineView(context: Context) : LinearLayout(context) {
-    private val dateView: TextView by bindView(R.id.date)
+    private val captionView: TextView by bindView(R.id.date)
     private val usernameView: UsernameView by bindView(R.id.username)
     private val voteView: VoteView by bindView(R.id.voting)
     private val followStateView: ImageView by bindView(R.id.action_follow)
@@ -81,6 +81,20 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
             popup.show()
         }
+
+        captionView.setOnLongClickListener { _ ->
+            val item = this.feedItem
+            if (item != null && scoreIsVisible()) {
+                val text = "${item.up} plus, ${item.down} minus"
+
+                Snackbar.make(this, text, Snackbar.LENGTH_SHORT)
+                        .configureNewStyle()
+                        .setAction(R.string.okay) {}
+                        .show()
+            }
+
+            true
+        }
     }
 
     /**
@@ -111,12 +125,16 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private fun formatScore(vote: Vote): String? {
         val feedItem = this.feedItem ?: return null
 
-        if (isOneHourOld || isSelfPost || admin) {
+        return if (scoreIsVisible()) {
             val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
-            return rating.toString()
+            rating.toString()
         } else {
-            return null
+            null
         }
+    }
+
+    private fun scoreIsVisible(): Boolean {
+        return isOneHourOld || isSelfPost || admin
     }
 
     /**
@@ -133,15 +151,18 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         // also hide the vote view.
         voteView.visibility = viewVisibility
 
-        val textColor = dateView.currentTextColor
+        val textColor = captionView.currentTextColor
 
-        val dClock = drawableCache.get(R.drawable.ic_clock, textColor).mutate()
-        dClock.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
+        val textSize = captionView.textSize.toInt()
+        val offset = context.dip2px(2)
 
-        val dPlus = drawableCache.get(R.drawable.ic_plus, textColor)
-        dPlus.setBounds(0, 0, context.dip2px(12), context.dip2px(12))
+        val dClock = drawableCache.get(R.drawable.ic_clock, textColor).withInsets(bottom = offset)
+        dClock.setBounds(0, 0, textSize, textSize + offset)
 
-        ViewUpdater.replaceText(dateView, feedItem.created) {
+        val dPlus = drawableCache.get(R.drawable.ic_plus, textColor).withInsets(bottom = offset)
+        dPlus.setBounds(0, 0, textSize, textSize + offset)
+
+        ViewUpdater.replaceText(captionView, feedItem.created) {
             val date = DurationFormat.timeSincePastPointInTime(context, feedItem.created, short = true)
             val score = formatScore(vote)
 
