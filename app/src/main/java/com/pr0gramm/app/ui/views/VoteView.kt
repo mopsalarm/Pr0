@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
@@ -155,6 +156,10 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         } else {
             doVote(vote)
         }
+    }
+
+    fun toggleFavIconVisibility(isVisible: Boolean) {
+        views[Vote.FAVORITE]?.isVisible = isVisible
     }
 
     /**

@@ -81,8 +81,6 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
             popup.show()
         }
-
-        updateFollowState(followState = FollowState.NONE)
     }
 
     /**
@@ -105,6 +103,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
 
         voteView.setVoteState(vote, animate = false)
+        voteView.toggleFavIconVisibility(!isSelfPost)
 
         updateViewState(vote)
     }
@@ -207,6 +206,8 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             followStateView.isVisible = false
             return
         }
+
+        followStateView.isVisible = true
 
         when {
             followState.subscribed -> {

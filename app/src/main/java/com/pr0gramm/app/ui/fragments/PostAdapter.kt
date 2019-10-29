@@ -135,7 +135,7 @@ private object InfoLineItemAdapterDelegate
         holder.infoView.setFeedItem(value.item, value.isOurPost, value.vote)
         holder.infoView.onDetailClickedListener = value.actions
 
-        holder.infoView.updateFollowState(value.followState.takeIf { !value.isOurPost })
+        holder.infoView.updateFollowState(value.followState.takeUnless { value.isOurPost })
     }
 
     private class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {

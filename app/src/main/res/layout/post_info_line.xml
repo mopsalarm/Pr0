@@ -63,6 +63,8 @@
             android:layout_marginRight="8dp"
             android:background="?selectableItemBackgroundBorderless"
             android:padding="7dp"
+            android:visibility="gone"
+            tools:visibility="visible"
             tools:src="@drawable/ic_action_follow_off"
             tools:tint="?android:textColorSecondary" />
 
