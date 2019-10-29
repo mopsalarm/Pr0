@@ -21,7 +21,7 @@
             app:fav="true"
             app:markedColor="?colorAccent"
             app:orientation="horizontal"
-            app:textSize="30dp" />
+            app:textSize="@dimen/infoline_vote_textSize" />
 
         <View
             android:layout_width="1dp"
@@ -35,14 +35,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginRight="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <com.pr0gramm.app.ui.views.UsernameView
                 android:id="@+id/username"
-                style="@style/TextAppearance.AppCompat.Body1"
+                style="@style/TextAppearance.AppCompat.Body2"
                 android:layout_width="wrap_content"
+                android:textSize="@dimen/infoline_username_textSize"
                 android:layout_height="wrap_content" />
 
             <TextView
@@ -50,16 +51,16 @@
                 style="@style/TextAppearance.AppCompat.Caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/grey_500"
-                android:textSize="10sp"
+                android:textColor="?android:textColorTertiary"
+                android:textSize="@dimen/infoline_caption_textSize"
                 tools:text="@string/dummy_post_date" />
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/action_follow"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/infoline_follow_size"
+            android:layout_height="@dimen/infoline_follow_size"
             android:layout_marginRight="8dp"
             android:background="?selectableItemBackgroundBorderless"
             android:padding="7dp"

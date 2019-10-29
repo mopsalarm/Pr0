@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="infoline_username_textSize">16sp</dimen>
+    <dimen name="infoline_caption_textSize">12sp</dimen>
+    <dimen name="infoline_vote_textSize">30dp</dimen>
+    <dimen name="infoline_follow_size">40dp</dimen>
+</resources>

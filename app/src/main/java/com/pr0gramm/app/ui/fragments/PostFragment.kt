@@ -661,11 +661,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     .collect { votes -> state = state.copy(tagVotes = votes) }
         }
 
-        if (userService.userIsPremium) {
-            launch {
-                followService.getState(feedItem.userId).collect { followState ->
-                    state = state.copy(followState = followState)
-                }
+        launch {
+            followService.getState(feedItem.userId).collect { followState ->
+                state = state.copy(followState = followState)
             }
         }
 
