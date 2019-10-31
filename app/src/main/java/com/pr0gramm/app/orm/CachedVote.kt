@@ -45,7 +45,7 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
             }
 
             // lookup votes in chunks, as sqlite can check at most 1000 parameters at once.
-            val flows: List<Flow<List<CachedVote>>> = ids.chunked(128)
+            val flows: List<Flow<List<CachedVote>>> = ids.chunked(512)
                     .map { chunk -> chunk.map { voteId(type, it) } }
                     .map { chunk -> cv.findSome(chunk, this::toCachedVote) }
                     .map { it.asFlow().mapToList(Async) }
