@@ -214,7 +214,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.closeDrawers()
 
         Snackbar.make(contentContainer, R.string.hint_edit_bookmarks_premium, 10000).apply {
-            configureNewStyle(this@MainActivity)
+            configureNewStyle()
 
             setAction("pr0mium") {
                 Track.registerLinkClicked()
@@ -262,7 +262,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (requestCode == RequestCodes.FEEDBACK && resultCode == Activity.RESULT_OK) {
             Snackbar.make(drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle(this)
+                    .configureNewStyle()
                     .setAction(R.string.okay, { })
                     .show()
         }
@@ -450,7 +450,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
                 shouldShowFeedbackReminder() -> {
                     Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                            .configureNewStyle(this)
+                            .configureNewStyle()
                             .setAction(R.string.okay) { }
                             .show()
 
@@ -463,7 +463,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
                 Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
                     Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
-                            .configureNewStyle(this)
+                            .configureNewStyle()
                             .setAction(R.string.okay) { }
                             .show()
                 }
@@ -491,7 +491,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             // show a short information.
             Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle(this@MainActivity)
+                    .configureNewStyle()
                     .setAction(R.string.okay) { }
                     .show()
 

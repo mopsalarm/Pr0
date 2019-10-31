@@ -692,7 +692,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val view = view ?: return
 
         val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG).apply {
-            configureNewStyle(activity)
+            configureNewStyle()
             setAction(R.string.hint_refresh_load) { refreshFeed() }
             show()
         }

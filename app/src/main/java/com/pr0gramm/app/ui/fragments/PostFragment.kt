@@ -1032,7 +1032,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         view?.let { fragmentView ->
             Snackbar.make(fragmentView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
-                    .configureNewStyle(activity)
+                    .configureNewStyle()
                     .setAction(R.string.okay) {}
                     .show()
         }
@@ -1287,7 +1287,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 } else {
                     val rootView = view ?: return false
                     Snackbar.make(rootView, R.string.hint_comment_not_found, Snackbar.LENGTH_SHORT)
-                            .configureNewStyle(activity)
+                            .configureNewStyle()
                             .setAction(R.string.doh) { }
                             .show()
                 }
