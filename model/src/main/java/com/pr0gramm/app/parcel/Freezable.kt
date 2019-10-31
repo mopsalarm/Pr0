@@ -158,7 +158,7 @@ object Freezer {
         // freeze it to the raw buffer
         f.freeze(Freezable.Sink(raw))
 
-        if (raw.size < 64) {
+        if (raw.size < 128) {
             // no compression needed
             return raw.readByteArray()
 
