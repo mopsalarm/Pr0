@@ -7,7 +7,10 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
-import android.widget.*
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -19,13 +22,13 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.ui.AsyncListAdapter
-import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
+import com.pr0gramm.app.services.UserSuggestionService
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.base.whileIsAttachedScope
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
-import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -46,7 +49,7 @@ class TagsView(context: Context) : FrameLayout(context) {
     // the next views are only accessible if the stub view was inflated
     private val commentBusyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
     private val commentSendView: Button by bindView(R.id.action_send)
-    private val commentInputView: EditText by bindView(R.id.tags_comment_input)
+    private val commentInputView: LineMultiAutoCompleteTextView by bindView(R.id.tags_comment_input)
 
     private val adapter = TagsAdapter()
 
@@ -128,6 +131,14 @@ class TagsView(context: Context) : FrameLayout(context) {
                     }
                 }
             }
+
+            val suggestionService: UserSuggestionService = context.injector.instance()
+            commentInputView.setTokenizer(UsernameTokenizer())
+            commentInputView.setAdapter(UsernameAutoCompleteAdapter(suggestionService, context,
+                    android.R.layout.simple_dropdown_item_1line, "@"))
+
+            commentInputView.setAnchorView(inflated.find(R.id.auto_complete_popup_anchor))
+
         }
     }
 

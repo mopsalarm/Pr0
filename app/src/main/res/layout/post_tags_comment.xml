@@ -13,21 +13,32 @@
         android:layout_gravity="center"
         android:layout_margin="24dp" />
 
-    <com.pr0gramm.app.ui.views.PlainEditText
-        android:id="@+id/tags_comment_input"
-        style="@style/Widget.AppCompat.EditText"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@color/input_background"
-        android:gravity="start|top"
-        android:hint="@string/comment_hint"
-        android:inputType="textMultiLine|textCapSentences"
-        android:padding="8sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:layout_marginRight="16dp">
+
+        <View
+            android:id="@+id/auto_complete_popup_anchor"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:visibility="invisible" />
+
+        <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
+            android:id="@+id/tags_comment_input"
+            style="@style/Widget.AppCompat.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:background="@color/input_background"
+            android:gravity="start|top"
+            android:hint="@string/comment_hint"
+            android:inputType="textMultiLine|textCapSentences"
+            android:padding="8sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
 
     <Button
         android:id="@+id/action_send"

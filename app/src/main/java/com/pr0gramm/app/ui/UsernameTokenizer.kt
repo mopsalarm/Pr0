@@ -7,7 +7,7 @@ import android.widget.MultiAutoCompleteTextView
 class UsernameTokenizer : MultiAutoCompleteTextView.Tokenizer {
 
     override fun findTokenStart(text: CharSequence, cursor: Int): Int {
-        var idx = Math.min(cursor - 1, text.length - 1)
+        var idx = cursor.coerceAtMost(text.length) - 1
         while (idx > 0 && isLetterOrNumeric(text[idx]))
             idx--
 
