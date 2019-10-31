@@ -8,6 +8,7 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import kotlin.collections.HashMap
@@ -43,9 +44,13 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
                 return flowOf(listOf())
             }
 
-            return cv.findSome(ids.map { voteId(type, it) }, this::toCachedVote)
-                    .asFlow()
-                    .mapToList(Async)
+            // lookup votes in chunks, as sqlite can check at most 1000 parameters at once.
+            val flows: List<Flow<List<CachedVote>>> = ids.chunked(128)
+                    .map { chunk -> chunk.map { voteId(type, it) } }
+                    .map { chunk -> cv.findSome(chunk, this::toCachedVote) }
+                    .map { it.asFlow().mapToList(Async) }
+
+            return combine(flows) { votes -> votes.asList().flatten() }
         }
 
         fun quickSave(cv: CachedVoteQueries, type: Type, itemId: Long, vote: Vote) {
