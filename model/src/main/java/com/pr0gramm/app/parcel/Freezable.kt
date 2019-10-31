@@ -75,6 +75,7 @@ interface Freezable : Parcelable {
 
         fun writeString(s: String) {
             val bytes = s.encodeUtf8()
+
             writeInt(bytes.size)
 
             if (bytes.size > 0) {
@@ -179,7 +180,7 @@ object Freezer {
             logger.debug {
                 "Compressed %d bytes to %d (%1.2f%%) took %s".format(
                         uncompressedSize, buffer.size,
-                        buffer.size * 100.0 / uncompressedSize, watch)
+                        100 - buffer.size * 100.0 / uncompressedSize, watch)
             }
 
             return buffer.readByteArray()
@@ -251,11 +252,11 @@ fun <F : Freezable> Freezable.Sink.writeValues(values: Collection<F>) {
     values.forEach { write(it) }
 }
 
-inline fun Freezable.Sink.writeValues(n: Int, fn: (idx: Int) -> Unit) {
+inline fun <E> Freezable.Sink.writeValues(values: List<E>, fn: (value: E) -> Unit) {
     contract { callsInPlace(fn) }
 
-    writeInt(n)
-    repeat(n, fn)
+    writeInt(values.size)
+    values.forEach(fn)
 }
 
 fun <F : Freezable> Freezable.Source.readValues(c: Unfreezable<F>): List<F> {
@@ -264,4 +265,8 @@ fun <F : Freezable> Freezable.Source.readValues(c: Unfreezable<F>): List<F> {
 
 inline fun <E> Freezable.Source.readValues(fn: () -> E): List<E> {
     return listOfSize(readInt()) { fn() }
+}
+
+inline fun <E> Freezable.Source.readValuesIndexed(fn: (idx: Int) -> E): List<E> {
+    return listOfSize(readInt()) { fn(it) }
 }

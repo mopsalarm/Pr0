@@ -6,8 +6,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
  */
 class TagListParceler(val tags: List<Api.Tag>) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        sink.writeValues(tags.size) { idx ->
-            val tag = tags[idx]
+        sink.writeValues(tags) { tag ->
             writeLong(tag.id)
             writeFloat(tag.confidence)
             writeString(tag.tag)

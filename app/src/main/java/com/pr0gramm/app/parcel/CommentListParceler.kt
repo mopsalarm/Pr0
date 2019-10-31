@@ -8,13 +8,21 @@ import com.pr0gramm.app.api.pr0gramm.Api
 class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
 
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeValues(comments.size) { idx ->
-            val comment = comments[idx]
-            writeLong(comment.id)
-            writeFloat(comment.confidence)
+        // it is slightly more effective (in regards to space) to serialize all
+        // comments & all names as one block before serializing the rest of the
+        // comments as another block.
+        writeValues(comments) { comment ->
             writeString(comment.name)
+        }
+
+        writeValues(comments) { comment ->
             writeString(comment.content)
+        }
+
+        writeValues(comments) { comment ->
+            writeLong(comment.id)
             writeLong(comment.parent)
+            writeFloat(comment.confidence)
             writeShort(comment.up)
             writeShort(comment.down)
             writeByte(comment.mark)
@@ -27,13 +35,16 @@ class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
         val CREATOR = parcelableCreator()
 
         override fun unfreeze(source: Freezable.Source): CommentListParceler {
-            val comments = source.readValues {
+            val names = source.readValues { source.readString() }
+            val contents = source.readValues { source.readString() }
+
+            val comments = source.readValuesIndexed { idx ->
                 Api.Comment(
                         id = source.readLong(),
-                        confidence = source.readFloat(),
-                        name = source.readString(),
-                        content = source.readString(),
                         parent = source.readLong(),
+                        name = names[idx],
+                        content = contents[idx],
+                        confidence = source.readFloat(),
                         up = source.readShort().toInt(),
                         down = source.readShort().toInt(),
                         mark = source.readByte().toInt(),

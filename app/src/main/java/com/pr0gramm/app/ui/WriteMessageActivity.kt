@@ -350,8 +350,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
     class ParentComments(val comments: List<ParentComment>) : Freezable {
         override fun freeze(sink: Freezable.Sink) {
-            sink.writeValues(comments.size) { idx ->
-                val comment = comments[idx]
+            sink.writeValues(comments) { comment ->
                 sink.writeString(comment.user)
                 sink.writeString(comment.excerpt)
             }
