@@ -187,6 +187,12 @@
                     android:key="pref_hide_tag_vote_buttons"
                     android:summary="@string/pref_hide_tag_vote_buttons_summary"
                     android:title="@string/pref_hide_tag_vote_buttons_title" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_tag_cloud_view"
+                    android:summary="@string/pref_tag_cloud_view_summary"
+                    android:title="@string/pref_tag_cloud_view_title" />
             </PreferenceCategory>
 
             <PreferenceCategory
