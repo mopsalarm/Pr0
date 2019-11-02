@@ -177,7 +177,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-ads-lite:18.2.0"
 
     implementation 'io.sentry:sentry-android:1.7.28'
-    implementation 'org.slf4j:slf4j-nop:1.7.28'
+    implementation 'org.slf4j:slf4j-nop:1.7.29'
 
     implementation "com.squareup.retrofit2:retrofit:2.6.2"
     implementation "com.squareup.retrofit2:converter-moshi:2.6.2"
@@ -199,6 +199,7 @@ dependencies {
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
+    implementation'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
 
     implementation "androidx.work:work-runtime-ktx:2.2.0"
 

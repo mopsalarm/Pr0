@@ -79,23 +79,29 @@ class TagsView(context: Context) : FrameLayout(context) {
 
         layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
-
         recyclerView.adapter = adapter
 
         recyclerView.itemAnimator = DefaultItemAnimator().apply {
             supportsChangeAnimations = false
         }
 
+
+//        recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
+//        recyclerView.addItemDecoration(SpacingItemDecoration(context.dip2px(6), context.dip2px(6)))
+
+
+        recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            val spacing = context.dip2px(8)
+            val spacing = context.dip2px(6)
+            val spacingFirstItem = context.dip2px(16)
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 outRect.setEmpty()
 
                 val index = parent.getChildAdapterPosition(view)
-                outRect.left = if (index == 0) 2 * spacing else spacing
+                outRect.left = if (index == 0) spacingFirstItem else spacing
             }
         })
+
 
         commentViewStub.setOnInflateListener { stub, inflated ->
             commentSendView.setOnClickListener {

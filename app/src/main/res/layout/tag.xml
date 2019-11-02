@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="36sp"
-    android:background="@drawable/tag_background"
-    android:orientation="horizontal">
+    android:layout_height="30sp"
+    android:paddingRight="6sp"
+    android:background="@drawable/tag_background">
 
     <TextView
         android:id="@+id/tag_text"
         android:layout_width="wrap_content"
-        android:layout_height="36sp"
+        android:layout_height="30sp"
+        android:layout_gravity="left"
+        android:layout_marginRight="42sp"
         android:background="?selectableItemBackgroundBorderless"
         android:gravity="center_vertical"
         android:lines="1"
         android:paddingLeft="8sp"
-        android:paddingTop="8sp"
-        android:paddingRight="8sp"
-        android:paddingBottom="8sp"
+        android:paddingRight="2sp"
         android:singleLine="true"
-        android:textSize="14sp"
+        android:textSize="12sp"
         tools:text="Kreiselficker" />
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/tag_vote"
-        android:layout_width="wrap_content"
-        android:layout_height="36sp"
-        android:layout_gravity="center_vertical"
-        android:paddingRight="8dp"
+        android:layout_width="42sp"
+        android:layout_height="30sp"
+        android:layout_gravity="right"
         android:visibility="gone"
         app:defaultColor="#b3ffffff"
         app:markedColor="?colorAccent"
         app:orientation="horizontal"
-        app:spacing="2dp"
+        app:spacing="0sp"
         app:textSize="22sp"
         tools:visibility="visible" />
 
-</LinearLayout>
+</FrameLayout>
