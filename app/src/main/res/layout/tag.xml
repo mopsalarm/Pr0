@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="30sp"
         android:layout_gravity="start"
-        android:layout_marginEnd="42sp"
+        android:layout_marginEnd="@dimen/tags_tagVoteViewWidth"
         android:background="?selectableItemBackgroundBorderless"
         android:gravity="center_vertical"
         android:lines="1"
@@ -25,15 +25,13 @@
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/tag_vote"
-        android:layout_width="42sp"
+        android:layout_width="@dimen/tags_tagVoteViewWidth"
         android:layout_height="30sp"
         android:layout_gravity="end"
-        android:visibility="gone"
         app:defaultColor="#b3ffffff"
         app:markedColor="?colorAccent"
         app:orientation="horizontal"
         app:spacing="0sp"
-        app:textSize="22sp"
-        tools:visibility="visible" />
+        app:textSize="22sp" />
 
 </FrameLayout>

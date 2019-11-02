@@ -119,6 +119,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val feedStartAtNew: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_new", false)
 
+    val tagCloudView: Boolean
+        get() = preferences.getBoolean("pref_tag_cloud_view", false)
+
     var feedStartWithUri: Uri?
         get() = preferences.getStringOrNull("pref_feed_start_with_uri")?.let { Uri.parse(it) }
         set(uri) = preferences.edit { putString("pref_feed_start_with_uri", uri?.toString()) }

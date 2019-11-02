@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
+import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -40,8 +42,6 @@ import kotterknife.bindView
 
 @SuppressLint("ViewConstructor")
 class TagsView(context: Context) : FrameLayout(context) {
-    private val alwaysVoteViews = !Settings.get().hideTagVoteButtons
-
     private val recyclerView: RecyclerView by bindView(R.id.tags)
 
     private val commentViewStub: ViewStub by bindView(R.id.comment_view_stub)
@@ -85,22 +85,30 @@ class TagsView(context: Context) : FrameLayout(context) {
             supportsChangeAnimations = false
         }
 
+        if (Settings.get().tagCloudView) {
+            val tagSpacing = 6
 
-//        recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
-//        recyclerView.addItemDecoration(SpacingItemDecoration(context.dip2px(6), context.dip2px(6)))
+            recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
+            recyclerView.addItemDecoration(SpacingItemDecoration(context.dip2px(tagSpacing), context.dip2px(tagSpacing)))
 
-
-        recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
-        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            val spacing = context.dip2px(6)
-            val spacingFirstItem = context.dip2px(16)
-            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                outRect.setEmpty()
-
-                val index = parent.getChildAdapterPosition(view)
-                outRect.left = if (index == 0) spacingFirstItem else spacing
+            recyclerView.updateLayoutParams<MarginLayoutParams> {
+                marginStart = context.dip2px(16 - tagSpacing / 2)
+                marginEnd = context.dip2px(16 - tagSpacing / 2)
             }
-        })
+
+        } else {
+            recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+            recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+                val spacing = context.dip2px(6)
+                val spacingFirstItem = context.dip2px(16)
+                override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                    outRect.setEmpty()
+
+                    val index = parent.getChildAdapterPosition(view)
+                    outRect.left = if (index == 0) spacingFirstItem else spacing
+                }
+            })
+        }
 
 
         commentViewStub.setOnInflateListener { stub, inflated ->
@@ -175,14 +183,16 @@ class TagsView(context: Context) : FrameLayout(context) {
     }
 
     private fun rebuildAdapterState() {
+        val alwaysShowVoteView = !Settings.get().hideTagVoteButtons
+
         val lastTag = tags.lastOrNull()
 
         trace { "Submit list of ${tags.size} items" }
         adapter.submitList(tags.map { tag ->
             val vote = votes[tag.id] ?: Vote.NEUTRAL
-            val selected = alwaysVoteViews || tag.id == selectedTagId
+            val selected = alwaysShowVoteView || tag.id == selectedTagId
             val lastItem = tag === lastTag
-            VotedTag(tag, vote, selected, lastItem)
+            VotedTag(tag, vote, selected, lastItem, alwaysShowVoteView)
         })
     }
 
@@ -207,7 +217,10 @@ class TagsView(context: Context) : FrameLayout(context) {
         actions?.updateTagsViewViewState(state)
     }
 
-    private data class VotedTag(val tag: Api.Tag, val vote: Vote = Vote.NEUTRAL, val selected: Boolean = false, val lastItem: Boolean = false)
+    private data class VotedTag(
+            val tag: Api.Tag, val vote: Vote = Vote.NEUTRAL,
+            val selected: Boolean = false, val lastItem: Boolean = false,
+            val alwaysShowVoteView: Boolean = true)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
             RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
@@ -292,6 +305,8 @@ class TagsView(context: Context) : FrameLayout(context) {
 
         private val lastTagSpacing = context.dip2px(16)
 
+        private val voteViewWidth = itemView.context.resources.getDimensionPixelSize(R.dimen.tags_tagVoteViewWidth)
+
         fun set(votedTag: VotedTag) {
             val (tag, vote, selected) = votedTag
             val holderChanged = id.update(tag.id)
@@ -305,10 +320,14 @@ class TagsView(context: Context) : FrameLayout(context) {
             itemView.alpha = if (votedTag.tag.confidence < 0.2) 0.8f else 1.0f
 
             if (selected) {
-                voteView.setVoteState(vote, !holderChanged)
-                voteView.visibility = View.VISIBLE
+                if (!voteView.isVisible) {
+                    voteView.isVisible = true
+                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = voteViewWidth }
+                }
 
-                if (!alwaysVoteViews) {
+                voteView.setVoteState(vote, !holderChanged)
+
+                if (!votedTag.alwaysShowVoteView) {
                     tagView.setOnLongClickListener {
                         updateSelection(-1)
                         true
@@ -318,7 +337,11 @@ class TagsView(context: Context) : FrameLayout(context) {
                 voteView.onVote = { newVote -> actions?.voteTagClicked(tag, newVote) == true }
 
             } else {
-                voteView.visibility = View.GONE
+                if (voteView.isVisible) {
+                    voteView.isVisible = false
+                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = 0 }
+                }
+
                 tagView.setOnLongClickListener {
                     updateSelection(tag.id)
                     true
