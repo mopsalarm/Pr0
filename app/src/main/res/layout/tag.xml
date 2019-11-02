@@ -5,20 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="30sp"
-    android:paddingRight="6sp"
-    android:background="@drawable/tag_background">
+    android:background="@drawable/tag_background"
+    android:paddingEnd="6sp">
 
     <TextView
         android:id="@+id/tag_text"
         android:layout_width="wrap_content"
         android:layout_height="30sp"
-        android:layout_gravity="left"
-        android:layout_marginRight="42sp"
+        android:layout_gravity="start"
+        android:layout_marginEnd="42sp"
         android:background="?selectableItemBackgroundBorderless"
         android:gravity="center_vertical"
         android:lines="1"
-        android:paddingLeft="8sp"
-        android:paddingRight="2sp"
+        android:paddingStart="8sp"
+        android:paddingEnd="2sp"
         android:singleLine="true"
         android:textSize="12sp"
         tools:text="Kreiselficker" />
@@ -27,7 +27,7 @@
         android:id="@+id/tag_vote"
         android:layout_width="42sp"
         android:layout_height="30sp"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:visibility="gone"
         app:defaultColor="#b3ffffff"
         app:markedColor="?colorAccent"
