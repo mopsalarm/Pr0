@@ -3,9 +3,8 @@ package com.pr0gramm.app.ui.views
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
+import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
@@ -55,9 +54,13 @@ private val iconsDef = mapOf(
 /**
  * A plus and a minus sign to handle votes.
  */
-class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     private val drawableCache = DrawableCache()
     private val views: Map<Vote, AppCompatImageView>
+
+    private var voteIconSize: Int
+    private var spaceSize: Int
+    private var orientationIsVertical: Boolean
 
     private var voteState: Vote = Vote.NEUTRAL
 
@@ -77,16 +80,12 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     val vote: Vote get() = voteState
 
     init {
-        var orientation = 0
-        var textSize = 24
-        var spacing = context.dip2px(4)
-
         val fav: Boolean
 
         context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->
-            orientation = a.getInteger(R.styleable.VoteView_orientation, orientation)
-            textSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, textSize)
-            spacing = a.getDimensionPixelSize(R.styleable.VoteView_spacing, spacing)
+            orientationIsVertical = a.getInteger(R.styleable.VoteView_orientation, 0) == 1
+            voteIconSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, context.dip2px(24))
+            spaceSize = a.getDimensionPixelSize(R.styleable.VoteView_spacing, context.dip2px(4))
 
             markedColorUp = a.getColor(R.styleable.VoteView_markedColor, context.getColorCompat(ThemeHelper.accentColor))
             markedColorDown = a.getColor(R.styleable.VoteView_markedColorDown, context.getColorCompat(R.color.white))
@@ -94,9 +93,6 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             fav = a.getBoolean(R.styleable.VoteView_fav, false)
         }
-
-        this.gravity = Gravity.CENTER
-        this.orientation = if (orientation == 1) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
 
         val votes = if (fav) listOf(Vote.UP, Vote.DOWN, Vote.FAVORITE) else listOf(Vote.UP, Vote.DOWN)
 
@@ -107,21 +103,10 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 .mapIndexed { idx, vote ->
                     val def = iconsDef.getValue(vote)
 
-                    // configure spacing
-                    val lp = MarginLayoutParams(textSize, textSize)
-                    if (idx > 0) {
-                        if (orientation == VERTICAL) {
-                            lp.topMargin = spacing
-                        } else {
-                            lp.leftMargin = spacing
-                        }
-                    }
-
                     // create the actual view
                     val view = AppCompatImageView(context)
                     view.setBackgroundResource(backgroundId)
                     view.setImageDrawable(iconOf(def.icons.getValue(Vote.NEUTRAL)))
-                    view.layoutParams = lp
                     view.setOnClickListener { triggerVoteClicked(vote) }
 
                     vote to view
@@ -136,6 +121,48 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         } else {
             // set initial voting state
             setVoteState(Vote.NEUTRAL, true)
+        }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val longAxis = views.size * voteIconSize + ((views.size - 1) * spaceSize)
+        val shortAxis = voteIconSize
+
+        val paddingHorizontal = paddingLeft + paddingRight
+        val paddingVertical = paddingTop + paddingBottom
+
+        val width: Int
+        val height: Int
+        if (orientationIsVertical) {
+            width = shortAxis + paddingHorizontal
+            height = longAxis + paddingVertical
+        } else {
+            width = longAxis + paddingHorizontal
+            height = shortAxis + paddingVertical
+        }
+
+        setMeasuredDimension(
+                View.resolveSizeAndState(width, widthMeasureSpec, 0),
+                View.resolveSizeAndState(height, heightMeasureSpec, 0))
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        for ((idx, view) in views.values.withIndex()) {
+            val offsetOnLongAxis = idx * voteIconSize + idx * spaceSize
+
+            if (orientationIsVertical) {
+                view.layout(
+                        paddingLeft,
+                        offsetOnLongAxis + paddingTop,
+                        (right - left) - paddingRight,
+                        offsetOnLongAxis + paddingTop + voteIconSize)
+            } else {
+                view.layout(
+                        offsetOnLongAxis + paddingLeft,
+                        paddingTop,
+                        offsetOnLongAxis + paddingLeft + voteIconSize,
+                        (bottom - top) - paddingBottom)
+            }
         }
     }
 
@@ -165,7 +192,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     /**
      * Performs a "vote" by calling the listener and updating the internal state accordingly
      */
-    fun doVote(vote: Vote, force: Boolean = false) {
+    private fun doVote(vote: Vote, force: Boolean = false) {
         if (voteState === vote)
             return
 

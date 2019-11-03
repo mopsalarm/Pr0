@@ -234,7 +234,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         } else {
             val heightUnspecified = View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.UNSPECIFIED
 
-            // we shouldnt get larger than this.
+            // we shouldn't get larger than this.
             val maxWidth = View.MeasureSpec.getSize(widthMeasureSpec)
             val maxHeight = View.MeasureSpec.getSize(heightMeasureSpec)
 
