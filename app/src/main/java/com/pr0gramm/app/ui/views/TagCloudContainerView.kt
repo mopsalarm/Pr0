@@ -11,19 +11,16 @@ import androidx.core.animation.doOnEnd
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
-import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.dp
-import com.pr0gramm.app.util.sp
+import com.pr0gramm.app.util.observeChange
 import kotlin.math.roundToInt
 
 class TagCloudContainerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
-    private val logger = Logger("MaxHeightLayout")
-
-    private val maxHeight = dp(8) + sp(36 * 3)
+    var maxHeight: Int by observeChange(dp(64)) { requestLayout() }
 
     private var animator: ValueAnimator? = null
 
