@@ -9,5 +9,5 @@
     <dimen name="infoline_caption_textSize">10sp</dimen>
     <dimen name="infoline_vote_textSize">26dp</dimen>
     <dimen name="infoline_follow_size">36dp</dimen>
-    <dimen name="tags_tagVoteViewWidth">44sp</dimen>
+    <dimen name="tags_tagVoteViewWidth">48sp</dimen>
 </resources>

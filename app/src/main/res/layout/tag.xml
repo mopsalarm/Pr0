@@ -28,10 +28,10 @@
         android:layout_width="@dimen/tags_tagVoteViewWidth"
         android:layout_height="30sp"
         android:layout_gravity="end"
-        app:defaultColor="#b3ffffff"
+        app:defaultColor="@color/grey_700"
         app:markedColor="?colorAccent"
         app:orientation="horizontal"
         app:spacing="0sp"
-        app:textSize="22sp" />
+        app:textSize="24sp" />
 
 </FrameLayout>
