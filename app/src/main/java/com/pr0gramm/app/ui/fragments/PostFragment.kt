@@ -843,7 +843,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show sfw/nsfw as a little flag, if the user is admin
         if (settings.showContentTypeFlag) {
             // show the little admin triangle
-            val size = requireContext().dip2px(16)
+            val size = requireContext().dp(16)
             ViewCompat.setBackground(mediaControlsContainer,
                     TriangleDrawable(feedItem.contentType, size))
 

@@ -20,7 +20,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import com.squareup.picasso.Picasso
@@ -138,7 +138,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         badgesContainer.adapter = BadgeAdapter(badges)
         badgesContainer.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         badgesContainer.isHorizontalFadingEdgeEnabled = true
-        badgesContainer.setFadingEdgeLength(context.dip2px(24))
+        badgesContainer.setFadingEdgeLength(context.dp(24))
 
         if (badges.isNotEmpty()) {
             // scroll to the end after a short delay.
@@ -220,7 +220,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
             }
 
             // hack, if it is the first item, we need to add 12dp of left margin
-            val margin = if (firstItem) itemView.context.dip2px(12) else 0
+            val margin = if (firstItem) itemView.context.dp(12) else 0
             (itemView.layoutParams as? MarginLayoutParams)?.leftMargin = margin
         }
 

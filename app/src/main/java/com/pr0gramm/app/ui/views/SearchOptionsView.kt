@@ -19,7 +19,7 @@ import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.setOnProgressChanged
 import kotterknife.bindView
@@ -244,7 +244,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         container.removeAllViews()
 
         val params = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        params.rightMargin = context.dip2px(8)
+        params.rightMargin = context.dp(8)
 
         val names = listOf("sound", "video", "repost", "ftb")
         val tags = listOf("f:sound", "video", "f:repost", "m:ftb")

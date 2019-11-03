@@ -7,14 +7,14 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.graphics.withSave
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.use
 
 class MarginDividerItemDecoration(context: Context, marginLeftDp: Int = 0, marginRightDp: Int = 0) : RecyclerView.ItemDecoration() {
     private val bounds = Rect()
 
-    val marginLeft: Int = context.dip2px(marginLeftDp)
-    val marginRight: Int = context.dip2px(marginRightDp)
+    val marginLeft: Int = context.dp(marginLeftDp)
+    val marginRight: Int = context.dp(marginRightDp)
 
     private val divider: Drawable = run {
         context.obtainStyledAttributes(intArrayOf(android.R.attr.listDivider)).use { a ->

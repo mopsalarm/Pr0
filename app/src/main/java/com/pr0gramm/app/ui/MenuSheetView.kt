@@ -13,7 +13,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.find
 import java.util.*
 
@@ -54,7 +54,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         originalListPaddingTop = absListView.paddingTop
         setTitle(context.getString(titleRes))
 
-        this.elevation = getContext().dip2px(16).toFloat()
+        this.elevation = getContext().dp(16).toFloat()
     }
 
     /**
@@ -157,7 +157,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
 
             // Add some padding to the top to account for the missing title
             absListView.setPadding(absListView.paddingLeft,
-                    originalListPaddingTop + context.dip2px(8),
+                    originalListPaddingTop + context.dp(8),
                     absListView.paddingRight, absListView.paddingBottom)
         }
     }

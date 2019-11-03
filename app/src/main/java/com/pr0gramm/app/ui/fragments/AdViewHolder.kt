@@ -39,7 +39,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val placeholder = ImageView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        context.dip2px(70f).roundToInt())
+                        context.dp(70f).roundToInt())
 
                 scaleType = ImageView.ScaleType.CENTER_CROP
 

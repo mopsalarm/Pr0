@@ -345,13 +345,43 @@ inline fun Context.getColorCompat(@ColorRes id: Int): Int {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun Context.dip2px(dpValue: Float): Float {
+inline fun Context.dp(dpValue: Float): Float {
     return dpValue * resources.displayMetrics.density
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun Context.dip2px(dpValue: Int): Int {
-    return dip2px(dpValue.toFloat()).toInt()
+inline fun Context.dp(dpValue: Int): Int {
+    return dp(dpValue.toFloat()).toInt()
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Context.sp(spValue: Float): Float {
+    return spValue * resources.displayMetrics.scaledDensity
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Context.sp(spValue: Int): Int {
+    return dp(spValue.toFloat()).toInt()
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.dp(dpValue: Float): Float {
+    return dpValue * resources.displayMetrics.density
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.dp(dpValue: Int): Int {
+    return dp(dpValue.toFloat()).toInt()
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.sp(spValue: Float): Float {
+    return spValue * resources.displayMetrics.scaledDensity
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.sp(spValue: Int): Int {
+    return dp(spValue.toFloat()).toInt()
 }
 
 fun Context.getStyledResourceId(@AttrRes id: Int): Int {

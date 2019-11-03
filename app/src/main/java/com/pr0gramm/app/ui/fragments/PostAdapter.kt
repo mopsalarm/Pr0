@@ -23,7 +23,7 @@ import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.LongSparseArray
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.removeFromParent
 import com.pr0gramm.app.util.weakref
 
@@ -193,13 +193,13 @@ private object PlaceholderItemAdapterDelegate
 @SuppressLint("ViewConstructor")
 private class PlaceholderView(context: Context) : FrameLayout(context) {
     var viewer by weakref<View?>(null)
-    var fixedHeight = context.dip2px(150)
+    var fixedHeight = context.dp(150)
 
     init {
         val v = View(context)
         v.setBackgroundResource(R.drawable.dropshadow_reverse)
 
-        val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dip2px(8))
+        val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(8))
         lp.gravity = Gravity.BOTTOM
         v.layoutParams = lp
 

@@ -11,7 +11,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.DrawableCache
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.getStyledResourceId
 import com.pr0gramm.app.util.use
@@ -84,8 +84,8 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->
             orientationIsVertical = a.getInteger(R.styleable.VoteView_orientation, 0) == 1
-            voteIconSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, context.dip2px(24))
-            spaceSize = a.getDimensionPixelSize(R.styleable.VoteView_spacing, context.dip2px(4))
+            voteIconSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, context.dp(24))
+            spaceSize = a.getDimensionPixelSize(R.styleable.VoteView_spacing, context.dp(4))
 
             markedColorUp = a.getColor(R.styleable.VoteView_markedColor, context.getColorCompat(ThemeHelper.accentColor))
             markedColorDown = a.getColor(R.styleable.VoteView_markedColorDown, context.getColorCompat(R.color.white))

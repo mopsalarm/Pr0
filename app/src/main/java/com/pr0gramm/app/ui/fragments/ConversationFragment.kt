@@ -343,7 +343,7 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
         val text = buildSpannedString {
             append(Linkify.linkify(context, value.message))
 
-            inSpans(SpaceSpan(context.dip2px(32f).toInt())) {
+            inSpans(SpaceSpan(context.dp(32f).toInt())) {
                 append(" ")
             }
         }

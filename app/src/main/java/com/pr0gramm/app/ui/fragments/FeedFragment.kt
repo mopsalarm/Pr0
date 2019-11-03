@@ -1315,8 +1315,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             val context = recyclerView.context
             layoutManager.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
                     dontScrollIfVisible = true,
-                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
-                    offsetBottom = context.dip2px(32)))
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dp(32),
+                    offsetBottom = context.dp(32)))
 
         } else {
             // over scroll a bit

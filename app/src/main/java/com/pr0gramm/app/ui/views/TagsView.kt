@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -38,11 +38,13 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
+import kotterknife.bindOptionalView
 import kotterknife.bindView
 
 @SuppressLint("ViewConstructor")
-class TagsView(context: Context) : FrameLayout(context) {
+class TagsView(context: Context) : LinearLayout(context) {
     private val recyclerView: RecyclerView by bindView(R.id.tags)
+    private val recyclerViewWrapper: TagCloudContainerView? by bindOptionalView(R.id.tags_wrapper)
 
     private val commentViewStub: ViewStub by bindView(R.id.comment_view_stub)
 
@@ -77,30 +79,27 @@ class TagsView(context: Context) : FrameLayout(context) {
         // initialize in normal state
         setViewState(ViewState.CLOSED)
 
-        layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
-        recyclerView.adapter = adapter
-
-        recyclerView.itemAnimator = DefaultItemAnimator().apply {
-            supportsChangeAnimations = false
-        }
-
         if (Settings.get().tagCloudView) {
-            val tagSpacing = 6
+            addView(layoutInflater.inflate(R.layout.post_tags_cloud, this, false), 0)
+
+            val tagSpacing = sp(6)
 
             recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
-            recyclerView.addItemDecoration(SpacingItemDecoration(context.dip2px(tagSpacing), context.dip2px(tagSpacing)))
+            recyclerView.addItemDecoration(SpacingItemDecoration(tagSpacing, tagSpacing))
 
-            recyclerView.updateLayoutParams<MarginLayoutParams> {
-                marginStart = context.dip2px(16 - tagSpacing / 2)
-                marginEnd = context.dip2px(16 - tagSpacing / 2)
+            recyclerViewWrapper?.updateLayoutParams<MarginLayoutParams> {
+                marginStart -= tagSpacing / 2
+                marginEnd -= tagSpacing / 2
             }
 
         } else {
+            addView(layoutInflater.inflate(R.layout.post_tags_normal, this, false), 0)
+
             recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
             recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                val spacing = context.dip2px(6)
-                val spacingFirstItem = context.dip2px(16)
+                val spacing = dp(6)
+                val spacingFirstItem = dp(16)
+
                 override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                     outRect.setEmpty()
 
@@ -110,6 +109,11 @@ class TagsView(context: Context) : FrameLayout(context) {
             })
         }
 
+        recyclerView.adapter = adapter
+
+        recyclerView.itemAnimator = DefaultItemAnimator().apply {
+            supportsChangeAnimations = false
+        }
 
         commentViewStub.setOnInflateListener { stub, inflated ->
             commentSendView.setOnClickListener {
@@ -170,6 +174,8 @@ class TagsView(context: Context) : FrameLayout(context) {
             if (adapter.itemCount > 0) {
                 recyclerView.scrollToPosition(0)
             }
+
+            recyclerViewWrapper?.reset()
         }
 
         if (viewStateCh.value !== ViewState.CLOSED) {
@@ -303,7 +309,7 @@ class TagsView(context: Context) : FrameLayout(context) {
         private val tagView: TextView = itemView.find(R.id.tag_text)
         private val voteView: VoteView = itemView.find(R.id.tag_vote)
 
-        private val lastTagSpacing = context.dip2px(16)
+        private val lastTagSpacing = context.dp(16)
 
         private val voteViewWidth = itemView.context.resources.getDimensionPixelSize(R.dimen.tags_tagVoteViewWidth)
 

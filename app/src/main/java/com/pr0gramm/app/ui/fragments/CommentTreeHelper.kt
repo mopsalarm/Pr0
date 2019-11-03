@@ -157,7 +157,7 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     private var parentChain: List<View>? = null
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
-        private val minimalScrollSpace = itemView.context.dip2px(16f)
+        private val minimalScrollSpace = itemView.context.dp(16f)
 
         private val toolbar = (AndroidUtility.activityFromContext(itemView.context)
                 as? ScrollHideToolbarListener.ToolbarActivity)?.scrollHideToolbarListener

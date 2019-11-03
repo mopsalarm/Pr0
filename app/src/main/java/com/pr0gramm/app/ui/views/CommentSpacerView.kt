@@ -12,7 +12,7 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.Spacings
 import com.pr0gramm.app.ui.paint
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.memorize
 import com.pr0gramm.app.util.observeChangeEx
@@ -25,8 +25,8 @@ import kotlin.math.roundToInt
 class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
     private val basePaddingLeft = paddingLeft
 
-    private val lineWidth = context.dip2px(1f)
-    private val lineMargin = context.dip2px(8f)
+    private val lineWidth = context.dp(1f)
+    private val lineMargin = context.dp(8f)
 
     private val logger = Logger("CommentSpacerView")
 
@@ -35,7 +35,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             isAntiAlias = true
             style = Paint.Style.STROKE
             color = initialColor(context)
-            strokeWidth = context.dip2px(1f)
+            strokeWidth = context.dp(1f)
         }
     }
 
@@ -79,7 +79,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         val height = height.toFloat()
 
         // height of the little connector thing
-        val connectHeight = context.dip2px(12f)
+        val connectHeight = context.dp(12f)
 
         val lines = spacings.lines(from = 2)
 

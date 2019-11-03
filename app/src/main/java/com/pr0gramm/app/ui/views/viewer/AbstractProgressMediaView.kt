@@ -11,7 +11,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 
 /**
  */
@@ -82,7 +82,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     }
 
     private fun showSeekbar(show: Boolean) {
-        val deltaY = context.dip2px(12)
+        val deltaY = context.dp(12)
 
         val viewToShow = if (show) seekBarView else progressView
         val viewToHide = if (show) progressView else seekBarView

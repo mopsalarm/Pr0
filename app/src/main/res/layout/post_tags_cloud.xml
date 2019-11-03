@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.pr0gramm.app.ui.views.TagCloudContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tags_wrapper"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:requiresFadingEdge="horizontal"
+        tools:listitem="@layout/tag" />
+
+    <LinearLayout
+        android:id="@+id/expander"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_unfold"
+            android:tint="?android:textColorSecondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:gravity="center_vertical"
+            android:paddingRight="8dp"
+            android:text="@string/tags_show_all"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+    </LinearLayout>
+
+</com.pr0gramm.app.ui.views.TagCloudContainerView>

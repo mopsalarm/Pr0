@@ -189,8 +189,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
                     dontScrollIfVisible = true,
-                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dip2px(32),
-                    offsetBottom = context.dip2px(32)))
+                    offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dp(32),
+                    offsetBottom = context.dp(32)))
         }
     }
 }

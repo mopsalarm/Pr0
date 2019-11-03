@@ -509,5 +509,6 @@
     <string name="action_follow_full">Notify on new post</string>
     <string name="write_comment">Comment to %s</string>
     <string name="hint_follow_premium_only">Saved, but you can only view the people you follow with pr0mium.</string>
+    <string name="tags_show_all">Show all</string>
 </resources>
 

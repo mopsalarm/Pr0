@@ -15,7 +15,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.BaseDrawable
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat
 import rx.Observable
 
@@ -83,8 +83,8 @@ class OpDrawable(private val context: Context, textSize: Float) : BaseDrawable(P
     private val accentColor = context.getColorCompat(ThemeHelper.accentColor)
     private val textColor = blendColors(0.2f, Color.WHITE, accentColor)
 
-    private val radius = context.dip2px(2f)
-    private val padding = context.dip2px(2f)
+    private val radius = context.dp(2f)
+    private val padding = context.dp(2f)
 
     override fun getIntrinsicWidth(): Int {
         return (outerR.width() + 2f * padding).toInt()

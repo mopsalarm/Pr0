@@ -17,7 +17,7 @@ import androidx.core.text.inSpans
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.views.adjustImeOptions
 import com.pr0gramm.app.ui.views.handlePlainTextPaste
-import com.pr0gramm.app.util.dip2px
+import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.observeChange
 
 /**
@@ -56,7 +56,7 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
                     params.rightMargin = left
                     anchorView.layoutParams = params
 
-                    dropDownVerticalOffset = context.dip2px(5)
+                    dropDownVerticalOffset = context.dp(5)
                 }
             }
         })

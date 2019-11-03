@@ -154,7 +154,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         val textColor = captionView.currentTextColor
 
         val textSize = captionView.textSize.toInt()
-        val offset = context.dip2px(2)
+        val offset = context.dp(2)
 
         val dClock = drawableCache.get(R.drawable.ic_clock, textColor).withInsets(bottom = offset)
         dClock.setBounds(0, 0, textSize, textSize + offset)

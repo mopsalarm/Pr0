@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tags"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:requiresFadingEdge="horizontal"
-        tools:listitem="@layout/tag" />
+    <!-- include post_tags_cloud or post_tags_normal here -->
 
     <ViewStub
         android:id="@+id/comment_view_stub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout="@layout/post_tags_comment" />
-</LinearLayout>
+</merge>
