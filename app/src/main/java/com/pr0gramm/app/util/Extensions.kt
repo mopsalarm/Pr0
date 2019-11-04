@@ -361,7 +361,7 @@ inline fun Context.sp(spValue: Float): Float {
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun Context.sp(spValue: Int): Int {
-    return dp(spValue.toFloat()).toInt()
+    return sp(spValue.toFloat()).toInt()
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -381,7 +381,7 @@ inline fun View.sp(spValue: Float): Float {
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun View.sp(spValue: Int): Int {
-    return dp(spValue.toFloat()).toInt()
+    return sp(spValue.toFloat()).toInt()
 }
 
 fun Context.getStyledResourceId(@AttrRes id: Int): Int {
