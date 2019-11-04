@@ -21,6 +21,7 @@ class TagCloudContainerView @JvmOverloads constructor(
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
     var maxHeight: Int by observeChange(dp(64)) { requestLayout() }
+    var moreThreshold: Int by observeChange(dp(64)) { requestLayout() }
 
     private var animator: ValueAnimator? = null
 
@@ -105,7 +106,7 @@ class TagCloudContainerView @JvmOverloads constructor(
         val expanderView = expanderView()
 
         val contentViewHeightSpec = if (state == State.COLLAPSED) {
-            MeasureSpec.makeMeasureSpec(maxHeight + dp(16), MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec(moreThreshold + dp(8), MeasureSpec.AT_MOST)
         } else {
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
         }
@@ -115,9 +116,17 @@ class TagCloudContainerView @JvmOverloads constructor(
 
         var expanderHeight = 0
 
+//        if (contentView is RecyclerView) {
+//            val maxChildrenBottom = contentView.children.map { it.bottom }.max()
+//            if (maxChildrenBottom != null) {
+//                if (maxChildrenBottom + contentView.paddingBottom < measuredContentHeight) {
+//                    measuredContentHeight = maxChildrenBottom + contentView.paddingBottom
+//                }
+//            }
+//        }
+
         // test if we should show the expander.
-        val threshold = maxHeight + dp(8)
-        val shouldShowExpander = (state == State.EXPANDING || contentView.measuredHeight > threshold) && state != State.EXPANDED
+        val shouldShowExpander = (state == State.EXPANDING || contentView.measuredHeight > moreThreshold) && state != State.EXPANDED
 
         if (expanderView.isVisible != shouldShowExpander) {
             expanderView.isVisible = shouldShowExpander
@@ -127,7 +136,7 @@ class TagCloudContainerView @JvmOverloads constructor(
             // measure the expander view
             expanderView.measure(
                     MeasureSpec.makeMeasureSpec(contentView.measuredWidth, MeasureSpec.AT_MOST),
-                    MeasureSpec.makeMeasureSpec(contentView.measuredHeight, MeasureSpec.AT_MOST))
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
 
             expanderHeight = expanderView.measuredHeight
         }
@@ -137,7 +146,12 @@ class TagCloudContainerView @JvmOverloads constructor(
         val heightExpanded = contentView.measuredHeight
 
         val animationValue = currentAnimationValue()
-        val heightCurrent = (heightExpanded * animationValue + heightCollapsed * (1 - animationValue)).roundToInt()
+
+        val heightCurrent = if (shouldShowExpander) {
+            (heightExpanded * animationValue + heightCollapsed * (1 - animationValue)).roundToInt()
+        } else {
+            heightExpanded
+        }
 
         setMeasuredDimension(contentView.measuredWidthAndState, heightCurrent)
     }

@@ -90,7 +90,9 @@ class TagsView(context: Context) : LinearLayout(context) {
             recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
             recyclerView.addItemDecoration(SpacingItemDecoration(tagSpacing, tagSpacing))
 
-            recyclerViewWrapper?.maxHeight = 3 * (tagHeight + tagSpacing) + recyclerView.paddingTop
+            val clipSize = 3 * (tagHeight + tagSpacing) + recyclerView.paddingTop
+            recyclerViewWrapper?.maxHeight = clipSize
+            recyclerViewWrapper?.moreThreshold = clipSize + recyclerView.paddingBottom + dp(8)
 
             recyclerViewWrapper?.updateLayoutParams<MarginLayoutParams> {
                 marginStart -= tagSpacing / 2
