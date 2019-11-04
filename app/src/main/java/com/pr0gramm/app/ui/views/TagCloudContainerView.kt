@@ -116,15 +116,6 @@ class TagCloudContainerView @JvmOverloads constructor(
 
         var expanderHeight = 0
 
-//        if (contentView is RecyclerView) {
-//            val maxChildrenBottom = contentView.children.map { it.bottom }.max()
-//            if (maxChildrenBottom != null) {
-//                if (maxChildrenBottom + contentView.paddingBottom < measuredContentHeight) {
-//                    measuredContentHeight = maxChildrenBottom + contentView.paddingBottom
-//                }
-//            }
-//        }
-
         // test if we should show the expander.
         val shouldShowExpander = (state == State.EXPANDING || contentView.measuredHeight > moreThreshold) && state != State.EXPANDED
 

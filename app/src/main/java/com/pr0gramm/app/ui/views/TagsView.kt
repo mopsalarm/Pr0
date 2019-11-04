@@ -74,8 +74,11 @@ class TagsView(context: Context) : LinearLayout(context) {
     }
 
     init {
-        View.inflate(context, R.layout.post_tags, this)
+        layoutParams = LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT)
 
+        layoutInflater.inflate(R.layout.post_tags, this, true)
         orientation = LinearLayout.VERTICAL
 
         // initialize in normal state
