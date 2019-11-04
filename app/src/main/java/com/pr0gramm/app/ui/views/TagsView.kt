@@ -76,6 +76,8 @@ class TagsView(context: Context) : LinearLayout(context) {
     init {
         View.inflate(context, R.layout.post_tags, this)
 
+        orientation = LinearLayout.VERTICAL
+
         // initialize in normal state
         setViewState(ViewState.CLOSED)
 
