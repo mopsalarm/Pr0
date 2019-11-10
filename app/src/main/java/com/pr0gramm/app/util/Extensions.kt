@@ -395,6 +395,10 @@ fun Context.getStyledColor(@AttrRes id: Int): Int {
     return getColorCompat(getStyledResourceId(id))
 }
 
+fun View.baseActivity(): BaseAppCompatActivity? {
+    return AndroidUtility.activityFromContext(context) as? BaseAppCompatActivity
+}
+
 fun View.requireBaseActivity(): BaseAppCompatActivity {
     return AndroidUtility.activityFromContext(context) as? BaseAppCompatActivity
             ?: throw IllegalArgumentException("Expected BaseAppCompatActivity for context $context")
@@ -542,18 +546,18 @@ inline fun <T : Any> T.trace(msg: () -> String) {
 }
 
 inline fun <T : Any, R : Any?> T.trace(msg: String, block: () -> R): R {
-    if (BuildConfig.DEBUG) {
+    return if (BuildConfig.DEBUG) {
         val type = traceType(this)
 
         val watch = Stopwatch()
         try {
-            return block()
+            block()
         } finally {
             traceLogger.debug { "$type.$msg took $watch" }
         }
 
     } else {
-        return block()
+        block()
     }
 }
 
