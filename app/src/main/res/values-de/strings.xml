@@ -121,8 +121,8 @@
     <string name="feedback_submit">Abschicken</string>
     <string name="share">Teilen</string>
     <string name="feedback_title">Feedback</string>
-    <string name="pref_tag_cloud_view_summary">Alle Tags werden in mehreren Zeilen dargestellt</string>
-    <string name="pref_tag_cloud_view_title">Alle Tags anzeigen</string>
+    <string name="pref_tag_cloud_view_summary">Die Top Tags werden in mehreren Zeilen dargestellt, der Rest kann ausgeklappt werden.</string>
+    <string name="pref_tag_cloud_view_title">Mehr Tags anzeigen</string>
     <string name="upload_tags">Tags, kommasepariert</string>
     <string name="upload_title">Upload</string>
     <string name="upload_checking_if_upload_is_allowed">Uploadlimit wird überprüft</string>
