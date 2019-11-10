@@ -174,7 +174,7 @@ dependencies {
 
     implementation 'com.llamalab.safs:safs-android:0.2.0'
 
-    implementation "com.google.android.gms:play-services-ads-lite:18.2.0"
+    implementation "com.google.android.gms:play-services-ads-lite:18.3.0"
 
     implementation 'io.sentry:sentry-android:1.7.28'
     implementation 'org.slf4j:slf4j-nop:1.7.29'
@@ -205,7 +205,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.7'
 
     debugImplementation "com.github.ChuckerTeam.Chucker:library:3.0.1"
     releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.0.1"
