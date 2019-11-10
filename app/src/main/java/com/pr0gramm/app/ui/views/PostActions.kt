@@ -34,11 +34,6 @@ interface PostActions {
     fun writeNewTagClicked()
 
     /**
-     * Update the view state for for the TagsView
-     */
-    fun updateTagsViewViewState(viewState: TagsView.ViewState)
-
-    /**
      * Writes a new comment
      */
     suspend fun writeCommentClicked(text: String)

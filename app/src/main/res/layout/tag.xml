@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="30sp"
+    android:layout_height="@dimen/tag_height"
     android:background="@drawable/tag_background"
     android:paddingEnd="6sp">
 
     <TextView
         android:id="@+id/tag_text"
         android:layout_width="wrap_content"
-        android:layout_height="30sp"
+        android:layout_height="@dimen/tag_height"
         android:layout_gravity="start"
         android:layout_marginEnd="@dimen/tags_tagVoteViewWidth"
         android:background="?selectableItemBackgroundBorderless"
@@ -20,13 +20,13 @@
         android:paddingStart="8sp"
         android:paddingEnd="2sp"
         android:singleLine="true"
-        android:textSize="12sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         tools:text="Kreiselficker" />
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/tag_vote"
         android:layout_width="@dimen/tags_tagVoteViewWidth"
-        android:layout_height="30sp"
+        android:layout_height="@dimen/tag_height"
         android:layout_gravity="end"
         app:defaultColor="@color/grey_700"
         app:markedColor="?colorAccent"

@@ -21,23 +21,25 @@
         android:id="@+id/expander"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:paddingTop="6dp"
+        android:paddingBottom="10dp"
         tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="8dp"
+            android:text="@string/tags_show_all"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:src="@drawable/ic_unfold"
             android:tint="?android:textColorSecondary" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="16dp"
-            android:gravity="center_vertical"
-            android:paddingRight="8dp"
-            android:text="@string/tags_show_all"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
     </LinearLayout>
 

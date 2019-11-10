@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -16,14 +17,17 @@ import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.observeChange
 import kotlin.math.roundToInt
 
+private const val AnimationDuration = 250L
+
 class TagCloudContainerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
-    var maxHeight: Int by observeChange(dp(64)) { requestLayout() }
-    var moreThreshold: Int by observeChange(dp(64)) { requestLayout() }
+    var moreOffset: Int by observeChange(0) { requestLayout() }
 
-    private var animator: ValueAnimator? = null
+    private var expandAnimator: ValueAnimator? = null
+
+    var clipHeight: Int by observeChange(0) { requestLayout() }
 
     private var state: State = State.COLLAPSED
 
@@ -32,7 +36,7 @@ class TagCloudContainerView @JvmOverloads constructor(
 
         if (child.id == R.id.expander) {
             child.setOnClickListener {
-                expand()
+                animateTo(State.EXPANDED)
             }
         }
     }
@@ -48,8 +52,8 @@ class TagCloudContainerView @JvmOverloads constructor(
         if (state is Bundle) {
             super.onRestoreInstanceState(state.getParcelable("superState"))
 
-            this.animator?.cancel()
-            this.animator = null
+            this.expandAnimator?.cancel()
+            this.expandAnimator = null
 
             if (state.getBoolean("expanded", false)) {
                 this.state = State.EXPANDED
@@ -59,46 +63,54 @@ class TagCloudContainerView @JvmOverloads constructor(
         }
     }
 
-    private fun expand() {
-        if (state != State.COLLAPSED) {
+    private fun animateTo(targetState: State) {
+        if (state === targetState || state === State.ANIMATING) {
             return
         }
 
-        state = State.EXPANDING
-
         // cancel any active animation
-        animator?.cancel()
+        expandAnimator?.cancel()
+
+        val valueStart = if (targetState === State.EXPANDED) 0f else 1f
+        val valueTarget = if (targetState === State.EXPANDED) 1f else 0f
 
         // create a new animator
-        val va = ValueAnimator.ofFloat(0f, 1f)
+        expandAnimator = ValueAnimator.ofFloat(valueStart, valueTarget).apply {
+            addUpdateListener { va ->
+                expanderView().alpha = 1f - va.animatedValue as Float
+                requestLayout()
+            }
 
-        // store animator in case we want to cancel it
-        animator = va
+            doOnEnd {
+                state = targetState
+                expanderView().isVisible = targetState === State.COLLAPSED
+            }
 
-        va.addUpdateListener { _ ->
-            expanderView().alpha = 1f - va.animatedFraction
-            requestLayout()
+            doOnStart {
+                state = State.ANIMATING
+            }
+
+            duration = AnimationDuration
+
+            start()
         }
-
-        va.doOnEnd {
-            state = State.EXPANDED
-            expanderView().isVisible = false
-        }
-
-        va.duration = 250L
-
-        va.start()
     }
 
     /**
      * Resets the view back to its collapsed version.
      * This is not running any animations.
      */
-    fun reset() {
-        animator?.cancel()
+    fun reset(animated: Boolean = false) {
+        if (animated) {
+            animateTo(State.COLLAPSED)
+        } else {
+            expandAnimator?.cancel()
+            expandAnimator = null
 
-        state = State.COLLAPSED
-        expanderView().alpha = 1f
+            state = State.COLLAPSED
+            expanderView().alpha = 1f
+            requestLayout()
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -106,7 +118,7 @@ class TagCloudContainerView @JvmOverloads constructor(
         val expanderView = expanderView()
 
         val contentViewHeightSpec = if (state == State.COLLAPSED) {
-            MeasureSpec.makeMeasureSpec(moreThreshold + dp(8), MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec(clipHeight + moreOffset + dp(8), MeasureSpec.AT_MOST)
         } else {
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
         }
@@ -117,13 +129,13 @@ class TagCloudContainerView @JvmOverloads constructor(
         var expanderHeight = 0
 
         // test if we should show the expander.
-        val shouldShowExpander = (state == State.EXPANDING || contentView.measuredHeight > moreThreshold) && state != State.EXPANDED
+        val shouldShowExpanderNow = (state === State.ANIMATING || contentView.measuredHeight > (clipHeight + moreOffset)) && state !== State.EXPANDED
 
-        if (expanderView.isVisible != shouldShowExpander) {
-            expanderView.isVisible = shouldShowExpander
+        if (expanderView.isVisible != shouldShowExpanderNow) {
+            expanderView.isVisible = shouldShowExpanderNow
         }
 
-        if (shouldShowExpander) {
+        if (shouldShowExpanderNow) {
             // measure the expander view
             expanderView.measure(
                     MeasureSpec.makeMeasureSpec(contentView.measuredWidth, MeasureSpec.AT_MOST),
@@ -133,12 +145,12 @@ class TagCloudContainerView @JvmOverloads constructor(
         }
 
         // calculate height
-        val heightCollapsed = contentView.measuredHeight.coerceAtMost(maxHeight) + expanderHeight
+        val heightCollapsed = contentView.measuredHeight.coerceAtMost(clipHeight) + expanderHeight
         val heightExpanded = contentView.measuredHeight
 
         val animationValue = currentAnimationValue()
 
-        val heightCurrent = if (shouldShowExpander) {
+        val heightCurrent = if (shouldShowExpanderNow) {
             (heightExpanded * animationValue + heightCollapsed * (1 - animationValue)).roundToInt()
         } else {
             heightExpanded
@@ -169,7 +181,7 @@ class TagCloudContainerView @JvmOverloads constructor(
         return when (state) {
             State.COLLAPSED -> 0f
             State.EXPANDED -> 1f
-            State.EXPANDING -> animator?.animatedFraction ?: 0f
+            State.ANIMATING -> expandAnimator?.animatedValue as? Float ?: 0f
         }
     }
 
@@ -177,6 +189,6 @@ class TagCloudContainerView @JvmOverloads constructor(
     private fun expanderView() = children.first { it.id == R.id.expander }
 
     enum class State {
-        COLLAPSED, EXPANDING, EXPANDED
+        COLLAPSED, ANIMATING, EXPANDED
     }
 }

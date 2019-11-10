@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Rect
+import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -73,6 +76,19 @@ class TagsView(context: Context) : LinearLayout(context) {
         SENDING,
     }
 
+    private val tagSpacings = object {
+        val padding = sp(6)
+        val height = context.resources.getDimensionPixelSize(R.dimen.tag_height)
+
+        fun moreOffset(): Int {
+            return recyclerView.paddingBottom + dp(8)
+        }
+
+        fun clipSize(rows: Int): Int {
+            return rows * (height + padding) + recyclerView.paddingTop
+        }
+    }
+
     init {
         layoutParams = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -81,25 +97,18 @@ class TagsView(context: Context) : LinearLayout(context) {
         layoutInflater.inflate(R.layout.post_tags, this, true)
         orientation = LinearLayout.VERTICAL
 
-        // initialize in normal state
-        setViewState(ViewState.CLOSED)
-
         if (Settings.get().tagCloudView) {
             addView(layoutInflater.inflate(R.layout.post_tags_cloud, this, false), 0)
 
-            val tagSpacing = sp(6)
-            val tagHeight = sp(30)
-
             recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
-            recyclerView.addItemDecoration(SpacingItemDecoration(tagSpacing, tagSpacing))
+            recyclerView.addItemDecoration(SpacingItemDecoration(tagSpacings.padding, tagSpacings.padding))
 
-            val clipSize = 3 * (tagHeight + tagSpacing) + recyclerView.paddingTop
-            recyclerViewWrapper?.maxHeight = clipSize
-            recyclerViewWrapper?.moreThreshold = clipSize + recyclerView.paddingBottom + dp(8)
+            recyclerViewWrapper?.clipHeight = tagSpacings.clipSize(3)
+            recyclerViewWrapper?.moreOffset = tagSpacings.moreOffset()
 
             recyclerViewWrapper?.updateLayoutParams<MarginLayoutParams> {
-                marginStart -= tagSpacing / 2
-                marginEnd -= tagSpacing / 2
+                marginStart -= tagSpacings.padding / 2
+                marginEnd -= tagSpacings.padding / 2
             }
 
         } else {
@@ -118,6 +127,9 @@ class TagsView(context: Context) : LinearLayout(context) {
                 }
             })
         }
+
+        // initialize in normal state
+        setViewState(ViewState.CLOSED)
 
         recyclerView.adapter = adapter
 
@@ -170,6 +182,22 @@ class TagsView(context: Context) : LinearLayout(context) {
         }
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        return bundleOf(
+                "superState" to super.onSaveInstanceState(),
+                "viewState" to viewStateCh.value.ordinal
+        )
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable) {
+        val viewState = state as Bundle
+        super.onRestoreInstanceState(viewState.getParcelable("superState"))
+
+        // restore open/close state
+        val stateIdx = state.getInt("viewState", ViewState.CLOSED.ordinal)
+        setViewState(ViewState.values()[stateIdx])
+    }
+
     fun updateTags(itemId: Long, tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
         if ((this.tags != tags && this.votes != votes) || tags.isEmpty()) {
             this.tags = tags
@@ -212,7 +240,11 @@ class TagsView(context: Context) : LinearLayout(context) {
         })
     }
 
-    fun setViewState(state: ViewState) {
+    private fun setViewState(state: ViewState) {
+        if (viewStateCh.valueOrNull === state) {
+            return
+        }
+
         if (state === ViewState.CLOSED) {
             commentViewStub.isVisible = false
 
@@ -226,11 +258,19 @@ class TagsView(context: Context) : LinearLayout(context) {
 
             // might be the first time after inflate
             TextViewCache.addCaching(commentInputView, "tagsView:$itemId")
+
+
+            for (view in listOf(commentSendView, commentInputView, commentBusyIndicator)) {
+                view.alpha = 0f
+                view.animate().alpha(1f).setDuration(250).start()
+            }
         }
 
         viewStateCh.offer(state)
 
-        actions?.updateTagsViewViewState(state)
+        if (state === ViewState.INPUT) {
+            recyclerViewWrapper?.reset(animated = true)
+        }
     }
 
     private data class VotedTag(

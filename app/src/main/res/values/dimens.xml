@@ -5,9 +5,10 @@
     <dimen name="bullet_list_leading_margin">16sp</dimen>
     <dimen name="feed_content_type_action_icon_text_size">10dp</dimen>
 
-    <dimen name="infoline_username_textSize">14sp</dimen>
-    <dimen name="infoline_caption_textSize">10sp</dimen>
+    <dimen name="infoline_username_textSize">16sp</dimen>
+    <dimen name="infoline_caption_textSize">12sp</dimen>
     <dimen name="infoline_vote_textSize">26dp</dimen>
     <dimen name="infoline_follow_size">36dp</dimen>
     <dimen name="tags_tagVoteViewWidth">48sp</dimen>
+    <dimen name="tag_height">32dp</dimen>
 </resources>

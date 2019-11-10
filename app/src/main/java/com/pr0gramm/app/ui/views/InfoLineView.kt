@@ -216,7 +216,6 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
         if (state != FollowState.NONE && !userService.canViewFollowCategory) {
             Snackbar.make(this@InfoLineView, R.string.hint_follow_premium_only, Snackbar.LENGTH_SHORT)
-                    .setAction(R.string.okay) {}
                     .configureNewStyle()
                     .show()
         }

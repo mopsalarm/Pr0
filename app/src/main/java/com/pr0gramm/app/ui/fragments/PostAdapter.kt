@@ -63,7 +63,7 @@ class PostAdapter
         data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val followState: FollowState?, val actions: PostActions)
             : Item(idInCategory(1))
 
-        data class TagsItem(val itemId: Long, val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val state: TagsView.ViewState, val actions: PostActions)
+        data class TagsItem(val itemId: Long, val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
             : Item(idInCategory(2))
 
         object CommentsLoadingItem
@@ -116,7 +116,6 @@ private object TagsViewHolderAdapterDelegate
     override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.TagsItem) {
         holder.tagsView.actions = value.actions
         holder.tagsView.updateTags(value.itemId, value.tags, value.votes)
-        holder.tagsView.setViewState(value.state)
     }
 
     private class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView)
