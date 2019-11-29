@@ -349,7 +349,7 @@ private class BottomSheetAlertDialog(ctx: Context, theme: Int = R.style.MyBottom
         textContent.text = text
     }
 
-    override fun setTitle(text: CharSequence) {
+    override fun setTitle(text: CharSequence?) {
         super.setTitle(text)
 
         title.text = text

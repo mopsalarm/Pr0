@@ -124,7 +124,7 @@ class ShareService(private val cache: Cache) {
     private fun copyToClipboard(context: Context, text: String) {
         val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
-        clipboardManager.primaryClip = ClipData.newPlainText(text, text)
+        clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
