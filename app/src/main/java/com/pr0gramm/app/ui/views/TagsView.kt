@@ -199,7 +199,7 @@ class TagsView(context: Context) : LinearLayout(context) {
     }
 
     fun updateTags(itemId: Long, tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
-        if ((this.tags != tags && this.votes != votes) || tags.isEmpty()) {
+        if (this.tags != tags || this.votes != votes || tags.isEmpty()) {
             this.tags = tags
             this.votes = votes
             rebuildAdapterState()

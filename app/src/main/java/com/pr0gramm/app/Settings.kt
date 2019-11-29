@@ -16,14 +16,15 @@ import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
-import rx.Observable
-import rx.subjects.PublishSubject
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import java.util.*
 
 /**
  */
 class Settings(private val app: Application) : SharedPreferences.OnSharedPreferenceChangeListener {
-    private val preferenceChanged = PublishSubject.create<String>()
+    private val preferenceChanged = BroadcastChannel<String>(1)
     private val preferences = PreferenceManager.getDefaultSharedPreferences(app)
 
     init {
@@ -211,12 +212,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
      * An observable that reacts to changes of properties.
      * All actions are happening on the main thread.
      */
-    fun changes(): Observable<String> {
-        return preferenceChanged.asObservable()
+    fun changes(): Flow<String> {
+        return preferenceChanged.asFlow()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        preferenceChanged.onNext(key)
+        preferenceChanged.offer(key)
     }
 
     enum class ConfirmOnMobile(val value: Int) {

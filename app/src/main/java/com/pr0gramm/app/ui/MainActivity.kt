@@ -43,6 +43,8 @@ import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -180,6 +182,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // schedule an update in the background
         doInBackground { bookmarkService.update() }
+
+        launchIgnoreErrors {
+            settings.changes().filter { it === "pref_tag_cloud_view" }.collect {
+                invalidateRecyclerViewPool()
+            }
+        }
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {

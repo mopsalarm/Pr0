@@ -41,10 +41,7 @@ import com.squareup.moshi.JsonEncodingException
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -1059,10 +1056,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        settings.changes()
-                .bindToLifecycle()
-                .startWith("")
-                .subscribeIgnoreError { listener.enableLongClick(settings.enableQuickPeek) }
+        launchIgnoreErrors {
+            settings.changes().onStart { emit("") }.collect {
+                listener.enableLongClick(settings.enableQuickPeek)
+            }
+        }
     }
 
     private fun refreshRepostInfos(old: Feed, new: Feed) {
