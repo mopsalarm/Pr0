@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -20,6 +21,16 @@ interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
     fun onCreateViewHolder(parent: ViewGroup): VH
 
     fun onBindViewHolder(holder: VH, values: List<E>, idx: Int)
+
+    /**
+     * Save the adapters state (if any)
+     */
+    fun onSaveInstanceState(outState: Bundle) {}
+
+    /**
+     * Restore any previously saved instance state
+     */
+    fun onRestoreInstanceState(inState: Bundle) {}
 }
 
 abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder> : AdapterDelegate<T, VH> {
@@ -81,6 +92,14 @@ class AdapterDelegateManager<T : Any>(
         val delegate = delegates[holder.itemViewType]
         delegate.onBindViewHolder(holder, values, index)
     }
+
+    fun onSaveInstanceState(outState: Bundle) {
+        delegates.forEach { it.onSaveInstanceState(outState) }
+    }
+
+    fun onRestoreInstanceState(inState: Bundle) {
+        delegates.forEach { it.onRestoreInstanceState(inState) }
+    }
 }
 
 abstract class DelegateAdapter<T : Any>(
@@ -105,6 +124,24 @@ abstract class DelegateAdapter<T : Any>(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         manager.onBindViewHolder(holder, items, position)
     }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        if (holder is RecycleAware) {
+            holder.onViewRecycled()
+        }
+    }
+
+    fun onSaveInstanceState(outState: Bundle) {
+        manager.onSaveInstanceState(outState)
+    }
+
+    fun onRestoreInstanceState(inState: Bundle) {
+        manager.onRestoreInstanceState(inState)
+    }
+}
+
+interface RecycleAware {
+    fun onViewRecycled()
 }
 
 class NoopViewHolder(view: View) : RecyclerView.ViewHolder(view)

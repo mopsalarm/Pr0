@@ -289,7 +289,6 @@ class TagsView(context: Context) : LinearLayout(context) {
                 VotedTag(Api.Tag(-3L, 0f, "placeholder write comment")),
                 VotedTag(Api.Tag(-2L, 0f, "placeholder write tag")))
 
-
         override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
             super.submitList(placeholders + newList, forceSync)
         }

@@ -86,6 +86,8 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
         }
     }
 
+    operator fun set(key: Long, value: E) = put(key, value)
+
     /**
      * Removes the mapping from the specified key, if there was any.
      */

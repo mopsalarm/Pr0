@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -16,9 +17,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.FollowState
-import com.pr0gramm.app.ui.DelegateAdapter
-import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
-import com.pr0gramm.app.ui.staticLayoutAdapterDelegate
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
@@ -40,7 +39,7 @@ class PostAdapter
 
         delegates += CommentItemAdapterDelegate
         delegates += InfoLineItemAdapterDelegate
-        delegates += TagsViewHolderAdapterDelegate
+        delegates += TagsViewHolderAdapterDelegate()
         delegates += PlaceholderItemAdapterDelegate
         delegates += staticLayoutAdapterDelegate(R.layout.comments_are_loading, Item.CommentsLoadingItem)
         delegates += staticLayoutAdapterDelegate(R.layout.comments_load_err, Item.LoadErrorItem)
@@ -106,8 +105,10 @@ private object CommentItemAdapterDelegate
     }
 }
 
-private object TagsViewHolderAdapterDelegate
+private class TagsViewHolderAdapterDelegate
     : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
+
+    private var viewStates = ViewHolderState()
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(TagsView(parent.context))
@@ -116,9 +117,41 @@ private object TagsViewHolderAdapterDelegate
     override fun onBindViewHolder(holder: ViewHolder, value: PostAdapter.Item.TagsItem) {
         holder.tagsView.actions = value.actions
         holder.tagsView.updateTags(value.itemId, value.tags, value.votes)
+
+        if (holder.viewStateId != value.itemId) {
+            holder.viewStateId = value.itemId
+            viewStates.restore(holder)
+        }
+
+        holder.doSaveViewState = { viewStates.save(holder) }
     }
 
-    private class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView)
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable("TagsViewHolder.state", viewStates)
+    }
+
+    override fun onRestoreInstanceState(inState: Bundle) {
+        super.onRestoreInstanceState(inState)
+
+        // load the previous view state
+        viewStates = inState.getParcelable("TagsViewHolder.state") ?: ViewHolderState()
+    }
+
+    private class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView), ViewHolderState.Aware, RecycleAware {
+        var doSaveViewState: () -> Unit = {}
+
+        override var viewStateId: Long = 0
+
+        private val initialViewState = ViewHolderState.ViewState().apply { save(itemView) }
+
+        override fun restoreInitialViewState() {
+            initialViewState.restore(itemView)
+        }
+
+        override fun onViewRecycled() {
+            doSaveViewState()
+        }
+    }
 }
 
 
