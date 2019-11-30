@@ -1,6 +1,8 @@
 package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Rect
@@ -9,10 +11,7 @@ import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -397,8 +396,22 @@ class TagsView(context: Context) : LinearLayout(context) {
                     tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = 0 }
                 }
 
+                if (!votedTag.alwaysShowVoteView) {
+                    tagView.setOnLongClickListener {
+                        updateSelection(tag.id)
+                        true
+                    }
+                }
+            }
+
+            if (votedTag.alwaysShowVoteView) {
                 tagView.setOnLongClickListener {
-                    updateSelection(tag.id)
+                    val text = votedTag.tag.tag
+
+                    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
+                    Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+
                     true
                 }
             }
