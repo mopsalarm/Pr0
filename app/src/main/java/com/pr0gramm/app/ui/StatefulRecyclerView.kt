@@ -1,16 +1,20 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
+import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.SparseArray
+import androidx.core.os.bundleOf
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.observeChangeEx
 
 class StatefulRecyclerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : androidx.recyclerview.widget.RecyclerView(context, attrs, defStyleAttr) {
+) : RecyclerView(context, attrs, defStyleAttr) {
 
+    private var savedAdapterState: Parcelable? = null
     private var savedHierarchyState: SparseArray<Parcelable>? = null
 
     override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>?) {
@@ -27,6 +31,42 @@ class StatefulRecyclerView @JvmOverloads constructor(
     override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable>?) {
         super.dispatchRestoreInstanceState(container)
         savedHierarchyState = container
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState()
+        return bundleOf(
+                "viewState" to superState,
+                "adapterState" to (adapter as? InstanceStateAware)?.onSaveInstanceState())
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val bundle = state as? Bundle ?: return
+        super.onRestoreInstanceState(bundle.getParcelable("viewState"))
+
+        val adapter = this.adapter
+        val adapterState = bundle.getParcelable<Parcelable>("adapterState")
+
+        if (this.adapter == null) {
+            this.savedAdapterState = adapterState
+        } else if (adapter is InstanceStateAware && adapterState != null) {
+            this.savedAdapterState = null
+            adapter.onRestoreInstanceState(adapterState)
+        }
+    }
+
+    override fun setAdapter(adapter: Adapter<*>?) {
+        super.setAdapter(adapter)
+
+        // restore state if available
+        val adapterState = this.savedAdapterState
+        if (adapterState != null) {
+            if (adapter is InstanceStateAware) {
+                adapter.onRestoreInstanceState(adapterState)
+            }
+
+            this.savedAdapterState = null
+        }
     }
 
     var primaryScrollListener by observeChangeEx<OnScrollListener?>(null) { oldValue, newValue ->
@@ -66,6 +106,15 @@ class StatefulRecyclerView @JvmOverloads constructor(
 
             savedHierarchyState = null
         }
+    }
+
+    /**
+     * Let the adapter implement this to let the state be saved by
+     * the recyclerview
+     */
+    interface InstanceStateAware {
+        fun onSaveInstanceState(): Parcelable?
+        fun onRestoreInstanceState(inState: Parcelable)
     }
 }
 

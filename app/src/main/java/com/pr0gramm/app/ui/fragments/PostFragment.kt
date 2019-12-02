@@ -188,10 +188,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow(smoothScroll = false) }
 
-        if (savedInstanceState != null) {
-            postAdapter.onRestoreInstanceState(savedInstanceState)
-        }
-
         userService.loginStates
                 .observeOnMainThread(firstIsSync = true)
                 .bindToLifecycle()
@@ -391,8 +387,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (comments.isNotEmpty()) {
             outState.putFreezable("PostFragment.comments", CommentListParceler(comments))
         }
-
-        postAdapter.onSaveInstanceState(outState)
     }
 
     private fun addWarnOverlayIfNecessary(inflater: LayoutInflater, view: ViewGroup) {

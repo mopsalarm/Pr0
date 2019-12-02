@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -105,7 +106,9 @@ class AdapterDelegateManager<T : Any>(
 abstract class DelegateAdapter<T : Any>(
         diffCallback: DiffUtil.ItemCallback<T> = AsyncListAdapter.InstanceDiffCallback(),
         detectMoves: Boolean = false,
-        name: String = "AsyncListAdapter") : AsyncListAdapter<T, RecyclerView.ViewHolder>(diffCallback, detectMoves, name) {
+        name: String = "AsyncListAdapter")
+    : AsyncListAdapter<T, RecyclerView.ViewHolder>(diffCallback, detectMoves, name),
+        StatefulRecyclerView.InstanceStateAware {
 
     protected val delegates: MutableList<AdapterDelegate<in T, out RecyclerView.ViewHolder>> = mutableListOf()
 
@@ -131,12 +134,14 @@ abstract class DelegateAdapter<T : Any>(
         }
     }
 
-    fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(): Parcelable? {
+        val outState = Bundle()
         manager.onSaveInstanceState(outState)
+        return outState
     }
 
-    fun onRestoreInstanceState(inState: Bundle) {
-        manager.onRestoreInstanceState(inState)
+    override fun onRestoreInstanceState(inState: Parcelable) {
+        manager.onRestoreInstanceState(inState as Bundle)
     }
 }
 
