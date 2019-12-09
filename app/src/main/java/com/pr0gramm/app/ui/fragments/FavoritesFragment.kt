@@ -5,23 +5,24 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
-import com.pr0gramm.app.ui.TabsAdapter
+import com.pr0gramm.app.ui.TabsStateAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.setupWithViewPager2
 
 /**
  */
 class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
-    private val pager: ViewPager by bindView(R.id.favorites_pager)
+    private val pager: ViewPager2 by bindView(R.id.favorites_pager)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
     private lateinit var feedFilter: FeedFilter
@@ -46,12 +47,17 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
 
         val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
 
-        pager.adapter = TabsAdapter(requireContext(), childFragmentManager).apply {
+        val adapter = TabsStateAdapter(requireActivity()).apply {
             addTab(R.string.action_favorites, feedFragmentArguments) { FeedFragment() }
             addTab(R.string.action_kfav) { FavedCommentFragment() }
         }
 
-        tabLayout.setupWithViewPager(pager)
+        pager.adapter = adapter
+        pager.offscreenPageLimit = 2
+
+        tabLayout.setupWithViewPager2(pager) { tab, position ->
+            tab.text = adapter.getPageTitle(position)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
