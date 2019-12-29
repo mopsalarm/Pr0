@@ -112,11 +112,11 @@
                     android:summary="@string/pref_double_tap_to_upvote_summary"
                     android:title="@string/pref_double_tap_to_upvote" />
 
-                <SwitchPreferenceCompat
-                    android:defaultValue="false"
-                    android:key="pref_audiofocus_transient"
-                    android:summary="@string/pref_audiofocus_transient_summary"
-                    android:title="@string/pref_audiofocus_transient_title" />
+                <!--                <SwitchPreferenceCompat-->
+                <!--                    android:defaultValue="false"-->
+                <!--                    android:key="pref_audiofocus_transient"-->
+                <!--                    android:summary="@string/pref_audiofocus_transient_summary"-->
+                <!--                    android:title="@string/pref_audiofocus_transient_title" />-->
             </PreferenceCategory>
 
             <PreferenceCategory
