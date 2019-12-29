@@ -69,17 +69,6 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
                 stop()
             }
         }
-
-//        videoPlayer.buffering()
-//                .sample(500, TimeUnit.MILLISECONDS, MainThreadScheduler)
-//                .observeOn(MainThreadScheduler)
-//                .compose(RxLifecycleAndroid.bindView<Boolean>(this))
-//                .subscribe { this.showBusyIndicator(it) }
-
-        // videoPlayer.detaches.subscribe { storePlaybackPosition() }
-
-        // this.videoPlayer = DebugVideoPlayer(videoPlayer)
-        // restorePreviousSeek()
     }
 
     override fun currentVideoProgress(): ProgressInfo? {
@@ -95,6 +84,8 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
         if (exo != null || !isPlaying) {
             return
         }
+
+        showBusyIndicator()
 
         logger.info { "Starting exo for $effectiveUri" }
 
@@ -120,6 +111,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
             volume = 0f
 
             addVideoListener(videoListener)
+            addListener(playerListener)
 
             SeekController.restore(config.mediaUri.id, this)
         }
@@ -231,8 +223,15 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
         }
     }
 
+    private val playerListener = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            showBusyIndicator(playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING)
+        }
+    }
+
     private val videoListener = object : VideoListener {
         override fun onRenderedFirstFrame() {
+            hideBusyIndicator()
             if (isPlaying) {
                 updateTimeline()
                 onMediaShown()
