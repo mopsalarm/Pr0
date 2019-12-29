@@ -12,7 +12,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
-import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
@@ -22,7 +21,6 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.VideoListener
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.viewer.video.InputStreamCacheDataSource
 import com.pr0gramm.app.util.addOnAttachListener
@@ -30,8 +28,9 @@ import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.find
 
+
 @SuppressLint("ViewConstructor")
-class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.player_kind_simple_video) {
+class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, com.pr0gramm.app.R.layout.player_kind_simple_video) {
     private val logger = Logger("SimpleVideoMediaView(${config.mediaUri.id})")
 
     private val volumeController: VolumeController?
@@ -46,7 +45,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         if (config.audio) {
             val muteView = LayoutInflater
                     .from(context)
-                    .inflate(R.layout.player_mute_view, this, false) as ImageView
+                    .inflate(com.pr0gramm.app.R.layout.player_mute_view, this, false) as ImageView
 
             // controller will handle the button clicks & stuff
             volumeController = VolumeController(muteView) { exo }
@@ -112,9 +111,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
                 .Factory(dataSourceFactory, extractorsFactory)
                 .createMediaSource(effectiveUri)
 
-        exo = ExoPlayerFactory.newSimpleInstance(context).apply {
-            setVideoTextureView(find(R.id.texture_view))
+        exo = SimpleExoPlayer.Builder(context).build().apply {
+            setVideoTextureView(find(com.pr0gramm.app.R.id.texture_view))
             prepare(mediaSource, false, false)
+
             repeatMode = Player.REPEAT_MODE_ONE
             playWhenReady = true
             volume = 0f
@@ -201,12 +201,12 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
             if (tapPosition < 0.25) {
                 userSeekTo((exo.currentPosition - skipFraction) / exo.duration.toFloat())
-                animateMediaControls(find(R.id.rewind), direction = -1)
+                animateMediaControls(find(com.pr0gramm.app.R.id.rewind), direction = -1)
                 return true
 
             } else if (tapPosition > 0.75) {
                 userSeekTo((exo.currentPosition + skipFraction) / exo.duration.toFloat())
-                animateMediaControls(find(R.id.fast_forward), direction = +1)
+                animateMediaControls(find(com.pr0gramm.app.R.id.fast_forward), direction = +1)
                 return true
             }
         }
