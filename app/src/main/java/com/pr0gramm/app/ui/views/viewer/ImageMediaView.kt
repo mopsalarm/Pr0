@@ -8,12 +8,10 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.removeFromParent
 import kotterknife.bindView
 import kotlin.math.max
 
@@ -65,12 +63,12 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
             }
         }
 
-        addOnDetachListener {
-            picasso.cancelTag(tag)
-            imageView.recycle()
-            imageView.setOnImageEventListener(null)
-            imageView.removeFromParent()
-        }
+//        addOnDetachListener {
+//            picasso.cancelTag(tag)
+//            imageView.recycle()
+//            imageView.setOnImageEventListener(null)
+//            imageView.removeFromParent()
+//        }
 
         // start loading
         val tiling = config.previewInfo?.let { it.width > 2000 || it.height > 2000 } ?: false

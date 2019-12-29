@@ -79,15 +79,6 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         imageView.visibility = View.VISIBLE
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        gif.takeIf { isPlaying }?.let { gif ->
-            gif.start()
-            onMediaShown()
-        }
-    }
-
     override fun currentVideoProgress(): AbstractProgressMediaView.ProgressInfo? {
         gif?.takeIf { isPlaying }?.let { gif ->
             val position = gif.currentFrameIndex
@@ -99,11 +90,6 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         }
 
         return null
-    }
-
-    override fun onPause() {
-        super.onPause()
-        gif?.pause()
     }
 
     override fun playMedia() {

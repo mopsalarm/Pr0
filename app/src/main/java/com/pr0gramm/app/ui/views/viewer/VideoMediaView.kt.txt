@@ -29,6 +29,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.instance
+import com.pr0gramm.app.ui.views.viewer.video.DebugVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
@@ -42,7 +43,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     // the video player that does all the magic
-    private val videoPlayer: RxVideoPlayer
+    private val videoPlayer: VideoPlayer
     private val muteButtonView: ImageView
 
     private val videoPlayerParent: AspectLayout by bindView(R.id.video_container)
@@ -56,7 +57,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     init {
         logger.debug { "Using exo player to play videos." }
-        videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
+        val videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
 
         muteButtonView = LayoutInflater
                 .from(context)
@@ -78,6 +79,8 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
 
         videoPlayer.detaches.subscribe { storePlaybackPosition() }
+
+        this.videoPlayer = DebugVideoPlayer(videoPlayer)
 
         restorePreviousSeek()
 
@@ -245,9 +248,9 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             }
         }
 
-    override fun currentVideoProgress(): AbstractProgressMediaView.ProgressInfo? {
+    override fun currentVideoProgress(): ProgressInfo? {
         if (videoViewInitialized && isPlaying) {
-            return AbstractProgressMediaView.ProgressInfo(videoPlayer.progress, videoPlayer.buffered)
+            return ProgressInfo(videoPlayer.progress, videoPlayer.buffered)
         }
 
         return null

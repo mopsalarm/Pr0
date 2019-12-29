@@ -4,7 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager.widget.ViewPager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -24,7 +27,7 @@ import com.pr0gramm.app.util.observeChange
 class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
-    private val viewPager: ViewPager by bindView(R.id.pager)
+    private val viewPager: ViewPager2 by bindView(R.id.pager)
 
     private lateinit var adapter: PostAdapter
 
@@ -56,7 +59,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         val manager = FeedManager(feedService, previousFeed)
 
         // create the adapter on the view
-        adapter = PostAdapter(previousFeed, manager)
+        adapter = PostAdapter(previousFeed, manager, requireActivity())
 
         manager.updates
                 .bindToLifecycle()
@@ -67,7 +70,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val activity = activity as ToolbarActivity
             activity.scrollHideToolbarListener.reset()
 
-            viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
                     activePostFragment?.exitFullscreen()
@@ -75,21 +78,17 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             })
         }
 
-        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                if (position >= 0 && position + 1 < adapter.count) {
-                    val prev = adapter.getFragment(position)
-                    val next = adapter.getFragment(position + 1)
-                    if (prev is PostFragment && next is PostFragment && settings.fancyScrollHorizontal) {
-                        val offset = positionOffsetPixels / 2
-                        prev.mediaHorizontalOffset(offset)
-                        next.mediaHorizontalOffset(offset - viewPager.width / 2)
-                    }
+        if (Settings.get().fancyScrollHorizontal) {
+            viewPager.setPageTransformer { page: View, position: Float ->
+                val viewer = page.findViewWithTag<View>(PostFragment.ViewerTag)
+                if (viewer != null) {
+                    viewer.translationX = -(position * page.width / 2.0f)
                 }
             }
-        })
+        }
 
         viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 1
 
         if (savedInstanceState != null) {
             // calculate index of the first item to show if this is the first
@@ -128,11 +127,11 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     internal fun updateActiveItem(newActiveFragment: PostFragment) {
-        val position = adapter.getItemPosition(newActiveFragment)
         if (activePostFragment === newActiveFragment)
             return
 
-        logger.info { "Setting feed item activate at $position to $newActiveFragment" }
+        // val position = adapter.getItemPosition(newActiveFragment)
+        logger.info { "Mark feed item active: $newActiveFragment" }
 
         // deactivate previous item
         activePostFragment?.setActive(false)
@@ -243,23 +242,21 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         this.previewInfo = previewInfo
     }
 
-    private inner class PostAdapter(feed: Feed, val manager: FeedManager) : IdFragmentStatePagerAdapter(childFragmentManager) {
+    private inner class PostAdapter(
+            feed: Feed,
+            private val manager: FeedManager,
+            activity: FragmentActivity)
+        : FragmentStateAdapter(this) {
+
         var feed: Feed by observeChange(feed) {
             notifyDataSetChanged()
         }
 
-        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            super.setPrimaryItem(container, position, `object`)
-            updateActiveItem(`object` as PostFragment)
-
-            if (view != null) {
-                arguments?.let { args ->
-                    saveStateToBundle(args)
-                }
-            }
+        override fun getItemCount(): Int {
+            return feed.size
         }
 
-        override fun getItem(position: Int): androidx.fragment.app.Fragment {
+        override fun createFragment(position: Int): Fragment {
             if (!manager.isLoading) {
                 if (position > feed.size - 12) {
                     logger.debug { "Requested pos=$position, load next page" }
@@ -286,17 +283,12 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             return PostFragment.newInstance(item)
         }
 
-        override fun getCount(): Int {
-            return feed.size
-        }
-
-        override fun getItemPosition(`object`: Any): Int {
-            val item = (`object` as PostFragment).feedItem
-            return feed.indexById(item.id) ?: androidx.viewpager.widget.PagerAdapter.POSITION_NONE
-        }
-
         override fun getItemId(position: Int): Long {
             return feed[position].id
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            return feed.any { it.id == itemId }
         }
     }
 
