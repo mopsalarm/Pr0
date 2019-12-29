@@ -13,10 +13,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
-import com.pr0gramm.app.services.FeedbackService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -36,7 +34,6 @@ import kotterknife.bindViews
  */
 class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private val contactService: ContactService by instance()
-    private val feedbackService: FeedbackService by instance()
     private val userService: UserService by instance()
 
     private val buttonSubmit: Button by bindView(R.id.submit)
@@ -50,10 +47,11 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
     private val groupAllInputViews: List<TextView> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_text)
 
-    private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint, R.id.feedback_type_app_hint)
-    private val groupNormalSupport: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_deletion_hint)
-    private val groupAppLoggedIn: List<View> by bindViews(R.id.feedback_type_app_hint)
-    private val groupAppNotLoggedIn: List<View> by bindViews(R.id.feedback_name, R.id.feedback_type_app_hint)
+    private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint)
+    private val groupNormalLoggedIn: List<View> by bindViews(R.id.feedback_subject, R.id.feedback_deletion_hint)
+    private val groupNormalLoggedOut: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_deletion_hint)
+    private val groupAppLoggedIn: List<View> by bindViews(R.id.feedback_subject)
+    private val groupAppLoggedOut: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_name)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
@@ -95,20 +93,25 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
     private fun applyViewVisibility() {
         val activeViews: List<View> = when {
-            isNormalSupport -> groupNormalSupport
+            isNormalSupport && userService.isAuthorized -> groupNormalLoggedIn
+            isNormalSupport -> groupNormalLoggedOut
             userService.isAuthorized -> groupAppLoggedIn
-            else -> groupAppNotLoggedIn
+            else -> groupAppLoggedOut
         }
 
         for (view in groupAll) {
-            view.visibility = if (activeViews.contains(view)) View.VISIBLE else View.GONE
+            view.isVisible = view in activeViews
         }
 
         updateSubmitButtonActivation()
     }
 
     private fun updateSubmitButtonActivation() {
-        var enabled = groupAllInputViews.none { it.isVisible && it.text.toString().trim().isEmpty() }
+        // the button is enabled if there is no visible text view that has
+        // an empty input.
+        var enabled = groupAllInputViews.none {
+            it.isVisible && it.text.toString().trim().isEmpty()
+        }
 
         if (vMail.isVisible && !vMail.text.matches(Patterns.EMAIL_ADDRESS)) {
             enabled = false
@@ -130,23 +133,16 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private suspend fun sendFeedback() {
-        var feedback = vText.text.toString().trim()
-        if (isNormalSupport) {
-            val email = vMail.text.toString().trim()
-            val subject = vSubject.text.toString().trim()
+        val email = vMail.text.toString().trim()
+        val feedback = vText.text.toString().trim()
 
-            feedback += "\n\nGesendet mit der App v" + BuildConfig.VERSION_NAME
+        var subject = vSubject.text.toString().trim()
+        if (!isNormalSupport) {
+            subject = "[feedback] $subject"
+        }
 
-            withContext(Dispatchers.IO + NonCancellable) {
-                contactService.post(email, subject, feedback)
-            }
-
-        } else {
-            val name = userService.name ?: vName.text.toString().trim()
-
-            withContext(Dispatchers.IO + NonCancellable) {
-                feedbackService.post(name, feedback)
-            }
+        withContext(Dispatchers.IO + NonCancellable) {
+            contactService.post(email, subject, feedback)
         }
     }
 
