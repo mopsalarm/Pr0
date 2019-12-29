@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.28'
+        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.29'
     }
 }
 
@@ -193,7 +193,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-brotli:4.2.2"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    implementation "com.github.square.moshi:moshi:moshi-parent-1.9.2"
+    implementation "com.github.square.moshi:moshi:40a829ef18"
 
     // still issues with version > 1.2.12
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"

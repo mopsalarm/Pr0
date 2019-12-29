@@ -310,7 +310,7 @@
     <string name="error_cloudflare">Looks like cloudflare is blocking your ip address.</string>
     <string name="error_blocked">Looks like your provider is blocking pr0gramm. Are you using some kind of free wifi?</string>
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
-    <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Ist es dein eigener Upload, kannst du ihn auch selbst löschen, schaue dafür in die FAQ: https://pr0gramm.com/faq:delete</string>
+    <string name="feedback_delete_post_hint">Bei Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Ist es dein eigener Upload, kannst du ihn auch selbst löschen, schaue dafür in die FAQ: https://pr0gramm.com/faq:delete</string>
     <string name="login_password_recovery">Forgot password</string>
     <string name="hint_email">Email address</string>
     <string name="submit">Submit</string>

@@ -239,7 +239,8 @@ interface Api {
     suspend fun contactSend(
             @Field("subject") subject: String,
             @Field("email") email: String,
-            @Field("message") message: String): Unit
+            @Field("message") message: String,
+            @Field("extraText") extraText: String?): Unit
 
     @FormUrlEncoded
     @POST("api/contact/report")

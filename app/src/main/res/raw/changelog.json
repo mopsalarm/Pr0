@@ -1,5 +1,14 @@
 [
   {
+    "version": 175,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Kleine Fixes im Layout."
+      }
+    ]
+  },
+  {
     "version": 174,
     "changes": [
       {
