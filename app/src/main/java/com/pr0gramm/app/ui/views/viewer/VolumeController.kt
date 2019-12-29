@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
-import android.media.AudioManager
 import android.widget.ImageView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.edit
@@ -11,7 +10,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.catchAll
@@ -43,18 +41,6 @@ class VolumeController(val view: ImageView, private val exo: () -> SimpleExoPlay
     }
 
     private fun setMuted(mute: Boolean): Unit = catchAll {
-        //        if (muted) {
-//            audioManager.abandonAudioFocus(afChangeListener)
-//        } else {
-//            val result = audioManager.requestAudioFocus(afChangeListener,
-//                    AudioManager.STREAM_MUSIC, audioFocusDurationHint())
-//
-//            if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-//                logger.info { "Did not get audio focus, muting now!" }
-//                muted = true
-//            }
-//        }
-
         val exo = exo() ?: return
 
         logger.info { "Setting mute state on video player: $mute" }
@@ -84,14 +70,6 @@ class VolumeController(val view: ImageView, private val exo: () -> SimpleExoPlay
         }
 
         view.setImageDrawable(icon)
-    }
-
-    private fun audioFocusDurationHint(): Int {
-        return if (Settings.get().audioFocusTransient) {
-            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-        } else {
-            AudioManager.AUDIOFOCUS_GAIN
-        }
     }
 
     /**

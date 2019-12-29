@@ -12,6 +12,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -301,11 +302,12 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      * this with a call to [.hideBusyIndicator]
      */
     protected fun showBusyIndicator() {
-        if (busyIndicator != null) {
-            if (busyIndicator!!.parent == null)
+        busyIndicator?.let { busyIndicator ->
+            if (busyIndicator.parent == null) {
                 addView(busyIndicator)
+            }
 
-            busyIndicator!!.visibility = View.VISIBLE
+            busyIndicator.isVisible = true
         }
     }
 
