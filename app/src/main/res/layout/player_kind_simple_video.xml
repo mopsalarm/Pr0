@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <include layout="@layout/player_preview_image" />
+
+    <TextureView
+        android:id="@+id/texture_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <include layout="@layout/player_progress" />
+
+    <ImageView
+        android:id="@+id/rewind"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginLeft="25dp"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_rewind"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/fast_forward"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginRight="25dp"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_fast_foward"
+        tools:visibility="visible" />
+</merge>

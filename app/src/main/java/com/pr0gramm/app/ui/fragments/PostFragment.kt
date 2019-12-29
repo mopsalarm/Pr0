@@ -111,8 +111,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.NEVER) {
         super.onCreate(savedInstanceState)
 
-        setHasOptionsMenu(true)
-
         savedInstanceState?.let { state ->
             val tags = state.getFreezable("PostFragment.tags", TagListParceler)?.tags
             if (tags != null) {
@@ -128,6 +126,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // check if we are admin or not
         userService.loginStates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
             activity?.invalidateOptionsMenu()
+        }
+
+        lifecycle().subscribe { event ->
+            this@PostFragment.trace { "${feedItem.id}: $event" }
         }
     }
 
@@ -202,8 +204,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     }
                 }
 
-        val tags = this.apiTagsCh.value.orEmpty()
-        val comments = this.apiCommentsCh.value.orEmpty()
+        val tags = this.apiTagsCh.value
+        val comments = this.apiCommentsCh.value
 
         if (comments.isNotEmpty()) {
             // if we have saved comments we need to apply immediately to ensure
@@ -242,7 +244,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
         activeState.bindToLifecycle().subscribe { active ->
-            logger.debug { "Switching viewer state to $active" }
+            trace { "${feedItem.id}.activeState($active): Switching viewer state" }
+
             if (active) {
                 playMediaOnViewer()
             } else {
@@ -639,7 +642,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private class DownloadException(cause: Throwable) : Exception(cause)
 
-    override suspend fun onResumeImpl() {
+    override suspend fun onStartImpl() {
+        trace { "Starting Post ${feedItem.id}" }
         launch {
             voteService.getVote(feedItem).collect { vote ->
                 state = state.copy(itemVote = vote)
@@ -673,6 +677,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 simulateScroll()
             }
         }
+    }
+
+    override suspend fun onResumeImpl() {
+        setHasOptionsMenu(true)
+
+        setActive(true)
+    }
+
+    override fun onPause() {
+        setActive(false)
+        super.onPause()
     }
 
     /**
@@ -770,9 +785,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val uri = buildMediaUri()
 
         val viewerConfig = Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo)
-        val viewer = logger.time("MediaView.newInstance") {
+        val viewer = logger.time("MediaView.newInstance(${uri.baseUri})") {
             MediaViews.newInstance(viewerConfig)
         }
+
+        viewer.tag = ViewerTag
 
         // remember for later
         this.viewer = viewer
@@ -781,9 +798,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             doInBackground { seenService.markAsSeen(feedItem.id) }
             //  mark this item seen. We do that in a background thread
         }
-
-        // inform viewer about fragment lifecycle events!
-        MediaViews.adaptFragmentLifecycle(lifecycle(), viewer)
 
         registerTapListener(viewer)
 
@@ -1067,10 +1081,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             commentTreeHelper.selectComment(commentId)
             commentRef = null
         }
-    }
-
-    fun mediaHorizontalOffset(offset: Int) {
-        viewer?.translationX = offset.toFloat()
     }
 
     override fun onBackButton(): Boolean {
@@ -1372,5 +1382,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         private val RecyclerView.postAdapter: PostAdapter? get() = adapter as? PostAdapter
+
+        val ViewerTag = Any()
     }
 }

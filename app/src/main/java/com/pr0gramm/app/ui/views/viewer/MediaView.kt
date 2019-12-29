@@ -70,9 +70,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     var tapListener: TapListener? = null
 
-    var isResumed: Boolean = false
-        private set
-
     var isPlaying: Boolean = false
         private set
 
@@ -116,9 +113,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         addOnDetachListener {
             if (isPlaying)
                 stopMedia()
-
-            if (isResumed)
-                onPause()
 
             // no more views will come now.
             controllerView.onCompleted()
@@ -328,14 +322,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      */
     protected fun hideBusyIndicator() {
         busyIndicator.removeFromParent()
-    }
-
-    open fun onPause() {
-        isResumed = false
-    }
-
-    open fun onResume() {
-        isResumed = true
     }
 
     /**

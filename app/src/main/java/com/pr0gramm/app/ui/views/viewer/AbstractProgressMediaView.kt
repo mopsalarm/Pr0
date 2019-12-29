@@ -46,17 +46,6 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         seekBarView.setOnSeekBarChangeListener(SeekbarChangeListener())
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateTimeline()
-    }
-
-    override fun playMedia() {
-        super.playMedia()
-        updateTimeline()
-    }
-
-
     override fun onSingleTap(event: MotionEvent): Boolean {
         if (userSeekable()) {
             if (seekCurrentlyVisible()) {
@@ -133,7 +122,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         view.secondaryProgress = (1000 * buffered).toInt()
     }
 
-    private fun updateTimeline() {
+    protected fun updateTimeline() {
         if (!isPlaying)
             return
 

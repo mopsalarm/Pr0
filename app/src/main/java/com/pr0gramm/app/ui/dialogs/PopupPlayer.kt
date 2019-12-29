@@ -25,13 +25,11 @@ class PopupPlayer : DialogFragment() {
         dialog.setContentView(mediaView)
 
         dialog.setOnShowListener {
-            mediaView.onResume()
             mediaView.playMedia()
         }
 
         dialog.setOnDismissListener {
             mediaView.stopMedia()
-            mediaView.onPause()
         }
 
         return dialog

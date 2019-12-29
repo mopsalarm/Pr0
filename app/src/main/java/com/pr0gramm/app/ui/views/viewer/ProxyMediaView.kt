@@ -69,9 +69,6 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
 
     private fun bootupChild() {
         if (child != null) {
-            if (isResumed)
-                child!!.onResume()
-
             if (isPlaying)
                 child!!.playMedia()
         }
@@ -81,15 +78,7 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
         child?.let { child ->
             if (isPlaying)
                 child.stopMedia()
-
-            if (isResumed)
-                child.onPause()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        child?.onResume()
     }
 
     override fun playMedia() {
@@ -104,11 +93,6 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
 
     override fun rewind() {
         child?.rewind()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        child?.onPause()
     }
 
     override val actualMediaView: MediaView
@@ -132,7 +116,7 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
         return super.onTouchEvent(event)
     }
 
-    private inner class ForwardingTapListener() : MediaView.TapListener {
+    private inner class ForwardingTapListener : MediaView.TapListener {
         override fun onSingleTap(event: MotionEvent): Boolean {
             return tapListener?.onSingleTap(event) ?: false
         }
