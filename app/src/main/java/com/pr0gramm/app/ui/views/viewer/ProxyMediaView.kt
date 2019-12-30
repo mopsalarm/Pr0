@@ -2,11 +2,7 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
-import android.view.View
-
 import com.pr0gramm.app.R
-import rx.functions.Action1
-
 import rx.subscriptions.CompositeSubscription
 
 /**
@@ -31,10 +27,10 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
 
         // forward double clicks
         child.tapListener = ForwardingTapListener()
-        subscription.add(child.viewed().subscribe { event -> this.onMediaShown() })
+        subscription.add(child.viewed().subscribe { this.onMediaShown() })
 
         // forward controller view
-        subscription.add(child.controllerView().subscribe(Action1<View> { this.publishControllerView(it) }))
+        subscription.add(child.controllerView().subscribe { this.publishControllerView(it) })
     }
 
     /**

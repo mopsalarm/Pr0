@@ -51,7 +51,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     private val previewTarget = PreviewTarget(logger, this)
     private val onViewListener = BehaviorSubject.create<Void>()
-    private val thumbnail = BehaviorSubject.create<Bitmap>()
     private val controllerView = ReplaySubject.create<View>()
     private val gestureDetector: GestureDetector
 
@@ -112,13 +111,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         showPreloadedIndicator()
 
         addOnDetachListener {
-            if (isPlaying)
+            if (isPlaying) {
                 stopMedia()
-
-            // no more views will come now.
-            controllerView.onCompleted()
-            onViewListener.onCompleted()
-            thumbnail.onCompleted()
+            }
         }
 
         if (hasPreviewView() && config.previewInfo?.fullThumbUri != null) {
@@ -191,18 +186,12 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             logger.debug { "Using provided fancy preview image." }
             val drawable = BitmapDrawable(resources, preview)
             setPreviewDrawable(drawable)
-            thumbnail.onNext(preview)
             return
         }
 
         info.preview?.let { preview ->
             logger.debug { "Using provided preview image." }
             setPreviewDrawable(preview)
-
-            if (preview is BitmapDrawable) {
-                val bitmap = preview.bitmap
-                thumbnail.onNext(bitmap)
-            }
         }
 
         launchIgnoreErrors {
@@ -392,10 +381,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         return controllerView
     }
 
-    fun thumbnail(): Observable<Bitmap> {
-        return thumbnail
-    }
-
     interface TapListener {
         fun onSingleTap(event: MotionEvent): Boolean
 
@@ -414,8 +399,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                     val nextImage = BitmapDrawable(mediaView.resources, bitmap)
                     mediaView.setPreviewDrawable(nextImage)
                 }
-
-                mediaView.thumbnail.onNext(bitmap)
             }
         }
     }
