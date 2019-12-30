@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.pr0gramm.app.R
@@ -59,7 +58,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         val manager = FeedManager(feedService, previousFeed)
 
         // create the adapter on the view
-        adapter = PostAdapter(previousFeed, manager, requireActivity())
+        adapter = PostAdapter(previousFeed, manager)
 
         manager.updates
                 .bindToLifecycle()
@@ -73,7 +72,11 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
-                    activePostFragment?.exitFullscreen()
+                    activePostFragment()?.exitFullscreen()
+                }
+
+                override fun onPageSelected(position: Int) {
+                    onPageChanged()
                 }
             })
         }
@@ -96,6 +99,19 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val start = getArgumentStartItem(savedInstanceState)
             makeItemCurrent(start)
         }
+    }
+
+    private fun onPageChanged() {
+        arguments?.let { saveStateToBundle(it) }
+
+        val mainActivity = activity as? MainActivity
+        mainActivity?.updateActionbarTitle()
+    }
+
+    private fun activePostFragment(): PostFragment? {
+        return childFragmentManager.fragments
+                .filterIsInstance<PostFragment>()
+                .firstOrNull { it.isVisible && it.isResumed }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -124,25 +140,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
         logger.info { "Moving to index: $index" }
         viewPager.setCurrentItem(index, false)
-    }
-
-    internal fun updateActiveItem(newActiveFragment: PostFragment) {
-        if (activePostFragment === newActiveFragment)
-            return
-
-        // val position = adapter.getItemPosition(newActiveFragment)
-        logger.info { "Mark feed item active: $newActiveFragment" }
-
-        // deactivate previous item
-        activePostFragment?.setActive(false)
-
-        // and activate the next one
-        activePostFragment = newActiveFragment.also { fragment ->
-            fragment.setActive(true)
-        }
-
-        val mainActivity = activity as? MainActivity
-        mainActivity?.updateActionbarTitle()
     }
 
     override fun previewInfoFor(item: FeedItem): PreviewInfo? {
@@ -175,10 +172,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        if (view != null) {
-            saveStateToBundle(outState)
-        }
+        saveStateToBundle(outState)
     }
 
     /**
@@ -221,8 +215,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         (activity as MainActionHandler).onFeedFilterSelected(newFilter)
     }
 
-    internal fun saveStateToBundle(outState: Bundle) {
-        if (adapter.feed.isNotEmpty()) {
+    private fun saveStateToBundle(outState: Bundle) {
+        if (view != null && adapter.feed.isNotEmpty()) {
             val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
 
             if (lastSavedPosition != position) {
@@ -244,8 +238,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     private inner class PostAdapter(
             feed: Feed,
-            private val manager: FeedManager,
-            activity: FragmentActivity)
+            private val manager: FeedManager)
         : FragmentStateAdapter(this) {
 
         var feed: Feed by observeChange(feed) {
