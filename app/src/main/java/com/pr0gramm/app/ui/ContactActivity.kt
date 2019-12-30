@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.services.ThemeHelper
@@ -139,7 +138,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
         var subject = vSubject.text.toString().trim()
         if (!isNormalSupport) {
-            subject = "[app, v${BuildConfig.VERSION_NAME}] $subject"
+            subject = "[app] $subject"
         }
 
         withContext(Dispatchers.IO + NonCancellable) {
