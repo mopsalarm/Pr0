@@ -7,5 +7,5 @@ object DebugConfig {
     const val mockApiHost = "10.1.1.55"
     const val debugInterceptor = true
 
-    val versionOverride: Int? = 1720
+    val versionOverride: Int? = 1720.takeIf { BuildConfig.DEBUG }
 }
