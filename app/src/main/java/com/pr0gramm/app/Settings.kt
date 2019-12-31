@@ -177,7 +177,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         get() = preferences.getEnumValue("pref_single_tap_action", TapAction.NONE)
 
     val doubleTapAction: TapAction
-        get() = preferences.getEnumValue("pref_double_tap_action", TapAction.NONE)
+        get() = preferences.getEnumValue("pref_double_tap_action", TapAction.UPVOTE)
 
     val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
