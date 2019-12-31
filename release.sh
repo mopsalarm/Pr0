@@ -86,7 +86,7 @@ deploy_upload_apk
 
 # generate debug sources in a final step.
 echo "Prepare next dev cycle..."
-./gradlew --console=plain --no-daemon clean generateDebugSources > /dev/null
+./gradlew --console=plain --no-daemon generateDebugSources > /dev/null
 
 # link to the release manager
 echo "Go to the release manager at https://$CREDENTIALS_UPDATE@app.pr0gramm.com/update-manager/"
