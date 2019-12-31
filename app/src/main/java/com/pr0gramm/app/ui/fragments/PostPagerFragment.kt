@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.pr0gramm.app.R
@@ -30,8 +31,9 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     private lateinit var adapter: PostAdapter
 
-    private var activePostFragment: PostFragment? = null
     private var previewInfo: PreviewInfo? = null
+
+    private var latestActivePostFragment: PostFragment? = null
 
     // to prevent double saving of current state
     private var lastSavedPosition: Int = -1
@@ -44,6 +46,20 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         super.onCreate(savedInstanceState)
 
         initialCommentRef = arguments?.getParcelable(ARG_START_ITEM_COMMENT_REF)
+
+        // Listen for changes in fragments. We use this, because with the ViewPager2
+        // callbacks we dont have any access to the fragment, and we don't even know,
+        // when the fragment will be there and available.
+        val l = object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+                if (f is PostFragment && latestActivePostFragment !== f) {
+                    latestActivePostFragment = f
+                    onActiveFragmentChanged()
+                }
+            }
+        }
+
+        childFragmentManager.registerFragmentLifecycleCallbacks(l, false)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -72,11 +88,11 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
-                    activePostFragment()?.exitFullscreen()
+                    latestActivePostFragment?.exitFullscreen()
                 }
 
                 override fun onPageSelected(position: Int) {
-                    onPageChanged()
+                    arguments?.let { saveStateToBundle(it) }
                 }
             })
         }
@@ -101,17 +117,9 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         }
     }
 
-    private fun onPageChanged() {
-        arguments?.let { saveStateToBundle(it) }
-
+    private fun onActiveFragmentChanged() {
         val mainActivity = activity as? MainActivity
         mainActivity?.updateActionbarTitle()
-    }
-
-    private fun activePostFragment(): PostFragment? {
-        return childFragmentManager.fragments
-                .filterIsInstance<PostFragment>()
-                .firstOrNull { it.isVisible && it.isResumed }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -124,7 +132,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     override fun onStop() {
-        activePostFragment?.feedItem?.let { feedItem ->
+        latestActivePostFragment?.feedItem?.let { feedItem ->
             val feed = adapter.feed
             if (feedItem in feed) {
                 val target = targetFragment as? FeedFragment ?: return@let
@@ -186,7 +194,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val titleOverride = arguments?.getString(ARG_TITLE)
 
             if (settings.useTopTagAsTitle) {
-                val title = activePostFragment?.title
+                val title = latestActivePostFragment?.title
 
                 if (titleOverride != null) {
                     // if the caller gave us a more specific title, we'll use that one.
