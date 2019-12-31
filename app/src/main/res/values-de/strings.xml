@@ -63,8 +63,6 @@
     <string name="logout">Abmelden</string>
     <string name="post_comment">Abschicken</string>
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
-    <string name="pref_double_tap_to_upvote">Doppelttap für Upvote</string>
-    <string name="pref_double_tap_to_upvote_summary">Doppeltap auf ein Bild oder Video führt einen Upvote aus</string>
     <string name="could_not_load_feed_https">Kann den Feed nicht laden.</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fancy_scroll_vertical">Vertikales parallaxes Scrollen</string>
@@ -489,4 +487,17 @@
     <string name="write_comment">%s kommentieren</string>
     <string name="hint_follow_premium_only">Gespeichert. pr0mium-Account ist nötig, um gestelzte Benutzer zu sehen.</string>
     <string name="tags_show_all">Alle anzeigen</string>
+
+    <string name="pref_tap_action_none">Keine Aktion</string>
+    <string name="pref_tap_action_upvote">Upvote</string>
+    <string name="pref_tap_action_downvote">Downvote</string>
+    <string name="pref_tap_action_favorite">Favorisieren</string>
+    <string name="pref_tap_action_fullscreen">Vollbild</string>
+
+    <string name="pref_single_tap_action_title">Einfach Tap Aktion</string>
+    <string name="pref_single_tap_action_summary">Wähle eine Aktion fürs einfache Tappen auf ein Bild aus.</string>
+    <string name="pref_double_tap_action_title">Doppel-Tap Aktion</string>
+    <string name="pref_double_tap_action_summary">Wähle eine Aktion fürs zweifaches Tappen auf ein Bild oder Video aus.</string>
+
+
 </resources>

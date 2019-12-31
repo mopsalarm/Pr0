@@ -588,6 +588,10 @@ inline fun SharedPreferences.getStringOrNull(key: String): String? {
     return getString(key, null)
 }
 
+inline fun <reified E : Enum<E>> SharedPreferences.getEnumValue(name: String, default: E): E {
+    return tryEnumValueOf<E>(getStringOrNull(name)) ?: default
+}
+
 inline fun <reified T : Activity> activityIntent(
         context: Context, uri: Uri? = null, configure: Intent.() -> Unit = {}): Intent {
 

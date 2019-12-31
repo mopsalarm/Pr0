@@ -68,9 +68,6 @@
     <string name="are_you_sure_to_logout">Are you sure to logout on this device?</string>
     <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past seven days.</string>
 
-    <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
-    <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote.</string>
-
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed_https">Can not load the feed. Please try again.</string>
     <string name="pref_fancy_scroll_vertical">Vertical parallax scrolling</string>
@@ -310,7 +307,7 @@
     <string name="error_cloudflare">Looks like cloudflare is blocking your ip address.</string>
     <string name="error_blocked">Looks like your provider is blocking pr0gramm. Are you using some kind of free wifi?</string>
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
-    <string name="feedback_delete_post_hint">Bei Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Ist es dein eigener Upload, kannst du ihn auch selbst löschen, schaue dafür in die FAQ: https://pr0gramm.com/faq:delete</string>
+    <string name="feedback_delete_post_hint" translatable="false">Bei Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Ist es dein eigener Upload, kannst du ihn auch selbst löschen, schaue dafür in die FAQ: https://pr0gramm.com/faq:delete</string>
     <string name="login_password_recovery">Forgot password</string>
     <string name="hint_email">Email address</string>
     <string name="submit">Submit</string>
@@ -509,5 +506,18 @@
     <string name="write_comment">Comment to %s</string>
     <string name="hint_follow_premium_only">Saved, but you can only view the people you follow with pr0mium.</string>
     <string name="tags_show_all">Show all</string>
+    <string name="search_engine_none">None</string>
+
+    <string name="pref_tap_action_none">No action</string>
+    <string name="pref_tap_action_upvote">Upvote</string>
+    <string name="pref_tap_action_downvote">Downvote</string>
+    <string name="pref_tap_action_favorite">Favorite</string>
+    <string name="pref_tap_action_fullscreen">Fullscreen</string>
+
+    <string name="pref_single_tap_action_title">Single tap action</string>
+    <string name="pref_single_tap_action_summary">Select the action for a single tap on an image.</string>
+    <string name="pref_double_tap_action_title">Double tap action</string>
+    <string name="pref_double_tap_action_summary">Select the action for double tap on an image or a video.</string>
+
 </resources>
 

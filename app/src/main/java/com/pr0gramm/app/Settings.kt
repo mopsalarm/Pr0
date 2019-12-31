@@ -14,6 +14,7 @@ import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
+import com.pr0gramm.app.util.getEnumValue
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -77,9 +78,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val markItemsAsSeen: Boolean
         get() = preferences.getBoolean("pref_mark_items_as_seen", false)
 
-    val doubleTapToUpvote: Boolean
-        get() = preferences.getBoolean("pref_double_tap_to_upvote", true)
-
     val fancyScrollVertical: Boolean
         get() = preferences.getBoolean("pref_fancy_scroll_vertical", true)
 
@@ -130,9 +128,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val feedStartAtSfw: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_sfw", false)
 
-    val singleTapForFullscreen: Boolean
-        get() = preferences.getBoolean("pref_single_tap_for_fullscreen", false)
-
     val showCategoryRandom: Boolean
         get() = preferences.getBoolean("pref_show_category_random", true)
 
@@ -177,6 +172,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
+
+    val singleTapAction: TapAction
+        get() = preferences.getEnumValue("pref_single_tap_action", TapAction.NONE)
+
+    val doubleTapAction: TapAction
+        get() = preferences.getEnumValue("pref_double_tap_action", TapAction.NONE)
 
     val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
@@ -226,6 +227,14 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         ALL(R.string.pref_confirm_play_on_mobile_values__all)
     }
 
+    enum class TapAction {
+        NONE,
+        UPVOTE,
+        DOWNVOTE,
+        FAVORITE,
+        FULLSCREEN
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var instance: Settings
@@ -241,6 +250,22 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
                 p.edit {
                     putBoolean("pref_mark_items_as_seen", previousValue != "NONE")
                     remove("pref_seen_indicator_style")
+                }
+            }
+
+            // migrate the old "single tap for fullscreen" property.
+            if (p.getBoolean("pref_single_tap_for_fullscreen", false)) {
+                p.edit {
+                    putString("pref_single_tap_action", TapAction.FULLSCREEN.name)
+                    remove("pref_single_tap_for_fullscreen")
+                }
+            }
+
+            // migrate the old "double tap for upvote" property.
+            if (!p.getBoolean("pref_double_tap_to_upvote", true)) {
+                p.edit {
+                    putString("pref_double_tap_action", TapAction.NONE.name)
+                    remove("pref_double_tap_to_upvote")
                 }
             }
 

@@ -908,28 +908,45 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val isImage = isStaticImage(feedItem)
 
             override fun onSingleTap(event: MotionEvent): Boolean {
-                if (isImage && settings.singleTapForFullscreen) {
-                    enterFullscreen()
-                }
-
+                executeTapAction(settings.singleTapAction)
                 return true
             }
 
             override fun onDoubleTap(event: MotionEvent): Boolean {
-                if (settings.doubleTapToUpvote) {
-                    launch { doVoteOnDoubleTap() }
-                }
-
+                executeTapAction(settings.doubleTapAction)
                 return true
             }
         }
     }
 
-    private suspend fun doVoteOnDoubleTap() {
-        doVoteFeedItem(when (voteService.getVote(feedItem).first()) {
-            Vote.UP -> Vote.NEUTRAL
-            else -> Vote.UP
-        })
+    private fun executeTapAction(action: Settings.TapAction) = launch {
+        when (action) {
+            Settings.TapAction.NONE -> Unit
+
+            Settings.TapAction.FULLSCREEN ->
+                if (isVideoFullScreen) {
+                    exitFullscreen()
+                } else {
+                    enterFullscreen()
+                }
+
+            Settings.TapAction.UPVOTE ->
+                doVoteOnDoubleTap(Vote.UP)
+
+            Settings.TapAction.DOWNVOTE ->
+                doVoteOnDoubleTap(Vote.DOWN)
+
+            Settings.TapAction.FAVORITE ->
+                doVoteOnDoubleTap(Vote.FAVORITE)
+        }
+    }
+
+    private suspend fun doVoteOnDoubleTap(targetVote: Vote) {
+        if (voteService.getVote(feedItem).first() != targetVote) {
+            doVoteFeedItem(targetVote)
+        } else {
+            doVoteFeedItem(Vote.NEUTRAL)
+        }
     }
 
     /**
