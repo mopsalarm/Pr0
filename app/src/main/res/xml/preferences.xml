@@ -102,25 +102,25 @@
 
                 <ListPreference
                     android:defaultValue="NONE"
-                    android:key="pref_single_tap_action"
                     android:entries="@array/pref_tap_action_human"
                     android:entryValues="@array/pref_tap_action_value"
+                    android:key="pref_single_tap_action"
                     android:summary="@string/pref_single_tap_action_summary"
                     android:title="@string/pref_single_tap_action_title" />
 
                 <ListPreference
                     android:defaultValue="UPVOTE"
-                    android:key="pref_double_tap_action"
                     android:entries="@array/pref_tap_action_human"
                     android:entryValues="@array/pref_tap_action_value"
+                    android:key="pref_double_tap_action"
                     android:summary="@string/pref_double_tap_action_summary"
                     android:title="@string/pref_double_tap_action_title" />
 
-                <!--                <SwitchPreferenceCompat-->
-                <!--                    android:defaultValue="false"-->
-                <!--                    android:key="pref_audiofocus_transient"-->
-                <!--                    android:summary="@string/pref_audiofocus_transient_summary"-->
-                <!--                    android:title="@string/pref_audiofocus_transient_title" />-->
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_audiofocus_transient"
+                    android:summary="@string/pref_audiofocus_transient_summary"
+                    android:title="@string/pref_audiofocus_transient_title" />
             </PreferenceCategory>
 
             <PreferenceCategory

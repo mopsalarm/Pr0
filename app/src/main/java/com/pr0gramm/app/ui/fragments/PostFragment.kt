@@ -38,11 +38,8 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.views.PostActions
-import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView
-import com.pr0gramm.app.ui.views.viewer.MediaUri
-import com.pr0gramm.app.ui.views.viewer.MediaView
+import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
-import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
@@ -381,12 +378,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        val tags = apiTagsCh.value.orEmpty()
+        val tags = apiTagsCh.value
         if (tags.isNotEmpty()) {
             outState.putFreezable("PostFragment.tags", TagListParceler(tags))
         }
 
-        val comments = apiCommentsCh.value.orEmpty()
+        val comments = apiCommentsCh.value
         if (comments.isNotEmpty()) {
             outState.putFreezable("PostFragment.comments", CommentListParceler(comments))
         }
@@ -401,6 +398,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             // link the hide button
             val button = overlay.findViewById<View>(R.id.hide_warning_button)
             button.setOnClickListener { overlay.removeFromParent() }
+
+            // force video views not to automatically enable sound on startup
+            VolumeController.resetMuteTime(requireContext())
         }
     }
 
@@ -448,7 +448,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = config.reportReasons.isNotEmpty() && userService.isAuthorized && alive
     }
 
-    fun enterFullscreen() {
+    private fun enterFullscreen() {
         val viewer = viewer ?: return
         val activity = activity ?: return
 
@@ -681,7 +681,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override suspend fun onResumeImpl() {
         setHasOptionsMenu(true)
-
         setActive(true)
     }
 
@@ -831,7 +830,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        viewer.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        viewer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             val newHeight = viewer.measuredHeight
             if (newHeight != state.viewerBaseHeight) {
                 logger.debug { "Change in viewer height detected, setting height to ${state.viewerBaseHeight} to $newHeight" }
@@ -905,8 +904,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
 
         viewer.tapListener = object : MediaView.TapListener {
-            val isImage = isStaticImage(feedItem)
-
             override fun onSingleTap(event: MotionEvent): Boolean {
                 executeTapAction(settings.singleTapAction)
                 return true
@@ -1021,7 +1018,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
      * @param active The new active status.
      */
-    fun setActive(active: Boolean) {
+    private fun setActive(active: Boolean) {
         activeStateSubject.onNext(active)
 
         if (active) {
@@ -1030,7 +1027,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        val previousTags = this.apiTagsCh.value.orEmpty()
+        val previousTags = this.apiTagsCh.value
 
         // allow op to tag a more restrictive content type.
         val op = feedItem.user.equals(userService.name, true) || userService.userIsAdmin
@@ -1108,8 +1105,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         return false
     }
-
-    private class NoopScrollHandler : RecyclerView.OnScrollListener()
 
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
         val fancyScrollVertical = settings.fancyScrollVertical

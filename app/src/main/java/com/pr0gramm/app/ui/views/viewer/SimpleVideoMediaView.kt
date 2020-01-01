@@ -127,6 +127,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
             // store position so we can restore it later
             SeekController.store(config.mediaUri.id, exo)
 
+            // continue music if there is any, but give it some small delay, so
+            // another video player could take over before starting the actual playback.
+            volumeController?.abandonAudioFocusSoon()
+
             // kill the player
             exo.release()
 
