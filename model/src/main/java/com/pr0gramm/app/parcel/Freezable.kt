@@ -5,13 +5,11 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.time
 import okio.*
 import okio.ByteString.Companion.encodeUtf8
-import java.util.zip.Deflater
-import java.util.zip.Inflater
+import java.io.ByteArrayInputStream
 import kotlin.contracts.contract
 
 
@@ -152,61 +150,17 @@ object Freezer {
     fun freeze(f: Freezable): ByteArray = logger.time("Freezing object of type ${f.javaClass.directName}") {
         val raw = Buffer()
 
-        // assume that we might not need to compress and
-        // start with a zero byte to indicate that later.
-        raw.writeByte(0)
-
         // freeze it to the raw buffer
         f.freeze(Freezable.Sink(raw))
 
-        if (raw.size < 128) {
-            // no compression needed
-            return raw.readByteArray()
-
-        } else {
-            val watch = Stopwatch()
-            val uncompressedSize = raw.size
-
-            // assumption of not needing compression failed, skipping zero byte.
-            raw.skip(1)
-
-            val buffer = Buffer()
-            buffer.writeByte(1)
-
-            DeflaterSink(buffer, Deflater(6)).use { sink ->
-                sink.write(raw, raw.size)
-            }
-
-            logger.debug {
-                "Compressed %d bytes to %d (%1.2f%%) took %s".format(
-                        uncompressedSize, buffer.size,
-                        100 - buffer.size * 100.0 / uncompressedSize, watch)
-            }
-
-            return buffer.readByteArray()
-        }
+        return raw.readByteArray()
     }
 
     fun <T : Freezable> unfreeze(data: ByteArray, c: Unfreezable<T>): T {
         return logger.time("Unfreezing object of type ${c.javaClass.enclosingClass?.directName}") {
-            val notCompressed = data[0] == 0.toByte()
-
-            val rawSource = bufferOf(data, 1, data.size - 1)
-            if (notCompressed) {
-                c.unfreeze(Freezable.Source(rawSource))
-
-            } else {
-                InflaterSource(rawSource, Inflater()).use { source ->
-                    c.unfreeze(Freezable.Source(source.buffer()))
-                }
-            }
+            c.unfreeze(Freezable.Source(ByteArrayInputStream(data).source().buffer()))
         }
     }
-}
-
-@Suppress("NOTHING_TO_INLINE")
-private inline fun bufferOf(data: ByteArray, offset: Int = 0, length: Int = data.size): Buffer {
-    return Buffer().apply { write(data, offset, length) }
 }
 
 interface Unfreezable<T : Freezable> {

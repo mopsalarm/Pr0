@@ -793,3 +793,5 @@ inline fun TabLayout.setupWithViewPager2(pager: ViewPager2, crossinline configur
     tm.attach()
     return tm
 }
+
+fun Number.formatSize() = "%1.3fkb".format(toDouble() / 1024.0)

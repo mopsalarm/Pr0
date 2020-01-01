@@ -1,0 +1,5 @@
+CREATE TABLE parcelableStore (
+    id TEXT PRIMARY KEY NOT NULL,
+    expireTime INTEGER NOT NULL,
+    data BLOB NOT NULL
+);

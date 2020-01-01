@@ -1,0 +1,15 @@
+CREATE TABLE parcelableStore (
+    id TEXT PRIMARY KEY NOT NULL,
+    expireTime INTEGER NOT NULL,
+    data BLOB NOT NULL
+);
+
+store:
+INSERT OR REPLACE INTO parcelableStore (id, expireTime, data)
+VALUES (?, ?, ?);
+
+deleteExpired:
+DELETE FROM parcelableStore WHERE expireTime<?;
+
+load:
+SELECT data FROM parcelableStore WHERE id=?;

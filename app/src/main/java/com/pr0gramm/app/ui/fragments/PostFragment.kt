@@ -108,13 +108,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.NEVER) {
         super.onCreate(savedInstanceState)
 
-        savedInstanceState?.let { state ->
-            val tags = state.getFreezable("PostFragment.tags", TagListParceler)?.tags
+        if (savedInstanceState != null) {
+            val tags = savedInstanceState.getFreezable("PostFragment.tags", TagListParceler)?.tags
             if (tags != null) {
                 this.apiTagsCh.offer(tags)
             }
 
-            val comments = state.getFreezable("PostFragment.comments", CommentListParceler)?.comments
+            val parcelStore: ParcelStore by instance()
+            val comments = savedInstanceState
+                    .getExternalValue(parcelStore, "PostFragment.comments", CommentListParceler.CREATOR)
+                    ?.comments
+
             if (comments != null) {
                 this.apiCommentsCh.offer(comments)
             }
@@ -385,7 +389,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val comments = apiCommentsCh.value
         if (comments.isNotEmpty()) {
-            outState.putFreezable("PostFragment.comments", CommentListParceler(comments))
+            val parcelStore: ParcelStore by instance()
+
+            outState.putExternalValue(parcelStore, "PostFragment.comments", CommentListParceler(comments))
         }
     }
 
@@ -844,7 +850,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         state = state.copy(mediaControlsContainer = mediaControlsContainer)
-
 
         // add the controls as child of the controls-container.
         viewer.controllerView()
