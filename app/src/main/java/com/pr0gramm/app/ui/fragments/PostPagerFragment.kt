@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.pr0gramm.app.R
@@ -20,7 +21,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.observeChange
+import com.pr0gramm.app.util.observeChangeEx
 
 /**
  */
@@ -249,8 +250,21 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             private val manager: FeedManager)
         : FragmentStateAdapter(this) {
 
-        var feed: Feed by observeChange(feed) {
-            notifyDataSetChanged()
+        var feed: Feed by observeChangeEx(feed) { oldValue, newValue ->
+            val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize(): Int = oldValue.size
+                override fun getNewListSize(): Int = newValue.size
+
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                    return oldValue[oldItemPosition].id == newValue[newItemPosition].id
+                }
+
+                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                    return oldValue[oldItemPosition] == newValue[newItemPosition]
+                }
+            })
+
+            diff.dispatchUpdatesTo(this)
         }
 
         override fun getItemCount(): Int {
