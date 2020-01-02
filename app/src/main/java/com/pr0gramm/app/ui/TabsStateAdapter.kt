@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.content.Context
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
@@ -8,7 +9,18 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 /**
  */
-class TabsStateAdapter(private val activity: FragmentActivity) : FragmentStateAdapter(activity) {
+class TabsStateAdapter : FragmentStateAdapter {
+    constructor(context: Context, fragment: Fragment) : super(fragment) {
+        this.context = context
+    }
+
+    constructor(activity: FragmentActivity) : super(activity) {
+        this.context = activity
+    }
+
+    private val context: Context
+    private val tabs: MutableList<TabInfo> = mutableListOf()
+
     override fun getItemCount(): Int {
         return tabs.size
     }
@@ -20,10 +32,8 @@ class TabsStateAdapter(private val activity: FragmentActivity) : FragmentStateAd
         }
     }
 
-    private val tabs: MutableList<TabInfo> = mutableListOf()
-
     fun addTab(@StringRes titleId: Int, args: Bundle? = null, fragmentConstructor: () -> Fragment) {
-        val title = activity.getString(titleId)
+        val title = context.getString(titleId)
         val info = TabInfo(title, fragmentConstructor, args)
         tabs.add(info)
 

@@ -94,7 +94,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
             ConversationActivity.start(this, name, skipInbox = true)
         }
 
-        coordinator.setOnApplyWindowInsetsListener { v, insets ->
+        coordinator.setOnApplyWindowInsetsListener { _, insets ->
             coordinator.updatePadding(top = insets.systemWindowInsetTop)
             pager.updatePadding(bottom = insets.systemWindowInsetBottom)
             insets.consumeSystemWindowInsets()
