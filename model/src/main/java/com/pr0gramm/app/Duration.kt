@@ -1,6 +1,8 @@
 package com.pr0gramm.app
 
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 inline class Duration(private val nanos: Long) {
@@ -48,7 +50,7 @@ inline class Duration(private val nanos: Long) {
             return Duration(TimeUnit.DAYS.toNanos(days))
         }
 
-        private val format = DecimalFormat("#.0000")
+        private val format = DecimalFormat("#.0000", DecimalFormatSymbols.getInstance(Locale.ROOT))
 
         private fun chooseUnit(nanos: Long): TimeUnit {
             return when {

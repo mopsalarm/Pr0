@@ -20,7 +20,6 @@ import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.parcel.getFreezable
-import com.pr0gramm.app.parcel.getParcelable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -149,7 +148,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         this.scrollToolbar = isNormalMode
 
-        val previousFeed = savedInstanceState?.getParcelable(ARG_FEED, Feed.FeedParcel)?.feed
+        val previousFeed = savedInstanceState?.getExternalValue(requireContext(), ARG_FEED, Feed.FeedParcel)?.feed
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
 
@@ -418,7 +417,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             val lastVisibleIndex = lastVisibleItem?.let { feed.indexById(it.id) }
 
             if (lastVisibleItem != null && lastVisibleIndex != null) {
-                outState.putParcelable(ARG_FEED, feed.parcelAll())
+                outState.putExternalValue(requireContext(), ARG_FEED, feed.parcelAll())
             }
 
             outState.putBoolean("searchContainerVisible", searchContainerIsVisible())

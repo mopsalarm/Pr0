@@ -56,6 +56,7 @@ import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -794,4 +795,4 @@ inline fun TabLayout.setupWithViewPager2(pager: ViewPager2, crossinline configur
     return tm
 }
 
-fun Number.formatSize() = "%1.3fkb".format(toDouble() / 1024.0)
+fun Number.formatSize() = "%1.3fkb".format(Locale.ROOT, toDouble() / 1024.0)

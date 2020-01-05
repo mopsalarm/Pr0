@@ -109,15 +109,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState != null) {
-            val tags = savedInstanceState.getFreezable("PostFragment.tags", TagListParceler)?.tags
+            val tags = savedInstanceState
+                    .getExternalValue(requireContext(), "PostFragment.tags", TagListParceler)
+                    ?.tags
+
+            val comments = savedInstanceState
+                    .getExternalValue(requireContext(), "PostFragment.comments", CommentListParceler)
+                    ?.comments
+
             if (tags != null) {
                 this.apiTagsCh.offer(tags)
             }
-
-            val parcelStore: ParcelStore by instance()
-            val comments = savedInstanceState
-                    .getExternalValue(parcelStore, "PostFragment.comments", CommentListParceler.CREATOR)
-                    ?.comments
 
             if (comments != null) {
                 this.apiCommentsCh.offer(comments)
@@ -384,14 +386,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val tags = apiTagsCh.value
         if (tags.isNotEmpty()) {
-            outState.putFreezable("PostFragment.tags", TagListParceler(tags))
+            outState.putExternalValue(requireContext(),
+                    "PostFragment.tags", TagListParceler(tags))
         }
 
         val comments = apiCommentsCh.value
         if (comments.isNotEmpty()) {
-            val parcelStore: ParcelStore by instance()
-
-            outState.putExternalValue(parcelStore, "PostFragment.comments", CommentListParceler(comments))
+            outState.putExternalValue(requireContext(),
+                    "PostFragment.comments", CommentListParceler(comments))
         }
     }
 
@@ -416,7 +418,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
 
         if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK && data != null) {
-            onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(data))
+            onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(requireContext(), data))
         }
     }
 

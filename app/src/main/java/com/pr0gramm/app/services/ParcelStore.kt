@@ -1,22 +1,22 @@
 package com.pr0gramm.app.services
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Logger
+import com.pr0gramm.app.*
 import com.pr0gramm.app.db.ParcelableStoreQueries
-import com.pr0gramm.app.time
+import com.pr0gramm.app.parcel.Freezable
+import com.pr0gramm.app.parcel.Unfreezable
+import com.pr0gramm.app.parcel.parcelableCreator
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.delay
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.formatSize
+import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 
 class ParcelStore(private val db: ParcelableStoreQueries) {
     private val logger = Logger("ParcelStore")
@@ -32,7 +32,7 @@ class ParcelStore(private val db: ParcelableStoreQueries) {
     }
 
     fun store(p: Parcelable): String {
-        val id = UUID.randomUUID().toString()
+        val id = generateId(p)
 
         // schedule a background store for the data
         backgroundStoreCh.offer(Pair(id, p))
@@ -64,27 +64,31 @@ class ParcelStore(private val db: ParcelableStoreQueries) {
             }
         }
 
-        logger.debug { "Got ${bytes?.size?.formatSize()} of data" }
-
         if (bytes == null) {
             return null
         }
 
         withParcel { parcel ->
-            parcel.unmarshall(bytes, 0, bytes.size)
-            parcel.setDataPosition(0)
-            return decode(parcel)
+            logger.time("Unparcel $id (${bytes.size.formatSize()})") {
+                parcel.unmarshall(bytes, 0, bytes.size)
+                parcel.setDataPosition(0)
+                return decode(parcel)
+            }
         }
     }
 
     private fun backgroundStoreAsync() = doInBackground {
         for ((id, p) in backgroundStoreCh) {
             catchAll {
-                val data = p.parcelToByteArray()
                 val expireTime = Instant.now().plus(Duration.days(1)).millis
 
-                logger.debug { "Store parcel data for $id with ${data.size.formatSize()} data in database" }
-                db.store(id, expireTime, data)
+                val data = logger.time("Parcel data $id") {
+                    p.parcelToByteArray()
+                }
+
+                logger.time("Store parcel data for $id (${data.size.formatSize()}) in database") {
+                    db.store(id, expireTime, data)
+                }
             }
         }
     }
@@ -105,14 +109,18 @@ class ParcelStore(private val db: ParcelableStoreQueries) {
 
     private val memoryCache = object : LinkedHashMap<String, ParcelableWithExpireTime>() {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ParcelableWithExpireTime>?): Boolean {
-            // lets say 100kb per entry (and thats a really bad case), so this is around ~6mb, maybe less
-            return size > 64
+            debug {
+                return size > 2
+            }
+
+            // lets say 25kb per entry (and that's a really bad case), so this is around ~6mb, maybe less
+            return size > 256
         }
     }
 
     private class ParcelableWithExpireTime(val p: Parcelable) {
         var expireTime = Instant.now().plus(Duration.days(1))
-        val isExpired get() = expireTime.isInPast
+        val isExpired get() = expireTime.isBefore(Instant.now())
     }
 }
 
@@ -144,12 +152,26 @@ private fun Parcelable.parcelToByteArray(): ByteArray {
     }
 }
 
+private fun generateId(value: Any): String {
+    val prefix = value.javaClass.simpleName
+    val random = ByteArray(9).apply { ThreadLocalRandom.current().nextBytes(this) }
+    return prefix + ":" + random.encodeBase64()
+}
+
 fun <T : Parcelable> Bundle.getExternalValue(parcelStore: ParcelStore, name: String, creator: Parcelable.Creator<T>): T? {
     val id = getString(name) ?: return null
     return parcelStore.load(id) { parcel -> creator.createFromParcel(parcel) }
 }
 
+inline fun <reified T : Freezable> Bundle.getExternalValue(context: Context, name: String, creator: Unfreezable<T>): T? {
+    val parcelStore = context.injector.instance<ParcelStore>()
+    return getExternalValue(parcelStore, name, creator.parcelableCreator())
+}
+
+fun Bundle.putExternalValue(context: Context, name: String, value: Parcelable) {
+    putString(name, context.injector.instance<ParcelStore>().store(value))
+}
+
 fun Bundle.putExternalValue(parcelStore: ParcelStore, name: String, value: Parcelable) {
-    val id = parcelStore.store(value)
-    putString(name, id)
+    putString(name, parcelStore.store(value))
 }

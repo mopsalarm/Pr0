@@ -43,16 +43,6 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         return millis > other.millis
     }
 
-    val isInFuture: Boolean
-        get() {
-            return millis > TimeFactory.currentTimeMillis()
-        }
-
-    val isInPast: Boolean
-        get() {
-            return millis < TimeFactory.currentTimeMillis()
-        }
-
     val epochSeconds: Long get() = millis / 1000
 
     constructor(parcel: Parcel) : this(parcel.readLong())

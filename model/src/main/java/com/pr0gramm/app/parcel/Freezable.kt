@@ -8,7 +8,6 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.time
 import okio.*
-import okio.ByteString.Companion.encodeUtf8
 import java.io.ByteArrayInputStream
 import kotlin.contracts.contract
 
@@ -46,25 +45,11 @@ interface Freezable : Parcelable {
         }
 
         fun writeInt(value: Int) {
-            var rest = value shl 1 xor (value shr 31)
-
-            while (rest and -0x80 != 0) {
-                writeByte(rest and 0x7F or 0x80)
-                rest = rest ushr 7
-            }
-
-            writeByte(rest and 0x7F)
+            sink.writeInt(value)
         }
 
         fun writeLong(value: Long) {
-            var rest = value shl 1 xor (value shr 63)
-
-            while (rest and -0x80L != 0L) {
-                writeByte(rest.toInt() and 0x7F or 0x80)
-                rest = rest ushr 7
-            }
-
-            writeByte(rest.toInt() and 0x7F)
+            sink.writeLong(value)
         }
 
         fun writeFloat(f: Float) {
@@ -72,12 +57,11 @@ interface Freezable : Parcelable {
         }
 
         fun writeString(s: String) {
-            val bytes = s.encodeUtf8()
+            val size = s.utf8Size()
+            writeInt(size.toInt())
 
-            writeInt(bytes.size)
-
-            if (bytes.size > 0) {
-                sink.write(bytes)
+            if (size > 0) {
+                sink.writeUtf8(s)
             }
         }
     }
@@ -94,41 +78,11 @@ interface Freezable : Parcelable {
         fun readShort(): Short = readInt().toShort()
 
         fun readInt(): Int {
-            var value = 0
-            var len = 0
-
-            do {
-                val b = readByte().toInt()
-                if (b and 0x80 == 0) {
-                    val raw = value or (b shl len)
-                    val temp = raw shl 31 shr 31 xor raw shr 1
-                    return temp xor (raw and (1 shl 31))
-                }
-
-                value = value or (b and 0x7F shl len)
-                len += 7
-            } while (len <= 35)
-
-            throw IllegalArgumentException("Variable length quantity is too long")
+            return source.readInt()
         }
 
         fun readLong(): Long {
-            var value = 0L
-            var len = 0
-
-            do {
-                val b = readByte().toLong()
-                if (b and 0x80L == 0L) {
-                    val raw = value or (b shl len)
-                    val temp = raw shl 63 shr 63 xor raw shr 1
-                    return temp xor (raw and (1L shl 63))
-                }
-
-                value = value or (b and 0x7F shl len)
-                len += 7
-            } while (len <= 63)
-
-            throw IllegalArgumentException("Variable length quantity is too long")
+            return source.readLong()
         }
 
         fun readFloat(): Float {

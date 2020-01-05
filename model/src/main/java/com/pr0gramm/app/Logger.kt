@@ -118,16 +118,21 @@ object Logging {
 inline fun <T> Logger.time(name: String, supplier: () -> T): T {
     if (BuildConfig.DEBUG) {
         val watch = Stopwatch()
+        var success = true
 
-        val result = try {
-            supplier()
-        } catch (err: Exception) {
-            this.warn { "$name failed after $watch" }
-            throw err
+        return try {
+            try {
+                supplier()
+            } catch (err: Exception) {
+                success = false
+                warn { "$name failed after $watch" }
+                throw err
+            }
+        } finally {
+            if (success) {
+                debug { "$name took $watch" }
+            }
         }
-
-        this.debug { "$name took $watch" }
-        return result
 
     } else {
         return supplier()

@@ -384,7 +384,7 @@ internal class CacheEntry(
                             throw EOFException("DEBUG Simulate network loss")
                     }
 
-                    if (refCount.toInt() == 1 && lockExpireTime.isInPast) {
+                    if (refCount.toInt() == 1 && lockExpireTime.isBefore(Instant.now())) {
                         throw TimeoutException("No one holds a reference to the cache entry, stop caching now.")
                     }
                 }

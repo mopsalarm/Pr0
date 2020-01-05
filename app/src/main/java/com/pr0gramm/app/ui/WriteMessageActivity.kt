@@ -26,6 +26,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.TextViewCache
+import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
@@ -184,8 +185,13 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                         voteService.postComment(itemId, parentComment, message)
                     }
 
+                    val parcelStore = baseContext.injector.instance<ParcelStore>()
+
                     val result = Intent()
-                    result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
+
+                    result.putExtra(RESULT_EXTRA_NEW_COMMENT,
+                            parcelStore.store(NewCommentParceler(newComments)))
+
                     setResult(Activity.RESULT_OK, result)
 
                     finishAfterSending()
@@ -279,9 +285,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             }
         }
 
-        fun getNewCommentFromActivityResult(data: Intent): Api.NewComment {
-            val newComment = data.getFreezableExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)?.value
-            return newComment ?: throw IllegalArgumentException("no comment found in Intent")
+        fun getNewCommentFromActivityResult(context: Context, data: Intent): Api.NewComment {
+            return data.extras
+                    ?.getExternalValue(context, RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)
+                    ?.value
+                    ?: throw IllegalArgumentException("no comment found in Intent")
         }
     }
 

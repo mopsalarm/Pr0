@@ -76,7 +76,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         }
 
         // reload if re-started after one minute
-        if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isInPast) {
+        if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isBefore(Instant.now())) {
             loadStartedTimestamp = Instant.now()
             reloadInboxContent()
         }
