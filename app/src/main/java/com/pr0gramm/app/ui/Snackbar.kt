@@ -26,8 +26,7 @@ fun Snackbar.configureNewStyle(): Snackbar {
     val activity = AndroidUtility.activityFromContext(context)
     if (activity is ScrollHideToolbarListener.ToolbarActivity) {
         activity.rxWindowInsets.take(1).subscribe { insets ->
-            val offset = if (insets.bottom == 0) context.dp(64) else insets.bottom
-            params.bottomMargin += offset
+            params.bottomMargin += insets.bottom
         }
     }
 
