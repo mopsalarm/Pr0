@@ -49,7 +49,9 @@ object Linkify {
         val base = UriHelper.of(context).base()
         val scheme = "https://"
 
-        AndroidLinkify.addLinks(text, RE_WEB_LINK, null)
+        AndroidLinkify.addLinks(text, RE_WEB_LINK, null, null) { match, _ ->
+            Affiliate.get(match.group()) ?: match.group()
+        }
 
         AndroidLinkify.addLinks(text, RE_USERNAME, scheme, null) { match, _ ->
             val user = match.group().substring(1)
@@ -94,9 +96,18 @@ object Linkify {
                     parsed != null ->
                         InternalURLSpan(url)
 
+                    // ENABLED: true,
+                    //                        SEARCH_REGEXP: /(pornhub|redtube|tube8|youporn|xtube|spankwire)\.com/,
+                    //                        QUERY_PARAMS: {
+                    //                                utm_source: 'paid',
+                    //                                utm_medium: 'hubtraffic',
+                    //                                utm_campaign: 'hubtraffic_pr0gramm'
+                    //                        }
+
                     // nope, never seen this kind of url
                     else -> null
                 }
+
             } else {
                 if (settings.useIncognitoBrowser) {
                     PrivateBrowserSpan(url)
