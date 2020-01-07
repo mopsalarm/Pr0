@@ -188,9 +188,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.7.1") {
         exclude module: "moshi"
     }
-    implementation "com.squareup.okhttp3:okhttp:4.2.2"
-    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.2.2"
-    implementation "com.squareup.okhttp3:okhttp-brotli:4.2.2"
+    implementation "com.squareup.okhttp3:okhttp:4.3.1"
+    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.3.1"
+    implementation "com.squareup.okhttp3:okhttp-brotli:4.3.1"
     implementation "com.squareup.picasso:picasso:2.71828"
 
     implementation "com.github.square.moshi:moshi:40a829ef18"
