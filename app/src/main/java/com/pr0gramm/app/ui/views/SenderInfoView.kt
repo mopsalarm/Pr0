@@ -6,10 +6,11 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isVisible
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 
 /**
@@ -80,8 +81,14 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     override fun onLongClick(v: View?): Boolean {
         if (v === statsView) {
             val score = this.score ?: return false
-            val msg = String.format("%d up, %d down", score.up, score.down)
-            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            val msg = String.format("%d Blussies, %d Minus", score.up, score.down)
+
+            Snackbar.make(this, msg, Snackbar.LENGTH_SHORT)
+                    .configureNewStyle()
+                    .setAction(R.string.okay) {}
+                    .show()
+
+
             return true
         }
 

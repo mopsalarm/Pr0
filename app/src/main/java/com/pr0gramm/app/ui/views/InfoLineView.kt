@@ -85,7 +85,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         captionView.setOnLongClickListener { _ ->
             val item = this.feedItem
             if (item != null && scoreIsVisible()) {
-                val text = "${item.up} plus, ${item.down} minus"
+                val text = "${item.up} Blussies, ${item.down} Minus"
 
                 Snackbar.make(this, text, Snackbar.LENGTH_SHORT)
                         .configureNewStyle()
