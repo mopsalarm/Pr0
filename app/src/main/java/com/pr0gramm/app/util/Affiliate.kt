@@ -3,11 +3,6 @@ package com.pr0gramm.app.util
 import android.util.Base64
 
 object Affiliate {
-    private val paramsHubTraffic = mapOf(
-            "utm_source" to "paid",
-            "utm_medium" to "hubtraffic",
-            "utm_campaign" to "hubtraffic_pr0grammapp")
-
     private val reHubTraffic = "(?:pornhub|redtube|tube8|youporn|xtube|spankwire|keezmovies|extremetube)\\.com".toRegex()
 
     private fun hubTraffic(url: String): String {
