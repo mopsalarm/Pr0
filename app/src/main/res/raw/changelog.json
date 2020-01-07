@@ -3,6 +3,10 @@
     "version": 175,
     "changes": [
       {
+        "type": "Achtung",
+        "change": "Sehr schnelles scrollen 'nach unten' kann durch leichtes zur Seite wischen zum nächsten Post wechseln. Bitte etwas vorsichtiger scrollen, wir arbeiten an einem Workaround."
+      },
+      {
         "type": "Neu",
         "change": "Kleine Fixes im Layout."
       }
