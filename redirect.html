@@ -1,0 +1,19 @@
+<html>
+<body>
+<script>
+  // decode original url
+  const url = atob(/u=(.*)/.exec(location.search)[1]);
+  
+  // add hubtraffic data
+  const sep = url.indexOf("?") === -1 "?" : "&";
+  url += sep + "utm_source=paid&utm_medium=hubtraffic&utm_campaign=hubtraffic_pr0grammapp";
+  
+  // and redirect to hub traffic.
+  location.href = url;
+</script>
+
+<<noscript>
+  Please activate javascript to redirect to target page.
+</noscript>
+</body>
+</html>
