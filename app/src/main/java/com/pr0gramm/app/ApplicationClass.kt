@@ -20,6 +20,8 @@ import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.di.InjectorAware
 import io.sentry.Sentry
 import io.sentry.android.AndroidSentryClientFactory
+import io.sentry.config.Lookup
+import io.sentry.config.provider.ConfigurationProvider
 import io.sentry.context.Context
 import io.sentry.context.ContextManager
 import io.sentry.dsn.Dsn
@@ -73,7 +75,11 @@ open class ApplicationClass : Application(), InjectorAware {
     override fun attachBaseContext(base: android.content.Context) {
         super.attachBaseContext(base)
 
-        initializeSentry()
+        doInBackground {
+            logger.time("Initialize sentry") {
+                initializeSentry()
+            }
+        }
     }
 
     override fun onCreate() {
@@ -183,7 +189,7 @@ open class ApplicationClass : Application(), InjectorAware {
 }
 
 
-private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx) {
+private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx, noopSentryLookup) {
     private val manager = SentryContextManager()
 
     override fun getContextManager(dsn: Dsn?): ContextManager = manager
@@ -199,4 +205,9 @@ private class SentryContextManager : ContextManager {
     override fun getContext(): Context {
         return context
     }
+}
+
+private val noopSentryLookup = run {
+    val provider = ConfigurationProvider { null }
+    Lookup(provider, provider)
 }
