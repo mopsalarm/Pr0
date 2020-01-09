@@ -1,7 +1,7 @@
 <html>
 <body>
 <script>
-  const base64UrlSafe = /u=(.*)/.exec(location.search)[1];
+  const base64urlSafe = /u=(.*)/.exec(location.search)[1];
 
   // decode original url
   const url = atob(base64urlSafe.replace(/-/g, "+").replace(/_/g, "/"));
