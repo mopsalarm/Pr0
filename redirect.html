@@ -1,8 +1,10 @@
 <html>
 <body>
 <script>
+  const base64UrlSafe = /u=(.*)/.exec(location.search)[1];
+
   // decode original url
-  const url = atob(/u=(.*)/.exec(location.search)[1]);
+  const url = atob(base64urlSafe.replace(/-/g, "+").replace(/_/g, "/"));
   
   // add hubtraffic data
   const sep = url.indexOf("?") === -1 ? "?" : "&";
