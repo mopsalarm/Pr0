@@ -1,5 +1,14 @@
 [
   {
+    "version": 177,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Ihr habt es euch gewünscht, wir liefern: 'Pause' Knopf für Videos."
+      }
+    ]
+  },
+  {
     "version": 176,
     "changes": [
       {
