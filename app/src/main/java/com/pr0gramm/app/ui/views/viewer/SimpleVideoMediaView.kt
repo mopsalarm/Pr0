@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -20,9 +21,13 @@ import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.video.VideoListener
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.R
 import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.views.viewer.video.InputStreamCacheDataSource
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.addOnAttachListener
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.di.injector
@@ -30,7 +35,7 @@ import com.pr0gramm.app.util.find
 
 
 @SuppressLint("ViewConstructor")
-class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, com.pr0gramm.app.R.layout.player_kind_simple_video) {
+class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.player_kind_simple_video) {
     private val logger = Logger("SimpleVideoMediaView(${config.mediaUri.id})")
 
     private val volumeController: VolumeController?
@@ -39,22 +44,27 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
     // Will be released on detach and re-created on attach.
     private var exo: SimpleExoPlayer? = null
 
+    private val controlsView = LayoutInflater
+            .from(context)
+            .inflate(R.layout.player_video_controls, this, false) as ViewGroup
+
     init {
         logger.debug { "Using simple exo player to play videos." }
 
         if (config.audio) {
-            val muteView = LayoutInflater
-                    .from(context)
-                    .inflate(com.pr0gramm.app.R.layout.player_mute_view, this, false) as ImageView
+            val muteView: ImageView = controlsView.find(R.id.mute)
+
+            // set visible, we need it.
+            muteView.isVisible = true
 
             // controller will handle the button clicks & stuff
             volumeController = VolumeController(muteView) { exo }
 
-            // show the mute button in the post view
-            publishControllerView(muteView)
         } else {
             volumeController = null
         }
+
+        publishControllerView(controlsView)
 
         addOnAttachListener {
             if (isPlaying) {
@@ -69,6 +79,27 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
                 stop()
             }
         }
+
+        controlsView.find<View>(R.id.pause).setOnClickListener {
+            val exo = exo ?: return@setOnClickListener
+
+            // toggle playbook
+            exo.playWhenReady = !exo.playWhenReady
+
+            updatePauseViewIcon()
+        }
+    }
+
+    private fun updatePauseViewIcon() {
+        val exo = this.exo ?: return
+
+        val icon = if (exo.playWhenReady) R.drawable.ic_video_pause else R.drawable.ic_video_play
+        controlsView.find<ImageView>(R.id.pause).setImageResource(icon)
+
+        if (!exo.playWhenReady) {
+            val dr = AndroidUtility.getTintedDrawable(context, R.drawable.ic_video_play, ThemeHelper.accentColor)
+            controlsView.find<ImageView>(R.id.pause).setImageDrawable(dr)
+        }
     }
 
     override fun currentVideoProgress(): ProgressInfo? {
@@ -76,7 +107,8 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
         val position = exo?.currentPosition?.takeIf { it >= 0 } ?: return null
         val buffered = exo?.contentBufferedPosition?.takeIf { it >= 0 } ?: return null
 
-        return ProgressInfo(position.toFloat() / duration, buffered.toFloat() / duration)
+        return ProgressInfo(position.toFloat() / duration, buffered.toFloat() / duration,
+                duration = Duration.millis(duration))
     }
 
     private fun play() {
@@ -103,7 +135,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
                 .createMediaSource(effectiveUri)
 
         exo = SimpleExoPlayer.Builder(context).build().apply {
-            setVideoTextureView(find(com.pr0gramm.app.R.id.texture_view))
+            setVideoTextureView(find(R.id.texture_view))
             prepare(mediaSource, false, false)
 
             repeatMode = Player.REPEAT_MODE_ONE
@@ -163,27 +195,25 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
     }
 
     override fun onSeekbarVisibilityChanged(show: Boolean) {
-        volumeController?.view?.let { muteView ->
-            muteView.animate().cancel()
+        controlsView.animate().cancel()
 
-            if (show) {
-                muteView.animate()
-                        .alpha(0f)
-                        .translationY(muteView.height.toFloat())
-                        .withEndAction { muteView.isVisible = false }
-                        .setInterpolator(AccelerateInterpolator())
-                        .start()
+        if (show) {
+            controlsView.animate()
+                    .alpha(0f)
+                    .translationY(controlsView.height.toFloat())
+                    .withEndAction { controlsView.isVisible = false }
+                    .setInterpolator(AccelerateInterpolator())
+                    .start()
 
-            } else {
-                muteView.alpha = 0f
-                muteView.visibility = View.VISIBLE
-                muteView.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setListener(null)
-                        .setInterpolator(DecelerateInterpolator())
-                        .start()
-            }
+        } else {
+            controlsView.alpha = 0f
+            controlsView.visibility = View.VISIBLE
+            controlsView.animate()
+                    .alpha(0.5f)
+                    .translationY(0f)
+                    .setListener(null)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
         }
     }
 
@@ -197,12 +227,12 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
 
             if (tapPosition < 0.25) {
                 userSeekTo((exo.currentPosition - skipFraction) / exo.duration.toFloat())
-                animateMediaControls(find(com.pr0gramm.app.R.id.rewind), direction = -1)
+                animateMediaControls(find(R.id.rewind), direction = -1)
                 return true
 
             } else if (tapPosition > 0.75) {
                 userSeekTo((exo.currentPosition + skipFraction) / exo.duration.toFloat())
-                animateMediaControls(find(com.pr0gramm.app.R.id.fast_forward), direction = +1)
+                animateMediaControls(find(R.id.fast_forward), direction = +1)
                 return true
             }
         }
@@ -230,6 +260,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, c
     private val playerListener = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             showBusyIndicator(playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING)
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            updatePauseViewIcon()
         }
     }
 

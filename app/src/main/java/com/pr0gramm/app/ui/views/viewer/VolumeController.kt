@@ -79,12 +79,12 @@ class VolumeController(val view: ImageView, private val exo: () -> SimpleExoPlay
         if (mute || !hasAudioFocus) {
             exo.volume = 0f
             storeUnmuteTime(0)
-            icon = AppCompatResources.getDrawable(view.context, R.drawable.ic_volume_off_white_24dp)!!
+            icon = AppCompatResources.getDrawable(view.context, R.drawable.ic_video_mute_on)!!
         } else {
             exo.volume = 1f
             storeUnmuteTime(System.currentTimeMillis())
             icon = AndroidUtility.getTintedDrawable(view.context,
-                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor)
+                    R.drawable.ic_video_mute_off, ThemeHelper.accentColor)
         }
 
         view.setImageDrawable(icon)

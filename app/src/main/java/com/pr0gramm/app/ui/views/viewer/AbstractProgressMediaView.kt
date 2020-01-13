@@ -9,9 +9,12 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.dp
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 /**
  */
@@ -117,17 +120,19 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         val buffered = info.buffered.coerceAtLeast(maxBufferedValue)
         this.maxBufferedValue = buffered
 
+        val progressTarget = (1000 * info.progress).roundToInt()
+
         view.max = 1000
-        view.progress = (1000 * info.progress).toInt()
         view.secondaryProgress = (1000 * buffered).toInt()
+        view.progress = progressTarget
     }
 
     protected fun updateTimeline() {
         if (!isPlaying)
             return
 
+        val info = currentVideoProgress()
         if (!progressTouched) {
-            val info = currentVideoProgress()
             if (info != null && shouldShowView(info)) {
                 if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false
@@ -153,8 +158,11 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         }
 
         if (progressEnabled || seekCurrentlyVisible()) {
+            val duration = info?.duration?.convertTo(TimeUnit.SECONDS)
+            val delay = if (duration != null && duration <= 30) 50L else 100L
+
             removeCallbacks(updateCallback)
-            postDelayed(updateCallback, 200)
+            postDelayed(updateCallback, delay)
         }
     }
 
@@ -187,7 +195,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
         progressView.isVisible = false
     }
 
-    class ProgressInfo(val progress: Float, val buffered: Float)
+    class ProgressInfo(val progress: Float, val buffered: Float, val duration: Duration)
 
     private inner class SeekbarChangeListener : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

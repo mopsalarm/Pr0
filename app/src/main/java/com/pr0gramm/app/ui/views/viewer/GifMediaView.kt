@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.core.view.isVisible
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
@@ -96,7 +97,8 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
             val duration = gif.numberOfFrames
 
             if (position >= 0 && duration > 0) {
-                return ProgressInfo(position / duration.toFloat(), 1f)
+                return ProgressInfo(position / duration.toFloat(), 1f,
+                        duration = Duration.millis(gif.duration.toLong()))
             }
         }
 
