@@ -23,6 +23,7 @@ import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.di.Module
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
@@ -96,16 +97,16 @@ fun appInjector(app: Application) = Module.build {
 
                 .apply {
                     debug {
-                        @Suppress("ConstantConditionIf")
-                        if (DebugConfig.debugInterceptor) {
-                            addInterceptor(DebugInterceptor())
+                        skipInTesting {
+                            addInterceptor(DebugInterceptor)
                         }
+
+                        addInterceptor(MockUrlInterceptor)
                     }
                 }
 
                 .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
-                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${DebugConfig.versionOverride
-                        ?: BuildConfig.VERSION_CODE} android${Build.VERSION.SDK_INT}"))
+                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${buildVersionCode()} android${Build.VERSION.SDK_INT}"))
                 .addNetworkInterceptor(UpdateServerTimeInterceptor())
                 .build()
     }
@@ -268,7 +269,31 @@ private class UpdateServerTimeInterceptor : Interceptor {
 
 }
 
-private class DebugInterceptor : Interceptor {
+object MockUrlInterceptor : Interceptor {
+    private val logger = Logger("MockUrlInterceptor")
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        val mockUrl = debugConfig.mockApiUrl?.toHttpUrl()
+
+        if (mockUrl != null && request.url.host == "pr0gramm.com") {
+            logger.info { "Call mock for ${request.url}" }
+
+            val url = request.url.newBuilder()
+                    .scheme(mockUrl.scheme)
+                    .host(mockUrl.host)
+                    .port(mockUrl.port)
+                    .build()
+
+            return chain.proceed(request.newBuilder().url(url).build())
+        }
+
+        // no mocking
+        return chain.proceed(request)
+    }
+}
+
+object DebugInterceptor : Interceptor {
     private val logger = Logger("DebugInterceptor")
 
     override fun intercept(chain: Interceptor.Chain): Response {

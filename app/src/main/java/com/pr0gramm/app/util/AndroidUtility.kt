@@ -28,9 +28,9 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.DebugConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.ui.PermissionHelperDelegate
 import com.pr0gramm.app.ui.base.AsyncScope
 import io.sentry.Sentry
@@ -192,10 +192,10 @@ object AndroidUtility {
     }
 
     fun buildVersionCode(): Int {
-        if (BuildConfig.DEBUG) {
-            return DebugConfig.versionOverride ?: BuildConfig.VERSION_CODE
+        return if (BuildConfig.DEBUG) {
+            debugConfig.versionOverride ?: BuildConfig.VERSION_CODE
         } else {
-            return BuildConfig.VERSION_CODE
+            BuildConfig.VERSION_CODE
         }
     }
 

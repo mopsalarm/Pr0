@@ -1,11 +1,16 @@
 package com.pr0gramm.app
 
-/**
- * Constants for debugging
- */
-object DebugConfig {
-    const val mockApiHost = "10.1.1.55"
-    const val debugInterceptor = true
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
-    val versionOverride: Int? = null
+private val actualDebugConfig = DebugConfig(
+        // overrides
+)
+
+var debugConfig = if (BuildConfig.DEBUG) actualDebugConfig else DebugConfig()
+
+data class DebugConfig(
+        val mockApiUrl: String? = null,
+        val versionOverride: Int? = null) {
+
+    val mockApiHost: String? = mockApiUrl?.toHttpUrl()?.host
 }

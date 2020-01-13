@@ -170,8 +170,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // show the intro activity if this is the first time the app started.
         singleShotService.doOnce("onboarding-activity:1") {
-            IntroActivity.launch(this)
-            return
+            skipInTesting {
+                IntroActivity.launch(this)
+                return
+            }
         }
 
         // set extra slides to show during some migration

@@ -22,17 +22,8 @@ class ApiProvider(base: String, client: OkHttpClient,
     val api = proxy(restAdapter(base, client))
 
     private fun restAdapter(base: String, client: OkHttpClient): Api {
-        val settings = Settings.get()
-
-        val baseUrl = if (BuildConfig.DEBUG && settings.mockApi) {
-            // activate this to use a mock
-            ("http://" + DebugConfig.mockApiHost + ":8888").toHttpUrl()
-        } else {
-            base.toHttpUrl()
-        }
-
         return Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(base.toHttpUrl())
                 .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
                 .client(client.newBuilder().addInterceptor(ErrorInterceptor()).build())
                 .validateEagerly(BuildConfig.DEBUG)

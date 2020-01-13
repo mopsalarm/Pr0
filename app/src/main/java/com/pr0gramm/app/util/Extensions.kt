@@ -796,3 +796,21 @@ inline fun TabLayout.setupWithViewPager2(pager: ViewPager2, crossinline configur
 }
 
 fun Number.formatSize() = "%1.3fkb".format(Locale.ROOT, toDouble() / 1024.0)
+
+
+val isCurrentlyTesting: Boolean by lazy {
+    try {
+        Class.forName("androidx.test.espresso.Espresso")
+        true
+    } catch (e: ClassNotFoundException) {
+        false
+    }
+}
+
+inline fun skipInTesting(block: () -> Unit) {
+    if (isCurrentlyTesting) {
+        return
+    }
+
+    return block()
+}
