@@ -150,6 +150,9 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
         // apply volume to the exo player if needed.
         volumeController?.applyMuteState()
+
+        // update pause icon. The player got reset
+        updatePauseViewIcon()
     }
 
     private fun stop() {
