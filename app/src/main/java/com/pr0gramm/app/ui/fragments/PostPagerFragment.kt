@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.collection.LongSparseArray
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
@@ -15,11 +16,14 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
 
@@ -121,6 +125,10 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     private fun onActiveFragmentChanged() {
         val mainActivity = activity as? MainActivity
         mainActivity?.updateActionbarTitle()
+
+        if (::adapter.isInitialized) {
+            adapter.cleanupSavedStates()
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -267,6 +275,46 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             diff.dispatchUpdatesTo(this)
         }
 
+        @Suppress("UNCHECKED_CAST")
+        fun cleanupSavedStates() {
+            if (cleanupOfSavedStateFailed) {
+                logger.debug { "Skip cleanup as it failed earlier." }
+                return
+            }
+
+            logger.time("Cleanup savedStates using reflection") {
+                try {
+                    val mFragments = FragmentStateAdapter::class.java.getDeclaredField("mFragments").let { field ->
+                        field.isAccessible = true
+                        field.get(this) as LongSparseArray<Fragment>
+                    }
+
+                    val mSavedStates = FragmentStateAdapter::class.java.getDeclaredField("mSavedStates").let { field ->
+                        field.isAccessible = true
+                        field.get(this) as LongSparseArray<Fragment.SavedState>
+                    }
+
+                    val keysToRemove = mutableListOf<Long>()
+                    for (idx in 0 until mSavedStates.size()) {
+                        val key = mSavedStates.keyAt(idx)
+                        if (!mFragments.containsKey(key)) {
+                            keysToRemove += key
+                        }
+                    }
+
+                    logger.info { "Removing keys from savedState: $keysToRemove" }
+                    keysToRemove.forEach { key -> mSavedStates.remove(key) }
+
+                } catch (err: Exception) {
+                    cleanupOfSavedStateFailed = true
+                    AndroidUtility.logToCrashlytics(err)
+
+                    // forward when debugging
+                    debug { throw err }
+                }
+            }
+        }
+
         override fun getItemCount(): Int {
             return feed.size
         }
@@ -308,6 +356,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     companion object {
+        private var cleanupOfSavedStateFailed = false
+
         private const val ARG_FEED = "PP.feed"
         private const val ARG_TITLE = "PP.title"
         private const val ARG_START_ITEM = "PP.startItem"

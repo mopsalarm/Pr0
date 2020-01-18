@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="view_model_state_saving_id" type="id" />
+
+    <item name="ui_test_activestate" type="id" />
 </resources>

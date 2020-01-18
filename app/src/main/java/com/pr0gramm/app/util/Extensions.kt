@@ -812,5 +812,11 @@ inline fun skipInTesting(block: () -> Unit) {
         return
     }
 
-    return block()
+    block()
+}
+
+inline fun uiTestOnly(block: () -> Unit) {
+    if (isCurrentlyTesting) {
+        return block()
+    }
 }

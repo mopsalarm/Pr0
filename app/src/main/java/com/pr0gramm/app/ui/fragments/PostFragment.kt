@@ -131,8 +131,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             activity?.invalidateOptionsMenu()
         }
 
-        lifecycle().subscribe { event ->
-            this@PostFragment.trace { "${feedItem.id}: $event" }
+        debug {
+            lifecycle().subscribe { event ->
+                this@PostFragment.trace { "${feedItem.id}: $event" }
+            }
         }
     }
 
@@ -151,7 +153,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.ALWAYS) {
-
         super.onViewCreated(view, savedInstanceState)
 
         val activity = requireActivity()
@@ -257,6 +258,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             if (!active) {
                 exitFullscreen()
+            }
+
+            uiTestOnly {
+                view.setTag(R.id.ui_test_activestate, active)
             }
         }
 

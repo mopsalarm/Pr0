@@ -13,7 +13,7 @@ class DebugApplicationClass : ApplicationClass() {
     init {
         StrictMode.enableDefaults()
 
-        if (true) {
+        if (false) {
             try {
                 // Debug.startMethodTracing(null, 128 * 1024 * 1024)
                 Debug.startMethodTracingSampling(null, 16 * 1024 * 1042, 500)
