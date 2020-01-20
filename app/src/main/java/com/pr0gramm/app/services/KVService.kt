@@ -24,7 +24,7 @@ class KVService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .validateEagerly(BuildConfig.DEBUG)
             .client(okHttpClient)
-            .baseUrl("$ServiceBaseURL/api/kv/v1/")
+            .baseUrl("$ServiceBaseURL/kv/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .build().create<Api>()
 

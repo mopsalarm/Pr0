@@ -1,4 +1,4 @@
 package com.pr0gramm.app
 
 
-const val ServiceBaseURL = "https://pr0.wibbly-wobbly.de"
+const val ServiceBaseURL = "https://app.pr0gramm.com"
