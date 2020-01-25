@@ -26,8 +26,8 @@ object Stats {
         doInBackground {
             CLIENT = try {
                 logger.info { "Create a new statsd client" }
-                NonBlockingStatsDClient("app", "pr0-metrics.wibbly-wobbly.de",
-                        8125, 64, "version:$version", "host:app")
+                NonBlockingStatsDClient("app", "app-metrics.pr0gramm.com",
+                        8126, 64, "version:$version", "host:app")
 
             } catch (err: Exception) {
                 logger.warn("Could not create statsd client, falling back on noop", err)
