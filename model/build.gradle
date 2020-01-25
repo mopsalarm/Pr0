@@ -16,7 +16,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.squareup.sqldelight:gradle-plugin:1.2.1'
+        classpath 'com.squareup.sqldelight:gradle-plugin:1.2.2'
     }
 }
 
@@ -67,8 +67,8 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:2.7.1"
     implementation "com.squareup.okhttp3:okhttp:4.3.1"
 
-    api "com.squareup.sqldelight:android-driver:1.2.1"
-    api "com.squareup.sqldelight:coroutines-extensions:1.2.1"
+    api "com.squareup.sqldelight:android-driver:1.2.2"
+    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.2.2"
 
     kapt 'com.github.square.moshi:moshi-kotlin-codegen:40a829ef18'
 }
