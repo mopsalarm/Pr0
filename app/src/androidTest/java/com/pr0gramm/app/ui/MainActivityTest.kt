@@ -75,15 +75,19 @@ class MainActivityTest {
             PostView.scrollTo(0)
         }
 
-        val bundle = mActivityTestRule.runOnUiThreadForResult {
-            val outState = Bundle()
-            mActivityTestRule.activity.onSaveInstanceState(outState, PersistableBundle())
-            outState
+        if (false) {
+            val bundle = mActivityTestRule.runOnUiThreadForResult {
+                val outState = Bundle()
+                mActivityTestRule.activity.onSaveInstanceState(outState, PersistableBundle())
+                outState
+            }
+
+            logger.info { "Bundle size after onSaveInstanceState is: ${sizeAsParcel(bundle)}" }
+
+            throw Exception("This invalidates the activities internal state. We need to stop there.")
         }
 
-        logger.info { "Bundle size after onSaveInstanceState is: ${sizeAsParcel(bundle)}" }
-
-        // MainView.logout()
+        MainView.logout()
     }
 
     companion object {
