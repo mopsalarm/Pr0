@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Debug
 import android.os.StrictMode
 import androidx.multidex.MultiDex
-import com.gu.toolargetool.TooLargeTool
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.delay
 
@@ -28,11 +27,6 @@ class DebugApplicationClass : ApplicationClass() {
                 }
             }
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        TooLargeTool.startLogging(this)
     }
 
     override fun attachBaseContext(base: Context) {

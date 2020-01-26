@@ -4,26 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.collection.LongSparseArray
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.recyclerview.widget.DiffUtil
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
+import androidx.fragment.app.commitNow
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
-import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
-import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
 
@@ -32,7 +28,7 @@ import com.pr0gramm.app.util.observeChangeEx
 class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
-    private val viewPager: ViewPager2 by bindView(R.id.pager)
+    private val viewPager: ViewPager by bindView(R.id.pager)
 
     private lateinit var adapter: PostAdapter
 
@@ -57,6 +53,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         // when the fragment will be there and available.
         val l = object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+                logger.debug { "Fragment was resumed." }
                 if (f is PostFragment && latestActivePostFragment !== f) {
                     latestActivePostFragment = f
                     onActiveFragmentChanged()
@@ -90,20 +87,35 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val activity = activity as ToolbarActivity
             activity.scrollHideToolbarListener.reset()
 
-            viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
                     latestActivePostFragment?.exitFullscreen()
                 }
 
                 override fun onPageSelected(position: Int) {
+                    logger.info { "Page was selected: $position" }
                     arguments?.let { saveStateToBundle(it) }
+
+                    val fragment = adapter.getFragment(position)
+                    if (fragment != null && fragment != latestActivePostFragment) {
+                        childFragmentManager.commitNow(allowStateLoss = true) {
+                            val previousFragment = latestActivePostFragment
+                            if (previousFragment != null && previousFragment.isAdded) {
+                                setMaxLifecycle(previousFragment, Lifecycle.State.STARTED)
+                            }
+
+                            setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+                        }
+                    }
                 }
+
+                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             })
         }
 
         if (Settings.get().fancyScrollHorizontal) {
-            viewPager.setPageTransformer { page: View, position: Float ->
+            viewPager.setPageTransformer(false) { page: View, position: Float ->
                 val viewer = page.findViewWithTag<View>(PostFragment.ViewerTag)
                 if (viewer != null) {
                     viewer.translationX = -(position * page.width / 2.0f)
@@ -125,10 +137,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     private fun onActiveFragmentChanged() {
         val mainActivity = activity as? MainActivity
         mainActivity?.updateActionbarTitle()
-
-        if (::adapter.isInitialized) {
-            adapter.cleanupSavedStates()
-        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -256,70 +264,26 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     private inner class PostAdapter(
             feed: Feed,
             private val manager: FeedManager)
-        : FragmentStateAdapter(this) {
+        : IdFragmentStatePagerAdapter(childFragmentManager) {
 
         var feed: Feed by observeChangeEx(feed) { oldValue, newValue ->
-            val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize(): Int = oldValue.size
-                override fun getNewListSize(): Int = newValue.size
-
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return oldValue[oldItemPosition].id == newValue[newItemPosition].id
-                }
-
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return oldValue[oldItemPosition] == newValue[newItemPosition]
-                }
-            })
-
-            diff.dispatchUpdatesTo(this)
+            if (oldValue != newValue) {
+                notifyDataSetChanged()
+            }
         }
 
-        @Suppress("UNCHECKED_CAST")
-        fun cleanupSavedStates() {
-            if (cleanupOfSavedStateFailed) {
-                logger.debug { "Skip cleanup as it failed earlier." }
-                return
-            }
+        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+            super.setPrimaryItem(container, position, `object`)
+            // updateActiveItem(`object` as PostFragment)
 
-            logger.time("Cleanup savedStates using reflection") {
-                try {
-                    val mFragments = FragmentStateAdapter::class.java.getDeclaredField("mFragments").let { field ->
-                        field.isAccessible = true
-                        field.get(this) as LongSparseArray<Fragment>
-                    }
-
-                    val mSavedStates = FragmentStateAdapter::class.java.getDeclaredField("mSavedStates").let { field ->
-                        field.isAccessible = true
-                        field.get(this) as LongSparseArray<Fragment.SavedState>
-                    }
-
-                    val keysToRemove = mutableListOf<Long>()
-                    for (idx in 0 until mSavedStates.size()) {
-                        val key = mSavedStates.keyAt(idx)
-                        if (!mFragments.containsKey(key)) {
-                            keysToRemove += key
-                        }
-                    }
-
-                    logger.info { "Removing keys from savedState: $keysToRemove" }
-                    keysToRemove.forEach { key -> mSavedStates.remove(key) }
-
-                } catch (err: Exception) {
-                    cleanupOfSavedStateFailed = true
-                    AndroidUtility.logToCrashlytics(err)
-
-                    // forward when debugging
-                    debug { throw err }
+            if (view != null) {
+                arguments?.let { args ->
+                    saveStateToBundle(args)
                 }
             }
         }
 
-        override fun getItemCount(): Int {
-            return feed.size
-        }
-
-        override fun createFragment(position: Int): Fragment {
+        override fun getItem(position: Int): Fragment {
             if (!manager.isLoading) {
                 if (position > feed.size - 12) {
                     logger.debug { "Requested pos=$position, load next page" }
@@ -346,18 +310,21 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             return PostFragment.newInstance(item)
         }
 
-        override fun getItemId(position: Int): Long {
-            return feed[position].id
+        override fun getCount(): Int {
+            return feed.size
         }
 
-        override fun containsItem(itemId: Long): Boolean {
-            return feed.any { it.id == itemId }
+        override fun getItemPosition(`object`: Any): Int {
+            val item = (`object` as PostFragment).feedItem
+            return feed.indexById(item.id) ?: androidx.viewpager.widget.PagerAdapter.POSITION_NONE
+        }
+
+        override fun getItemId(position: Int): Long {
+            return feed[position].id
         }
     }
 
     companion object {
-        private var cleanupOfSavedStateFailed = false
-
         private const val ARG_FEED = "PP.feed"
         private const val ARG_TITLE = "PP.title"
         private const val ARG_START_ITEM = "PP.startItem"

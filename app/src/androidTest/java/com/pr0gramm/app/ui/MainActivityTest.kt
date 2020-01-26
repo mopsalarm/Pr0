@@ -3,6 +3,8 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.graphics.Rect
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
@@ -26,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import com.gu.toolargetool.sizeAsParcel
 import com.jakewharton.espresso.OkHttp3IdlingResource
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -65,23 +68,22 @@ class MainActivityTest {
 
         FeedView.clickItem(5)
 
-        for (idx in 0 until 5) {
+        for (idx in 0 until 50) {
             PostView.next()
 
             PostView.scrollTo(50)
-            Thread.sleep(500)
             PostView.scrollTo(0)
         }
-//
-//        val bundle = mActivityTestRule.runOnUiThreadForResult {
-//            Bundle().apply {
-//                mActivityTestRule.activity.onSaveInstanceState(this, PersistableBundle())
-//            }
-//        }
-//
-//        logger.info { "Bundle size after onSaveInstanceState is: ${sizeAsParcel(bundle)}" }
 
-        MainView.logout()
+        val bundle = mActivityTestRule.runOnUiThreadForResult {
+            val outState = Bundle()
+            mActivityTestRule.activity.onSaveInstanceState(outState, PersistableBundle())
+            outState
+        }
+
+        logger.info { "Bundle size after onSaveInstanceState is: ${sizeAsParcel(bundle)}" }
+
+        // MainView.logout()
     }
 
     companion object {
