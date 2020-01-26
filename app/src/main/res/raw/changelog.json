@@ -1,5 +1,14 @@
 [
   {
+    "version": 178,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Scrollverhalten verbessert."
+      }
+    ]
+  },
+  {
     "version": 177,
     "changes": [
       {
