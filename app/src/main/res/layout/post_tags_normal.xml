@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.pr0gramm.app.ui.views.NestedScrollableHost xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tags"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tags"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:requiresFadingEdge="horizontal"
-        tools:listitem="@layout/tag" />
-</com.pr0gramm.app.ui.views.NestedScrollableHost>
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:requiresFadingEdge="horizontal"
+    tools:listitem="@layout/tag" />
