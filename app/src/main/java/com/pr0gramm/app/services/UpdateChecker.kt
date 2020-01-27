@@ -7,8 +7,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.fragment.app.FragmentActivity
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.update.UpdateModel
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog

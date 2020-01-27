@@ -4,9 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
-import com.llamalab.safs.Files
-import com.llamalab.safs.Path
-import com.llamalab.safs.android.AndroidFiles
+import androidx.core.net.toUri
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
@@ -17,6 +15,7 @@ import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.readStream
 import rx.Emitter
 import rx.Observable
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,21 +39,22 @@ class DownloadService(
         val uri = UriHelper.of(context).media(feedItem, true)
 
 
-        val target = settings.downloadTarget
-
-        if (Files.notExists(target)) {
-            try {
-                Files.createDirectories(target)
-            } catch (err: com.llamalab.safs.FileAlreadyExistsException) {
-                // ignored
-            } catch (err: IOException) {
-                logger.warn(err) { "Could not create download directory" }
-                throw CouldNotCreateDownloadDirectoryException()
-            }
-        }
+//        val target = settings.downloadTarget
+//
+//        if (Files.notExists(target)) {
+//            try {
+//                Files.createDirectories(target)
+//            } catch (err: com.llamalab.safs.FileAlreadyExistsException) {
+//                // ignored
+//            } catch (err: IOException) {
+//                logger.warn(err) { "Could not create download directory" }
+//                throw CouldNotCreateDownloadDirectoryException()
+//            }
+//        }
 
         val name = filenameOf(feedItem)
-        val targetFile = target.resolve(name)
+        val targetFile = Storage.create(context, name)
+                ?: throw CouldNotCreateDownloadDirectoryException()
 
         downloadToFile(uri, targetFile)
                 .startWith(Status(0f, null))
@@ -70,20 +70,18 @@ class DownloadService(
     }
 
     fun downloadUpdateFile(uri: Uri): Observable<Status> {
-        val directory = AndroidFiles.getCacheDirectory().resolve("updates")
+        val directory = File(context.externalCacheDir, "updates2")
         logger.info { "Use download directory at $directory" }
 
         logger.info { "Create temporary directory" }
-        Files.createDirectories(directory)
+        directory.mkdirs()
 
         try {
-            Files.newDirectoryStream(directory).use { files ->
-                for (file in files.filter { Files.isRegularFile(it) }) {
-                    logger.info { "Delete previously downloaded update file $file" }
+            directory.listFiles()?.filter { it.isFile }?.forEach { file ->
+                logger.info { "Delete previously downloaded update file $file" }
 
-                    if (!Files.deleteIfExists(file)) {
-                        logger.warn { "Could not delete file $file" }
-                    }
+                if (!file.delete()) {
+                    logger.warn { "Could not delete file $file" }
                 }
             }
         } catch (err: Exception) {
@@ -91,17 +89,17 @@ class DownloadService(
         }
 
         // and download the new file.
-        val target = Files.createTempFile(directory, "pr0gramm-update", ".apk")
-        return downloadToFile(uri, target)
+        val target = File.createTempFile("pr0gramm-update", ".apk", directory)
+        return downloadToFile(uri, target.toUri())
     }
 
-    private fun downloadToFile(uri: Uri, target: Path): Observable<Status> {
+    private fun downloadToFile(uri: Uri, target: Uri): Observable<Status> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
                 cache.get(uri).use { entry ->
                     val totalSize = entry.totalSize
 
-                    Files.newOutputStream(target).use { output ->
+                    Storage.openOutputStream(context, target).use { output ->
                         val interval = Interval(250)
 
                         entry.inputStreamAt(0).use { body ->
@@ -147,7 +145,7 @@ class DownloadService(
 
     class CouldNotCreateDownloadDirectoryException : IOException()
 
-    data class Status(val progress: Float, val file: Path?) {
+    data class Status(val progress: Float, val file: Uri?) {
         val finished = file != null
     }
 

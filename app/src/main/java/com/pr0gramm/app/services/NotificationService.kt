@@ -7,14 +7,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.*
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.llamalab.safs.Path
-import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -112,11 +111,11 @@ class NotificationService(private val context: Application,
         }
     }
 
-    fun showDownloadNotification(path: Path, progress: Float, preview: Bitmap? = null) {
-        val id = notificationIdCache["download:$path"]
+    fun showDownloadNotification(uri: Uri, progress: Float, preview: Bitmap? = null) {
+        val id = notificationIdCache["download:$uri"]
 
         notify(Types.Download, id) {
-            setContentTitle(path.toFile().nameWithoutExtension)
+            setContentTitle(Storage.toFile(uri).nameWithoutExtension)
             setSmallIcon(R.drawable.ic_notify_new_message)
             setCategory(NotificationCompat.CATEGORY_PROGRESS)
 
@@ -135,7 +134,7 @@ class NotificationService(private val context: Application,
 
                 // make it clickable
                 setAutoCancel(true)
-                setContentIntent(viewFileIntent(path))
+                setContentIntent(viewFileIntent(uri))
             }
         }
     }
@@ -306,11 +305,9 @@ class NotificationService(private val context: Application,
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
-    private fun viewFileIntent(file: Path): PendingIntent {
-        val uri = AndroidFiles.toUri(file)
-
+    private fun viewFileIntent(uri: Uri): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(file.toString()))
+        intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(uri.toString()))
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }

@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder.ofFloat
 import android.app.Activity
@@ -422,8 +421,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
 
-        if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK && data != null) {
-            onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(requireContext(), data))
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            if (requestCode == RequestCodes.WRITE_COMMENT) {
+                onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(requireContext(), data))
+            }
+
+            if (requestCode == RequestCodes.SELECT_DOWNLOAD_PATH) {
+                if (!Storage.persistTreeUri(requireContext(), data)) {
+                    showDialog(this) {
+                        content(R.string.error_invalid_download_directory)
+                        positive(R.string.okay)
+                    }
+                }
+            }
         }
     }
 
@@ -627,11 +638,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostMedia() {
-        val helper = requireActivity() as PermissionHelperActivity
+        if (Settings.get().downloadTarget2 == null) {
+            showDialog(this) {
+                content(R.string.hint_select_download_directory)
+                positive {
+                    startActivityForResult(Storage.openTreeIntent(), RequestCodes.SELECT_DOWNLOAD_PATH)
+                }
+            }
 
-        helper.requirePermission(WRITE_EXTERNAL_STORAGE) {
-            downloadPostWithPermissionGranted()
+            return
         }
+
+        downloadPostWithPermissionGranted()
     }
 
     private fun downloadPostWithPermissionGranted() {
@@ -646,7 +664,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .bindToLifecycle()
                 .subscribe({}, { err: Throwable ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
-                        showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
+                        showErrorString(parentFragmentManager, getString(R.string.error_could_not_create_download_directory))
                     } else {
                         AndroidUtility.logToCrashlytics(DownloadException(err))
                     }
@@ -749,17 +767,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun showDeleteItemDialog() {
         val dialog = ItemUserAdminDialog.forItem(feedItem)
-        dialog.maybeShow(fragmentManager)
+        dialog.maybeShow(parentFragmentManager)
     }
 
     private fun showTagsDetailsDialog() {
         val dialog = TagsDetailsDialog.newInstance(feedItem.id)
-        dialog.maybeShow(fragmentManager)
+        dialog.maybeShow(parentFragmentManager)
     }
 
     private fun showReportDialog() {
         val dialog = ReportDialog.forItem(feedItem)
-        dialog.maybeShow(fragmentManager)
+        dialog.maybeShow(parentFragmentManager)
     }
 
     private fun showPostVoteAnimation(vote: Vote?) {
@@ -1281,19 +1299,19 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forComment(comment.id, comment.name)
-            dialog.maybeShow(fragmentManager)
+            dialog.maybeShow(parentFragmentManager)
             return true
         }
 
         override fun onBlockUserClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forUser(comment.name)
-            dialog.maybeShow(fragmentManager)
+            dialog.maybeShow(parentFragmentManager)
             return true
         }
 
         override fun onReportCommentClicked(comment: Api.Comment) {
             val dialog = ReportDialog.forComment(feedItem, comment.id)
-            dialog.maybeShow(fragmentManager)
+            dialog.maybeShow(parentFragmentManager)
         }
 
         override fun itemClicked(ref: Linkify.Item): Boolean {

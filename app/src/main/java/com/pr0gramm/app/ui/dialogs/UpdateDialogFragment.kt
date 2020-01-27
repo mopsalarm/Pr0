@@ -2,11 +2,14 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import androidx.core.content.edit
 import androidx.fragment.app.FragmentManager
 import com.pr0gramm.app.*
+import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -16,6 +19,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.Job
 import kotlin.coroutines.coroutineContext
@@ -23,17 +27,31 @@ import kotlin.coroutines.coroutineContext
 /**
  */
 class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
+    private val singleShotService: SingleShotService by instance()
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val update = arguments?.getParcelable<Update?>("update")
         return update?.let { updateAvailableDialog(it) } ?: noNewUpdateDialog()
     }
 
     private fun updateAvailableDialog(update: Update): Dialog {
-        val content = getString(R.string.new_update_available, update.changelog)
+        var content = getString(R.string.new_update_available, update.changelog)
 
         return dialog(this) {
+            positive(R.string.install_update) {
+                singleShotService.markAsDoneOnce("update:${update.version}")
+                UpdateChecker.download(requireActivity(), update)
+            }
+
+            if (!singleShotService.isFirstTime("update:${update.version}")) {
+                neutral(R.string.download_manually) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.apk)))
+                }
+
+                content += "\n\n" + getString(R.string.new_update_download)
+            }
+
             content(Linkify.linkify(requireContext(), content))
-            positive(R.string.install_update) { activity?.let { ctx -> UpdateChecker.download(ctx, update) } }
         }
     }
 

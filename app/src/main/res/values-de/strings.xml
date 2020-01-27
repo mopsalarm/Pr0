@@ -498,6 +498,9 @@
     <string name="pref_single_tap_action_summary">Wähle eine Aktion fürs einfache Tappen auf ein Bild aus.</string>
     <string name="pref_double_tap_action_title">Doppel-Tap Aktion</string>
     <string name="pref_double_tap_action_summary">Wähle eine Aktion fürs zweifaches Tappen auf ein Bild oder Video aus.</string>
+    <string name="download_manually">Herunterladen</string>
+    <string name="new_update_download">Anscheinend ist das Update fehlgeschlagen - du kannst das Update selbst herunterladen und installieren.</string>
+    <string name="hint_select_download_directory">Bitte wähle ein Downloadverzeichnis auf dem Internen Speicher oder einer Speicherkarte.</string>
 
 
 </resources>

@@ -59,6 +59,7 @@ object MimeTypeHelper {
             "video/mp4" to "mp4")
 
     private val EXTENSION_TO_TYPE = mapOf(
+            "txt" to "text/plain",
             "jpeg" to "image/jpeg",
             "jpg" to "image/jpeg",
             "png" to "image/png",

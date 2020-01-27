@@ -75,6 +75,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return path?.let { Paths.get(path) } ?: defaultValue
         }
 
+    val downloadTarget2: Uri?
+        get() {
+            val path = preferences.getStringOrNull("pref_download_path")
+            return path?.let { Uri.parse(path) }
+        }
+
     val markItemsAsSeen: Boolean
         get() = preferences.getBoolean("pref_mark_items_as_seen", false)
 

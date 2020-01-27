@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -13,13 +14,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
-import com.llamalab.safs.FileSystems
-import com.llamalab.safs.android.AndroidFileSystem
 import com.pr0gramm.app.*
-import com.pr0gramm.app.services.BookmarkService
-import com.pr0gramm.app.services.RecentSearchesServices
-import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BasePreferenceFragment
@@ -228,7 +224,8 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_download_target" -> {
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                    val initial = Uri.parse("content://com.android.externalstorage.documents/tree/primary%3A")
+                    val intent = Storage.openTreeIntent(initial)
                     startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
 
                     return true
@@ -239,32 +236,12 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         }
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, resultIntent: Intent?) {
-            when (requestCode) {
-                RequestCodes.SELECT_DOWNLOAD_PATH -> {
-                    if (resultCode == Activity.RESULT_OK) {
-                        val fs = FileSystems.getDefault() as AndroidFileSystem
-
-                        val uri = resultIntent?.data ?: return
-                        logger.warn { "Try to set $uri as new download directory" }
-
-                        if (!AndroidFileSystem.isTreeUri(uri)) {
-                            showInvalidDownloadDirectorySelected()
-                            return
-                        }
-
-                        fs.takePersistableUriPermission(resultIntent)
-
-                        try {
-                            val path = fs.getPath(uri).toString()
-                            Settings.get().edit { putString("pref_download_path", path) }
-                        } catch (err: Exception) {
-                            showInvalidDownloadDirectorySelected()
-                            return
-                        }
-                    }
+            if (requestCode == RequestCodes.SELECT_DOWNLOAD_PATH && resultCode == Activity.RESULT_OK) {
+                if (!Storage.persistTreeUri(requireContext(), resultIntent ?: return)) {
+                    showInvalidDownloadDirectorySelected()
                 }
-
-                else -> super.onActivityResult(requestCode, resultCode, resultIntent)
+            } else {
+                super.onActivityResult(requestCode, resultCode, resultIntent)
             }
         }
 
