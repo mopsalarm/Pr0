@@ -638,7 +638,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostMedia() {
-        if (Settings.get().downloadTarget2 == null) {
+        if (!Storage.hasTreeUri(requireContext())) {
             showDialog(this) {
                 content(R.string.hint_select_download_directory)
                 positive {

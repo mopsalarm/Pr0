@@ -3,7 +3,7 @@ package com.pr0gramm.app
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private val actualDebugConfig = DebugConfig(
-        versionOverride = 100
+        // versionOverride = 100
 )
 
 var debugConfig = if (BuildConfig.DEBUG) actualDebugConfig else DebugConfig()

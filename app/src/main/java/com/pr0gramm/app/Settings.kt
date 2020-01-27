@@ -59,21 +59,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return result
         }
 
-//    val downloadTarget: Path
-//        get() {
-//            val defaultValue by lazy(LazyThreadSafetyMode.NONE) {
-//                AndroidFiles
-//                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-//                        .resolve("pr0gramm")
-//            }
-//
-//            val path = preferences.getStringOrNull("pref_download_path")
-//            return path?.let { Paths.get(path) } ?: defaultValue
-//        }
-
-    val downloadTarget2: Uri?
+    val downloadTreeUri: Uri?
         get() {
-            val path = preferences.getStringOrNull("pref_download_path")
+            val path = preferences.getStringOrNull("pref_download_tree_uri")
             return path?.let { Uri.parse(path) }
         }
 

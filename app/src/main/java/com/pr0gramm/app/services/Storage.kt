@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -35,18 +34,6 @@ object Storage {
         }
     }
 
-    fun takePersistableUriPermission(context: Context, uri: Uri) {
-        require(isTreeUri(uri)) { "Not a tree uri '$uri'" }
-
-        logger.info { "takePersistableUriPermission($uri)" }
-
-        val contentResolver = context.applicationContext.contentResolver
-        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-
-        context.grantUriPermission(context.packageName, uri, flags)
-        contentResolver.takePersistableUriPermission(uri, flags)
-    }
-
     fun openOutputStream(context: Context, uri: Uri): OutputStream {
         logger.info { "Try to open an OutputStream for '${uri}'" }
 
@@ -67,38 +54,13 @@ object Storage {
         }
     }
 
-    fun isTreeUri(uri: Uri): Boolean {
-        if (uri.scheme == ContentResolver.SCHEME_CONTENT && uri.authority == "com.android.externalstorage.documents") {
-            val segments = uri.pathSegments
-            return segments.size == 2 && segments[0] == "tree"
-        }
-
-        return false
-    }
-
-    fun defaultTree(context: Context): DocumentFile? {
-        val uri = Settings.get().downloadTarget2 ?: return null
-        return DocumentFile.fromTreeUri(context, uri)
-    }
-
-    fun create(context: Context, uri: Uri, file: String): Uri {
-        val tree = DocumentFile.fromTreeUri(context, uri)
-                ?: throw IOException("Error building DocumentFile from uri '$uri'")
-
-        return create(tree, file)
+    fun hasTreeUri(context: Context): Boolean {
+        return defaultTree(context)?.canWrite() ?: false
     }
 
     fun create(context: Context, file: String): Uri? {
         val tree = defaultTree(context) ?: return null
         return create(tree, file)
-    }
-
-    fun create(tree: DocumentFile, file: String): Uri {
-        val mime = MimeTypeHelper.guessFromFileExtension(file) ?: "application/octet-stream"
-        val displayName = file.replaceAfterLast('.', "").trimEnd('.')
-
-        return tree.createFile(mime, displayName)?.uri
-                ?: throw IOException("Error creating file '$file' in tree")
     }
 
     fun toFile(uri: Uri): File {
@@ -109,26 +71,54 @@ object Storage {
         val uri = resultIntent.data ?: return false
         logger.warn { "Try to set '$uri' as new download directory" }
 
-        if (!isTreeUri(uri)) {
-            return false
-        }
-
         takePersistableUriPermission(context, uri)
 
         return try {
-            val testUri = create(context, uri, "pr0gramm-test.txt")
+            val tree = DocumentFile.fromTreeUri(context, uri)
+                    ?: throw IOException("Error building DocumentFile from uri '$uri'")
 
-            logger.debug { "Test storage by writing to '$testUri'" }
+            logger.info { "Test if storage is writable at $uri" }
+            if (!tree.isDirectory || !tree.canWrite()) {
+                return false
+            }
+
+            // write a temporary file just to test if it really works!
+            val testUri = create(tree, "pr0gramm-test.txt")
+
+            logger.info { "Test storage by writing to '$testUri'" }
             openOutputStream(context, testUri).use { out -> out.write("test".toByteArray()) }
             DocumentsContract.deleteDocument(context.contentResolver, testUri)
 
-            logger.debug { "Storage looks good, saving new download directory." }
-            Settings.get().edit { putString("pref_download_path", uri.toString()) }
+            logger.info { "Storage looks good, saving new download directory." }
+            Settings.get().edit { putString("pref_download_tree_uri", uri.toString()) }
 
             true
 
         } catch (err: Exception) {
             false
         }
+    }
+
+    private fun takePersistableUriPermission(context: Context, uri: Uri) {
+        logger.info { "takePersistableUriPermission($uri)" }
+
+        val contentResolver = context.applicationContext.contentResolver
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+        context.grantUriPermission(context.packageName, uri, flags)
+        contentResolver.takePersistableUriPermission(uri, flags)
+    }
+
+    private fun defaultTree(context: Context): DocumentFile? {
+        val uri = Settings.get().downloadTreeUri ?: return null
+        return DocumentFile.fromTreeUri(context, uri)
+    }
+
+    private fun create(tree: DocumentFile, file: String): Uri {
+        val mime = MimeTypeHelper.guessFromFileExtension(file) ?: "application/octet-stream"
+        val displayName = file.replaceAfterLast('.', "").trimEnd('.')
+
+        return tree.createFile(mime, displayName)?.uri
+                ?: throw IOException("Error creating file '$file' in tree")
     }
 }
