@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Scrollverhalten verbessert."
+      },
+      {
+        "type": "Fix",
+        "change": "Download überarbeitet."
       }
     ]
   },

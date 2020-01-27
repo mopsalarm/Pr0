@@ -39,7 +39,7 @@ class DownloadService(
         val uri = UriHelper.of(context).media(feedItem, true)
 
 
-//        val target = settings.downloadTarget
+//        val target = settings.downloadTarget2
 //
 //        if (Files.notExists(target)) {
 //            try {
@@ -70,7 +70,7 @@ class DownloadService(
     }
 
     fun downloadUpdateFile(uri: Uri): Observable<Status> {
-        val directory = File(context.externalCacheDir, "updates2")
+        val directory = File(context.cacheDir, "updates")
         logger.info { "Use download directory at $directory" }
 
         logger.info { "Create temporary directory" }

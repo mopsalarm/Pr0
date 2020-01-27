@@ -8,8 +8,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
-import com.llamalab.safs.Files
-import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -20,6 +18,7 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.BrowserHelper
 import proguard.annotation.KeepPublicClassMemberNames
+import java.io.File
 import java.util.*
 
 /**
@@ -79,12 +78,12 @@ class ShareService(private val cache: Cache) {
         val toShare = withBackgroundContext {
             cache.get(UriHelper.of(activity).media(feedItem)).use { entry ->
 
-                val temporary = Files
-                        .createDirectories(AndroidFiles.getCacheDirectory().resolve("share"))
-                        .resolve(DownloadService.filenameOf(feedItem))
+                val temporary = File(File(activity.cacheDir, "share"), DownloadService.filenameOf(feedItem))
+
+                temporary.parentFile?.mkdirs()
 
                 entry.inputStreamAt(0).use { inputStream ->
-                    Files.newOutputStream(temporary).use { outputStream ->
+                    temporary.outputStream().use { outputStream ->
                         inputStream.copyTo(outputStream)
                     }
                 }
@@ -94,10 +93,10 @@ class ShareService(private val cache: Cache) {
         }
 
         val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
-        val shareUri = FileProvider.getUriForFile(activity, provider, toShare.toFile())
+        val shareUri = FileProvider.getUriForFile(activity, provider, toShare)
 
         // delete the file on vm exit
-        toShare.toFile().deleteOnExit()
+        toShare.deleteOnExit()
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType(mimetype)

@@ -6,9 +6,6 @@ import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
-import com.llamalab.safs.FileSystems
-import com.llamalab.safs.android.AndroidFileSystem
-import com.llamalab.safs.android.AndroidFileSystemProvider
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
@@ -63,10 +60,6 @@ open class ApplicationClass : Application(), InjectorAware {
                     return betterIoScheduler
                 }
             })
-
-            System.setProperty(
-                    "com.llamalab.safs.spi.DefaultFileSystemProvider",
-                    AndroidFileSystemProvider::class.java.name)
         }
 
         lateinit var appContext: android.content.Context
@@ -87,9 +80,6 @@ open class ApplicationClass : Application(), InjectorAware {
 
         // handler to ignore certain exceptions before they reach sentry
         ExceptionHandler.install(this)
-
-        val fs = FileSystems.getDefault() as AndroidFileSystem
-        fs.context = this
 
         Stats.init(buildVersionCode())
 

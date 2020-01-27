@@ -5,12 +5,8 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Environment
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.llamalab.safs.Path
-import com.llamalab.safs.Paths
-import com.llamalab.safs.android.AndroidFiles
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
@@ -63,17 +59,17 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return result
         }
 
-    val downloadTarget: Path
-        get() {
-            val defaultValue by lazy(LazyThreadSafetyMode.NONE) {
-                AndroidFiles
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                        .resolve("pr0gramm")
-            }
-
-            val path = preferences.getStringOrNull("pref_download_path")
-            return path?.let { Paths.get(path) } ?: defaultValue
-        }
+//    val downloadTarget: Path
+//        get() {
+//            val defaultValue by lazy(LazyThreadSafetyMode.NONE) {
+//                AndroidFiles
+//                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+//                        .resolve("pr0gramm")
+//            }
+//
+//            val path = preferences.getStringOrNull("pref_download_path")
+//            return path?.let { Paths.get(path) } ?: defaultValue
+//        }
 
     val downloadTarget2: Uri?
         get() {
