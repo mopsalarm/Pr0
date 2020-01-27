@@ -24,11 +24,6 @@
 # Keep api names for metrics
 -keepnames interface com.pr0gramm.app.api.pr0gramm.Api
 
-# This is instantiated using reflection
--keep class com.llamalab.safs.android.AndroidFileSystemProvider {
-    <init>(...);
-}
-
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
