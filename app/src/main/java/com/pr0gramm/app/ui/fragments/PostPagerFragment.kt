@@ -76,7 +76,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         val manager = FeedManager(feedService, previousFeed)
 
         // create the adapter on the view
-        adapter = PostAdapter(previousFeed, manager)
+        adapter = PostAdapter(manager, previousFeed)
 
         manager.updates
                 .bindToLifecycle()
@@ -262,14 +262,12 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     private inner class PostAdapter(
-            feed: Feed,
-            private val manager: FeedManager)
+            private val manager: FeedManager,
+            feed: Feed)
         : IdFragmentStatePagerAdapter(childFragmentManager) {
 
         var feed: Feed by observeChangeEx(feed) { oldValue, newValue ->
-            if (oldValue != newValue) {
-                notifyDataSetChanged()
-            }
+            notifyDataSetChanged()
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
