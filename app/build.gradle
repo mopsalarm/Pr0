@@ -138,10 +138,19 @@ android.applicationVariants.all { variant ->
                 name: "processSentryProguardForRelease",
                 type: Exec) {
 
+            def authToken = file("${project.rootDir}/sentry.properties").withReader {
+                Properties props = new Properties()
+                props.load(it)
+                props.getProperty("auth.token")
+            }
+
             def cmd = [
                     "npx",
                     "@sentry/cli",
+                    "--auth-token", authToken,
                     "upload-proguard",
+                    "--org", "mopsalarm",
+                    "--project", "pr0gramm",
                     "--write-properties",
                     "${project.rootDir.toPath()}/app/build/intermediates/merged_assets/${variant.dirName}/sentry-debug-meta.properties",
                     variant.getMappingFileProvider().get().getSingleFile()
