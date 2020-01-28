@@ -1,16 +1,18 @@
 package com.pr0gramm.app.ui
 
 import android.net.Uri
+import android.os.Parcel
 import android.text.style.URLSpan
 import android.view.View
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.util.BrowserHelper
 
 /**
  */
 class PrivateBrowserSpan(url: String) : URLSpan(url) {
     override fun onClick(widget: View) {
-        val url = url
+        val url = url ?: "https://example.com"
 
         val settings = Settings.get()
         var useIncognitoBrowser = settings.useIncognitoBrowser
@@ -30,9 +32,18 @@ class PrivateBrowserSpan(url: String) : URLSpan(url) {
         }
     }
 
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(url)
+    }
+
     companion object {
         private val BLACKLIST = listOf(
                 "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
                 "vimeo.com")
+
+        @JvmStatic
+        val CREATOR = creator { parcel ->
+            PrivateBrowserSpan(parcel.readString() ?: "https://example.com")
+        }
     }
 }
