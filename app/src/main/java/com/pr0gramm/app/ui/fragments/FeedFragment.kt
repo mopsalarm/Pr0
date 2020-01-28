@@ -1005,7 +1005,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             // Only set the target fragment if we are using the same fragment manager
             // to replace the current fragment. This is not the case, if we were started
             // from the Favorites page.
-            if (fragmentManager === activity.supportFragmentManager) {
+            if (parentFragmentManager === activity.supportFragmentManager) {
                 fragment.setTargetFragment(this, 0)
             }
 
