@@ -1,8 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-apply plugin: 'io.sentry.android.gradle'
-
 apply from: 'version.gradle'
 
 buildscript {
@@ -15,7 +13,6 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.29'
     }
 }
 
@@ -135,18 +132,32 @@ android.applicationVariants.all { variant ->
             }
         }
     }
-}
 
-sentry {
-    // Disables or enables the automatic configuration of proguard
-    // for Sentry.  This injects a default config for proguard so
-    // you don't need to do it manually.
-    autoProguardConfig true
+    if (variant.name == "release") {
+        def task = project.tasks.create(
+                name: "processSentryProguardForRelease",
+                type: Exec) {
 
-    // Enables or disables the automatic upload of mapping files
-    // during a build.  If you disable this you'll need to manually
-    // upload the mapping files with sentry-cli when you do a release.
-    autoUpload true
+            def cmd = [
+                    "npx",
+                    "@sentry/cli",
+                    "upload-proguard",
+                    "--write-properties",
+                    "${project.rootDir.toPath()}/app/build/intermediates/merged_assets/${variant.dirName}/sentry-debug-meta.properties",
+                    variant.getMappingFileProvider().get().getSingleFile()
+            ]
+
+            workingDir project.rootDir
+            commandLine(cmd)
+
+            doFirst {
+                print("COMMAND: $cmd\n")
+            }
+        }
+
+        tasks."packageRelease".dependsOn(task)
+        task.dependsOn(tasks."minifyReleaseWithR8")
+    }
 }
 
 repositories {
@@ -207,7 +218,7 @@ dependencies {
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
-    implementation'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
+    implementation 'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
 
     implementation "androidx.work:work-runtime-ktx:2.3.0"
 
@@ -261,11 +272,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
                 "-XXLanguage:+InlineClasses",
         ]
 
-        if(task.name == "compileReleaseKotlin") {
+        if (task.name == "compileReleaseKotlin") {
             freeCompilerArgs += [
-                "-Xno-call-assertions",
-                "-Xno-param-assertions",
-                "-Xno-receiver-assertions",
+                    "-Xno-call-assertions",
+                    "-Xno-param-assertions",
+                    "-Xno-receiver-assertions",
             ]
         }
     }
