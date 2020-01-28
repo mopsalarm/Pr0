@@ -314,7 +314,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
         override fun getItemPosition(`object`: Any): Int {
             val item = (`object` as PostFragment).feedItem
-            return feed.indexById(item.id) ?: androidx.viewpager.widget.PagerAdapter.POSITION_NONE
+            return feed.indexById(item.id) ?: POSITION_NONE
         }
 
         override fun getItemId(position: Int): Long {
