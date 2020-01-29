@@ -95,7 +95,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
                 override fun onPageSelected(position: Int) {
                     logger.info { "Page was selected: $position" }
-                    arguments?.let { saveStateToBundle(it) }
 
                     val fragment = adapter.getFragment(position)
                     if (fragment != null && fragment != latestActivePostFragment) {
@@ -126,12 +125,9 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         viewPager.adapter = adapter
         viewPager.offscreenPageLimit = 1
 
-        if (savedInstanceState != null) {
-            // calculate index of the first item to show if this is the first
-            // time we show this fragment.
-            val start = getArgumentStartItem(savedInstanceState)
-            makeItemCurrent(start)
-        }
+        // calculate index of the first item to show if this is the first
+        // time we show this fragment.
+        makeItemCurrent(getArgumentStartItem(savedInstanceState))
     }
 
     private fun onActiveFragmentChanged() {
@@ -142,10 +138,9 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
 
-        // calculate index of the first item to show if this is the first
-        // time we show this fragment.
-        val start = getArgumentStartItem(savedInstanceState)
-        makeItemCurrent(start)
+        // the position of the view pager might have been saved. We need to re-save it now.
+        logger.info { "Going to restore view position in onViewStateRestored" }
+        makeItemCurrent(getArgumentStartItem(savedInstanceState))
     }
 
     override fun onStop() {
@@ -163,7 +158,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 
-        logger.info { "Moving to index: $index" }
+        logger.info { "Restore feed at index: $index (${item.id})" }
         viewPager.setCurrentItem(index, false)
     }
 
@@ -172,11 +167,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     /**
-     * Gets the feed from the saved state. If there is no state
-     * or it does not contain the feed proxy, the feed proxy is extracted
-     * from [getArguments]
-     *
-     * @param savedState An optional saved state.
+     * Get the feed from the given bundle.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
         val parceled = savedState?.getFreezable(ARG_FEED, Feed.FeedParcel)
@@ -187,7 +178,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     }
 
     /**
-     * @see .getArgumentFeed
+     * @see getArgumentFeed
      */
     private fun getArgumentStartItem(savedState: Bundle?): FeedItem {
         return savedState?.getFreezable(ARG_START_ITEM, FeedItem)
@@ -245,11 +236,13 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
 
             if (lastSavedPosition != position) {
+                lastSavedPosition = position
+
                 val item = adapter.feed[position]
                 outState.putFreezable(ARG_START_ITEM, item)
                 outState.putFreezable(ARG_FEED, adapter.feed.parcelAround(position))
 
-                lastSavedPosition = position
+                logger.debug { "Saved $position (id=${item.id})" }
             }
         }
     }
@@ -272,13 +265,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
             super.setPrimaryItem(container, position, `object`)
-            // updateActiveItem(`object` as PostFragment)
-
-            if (view != null) {
-                arguments?.let { args ->
-                    saveStateToBundle(args)
-                }
-            }
+            arguments?.let { args -> saveStateToBundle(args) }
         }
 
         override fun getItem(position: Int): Fragment {
