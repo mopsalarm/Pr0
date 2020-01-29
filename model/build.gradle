@@ -5,10 +5,6 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.squareup.sqldelight'
 
 buildscript {
-    ext {
-        VersionRxBinding = "1.0.1"
-    }
-
     repositories {
         google()
         mavenCentral()

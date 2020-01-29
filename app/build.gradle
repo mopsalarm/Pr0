@@ -3,19 +3,6 @@ apply plugin: 'kotlin-android'
 
 apply from: 'version.gradle'
 
-buildscript {
-    ext {
-        VersionRxBinding = "1.0.1"
-    }
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-    }
-}
-
 android {
     compileSdkVersion 29
 
@@ -202,7 +189,7 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-ads-lite:18.3.0"
 
-    implementation 'io.sentry:sentry-android:1.7.29'
+    implementation 'io.sentry:sentry-android:1.7.30'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     implementation "com.squareup.retrofit2:retrofit:2.7.1"
