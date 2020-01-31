@@ -138,9 +138,13 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
 
-        // the position of the view pager might have been saved. We need to re-save it now.
-        logger.info { "Going to restore view position in onViewStateRestored" }
-        makeItemCurrent(getArgumentStartItem(savedInstanceState))
+        val item = getArgumentStartItem(savedInstanceState)
+
+        if (adapter.feed.getOrNull(viewPager.currentItem)?.id != item.id) {
+            // the position of the view pager might have been saved. We need to re-save it now.
+            logger.info { "Going to restore view position in onViewStateRestored" }
+            makeItemCurrent(item)
+        }
     }
 
     override fun onStop() {

@@ -674,7 +674,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private class DownloadException(cause: Throwable) : Exception(cause)
 
     override suspend fun onStartImpl() {
-        trace { "Starting Post ${feedItem.id}" }
+        trace { "onStart(${feedItem.id})" }
+
         launch {
             voteService.getVote(feedItem).collect { vote ->
                 state = state.copy(itemVote = vote)
@@ -716,6 +717,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onPause() {
+
         setActive(false)
         super.onPause()
     }

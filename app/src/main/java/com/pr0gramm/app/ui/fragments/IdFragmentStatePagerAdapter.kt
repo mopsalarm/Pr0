@@ -74,8 +74,6 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
         // taken care of restoring the fragments we previously had instantiated.
         val f = mFragments[id]
         if (f != null) {
-            // but still ensure that it is max state "STARTED".
-            currentTransaction().setMaxLifecycle(f, Lifecycle.State.STARTED)
             return f
         }
 
@@ -129,12 +127,14 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
             mCurrentPrimaryItem?.let { previous ->
                 previous.setMenuVisibility(false)
                 if (previous.isResumed) {
+                    logger.debug { " .. previous.setMaxLifecycle(STARTED)" }
                     currentTransaction().setMaxLifecycle(previous, Lifecycle.State.STARTED)
                 }
             }
 
             fragment.setMenuVisibility(true)
             if (!fragment.isResumed) {
+                logger.debug { " .. primary.setMaxLifecycle(RESUMED)" }
                 currentTransaction().setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
             }
 

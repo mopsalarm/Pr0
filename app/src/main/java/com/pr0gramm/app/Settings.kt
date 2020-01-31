@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
@@ -234,6 +235,10 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             instance = Settings(context.applicationContext as Application)
 
             val p = instance.preferences
+
+            p.edit {
+                putString("_supported_abi", Build.SUPPORTED_ABIS.joinToString(","))
+            }
 
             // migrate the old "mark item as seen" property.
             p.getStringOrNull("pref_seen_indicator_style")?.let { previousValue ->
