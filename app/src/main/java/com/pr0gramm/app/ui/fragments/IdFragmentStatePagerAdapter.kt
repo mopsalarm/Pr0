@@ -143,9 +143,9 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     }
 
     override fun finishUpdate(container: ViewGroup) {
-        logger.debug { "finishUpdate(hasTx: ${mCurTransaction != null})" }
-
         val transaction = mCurTransaction ?: return
+        logger.debug { "finishUpdate()" }
+
         try {
             try {
                 transaction.commitNowAllowingStateLoss()
