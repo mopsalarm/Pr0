@@ -664,7 +664,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .bindToLifecycle()
                 .subscribe({}, { err: Throwable ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
-                        showErrorString(parentFragmentManager, getString(R.string.error_could_not_create_download_directory))
+                        showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
                     } else {
                         AndroidUtility.logToCrashlytics(DownloadException(err))
                     }
@@ -769,17 +769,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun showDeleteItemDialog() {
         val dialog = ItemUserAdminDialog.forItem(feedItem)
-        dialog.maybeShow(parentFragmentManager)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showTagsDetailsDialog() {
         val dialog = TagsDetailsDialog.newInstance(feedItem.id)
-        dialog.maybeShow(parentFragmentManager)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showReportDialog() {
         val dialog = ReportDialog.forItem(feedItem)
-        dialog.maybeShow(parentFragmentManager)
+        dialog.maybeShow(fragmentManager)
     }
 
     private fun showPostVoteAnimation(vote: Vote?) {
@@ -1301,19 +1301,19 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forComment(comment.id, comment.name)
-            dialog.maybeShow(parentFragmentManager)
+            dialog.maybeShow(fragmentManager)
             return true
         }
 
         override fun onBlockUserClicked(comment: Api.Comment): Boolean {
             val dialog = ItemUserAdminDialog.forUser(comment.name)
-            dialog.maybeShow(parentFragmentManager)
+            dialog.maybeShow(fragmentManager)
             return true
         }
 
         override fun onReportCommentClicked(comment: Api.Comment) {
             val dialog = ReportDialog.forComment(feedItem, comment.id)
-            dialog.maybeShow(parentFragmentManager)
+            dialog.maybeShow(fragmentManager)
         }
 
         override fun itemClicked(ref: Linkify.Item): Boolean {

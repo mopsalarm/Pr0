@@ -12,7 +12,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager.widget.PagerAdapter
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.LongSparseArray
-import com.pr0gramm.app.util.forEach
 import java.util.*
 
 /**
@@ -170,12 +169,12 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     override fun saveState(): Parcelable? {
         var state: Bundle? = null
 
-        mFragments.forEach { key, fragment ->
-            val fragmentState = mFragmentManager.saveFragmentInstanceState(fragment)
-            if (fragmentState != null) {
-                mSavedState[key] = fragmentState
-            }
-        }
+//        mFragments.forEach { key, fragment ->
+//            val fragmentState = mFragmentManager.saveFragmentInstanceState(fragment)
+//            if (fragmentState != null) {
+//                mSavedState[key] = fragmentState
+//            }
+//        }
 
         if (mSavedState.size > 0) {
             val ids = LongArray(mSavedState.size)

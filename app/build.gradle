@@ -185,7 +185,7 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.activity:activity-ktx:1.1.0'
-    implementation 'androidx.fragment:fragment-ktx:1.2.0'
+    implementation 'androidx.fragment:fragment-ktx:1.1.0'
 
     implementation "com.google.android.gms:play-services-ads-lite:18.3.0"
 
