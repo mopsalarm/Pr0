@@ -132,6 +132,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
      */
     init {
         setHasOptionsMenu(true)
+
+        debug {
+            lifecycle().subscribe { event ->
+                this@FeedFragment.trace { "$event" }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

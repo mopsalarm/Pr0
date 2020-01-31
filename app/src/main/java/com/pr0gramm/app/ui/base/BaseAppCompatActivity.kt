@@ -7,7 +7,6 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.trello.rxlifecycle.components.support.RxAppCompatActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch

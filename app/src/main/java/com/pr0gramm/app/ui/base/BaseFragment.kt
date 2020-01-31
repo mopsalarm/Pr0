@@ -12,7 +12,6 @@ import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.trello.rxlifecycle.android.FragmentEvent
-import com.trello.rxlifecycle.components.support.RxFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
