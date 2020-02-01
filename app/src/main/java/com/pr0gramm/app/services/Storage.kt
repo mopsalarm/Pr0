@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.storage.StorageManager
 import android.provider.DocumentsContract
+import androidx.core.content.getSystemService
 import androidx.documentfile.provider.DocumentFile
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
@@ -18,19 +20,42 @@ import java.io.OutputStream
 object Storage {
     private val logger = Logger("Storage")
 
-    fun openTreeIntent(initial: Uri? = null): Intent {
-        return Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-            // Provide read access to files and sub-directories in the user-selected
-            // directory.
+    fun openTreeIntent(context: Context): Intent {
+
+        val intent = run {
+            val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                    .putExtra("android.provider.extra.SHOW_ADVANCED", true)
+
+            val storage = context.getSystemService<StorageManager>()
+                    ?: return@run fallbackIntent
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val volume = storage.primaryStorageVolume
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    volume.createOpenDocumentTreeIntent()
+                } else {
+                    val rootId = (if (volume.isEmulated) "primary" else volume.uuid)
+                            ?: return@run fallbackIntent
+
+                    val rootUri = DocumentsContract.buildRootUri(
+                            "com.android.externalstorage.documents",
+                            rootId)
+
+                    return Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                            .putExtra(DocumentsContract.EXTRA_INITIAL_URI, rootUri)
+                            .putExtra("android.provider.extra.SHOW_ADVANCED", true)
+                }
+            } else {
+                fallbackIntent
+            }
+        }
+
+        return intent.apply {
+            // Provide read access to files and sub-directories in the user-selected  directory.
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
                     Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-
-            if (initial != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Optionally, specify a URI for the directory that should be opened in
-                // the system file picker when it loads.
-                putExtra(DocumentsContract.EXTRA_INITIAL_URI, initial)
-            }
         }
     }
 

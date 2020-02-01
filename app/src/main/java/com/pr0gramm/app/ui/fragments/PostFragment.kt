@@ -642,7 +642,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             showDialog(this) {
                 content(R.string.hint_select_download_directory)
                 positive {
-                    startActivityForResult(Storage.openTreeIntent(), RequestCodes.SELECT_DOWNLOAD_PATH)
+                    startActivityForResult(Storage.openTreeIntent(requireContext()), RequestCodes.SELECT_DOWNLOAD_PATH)
                 }
             }
 

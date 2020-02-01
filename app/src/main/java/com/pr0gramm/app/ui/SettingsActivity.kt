@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -224,8 +223,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_download_target" -> {
-                    val initial = Uri.parse("content://com.android.externalstorage.documents/tree/primary%3A")
-                    val intent = Storage.openTreeIntent(initial)
+                    val intent = Storage.openTreeIntent(requireContext())
                     startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
 
                     return true
