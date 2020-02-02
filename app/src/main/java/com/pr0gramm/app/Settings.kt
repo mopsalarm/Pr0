@@ -265,7 +265,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             }
 
             // Add some random string to the settings. We do this, so that we can better
-            // analyse the setting selection and know what the users want. This is completelly
+            // analyse the setting selection and know what the users want. This is completely
             // anonymous.
             if (!p.contains("__unique_settings_id")) {
                 p.edit {

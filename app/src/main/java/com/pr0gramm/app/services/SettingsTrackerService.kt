@@ -1,6 +1,8 @@
 package com.pr0gramm.app.services
 
+import android.os.Build
 import com.pr0gramm.app.*
+import com.pr0gramm.app.util.getStringOrNull
 import okhttp3.OkHttpClient
 import proguard.annotation.KeepPublicClassMemberNames
 import retrofit2.Retrofit
@@ -25,8 +27,10 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
     suspend fun track() {
         val values = settings.raw().all.filterKeys { it.startsWith("pref_") }
 
-        val payload = mapOf(
+        val payload: Map<String, Any?> = mapOf(
+                "_id" to settings.raw().getStringOrNull("__unique_settings_id"),
                 "version" to BuildConfig.VERSION_CODE,
+                "abis" to Build.SUPPORTED_ABIS.joinToString(","),
                 "settings" to values)
 
         httpInterface.track(payload)
