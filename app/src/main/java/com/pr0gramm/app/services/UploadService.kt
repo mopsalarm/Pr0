@@ -13,6 +13,8 @@ import com.pr0gramm.app.util.ofType
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.toInt
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -69,8 +71,8 @@ class UploadService(private val api: Api,
         pixelsOkay.getOrDefault(true)
     }
 
-    fun downsize(file: File): Observable<File> {
-        return Observable.fromCallable {
+    suspend fun downsize(file: File): File {
+        return withContext(Dispatchers.IO) {
             logger.info {
                 "Try to scale ${file.length() / 1024}kb image down to max of ${maxUploadSize / 1024}kb"
             }

@@ -138,3 +138,16 @@ inline fun <T> Logger.time(name: String, supplier: () -> T): T {
         return supplier()
     }
 }
+
+fun Logger.warnWithStack(skipStack: Int, message: () -> String) {
+    if (BuildConfig.DEBUG) {
+        val stack = Thread.currentThread().stackTrace
+                .drop(skipStack + 4)
+                .filter { it.className.startsWith("com.pr0gramm.app.") }
+
+        warn {
+            val stackStr = stack.joinToString("\n") { "  $it" }
+            "${message()} at\n$stackStr"
+        }
+    }
+}

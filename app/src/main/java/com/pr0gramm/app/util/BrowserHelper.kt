@@ -14,10 +14,10 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.launch
 import java.util.*
 
 /**
@@ -163,9 +163,9 @@ object BrowserHelper {
 
         val api = context.injector.instance<Api>()
 
-        activity.launch {
+        activity.launchWhenStarted {
             block(try {
-                val response = activity.withBusyDialog {
+                val response = withBusyDialog(activity) {
                     api.handoverToken(null)
                 }
 
@@ -176,7 +176,7 @@ object BrowserHelper {
 
             } catch (err: Exception) {
                 logger.warn(err) { "Error getting handover token" }
-                return@launch
+                return@launchWhenStarted
             })
         }
     }

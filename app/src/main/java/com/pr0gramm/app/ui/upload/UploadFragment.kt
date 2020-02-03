@@ -31,9 +31,10 @@ import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
+import com.pr0gramm.app.ui.base.launchWhenViewCreated
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
-import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
@@ -44,7 +45,6 @@ import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -152,7 +152,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             return
         }
 
-        launchWithErrorHandler {
+        launchWhenStarted {
             if (uploadService.sizeOkay(file)) {
                 startUpload(file)
             } else {
@@ -303,11 +303,12 @@ class UploadFragment : BaseFragment("UploadFragment") {
     @MainThread
     private fun handleImageUri(image: Uri) {
         checkMainThread()
+
         val activity = activity ?: return
 
         busyContainer.isVisible = true
 
-        launch {
+        launchWhenViewCreated(busyIndicator = true) {
             logger.info { "copy image to private memory" }
 
             try {
@@ -397,13 +398,11 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun shrinkImage() {
-        uploadService.downsize(file!!)
-                .compose(bindToLifecycleAsync<File>())
-                .withBusyDialog(this)
-                .subscribeWithErrorHandling { newFile ->
-                    handleImageUri(Uri.fromFile(newFile))
-                    imageShrankSuccess()
-                }
+        launchWhenStarted(busyIndicator = true) {
+            val newFile = uploadService.downsize(file!!)
+            handleImageUri(Uri.fromFile(newFile))
+            imageShrankSuccess()
+        }
     }
 
     @MainThread

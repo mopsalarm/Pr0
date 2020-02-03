@@ -75,6 +75,7 @@ class AsyncSingletonProvider<T : Any>(
     private val recursionChecker = RecursionChecker()
 
     private var value: Any = NoValue
+
     val result = CompletableDeferred<T>()
 
     fun init(injector: Injector) {

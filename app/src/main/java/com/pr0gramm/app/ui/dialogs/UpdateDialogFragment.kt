@@ -14,6 +14,7 @@ import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.Linkify
@@ -113,7 +114,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
 
             val prefs = activity.applicationContext.injector.instance<SharedPreferences>()
 
-            activity.launchWithErrorHandler(busyIndicator = true) {
+            activity.launchWhenStarted(busyIndicator = true) {
                 val update = UpdateChecker().queryAll()
 
                 // remember that we've checked

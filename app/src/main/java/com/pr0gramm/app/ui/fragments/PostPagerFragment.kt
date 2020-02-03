@@ -19,9 +19,12 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchUntilViewDestroy
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterIsInstance
 
 /**
  */
@@ -78,10 +81,11 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         // create the adapter on the view
         adapter = PostAdapter(manager, previousFeed)
 
-        manager.updates
-                .bindToLifecycle()
-                .ofType(FeedManager.Update.NewFeed::class.java)
-                .subscribe { adapter.feed = it.feed }
+        launchUntilViewDestroy {
+            manager.updates.filterIsInstance<FeedManager.Update.NewFeed>().collect { update ->
+                adapter.feed = update.feed
+            }
+        }
 
         if (activity is ToolbarActivity) {
             val activity = activity as ToolbarActivity

@@ -31,8 +31,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.back.BackFragmentHelper
-import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.DrawerFragment
@@ -45,7 +44,6 @@ import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
@@ -159,7 +157,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 gotoFeedFragment(defaultFeedFilter(), true)
 
                 lifecycle()
-                        .takeFirst { it == ActivityEvent.START }
+                        .takeFirst { it == ActivityEvent.RESUME }
                         .subscribe { checkForInfoMessage() }
 
             } else {
@@ -185,7 +183,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // schedule an update in the background
         doInBackground { bookmarkService.update() }
 
-        launchIgnoreErrors {
+        launchUntilDestroy {
             settings.changes().filter { it === "pref_tag_cloud_view" }.collect {
                 invalidateRecyclerViewPool()
             }
@@ -241,10 +239,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun checkForInfoMessage() {
-        launch {
-            catchAll {
-                showInfoMessage(infoMessageService.fetch())
-            }
+        launchUntilPause(ignoreErrors = true) {
+            showInfoMessage(infoMessageService.fetch())
         }
     }
 
@@ -434,12 +430,15 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
-    override suspend fun onResumeImpl() {
+    override fun onResume() {
+        super.onResume()
         onBackStackChanged()
     }
 
-    override suspend fun onStartImpl() {
-        launchIgnoreErrors {
+    override fun onStart() {
+        super.onStart()
+
+        launchUntilStop(ignoreErrors = true) {
             runEvery(period = seconds(45)) {
                 logger.debug { "Sync from MainActivity" }
                 SyncWorker.syncNow(this@MainActivity)
@@ -447,47 +446,51 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
 
         if (coldStart) {
-            var updateCheck = true
-            var updateCheckDelay = false
+            onColdStart()
+        }
+    }
 
-            when {
-                singleShotService.firstTimeInVersion("changelog") -> {
-                    updateCheck = false
+    private fun onColdStart() {
+        var updateCheck = true
+        var updateCheckDelay = false
 
-                    val dialog = ChangeLogDialog()
-                    dialog.show(supportFragmentManager, null)
-                }
+        when {
+            singleShotService.firstTimeInVersion("changelog") -> {
+                updateCheck = false
 
-                shouldShowFeedbackReminder() -> {
-                    Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                            .configureNewStyle()
-                            .setAction(R.string.okay) { }
-                            .show()
-
-                    updateCheckDelay = true
-                }
-
-                shouldShowBuyPremiumHint() -> {
-                    showBuyPremiumHint()
-                }
-
-                Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
-                    Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
-                            .configureNewStyle()
-                            .setAction(R.string.okay) { }
-                            .show()
-                }
+                val dialog = ChangeLogDialog()
+                dialog.show(supportFragmentManager, null)
             }
 
-            if (updateCheck) {
-                launchIgnoreErrors {
-                    if (updateCheckDelay) {
-                        delay(seconds(10))
-                    }
+            shouldShowFeedbackReminder() -> {
+                Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                        .configureNewStyle()
+                        .setAction(R.string.okay) { }
+                        .show()
 
-                    UpdateDialogFragment.checkForUpdatesInBackground(
-                            this@MainActivity, supportFragmentManager)
+                updateCheckDelay = true
+            }
+
+            shouldShowBuyPremiumHint() -> {
+                showBuyPremiumHint()
+            }
+
+            Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
+                Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
+                        .configureNewStyle()
+                        .setAction(R.string.okay) { }
+                        .show()
+            }
+        }
+
+        if (updateCheck) {
+            launchUntilStop(ignoreErrors = true) {
+                if (updateCheckDelay) {
+                    delay(seconds(10))
                 }
+
+                UpdateDialogFragment.checkForUpdatesInBackground(
+                        this@MainActivity, supportFragmentManager)
             }
         }
     }
@@ -496,7 +499,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.closeDrawers()
         Track.logout()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             userService.logout()
 
             // show a short information.

@@ -2,12 +2,17 @@ package com.pr0gramm.app.ui.base
 
 import android.content.Context
 import android.view.View
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.warnWithStack
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 import rx.Observable
@@ -18,49 +23,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.properties.Delegates
 
-
-interface AndroidCoroutineScope : CoroutineScope {
-    var job: Job
-
-    val androidContext: Context
-
-    override val coroutineContext: CoroutineContext
-        get() = job + Main + DefaultCoroutineExceptionHandler
-
-    fun launchWithErrorHandler(
-            context: CoroutineContext = EmptyCoroutineContext,
-            start: CoroutineStart = CoroutineStart.DEFAULT,
-            busyIndicator: Boolean = false,
-            block: suspend CoroutineScope.() -> Unit
-    ): Job {
-        return launch(context, start) {
-            try {
-                if (busyIndicator) {
-                    withBusyDialog { block() }
-                } else {
-                    block()
-                }
-            } catch (err: Throwable) {
-                if (err !is CancellationException) {
-                    ErrorDialogFragment.defaultOnError().call(err)
-                }
-            }
-        }
-    }
-
-    fun newChild(): AndroidCoroutineScope = childAndroidScope(this)
-
-    fun cancelScope() {
-        job.cancel()
-    }
-}
-
-private fun childAndroidScope(parent: AndroidCoroutineScope): AndroidCoroutineScope {
-    return object : AndroidCoroutineScope {
-        override var job: Job = SupervisorJob(parent.job)
-        override val androidContext: Context = parent.androidContext
-    }
-}
 
 inline fun withErrorDialog(block: () -> Unit): Unit {
     try {
@@ -91,17 +53,6 @@ inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
         return block()
     } finally {
         views.forEach { it.isEnabled = true }
-    }
-}
-
-inline fun <T> withViewVisible(vararg views: View, block: () -> T): T {
-    checkMainThread()
-
-    views.forEach { it.isVisible = true }
-    try {
-        return block()
-    } finally {
-        views.forEach { it.isVisible = true }
     }
 }
 
@@ -138,30 +89,16 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 val Async = Dispatchers.IO
 val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
 
-val Main = Dispatchers.Main
+val Main = Dispatchers.Main.immediate
 
-suspend fun <T : Any?> Observable<T>.await(): T {
-    val def = CompletableDeferred<T>()
-
-    val sub = single().subscribe({ def.complete(it) }, { def.completeExceptionally(it) })
-
-    def.invokeOnCompletion {
-        if (def.isCancelled) {
-            sub.unsubscribe()
-        }
-    }
-
-    return def.await()
-}
-
-fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit) {
+fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
     if (!isAttachedToWindow) {
-        return
+        return Job()
     }
 
-    val job = Job()
+    val job = SupervisorJob()
 
-    CoroutineScope(job + Main + DefaultCoroutineExceptionHandler).launch(block = block)
+    CoroutineScope(job + Main.immediate + DefaultCoroutineExceptionHandler).launch(block = block)
 
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
@@ -172,6 +109,8 @@ fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit) {
         override fun onViewAttachedToWindow(v: View?) {
         }
     })
+
+    return job
 }
 
 /**
@@ -240,4 +179,143 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T):
     }
 
     throw error
+}
+
+fun AppCompatActivity.launchWhenCreated(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.CREATED)
+
+    return lifecycleScope.launchWhenCreated(decorate(this, ignoreErrors, busyIndicator, block))
+}
+
+fun AppCompatActivity.launchWhenStarted(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.STARTED)
+
+    return lifecycleScope.launchWhenStarted(decorate(this, ignoreErrors, busyIndicator, block))
+}
+
+fun AppCompatActivity.launchWhenResumed(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.RESUMED)
+
+    return lifecycleScope.launchWhenResumed(decorate(this, ignoreErrors, busyIndicator, block))
+}
+
+
+fun Fragment.launchWhenCreated(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.CREATED)
+
+    return lifecycleScope.launchWhenCreated {
+        decorate(requireActivity(), ignoreErrors, busyIndicator, block)
+    }
+}
+
+fun Fragment.launchWhenViewCreated(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(viewLifecycleOwner, Lifecycle.State.CREATED)
+
+    return viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+        decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
+    }
+}
+
+fun Fragment.launchWhenStarted(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.STARTED)
+
+    return lifecycleScope.launchWhenStarted {
+        decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
+    }
+}
+
+fun Fragment.launchWhenResumed(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debugVerifyLifecycle(this, Lifecycle.State.RESUMED)
+
+    return lifecycleScope.launchWhenResumed {
+        decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
+    }
+}
+
+
+fun View.launchWhenCreated(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    return CoroutineScope(Job() + Main.immediate + DefaultCoroutineExceptionHandler).launch {
+        decorate(context, ignoreErrors, busyIndicator, block)()
+    }
+}
+
+fun View.launchWhenStarted(
+        ignoreErrors: Boolean = false,
+        busyIndicator: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit): Job {
+
+    debug {
+        if (!isAttachedToWindow) {
+            Logger(javaClass.directName).warnWithStack(1) {
+                "View is not currently attached but launchWhenStarted is called"
+            }
+        }
+    }
+
+    return whileIsAttachedScope(decorate(context, ignoreErrors, busyIndicator, block))
+}
+
+fun decorate(context: Context, ignoreErrors: Boolean, busyIndicator: Boolean,
+             block: suspend CoroutineScope.() -> Unit): suspend CoroutineScope.() -> Unit {
+
+    return {
+        try {
+            if (busyIndicator) {
+                withBusyDialog(context) { block() }
+            } else {
+                block()
+            }
+        } catch (err: Throwable) {
+            if (err !is CancellationException) {
+                if (ignoreErrors) {
+                    Logger(javaClass.simpleName).warn(err) { "Ignoring error in coroutine" }
+                } else {
+                    ErrorDialogFragment.defaultOnError().call(err)
+                }
+            }
+        }
+    }
+}
+
+private fun Any.debugVerifyLifecycle(lifecycleOwner: LifecycleOwner, expectedState: Lifecycle.State) {
+    debug {
+        val currentState = lifecycleOwner.lifecycle.currentState
+        if (!currentState.isAtLeast(expectedState)) {
+            Logger(javaClass.directName).warnWithStack(2) {
+                "Expected at least '$expectedState', but current state is '$currentState'"
+            }
+        }
+    }
 }

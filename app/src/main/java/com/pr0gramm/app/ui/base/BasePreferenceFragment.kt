@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.base
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -16,24 +15,17 @@ import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.RxLifecycle
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
 abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat(),
-        LifecycleProvider<FragmentEvent>, LazyInjectorAware, AndroidCoroutineScope {
+        LifecycleProvider<FragmentEvent>, LazyInjectorAware {
 
     protected val logger = Logger(name)
 
     private val lifecycleSubject = BehaviorSubject.create<FragmentEvent>()
 
     override val injector: PropertyInjector = PropertyInjector()
-
-    override lateinit var job: Job
-
-    override val androidContext: Context
-        get() = requireContext()
 
     @CheckResult
     override fun lifecycle(): Observable<FragmentEvent> {
@@ -54,10 +46,6 @@ abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat()
     override fun onAttach(context: Context) {
         logger.time("Injecting services") { injector.inject(context) }
         super.onAttach(context)
-    }
-
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
         lifecycleSubject.onNext(FragmentEvent.ATTACH)
     }
 
@@ -70,7 +58,6 @@ abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat()
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        job = SupervisorJob()
         lifecycleSubject.onNext(FragmentEvent.CREATE_VIEW)
     }
 
@@ -102,7 +89,6 @@ abstract class BasePreferenceFragment(name: String) : PreferenceFragmentCompat()
     override fun onDestroyView() {
         lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW)
         super.onDestroyView()
-        cancelScope()
     }
 
     @CallSuper

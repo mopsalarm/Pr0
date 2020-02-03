@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,10 +30,7 @@ import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
-import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.launchIgnoreErrors
-import com.pr0gramm.app.ui.base.withViewDisabled
+import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import java.text.SimpleDateFormat
@@ -62,7 +60,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pagination = Pagination(this, ConversationLoader(conversationName, inboxService))
+        pagination = Pagination(lifecycleScope, ConversationLoader(conversationName, inboxService))
         adapter = ConversationAdapter(PaginationController(pagination, tailOffset = 32))
     }
 
@@ -111,12 +109,14 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         outState.putFreezable("ConversationFragment.state", state)
     }
 
-    override suspend fun onResumeImpl() {
+    override fun onResume() {
+        super.onResume()
+
         pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
             applyPaginationUpdate(state, newValues)
         }
 
-        launchIgnoreErrors {
+        launchWhenResumed(ignoreErrors = true) {
             runEvery(initial = seconds(15), period = seconds(15)) {
                 val shouldUpdate = isAtConversationTail()
                 if (shouldUpdate) {
@@ -147,7 +147,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
             R.id.action_refresh -> {
                 scrollToEndOfConversation(force = true)
 
-                launchWithErrorHandler {
+                launchWhenStarted {
                     refreshConversation()
                 }
             }
@@ -202,7 +202,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         val message = messageText.text.toString()
         scrollToEndOfConversation(force = true)
 
-        launchWithErrorHandler {
+        launchWhenStarted {
             withViewDisabled(messageText, buttonSend) {
                 // do the real posting
                 val response = inboxService.send(conversationName, message)

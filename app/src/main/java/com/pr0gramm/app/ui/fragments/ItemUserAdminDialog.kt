@@ -10,10 +10,7 @@ import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindOptionalView
-import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.withBackgroundContext
+import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
@@ -57,7 +54,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         }
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         val dialog = requireDialog()
 
         reasonListView.adapter = ArrayAdapter(dialog.context,
@@ -91,7 +88,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
             return
         }
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             withBackgroundContext(NonCancellable) {
                 user?.let { blockUser(it, reason) }
                 item?.let { deleteItem(it, reason) }

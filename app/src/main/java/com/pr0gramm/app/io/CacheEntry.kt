@@ -74,7 +74,7 @@ internal class CacheEntry(
             // check if we got as many bytes as we wanted to.
             if (byteCount != amountToRead) {
                 logToCrashlytics(EOFException(
-                        "Expected to read $amountToRead bytes at $pos, but got only $byteCount. Cache entry: ${this}"))
+                        "Expected to read $amountToRead bytes at $pos, but got only $byteCount. Cache entry: $this"))
             }
 
             return byteCount
@@ -104,7 +104,7 @@ internal class CacheEntry(
                 return fp
             }
 
-            logger.debug { "Entry needs to be initialized: ${this}" }
+            logger.debug { "Entry needs to be initialized: $this" }
             return open()
         }
     }
@@ -125,10 +125,11 @@ internal class CacheEntry(
         lock.requireLocked()
 
         // ensure that the parent directory exists.
-        val parentFile = partialCached.parentFile
-        if (!parentFile.exists()) {
-            if (!parentFile.mkdirs()) {
-                logger.warn { "Could not create parent directory." }
+        partialCached.parentFile?.let { parentFile ->
+            if (!parentFile.exists()) {
+                if (!parentFile.mkdirs()) {
+                    logger.warn { "Could not create parent directory." }
+                }
             }
         }
 
@@ -194,7 +195,7 @@ internal class CacheEntry(
     }
 
     private fun reset() {
-        logger.debug { "Resetting entry ${this}" }
+        logger.debug { "Resetting entry $this" }
         this.fp?.closeQuietly()
         this.fp = null
         this.written = 0
@@ -208,7 +209,7 @@ internal class CacheEntry(
      */
     private fun ensureCaching() {
         if (fileCacher == null && !fullyCached()) {
-            logger.debug { "Caching will start on entry ${this}" }
+            logger.debug { "Caching will start on entry $this" }
             resumeCaching()
         }
     }
@@ -245,7 +246,7 @@ internal class CacheEntry(
          * This method is called from the caching thread once caching stops.
          */
         private fun cachingStopped() {
-            logger.debug { "Caching stopped on entry ${this}" }
+            logger.debug { "Caching stopped on entry $this" }
             lock.withLock {
                 if (!canceled) {
                     close()
@@ -262,7 +263,7 @@ internal class CacheEntry(
             incrementRefCount()
 
             try {
-                logger.debug { "Resume caching for ${this} starting at $offset" }
+                logger.debug { "Resume caching for $this starting at $offset" }
 
                 val request = Request.Builder()
                         .url(uri.toString())
@@ -328,19 +329,21 @@ internal class CacheEntry(
                     throw err
                 }
 
-                response.body?.use { body ->
-                    // we now know the size, publish it to waiting consumers
-                    this.totalSize.setValue(totalSize)
+                response.use {
+                    response.body?.use { body ->
+                        // we now know the size, publish it to waiting consumers
+                        this.totalSize.setValue(totalSize)
 
-                    if (offset < totalSize) {
-                        logger.debug { "Writing response to cache file" }
-                        body.byteStream().use { stream ->
-                            writeResponseToEntry(stream)
+                        if (offset < totalSize) {
+                            logger.debug { "Writing response to cache file" }
+                            body.byteStream().use { stream ->
+                                writeResponseToEntry(stream)
+                            }
                         }
-                    }
 
-                    // check if we need can now promote the cached file to the target file
-                    promoteFullyCached(totalSize)
+                        // check if we need can now promote the cached file to the target file
+                        promoteFullyCached(totalSize)
+                    }
                 }
 
             } catch (err: Exception) {
@@ -367,7 +370,7 @@ internal class CacheEntry(
 
                     val fp = fp
                     if (fp == null) {
-                        logger.warn { "Error during caching, the file-handle went away: ${this}" }
+                        logger.warn { "Error during caching, the file-handle went away: $this" }
                         return
                     }
 
@@ -464,7 +467,7 @@ internal class CacheEntry(
     override fun close() {
         lock.withLock {
             if (this.refCount.decrementAndGet() == 0 && this.fp != null) {
-                logger.debug { "Closing cache file for entry ${this} now." }
+                logger.debug { "Closing cache file for entry $this now." }
                 reset()
             }
         }

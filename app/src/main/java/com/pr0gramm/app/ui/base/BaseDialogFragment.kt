@@ -8,52 +8,33 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), LazyInjectorAware, HasViewCache, AndroidCoroutineScope {
+abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), LazyInjectorAware, HasViewCache {
     protected val logger = Logger(name)
 
     override val injector: PropertyInjector = PropertyInjector()
 
     override val viewCache: ViewCache = ViewCache { dialog?.findViewById(it) }
 
-    override lateinit var job: Job
-    private lateinit var onStartScope: AndroidCoroutineScope
-
-    override val androidContext: Context
-        get() = requireContext()
+    protected val themedContext: Context
+        get() = dialog?.context ?: requireContext()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         logger.time("Injecting services") { injector.inject(requireContext()) }
-
-        job = SupervisorJob()
         super.onCreate(savedInstanceState)
     }
 
     final override fun onStart() {
         super.onStart()
 
-        onStartScope = newChild()
-
         // bind dialog. It is only created in on start.
-        dialog?.let {
-            onStartScope.launch(Main.immediate) {
-                onDialogViewCreated()
-            }
-        }
+        dialog?.let { onDialogViewCreated() }
     }
 
-    protected open suspend fun onDialogViewCreated() {}
-
-    override fun onStop() {
-        super.onStop()
-        onStartScope.cancelScope()
-    }
+    protected open fun onDialogViewCreated() {}
 
     override fun onDestroyView() {
         val dialog = this.dialog
@@ -61,7 +42,6 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
             dialog.setDismissMessage(null)
 
         super.onDestroyView()
-        job.cancel()
 
         viewCache.reset()
     }
@@ -75,9 +55,6 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), L
             activity.onDialogDismissed(this)
         }
     }
-
-    protected val themedContext: Context
-        get() = dialog?.context ?: requireContext()
 
     override fun dismiss() {
         try {

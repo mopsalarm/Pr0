@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -23,7 +24,7 @@ class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
         }
 
         // create and initialize the adapter
-        val pagination = Pagination(this, loader)
+        val pagination = Pagination(lifecycleScope, loader)
 
         val adapter = MessageAdapter(
                 R.layout.row_inbox_message, actionListener, null,

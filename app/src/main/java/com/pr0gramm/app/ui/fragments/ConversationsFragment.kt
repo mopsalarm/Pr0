@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,11 +21,12 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchUntilPause
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.ViewUpdater
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  */
@@ -42,7 +44,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pagination = Pagination(this, ConversationsLoader(inboxService))
+        pagination = Pagination(lifecycleScope, ConversationsLoader(inboxService))
         adapter = ConversationsAdapter(PaginationController(pagination))
     }
 
@@ -89,7 +91,9 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         }
     }
 
-    override suspend fun onResumeImpl() {
+    override fun onResume() {
+        super.onResume()
+
         updateConversationsUnreadCount()
         pagination.updates.bindToLifecycle().subscribe { applyPaginationUpdate(it) }
     }
@@ -117,15 +121,13 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 
     private fun updateConversationsUnreadCount() {
-        launch {
-            catchAll {
-                // get the most recent conversations, and replace them in the
-                // pagination with their updated state.
-                val response = inboxService.listConversations()
-                val merged = state.conversations + response.conversations
+        launchUntilPause(ignoreErrors = true) {
+            // get the most recent conversations, and replace them in the
+            // pagination with their updated state.
+            val response = inboxService.listConversations()
+            val merged = state.conversations + response.conversations
 
-                state = state.copy(conversations = merged.distinctBy { it.name })
-            }
+            state = state.copy(conversations = merged.distinctBy { it.name })
         }
     }
 
@@ -161,7 +163,7 @@ private class ConversationsItemDiffCallback : DiffUtil.ItemCallback<Any>() {
     }
 
     override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-        return oldItem == newItem
+        return Objects.equals(oldItem, newItem)
     }
 
 }

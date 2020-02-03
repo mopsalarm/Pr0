@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -22,8 +21,7 @@ import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
-import com.pr0gramm.app.ui.base.AndroidCoroutineScope
-import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.ui.base.launchWhenCreated
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.views.AspectImageView
 import com.pr0gramm.app.ui.views.InjectorViewMixin
@@ -31,8 +29,6 @@ import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import rx.Observable
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
@@ -41,7 +37,7 @@ import rx.subjects.ReplaySubject
 /**
  */
 abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?)
-    : FrameLayout(config.activity), InjectorViewMixin, AndroidCoroutineScope {
+    : FrameLayout(config.activity), InjectorViewMixin {
 
     private val logger = if (BuildConfig.DEBUG) {
         Logger("MediaView[${config.mediaUri.id}]")
@@ -59,9 +55,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     protected val picasso: Picasso by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val fancyThumbnailGenerator: FancyExifThumbnailGenerator by instance()
-
-    override var job: Job = SupervisorJob()
-    override val androidContext: Context = context
 
     /**
      * Returns the url that this view should display.
@@ -141,11 +134,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         return onViewListener
     }
 
-    override fun onDetachedFromWindow() {
-        job.cancel()
-        super.onDetachedFromWindow()
-    }
-
     @SuppressLint("SetTextI18n")
     private fun showPreloadedIndicator() {
         if (BuildConfig.DEBUG && mediaUri.isLocalFile) {
@@ -194,7 +182,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             setPreviewDrawable(preview)
         }
 
-        launchIgnoreErrors {
+        launchWhenCreated(ignoreErrors = true) {
             val fancyPreview = info.fancy?.get() ?: run {
                 withBackgroundContext {
                     logger.debug { "Requesting fancy thumbnail on background thread now." }

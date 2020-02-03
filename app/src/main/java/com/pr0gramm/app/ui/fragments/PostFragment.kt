@@ -16,6 +16,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
@@ -236,7 +237,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             loadItemDetails(firstLoad = true, bust = requiresCacheBust ?: false)
         }
 
-        launch(start = CoroutineStart.UNDISPATCHED) {
+        launchUntilViewDestroy {
             apiTagsCh.asFlow().collect { tags ->
                 hideProgressIfLoop(tags)
                 updateTitle(tags)
@@ -623,7 +624,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun shareImage() {
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             shareService.shareImage(requireActivity(), feedItem)
         }
     }
@@ -673,30 +674,32 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private class DownloadException(cause: Throwable) : Exception(cause)
 
-    override suspend fun onStartImpl() {
+    override fun onStart() {
+        super.onStart()
+
         trace { "onStart(${feedItem.id})" }
 
-        launch {
+        launchUntilStop(ignoreErrors = true) {
             voteService.getVote(feedItem).collect { vote ->
                 state = state.copy(itemVote = vote)
             }
         }
 
-        launch {
+        launchUntilStop(ignoreErrors = true) {
             apiCommentsCh
                     .asFlow()
                     .flatMapLatest { comments -> voteService.getCommentVotes(comments) }
                     .collect { votes -> commentTreeHelper.updateVotes(votes) }
         }
 
-        launch {
+        launchUntilStop(ignoreErrors = true) {
             apiTagsCh
                     .asFlow()
                     .flatMapLatest { tags -> voteService.getTagVotes(tags) }
                     .collect { votes -> state = state.copy(tagVotes = votes) }
         }
 
-        launch {
+        launchUntilStop(ignoreErrors = true) {
             followService.getState(feedItem.userId).collect { followState ->
                 state = state.copy(followState = followState)
             }
@@ -711,7 +714,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    override suspend fun onResumeImpl() {
+    override fun onResume() {
+        super.onResume()
+
         setHasOptionsMenu(true)
         setActive(true)
     }
@@ -743,25 +748,27 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 commentsLoading = firstLoad || state.commentsLoadError || apiCommentsCh.value.isEmpty(),
                 commentsLoadError = false)
 
-        launchIgnoreErrors {
-            try {
-                onPostReceived(feedService.post(feedItem.id, bust))
-                swipeRefreshLayout?.isRefreshing = false
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            launchWhenViewCreated(ignoreErrors = true) {
+                try {
+                    onPostReceived(feedService.post(feedItem.id, bust))
+                    swipeRefreshLayout?.isRefreshing = false
 
-            } catch (err: Exception) {
-                if (err is CancellationException) {
-                    return@launchIgnoreErrors
-                }
+                } catch (err: Exception) {
+                    if (err is CancellationException) {
+                        return@launchWhenViewCreated
+                    }
 
-                swipeRefreshLayout?.isRefreshing = false
+                    swipeRefreshLayout?.isRefreshing = false
 
-                if (err.rootCause !is IOException) {
-                    AndroidUtility.logToCrashlytics(err)
-                }
+                    if (err.rootCause !is IOException) {
+                        AndroidUtility.logToCrashlytics(err)
+                    }
 
-                stateTransaction {
-                    updateComments(emptyList(), updateSync = true)
-                    state = state.copy(commentsLoadError = true, commentsLoading = false)
+                    stateTransaction {
+                        updateComments(emptyList(), updateSync = true)
+                        state = state.copy(commentsLoadError = true, commentsLoading = false)
+                    }
                 }
             }
         }
@@ -948,7 +955,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun executeTapAction(action: Settings.TapAction) = launch {
+    private fun executeTapAction(action: Settings.TapAction) = launchWhenStarted {
         when (action) {
             Settings.TapAction.NONE -> Unit
 
@@ -1070,7 +1077,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (newTags.isNotEmpty()) {
             logger.info { "Adding new tags $newTags to post" }
 
-            launchWithErrorHandler(busyIndicator = true) {
+            launchWhenStarted(busyIndicator = true) {
                 updateTags(withBackgroundContext(NonCancellable) {
                     voteService.tag(feedItem.id, newTags)
                 })
@@ -1245,7 +1252,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return doIfAuthorizedHelper.runAuthWithRetry {
             showPostVoteAnimation(vote)
 
-            launchWithErrorHandler {
+            launchWhenStarted {
                 withBackgroundContext(NonCancellable) {
                     voteService.vote(feedItem, vote)
                 }
@@ -1260,7 +1267,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
             return runBlocking {
                 doIfAuthorizedHelper.run {
-                    launchWithErrorHandler {
+                    launchWhenStarted {
                         withBackgroundContext(NonCancellable) {
                             voteService.vote(comment, vote)
                         }
@@ -1355,7 +1362,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val actions = object : PostActions {
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
             return doIfAuthorizedHelper.runAuthWithRetry {
-                launchWithErrorHandler {
+                launchWhenStarted {
                     withBackgroundContext(NonCancellable) {
                         voteService.vote(tag, vote)
                     }

@@ -27,9 +27,7 @@ import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
-import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
@@ -38,11 +36,11 @@ import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
 import com.trello.rxlifecycle.android.FragmentEvent
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import rx.Observable
 import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
@@ -238,10 +236,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
-        // lets start receiving feed updates
-        subscribeToFeedUpdates()
+        launchUntilViewDestroy {
+            // lets start receiving feed updates
+            observeFeedUpdates()
+        }
 
-        launchIgnoreErrors { queryForUserInfo() }
+        launchUntilViewDestroy(ignoreErrors = true) { queryForUserInfo() }
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
@@ -252,10 +252,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
     }
 
-    private fun subscribeToFeedUpdates() {
+    private suspend fun observeFeedUpdates() {
         var lastLoadingSpace: FeedManager.LoadingSpace? = null
 
-        loader.updates.bindToLifecycle().subscribe { update ->
+        loader.updates.collect { update ->
             trace { "gotFeedUpdate($update)" }
 
             when (update) {
@@ -508,18 +508,25 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 return cached
             }
 
-            // fan out
-            val first = async { userService.info(queryString, contentTypes) }
-            val second = async { inboxService.getUserComments(queryString, contentTypes) }
+            return coroutineScope {
+                // fan out
+                val first = async {
+                    userService.info(queryString, contentTypes)
+                }
 
-            // and wait for responses with defaults
-            val info = runCatching { first.await() }.getOrNull() ?: return null
-            val comments = runCatching { second.await().comments }.getOrElse { listOf() }
+                val second = async {
+                    inboxService.getUserComments(queryString, contentTypes)
+                }
 
-            val userInfo = UserInfo(info, comments)
-            inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
+                // and wait for responses with defaults
+                val info = runCatching { first.await() }.getOrNull() ?: return@coroutineScope null
+                val comments = runCatching { second.await().comments }.getOrElse { listOf() }
 
-            return userInfo
+                val userInfo = UserInfo(info, comments)
+                inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
+
+                userInfo
+            }
 
         } else {
             return null
@@ -566,7 +573,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             return settings.contentType
         }
 
-    override suspend fun onResumeImpl(): Unit {
+    override fun onResume() {
+        super.onResume()
+
         stateTransaction {
             Track.openFeed(currentFilter)
 
@@ -615,7 +624,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         }
 
-        launch {
+        launchUntilPause(ignoreErrors = true) {
             stateCh.asFlow()
                     .mapNotNull { it.userInfo?.info?.user?.id }
                     .flatMapLatest { userId -> followService.getState(userId.toLong()) }
@@ -632,10 +641,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         // if we currently scroll the view, lets just do this later.
         if (recyclerView.isComputingLayout) {
-            Observable.just(Unit)
-                    .observeOnMainThread()
-                    .bindToLifecycle()
-                    .subscribe { performAutoScroll() }
+            launchWhenResumed {
+                awaitFrame()
+                performAutoScroll()
+            }
 
             return
         }
@@ -668,7 +677,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             return
         }
 
-        launch {
+        launchUntilPause {
             logger.info { "Checking for new items in current feed" }
 
             val query = FeedService.FeedQuery(feed.filter, feed.contentType)
@@ -710,7 +719,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         if (feed.contentType != newContentType) {
             replaceFeedFilter(feedFilter, newContentType)
 
-            launchIgnoreErrors {
+            launchUntilPause(ignoreErrors = true) {
                 queryForUserInfo()
             }
         }
@@ -953,9 +962,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun onBlockUserClicked() {
-        val name = this.activeUsername
-        val fm = this.fragmentManager
-        if (name != null) {
+        this.activeUsername?.let { name ->
             val dialog = ItemUserAdminDialog.forUser(name)
             dialog.maybeShow(fragmentManager, "BlockUserDialog")
         }
@@ -1061,7 +1068,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        launchIgnoreErrors {
+        launchUntilDestroy(ignoreErrors = true) {
             settings.changes().onStart { emit("") }.collect {
                 listener.enableLongClick(settings.enableQuickPeek)
             }
@@ -1094,7 +1101,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val query = FeedService.FeedQuery(filter.withTags(queryTerm),
                 contentTypes = new.contentType, older = new.feedTypeId(newestItem))
 
-        launch {
+        launchWhenResumed {
             if (inMemoryCacheService.refreshRepostsCache(feedService, query)) {
                 logger.debug { "Repost info was refreshed, updating state now" }
                 state = state.copy(repostRefreshTime = System.currentTimeMillis())

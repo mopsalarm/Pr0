@@ -8,6 +8,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.addTextChangedListener
@@ -40,7 +41,7 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
     private fun submitButtonClicked() {
         val email = this.email.text.toString().trim()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             withViewDisabled(submit) {
                 withBackgroundContext(NonCancellable) {
                     userService.requestPasswordRecovery(email)

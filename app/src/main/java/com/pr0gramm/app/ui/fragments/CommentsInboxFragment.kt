@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -16,7 +17,7 @@ open class CommentsInboxFragment : InboxFragment("CommentsInboxFragment") {
 
     override fun getContentAdapter(): Pair<MessageAdapter, Pagination<Api.Message>> {
         val loader = apiMessageLoader { inboxService.comments(it) }
-        val pagination = Pagination(this, loader)
+        val pagination = Pagination(lifecycleScope, loader)
 
         val adapter = MessageAdapter(
                 R.layout.row_inbox_message, actionListener, userService.name,
@@ -25,8 +26,8 @@ open class CommentsInboxFragment : InboxFragment("CommentsInboxFragment") {
         return Pair(adapter, pagination)
     }
 
-    override suspend fun onResumeImpl() {
-        super.onResumeImpl()
+    override fun onResume() {
+        super.onResume()
 
         notificationService.cancelForUnreadComments()
     }

@@ -70,7 +70,9 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         }
     }
 
-    override suspend fun onStartImpl() {
+    override fun onStart() {
+        super.onStart()
+
         pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
             handleStateUpdate(state, newValues)
         }

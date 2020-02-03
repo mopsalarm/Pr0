@@ -11,6 +11,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.fragmentArgument
@@ -38,7 +39,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
         }
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         val dialog = requireDialog()
 
         reasonListView.adapter = ArrayAdapter(dialog.context,
@@ -59,7 +60,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     private fun onConfirmClicked() {
         val reason = config.reportReasons.getOrNull(reasonListView.checkedItemPosition) ?: return
 
-        launchWithErrorHandler {
+        launchWhenStarted(busyIndicator = true) {
             withContext(NonCancellable) {
                 contactService.report(itemId, commentId ?: 0, reason)
             }

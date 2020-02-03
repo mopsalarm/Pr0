@@ -9,12 +9,13 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.launch
 
 /**
  */
@@ -35,7 +36,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
                     .replace(R.id.fragment_container, fragment)
                     .commit()
 
-            launch {
+            launchUntilDestroy {
                 try {
                     if (uploadService.checkIsRateLimited()) {
                         showUploadLimitReached()
@@ -72,7 +73,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         show(UploadLimitReachedFragment(), addToBackstack = false)
     }
 
-    internal fun showUploadFragment(type: String?, addToBackstack: Boolean) {
+    private fun showUploadFragment(type: String?, addToBackstack: Boolean) {
         val fragment = if (intent?.action == Intent.ACTION_SEND) {
             val url = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
             UploadFragment.forLocalUri(url)
@@ -83,7 +84,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         show(fragment, addToBackstack)
     }
 
-    private fun show(fragment: androidx.fragment.app.Fragment, addToBackstack: Boolean) {
+    private fun show(fragment: Fragment, addToBackstack: Boolean) {
         @SuppressLint("CommitTransaction")
         val transaction = supportFragmentManager
                 .beginTransaction()
@@ -109,19 +110,19 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         showUploadFragment(type, addToBackstack = true)
     }
 
-    class CheckUploadAllowedFragment : androidx.fragment.app.Fragment() {
+    class CheckUploadAllowedFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_check, container, false)
         }
     }
 
-    class UploadLimitReachedFragment : androidx.fragment.app.Fragment() {
+    class UploadLimitReachedFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_limit_reached, container, false)
         }
     }
 
-    class SomethingWentWrongFragment : androidx.fragment.app.Fragment() {
+    class SomethingWentWrongFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             return inflater.inflate(R.layout.fragment_upload_something_went_wrong, container, false)
         }

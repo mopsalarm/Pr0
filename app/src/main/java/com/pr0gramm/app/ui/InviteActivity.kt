@@ -15,6 +15,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
@@ -51,8 +52,6 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
         invites.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
-        requeryInvites()
-
         find<View>(R.id.send_invite).setOnClickListener { onInviteClicked() }
     }
 
@@ -66,7 +65,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         // disable all views
         disableInputViews()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             try {
                 withBackgroundContext(NonCancellable) {
                     inviteService.send(email)
@@ -84,8 +83,10 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         }
     }
 
-    private fun requeryInvites() {
-        launchWithErrorHandler {
+    override fun onResume() {
+        super.onResume()
+
+        launchWhenStarted {
             handleInvites(inviteService.invites())
         }
     }

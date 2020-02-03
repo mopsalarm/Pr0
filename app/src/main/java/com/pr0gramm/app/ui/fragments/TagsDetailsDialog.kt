@@ -12,6 +12,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.arguments
@@ -43,11 +44,11 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         }
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         tagsView.layoutManager = LinearLayoutManager(
                 requireDialog().context, RecyclerView.VERTICAL, false)
 
-        launchWithErrorHandler {
+        launchWhenStarted {
             showTagsDetails(adminService.tagsDetails(itemId))
         }
     }
@@ -67,7 +68,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
         val blockAmountStr = if (blockUser.isChecked) blockUserDays.text.toString() else ""
         val blockAmount = blockAmountStr.toFloatOrNull()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             adminService.deleteTags(itemId, selected, blockAmount)
             dismiss()
         }

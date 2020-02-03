@@ -28,6 +28,8 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.views.AspectLayout
@@ -104,12 +106,12 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         captchaAnswerView.setText("")
         captchaAnswerView.isEnabled = false
 
-        launchWithErrorHandler {
+        launchWhenCreated {
             try {
                 val captcha = userService.userCaptcha()
 
                 // decode the image
-                val image = captcha.decodeImage(androidContext)
+                val image = captcha.decodeImage(this@LoginActivity)
                 val aspect = image.intrinsicWidth.toFloat() / image.intrinsicHeight.toFloat()
 
                 // and set it on the view
@@ -192,7 +194,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         Track.loginStarted()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             withViewDisabled(usernameView, passwordView, submitView) {
                 handleLoginResult(userService.login(username, password, token, captchaAnswer))
             }

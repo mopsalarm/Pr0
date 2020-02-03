@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -81,7 +84,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
     }
 
-    override suspend fun onResumeImpl() {
+    override fun onResume() {
+        super.onResume()
+
         val provider = with(requireContext().injector) {
             val picasso = instance<Picasso>()
             val inboxService = instance<InboxService>()
@@ -397,9 +402,13 @@ private class NavigationDelegateAdapter(
         val defaultColor = color.defaultColor
         val drawables = view.compoundDrawables
 
-        drawables.filterNotNull().forEach {
+        drawables.filterNotNull().forEach { drawable ->
             // fake the tint with a color filter.
-            it.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                drawable.mutate().colorFilter = BlendModeColorFilter(defaultColor, BlendMode.SRC_IN)
+            } else {
+                drawable.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN)
+            }
         }
     }
 }

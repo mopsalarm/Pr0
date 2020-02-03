@@ -18,6 +18,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BasePreferenceFragment
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.AndroidUtility
@@ -215,7 +216,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 }
 
                 "pref_pseudo_restore_bookmarks" -> {
-                    launchWithErrorHandler(busyIndicator = true) {
+                    launchWhenStarted(busyIndicator = true) {
                         bookmarkService.restore()
                     }
 

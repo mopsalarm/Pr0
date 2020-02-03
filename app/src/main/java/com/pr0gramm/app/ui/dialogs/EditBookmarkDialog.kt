@@ -73,7 +73,7 @@ class EditBookmarkDialog : BaseDialogFragment("EditBookmarkDialog") {
         dismiss()
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         bookmarkTitleView.setText(bookmarkTitle)
 
         buttonSave.setOnClickListener { renameClicked() }

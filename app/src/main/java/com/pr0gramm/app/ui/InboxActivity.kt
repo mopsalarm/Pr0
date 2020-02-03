@@ -113,9 +113,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
         }
     }
 
-    override suspend fun onStartImpl() {
-        super.onStartImpl()
-
+    override fun onStart() {
+        super.onStart()
         Track.inboxActivity()
     }
 

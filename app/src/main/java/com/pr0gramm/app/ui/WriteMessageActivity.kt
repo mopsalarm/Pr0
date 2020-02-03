@@ -23,6 +23,7 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.TextViewCache
@@ -179,7 +180,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val itemId = itemId
             val parentComment = parentCommentId
 
-            launchWithErrorHandler(busyIndicator = true) {
+            launchWhenStarted(busyIndicator = true) {
                 withViewDisabled(buttonSubmit) {
                     val newComments = withBackgroundContext(NonCancellable) {
                         voteService.postComment(itemId, parentComment, message)
@@ -201,7 +202,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             Track.writeComment()
 
         } else {
-            launchWithErrorHandler(busyIndicator = true) {
+            launchWhenStarted(busyIndicator = true) {
                 withViewDisabled(buttonSubmit) {
                     withBackgroundContext(NonCancellable) {
                         inboxService.send(receiverId, message)

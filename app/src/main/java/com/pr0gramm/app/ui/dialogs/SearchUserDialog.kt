@@ -10,6 +10,7 @@ import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.CancellationException
@@ -31,7 +32,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
         }
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         inputView.setAdapter(UsernameAutoCompleteAdapter(suggestionService, themedContext,
                 android.R.layout.simple_dropdown_item_1line, ""))
 
@@ -40,7 +41,7 @@ class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
     private fun onSearchClicked() {
         val username = inputView.text.toString().trim()
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             try {
                 onSearchSuccess(userService.info(username))
             } catch (err: CancellationException) {

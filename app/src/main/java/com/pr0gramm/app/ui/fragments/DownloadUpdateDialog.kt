@@ -38,9 +38,10 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
         return dialog
     }
 
-    override suspend fun onDialogViewCreated() {
+    override fun onDialogViewCreated() {
         progressBar.isIndeterminate = true
         progressBar.max = 1000
+
         progress.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .onErrorResumeEmpty()
                 .doAfterTerminate { this.dismiss() }

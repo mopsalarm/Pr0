@@ -14,7 +14,7 @@ import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.ui.base.launchWhenCreated
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
@@ -79,11 +79,11 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             benisTimeRangeStart = System.currentTimeMillis() - millis
         }
 
-        launchIgnoreErrors {
+        launchWhenCreated(ignoreErrors = true) {
             handleVoteCounts(voteService.summary())
         }
 
-        launchIgnoreErrors {
+        launchWhenCreated(ignoreErrors = true) {
             // delay querying the data for a moment
             delay(200)
 

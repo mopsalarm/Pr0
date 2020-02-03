@@ -18,6 +18,7 @@ import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
@@ -124,7 +125,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         // hide keyboard when sending
         AndroidUtility.hideSoftKeyboard(vText)
 
-        launchWithErrorHandler(busyIndicator = true) {
+        launchWhenStarted(busyIndicator = true) {
             withViewDisabled(buttonSubmit) {
                 sendFeedback()
                 onSubmitSuccess()
