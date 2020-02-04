@@ -16,6 +16,8 @@ import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import rx.Observable
@@ -55,8 +57,10 @@ class UserService(private val api: Api,
     init {
         restoreLatestUserInfo()
 
-        // observe changes to the login cookie to handle login/logout behaviour.
-        cookieJar.observeCookie.distinctUntilChanged().subscribe { onCookieChanged(it) }
+        doInBackground {
+            // observe changes to the login cookie to handle login/logout behaviour.
+            cookieJar.observeCookie.distinctUntilChanged().collect { onCookieChanged(it) }
+        }
 
         // persist the login state every time it changes.
         loginStates.observeOn(Schedulers.computation()).subscribe { state -> persistLatestLoginState(state) }

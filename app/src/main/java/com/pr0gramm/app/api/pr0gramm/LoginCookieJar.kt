@@ -9,10 +9,10 @@ import com.pr0gramm.app.adapter
 import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.util.StateFlow
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encode
-import rx.subjects.BehaviorSubject
 import java.net.URLDecoder
 import java.util.*
 
@@ -35,13 +35,13 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
      * The parsed http cookie
      */
     val parsedCookie: LoginCookie?
-        get() = observeCookie.value
+        get() = observeCookie.valueOrNull
 
     /**
      * Observe the existing cookie. Get a null value if the cookie
      * was removed and changed to null.
      */
-    val observeCookie: BehaviorSubject<LoginCookie?> = BehaviorSubject.create()
+    val observeCookie: StateFlow<LoginCookie?> = StateFlow()
 
     fun hasCookie(): Boolean {
         return httpCookie != null && parsedCookie?.id != null
@@ -118,7 +118,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
                 }
 
                 this.httpCookie = cookie
-                this.observeCookie.onNext(parsedCookie)
+                this.observeCookie.sendOrBlock(parsedCookie)
                 return true
 
             } else {
@@ -141,12 +141,12 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
             // and publish cookie to listeners
             httpCookie = null
-            observeCookie.onNext(null)
+            observeCookie.sendOrBlock(null)
         }
     }
 
     /**
-     * Tries to parse the cookie into a [LoginCookieJar.LoginCookie] instance.
+     * Tries to parse the cookie into a [LoginCookie] instance.
      */
     private fun parseCookie(cookie: okhttp3.Cookie): LoginCookie? {
         return try {

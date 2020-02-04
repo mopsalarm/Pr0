@@ -23,15 +23,18 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
-import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.views.CommentScore
 import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import rx.Observable
-import rx.subjects.BehaviorSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 import kotlin.properties.ObservableProperty
@@ -45,8 +48,8 @@ abstract class CommentTreeHelper : CommentView.Listener {
     private var state: CommentTree.Input by StateProperty()
     private var stateUpdateSync = false
 
-    private val subject = BehaviorSubject.create<List<CommentTree.Item>>(listOf())
-    val itemsObservable = subject as Observable<List<CommentTree.Item>>
+    private val subject = StateFlow<List<CommentTree.Item>>(listOf())
+    val itemsObservable = subject as Flow<List<CommentTree.Item>>
 
     // update the currently selected comment
     fun selectComment(id: Long) {
@@ -98,29 +101,30 @@ abstract class CommentTreeHelper : CommentView.Listener {
                     "selected=${targetState.selectedCommentId})"
         }
 
-        val runThisUpdateAsync = !stateUpdateSync && !targetState.allComments.isEmpty()
+        val runThisUpdateAsync = !stateUpdateSync && targetState.allComments.isNotEmpty()
         stateUpdateSync = false
 
-        Observable
-                .fromCallable { CommentTree(targetState).visibleComments }
-                .ignoreError()
-                .withIf(runThisUpdateAsync) {
-                    logger.debug { "Running update in background" }
-                    subscribeOnBackground().observeOnMainThread()
-                }
-                .subscribe { visibleComments ->
-                    logger.debug {
-                        "About to set state ${System.identityHashCode(targetState)} " +
-                                "(expected=${System.identityHashCode(state)}, ok=${targetState === state})"
-                    }
+        CoroutineScope(Dispatchers.Main.immediate).launchIgnoreErrors {
+            // switch context if require
+            val context = if (runThisUpdateAsync) Dispatchers.Default else EmptyCoroutineContext
 
-                    // verify that we still got the right state
-                    if (state === targetState) {
-                        subject.onNext(visibleComments)
-                    } else {
-                        logger.debug { "List of comments already stale." }
-                    }
-                }
+            val visibleComments = withContext(context) {
+                logger.debug { "Running update in ${Thread.currentThread().name}" }
+                CommentTree(targetState).visibleComments
+            }
+
+            logger.debug {
+                "About to set state ${System.identityHashCode(targetState)} " +
+                        "(expected=${System.identityHashCode(state)}, ok=${targetState === state})"
+            }
+
+            // verify that we still got the right state
+            if (state === targetState) {
+                subject.send(visibleComments)
+            } else {
+                logger.debug { "List of comments already stale." }
+            }
+        }
     }
 
     private inner class StateProperty : ObservableProperty<CommentTree.Input>(CommentTree.Input()) {

@@ -218,9 +218,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         // listen to comment changes
-        commentTreeHelper.itemsObservable.bindToLifecycle().subscribe { commentItems ->
-            logger.debug { "Got new list of ${commentItems.size} comments" }
-            state = state.copy(comments = commentItems, commentsLoading = false)
+        launchUntilViewDestroy {
+            commentTreeHelper.itemsObservable.collect { commentItems ->
+                logger.debug { "Got new list of ${commentItems.size} comments" }
+                state = state.copy(comments = commentItems, commentsLoading = false)
+            }
         }
 
         // we do this after the first commentTreeHelper callback above
