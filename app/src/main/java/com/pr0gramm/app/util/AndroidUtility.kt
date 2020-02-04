@@ -139,11 +139,13 @@ object AndroidUtility {
                 cache.put(key, Unit)
             }
 
-            // log to sentry if a client is configured
-            Sentry.getStoredClient()?.sendEvent(EventBuilder()
-                    .withMessage(error.message)
-                    .withLevel(Event.Level.WARNING)
-                    .withSentryInterface(ExceptionInterface(error)))
+            doInBackground {
+                // log to sentry if a client is configured
+                Sentry.getStoredClient()?.sendEvent(EventBuilder()
+                        .withMessage(error.message)
+                        .withLevel(Event.Level.WARNING)
+                        .withSentryInterface(ExceptionInterface(error)))
+            }
 
         } catch (err: Throwable) {
             logger.warn(err) { "Could not send error $error to sentry" }

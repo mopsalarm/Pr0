@@ -6,7 +6,7 @@ apply from: 'version.gradle'
 android {
     compileSdkVersion 29
 
-    ndkVersion "21.0.6011959-rc2"
+    // ndkVersion "21.0.6011959-rc2"
 
     defaultConfig {
         minSdkVersion 21
@@ -179,12 +179,15 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0-rc02'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
     implementation 'androidx.documentfile:documentfile:1.0.1'
 
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.activity:activity-ktx:1.1.0'
+
+    // 1.2.0 does not restore the fragment state correctly when going back.
+    // e.g. scroll position in favorites is gone
     implementation 'androidx.fragment:fragment-ktx:1.1.0'
 
     implementation "com.google.android.gms:play-services-ads-lite:18.3.0"

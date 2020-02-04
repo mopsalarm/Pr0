@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.BuildConfig
@@ -14,6 +15,11 @@ import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.warnWithStack
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import rx.Observable
 import rx.Scheduler
@@ -318,4 +324,24 @@ private fun Any.debugVerifyLifecycle(lifecycleOwner: LifecycleOwner, expectedSta
             }
         }
     }
+}
+
+
+fun Lifecycle.asEventFlow(): Flow<Lifecycle.Event> = channelFlow {
+    val observer = withContext(Dispatchers.Main.immediate) {
+        val observer = LifecycleEventObserver { _, event ->
+            channel.offer(event)
+        }
+
+        addObserver(observer)
+        observer
+    }
+
+    awaitClose {
+        removeObserver(observer)
+    }
+}
+
+fun Lifecycle.asStateFlow(): Flow<Lifecycle.State> {
+    return asEventFlow().map { currentState }.flowOn(Dispatchers.Main.immediate)
 }

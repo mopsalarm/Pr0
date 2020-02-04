@@ -16,6 +16,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -45,13 +46,8 @@ import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import rx.Observable.combineLatest
+import kotlinx.coroutines.flow.*
 import rx.schedulers.Schedulers
-import rx.subjects.BehaviorSubject
 import java.io.IOException
 import java.util.*
 import kotlin.math.min
@@ -73,7 +69,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     // start with an empty adapter here
     private val commentTreeHelper = PostFragmentCommentTreeHelper()
 
-    private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
+    private val activeStateCh = ConflatedBroadcastChannel<Boolean>(false)
 
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
@@ -247,21 +243,23 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show the repost badge if this is a repost
         repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
-        activeState.bindToLifecycle().subscribe { active ->
-            trace { "${feedItem.id}.activeState($active): Switching viewer state" }
+        launchUntilViewDestroy {
+            activeState.collect { active ->
+                trace { "${feedItem.id}.activeState($active): Switching viewer state" }
 
-            if (active) {
-                playMediaOnViewer()
-            } else {
-                stopMediaOnViewer()
-            }
+                if (active) {
+                    playMediaOnViewer()
+                } else {
+                    stopMediaOnViewer()
+                }
 
-            if (!active) {
-                exitFullscreen()
-            }
+                if (!active) {
+                    exitFullscreen()
+                }
 
-            uiTestOnly {
-                view.setTag(R.id.ui_test_activestate, active)
+                uiTestOnly {
+                    view.setTag(R.id.ui_test_activestate, active)
+                }
             }
         }
 
@@ -302,19 +300,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private val activeState = run {
-        val startStopLifecycle = lifecycle().filter { ev ->
-            ev == FragmentEvent.START || ev == FragmentEvent.STOP
-        }
-
-        // now combine with the activeStateSubject and return a new observable with
-        // the "active state".
-        val combined = combineLatest(startStopLifecycle, activeStateSubject) { ev, active ->
-            active && ev == FragmentEvent.START
-        }
-
-        combined.distinctUntilChanged()
-    }
+    private val activeState = activeStateCh.asFlow()
+            .combine(lifecycle.asStateFlow()) { active, state -> active && state.isAtLeast(Lifecycle.State.RESUMED) }
+            .distinctUntilChanged()
 
     private fun adapterStateUpdated() {
         checkMainThread()
@@ -1058,7 +1046,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * @param active The new active status.
      */
     private fun setActive(active: Boolean) {
-        activeStateSubject.onNext(active)
+        activeStateCh.offer(active)
 
         if (active) {
             Track.viewItem(feedItem.id)
