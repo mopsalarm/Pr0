@@ -139,7 +139,7 @@ android.applicationVariants.all { variant ->
                     "--org", "mopsalarm",
                     "--project", "pr0gramm",
                     "--write-properties",
-                    "${project.rootDir.toPath()}/app/build/intermediates/merged_assets/${variant.dirName}/sentry-debug-meta.properties",
+                    "${project.rootDir.toPath()}/app/build/intermediates/merged_assets/${variant.dirName}/out/sentry-debug-meta.properties",
                     variant.getMappingFileProvider().get().getSingleFile()
             ]
 
