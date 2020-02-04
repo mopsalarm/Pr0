@@ -27,13 +27,8 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
     }
 
-    fun <T> bindToLifecycleAsync(): Observable.Transformer<T, T> {
-        return AsyncLifecycleTransformer(bindToLifecycle<T>())
-    }
 
     fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseFragment.bindToLifecycle())
-
-    fun <T> Observable<T>.bindToLifecycleAsync(): Observable<T> = compose(this@BaseFragment.bindToLifecycleAsync())
 
     override fun onAttach(context: Context) {
         logger.time("Injecting services") { injector.inject(context) }
