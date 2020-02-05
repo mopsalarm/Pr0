@@ -1,5 +1,14 @@
 [
   {
+    "version": 179,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Überarbeitete Notifizierungen & Nachrichten"
+      }
+    ]
+  },
+  {
     "version": 178,
     "changes": [
       {
