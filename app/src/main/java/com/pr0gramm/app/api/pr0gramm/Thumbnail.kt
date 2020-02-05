@@ -6,7 +6,7 @@ import com.pr0gramm.app.feed.FeedItem
  */
 class Thumbnail(val id: Long, val thumbnail: String?)
 
-fun Api.Message.asThumbnail(): Thumbnail {
+fun Message.asThumbnail(): Thumbnail {
     return Thumbnail(id, thumbnail)
 }
 

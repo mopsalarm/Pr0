@@ -105,7 +105,7 @@ interface Api {
             @Query("flags") flags: Int?): Info
 
     @GET("/api/inbox/pending")
-    suspend fun inboxPending(): MessageFeed
+    suspend fun inboxPending(): Inbox
 
     @GET("/api/inbox/conversations")
     suspend fun listConversations(
@@ -116,9 +116,23 @@ interface Api {
             @Query("with") name: String,
             @Query("older") older: Long?): ConversationMessages
 
+
     @GET("/api/inbox/comments")
     suspend fun inboxComments(
-            @Query("older") older: Long?): MessageFeed
+            @Query("older") older: Long?): Inbox
+
+    @GET("/api/inbox/all")
+    suspend fun inboxAll(
+            @Query("older") older: Long?): Inbox
+
+    @GET("/api/inbox/follows")
+    suspend fun inboxFollows(
+            @Query("older") older: Long?): Inbox
+
+    @GET("/api/inbox/notifications")
+    suspend fun inboxNotifications(
+            @Query("older")
+            older: Long?): Inbox
 
     @GET("/api/profile/comments")
     suspend fun userComments(
@@ -419,25 +433,23 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true)
-    class Message(
-            val id: Long,
-            val itemId: Long = 0,
-            val mark: Int,
-            val message: String,
-            val name: String,
-            val score: Int,
-            val senderId: Int,
-            val read: Boolean = true,
-            @Json(name = "created") val creationTime: Instant,
-            @Json(name = "thumb") val thumbnail: String?) {
+    class Inbox(val messages: List<Item> = listOf()) {
+        @JsonClass(generateAdapter = true)
+        class Item(
+                val type: String,
+                val id: Long,
+                val read: Boolean,
+                @Json(name = "created") val creationTime: Instant,
 
-        val isComment: Boolean get() = itemId != 0L
-
-        val commentId: Long get() = id
+                val name: String? = null,
+                val mark: Int? = null,
+                val senderId: Int? = null,
+                val score: Int? = null,
+                val itemId: Long? = null,
+                val message: String? = null,
+                @Json(name = "thumb") val thumbnail: String? = null)
     }
 
-    @JsonClass(generateAdapter = true)
-    class MessageFeed(val messages: List<Message> = listOf())
 
     @JsonClass(generateAdapter = true)
     class NewComment(

@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.parcel.getFreezableExtra
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.util.bundle
@@ -32,7 +32,7 @@ class InboxNotificationCanceledReceiver : BroadcastReceiver() {
         private const val EXTRA_MESSAGE_TIMESTAMP = "messageTimestamp"
         private const val EXTRA_MESSAGE_UNREAD_ID = "messageUnreadId"
 
-        fun makeIntent(context: Context, message: Api.Message): Intent {
+        fun makeIntent(context: Context, message: Message): Intent {
             return Intent(context, InboxNotificationCanceledReceiver::class.java).apply {
                 data = Uri.parse("view://${message.unreadId}")
 

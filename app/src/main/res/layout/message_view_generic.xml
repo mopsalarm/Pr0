@@ -1,35 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:parentTag="android.widget.FrameLayout">
 
+    <TextView xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/message_type"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:gravity="center_vertical"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textStyle="bold"
+        tools:text="Private Nachricht" />
+
     <ImageView
         android:id="@+id/message_image"
         android:layout_width="40dp"
-        android:layout_height="40dp" />
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp" />
 
     <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
         android:id="@+id/message_text"
         style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textIsSelectable="true"
+        android:layout_marginStart="56dp"
         android:layout_marginLeft="56dp"
+        android:layout_marginTop="32dp"
         android:layout_marginBottom="36dp"
         android:singleLine="false"
-        tools:text="@string/dummy_text"
-        android:layout_marginStart="56dp" />
+        android:textIsSelectable="true"
+        tools:text="@string/dummy_text" />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/message_sender_info"
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="56dp"
         android:layout_marginStart="56dp"
-        app:siv_reply="true"
-        android:layout_marginTop="4dp" />
+        android:layout_marginLeft="56dp"
+        android:layout_marginTop="4dp"
+        app:siv_reply="true" />
 </merge>

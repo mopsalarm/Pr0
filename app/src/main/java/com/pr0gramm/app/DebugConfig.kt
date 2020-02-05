@@ -3,6 +3,7 @@ package com.pr0gramm.app
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private val actualDebugConfig = DebugConfig(
+        mockApiUrl = "https://1285d16b.eu.ngrok.io"
         // versionOverride = 100
 )
 

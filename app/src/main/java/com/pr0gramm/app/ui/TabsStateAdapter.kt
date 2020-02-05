@@ -27,8 +27,16 @@ class TabsStateAdapter : FragmentStateAdapter {
 
     override fun createFragment(position: Int): Fragment {
         val info = tabs[position]
-        return info.fragmentConstructor().apply {
-            arguments = info.args
+
+        return info.fragmentConstructor().also { fr ->
+            if (info.args != null) {
+                val existing = fr.arguments
+                if (existing != null) {
+                    existing.putAll(info.args)
+                } else {
+                    fr.arguments = Bundle(info.args)
+                }
+            }
         }
     }
 

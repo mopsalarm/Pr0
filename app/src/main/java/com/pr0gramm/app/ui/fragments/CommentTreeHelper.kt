@@ -387,7 +387,7 @@ class CommentTree(val state: Input) {
     private val byId = state.allComments.associateByTo(hashMapOf()) { it.id }
     private val byParent = state.allComments.groupByTo(hashMapOf()) { it.parent }
 
-    private val depthCache = mutableMapOf<Long, Int>()
+    private val depthCache = hashMapOf<Long, Int>()
 
     /**
      * "Flattens" a list of hierarchical comments to a sorted list of comments.

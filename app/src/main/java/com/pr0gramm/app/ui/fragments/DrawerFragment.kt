@@ -366,11 +366,7 @@ private class NavigationDelegateAdapter(
     }
 
     private fun showInboxActivity(unreadCounts: Api.InboxCounts) {
-        if (unreadCounts.comments > 0 || unreadCounts.mentions > 0) {
-            showInboxActivity(InboxType.COMMENTS_IN)
-        } else {
-            showInboxActivity(InboxType.PRIVATE)
-        }
+        showInboxActivity(InboxType.ALL)
     }
 
     private fun showInboxActivity(inboxType: InboxType) {

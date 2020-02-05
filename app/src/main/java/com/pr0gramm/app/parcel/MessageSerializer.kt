@@ -1,12 +1,13 @@
 package com.pr0gramm.app.parcel
 
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 
 /**
  */
-class MessageParceler(val message: Api.Message) : Freezable {
+class MessageSerializer(val message: Message) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
+        writeString(message.type)
         writeLong(message.id)
         writeLong(message.itemId)
         writeInt(message.mark)
@@ -18,12 +19,14 @@ class MessageParceler(val message: Api.Message) : Freezable {
         writeString(message.thumbnail ?: "")
     }
 
-    companion object : Unfreezable<MessageParceler> {
+    companion object : Unfreezable<MessageSerializer> {
         @JvmField
         val CREATOR = parcelableCreator()
 
-        override fun unfreeze(source: Freezable.Source): MessageParceler = with(source) {
-            MessageParceler(Api.Message(
+        override fun unfreeze(source: Freezable.Source): MessageSerializer = with(source) {
+            MessageSerializer(Message(
+                    read = true,
+                    type = readString(),
                     id = readLong(),
                     itemId = readLong(),
                     mark = readInt(),

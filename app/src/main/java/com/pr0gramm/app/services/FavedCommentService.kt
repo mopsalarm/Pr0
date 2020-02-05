@@ -2,6 +2,7 @@ package com.pr0gramm.app.services
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.feed.ContentType
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -27,10 +28,10 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
     companion object {
         private val regex = "^.*pr0gramm.com/".toRegex()
 
-        fun commentToMessage(comment: Api.FavedUserComment): Api.Message {
+        fun commentToMessage(comment: Api.FavedUserComment): Message {
             val thumbnail = comment.thumb.replaceFirst(regex, "/")
 
-            return Api.Message(
+            return Message(
                     id = comment.id,
                     itemId = comment.itemId,
                     name = comment.name,
@@ -39,8 +40,9 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
                     thumbnail = thumbnail,
                     creationTime = comment.created,
                     mark = comment.mark,
-                    senderId = 0
-            )
+                    senderId = 0,
+                    type = "comment",
+                    read = true)
         }
     }
 }

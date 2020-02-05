@@ -7,17 +7,15 @@ import android.view.View.OnClickListener
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.StringRes
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
-import com.pr0gramm.app.util.Linkify
-import com.pr0gramm.app.util.UserDrawables
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.use
 import com.squareup.picasso.Picasso
 
 /**
@@ -29,6 +27,8 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val text: TextView
     private val image: ImageView
     private val sender: SenderInfoView
+
+    private val messageType: TextView?
 
     private val picasso: Picasso?
 
@@ -44,6 +44,8 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         image = find(R.id.message_image)
         sender = find(R.id.message_sender_info)
 
+        messageType = findOptional(R.id.message_type)
+
         if (!isInEditMode) {
             picasso = context.injector.instance()
 
@@ -55,8 +57,12 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    fun setAnswerClickedListener(listener: (View) -> Unit) {
-        sender.setOnAnswerClickedListener(OnClickListener { listener(it) })
+    fun setAnswerClickedListener(@StringRes text: Int, listener: (View) -> Unit) {
+        sender.setOnAnswerClickedListener(text, OnClickListener { listener(it) })
+    }
+
+    fun clearAnswerClickedListener() {
+        sender.clearOnAnswerClickedListener()
     }
 
     fun setOnSenderClickedListener(listener: () -> Unit) {
@@ -64,17 +70,18 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     @JvmOverloads
-    fun update(message: Api.Message, name: String? = null) {
-        // set the type. if we have an item, we  have a comment
-        val isComment = message.itemId != 0L
-
+    fun update(message: Message, name: String? = null) {
         // the text of the message
         Linkify.linkifyClean(text, message.message)
 
         // draw the image for this post
-        if (isComment) {
-            val url = "https://thumb.pr0gramm.com/" + message.thumbnail!!
-            picasso?.load(url)?.into(image)
+        val thumbnail = message.thumbnail
+        if (thumbnail != null) {
+            val url = "https://thumb.pr0gramm.com/$thumbnail"
+            picasso?.load(url)?.let { req ->
+                req.placeholder(R.color.grey_800)
+                req.into(image)
+            }
         } else {
             picasso?.cancelRequest(image)
 
@@ -90,7 +97,20 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         sender.setSenderName(message.name, message.mark)
         sender.setDate(message.creationTime)
 
-        if (isComment) {
+        // message type if available.
+        messageType?.let { messageType ->
+            val type = when (message.type) {
+                "comment" -> R.string.message_type_comment
+                "message" -> R.string.message_type_message
+                "follows" -> R.string.message_type_stalk
+                else -> R.string.message_type_notification
+            }
+
+            messageType.setText(type)
+        }
+
+        // set the type. if we have an item, we  have a comment
+        if (message.type == "comment") {
             if (admin || visible) {
                 sender.setPoints(message.score)
             } else {

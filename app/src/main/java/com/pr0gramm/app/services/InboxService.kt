@@ -7,7 +7,7 @@ import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.*
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.model.inbox.UnreadMarkerTimestamp
 import com.pr0gramm.app.util.StringException
@@ -48,20 +48,49 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Gets unread messages
      */
-    suspend fun pending(): List<Api.Message> {
-        return api.inboxPending().messages
+    suspend fun pending(): List<Message> {
+        return convertInbox(api.inboxPending()) {
+            it.toGenericMessage()
+        }
+    }
+
+    /**
+     * Gets unread messages
+     */
+    suspend fun fetchAll(olderThan: Instant?): List<Message> {
+        return convertInbox(api.inboxAll(olderThan?.epochSeconds)) {
+            it.toGenericMessage()
+        }
     }
 
     /**
      * Gets the list of inbox comments
      */
-    suspend fun comments(olderThan: Instant? = null): List<Api.Message> {
-        val comments = api.inboxComments(olderThan?.epochSeconds).messages
+    suspend fun fetchComments(olderThan: Instant? = null): List<Message> {
+        return convertInbox(api.inboxComments(olderThan?.epochSeconds)) {
+            it.toCommentMessage()
+        }
+    }
 
-        // mark the most recent comment as read.
-        comments.maxBy { it.creationTime }?.let { markAsRead(it) }
+    suspend fun fetchNotifications(olderThan: Instant? = null): List<Message> {
+        return convertInbox(api.inboxNotifications(olderThan?.epochSeconds)) {
+            it.toNotificationMessage()
+        }
+    }
 
-        return comments
+    suspend fun fetchFollows(olderThan: Instant? = null): List<Message> {
+        return convertInbox(api.inboxFollows(olderThan?.epochSeconds)) {
+            it.toFollowsMessage()
+        }
+    }
+
+    private fun convertInbox(inbox: Api.Inbox, convert: (Api.Inbox.Item) -> Message?): List<Message> {
+        val converted = inbox.messages.mapNotNull(convert)
+
+        // mark the most recent item/message as read.
+        converted.maxBy { it.creationTime }?.let { markAsRead(it) }
+
+        return converted
     }
 
     /**
@@ -88,7 +117,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from [.unreadMessagesCount].
      */
-    fun markAsRead(message: Api.Message) {
+    private fun markAsRead(message: Message) {
         markAsRead(message.unreadId, message.creationTime)
     }
 
@@ -97,7 +126,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         return timestamp.isAfter(upToTimestamp)
     }
 
-    fun messageIsUnread(message: Api.Message): Boolean {
+    fun messageIsUnread(message: Message): Boolean {
         return messageIsUnread(message.unreadId, message.creationTime)
     }
 
@@ -152,4 +181,4 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 }
 
-val Api.Message.unreadId: String get() = if (isComment) "item:$itemId" else name
+val Message.unreadId: String get() = if (isComment) "item:$itemId" else name

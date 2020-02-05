@@ -201,7 +201,7 @@ object Track : InjectorAware {
 
 
     private class KeyValueAdapter {
-        val map = mutableMapOf<String, String>()
+        val map = hashMapOf<String, String>()
 
         fun putString(key: String, value: String) {
             map[key] = value

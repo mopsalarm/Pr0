@@ -5,16 +5,9 @@ import com.pr0gramm.app.feed.FeedItem
 /**
  */
 object MessageConverter {
-    fun of(sender: Api.UserComments.UserInfo, comment: Api.UserComments.UserComment): Api.Message {
-        return of(sender.id, sender.name, sender.mark, comment)
-    }
-
-    fun of(sender: Api.Info.User, comment: Api.UserComments.UserComment): Api.Message {
-        return of(sender.id, sender.name, sender.mark, comment)
-    }
-
-    fun of(item: FeedItem, comment: Api.Comment): Api.Message {
-        return Api.Message(
+    fun of(item: FeedItem, comment: Api.Comment): Message {
+        return Message(
+                type = "comment",
                 id = comment.id,
                 itemId = item.id,
                 mark = comment.mark,
@@ -23,24 +16,21 @@ object MessageConverter {
                 message = comment.content,
                 score = comment.score,
                 creationTime = comment.created,
-                thumbnail = item.thumbnail)
+                thumbnail = item.thumbnail,
+                read = true)
     }
 
-    fun of(item: FeedItem, text: String): Api.Message {
-        return Api.Message(
-                id = 0,
-                itemId = item.id,
-                mark = item.mark,
-                name = item.user,
-                senderId = 0,
-                message = text,
-                score = item.up - item.down,
-                creationTime = item.created,
-                thumbnail = item.thumbnail)
+    fun of(sender: Api.UserComments.UserInfo, comment: Api.UserComments.UserComment): Message {
+        return of(sender.id, sender.name, sender.mark, comment)
     }
 
-    fun of(senderId: Int, name: String, mark: Int, comment: Api.UserComments.UserComment): Api.Message {
-        return Api.Message(
+    fun of(sender: Api.Info.User, comment: Api.UserComments.UserComment): Message {
+        return of(sender.id, sender.name, sender.mark, comment)
+    }
+
+    private fun of(senderId: Int, name: String, mark: Int, comment: Api.UserComments.UserComment): Message {
+        return Message(
+                type = "comment",
                 id = comment.id,
                 itemId = comment.itemId,
                 mark = mark,
@@ -49,6 +39,48 @@ object MessageConverter {
                 message = comment.content,
                 score = comment.score,
                 creationTime = comment.created,
-                thumbnail = comment.thumb)
+                thumbnail = comment.thumb,
+                read = true)
     }
+}
+
+private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
+    if (this.type != type) {
+        return null
+    }
+
+    return Message(
+            type = type,
+            id = id,
+            read = read,
+            creationTime = creationTime,
+            thumbnail = thumbnail,
+            score = score ?: 0,
+            name = name ?: "",
+            mark = mark ?: 0,
+            senderId = senderId ?: 0,
+            itemId = itemId ?: 0,
+            message = message ?: ""
+    )
+}
+
+fun Api.Inbox.Item.toMessage(): Message? {
+    return toBaseMessage("message")
+}
+
+fun Api.Inbox.Item.toCommentMessage(): Message? {
+    return toBaseMessage("comment")
+}
+
+fun Api.Inbox.Item.toNotificationMessage(): Message? {
+    return toBaseMessage("notification")?.copy(name = "System", mark = 14)
+}
+
+fun Api.Inbox.Item.toFollowsMessage(): Message? {
+    val msg = toBaseMessage("follows") ?: return null
+    return msg.copy(message = "Neuer Hochlad von ${msg.name}")
+}
+
+fun Api.Inbox.Item.toGenericMessage(): Message? {
+    return toMessage() ?: toCommentMessage() ?: toNotificationMessage() ?: toFollowsMessage()
 }

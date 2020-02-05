@@ -501,6 +501,14 @@
     <string name="download_manually">Herunterladen</string>
     <string name="new_update_download">Anscheinend ist das Update fehlgeschlagen - du kannst das Update selbst herunterladen und installieren.</string>
     <string name="hint_select_download_directory">Bitte wähle ein Downloadverzeichnis auf dem Internen Speicher oder einer Speicherkarte.</string>
+    <string name="inbox_type_all">Alle</string>
+    <string name="inbox_type_stalk">Stelz-Abos</string>
+    <string name="inbox_type_notifications">Notifizierungen</string>
+    <string name="action_to_conversation">Zur Unterhaltung</string>
+    <string name="message_type_comment">Neuer Kommentar</string>
+    <string name="message_type_message">Private Nachricht</string>
+    <string name="message_type_stalk">Neuer Hochlad</string>
+    <string name="message_type_notification">Notifizierung</string>
 
 
 </resources>

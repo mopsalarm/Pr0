@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Instant
@@ -20,10 +21,10 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private val nameView: UsernameView
     private val statsView: TextView
-    private val answerView: View?
+    private val answerView: TextView?
 
     private var date: Instant = Instant.now()
-    private var pointsText: String? by observeChange(null) { buildStatsViewText(apply = true) }
+    private var pointsText: String? by observeChange(null) { buildInfoText(apply = true) }
 
     private var score: CommentScore? = null
 
@@ -41,7 +42,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
 
         statsView.setOnLongClickListener(this)
 
-        setOnAnswerClickedListener(null)
+        clearOnAnswerClickedListener()
         hidePointView()
     }
 
@@ -59,7 +60,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
         this.score = score
     }
 
-    private fun buildStatsViewText(apply: Boolean = false): String {
+    private fun buildInfoText(apply: Boolean = false): String {
         val sb = StringBuilder()
 
         if (pointsText != null) {
@@ -109,12 +110,17 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
         this.date = date
 
         ViewUpdater.replaceText(statsView, date) {
-            buildStatsViewText(apply = false)
+            buildInfoText(apply = false)
         }
     }
 
-    fun setOnAnswerClickedListener(onClickListener: View.OnClickListener?) {
-        answerView?.isVisible = onClickListener != null
+    fun clearOnAnswerClickedListener() {
+        answerView?.isVisible = false
+    }
+
+    fun setOnAnswerClickedListener(@StringRes text: Int, onClickListener: View.OnClickListener) {
+        answerView?.isVisible = true
+        answerView?.setText(text)
         answerView?.setOnClickListener(onClickListener)
     }
 

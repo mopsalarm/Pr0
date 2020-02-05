@@ -107,7 +107,7 @@ class AsyncSingletonProvider<T : Any>(
 private object NoValue
 
 class Module private constructor() {
-    val providers = mutableMapOf<Injector.Key, Provider<*>>()
+    val providers = hashMapOf<Injector.Key, Provider<*>>()
 
     inline fun <reified T : Any> bind(): Binder<T> {
         return Binder(T::class.java)

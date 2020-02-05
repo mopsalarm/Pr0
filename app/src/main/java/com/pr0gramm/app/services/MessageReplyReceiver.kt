@@ -6,7 +6,7 @@ import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
@@ -85,7 +85,7 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
     }
 
     companion object {
-        fun makeIntent(context: Context, notificationId: Int, message: Api.Message): Intent {
+        fun makeIntent(context: Context, notificationId: Int, message: Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)
             intent.putExtra("notificationId", notificationId)
 

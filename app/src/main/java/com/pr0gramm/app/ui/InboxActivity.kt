@@ -13,8 +13,8 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.fragments.CommentsInboxFragment
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
+import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
@@ -57,11 +57,38 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
         tabsAdapter = TabsStateAdapter(this)
 
-        InboxType.values().forEach { type ->
+        val types = InboxType.values().toMutableList()
+
+        if (!userService.userIsPremium) {
+            types -= InboxType.STALK
+        }
+
+
+        types.forEach { type ->
             when (type) {
-                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private) { ConversationsFragment() }
-                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in) { CommentsInboxFragment() }
-                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out) { WrittenCommentsFragment() }
+                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private) {
+                    ConversationsFragment()
+                }
+
+                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out) {
+                    WrittenCommentsFragment()
+                }
+
+                InboxType.ALL -> tabsAdapter.addTab(R.string.inbox_type_all) {
+                    GenericInboxFragment()
+                }
+
+                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in) {
+                    GenericInboxFragment(GenericInboxFragment.MessageTypeComments)
+                }
+
+                InboxType.STALK -> tabsAdapter.addTab(R.string.inbox_type_stalk) {
+                    GenericInboxFragment(GenericInboxFragment.MessageTypeStalk)
+                }
+
+                InboxType.NOTIFICATIONS -> tabsAdapter.addTab(R.string.inbox_type_notifications) {
+                    GenericInboxFragment(GenericInboxFragment.MessageTypeNotifications)
+                }
             }
         }
 

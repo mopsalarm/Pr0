@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="16dp"
             android:layout_marginLeft="8dp"
-            android:text="@string/action_answer"
+            tools:text="@string/action_answer"
             android:textColor="?colorAccent"
             app:firstBaselineToTopHeight="12dp" />
 

@@ -12,7 +12,7 @@ interface RecyclerViewPoolProvider {
 }
 
 class RecyclerViewPoolMap : RecyclerViewPoolProvider {
-    private val pools = mutableMapOf<String, RecyclerView.RecycledViewPool>()
+    private val pools = hashMapOf<String, RecyclerView.RecycledViewPool>()
 
     override fun recyclerViewPool(key: String) = pools.getOrPut(key) {
         RecyclerView.RecycledViewPool().apply {

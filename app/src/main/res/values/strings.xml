@@ -521,6 +521,14 @@
     <string name="download_manually">Download</string>
     <string name="new_update_download">It looks like the previous update failed. You can download the update file manually.</string>
     <string name="hint_select_download_directory">Please select a download directory from internal storage or sdcard.</string>
+    <string name="inbox_type_all">All</string>
+    <string name="inbox_type_stalk">Stalk</string>
+    <string name="inbox_type_notifications">Notifications</string>
+    <string name="action_to_conversation">Open conversation</string>
+    <string name="message_type_comment">Comment</string>
+    <string name="message_type_message">Private message</string>
+    <string name="message_type_stalk">Stelz Upload</string>
+    <string name="message_type_notification">Notification</string>
 
 </resources>
 

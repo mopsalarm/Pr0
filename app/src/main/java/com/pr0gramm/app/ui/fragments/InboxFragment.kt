@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
@@ -35,7 +35,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     private var loadStartedTimestamp = Instant(0)
 
     private lateinit var adapter: MessageAdapter
-    private lateinit var pagination: Pagination<Api.Message>
+    private lateinit var pagination: Pagination<Message>
 
     private var state by observeChange(State()) { updateAdapterValues() }
 
@@ -92,9 +92,9 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         pagination.initialize()
     }
 
-    abstract fun getContentAdapter(): Pair<MessageAdapter, Pagination<Api.Message>>
+    abstract fun getContentAdapter(): Pair<MessageAdapter, Pagination<Message>>
 
-    private fun handleStateUpdate(state: Pagination.State<Api.Message>, newValues: List<Api.Message>) {
+    private fun handleStateUpdate(state: Pagination.State<Message>, newValues: List<Message>) {
         this.state = this.state.copy(
                 messages = this.state.messages + newValues,
                 tailState = state.tailState)
@@ -108,7 +108,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
 
         // add the divider above the first read message, but only
         // if we have at least one unread message
-        val dividerIndex = values.indexOfFirst { it is Api.Message && it.read }
+        val dividerIndex = values.indexOfFirst { it is Message && it.read }
         if (dividerIndex > 0) {
             val divider = DividerAdapterDelegate.Value(context.getString(R.string.inbox_type_unread))
             values.add(dividerIndex, divider)
@@ -121,11 +121,11 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     }
 
     protected val actionListener: MessageActionListener = object : MessageActionListener {
-        override fun onAnswerToPrivateMessage(message: Api.Message) {
-            startActivity(WriteMessageActivity.intent(context ?: return, message))
+        override fun onAnswerToPrivateMessage(message: Message) {
+            ConversationActivity.start(context ?: return, message.name, skipInbox = true)
         }
 
-        override fun onAnswerToCommentClicked(comment: Api.Message) {
+        override fun onAnswerToCommentClicked(comment: Message) {
             startActivity(WriteMessageActivity.answerToComment(context ?: return, comment))
         }
 
@@ -133,7 +133,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
             startActivity(WriteMessageActivity.intent(context ?: return, userId, name))
         }
 
-        override fun onCommentClicked(comment: Api.Message) {
+        override fun onCommentClicked(comment: Message) {
             val uri = UriHelper.of(context ?: return).post(FeedType.NEW, comment.itemId, comment.id)
             open(uri, comment.creationTime)
         }
@@ -150,6 +150,6 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     }
 
     data class State(
-            val messages: List<Api.Message> = listOf(),
-            val tailState: Pagination.EndState<Api.Message> = Pagination.EndState(hasMore = true))
+            val messages: List<Message> = listOf(),
+            val tailState: Pagination.EndState<Message> = Pagination.EndState(hasMore = true))
 }

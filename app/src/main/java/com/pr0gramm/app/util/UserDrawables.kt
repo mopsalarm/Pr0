@@ -6,7 +6,7 @@ import android.graphics.Canvas
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 
 /**
  * Creates drawables for users based on their name and id.
@@ -18,7 +18,7 @@ class UserDrawables(context: Context) {
             .bold()
             .endConfig()
 
-    fun drawable(message: Api.Message): TextDrawable {
+    fun drawable(message: Message): TextDrawable {
         return drawable(message.senderId, message.name)
     }
 
@@ -31,7 +31,7 @@ class UserDrawables(context: Context) {
         return shapes.buildRound(iconText(name), color)
     }
 
-    fun makeSenderBitmap(message: Api.Message, width: Int, height: Int): Bitmap {
+    fun makeSenderBitmap(message: Message, width: Int, height: Int): Bitmap {
         val drawable = drawable(message)
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -44,9 +44,9 @@ class UserDrawables(context: Context) {
 
     private fun iconText(name: String): String {
         return if (name.length == 1) {
-            name.substring(0, 1).toUpperCase()
+            name.take(1).toUpperCase()
         } else {
-            name.substring(0, 1).toUpperCase() + name.substring(1, 2).toLowerCase()
+            name.take(1).toUpperCase() + name.drop(1).take(1).toLowerCase()
         }
     }
 }

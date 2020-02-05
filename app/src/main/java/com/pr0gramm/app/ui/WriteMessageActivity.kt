@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.*
@@ -226,7 +227,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         val extras = intent?.extras ?: return
 
-        val message = extras.getFreezable(ARGUMENT_MESSAGE, MessageParceler)?.message
+        val message = extras.getFreezable(ARGUMENT_MESSAGE, MessageSerializer)?.message
         if (message != null) {
             messageView.update(message, userService.name)
             messageView.isVisible = true
@@ -244,9 +245,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
 
-        fun intent(context: Context, message: Api.Message): Intent {
+        fun intent(context: Context, message: Message): Intent {
             val intent = intent(context, message.senderId.toLong(), message.name)
-            intent.putExtra(ARGUMENT_MESSAGE, MessageParceler(message))
+            intent.putExtra(ARGUMENT_MESSAGE, MessageSerializer(message))
             return intent
         }
 
@@ -257,14 +258,6 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             return intent
         }
 
-        fun addNewComment(context: Context, item: FeedItem, text: String): Intent {
-            return intent(context, MessageConverter.of(item, text = text)).apply {
-                putExtra(ARGUMENT_ITEM_ID, item.id)
-                putExtra(ARGUMENT_COMMENT_ID, 0L)
-                putExtra(ARGUMENT_TITLE, context.getString(R.string.write_comment, item.user))
-            }
-        }
-
         fun answerToComment(
                 context: Context, feedItem: FeedItem, comment: Api.Comment,
                 parentComments: List<ParentComment>): Intent {
@@ -273,7 +266,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
 
         fun answerToComment(
-                context: Context, message: Api.Message,
+                context: Context, message: Message,
                 parentComments: List<ParentComment> = listOf()): Intent {
 
             val itemId = message.itemId

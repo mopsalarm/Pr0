@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
@@ -112,7 +112,7 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         data class Ad(val index: Long)
             : Entry(idInCategory(8, index))
 
-        data class Comment(val message: Api.Message, val currentUsername: String?)
+        data class Comment(val message: Message, val currentUsername: String?)
             : Entry(idInCategory(9, message.id))
     }
 

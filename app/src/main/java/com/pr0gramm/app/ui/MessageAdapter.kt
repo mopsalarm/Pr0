@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.ui.fragments.DividerAdapterDelegate
 import com.pr0gramm.app.util.inflate
+import java.util.*
 
 /**
  */
@@ -34,7 +35,7 @@ class MessageAdapter(
 
     class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-            if (oldItem is Api.Message && newItem is Api.Message) {
+            if (oldItem is Message && newItem is Message) {
                 return oldItem.id == newItem.id
             }
 
@@ -42,17 +43,17 @@ class MessageAdapter(
         }
 
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-            return oldItem == newItem
+            return Objects.equals(oldItem, newItem)
         }
     }
 
-    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Api.Message, MessageAdapter.MessageViewHolder>() {
+    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Message, MessageAdapter.MessageViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup): MessageAdapter.MessageViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
             return MessageViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: MessageViewHolder, value: Api.Message) {
+        override fun onBindViewHolder(holder: MessageViewHolder, value: Message) {
             holder.bindTo(value, actionListener, currentUsername)
         }
     }
@@ -60,7 +61,7 @@ class MessageAdapter(
     object EmptyValue
 
     open class MessageViewHolder(private val view: MessageView) : RecyclerView.ViewHolder(view) {
-        open fun bindTo(message: Api.Message, actionListener: MessageActionListener?, currentUsername: String? = null) {
+        open fun bindTo(message: Message, actionListener: MessageActionListener?, currentUsername: String? = null) {
             view.update(message, currentUsername)
 
             if (actionListener != null) {
@@ -68,22 +69,37 @@ class MessageAdapter(
                     actionListener.onUserClicked(message.senderId, message.name)
                 }
 
-                val isComment = message.itemId != 0L
-                if (isComment) {
-                    view.setAnswerClickedListener {
-                        actionListener.onAnswerToCommentClicked(message)
+                when (message.type) {
+                    "comment" -> {
+                        view.setAnswerClickedListener(R.string.action_answer) {
+                            actionListener.onAnswerToCommentClicked(message)
+                        }
+
+                        view.setOnClickListener {
+                            actionListener.onCommentClicked(message)
+                        }
                     }
 
-                    view.setOnClickListener {
-                        actionListener.onCommentClicked(message)
+                    "message" -> {
+                        view.setAnswerClickedListener(R.string.action_to_conversation) {
+                            actionListener.onAnswerToPrivateMessage(message)
+                        }
+
+                        view.setOnClickListener(null)
                     }
 
-                } else {
-                    view.setAnswerClickedListener {
-                        actionListener.onAnswerToPrivateMessage(message)
+                    "follows" -> {
+                        view.clearAnswerClickedListener()
+
+                        view.setOnClickListener {
+                            actionListener.onCommentClicked(message)
+                        }
                     }
 
-                    view.setOnClickListener(null)
+                    else -> {
+                        view.clearAnswerClickedListener()
+                        view.setOnClickListener(null)
+                    }
                 }
             }
         }

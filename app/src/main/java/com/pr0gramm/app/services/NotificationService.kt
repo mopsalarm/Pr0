@@ -18,7 +18,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.parcel.Freezer
 import com.pr0gramm.app.ui.InboxActivity
@@ -143,10 +143,10 @@ class NotificationService(private val context: Application,
         showInboxNotification(inboxService.pending())
     }
 
-    private val Api.Message.isUnread: Boolean get() = inboxService.messageIsUnread(this)
+    private val Message.isUnread: Boolean get() = inboxService.messageIsUnread(this)
 
     @Suppress("UsePropertyAccessSyntax")
-    private fun showInboxNotification(messages: List<Api.Message>) {
+    private fun showInboxNotification(messages: List<Message>) {
         if (!messages.any { it.isUnread }) {
             logger.debug { "No unread messages, cancel all existing notifications." }
             cancelForAllUnread()
@@ -217,7 +217,7 @@ class NotificationService(private val context: Application,
     /**
      * This builds the little "reply" action under a notification.
      */
-    private fun buildReplyAction(notificationId: Int, message: Api.Message): NotificationCompat.Action {
+    private fun buildReplyAction(notificationId: Int, message: Message): NotificationCompat.Action {
         // build the intent to fire on reply
         val pendingIntent = PendingIntent.getBroadcast(context, 0,
                 MessageReplyReceiver.makeIntent(context, notificationId, message),
@@ -239,7 +239,7 @@ class NotificationService(private val context: Application,
     /**
      * Gets an optional "big" thumbnail for the given set of messages.
      */
-    private fun messageThumbnail(messages: List<Api.Message>): Bitmap? {
+    private fun messageThumbnail(messages: List<Message>): Bitmap? {
         val message = messages.first()
 
         if (message.isComment) {
@@ -263,7 +263,7 @@ class NotificationService(private val context: Application,
         return null
     }
 
-    private fun loadItemThumbnail(message: Api.Message): Bitmap? {
+    private fun loadItemThumbnail(message: Message): Bitmap? {
         val uri = uriHelper.thumbnail(message.asThumbnail())
         return try {
             picasso.load(uri).get()
@@ -289,7 +289,7 @@ class NotificationService(private val context: Application,
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
-    private fun markAsReadIntent(message: Api.Message): PendingIntent {
+    private fun markAsReadIntent(message: Message): PendingIntent {
         val intent = InboxNotificationCanceledReceiver.makeIntent(context, message)
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
@@ -357,7 +357,7 @@ class NotificationService(private val context: Application,
     }
 
 
-    private inner class MessageNotificationConfig(private val messages: List<Api.Message>) {
+    private inner class MessageNotificationConfig(private val messages: List<Message>) {
         private val message = messages.filter { it.isUnread }.maxBy { it.creationTime }
                 ?: throw IllegalArgumentException("Must contain at least one unread message.")
 
