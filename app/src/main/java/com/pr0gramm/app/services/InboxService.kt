@@ -49,7 +49,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets unread messages
      */
     suspend fun pending(): List<Message> {
-        return convertInbox(api.inboxPending()) {
+        return convertInbox(api.inboxPending(), markAsRead = false) {
             it.toMessage()
         }
     }
@@ -84,11 +84,13 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         }
     }
 
-    private fun convertInbox(inbox: Api.Inbox, convert: (Api.Inbox.Item) -> Message?): List<Message> {
+    private fun convertInbox(inbox: Api.Inbox, markAsRead: Boolean = true, convert: (Api.Inbox.Item) -> Message?): List<Message> {
         val converted = inbox.messages.mapNotNull(convert)
 
-        // mark the most recent item/message as read.
-        converted.maxBy { it.creationTime }?.let { markAsRead(it) }
+        if (markAsRead) {
+            // mark the most recent item/message as read.
+            converted.maxBy { it.creationTime }?.let { markAsRead(it) }
+        }
 
         return converted
     }
