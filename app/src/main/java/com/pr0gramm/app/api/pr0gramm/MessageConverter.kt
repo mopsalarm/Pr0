@@ -64,7 +64,7 @@ private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
     )
 }
 
-fun Api.Inbox.Item.toMessage(): Message? {
+fun Api.Inbox.Item.toPrivateMessage(): Message? {
     return toBaseMessage("message")
 }
 
@@ -81,6 +81,6 @@ fun Api.Inbox.Item.toFollowsMessage(): Message? {
     return msg.copy(message = "Neuer Hochlad von ${msg.name}")
 }
 
-fun Api.Inbox.Item.toGenericMessage(): Message? {
-    return toMessage() ?: toCommentMessage() ?: toNotificationMessage() ?: toFollowsMessage()
+fun Api.Inbox.Item.toMessage(): Message? {
+    return toPrivateMessage() ?: toCommentMessage() ?: toNotificationMessage() ?: toFollowsMessage()
 }

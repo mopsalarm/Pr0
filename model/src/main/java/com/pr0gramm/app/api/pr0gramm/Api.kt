@@ -518,9 +518,11 @@ interface Api {
     class InboxCounts(
             val comments: Int = 0,
             val mentions: Int = 0,
+            val notifications: Int = 0,
+            val follows: Int = 0,
             val messages: Int = 0) {
 
-        val total: Int get() = comments + mentions + messages
+        val total: Int get() = comments + mentions + messages + notifications + follows
     }
 
     @JsonClass(generateAdapter = true)

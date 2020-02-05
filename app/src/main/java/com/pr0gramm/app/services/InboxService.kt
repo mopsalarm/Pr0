@@ -50,7 +50,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      */
     suspend fun pending(): List<Message> {
         return convertInbox(api.inboxPending()) {
-            it.toGenericMessage()
+            it.toMessage()
         }
     }
 
@@ -59,7 +59,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      */
     suspend fun fetchAll(olderThan: Instant?): List<Message> {
         return convertInbox(api.inboxAll(olderThan?.epochSeconds)) {
-            it.toGenericMessage()
+            it.toMessage()
         }
     }
 
@@ -181,4 +181,4 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 }
 
-val Message.unreadId: String get() = if (isComment) "item:$itemId" else name
+val Message.unreadId: String get() = if (isComment) "item:$itemId" else "${type}:${name}"
