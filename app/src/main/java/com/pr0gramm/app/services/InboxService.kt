@@ -3,10 +3,7 @@ package com.pr0gramm.app.services
 import android.content.SharedPreferences
 import androidx.collection.LruCache
 import androidx.core.content.edit
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.*
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.model.inbox.UnreadMarkerTimestamp
@@ -124,6 +121,10 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     private fun messageIsUnread(notifyId: String, timestamp: Instant): Boolean {
+        if (debugConfig.ignoreUnreadState) {
+            return true
+        }
+
         val upToTimestamp = readUpToCache.get(notifyId) ?: return true
         return timestamp.isAfter(upToTimestamp)
     }

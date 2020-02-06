@@ -10,7 +10,10 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.app.*
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
+import androidx.core.app.TaskStackBuilder
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
@@ -20,7 +23,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
+import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.parcel.Freezer
+import com.pr0gramm.app.ui.BlurTransformation
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
@@ -154,27 +159,25 @@ class NotificationService(private val context: Application,
         }
 
         val messageGroups = messages
-                .groupBy { if (it.isComment) it.itemId.toInt() else it.senderId }
+                .filter { it.isUnread }
+                .groupBy { it.groupId }
                 .values
 
-        val messageGroupsWithUnread = messageGroups
-                .filter { messageGroup -> messageGroup.any { it.isUnread } }
-
         // convert to notifications
-        val notificationConfigs = messageGroupsWithUnread.map { MessageNotificationConfig(it) }
+        val notificationConfigs = messageGroups.map { MessageNotificationConfig(it) }
 
         // cache notification ids by sender name
         messages.forEach { message ->
             if (!message.isComment) {
-                notificationIdCache.put("senderId:${message.name}", message.senderId)
+                notificationIdCache.put("sender:${message.name}", message.senderId)
             }
         }
 
         notificationConfigs.forEach { notifyConfig ->
             notify(notifyConfig.type, notifyConfig.id) {
-                setContentTitle(notifyConfig.title)
-                setContentIntent(notifyConfig.contentIntent)
                 setContentText(notifyConfig.contentText)
+                // setContentTitle(notifyConfig.title)
+                setContentIntent(notifyConfig.contentIntent)
 
                 setColor(context.getColorCompat(ThemeHelper.accentColor))
 
@@ -189,7 +192,6 @@ class NotificationService(private val context: Application,
                 setCategory(NotificationCompat.CATEGORY_EMAIL)
 
                 setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-                setContentInfo("XXX")
 
                 setStyle(notifyConfig.style)
 
@@ -242,10 +244,8 @@ class NotificationService(private val context: Application,
     private fun messageThumbnail(messages: List<Message>): Bitmap? {
         val message = messages.first()
 
-        if (message.isComment) {
-            if (message.thumbnail?.isNotBlank() == true) {
-                return loadItemThumbnail(message)
-            }
+        if (message.thumbnail?.isNotBlank() == true) {
+            return loadItemThumbnail(message)
 
         } else {
             val allSameSender = messages.all { message.senderId == it.senderId }
@@ -264,9 +264,18 @@ class NotificationService(private val context: Application,
     }
 
     private fun loadItemThumbnail(message: Message): Bitmap? {
+        val blurImage = ContentType.firstOf(message.flags) !in Settings.get().contentType
         val uri = uriHelper.thumbnail(message.asThumbnail())
+
         return try {
-            picasso.load(uri).get()
+            return picasso.load(uri).run {
+                if (blurImage) {
+                    transform(BlurTransformation(12))
+                }
+
+                get()
+            }
+
         } catch (ignored: IOException) {
             logger.warn { "Could not load thumbnail at url: $uri" }
             null
@@ -313,7 +322,7 @@ class NotificationService(private val context: Application,
     }
 
     fun cancelForUnreadConversation(conversationName: String) {
-        val senderId = notificationIdCache.get("senderId:$conversationName") ?: return
+        val senderId = notificationIdCache.get("sender:$conversationName") ?: return
         nm.cancel(Types.NewMessage.channel, senderId)
     }
 
@@ -412,36 +421,21 @@ class NotificationService(private val context: Application,
         }
 
         val style: NotificationCompat.Style = run {
-            val me = Person.Builder()
-                    .setName("Me")
-                    .build()
-
-            NotificationCompat.MessagingStyle(me).also { style ->
+            NotificationCompat.InboxStyle().also { style ->
                 messages.sortedBy { it.creationTime }.takeLast(5).forEach { message ->
-                    val line = if (isComment) {
+                    val line = if (message.isComment) {
                         buildSpannedString {
-                            append(message.message)
+                            bold { append(message.name).append(": ") }
+                            append(message.message.take(100))
                         }
                     } else {
                         message.message
                     }
 
-                    val styleMessage = NotificationCompat.MessagingStyle.Message(
-                            line, message.creationTime.millis,
-                            Person.Builder().setName(message.name).build())
-
-                    style.addMessage(styleMessage)
+                    style.addLine(line)
                 }
 
-                if (isComment) {
-                    style.isGroupConversation = true
-
-                    style.conversationTitle = if (messages.size == 1) {
-                        context.getString(R.string.notify_new_comment_title)
-                    } else {
-                        context.getString(R.string.notify_new_comments_title, messages.size)
-                    }
-                }
+                style.setSummaryText(title)
             }
         }
     }
@@ -461,3 +455,12 @@ class NotificationService(private val context: Application,
 
     private data class NotificationId(val tag: String, val id: Int)
 }
+
+private val Message.groupId: String
+    get() {
+        return when (type) {
+            "comment" -> "comment:$itemId"
+            "follows", "message" -> "message:$name"
+            else -> "$type:$id"
+        }
+    }
