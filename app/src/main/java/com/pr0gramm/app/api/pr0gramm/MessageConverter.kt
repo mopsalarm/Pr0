@@ -13,11 +13,12 @@ object MessageConverter {
                 mark = comment.mark,
                 name = comment.name,
                 senderId = 0,
-                message = comment.content,
+                message = comment.content.trim(),
                 score = comment.score,
                 creationTime = comment.created,
                 thumbnail = item.thumbnail,
-                read = true)
+                read = true,
+                flags = 0)
     }
 
     fun of(sender: Api.UserComments.UserInfo, comment: Api.UserComments.UserComment): Message {
@@ -36,11 +37,12 @@ object MessageConverter {
                 mark = mark,
                 name = name,
                 senderId = senderId,
-                message = comment.content,
+                message = comment.content.trim(),
                 score = comment.score,
                 creationTime = comment.created,
                 thumbnail = comment.thumb,
-                read = true)
+                read = true,
+                flags = 0)
     }
 }
 
@@ -60,7 +62,8 @@ private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
             mark = mark ?: 0,
             senderId = senderId ?: 0,
             itemId = itemId ?: 0,
-            message = message ?: ""
+            message = message?.trim() ?: "",
+            flags = flags ?: 0
     )
 }
 

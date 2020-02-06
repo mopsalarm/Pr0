@@ -11,7 +11,9 @@ import androidx.annotation.StringRes
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.util.*
@@ -77,8 +79,15 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         // draw the image for this post
         val thumbnail = message.thumbnail
         if (thumbnail != null) {
+            val contentTypes = Settings.get().contentType
+            val blurImage = ContentType.firstOf(message.flags) !in contentTypes
+
             val url = "https://thumb.pr0gramm.com/$thumbnail"
             picasso?.load(url)?.let { req ->
+                if (blurImage) {
+                    req.transform(BlurTransformation(12))
+                }
+
                 req.placeholder(R.color.grey_800)
                 req.into(image)
             }

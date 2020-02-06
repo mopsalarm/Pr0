@@ -35,14 +35,15 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
                     id = comment.id,
                     itemId = comment.itemId,
                     name = comment.name,
-                    message = comment.content,
+                    message = comment.content.trim(),
                     score = comment.up - comment.down,
                     thumbnail = thumbnail,
                     creationTime = comment.created,
                     mark = comment.mark,
                     senderId = 0,
                     type = "comment",
-                    read = true)
+                    read = true,
+                    flags = 0)
         }
     }
 }

@@ -10,6 +10,7 @@ private val actualDebugConfig = DebugConfig(
 var debugConfig = if (BuildConfig.DEBUG) actualDebugConfig else DebugConfig()
 
 data class DebugConfig(
+        val delayApiRequests: Boolean = false,
         val mockApiUrl: String? = null,
         val versionOverride: Int? = null) {
 

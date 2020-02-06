@@ -17,6 +17,7 @@ class MessageSerializer(val message: Message) : Freezable {
         writeInt(message.senderId)
         write(message.creationTime)
         writeString(message.thumbnail ?: "")
+        writeByte(message.flags)
     }
 
     companion object : Unfreezable<MessageSerializer> {
@@ -35,7 +36,8 @@ class MessageSerializer(val message: Message) : Freezable {
                     score = readInt(),
                     senderId = readInt(),
                     creationTime = read(Instant),
-                    thumbnail = readString().takeIf { it.isNotEmpty() }))
+                    thumbnail = readString().takeIf { it.isNotEmpty() },
+                    flags = readByte().toInt()))
         }
     }
 }

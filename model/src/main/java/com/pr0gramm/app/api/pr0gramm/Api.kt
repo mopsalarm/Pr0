@@ -447,6 +447,7 @@ interface Api {
                 val score: Int? = null,
                 val itemId: Long? = null,
                 val message: String? = null,
+                val flags: Int? = null,
                 @Json(name = "thumb") val thumbnail: String? = null)
     }
 

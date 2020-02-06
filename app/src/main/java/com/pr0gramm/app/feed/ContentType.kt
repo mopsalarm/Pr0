@@ -45,6 +45,13 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
         }
 
         /**
+         * Returns the first [ContentType] that is part of the given flags.
+         */
+        fun firstOf(flags: Int): ContentType {
+            return All.firstOrNull { it.flag and flags != 0 } ?: SFW
+        }
+
+        /**
          * Returns the [com.pr0gramm.app.feed.ContentType] that matches the given
          * flag's value. There must be only one bit set on the flags parameter.
          * This returns an empty optional, if no content type could be found.

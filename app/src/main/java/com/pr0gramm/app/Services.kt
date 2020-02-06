@@ -301,21 +301,16 @@ object DebugInterceptor : Interceptor {
 
         val request = chain.request()
 
-        val watch = Stopwatch()
-        try {
+        if (debugConfig.delayApiRequests) {
+            logger.debug { "Delaying request to ${request.url}" }
             if ("pr0gramm.com" in request.url.toString()) {
                 TimeUnit.MILLISECONDS.sleep(750)
             } else {
                 TimeUnit.MILLISECONDS.sleep(500)
             }
-
-            val response = chain.proceed(request)
-            logger.debug { "Delayed request to ${request.url} took $watch (status=${response.code})" }
-            return response
-        } catch (err: Throwable) {
-            logger.debug { "Delayed request to ${request.url} took $watch, error $err" }
-            throw err
         }
+
+        return chain.proceed(request)
     }
 }
 
