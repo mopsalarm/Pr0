@@ -6,11 +6,11 @@ import com.pr0gramm.app.api.pr0gramm.MessageType
  * Type of inbox
  */
 enum class InboxType {
+    PRIVATE,
     ALL,
     COMMENTS_IN,
     NOTIFICATIONS,
     STALK,
-    PRIVATE,
     COMMENTS_OUT;
 
     companion object {

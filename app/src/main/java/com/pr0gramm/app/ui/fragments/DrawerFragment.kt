@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.services.*
@@ -310,7 +309,7 @@ private class NavigationDelegateAdapter(
             }
 
             NavigationProvider.ActionType.MESSAGES -> {
-                showInboxActivity(item.unreadCount)
+                showInboxActivity()
                 callback.onOtherNavigationItemClicked()
             }
 
@@ -365,8 +364,8 @@ private class NavigationDelegateAdapter(
         BrowserHelper.openCustomTab(activity, uri)
     }
 
-    private fun showInboxActivity(unreadCounts: Api.InboxCounts) {
-        showInboxActivity(InboxType.ALL)
+    private fun showInboxActivity() {
+        showInboxActivity(InboxType.PRIVATE)
     }
 
     private fun showInboxActivity(inboxType: InboxType) {
