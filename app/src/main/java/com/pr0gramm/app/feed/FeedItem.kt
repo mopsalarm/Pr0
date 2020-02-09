@@ -55,7 +55,7 @@ class FeedItem : Freezable {
         get() = ContentType.valueOf(flags) ?: ContentType.SFW
 
     val isVideo: Boolean
-        get() = image.endsWith(".webm") || image.endsWith(".mp4")
+        get() = isVideoUri(image)
 
     val isPinned: Boolean
         get() = promotedId > 1_000_000_000
@@ -129,4 +129,8 @@ class FeedItem : Freezable {
 
         override fun unfreeze(source: Freezable.Source): FeedItem = FeedItem(source)
     }
+}
+
+fun isVideoUri(image: String): Boolean {
+    return image.endsWith(".webm") || image.endsWith(".mp4")
 }

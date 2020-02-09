@@ -188,7 +188,7 @@ class NavigationProvider(
             items += makeItem(
                     title = getString(R.string.action_feed_type_premium),
                     icon = iconFeedTypePremium,
-                    filter = FeedFilter().withFeedType(FeedType.PREMIUM))
+                    filter = FeedFilter().withFeedType(FeedType.STALK))
         }
 
         if (username != null) {
@@ -216,7 +216,7 @@ class NavigationProvider(
 
     private fun bookmarksToNavItem(currentSelection: FeedFilter?, bookmarks: List<Bookmark>): List<NavigationItem> {
         val items = bookmarks
-                .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.PREMIUM }
+                .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.STALK }
                 .mapTo(mutableListOf()) { entry ->
                     val icon = when {
                         entry.trending -> iconBookmarkTrending.constantState!!.newDrawable()

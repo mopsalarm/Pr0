@@ -282,7 +282,7 @@ fun View.launchWhenStarted(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    debug {
+    debugOnly {
         if (!isAttachedToWindow) {
             Logger(javaClass.directName).warnWithStack(1) {
                 "View is not currently attached but launchWhenStarted is called"
@@ -316,7 +316,7 @@ fun decorate(context: Context, ignoreErrors: Boolean, busyIndicator: Boolean,
 }
 
 private fun Any.debugVerifyLifecycle(lifecycleOwner: LifecycleOwner, expectedState: Lifecycle.State) {
-    debug {
+    debugOnly {
         val currentState = lifecycleOwner.lifecycle.currentState
         if (!currentState.isAtLeast(expectedState)) {
             Logger(javaClass.directName).warnWithStack(2) {

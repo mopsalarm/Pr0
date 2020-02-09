@@ -14,6 +14,7 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
@@ -278,6 +279,13 @@ class UserService(private val api: Api,
             if (response.logLength > lastLogOffset) {
                 preferences.edit {
                     putLong(syncOffsetKey(), response.logLength)
+                }
+            }
+
+            debugOnly {
+                debugConfig.pendingNotifications?.let { pending ->
+                    val counts = Api.InboxCounts(comments = pending.messages.size)
+                    return Api.Sync(response.logLength, response.log, response.score, counts)
                 }
             }
 

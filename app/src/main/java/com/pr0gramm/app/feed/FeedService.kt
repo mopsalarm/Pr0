@@ -35,7 +35,7 @@ class FeedServiceImpl(private val api: Api) : FeedService {
 
         // filter by feed-type
         val promoted = if (feedFilter.feedType === FeedType.PROMOTED) 1 else null
-        val following = if (feedFilter.feedType === FeedType.PREMIUM) 1 else null
+        val following = if (feedFilter.feedType === FeedType.STALK) 1 else null
 
         val flags = ContentType.combine(query.contentTypes)
         val user = feedFilter.username

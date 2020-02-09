@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.ui.fragments.DividerAdapterDelegate
 import com.pr0gramm.app.util.inflate
 import java.util.*
@@ -70,7 +71,7 @@ class MessageAdapter(
                 }
 
                 when (message.type) {
-                    "comment" -> {
+                    MessageType.COMMENT -> {
                         view.setAnswerClickedListener(R.string.action_answer) {
                             actionListener.onAnswerToCommentClicked(message)
                         }
@@ -80,7 +81,7 @@ class MessageAdapter(
                         }
                     }
 
-                    "message" -> {
+                    MessageType.MESSAGE -> {
                         view.setAnswerClickedListener(R.string.action_to_conversation) {
                             actionListener.onAnswerToPrivateMessage(message)
                         }
@@ -88,7 +89,7 @@ class MessageAdapter(
                         view.setOnClickListener(null)
                     }
 
-                    "follows" -> {
+                    MessageType.STALK -> {
                         view.clearAnswerClickedListener()
 
                         view.setOnClickListener {

@@ -529,6 +529,12 @@
     <string name="message_type_message">Private message</string>
     <string name="message_type_stalk">Stelz Upload</string>
     <string name="message_type_notification">Notification</string>
+    <string name="notification_channel_new_stalk">New post of a stelz user</string>
+    <string name="notification_channel_new_notification">New system notification</string>
+    <string name="notify_new_stalk_post">New post by %s</string>
+    <string name="notify_new_system_notification">New system notification</string>
+    <string name="notify_hint_tap_to_open_post">Tap to view this upload</string>
+    <string name="notify_to_inbox">Open inbox</string>
 
 </resources>
 

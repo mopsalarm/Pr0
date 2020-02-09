@@ -109,7 +109,7 @@ class ParcelStore(private val db: ParcelableStoreQueries) {
 
     private val memoryCache = object : LinkedHashMap<String, ParcelableWithExpireTime>() {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ParcelableWithExpireTime>?): Boolean {
-            debug {
+            debugOnly {
                 return size > 2
             }
 

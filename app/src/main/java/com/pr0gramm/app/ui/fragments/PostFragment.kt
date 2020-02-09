@@ -127,7 +127,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             activity?.invalidateOptionsMenu()
         }
 
-        debug {
+        debugOnly {
             lifecycle().subscribe { event ->
                 this@PostFragment.trace { "${feedItem.id}: $event" }
             }

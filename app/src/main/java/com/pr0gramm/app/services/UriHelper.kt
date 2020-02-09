@@ -43,6 +43,14 @@ class UriHelper private constructor(context: Context) {
         return NoPreload.media(item, highQuality = false)
     }
 
+    fun image(id: Long, image: String): Uri {
+        val preloaded = preloadManager[id]
+        if (preloaded != null)
+            return preloaded.media.toUri()
+
+        return NoPreload.image(image)
+    }
+
     fun base(): Uri {
         return start().build()
     }
@@ -102,6 +110,10 @@ class UriHelper private constructor(context: Context) {
                 absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.image)
         }
 
+        fun image(image: String): Uri {
+            return absoluteJoin(start("img"), image)
+        }
+
         fun thumbnail(item: Thumbnail, full: Boolean = false): Uri {
             var path = item.thumbnail ?: ""
             if (full) {
@@ -139,7 +151,7 @@ class UriHelper private constructor(context: Context) {
         private val FEED_TYPES = mapOf(
                 FeedType.NEW to "new",
                 FeedType.PROMOTED to "top",
-                FeedType.PREMIUM to "stalk")
+                FeedType.STALK to "stalk")
 
     }
 }

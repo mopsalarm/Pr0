@@ -125,6 +125,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun setSenderName(name: String, mark: Int, op: Boolean = false) {
+        nameView.isVisible = name.isNotBlank()
         nameView.setUsername(name, mark, op)
     }
 

@@ -326,7 +326,7 @@ fun <T> weakref(value: T?): ReadWriteProperty<Any?, T?> = object : ReadWriteProp
     }
 }
 
-inline fun debug(block: () -> Unit) {
+inline fun debugOnly(block: () -> Unit) {
     if (BuildConfig.DEBUG) {
         block()
     }

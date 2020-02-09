@@ -1,6 +1,6 @@
 package com.pr0gramm.app
 
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
 import com.timgroup.statsd.NoOpStatsDClient
 import com.timgroup.statsd.NonBlockingStatsDClient
@@ -18,7 +18,7 @@ object Stats {
     operator fun invoke(): StatsDClient = CLIENT ?: EMPTY_CLIENT
 
     fun init(version: Int) {
-        debug {
+        debugOnly {
             CLIENT = LoggingStatsDClient()
             return
         }

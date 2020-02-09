@@ -11,8 +11,8 @@ enum class FeedType(val searchable: Boolean = true,
                     val sortable: Boolean = true) {
     NEW,
     PROMOTED,
-    PREMIUM,
+    STALK,
     CONTROVERSIAL(sortable = false),
     RANDOM(preloadable = false, sortable = false),
-    BESTOF(),
+    BESTOF,
 }

@@ -46,7 +46,9 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Gets unread messages
      */
     suspend fun pending(): List<Message> {
-        return convertInbox(api.inboxPending(), markAsRead = false) {
+        val pending = debugConfig.pendingNotifications ?: api.inboxPending()
+
+        return convertInbox(pending, markAsRead = false) {
             it.toMessage()
         }
     }
@@ -77,7 +79,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
     suspend fun fetchFollows(olderThan: Instant? = null): List<Message> {
         return convertInbox(api.inboxFollows(olderThan?.epochSeconds)) {
-            it.toFollowsMessage()
+            it.toStalkMessage()
         }
     }
 

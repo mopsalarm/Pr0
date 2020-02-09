@@ -3,7 +3,7 @@ package com.pr0gramm.app.sync
 import android.content.Context
 import androidx.work.*
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.setConstraintsCompat
@@ -36,7 +36,7 @@ class SyncStatsWorker(context: Context, params: WorkerParameters) : CoroutineWor
                     "SyncStats", ExistingPeriodicWorkPolicy.KEEP,
                     builder.setConstraintsCompat(constraints).build())
 
-            debug {
+            debugOnly {
                 doInBackground {
                     val syncService = ctx.injector.instance<SyncService>()
                     syncService.dailySync()

@@ -30,7 +30,7 @@ object FilterParser {
                 filter = filter.withFeedType(FeedType.PROMOTED)
 
             if ("stalk" == values["type"])
-                filter = filter.withFeedType(FeedType.PREMIUM)
+                filter = filter.withFeedType(FeedType.STALK)
 
             // filter by user
             val user = values["user"]

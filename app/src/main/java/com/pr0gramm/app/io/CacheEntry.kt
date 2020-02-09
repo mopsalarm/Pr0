@@ -381,7 +381,7 @@ internal class CacheEntry(
                         return
                     }
 
-                    debug {
+                    debugOnly {
                         localWritten += byteCount
                         if (localWritten > 1024 * 1024)
                             throw EOFException("DEBUG Simulate network loss")
@@ -604,7 +604,7 @@ private inline fun <T> ReentrantLock.withTryLock(block: () -> T): T {
 }
 
 private fun ReentrantLock.requireLocked() {
-    debug {
+    debugOnly {
         if (!isHeldByCurrentThread) {
             throw IllegalStateException("Current thread does not hold the lock.")
         }

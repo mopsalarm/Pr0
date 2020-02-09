@@ -149,7 +149,7 @@ open class ApplicationClass : Application(), InjectorAware {
         // ensure that the lazy creates the instance
         System.identityHashCode(injector)
 
-        debug {
+        debugOnly {
             // validate that all dependencies can be created.
             injector.validate()
         }

@@ -2,12 +2,14 @@ package com.pr0gramm.app.parcel
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.api.pr0gramm.MessageType
 
 /**
  */
 class MessageSerializer(val message: Message) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeString(message.type)
+        writeByte(message.type.ordinal)
+        writeByte(message.flags)
         writeLong(message.id)
         writeLong(message.itemId)
         writeInt(message.mark)
@@ -17,7 +19,7 @@ class MessageSerializer(val message: Message) : Freezable {
         writeInt(message.senderId)
         write(message.creationTime)
         writeString(message.thumbnail ?: "")
-        writeByte(message.flags)
+        writeString(message.image ?: "")
     }
 
     companion object : Unfreezable<MessageSerializer> {
@@ -27,7 +29,8 @@ class MessageSerializer(val message: Message) : Freezable {
         override fun unfreeze(source: Freezable.Source): MessageSerializer = with(source) {
             MessageSerializer(Message(
                     read = true,
-                    type = readString(),
+                    type = MessageType.values[readByte().toInt()],
+                    flags = readByte().toInt(),
                     id = readLong(),
                     itemId = readLong(),
                     mark = readInt(),
@@ -37,7 +40,7 @@ class MessageSerializer(val message: Message) : Freezable {
                     senderId = readInt(),
                     creationTime = read(Instant),
                     thumbnail = readString().takeIf { it.isNotEmpty() },
-                    flags = readByte().toInt()))
+                    image = readString().takeIf { it.isNotEmpty() }))
         }
     }
 }

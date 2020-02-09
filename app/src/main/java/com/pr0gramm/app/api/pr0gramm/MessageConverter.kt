@@ -7,7 +7,7 @@ import com.pr0gramm.app.feed.FeedItem
 object MessageConverter {
     fun of(item: FeedItem, comment: Api.Comment): Message {
         return Message(
-                type = "comment",
+                type = MessageType.COMMENT,
                 id = comment.id,
                 itemId = item.id,
                 mark = comment.mark,
@@ -18,6 +18,7 @@ object MessageConverter {
                 creationTime = comment.created,
                 thumbnail = item.thumbnail,
                 read = true,
+                image = null,
                 flags = 0)
     }
 
@@ -31,7 +32,7 @@ object MessageConverter {
 
     private fun of(senderId: Int, name: String, mark: Int, comment: Api.UserComments.UserComment): Message {
         return Message(
-                type = "comment",
+                type = MessageType.COMMENT,
                 id = comment.id,
                 itemId = comment.itemId,
                 mark = mark,
@@ -42,12 +43,13 @@ object MessageConverter {
                 creationTime = comment.created,
                 thumbnail = comment.thumb,
                 read = true,
+                image = null,
                 flags = 0)
     }
 }
 
-private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
-    if (this.type != type) {
+private fun Api.Inbox.Item.toBaseMessage(type: MessageType): Message? {
+    if (this.type != type.apiValue) {
         return null
     }
 
@@ -57,6 +59,7 @@ private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
             read = read,
             creationTime = creationTime,
             thumbnail = thumbnail,
+            image = image,
             score = score ?: 0,
             name = name ?: "",
             mark = mark ?: 0,
@@ -68,22 +71,22 @@ private fun Api.Inbox.Item.toBaseMessage(type: String): Message? {
 }
 
 fun Api.Inbox.Item.toPrivateMessage(): Message? {
-    return toBaseMessage("message")
+    return toBaseMessage(MessageType.MESSAGE)
 }
 
 fun Api.Inbox.Item.toCommentMessage(): Message? {
-    return toBaseMessage("comment")
+    return toBaseMessage(MessageType.COMMENT)
 }
 
 fun Api.Inbox.Item.toNotificationMessage(): Message? {
-    return toBaseMessage("notification")?.copy(name = "System", mark = 14)
+    return toBaseMessage(MessageType.NOTIFICATION)?.copy(name = "", mark = 0)
 }
 
-fun Api.Inbox.Item.toFollowsMessage(): Message? {
-    val msg = toBaseMessage("follows") ?: return null
+fun Api.Inbox.Item.toStalkMessage(): Message? {
+    val msg = toBaseMessage(MessageType.STALK) ?: return null
     return msg.copy(message = "Neuer Hochlad von ${msg.name}")
 }
 
 fun Api.Inbox.Item.toMessage(): Message? {
-    return toPrivateMessage() ?: toCommentMessage() ?: toNotificationMessage() ?: toFollowsMessage()
+    return toPrivateMessage() ?: toCommentMessage() ?: toNotificationMessage() ?: toStalkMessage()
 }

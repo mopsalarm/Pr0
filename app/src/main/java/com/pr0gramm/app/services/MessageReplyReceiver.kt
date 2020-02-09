@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.app.RemoteInput
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
@@ -87,6 +88,8 @@ class MessageReplyReceiver : BroadcastReceiver(), LazyInjectorAware {
     companion object {
         fun makeIntent(context: Context, notificationId: Int, message: Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)
+            intent.data = Uri.parse("reply://${message.type}/${message.id}/${notificationId}")
+
             intent.putExtra("notificationId", notificationId)
 
             if (message.isComment) {

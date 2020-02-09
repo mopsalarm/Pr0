@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.UserInfo
 import com.pr0gramm.app.ui.fragments.AdViewHolder
@@ -317,9 +315,8 @@ private object CommentEntryAdapter
                 val context = itemView.context
 
                 // open the post in "new"
-                val uri = UriHelper.of(context).post(FeedType.NEW, message.itemId, message.id)
-                val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
-                context.startActivity(intent)
+                context.startActivity(MainActivity
+                        .openItemIntent(context, message.itemId, message.commentId))
             }
         }
     }

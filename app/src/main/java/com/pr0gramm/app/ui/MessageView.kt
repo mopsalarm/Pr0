@@ -13,6 +13,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
@@ -109,9 +110,9 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         // message type if available.
         messageType?.let { messageType ->
             val type = when (message.type) {
-                "comment" -> R.string.message_type_comment
-                "message" -> R.string.message_type_message
-                "follows" -> R.string.message_type_stalk
+                MessageType.COMMENT -> R.string.message_type_comment
+                MessageType.MESSAGE -> R.string.message_type_message
+                MessageType.STALK -> R.string.message_type_stalk
                 else -> R.string.message_type_notification
             }
 
@@ -119,7 +120,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // set the type. if we have an item, we  have a comment
-        if (message.type == "comment") {
+        if (message.type === MessageType.COMMENT) {
             if (admin || visible) {
                 sender.setPoints(message.score)
             } else {

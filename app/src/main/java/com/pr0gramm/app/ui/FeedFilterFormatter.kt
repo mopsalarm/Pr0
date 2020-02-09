@@ -52,7 +52,7 @@ object FeedFilterFormatter {
             FeedType.NEW -> return context.getString(R.string.filter_format_new)
             FeedType.BESTOF -> return context.getString(R.string.filter_format_bestof)
             FeedType.RANDOM -> return context.getString(R.string.filter_format_random)
-            FeedType.PREMIUM -> return context.getString(R.string.filter_format_premium)
+            FeedType.STALK -> return context.getString(R.string.filter_format_premium)
             FeedType.PROMOTED -> return context.getString(R.string.filter_format_top)
             FeedType.CONTROVERSIAL -> return context.getString(R.string.filter_format_controversial)
 

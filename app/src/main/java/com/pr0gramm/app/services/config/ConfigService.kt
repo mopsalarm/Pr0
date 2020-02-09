@@ -10,7 +10,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.minutes
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.config.Config
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
@@ -102,7 +102,7 @@ class ConfigService(context: Application,
     }
 
     fun config(): Config {
-        debug {
+        debugOnly {
             // update config for development.
             return configState.copy(
                     adType = Config.AdType.FEED,

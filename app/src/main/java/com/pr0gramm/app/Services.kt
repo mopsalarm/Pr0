@@ -96,7 +96,7 @@ fun appInjector(app: Application) = Module.build {
                 .dns(CustomDNS(app))
 
                 .apply {
-                    debug {
+                    debugOnly {
                         skipInTesting {
                             addInterceptor(DebugInterceptor)
                         }
@@ -173,7 +173,7 @@ fun appInjector(app: Application) = Module.build {
 
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance()) }
 
-    bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance()) }
+    bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
 
     bind<RulesService>() with singleton { RulesService(instance()) }
     bind<FollowService>() with singleton { FollowService(instance(), instance()) }
@@ -226,7 +226,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .addInterceptor(SentryInterceptor())
             .addInterceptor(BrotliInterceptor)
 
-    debug {
+    debugOnly {
         builder.addNetworkInterceptor(LoggingInterceptor())
     }
 

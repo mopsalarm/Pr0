@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.feed.ContentType
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -41,9 +42,10 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
                     creationTime = comment.created,
                     mark = comment.mark,
                     senderId = 0,
-                    type = "comment",
+                    type = MessageType.COMMENT,
                     read = true,
-                    flags = 0)
+                    flags = 0,
+                    image = null)
         }
     }
 }

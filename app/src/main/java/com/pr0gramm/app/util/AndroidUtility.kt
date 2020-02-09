@@ -296,7 +296,7 @@ object AndroidUtility {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun checkMainThread() = debug {
+inline fun checkMainThread() = debugOnly {
     if (Looper.getMainLooper().thread !== Thread.currentThread()) {
         Logger("AndroidUtility").error { "Expected to be in main thread but was: ${Thread.currentThread().name}" }
         throw IllegalStateException("Must be called from the main thread.")
@@ -304,7 +304,7 @@ inline fun checkMainThread() = debug {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun checkNotMainThread(msg: String? = null) = debug {
+inline fun checkNotMainThread(msg: String? = null) = debugOnly {
     if (Looper.getMainLooper().thread === Thread.currentThread()) {
         Logger("AndroidUtility").error { "Expected not to be on main thread: $msg" }
         throw IllegalStateException("Must not be called from the main thread: $msg")

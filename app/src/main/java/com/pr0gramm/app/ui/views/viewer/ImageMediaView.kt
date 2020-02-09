@@ -8,7 +8,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.injector
@@ -31,7 +31,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.isQuickScaleEnabled = false
         imageView.isPanEnabled = false
 
-        debug {
+        debugOnly {
             imageView.setDebug(true)
         }
 
