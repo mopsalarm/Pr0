@@ -41,6 +41,7 @@ import com.pr0gramm.app.ui.fragments.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotlinx.coroutines.flow.collect
@@ -135,6 +136,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
 
+        handleMarkAsRead(intent)
+
         if (savedInstanceState == null) {
             val intent: Intent? = intent
             val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
@@ -189,6 +192,14 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 invalidateRecyclerViewPool()
             }
         }
+    }
+
+    private fun handleMarkAsRead(intent: Intent?) {
+        val extras = intent?.extras ?: return
+        val itemId = extras.getString(EXTRA_MARK_AS_READ) ?: return
+        val timestamp = extras.getParcelable<Instant>(EXTRA_MARK_AS_READ_TIMESTAMP) ?: return
+
+        baseContext.injector.instance<InboxService>().markAsRead(itemId, timestamp)
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {
@@ -257,6 +268,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         if (Intent.ACTION_VIEW != intent.action)
             return
 
+        handleMarkAsRead(intent)
         handleIntent(intent)
     }
 
@@ -685,6 +697,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     companion object {
+        const val EXTRA_MARK_AS_READ = "MainActivity.EXTRA_MARK_AS_READ"
+        const val EXTRA_MARK_AS_READ_TIMESTAMP = "MainActivity.EXTRA_MARK_AS_READ_TIMESTAMP"
+
         // we use this to propagate a fake-home event to the fragments.
         const val ID_FAKE_HOME = android.R.id.list
 

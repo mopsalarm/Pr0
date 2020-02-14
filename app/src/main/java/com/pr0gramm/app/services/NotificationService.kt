@@ -25,7 +25,6 @@ import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.feed.isVideoUri
 import com.pr0gramm.app.parcel.Freezer
@@ -42,9 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 
 class NotificationService(private val context: Application,
-                          private val inboxService: InboxService,
-                          private val feedService: FeedService,
-                          private val picasso: Picasso) {
+                          private val inboxService: InboxService) {
 
     private val logger = Logger("NotificationService")
 
@@ -374,7 +371,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
             nh.inboxActivityIntent(InboxType.PRIVATE, message.name)
 
         MessageType.STALK ->
-            nh.openItemIntent(message.itemId)
+            nh.openItemIntent(message)
 
         else ->
             nh.inboxActivityIntent(InboxType.forMessageType(message.type))
@@ -494,10 +491,13 @@ class NotificationHelperService(val context: Context) {
                 .build()
     }
 
-    fun openItemIntent(itemId: Long): PendingIntent {
-        val intent = MainActivity.openItemIntent(context, itemId, feedType = FeedType.STALK)
+    fun openItemIntent(message: Message): PendingIntent {
+        val intent = MainActivity.openItemIntent(context, message.itemId, feedType = FeedType.STALK)
 
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+        intent.putExtra(MainActivity.EXTRA_MARK_AS_READ, message.unreadId)
+        intent.putExtra(MainActivity.EXTRA_MARK_AS_READ_TIMESTAMP, message.creationTime)
 
         return TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(intent)
