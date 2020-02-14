@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -170,12 +171,19 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             // reset the player now. No one else has access to it anymore.
             this.exo = null
 
-            exo.removeListener(playerListener)
-            exo.removeVideoListener(videoListener)
-            exo.setVideoTextureView(null)
-            exo.stop(true)
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
+                exo.stop(true)
 
-            ExoPlayerRecycler.release(exo)
+                exo.removeListener(playerListener)
+                exo.removeVideoListener(videoListener)
+                exo.setVideoTextureView(null)
+
+                ExoPlayerRecycler.release(exo)
+            } else {
+                // on android 6 we just release the player, cause we got some crashes.
+                // So, maybe this helps.
+                exo.release()
+            }
         }
     }
 
