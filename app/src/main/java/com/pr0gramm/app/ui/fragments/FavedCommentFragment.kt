@@ -17,7 +17,7 @@ class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
     private val favedCommentService: FavedCommentService by instance()
 
     override fun getContentAdapter(): Pair<MessageAdapter, Pagination<Message>> {
-        val loader = apiMessageLoader { olderThan ->
+        val loader = apiMessageLoader(requireContext()) { olderThan ->
             favedCommentService.list(settings.contentType, olderThan).map {
                 FavedCommentService.commentToMessage(it)
             }

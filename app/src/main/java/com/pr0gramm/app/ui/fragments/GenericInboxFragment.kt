@@ -1,16 +1,19 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.content.Context
 import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.MessageAdapter
 import com.pr0gramm.app.ui.Pagination
 import com.pr0gramm.app.ui.PaginationController
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.optionalFragmentArgument
+import java.util.concurrent.TimeUnit
 
 open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
     private val userService: UserService by instance()
@@ -23,7 +26,7 @@ open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
     }
 
     override fun getContentAdapter(): Pair<MessageAdapter, Pagination<Message>> {
-        val loader = apiMessageLoader { olderThan ->
+        val loader = apiMessageLoader(requireContext(), syncOnLoad = true) { olderThan ->
             when (this.messageType) {
                 MessageTypeComments ->
                     inboxService.fetchComments(olderThan)
@@ -65,11 +68,17 @@ open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
     }
 }
 
-fun apiMessageLoader(loader: suspend (Instant?) -> List<Message>): Pagination.Loader<Message> {
+fun apiMessageLoader(ctx: Context, syncOnLoad: Boolean = false, loader: suspend (Instant?) -> List<Message>): Pagination.Loader<Message> {
     class MessagePaginationLoader : Pagination.Loader<Message>() {
 
         override suspend fun loadAfter(currentValue: Message?): Pagination.Page<Message> {
             val messages = loader(currentValue?.creationTime)
+
+            if (syncOnLoad) {
+                // inbox numbers might have changed, better update now.
+                SyncWorker.scheduleNextSyncIn(ctx, delay = 10, unit = TimeUnit.SECONDS, sourceTag = "inbox")
+            }
+
             return Pagination.Page(messages, messages.lastOrNull()?.takeIf { messages.size > 10 })
         }
     }

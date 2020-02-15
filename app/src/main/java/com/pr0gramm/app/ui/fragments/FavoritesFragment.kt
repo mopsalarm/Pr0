@@ -48,8 +48,8 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
 
         val adapter = TabsStateAdapter(requireContext(), this).apply {
-            addTab(R.string.action_favorites, feedFragmentArguments) { FeedFragment() }
-            addTab(R.string.action_kfav) { FavedCommentFragment() }
+            addTab(getString(R.string.action_favorites), feedFragmentArguments) { FeedFragment() }
+            addTab(getString(R.string.action_kfav)) { FavedCommentFragment() }
         }
 
         pager.adapter = adapter

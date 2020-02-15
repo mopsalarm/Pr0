@@ -17,7 +17,7 @@ class WrittenCommentsFragment : InboxFragment("WrittenCommentFragment") {
     private val userService: UserService by instance()
 
     override fun getContentAdapter(): Pair<MessageAdapter, Pagination<Message>> {
-        val loader = apiMessageLoader { olderThan ->
+        val loader = apiMessageLoader(requireContext()) { olderThan ->
             val name = userService.name ?: return@apiMessageLoader listOf()
             val userComments = inboxService.getUserComments(name, ContentType.AllSet, olderThan)
             userComments.comments.map {

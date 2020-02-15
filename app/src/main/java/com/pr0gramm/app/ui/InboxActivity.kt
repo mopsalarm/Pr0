@@ -9,6 +9,7 @@ import androidx.core.view.updatePadding
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
+import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
@@ -18,6 +19,7 @@ import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.observeOnMainThread
 import com.pr0gramm.app.util.setupWithViewPager2
 import com.pr0gramm.app.util.startActivity
 import kotterknife.bindView
@@ -28,6 +30,7 @@ import kotterknife.bindView
  */
 class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     private val userService: UserService by instance()
+    private val inboxService: InboxService by instance()
 
     private val coordinator: CoordinatorLayout by bindView(R.id.coordinator)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
@@ -66,27 +69,27 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
         types.forEach { type ->
             when (type) {
-                InboxType.PRIVATE -> tabsAdapter.addTab(R.string.inbox_type_private) {
+                InboxType.PRIVATE -> tabsAdapter.addTab(getString(R.string.inbox_type_private), id = InboxType.PRIVATE) {
                     ConversationsFragment()
                 }
 
-                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(R.string.inbox_type_comments_out) {
+                InboxType.COMMENTS_OUT -> tabsAdapter.addTab(getString(R.string.inbox_type_comments_out), id = InboxType.COMMENTS_OUT) {
                     WrittenCommentsFragment()
                 }
 
-                InboxType.ALL -> tabsAdapter.addTab(R.string.inbox_type_all) {
+                InboxType.ALL -> tabsAdapter.addTab(getString(R.string.inbox_type_all), id = InboxType.ALL) {
                     GenericInboxFragment()
                 }
 
-                InboxType.COMMENTS_IN -> tabsAdapter.addTab(R.string.inbox_type_comments_in) {
+                InboxType.COMMENTS_IN -> tabsAdapter.addTab(getString(R.string.inbox_type_comments_in), id = InboxType.COMMENTS_IN) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeComments)
                 }
 
-                InboxType.STALK -> tabsAdapter.addTab(R.string.inbox_type_stalk) {
+                InboxType.STALK -> tabsAdapter.addTab(getString(R.string.inbox_type_stalk), id = InboxType.STALK) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeStalk)
                 }
 
-                InboxType.NOTIFICATIONS -> tabsAdapter.addTab(R.string.inbox_type_notifications) {
+                InboxType.NOTIFICATIONS -> tabsAdapter.addTab(getString(R.string.inbox_type_notifications), id = InboxType.NOTIFICATIONS) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeNotifications)
                 }
             }
@@ -143,6 +146,18 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     override fun onStart() {
         super.onStart()
         Track.inboxActivity()
+
+        inboxService.unreadMessagesCount().observeOnMainThread().bindToLifecycle().subscribe { counts ->
+            fun titleOf(id: Int, count: Int): String {
+                return getString(id) + (if (count > 0) " ($count)" else "")
+            }
+
+            tabsAdapter.updateTabTitle(InboxType.ALL, titleOf(R.string.inbox_type_all, counts.total))
+            tabsAdapter.updateTabTitle(InboxType.PRIVATE, titleOf(R.string.inbox_type_private, counts.messages))
+            tabsAdapter.updateTabTitle(InboxType.NOTIFICATIONS, titleOf(R.string.inbox_type_notifications, counts.notifications))
+            tabsAdapter.updateTabTitle(InboxType.STALK, titleOf(R.string.inbox_type_stalk, counts.follows))
+            tabsAdapter.updateTabTitle(InboxType.COMMENTS_IN, titleOf(R.string.inbox_type_comments_in, counts.comments))
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

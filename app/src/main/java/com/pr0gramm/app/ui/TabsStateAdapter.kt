@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -40,17 +39,26 @@ class TabsStateAdapter : FragmentStateAdapter {
         }
     }
 
-    fun addTab(@StringRes titleId: Int, args: Bundle? = null, fragmentConstructor: () -> Fragment) {
-        val title = context.getString(titleId)
-        val info = TabInfo(title, fragmentConstructor, args)
+    fun addTab(title: String, args: Bundle? = null, id: Any? = null, fragmentConstructor: () -> Fragment) {
+        val info = TabInfo(id ?: Any(), title, fragmentConstructor, args)
         tabs.add(info)
 
-        notifyDataSetChanged()
+        // one item was added
+        notifyItemInserted(tabs.size - 1)
+    }
+
+    fun updateTabTitle(id: Any, title: String) {
+        for ((idx, tab) in tabs.withIndex()) {
+            if (tab.id == id) {
+                tabs[idx] = tab.copy(title = title)
+                notifyItemChanged(idx)
+            }
+        }
     }
 
     fun getPageTitle(position: Int): CharSequence {
         return tabs[position].title
     }
 
-    private class TabInfo(val title: String, val fragmentConstructor: () -> Fragment, val args: Bundle?)
+    private data class TabInfo(val id: Any, val title: String, val fragmentConstructor: () -> Fragment, val args: Bundle?)
 }
