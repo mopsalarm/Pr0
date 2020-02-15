@@ -125,7 +125,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val showCategoryControversial: Boolean
         get() = preferences.getBoolean("pref_show_category_controversial", true)
 
-    val showCategoryPremium: Boolean
+    val showCategoryStalk: Boolean
         get() = preferences.getBoolean("pref_show_category_premium", true)
 
     val useIncognitoBrowser: Boolean

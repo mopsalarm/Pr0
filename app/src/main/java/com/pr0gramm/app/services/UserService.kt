@@ -428,7 +428,7 @@ class UserService(private val api: Api,
         return api.userCaptcha()
     }
 
-    val canViewFollowCategory: Boolean get() = config.followIsFreeForAll || userIsPremium
+    val canViewCategoryStalk: Boolean get() = config.followIsFreeForAll || userIsPremium
 
     class LoginStateWithBenisGraph(
             val loginState: LoginState, val benisGraph: Graph? = null)

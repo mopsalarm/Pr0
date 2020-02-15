@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import android.graphics.Rect
-import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
@@ -28,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import com.gu.toolargetool.sizeAsParcel
 import com.jakewharton.espresso.OkHttp3IdlingResource
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -73,18 +70,6 @@ class MainActivityTest {
 
             PostView.scrollTo(50)
             PostView.scrollTo(0)
-        }
-
-        if (false) {
-            val bundle = mActivityTestRule.runOnUiThreadForResult {
-                val outState = Bundle()
-                mActivityTestRule.activity.onSaveInstanceState(outState, PersistableBundle())
-                outState
-            }
-
-            logger.info { "Bundle size after onSaveInstanceState is: ${sizeAsParcel(bundle)}" }
-
-            throw Exception("This invalidates the activities internal state. We need to stop there.")
         }
 
         MainView.logout()
