@@ -1,7 +1,22 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+
 apply from: 'version.gradle'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.google.gms:google-services:4.3.3'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.0.0-beta02'
+    }
+}
 
 android {
     compileSdkVersion 29
@@ -119,41 +134,6 @@ android.applicationVariants.all { variant ->
             }
         }
     }
-
-    if (variant.name == "release") {
-        def task = project.tasks.create(
-                name: "processSentryProguardForRelease",
-                type: Exec) {
-
-            def authToken = file("${project.rootDir}/sentry.properties").withReader {
-                Properties props = new Properties()
-                props.load(it)
-                props.getProperty("auth.token")
-            }
-
-            def cmd = [
-                    "npx",
-                    "@sentry/cli",
-                    "--auth-token", authToken,
-                    "upload-proguard",
-                    "--org", "mopsalarm",
-                    "--project", "pr0gramm",
-                    "--write-properties",
-                    "${project.rootDir.toPath()}/app/build/intermediates/merged_assets/${variant.dirName}/out/sentry-debug-meta.properties",
-                    variant.getMappingFileProvider().get().getSingleFile()
-            ]
-
-            workingDir project.rootDir
-            commandLine(cmd)
-
-            doFirst {
-                print("COMMAND: $cmd\n")
-            }
-        }
-
-        tasks."packageRelease".dependsOn(task)
-        task.dependsOn(tasks."minifyReleaseWithR8")
-    }
 }
 
 repositories {
@@ -191,9 +171,8 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.1.0'
 
     implementation "com.google.android.gms:play-services-ads-lite:18.3.0"
-
-    implementation 'io.sentry:sentry-android:1.7.30'
-    implementation 'org.slf4j:slf4j-nop:1.7.30'
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
 
     implementation "com.squareup.retrofit2:retrofit:2.7.1"
     implementation("com.squareup.retrofit2:converter-moshi:2.7.1") {
@@ -253,7 +232,6 @@ dependencies {
 configurations {
     implementation {
         exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
     }
 }
 

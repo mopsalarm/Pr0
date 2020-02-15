@@ -27,16 +27,13 @@ import androidx.core.content.res.use
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.ui.PermissionHelperDelegate
 import com.pr0gramm.app.ui.base.AsyncScope
-import io.sentry.Sentry
-import io.sentry.event.Event
-import io.sentry.event.EventBuilder
-import io.sentry.event.interfaces.ExceptionInterface
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -139,16 +136,12 @@ object AndroidUtility {
                 cache.put(key, Unit)
             }
 
-            doInBackground {
-                // log to sentry if a client is configured
-                Sentry.getStoredClient()?.sendEvent(EventBuilder()
-                        .withMessage(error.message)
-                        .withLevel(Event.Level.WARNING)
-                        .withSentryInterface(ExceptionInterface(error)))
+            ignoreAllExceptions {
+                FirebaseCrashlytics.getInstance().recordException(error)
             }
 
         } catch (err: Throwable) {
-            logger.warn(err) { "Could not send error $error to sentry" }
+            logger.warn(err) { "Could not send error $error to crash tool" }
         }
     }
 

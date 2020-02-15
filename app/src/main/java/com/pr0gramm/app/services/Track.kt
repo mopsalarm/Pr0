@@ -3,6 +3,9 @@ package com.pr0gramm.app.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Vote
@@ -11,9 +14,6 @@ import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.ignoreAllExceptions
-import com.pr0gramm.app.util.recordBreadcrumb
-import io.sentry.Sentry
-import io.sentry.event.Breadcrumb
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
@@ -29,15 +29,10 @@ object Track : InjectorAware {
         this.context = context.applicationContext
     }
 
-    private inline fun send(eventType: String, bcType: Breadcrumb.Type = Breadcrumb.Type.USER, b: KeyValueAdapter.() -> Unit = {}) {
+    private inline fun send(eventType: String, b: Bundle.() -> Unit = {}) {
         ignoreAllExceptions {
-            val extras = KeyValueAdapter().apply(b)
-
-            // and also to sentry
-            recordBreadcrumb(bcType) {
-                setCategory(eventType)
-                setData(extras.map)
-            }
+            val extras = Bundle().apply(b)
+            FirebaseAnalytics.getInstance(context).logEvent(eventType, extras)
         }
     }
 
@@ -160,15 +155,18 @@ object Track : InjectorAware {
         }
     }
 
-    fun updateUserState(state: AuthState) {
-        Sentry.getStoredClient()?.let { client ->
-            client.context.addTag("pr0.premium", state.premium.toString())
-            client.context.addTag("pr0.authorized", state.authorized.toString())
-        }
+    fun updateUserState(state: AuthState) = ignoreAllExceptions {
+        val fa = FirebaseAnalytics.getInstance(context)
+        fa.setUserProperty("pr0.premium", state.premium.toString())
+        fa.setUserProperty("pr0.authorized", state.authorized.toString())
+
+        val fc = FirebaseCrashlytics.getInstance()
+        fc.setCustomKey("pr0.premium", state.premium)
+        fc.setCustomKey("pr0.authorized", state.authorized)
     }
 
     fun openFeed(filter: FeedFilter) {
-        send("view_feed", Breadcrumb.Type.NAVIGATION) {
+        send("view_feed") {
             filter.tags?.let { putString("tags", it) }
             filter.likes?.let { putString("likes", it) }
             filter.username?.let { putString("username", it) }
@@ -176,13 +174,13 @@ object Track : InjectorAware {
     }
 
     fun viewItem(itemId: Long) {
-        send("view_item", Breadcrumb.Type.NAVIGATION) {
+        send("view_item") {
             putLong("id", itemId)
         }
     }
 
     fun inboxActivity() {
-        send("inbox", Breadcrumb.Type.NAVIGATION)
+        send("inbox")
     }
 
     suspend fun statistics() {
@@ -192,31 +190,10 @@ object Track : InjectorAware {
     }
 
     fun openZoomView(itemId: Long) {
-        send("zoom_view", Breadcrumb.Type.NAVIGATION) {
+        send("zoom_view") {
             putLong("id", itemId)
         }
     }
 
     data class AuthState(val authorized: Boolean, val premium: Boolean)
-
-
-    private class KeyValueAdapter {
-        val map = hashMapOf<String, String>()
-
-        fun putString(key: String, value: String) {
-            map[key] = value
-        }
-
-        fun putBoolean(key: String, value: Boolean) {
-            map[key] = value.toString()
-        }
-
-        fun putInt(key: String, value: Int) {
-            map[key] = value.toString()
-        }
-
-        fun putLong(key: String, value: Long) {
-            map[key] = value.toString()
-        }
-    }
 }

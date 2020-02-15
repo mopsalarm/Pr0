@@ -6,23 +6,20 @@ import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.core.CrashlyticsCore
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
+import com.pr0gramm.app.util.CachedThreadScheduler
+import com.pr0gramm.app.util.ExceptionHandler
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.InjectorAware
-import io.sentry.Sentry
-import io.sentry.android.AndroidSentryClientFactory
-import io.sentry.config.Lookup
-import io.sentry.config.provider.ConfigurationProvider
-import io.sentry.context.Context
-import io.sentry.context.ContextManager
-import io.sentry.dsn.Dsn
-import io.sentry.event.Breadcrumb
+import com.pr0gramm.app.util.doInBackground
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
@@ -65,21 +62,17 @@ open class ApplicationClass : Application(), InjectorAware {
         lateinit var appContext: android.content.Context
     }
 
-    override fun attachBaseContext(base: android.content.Context) {
-        super.attachBaseContext(base)
-
-        doInBackground {
-            logger.time("Initialize sentry") {
-                initializeSentry()
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
 
-        // handler to ignore certain exceptions before they reach sentry
-        ExceptionHandler.install(this)
+        doInBackground {
+            logger.time("Initialize firebase") {
+                initializeFirebase()
+
+                // handler to ignore certain exceptions before they reach firebase
+                ExceptionHandler.install(this)
+            }
+        }
 
         Stats.init(buildVersionCode())
 
@@ -120,27 +113,17 @@ open class ApplicationClass : Application(), InjectorAware {
         Stats().histogram("app.boot.time", bootupWatch.elapsed().millis)
     }
 
-    private fun initializeSentry() {
-        // setup sentry
-        val sentryToken = "https://a16a17b965a44a9eb100bc0af7f4d684@sentry.io/1507302"
+    private fun initializeFirebase() {
+        FirebaseApp.initializeApp(this)
 
-        val sentry = Sentry.init(sentryToken, CustomSentryClientFactory(this))
-        sentry.environment = if (BuildConfig.DEBUG) "debug" else "prod"
-        sentry.release = BuildConfig.VERSION_NAME
-
-
-        val levels = arrayOf(null, null, Breadcrumb.Level.DEBUG, Breadcrumb.Level.DEBUG,
-                Breadcrumb.Level.INFO, Breadcrumb.Level.WARNING, Breadcrumb.Level.ERROR,
-                Breadcrumb.Level.CRITICAL)
-
-        // add log messages to sentry breadcrumbs
         Logging.remoteLoggingHandler = { level, tag, message ->
-            if (level >= Log.INFO) {
-                recordBreadcrumb {
-                    setCategory("log")
-                    setLevel(levels.getOrNull(level) ?: Breadcrumb.Level.INFO)
-                    setMessage("$tag: $message")
-                }
+            val core: CrashlyticsCore? = FirebaseApp.getInstance().get(CrashlyticsCore::class.java)
+
+            if (core != null && level >= Log.INFO) {
+                core.log(level, tag, message)
+                true
+            } else {
+                false
             }
         }
     }
@@ -178,26 +161,3 @@ open class ApplicationClass : Application(), InjectorAware {
     override val injector by lazy { appInjector(this) }
 }
 
-
-private class CustomSentryClientFactory(ctx: android.content.Context) : AndroidSentryClientFactory(ctx, noopSentryLookup) {
-    private val manager = SentryContextManager()
-
-    override fun getContextManager(dsn: Dsn?): ContextManager = manager
-}
-
-private class SentryContextManager : ContextManager {
-    private val context = Context(256)
-
-    override fun clear() {
-        context.clear()
-    }
-
-    override fun getContext(): Context {
-        return context
-    }
-}
-
-private val noopSentryLookup = run {
-    val provider = ConfigurationProvider { null }
-    Lookup(provider, provider)
-}

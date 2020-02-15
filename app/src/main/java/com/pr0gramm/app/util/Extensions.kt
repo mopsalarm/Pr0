@@ -40,9 +40,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import io.sentry.Sentry
-import io.sentry.event.Breadcrumb
-import io.sentry.event.BreadcrumbBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
 import rx.Emitter
@@ -436,6 +433,9 @@ inline fun ignoreAllExceptions(block: () -> Unit) {
         block()
     } catch (err: Throwable) {
         // i don't care.
+        debugOnly {
+            Logger("IgnoreAllExceptions").warn(err) { "Ignoring error" }
+        }
     }
 }
 
@@ -767,13 +767,6 @@ fun <W : WorkRequest, B : WorkRequest.Builder<B, W>> B.setConstraintsCompat(cons
         return this
 
     return setConstraints(constraints)
-}
-
-inline fun recordBreadcrumb(type: Breadcrumb.Type = Breadcrumb.Type.DEFAULT, builder: BreadcrumbBuilder.() -> Unit) {
-    Sentry.getStoredClient()?.context?.let { context ->
-        val bc = BreadcrumbBuilder().setType(type).setLevel(Breadcrumb.Level.INFO).apply(builder).build()
-        context.recordBreadcrumb(bc)
-    }
 }
 
 fun DialogFragment.maybeShow(fm: FragmentManager?, tag: String? = null) {

@@ -41,7 +41,7 @@ inline class Logger(val name: String) {
     }
 }
 
-typealias RemoteLoggingHandler = (level: Int, tag: String, message: String) -> Unit
+typealias RemoteLoggingHandler = (level: Int, tag: String, message: String) -> Boolean
 
 object Logging {
     private const val ENTRY_BUFFER_SIZE = 4096
@@ -58,20 +58,18 @@ object Logging {
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
-    var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> Unit }
+    var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> false }
 
     fun log(level: Int, name: String, message: String) {
         val thread = Thread.currentThread().name
         val tag = "[$thread] $name"
 
-        if (BuildConfig.DEBUG) {
-            // also log to logcat.
-            Log.println(level, tag, message)
-        }
-
-        if (name != "OkHttpClient") {
-            // only log to crashlytics
-            remoteLoggingHandler(level, tag, message)
+        val logged = name != "OkHttpClient" && remoteLoggingHandler(level, tag, message)
+        if (!logged) {
+            if (BuildConfig.DEBUG) {
+                // log to stdout
+                Log.println(level, tag, message)
+            }
         }
 
         // store in buffer. Not 100% thread safe but close enough.

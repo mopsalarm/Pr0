@@ -30,9 +30,6 @@ import com.squareup.picasso.Picasso
 import com.squareup.sqlbrite.BriteDatabase
 import com.squareup.sqlbrite.SqlBrite
 import com.squareup.sqldelight.android.AndroidSqliteDriver
-import io.sentry.Sentry
-import io.sentry.event.Breadcrumb
-import io.sentry.event.BreadcrumbBuilder
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.brotli.BrotliInterceptor
@@ -223,7 +220,6 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
             .addInterceptor(ChuckerInterceptor(app))
-            .addInterceptor(SentryInterceptor())
             .addInterceptor(BrotliInterceptor)
 
     debugOnly {
@@ -338,42 +334,6 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
         }
 
         return response
-    }
-}
-
-private class SentryInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        // get the current sentry context if set
-        val sentryContext = Sentry.getStoredClient()?.context
-                ?: return chain.proceed(chain.request())
-
-        val request = chain.request()
-
-        val bc = BreadcrumbBuilder()
-                .setType(Breadcrumb.Type.HTTP)
-                .setCategory("http")
-                .withData("method", request.method)
-                .withData("url", request.url.toString())
-
-        val stopwatch = Stopwatch()
-
-        try {
-            val response = chain.proceed(request)
-
-            bc.withData("status_code", response.code.toString())
-
-            return response
-
-        } catch (err: Exception) {
-            bc.withData("error", err.toString())
-
-            throw err
-
-        } finally {
-            // log request duration
-            bc.withData("duration", stopwatch.toString())
-            sentryContext.recordBreadcrumb(bc.build())
-        }
     }
 }
 

@@ -41,7 +41,7 @@
 }
 
 # Preserve some attributes that may be required for reflection.
--keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,Signature
+-keepattributes RuntimeVisible*Annotations,InnerClasses,EnclosingMethod,Signature,SourceFile,LineNumberTable
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames,includedescriptorclasses class * {
@@ -67,8 +67,5 @@
 -checkdiscard class kotlinx.coroutines.internal.FastServiceLoader
 
 
-## Sentry
--dontwarn org.slf4j.**
--dontwarn javax.**
--keep class io.sentry.event.Event { *; }
+## Firebase logging
 -keep class * extends java.lang.Exception
