@@ -7,6 +7,7 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.core.CrashlyticsCore
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -116,11 +117,25 @@ open class ApplicationClass : Application(), InjectorAware {
     private fun initializeFirebase() {
         FirebaseApp.initializeApp(this)
 
-        Logging.remoteLoggingHandler = { level, tag, message ->
-            val core: CrashlyticsCore? = FirebaseApp.getInstance().get(CrashlyticsCore::class.java)
+        val fc = FirebaseCrashlytics.getInstance()
 
+        val core = try {
+            val field = FirebaseCrashlytics::class.java.declaredFields.first {
+                it.type === CrashlyticsCore::class.java
+            }
+
+            field.isAccessible = true
+            field.get(fc) as CrashlyticsCore
+
+        } catch (err: Throwable) {
+            debugOnly { throw err }
+            null
+        }
+
+        Logging.remoteLoggingHandler = { level, tag, message ->
             if (core != null && level >= Log.INFO) {
                 core.log(level, tag, message)
+
                 true
             } else {
                 false
