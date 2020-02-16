@@ -21,6 +21,7 @@ import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.doInBackground
+import kotlinx.coroutines.runBlocking
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
@@ -63,10 +64,10 @@ open class ApplicationClass : Application(), InjectorAware {
         lateinit var appContext: android.content.Context
     }
 
-    override fun onCreate() {
+    override fun onCreate() = logger.time("onCreate") {
         super.onCreate()
 
-        doInBackground {
+        val firebaseJob = doInBackground {
             logger.time("Initialize firebase") {
                 initializeFirebase()
 
@@ -80,9 +81,13 @@ open class ApplicationClass : Application(), InjectorAware {
         Settings.initialize(this)
         Track.initialize(this)
 
-        WorkManager.initialize(this, Configuration.Builder()
-                .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
-                .build())
+        val workManagerJob = doInBackground {
+            logger.time("Initializing WorkManager") {
+                WorkManager.initialize(this, Configuration.Builder()
+                        .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
+                        .build())
+            }
+        }
 
         forceInjectorInstance()
 
@@ -108,6 +113,12 @@ open class ApplicationClass : Application(), InjectorAware {
 
         // initialize mobile ads asynchronously
         initializeMobileAds()
+
+        // wait for firebase setup to finish
+        runBlocking {
+            firebaseJob.join()
+            workManagerJob.join()
+        }
 
         logger.info { "App booted in $bootupWatch" }
 
