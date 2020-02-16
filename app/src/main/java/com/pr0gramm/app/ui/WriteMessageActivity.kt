@@ -83,8 +83,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         messageText.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val empty = s.toString().trim().isEmpty()
-                buttonSubmit.isEnabled = !empty
+                val tooShort = s.toString().trim().length < 3
+                buttonSubmit.isEnabled = !tooShort
                 invalidateOptionsMenu()
             }
         })

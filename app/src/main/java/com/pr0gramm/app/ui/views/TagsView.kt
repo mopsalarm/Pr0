@@ -140,7 +140,7 @@ class TagsView(context: Context) : LinearLayout(context) {
             commentSendView.setOnClickListener {
                 val text = commentInputView.text.toString().trim()
 
-                if (text.isEmpty()) {
+                if (text.length < 3) {
                     showDialog(context) {
                         content(R.string.message_must_not_be_empty)
                         positive()
