@@ -1076,12 +1076,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun onNewComments(response: Api.NewComment) {
-        autoScrollToComment(response.commentId, delayed = true)
+        val commentId = response.commentId
+        if (commentId != null) {
+            autoScrollToComment(commentId, delayed = true)
+        }
 
         updateComments(response.comments) { state ->
-            state.copy(selectedCommentId = response.commentId, baseVotes = state.baseVotes.let { votes ->
+            state.copy(selectedCommentId = response.commentId
+                    ?: 0, baseVotes = state.baseVotes.let { votes ->
                 val copy = votes.clone()
-                copy.put(response.commentId, Vote.UP)
+                copy.put(response.commentId ?: 0, Vote.UP)
                 copy
             })
         }

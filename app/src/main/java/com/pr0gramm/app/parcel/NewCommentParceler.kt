@@ -6,7 +6,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
  */
 class NewCommentParceler(val value: Api.NewComment) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeLong(value.commentId)
+        writeLong(value.commentId ?: 0)
         write(CommentListParceler(value.comments))
     }
 
@@ -15,7 +15,7 @@ class NewCommentParceler(val value: Api.NewComment) : Freezable {
         val CREATOR = parcelableCreator()
 
         override fun unfreeze(source: Freezable.Source): NewCommentParceler = with(source) {
-            val id = readLong()
+            val id = readLong().takeIf { it > 0 }
             val comments = read(CommentListParceler).comments
             NewCommentParceler(Api.NewComment(id, comments))
         }

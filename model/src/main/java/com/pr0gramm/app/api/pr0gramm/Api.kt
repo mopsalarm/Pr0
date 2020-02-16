@@ -455,7 +455,7 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     class NewComment(
-            val commentId: Long,
+            val commentId: Long? = null,
             val comments: List<Comment> = listOf())
 
 

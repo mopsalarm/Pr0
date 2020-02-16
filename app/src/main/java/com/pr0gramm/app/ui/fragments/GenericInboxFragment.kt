@@ -76,7 +76,7 @@ fun apiMessageLoader(ctx: Context, syncOnLoad: Boolean = false, loader: suspend 
 
             if (syncOnLoad) {
                 // inbox numbers might have changed, better update now.
-                SyncWorker.scheduleNextSyncIn(ctx, delay = 10, unit = TimeUnit.SECONDS, sourceTag = "inbox")
+                SyncWorker.scheduleNextSyncIn(ctx, delay = 3, unit = TimeUnit.SECONDS, sourceTag = "inbox")
             }
 
             return Pagination.Page(messages, messages.lastOrNull()?.takeIf { messages.size > 10 })

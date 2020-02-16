@@ -174,8 +174,11 @@ class VoteService(private val api: Api,
         return withBackgroundContext(NonCancellable) {
             val response = api.postComment(null, itemId, parentId, comment)
 
-            // store the implicit upvote for the comment.
-            storeVoteValueInTx(CachedVote.Type.COMMENT, response.commentId, Vote.UP)
+            val commentId = response.commentId
+            if (commentId != null) {
+                // store the implicit upvote for the comment.
+                storeVoteValueInTx(CachedVote.Type.COMMENT, commentId, Vote.UP)
+            }
 
             response
         }
