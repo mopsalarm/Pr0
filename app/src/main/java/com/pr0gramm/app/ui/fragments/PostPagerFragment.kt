@@ -52,7 +52,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         initialCommentRef = arguments?.getParcelable(ARG_START_ITEM_COMMENT_REF)
 
         // Listen for changes in fragments. We use this, because with the ViewPager2
-        // callbacks we dont have any access to the fragment, and we don't even know,
+        // callbacks we don't have any access to the fragment, and we don't even know,
         // when the fragment will be there and available.
         val l = object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {

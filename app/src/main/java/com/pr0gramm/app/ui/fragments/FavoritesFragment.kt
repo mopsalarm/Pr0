@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
@@ -17,12 +17,11 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
-import com.pr0gramm.app.util.setupWithViewPager2
 
 /**
  */
 class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
-    private val pager: ViewPager2 by bindView(R.id.favorites_pager)
+    private val pager: ViewPager by bindView(R.id.favorites_pager)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
     private lateinit var feedFilter: FeedFilter
@@ -55,9 +54,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         pager.adapter = adapter
         pager.offscreenPageLimit = 2
 
-        tabLayout.setupWithViewPager2(pager) { tab, position ->
-            tab.text = adapter.getPageTitle(position)
-        }
+        tabLayout.setupWithViewPager(pager)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

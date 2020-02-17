@@ -4,27 +4,27 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.fragment.app.FragmentPagerAdapter
 
 /**
  */
-class TabsStateAdapter : FragmentStateAdapter {
-    constructor(context: Context, fragment: Fragment) : super(fragment) {
+class TabsStateAdapter : FragmentPagerAdapter {
+    constructor(context: Context, fragment: Fragment) : super(fragment.childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         this.context = context
     }
 
-    constructor(activity: FragmentActivity) : super(activity) {
+    constructor(activity: FragmentActivity) : super(activity.supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         this.context = activity
     }
 
     private val context: Context
     private val tabs: MutableList<TabInfo> = mutableListOf()
 
-    override fun getItemCount(): Int {
+    fun getItemCount(): Int {
         return tabs.size
     }
 
-    override fun createFragment(position: Int): Fragment {
+    fun createFragment(position: Int): Fragment {
         val info = tabs[position]
 
         return info.fragmentConstructor().also { fr ->
@@ -43,20 +43,27 @@ class TabsStateAdapter : FragmentStateAdapter {
         val info = TabInfo(id ?: Any(), title, fragmentConstructor, args)
         tabs.add(info)
 
-        // one item was added
-        notifyItemInserted(tabs.size - 1)
+        notifyDataSetChanged()
     }
 
     fun updateTabTitle(id: Any, title: String) {
         for ((idx, tab) in tabs.withIndex()) {
-            if (tab.id == id) {
+            if (tab.id == id && tab.title != title) {
                 tabs[idx] = tab.copy(title = title)
-                notifyItemChanged(idx)
+                notifyDataSetChanged()
             }
         }
     }
 
-    fun getPageTitle(position: Int): CharSequence {
+    override fun getItem(position: Int): Fragment {
+        return createFragment(position)
+    }
+
+    override fun getCount(): Int {
+        return tabs.size
+    }
+
+    override fun getPageTitle(position: Int): CharSequence {
         return tabs[position].title
     }
 

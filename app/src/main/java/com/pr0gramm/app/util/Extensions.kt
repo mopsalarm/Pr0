@@ -32,11 +32,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import androidx.work.Constraints
 import androidx.work.WorkRequest
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
@@ -780,12 +777,6 @@ inline fun <T> Boolean.then(block: () -> T): T? = if (this) block() else null
 
 fun Drawable.withInsets(left: Int = 0, top: Int = 0, right: Int = 0, bottom: Int = 0): InsetDrawable {
     return InsetDrawable(this, left, top, right, bottom)
-}
-
-inline fun TabLayout.setupWithViewPager2(pager: ViewPager2, crossinline configureTab: (tab: TabLayout.Tab, position: Int) -> Unit): TabLayoutMediator {
-    val tm = TabLayoutMediator(this, pager) { tab, position -> configureTab(tab, position) }
-    tm.attach()
-    return tm
 }
 
 fun Number.formatSize() = "%1.3fkb".format(Locale.ROOT, toDouble() / 1024.0)

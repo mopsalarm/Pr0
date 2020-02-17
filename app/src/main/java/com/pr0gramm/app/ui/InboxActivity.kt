@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
-import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.InboxService
@@ -20,7 +20,6 @@ import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.observeOnMainThread
-import com.pr0gramm.app.util.setupWithViewPager2
 import com.pr0gramm.app.util.startActivity
 import kotterknife.bindView
 
@@ -34,7 +33,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
     private val coordinator: CoordinatorLayout by bindView(R.id.coordinator)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
-    private val pager: ViewPager2 by bindView(R.id.pager)
+    private val pager: ViewPager by bindView(R.id.pager)
 
     private lateinit var tabsAdapter: TabsStateAdapter
 
@@ -98,15 +97,13 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
         pager.adapter = tabsAdapter
         pager.offscreenPageLimit = 1
 
-        pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 onTabChanged()
             }
         })
 
-        tabLayout.setupWithViewPager2(pager) { tab, position ->
-            tab.text = tabsAdapter.getPageTitle(position)
-        }
+        tabLayout.setupWithViewPager(pager, true)
 
         // restore previously selected tab
         if (savedInstanceState != null) {
@@ -171,7 +168,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     }
 
     private fun showInboxType(type: InboxType?) {
-        if (type != null && type.ordinal < tabsAdapter.itemCount) {
+        if (type != null && type.ordinal < tabsAdapter.getItemCount()) {
             pager.currentItem = type.ordinal
         }
     }
@@ -183,7 +180,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
     private fun onTabChanged() {
         val index = pager.currentItem
-        if (index >= 0 && index < tabsAdapter.itemCount) {
+        if (index >= 0 && index < tabsAdapter.getItemCount()) {
             title = tabsAdapter.getPageTitle(index)
         }
     }
