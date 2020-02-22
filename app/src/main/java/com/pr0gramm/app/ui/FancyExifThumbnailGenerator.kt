@@ -20,8 +20,8 @@ import java.io.ByteArrayInputStream
 class FancyExifThumbnailGenerator(context: Application, private val downloader: Downloader) {
     private val logger = Logger("FancyExifThumbnailGenerator")
 
-    private val maskV = BitmapFactory.decodeResource(context.resources, R.raw.mask_v)
-    private val maskH = BitmapFactory.decodeResource(context.resources, R.raw.mask_h)
+    private val maskV by lazy { BitmapFactory.decodeResource(context.resources, R.raw.mask_v) }
+    private val maskH by lazy { BitmapFactory.decodeResource(context.resources, R.raw.mask_h) }
 
     private val zero = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
 

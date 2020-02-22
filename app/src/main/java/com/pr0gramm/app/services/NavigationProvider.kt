@@ -62,7 +62,7 @@ class NavigationProvider(
     private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
-        return lazy(LazyThreadSafetyMode.NONE) {
+        return lazy(LazyThreadSafetyMode.PUBLICATION) {
             AppCompatResources.getDrawable(context, id)!!
         }
     }
@@ -260,41 +260,52 @@ class NavigationProvider(
     /**
      * Returns the menu item that takes the user to the upload activity.
      */
-    private val uploadNavigationItem: NavigationItem = NavigationItem(
-            action = ActionType.UPLOAD,
-            title = getString(R.string.action_upload),
-            icon = iconUpload)
+    private val uploadNavigationItem: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        NavigationItem(
+                action = ActionType.UPLOAD,
+                title = getString(R.string.action_upload),
+                icon = iconUpload)
+    }
 
     /**
      * Divider to divide item groups
      */
-    private val staticItemDivider: NavigationItem = NavigationItem(ActionType.DIVIDER,
-            layout = R.layout.left_drawer_nav_item_divider)
+    private val staticItemDivider: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        NavigationItem(ActionType.DIVIDER,
+                layout = R.layout.left_drawer_nav_item_divider)
+    }
 
     private fun staticItem(action: ActionType, icon: Drawable, title: String): NavigationItem {
         return NavigationItem(action, title = title, icon = icon, colorOverride = 0x80808080.toInt())
     }
 
-    private val staticItemFAQ: NavigationItem = staticItem(
-            ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
+    private val staticItemFAQ: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
+    }
 
-    private val staticItemSettings: NavigationItem = staticItem(
-            ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
+    private val staticItemSettings: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
+    }
 
-    private val staticItemInvites: NavigationItem = staticItem(
-            ActionType.INVITES, iconInvite, getString(R.string.action_invite))
+    private val staticItemInvites: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.INVITES, iconInvite, getString(R.string.action_invite))
+    }
 
-    private val staticItemContact: NavigationItem = staticItem(
-            ActionType.CONTACT, iconContact, getString(R.string.action_contact))
+    private val staticItemContact: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.CONTACT, iconContact, getString(R.string.action_contact))
+    }
 
-    private val staticItemPremium: NavigationItem = staticItem(
-            ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
+    private val staticItemPremium: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
+    }
 
-    private val staticItemLogin: NavigationItem = staticItem(
-            ActionType.LOGIN, iconLogin, getString(R.string.action_login))
+    private val staticItemLogin: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.LOGIN, iconLogin, getString(R.string.action_login))
+    }
 
-    private val staticItemLogout: NavigationItem = staticItem(
-            ActionType.LOGOUT, iconLogout, getString(R.string.action_logout))
+    private val staticItemLogout: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.LOGOUT, iconLogout, getString(R.string.action_logout))
+    }
 
     /**
      * Short for context.getString(...)
@@ -371,7 +382,7 @@ class NavigationProvider(
                          val isSelected: Boolean = false,
                          val colorOverride: Int? = null) {
 
-        private val hashCode by lazy(LazyThreadSafetyMode.NONE) {
+        private val hashCode by lazy(LazyThreadSafetyMode.PUBLICATION) {
             listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode()
         }
 

@@ -24,9 +24,8 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
     override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
 
     fun <T> bindUntilEventAsync(event: FragmentEvent): Observable.Transformer<T, T> {
-        return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
+        return AsyncLifecycleTransformer(bindUntilEvent(event))
     }
-
 
     fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseFragment.bindToLifecycle())
 

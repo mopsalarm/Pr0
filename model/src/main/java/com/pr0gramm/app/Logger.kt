@@ -58,7 +58,18 @@ object Logging {
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
-    var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> false }
+    private var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> false }
+
+    fun configureLoggingOutput(handler: RemoteLoggingHandler) {
+        for (idx in 0..entriesIndex.get()) {
+            val entry = entries.getOrNull(idx) ?: break
+            handler(entry.level, "[${entry.thread}] ${entry.name}", entry.message)
+        }
+
+        remoteLoggingHandler = handler
+
+        log(Log.INFO, "Logging", "Remote logging configured, previous messages replayed")
+    }
 
     fun log(level: Int, name: String, message: String) {
         val thread = Thread.currentThread().name

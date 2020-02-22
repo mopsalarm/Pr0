@@ -81,12 +81,10 @@ open class ApplicationClass : Application(), InjectorAware {
         Settings.initialize(this)
         Track.initialize(this)
 
-        val workManagerJob = doInBackground {
-            logger.time("Initializing WorkManager") {
-                WorkManager.initialize(this, Configuration.Builder()
-                        .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
-                        .build())
-            }
+        logger.time("Initializing WorkManager") {
+            WorkManager.initialize(this, Configuration.Builder()
+                    .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
+                    .build())
         }
 
         forceInjectorInstance()
@@ -117,7 +115,6 @@ open class ApplicationClass : Application(), InjectorAware {
         // wait for firebase setup to finish
         runBlocking {
             firebaseJob.join()
-            workManagerJob.join()
         }
 
         logger.info { "App booted in $bootupWatch" }
@@ -143,13 +140,15 @@ open class ApplicationClass : Application(), InjectorAware {
             null
         }
 
-        Logging.remoteLoggingHandler = { level, tag, message ->
-            if (core != null && level >= Log.INFO) {
-                core.log(level, tag, message)
+        if (core != null) {
+            Logging.configureLoggingOutput { level, tag, message ->
+                if (level >= Log.INFO) {
+                    core.log(level, tag, message)
 
-                true
-            } else {
-                false
+                    true
+                } else {
+                    false
+                }
             }
         }
     }

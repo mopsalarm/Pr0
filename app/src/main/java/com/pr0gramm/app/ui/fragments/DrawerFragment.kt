@@ -32,6 +32,7 @@ import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
@@ -92,8 +93,10 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             val configService = instance<ConfigService>()
             val singleShotService = instance<SingleShotService>()
 
-            NavigationProvider(requireActivity(), userService, inboxService,
-                    bookmarkService, configService, singleShotService, picasso)
+            logger.time("Create navigation provider") {
+                NavigationProvider(requireActivity(), userService, inboxService,
+                        bookmarkService, configService, singleShotService, picasso)
+            }
         }
 
         (activity as? ScrollHideToolbarListener.ToolbarActivity)?.let { activity ->

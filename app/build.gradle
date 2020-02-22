@@ -162,8 +162,11 @@ dependencies {
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
     implementation 'androidx.documentfile:documentfile:1.0.1'
 
-    implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.activity:activity-ktx:1.1.0'
+
+    // 1.2.0 failes with a precomputed text issue when selecting
+    // and dragging text in the comments
+    implementation 'androidx.core:core-ktx:1.1.0'
 
     // 1.2.1 does not restore the fragment state correctly when going back.
     // e.g. scroll position in favorites is gone
@@ -177,9 +180,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.7.1") {
         exclude module: "moshi"
     }
-    implementation "com.squareup.okhttp3:okhttp:4.3.1"
-    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps:4.3.1"
-    implementation "com.squareup.okhttp3:okhttp-brotli:4.3.1"
+
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.4.0"))
+    implementation "com.squareup.okhttp3:okhttp"
+    implementation "com.squareup.okhttp3:okhttp-dnsoverhttps"
+    implementation "com.squareup.okhttp3:okhttp-brotli"
     implementation "com.squareup.picasso:picasso:2.71828"
 
     implementation "com.github.square.moshi:moshi:b413423d05"
@@ -195,13 +200,13 @@ dependencies {
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
-    implementation 'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
+    implementation 'com.github.AlexKorRnd:ChipsLayoutManager:v0.3.8.4'
 
-    implementation "androidx.work:work-runtime-ktx:2.3.1"
+    implementation "androidx.work:work-runtime-ktx:2.3.2"
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
 
     debugImplementation "com.github.ChuckerTeam.Chucker:library:3.1.2"
     releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.1.2"

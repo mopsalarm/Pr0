@@ -54,8 +54,8 @@ fun Fragment.launchUntilViewDestroy(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    return viewLifecycleOwner.lifecycleScope.launch(
-            block = decorate(requireContext(), ignoreErrors, busyIndicator, block))
+    return launchUntil(requireContext(), viewLifecycleOwner.lifecycle,
+            ignoreErrors, busyIndicator, block, Lifecycle.Event.ON_DESTROY)
 }
 
 fun Fragment.launchUntilDestroy(
