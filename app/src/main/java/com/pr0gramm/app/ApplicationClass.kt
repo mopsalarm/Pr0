@@ -1,6 +1,8 @@
 package com.pr0gramm.app
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import androidx.work.Configuration
@@ -15,12 +17,9 @@ import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
-import com.pr0gramm.app.util.CachedThreadScheduler
-import com.pr0gramm.app.util.ExceptionHandler
-import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.InjectorAware
-import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.runBlocking
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
@@ -153,6 +152,22 @@ open class ApplicationClass : Application(), InjectorAware {
         }
     }
 
+    override fun registerActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
+        val wrapped = object : ActivityLifecycleCallbacks by callback {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                try {
+                    callback.onActivityCreated(activity, savedInstanceState)
+                } catch (err: ConcurrentModificationException) {
+                    AndroidUtility.logToCrashlytics(IllegalStateException(
+                            "ActivityLifecycleCallback failed with ConcurrentModificationException",
+                            err))
+                }
+            }
+        }
+
+        super.registerActivityLifecycleCallbacks(wrapped)
+    }
+
     private fun forceInjectorInstance() {
         // ensure that the lazy creates the instance
         System.identityHashCode(injector)
@@ -173,7 +188,7 @@ open class ApplicationClass : Application(), InjectorAware {
 
             try {
                 MobileAds.initialize(this@ApplicationClass, id)
-            } catch (ignored: NullPointerException) {
+            } catch (ignored: Throwable) {
                 // for some reason an internal getVersionString returns null,
                 // and the resulti s not checked. We ignore the error in that case
             }
