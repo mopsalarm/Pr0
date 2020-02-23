@@ -2,6 +2,7 @@ package com.pr0gramm.app
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
@@ -24,6 +25,7 @@ import kotlinx.coroutines.runBlocking
 import rx.Scheduler
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -60,7 +62,7 @@ open class ApplicationClass : Application(), InjectorAware {
             })
         }
 
-        lateinit var appContext: android.content.Context
+        lateinit var appContext: Context
     }
 
     override fun onCreate() = logger.time("onCreate") {
@@ -152,20 +154,18 @@ open class ApplicationClass : Application(), InjectorAware {
         }
     }
 
-    override fun registerActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
-        val wrapped = object : ActivityLifecycleCallbacks by callback {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                try {
-                    callback.onActivityCreated(activity, savedInstanceState)
-                } catch (err: ConcurrentModificationException) {
-                    AndroidUtility.logToCrashlytics(IllegalStateException(
-                            "ActivityLifecycleCallback failed with ConcurrentModificationException",
-                            err))
-                }
-            }
-        }
+    private val lifecycleCallbacksLookup = WeakHashMap<ActivityLifecycleCallbacks, CatchingActivityLifecycleCallbacks>()
 
+    override fun registerActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
+        // Issue with crashlytics / measurement. onActivityCreate throws a 'ConcurrentModificationException'
+        // that then crashes the instance. This way we can catch & ignore issues directly.
+        val wrapped = CatchingActivityLifecycleCallbacks(callback)
+        lifecycleCallbacksLookup[callback] = wrapped
         super.registerActivityLifecycleCallbacks(wrapped)
+    }
+
+    override fun unregisterActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
+        super.unregisterActivityLifecycleCallbacks(lifecycleCallbacksLookup[callback] ?: callback)
     }
 
     private fun forceInjectorInstance() {
@@ -201,3 +201,18 @@ open class ApplicationClass : Application(), InjectorAware {
     override val injector by lazy { appInjector(this) }
 }
 
+
+private class CatchingActivityLifecycleCallbacks(
+        private val callback: Application.ActivityLifecycleCallbacks)
+    : Application.ActivityLifecycleCallbacks by callback {
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        try {
+            callback.onActivityCreated(activity, savedInstanceState)
+        } catch (err: ConcurrentModificationException) {
+            AndroidUtility.logToCrashlytics(IllegalStateException(
+                    "ActivityLifecycleCallback failed with ConcurrentModificationException",
+                    err))
+        }
+    }
+}
