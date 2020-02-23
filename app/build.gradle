@@ -75,8 +75,10 @@ android {
 
         release {
             minifyEnabled true
-            shrinkResources true
             crunchPngs false
+
+            // setting this to true prevents the in-app update dialog to work.
+            shrinkResources false
 
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-release.pro'
 
