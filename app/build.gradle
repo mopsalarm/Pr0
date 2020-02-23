@@ -75,7 +75,7 @@ android {
 
         release {
             minifyEnabled true
-            shrinkResources false
+            shrinkResources true
             crunchPngs false
 
             proguardFiles 'proguard-rules-base.pro', 'proguard-rules-release.pro'
@@ -105,7 +105,7 @@ android {
 }
 
 android.applicationVariants.all { variant ->
-    // delete .so-files we dont want in the finished build
+    // delete .so-files we don't want in the finished build
     tasks."merge${variant.name.capitalize()}JniLibFolders".doLast {
         def filesToDelete = fileTree("build/") {
             include "**/armeabi/libpl_droidsonroids_gif.so"
