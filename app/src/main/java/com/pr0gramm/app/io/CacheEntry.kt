@@ -481,8 +481,10 @@ internal class CacheEntry(
 
         lock.withLock {
             // update the time stamp if the cache file already exists.
-            if (!partialCached.updateTimestamp()) {
-                logger.warn { "Could not update timestamp on $partialCached" }
+            if (partialCached.exists()) {
+                if (!partialCached.updateTimestamp()) {
+                    logger.warn { "Could not update timestamp on $partialCached" }
+                }
             }
 
             return EntryInputStream(incrementRefCount(), offset)
