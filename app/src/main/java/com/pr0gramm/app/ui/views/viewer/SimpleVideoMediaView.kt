@@ -207,7 +207,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
     override fun userSeekTo(fraction: Float) {
         this.exo?.let { exo ->
-            exo.seekTo((exo.duration * fraction).toLong())
+            exo.seekTo((exo.duration * fraction.coerceAtLeast(0f)).toLong())
         }
     }
 
