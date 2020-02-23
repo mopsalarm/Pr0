@@ -345,7 +345,7 @@
     <string name="dt_for_one_day_n_hours">einen Tag und $r Stunden</string>
     <string name="dt_for_n_days">$d Tage</string>
     <string name="dt_for_one_week">eine Woche</string>
-    <string name="dt_for_one_week_1_days">eine Woche und eine Tag</string>
+    <string name="dt_for_one_week_1_days">eine Woche und einen Tag</string>
     <string name="dt_for_one_week_n_days">eine Woche und $r Tage</string>
     <string name="dt_for_n_weeks">$d Wochen</string>
     <string name="dt_for_one_month">einen Monat</string>
