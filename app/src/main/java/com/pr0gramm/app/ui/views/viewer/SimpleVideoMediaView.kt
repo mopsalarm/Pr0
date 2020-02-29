@@ -141,7 +141,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             playWhenReady = true
             volume = 0f
 
-            // dont forget to remove listeners in stop()
+            // don't forget to remove listeners in stop()
             addListener(playerListener)
             addVideoListener(videoListener)
 
