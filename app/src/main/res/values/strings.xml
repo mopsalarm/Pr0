@@ -535,6 +535,7 @@
     <string name="notify_new_system_notification">New system notification</string>
     <string name="notify_hint_tap_to_open_post">Tap to view this upload</string>
     <string name="notify_to_inbox">Open inbox</string>
+    <string name="hint_no_file_manager_available">No file manager available to select a directory.</string>
 
 </resources>
 

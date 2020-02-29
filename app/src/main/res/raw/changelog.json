@@ -1,5 +1,18 @@
 [
   {
+    "version": 180,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Übersetzungen ergänzt"
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfixes. Einige Abstürzte in der App behoben"
+      }
+    ]
+  },
+  {
     "version": 179,
     "changes": [
       {

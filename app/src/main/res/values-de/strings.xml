@@ -509,6 +509,13 @@
     <string name="message_type_message">Private Nachricht</string>
     <string name="message_type_stalk">Neuer Hochlad</string>
     <string name="message_type_notification">Notifizierung</string>
+    <string name="notification_channel_new_stalk">Hochlad eines gestelzten Benutzers</string>
+    <string name="notification_channel_new_notification">Systemnotifizierungen</string>
+    <string name="notify_new_stalk_post">Neuer Hochlad von %s</string>
+    <string name="notify_new_system_notification">Neue Systemnotifizierung</string>
+    <string name="notify_hint_tap_to_open_post">Tap um den Hochlad zu sehen</string>
+    <string name="notify_to_inbox">Inbox öffnen</string>
+    <string name="hint_no_file_manager_available">Es wurde kein Dateimanager gefunden um einen Ordner auszuwählen.</string>
 
 
 </resources>

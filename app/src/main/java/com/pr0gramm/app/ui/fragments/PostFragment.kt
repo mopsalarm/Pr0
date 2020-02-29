@@ -630,10 +630,19 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun downloadPostMedia() {
         if (!Storage.hasTreeUri(requireContext())) {
+            val intent = Storage.openTreeIntent(requireContext())
+            ignoreAllExceptions {
+                val noActivityAvailable = requireContext().packageManager.queryIntentActivities(intent, 0).isEmpty()
+                if (noActivityAvailable) {
+                    showNoFileManagerAvailable()
+                    return
+                }
+            }
+
             showDialog(this) {
                 content(R.string.hint_select_download_directory)
                 positive {
-                    startActivityForResult(Storage.openTreeIntent(requireContext()), RequestCodes.SELECT_DOWNLOAD_PATH)
+                    startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
                 }
             }
 
@@ -641,6 +650,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         downloadPostWithPermissionGranted()
+    }
+
+    private fun showNoFileManagerAvailable() {
+        showDialog(this) {
+            content(R.string.hint_no_file_manager_available)
+            positive(R.string.okay)
+        }
     }
 
     private fun downloadPostWithPermissionGranted() {
