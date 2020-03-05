@@ -205,7 +205,8 @@
     <string name="user_registered">Dabei seit %s</string>
     <string name="user_registered_inactive">Dabei seit %s, inaktiv</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
-    <string name="user_banned">Gebannt für %s</string>
+    <string name="user_banned">Gesperrt für %s</string>
+    <string name="user_banned_self">Auf Wunsch gesperrt für %s</string>
     <string name="notification_update_available">Update verfügbar</string>
     <string name="notification_update_available_text">Ein neues Update für die pr0gramm App auf Version %s ist verfügbar.</string>
     <string name="update">Update</string>

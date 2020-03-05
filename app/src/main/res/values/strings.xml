@@ -220,6 +220,7 @@
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
 
     <string name="user_banned">Banned for %s</string>
+    <string name="user_banned_self">Banned voluntarily for %s</string>
     <string name="user_banned_forever">Banned forever</string>
     <string name="user_registered">Registered %s ago</string>
     <string name="user_registered_inactive">Registered %s ago, inactive</string>

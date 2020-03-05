@@ -646,8 +646,8 @@ inline fun SeekBar.setOnProgressChanged(crossinline listener: (value: Int, fromU
     })
 }
 
-inline fun View.addOnAttachStateChangeListener(crossinline listener: (isAttach: Boolean) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+fun View.addOnAttachStateChangeListener(listener: (isAttach: Boolean) -> Unit): View.OnAttachStateChangeListener {
+    val stateChangeListener = object : View.OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) {
             listener(true)
         }
@@ -655,19 +655,23 @@ inline fun View.addOnAttachStateChangeListener(crossinline listener: (isAttach: 
         override fun onViewDetachedFromWindow(v: View) {
             listener(false)
         }
-    })
+    }
+
+    addOnAttachStateChangeListener(stateChangeListener)
+
+    return stateChangeListener
 }
 
-inline fun View.addOnAttachListener(crossinline listener: () -> Unit) {
-    addOnAttachStateChangeListener { isAttach ->
+fun View.addOnAttachListener(listener: () -> Unit): View.OnAttachStateChangeListener {
+    return addOnAttachStateChangeListener { isAttach ->
         if (isAttach) {
             listener()
         }
     }
 }
 
-inline fun View.addOnDetachListener(crossinline listener: () -> Unit) {
-    addOnAttachStateChangeListener { isAttach ->
+fun View.addOnDetachListener(listener: () -> Unit): View.OnAttachStateChangeListener {
+    return addOnAttachStateChangeListener { isAttach ->
         if (!isAttach) {
             listener()
         }

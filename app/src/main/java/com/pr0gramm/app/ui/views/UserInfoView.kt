@@ -153,7 +153,8 @@ class UserInfoView(context: Context) : FrameLayout(context) {
                 extraInfo.setText(R.string.user_banned_forever)
             } else {
                 val durationStr = DurationFormat.timeSpan(context, bannedUntil, short = false)
-                extraInfo.text = context.getString(R.string.user_banned, durationStr)
+                val stringId = if (user.inactive) R.string.user_banned_self else R.string.user_banned
+                extraInfo.text = context.getString(stringId, durationStr)
             }
         } else {
             val dateStr = DurationFormat.timeToPointInTime(context, user.registered, short = false)
