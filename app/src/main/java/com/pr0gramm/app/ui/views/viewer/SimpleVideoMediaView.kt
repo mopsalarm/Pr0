@@ -65,17 +65,19 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
         publishControllerView(controlsView)
 
-        addOnAttachListener {
-            if (isPlaying) {
-                logger.debug { "View is attached, re-create video player now." }
-                play()
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
+            addOnAttachListener {
+                if (isPlaying) {
+                    logger.debug { "View is attached, re-create video player now." }
+                    play()
+                }
             }
-        }
 
-        addOnDetachListener {
-            if (exo != null) {
-                logger.debug { "View is detached, releasing video player now." }
-                stop()
+            addOnDetachListener {
+                if (exo != null) {
+                    logger.debug { "View is detached, releasing video player now." }
+                    stop()
+                }
             }
         }
 
