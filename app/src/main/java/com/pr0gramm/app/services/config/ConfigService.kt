@@ -105,7 +105,7 @@ class ConfigService(context: Application,
         debugOnly {
             // update config for development.
             return configState.copy(
-                    adType = Config.AdType.FEED,
+                    adTypes = listOf(Config.AdType.FEED, Config.AdType.FEED_TO_POST_INTERSTITIAL),
                     specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
                             ?: listOf(Config.MenuItem(
                                     name = "Wichteln",

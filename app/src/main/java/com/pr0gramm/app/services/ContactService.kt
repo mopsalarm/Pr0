@@ -98,9 +98,6 @@ private object DeviceInfoService {
     private fun appendDeviceInfo(result: StringBuilder) {
         result.append("Android: ").append(Build.VERSION.RELEASE).append('\n')
 
-        result.append("Flavor: ").append(BuildConfig.FLAVOR)
-                .append("(").append(BuildConfig.APPLICATION_ID).append(")\n")
-
         for (field in Build::class.java.fields) {
             if (Modifier.isStatic(field.modifiers)) {
                 try {

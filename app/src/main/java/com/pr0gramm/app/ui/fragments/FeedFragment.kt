@@ -47,6 +47,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
+
 /**
  */
 class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
@@ -83,6 +84,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     private var lastCheckForNewItemsTime = Instant(0)
 
     private lateinit var loader: FeedManager
+    private lateinit var interstitialAdler: InterstitialAdler
 
     private val feedAdapter by lazy {
         val mainActivity = requireActivity() as MainActivity
@@ -159,6 +161,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         if (previousFeed == null) {
             loader.restart(around = autoScrollRef?.ref?.itemId)
         }
+
+        interstitialAdler = InterstitialAdler(requireContext())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -1050,7 +1054,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         listener.itemClicked.bindToLifecycle().subscribeIgnoreError { view ->
             extractFeedItemHolder(view)?.let { holder ->
-                onItemClicked(holder.item, preview = holder.imageView)
+                interstitialAdler.runWithAd {
+                    onItemClicked(holder.item, preview = holder.imageView)
+                }
             }
         }
 

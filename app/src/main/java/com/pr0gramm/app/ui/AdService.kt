@@ -22,16 +22,6 @@ import rx.subjects.ReplaySubject
 
 class AdService(private val configService: ConfigService, private val userService: UserService) {
 
-    private fun isEnabledFor(type: Config.AdType): Boolean {
-        if (Settings.get().alwaysShowAds) {
-            // If the user opted in to ads, we always show the feed ad.
-            return type == Config.AdType.FEED
-        }
-
-        // do not show ads for premium users
-        return !userService.userIsPremium && configService.config().adType == type
-    }
-
     /**
      * Loads an ad into this view. This method also registers a listener to track the view.
      * The resulting completable completes once the ad finishes loading.
@@ -45,19 +35,25 @@ class AdService(private val configService: ConfigService, private val userServic
         val listener = TrackingAdListener(type)
         view.adListener = listener
 
-        view.loadAd(AdRequest.Builder()
-                .setTagForUnderAgeOfConsent(AdRequest.TAG_FOR_UNDER_AGE_OF_CONSENT_FALSE)
-                .setMaxAdContentRating(AdRequest.MAX_AD_CONTENT_RATING_MA)
-                .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
-                .build())
+        view.loadAd(AdRequest.Builder().build())
 
         return listener.loadedSubject
+    }
+
+    fun enabledForTypeNow(type: Config.AdType): Boolean {
+        if (Settings.get().alwaysShowAds) {
+            // If the user opted in to ads, we always show the feed ad.
+            return type == Config.AdType.FEED
+        }
+
+        // do not show ads for premium users
+        return !userService.userIsPremium && type in configService.config().adTypes
     }
 
     fun enabledForType(type: Config.AdType): Observable<Boolean> {
         return userService.loginStates
                 .observeOnMainThread(firstIsSync = true)
-                .map { isEnabledFor(type) }
+                .map { enabledForTypeNow(type) }
                 .distinctUntilChanged()
     }
 

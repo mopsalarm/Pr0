@@ -12,6 +12,8 @@ data class Config(
         val maxUploadPixelsPremium: Long = 20_250_000,
 
         val adType: AdType = AdType.NONE,
+        val adTypes: List<AdType> = listOf(),
+
         val commentsMaxLevels: Int = 18,
         val reportReasons: List<String> = DefaultReportReasons,
         val adminReasons: List<String> = DefaultAdminReasons,
@@ -25,7 +27,7 @@ data class Config(
     enum class AdType {
         NONE,
         FEED,
-        MAIN /* deprecated - dont use */
+        FEED_TO_POST_INTERSTITIAL
     }
 
     @JsonClass(generateAdapter = true)
