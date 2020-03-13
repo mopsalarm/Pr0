@@ -10,11 +10,9 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.minutes
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.config.Config
-import com.pr0gramm.app.util.debugOnly
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.getStringOrNull
-import com.pr0gramm.app.util.runEvery
+import com.squareup.moshi.JsonDataException
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
@@ -62,6 +60,12 @@ class ConfigService(context: Application,
                 ConfigEvaluator.evaluate(context, rules)
             }
 
+            config.onFailure { err ->
+                if (err is JsonDataException) {
+                    AndroidUtility.logToCrashlytics(RuntimeException("Parse appConfig failed", err))
+                }
+            }
+
             logger.debug { "Remote config result: $config" }
             updateConfigState(config.getOrElse { Config() })
         }
@@ -106,6 +110,7 @@ class ConfigService(context: Application,
             // update config for development.
             return configState.copy(
                     adTypes = listOf(Config.AdType.FEED, Config.AdType.FEED_TO_POST_INTERSTITIAL),
+                    interstitialAdIntervalInSeconds = 10,
                     specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
                             ?: listOf(Config.MenuItem(
                                     name = "Wichteln",

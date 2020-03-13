@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string translatable="false" name="banner_ad_unit_id">ca-app-pub-2308657767126505/5614778874</string>
-
     <string-array name="pref_seen_indicator_style_human">
         <item>@string/indicator_none</item>
         <item>@string/indicator_icon</item>

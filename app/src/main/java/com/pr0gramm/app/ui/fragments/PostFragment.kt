@@ -89,6 +89,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
     private val shareService: ShareService by instance()
+    private val interstitialAdler by lazy { InterstitialAdler(requireContext()) }
 
     private val swipeRefreshLayout: SwipeRefreshLayout? by bindOptionalView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
@@ -1381,7 +1382,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onTagClicked(tag: Api.Tag) {
-            (parentFragment as PostPagerFragment).onTagClicked(tag)
+            interstitialAdler.runWithAd {
+                val parent = parentFragment as PostPagerFragment
+                parent.onTagClicked(tag)
+            }
         }
 
         override fun onUserClicked(username: String) {

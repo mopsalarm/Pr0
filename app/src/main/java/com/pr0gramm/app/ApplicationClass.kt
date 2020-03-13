@@ -8,7 +8,6 @@ import android.os.StrictMode
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.core.CrashlyticsCore
@@ -17,6 +16,7 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
+import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
@@ -110,8 +110,9 @@ open class ApplicationClass : Application(), InjectorAware {
             log?.handlers?.forEach { it.level = Level.INFO }
         }
 
-        // initialize mobile ads asynchronously
-        initializeMobileAds()
+        logger.time("Initializing MobileAds") {
+            AdService.initializeMobileAds(this)
+        }
 
         // wait for firebase setup to finish
         runBlocking {
@@ -178,26 +179,6 @@ open class ApplicationClass : Application(), InjectorAware {
         }
     }
 
-    private fun initializeMobileAds() {
-        doInBackground {
-            val id = if (BuildConfig.DEBUG) {
-                "ca-app-pub-3940256099942544~3347511713"
-            } else {
-                "ca-app-pub-2308657767126505~4138045673"
-            }
-
-            try {
-                MobileAds.initialize(this@ApplicationClass, id)
-            } catch (ignored: Throwable) {
-                // for some reason an internal getVersionString returns null,
-                // and the resulti s not checked. We ignore the error in that case
-            }
-
-            MobileAds.setAppVolume(0f)
-            MobileAds.setAppMuted(true)
-        }
-    }
-
     override val injector by lazy { appInjector(this) }
 }
 
@@ -209,9 +190,9 @@ private class CatchingActivityLifecycleCallbacks(
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         try {
             callback.onActivityCreated(activity, savedInstanceState)
-        } catch (err: ConcurrentModificationException) {
+        } catch (err: RuntimeException) {
             AndroidUtility.logToCrashlytics(IllegalStateException(
-                    "ActivityLifecycleCallback failed with ConcurrentModificationException",
+                    "ActivityLifecycleCallback failed with ${err.javaClass.simpleName}",
                     err))
         }
     }

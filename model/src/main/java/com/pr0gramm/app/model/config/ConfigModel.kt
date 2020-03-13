@@ -11,8 +11,9 @@ data class Config(
         val maxUploadPixelsNormal: Long = 20_250_000,
         val maxUploadPixelsPremium: Long = 20_250_000,
 
-        val adType: AdType = AdType.NONE,
         val adTypes: List<AdType> = listOf(),
+
+        val interstitialAdIntervalInSeconds: Long = 600,
 
         val commentsMaxLevels: Int = 18,
         val reportReasons: List<String> = DefaultReportReasons,

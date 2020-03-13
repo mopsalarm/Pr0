@@ -226,8 +226,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         }
 
     fun onTagClicked(tag: Api.Tag) {
-        (activity as MainActionHandler).onFeedFilterSelected(
-                currentFilter.withTags(tag.tag))
+        val handler = activity as MainActionHandler
+        handler.onFeedFilterSelected(currentFilter.withTags(tag.tag))
     }
 
     fun onUsernameClicked(username: String) {

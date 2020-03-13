@@ -195,5 +195,9 @@ object Track : InjectorAware {
         }
     }
 
+    fun adEvent(type: String) {
+        send("ad_$type")
+    }
+
     data class AuthState(val authorized: Boolean, val premium: Boolean)
 }
