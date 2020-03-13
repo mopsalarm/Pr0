@@ -1,12 +1,13 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
-import com.pr0gramm.app.*
+import com.google.android.gms.ads.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.config.Config
+import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
@@ -45,8 +46,15 @@ class AdService(private val configService: ConfigService, private val userServic
             return true
         }
 
-        // do not show ads for premium users
-        return !userService.userIsPremium && type in configService.config().adTypes
+        if (userService.userIsPremium) {
+            return false
+        }
+
+        if (userService.isAuthorized) {
+            return type in configService.config().adTypesLoggedIn
+        } else {
+            return type in configService.config().adTypesLoggedOut
+        }
     }
 
     fun enabledForType(type: Config.AdType): Observable<Boolean> {
@@ -80,16 +88,27 @@ class AdService(private val configService: ConfigService, private val userServic
         return view
     }
 
-    companion object {
-        private val logger = Logger("AdService")
+    fun buildInterstitialAd(context: Context): InterstitialAd? {
+        return if (enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
+            InterstitialAd(context).also { ad ->
+                ad.adUnitId = interstitialUnitId
+                ad.adListener = TrackingAdListener("i")
+                ad.setImmersiveMode(false)
+                ad.loadAd(AdRequest.Builder().build())
+            }
+        } else {
+            null
+        }
+    }
 
-        val interstitialUnitId: String = if (BuildConfig.DEBUG) {
+    companion object {
+        private val interstitialUnitId: String = if (BuildConfig.DEBUG) {
             "ca-app-pub-3940256099942544/1033173712"
         } else {
             "ca-app-pub-2308657767126505/4231980510"
         }
 
-        val bannerUnitId: String = if (BuildConfig.DEBUG) {
+        private val bannerUnitId: String = if (BuildConfig.DEBUG) {
             "ca-app-pub-3940256099942544/6300978111"
         } else {
             "ca-app-pub-2308657767126505/5614778874"
@@ -113,7 +132,11 @@ class AdService(private val configService: ConfigService, private val userServic
         }
     }
 
-    private class RxAdListener : AdListener() {
+    enum class AdLoadState {
+        SUCCESS, FAILURE, CLOSED
+    }
+
+    private class RxAdListener : TrackingAdListener("b") {
         val loadedSubject = ReplaySubject.create<AdLoadState>().toSerialized()!!
 
         override fun onAdLeftApplication() {
@@ -123,7 +146,7 @@ class AdService(private val configService: ConfigService, private val userServic
             loadedSubject.onNext(AdLoadState.SUCCESS)
         }
 
-        override fun onAdFailedToLoad(i: Int) {
+        override fun onAdFailedToLoad(p0: Int) {
             loadedSubject.onNext(AdLoadState.FAILURE)
         }
 
@@ -132,7 +155,22 @@ class AdService(private val configService: ConfigService, private val userServic
         }
     }
 
-    enum class AdLoadState {
-        SUCCESS, FAILURE, CLOSED
+    open class TrackingAdListener(private val prefix: String) : AdListener() {
+        override fun onAdFailedToLoad(p0: Int) {
+            Track.adEvent("${prefix}_failed_to_load")
+        }
+
+        override fun onAdLeftApplication() {
+            Track.adEvent("${prefix}_left_application")
+        }
+
+        override fun onAdImpression() {
+            Track.adEvent("${prefix}_impression")
+        }
+
+        override fun onAdOpened() {
+            Track.adEvent("${prefix}_opened")
+        }
     }
+
 }

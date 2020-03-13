@@ -11,7 +11,8 @@ data class Config(
         val maxUploadPixelsNormal: Long = 20_250_000,
         val maxUploadPixelsPremium: Long = 20_250_000,
 
-        val adTypes: List<AdType> = listOf(),
+        val adTypesLoggedIn: List<AdType> = listOf(),
+        val adTypesLoggedOut: List<AdType> = listOf(),
 
         val interstitialAdIntervalInSeconds: Long = 600,
 

@@ -3,11 +3,10 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.Logger
-import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.util.di.injector
 
@@ -16,16 +15,7 @@ class InterstitialAdler(context: Context) {
     private val adService: AdService = context.injector.instance()
     private val handler = Handler(Looper.getMainLooper())
 
-    private val ad: InterstitialAd? = if (adService.enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
-        InterstitialAd(context).also { ad ->
-            ad.adUnitId = AdService.interstitialUnitId
-            ad.adListener = TrackingAdListener()
-            ad.setImmersiveMode(false)
-            ad.loadAd(AdRequest.Builder().build())
-        }
-    } else {
-        null
-    }
+    private val ad: InterstitialAd? = adService.buildInterstitialAd(context)
 
     fun runWithAd(block: () -> Unit) {
         logger.debug { "Ad is loaded: ${ad?.isLoaded}" }
@@ -49,16 +39,19 @@ class InterstitialAdler(context: Context) {
         handler.postDelayed(onAdNotShown, 1000)
 
         // show app
-        ad.adListener = object : TrackingAdListener() {
+        ad.adListener = object : AdService.TrackingAdListener("i") {
             override fun onAdOpened() {
-                super.onAdOpened()
-
                 handler.removeCallbacks(onAdNotShown)
-
                 ad.adListener = reloadAdListener
+
+                super.onAdOpened()
                 block()
             }
         }
+
+        // again, apply muted, just to be on the sure side
+        MobileAds.setAppVolume(0f)
+        MobileAds.setAppMuted(true)
 
         ad.show()
     }
@@ -67,27 +60,10 @@ class InterstitialAdler(context: Context) {
         ad?.loadAd(AdRequest.Builder().build())
     }
 
-    private val reloadAdListener = object : TrackingAdListener() {
+    private val reloadAdListener = object : AdService.TrackingAdListener("i") {
         override fun onAdClosed() {
+            super.onAdClosed()
             reload()
-        }
-    }
-
-    private open class TrackingAdListener : AdListener() {
-        override fun onAdFailedToLoad(p0: Int) {
-            Track.adEvent("i_failed_to_load")
-        }
-
-        override fun onAdLeftApplication() {
-            Track.adEvent("i_left_application")
-        }
-
-        override fun onAdImpression() {
-            Track.adEvent("i_impression")
-        }
-
-        override fun onAdOpened() {
-            Track.adEvent("i_opened")
         }
     }
 }

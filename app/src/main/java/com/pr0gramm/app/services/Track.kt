@@ -157,12 +157,12 @@ object Track : InjectorAware {
 
     fun updateUserState(state: AuthState) = ignoreAllExceptions {
         val fa = FirebaseAnalytics.getInstance(context)
-        fa.setUserProperty("pr0.premium", state.premium.toString())
-        fa.setUserProperty("pr0.authorized", state.authorized.toString())
+        fa.setUserProperty("pr0_premium", state.premium.toString())
+        fa.setUserProperty("pr0_authorized", state.authorized.toString())
 
         val fc = FirebaseCrashlytics.getInstance()
-        fc.setCustomKey("pr0.premium", state.premium)
-        fc.setCustomKey("pr0.authorized", state.authorized)
+        fc.setCustomKey("pr0_premium", state.premium)
+        fc.setCustomKey("pr0_authorized", state.authorized)
     }
 
     fun openFeed(filter: FeedFilter) {
