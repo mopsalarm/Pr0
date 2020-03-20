@@ -198,7 +198,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         swipeRefreshLayout.setOnRefreshListener {
             logger.debug { "onRefresh called for swipe view." }
             if (feed.isAtStart || feed.isEmpty()) {
-                refreshFeed()
+                refreshContent()
             } else {
                 // do not refresh
                 swipeRefreshLayout.isRefreshing = false
@@ -711,7 +711,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         val snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG).apply {
             configureNewStyle()
-            setAction(R.string.hint_refresh_load) { refreshFeed() }
+            setAction(R.string.hint_refresh_load) { refreshContent() }
             show()
         }
 
@@ -918,13 +918,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private fun refreshFeedWithIndicator() {
         swipeRefreshLayout.isRefreshing = true
-        refreshFeed()
+        refreshContent()
     }
 
-    private fun refreshFeed() {
+    private fun refreshContent() {
         resetToolbar()
         loader.reset()
         loader.restart()
+
+        launchWhenViewCreated {
+            queryForUserInfo()
+        }
     }
 
     private fun pinCurrentFeedFilter() {
