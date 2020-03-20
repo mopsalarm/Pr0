@@ -61,7 +61,7 @@ dependencies {
 
     implementation "com.github.square.moshi:moshi:b413423d05"
     implementation "com.squareup.retrofit2:retrofit:2.7.2"
-    implementation "com.squareup.okhttp3:okhttp:4.4.0"
+    implementation "com.squareup.okhttp3:okhttp:4.4.1"
 
     api "com.squareup.sqldelight:android-driver:1.2.2"
     api "com.squareup.sqldelight:coroutines-extensions-jvm:1.2.2"
