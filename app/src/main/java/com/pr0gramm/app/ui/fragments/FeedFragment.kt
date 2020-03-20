@@ -510,10 +510,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         if (queryString != null && queryString.matches("[A-Za-z0-9_]{2,}".toRegex())) {
             val contentTypes = selectedContentType
 
-            val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
-            if (cached != null) {
-                return cached
-            }
+//            val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
+//            if (cached != null) {
+//                return cached
+//            }
 
             return coroutineScope {
                 // fan out
@@ -530,7 +530,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 val comments = runCatching { second.await().comments }.getOrElse { listOf() }
 
                 val userInfo = UserInfo(info, comments)
-                inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
+                // inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
 
                 userInfo
             }

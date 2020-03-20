@@ -389,7 +389,8 @@ interface Api {
             val commentCount: Int,
             val tagCount: Int,
             val likesArePublic: Boolean,
-            val following: Boolean) {
+            val following: Boolean,
+            val appLinks: List<AppLink>? = null) {
 
         @JsonClass(generateAdapter = true)
         class Badge(
@@ -410,6 +411,12 @@ interface Api {
                 val inactive: Boolean = false,
                 @Json(name = "commentDelete") val commentDeleteCount: Int,
                 @Json(name = "itemDelete") val itemDeleteCount: Int)
+
+        @JsonClass(generateAdapter = true)
+        class AppLink(
+                val text: String,
+                val icon: String? = null,
+                val link: String? = null)
     }
 
     @JsonClass(generateAdapter = true)

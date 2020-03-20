@@ -3,12 +3,14 @@ package com.pr0gramm.app.ui.views
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,11 +20,8 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.dp
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
 import com.squareup.picasso.Picasso
 import java.util.concurrent.TimeUnit
 
@@ -45,8 +44,10 @@ class UserInfoView(context: Context) : FrameLayout(context) {
     private val shareUserProfile: View = find(R.id.action_share)
     private val badgesContainer: RecyclerView = find(R.id.badges_container)
     private val userTypeName: TextView = find(R.id.user_type_name)
+    private val appLinksContainer: ViewGroup = find(R.id.app_links)
     private val showCommentsContainer: View = comments.parent as View
 
+    private val picasso = context.injector.instance<Picasso>()
     private val userClassesService = context.injector.instance<UserClassesService>()
 
     fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean, actions: UserInfoView.UserActionListener) {
@@ -161,6 +162,32 @@ class UserInfoView(context: Context) : FrameLayout(context) {
             val resId = if (user.inactive) R.string.user_registered_inactive else R.string.user_registered
             extraInfo.text = context.getString(resId, dateStr)
         }
+
+        appLinksContainer.removeAllViews()
+
+        catchAll {
+            for (appLink in info.appLinks.orEmpty()) {
+                val appLinkView = layoutInflater.inflate(R.layout.app_link, appLinksContainer, true)
+                appLinkView.find<TextView>(R.id.app_link_text).text = appLink.text
+
+                appLink.icon?.let { iconUrl ->
+                    val imageView = appLinkView.find<ImageView>(R.id.app_link_image)
+                    picasso.load(iconUrl).into(imageView)
+                }
+
+                val uri = appLink.link?.let { Uri.parse(it) }
+                if (uri != null) {
+                    appLinkView.setOnClickListener {
+                        val handover = "pr0gramm.com" in uri.host ?: ""
+                        BrowserHelper.openCustomTab(context, uri, handover)
+                    }
+                }
+            }
+
+            if (appLinksContainer.isNotEmpty()) {
+                appLinksContainer.isVisible = true
+            }
+        }
     }
 
     interface UserActionListener {
@@ -175,7 +202,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
                                  val text: String? = null,
                                  val textColor: Int = Color.WHITE)
 
-    private class BadgeAdapter(val badges: List<BadgeInfo>) : androidx.recyclerview.widget.RecyclerView.Adapter<BadgeViewHolder>() {
+    private class BadgeAdapter(val badges: List<BadgeInfo>) : RecyclerView.Adapter<BadgeViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, idx: Int): BadgeViewHolder {
             val view = parent.layoutInflater.inflate(R.layout.badge, parent, false)
             return BadgeViewHolder(view)
@@ -190,7 +217,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         }
     }
 
-    private class BadgeViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
+    private class BadgeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.find(R.id.image)
         private val textView: TextView = view.find(R.id.text)
 

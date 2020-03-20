@@ -145,7 +145,8 @@ open class ApplicationClass : Application(), InjectorAware {
         if (core != null) {
             Logging.configureLoggingOutput { level, tag, message ->
                 if (level >= Log.INFO) {
-                    core.log(level, tag, message)
+                    val levelStr = Logging.levels.getOrNull(level)
+                    core.log("$levelStr [$tag]: $message")
 
                     true
                 } else {
