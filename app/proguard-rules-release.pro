@@ -1,6 +1,6 @@
 -allowaccessmodification
 -repackageclasses
--optimizations **
+-optimizations *
 
 # remove all those extra checking in release builds.
 #
