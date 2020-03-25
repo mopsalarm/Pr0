@@ -1,5 +1,14 @@
 [
   {
+    "version": 181,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Kleine Bildchen für die Benutzer"
+      }
+    ]
+  },
+  {
     "version": 180,
     "changes": [
       {
