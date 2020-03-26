@@ -3,15 +3,16 @@ package com.pr0gramm.app.services
 import android.content.SharedPreferences
 import androidx.collection.LruCache
 import androidx.core.content.edit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.*
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.model.inbox.UnreadMarkerTimestamp
 import com.pr0gramm.app.util.StringException
 import com.pr0gramm.app.util.getJSON
+import com.pr0gramm.app.util.postOrSetValue
 import com.pr0gramm.app.util.setObject
-import rx.Observable
-import rx.subjects.BehaviorSubject
 
 
 /**
@@ -21,7 +22,7 @@ import rx.subjects.BehaviorSubject
 class InboxService(private val api: Api, private val preferences: SharedPreferences) {
     private val logger = Logger("InboxService")
 
-    private val unreadMessagesCount = BehaviorSubject.create<Api.InboxCounts>().toSerialized()!!
+    private val unreadMessagesCount = MutableLiveData<Api.InboxCounts>(Api.InboxCounts())
 
     private val readUpToCache = LruCache<String, Instant>(128)
 
@@ -147,12 +148,12 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     /**
      * Returns an observable that produces the number of unread messages.
      */
-    fun unreadMessagesCount(): Observable<Api.InboxCounts> {
+    fun unreadMessagesCount(): LiveData<Api.InboxCounts> {
         return unreadMessagesCount
     }
 
     fun publishUnreadMessagesCount(unreadCount: Api.InboxCounts) {
-        unreadMessagesCount.onNext(unreadCount)
+        unreadMessagesCount.postOrSetValue(unreadCount)
     }
 
     /**

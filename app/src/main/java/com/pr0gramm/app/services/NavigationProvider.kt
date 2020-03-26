@@ -19,6 +19,7 @@ import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
+import com.pr0gramm.app.util.asObservable
 import com.pr0gramm.app.util.observeOnMainThread
 import com.squareup.picasso.Picasso
 import rx.Observable
@@ -81,7 +82,7 @@ class NavigationProvider(
                     remoteConfigItems(loginState, upper = false),
 
                     inboxService.unreadMessagesCount()
-                            .startWith(Api.InboxCounts())
+                            .asObservable()
                             .map { listOf(inboxNavigationItem(it)) },
 
                     Observable.just(listOf(uploadNavigationItem)),

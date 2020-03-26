@@ -6,6 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
+import androidx.lifecycle.observe
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
@@ -19,7 +20,6 @@ import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.observeOnMainThread
 import com.pr0gramm.app.util.startActivity
 import kotterknife.bindView
 
@@ -127,6 +127,18 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
             insets.consumeSystemWindowInsets()
             // insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
         }
+
+        inboxService.unreadMessagesCount().observe(this) { counts ->
+            fun titleOf(id: Int, count: Int): String {
+                return getString(id) + (if (count > 0) " ($count)" else "")
+            }
+
+            tabsAdapter.updateTabTitle(InboxType.ALL, titleOf(R.string.inbox_type_all, counts.total))
+            tabsAdapter.updateTabTitle(InboxType.PRIVATE, titleOf(R.string.inbox_type_private, counts.messages))
+            tabsAdapter.updateTabTitle(InboxType.NOTIFICATIONS, titleOf(R.string.inbox_type_notifications, counts.notifications))
+            tabsAdapter.updateTabTitle(InboxType.STALK, titleOf(R.string.inbox_type_stalk, counts.follows))
+            tabsAdapter.updateTabTitle(InboxType.COMMENTS_IN, titleOf(R.string.inbox_type_comments_in, counts.comments))
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -143,18 +155,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     override fun onStart() {
         super.onStart()
         Track.inboxActivity()
-
-        inboxService.unreadMessagesCount().observeOnMainThread().bindToLifecycle().subscribe { counts ->
-            fun titleOf(id: Int, count: Int): String {
-                return getString(id) + (if (count > 0) " ($count)" else "")
-            }
-
-            tabsAdapter.updateTabTitle(InboxType.ALL, titleOf(R.string.inbox_type_all, counts.total))
-            tabsAdapter.updateTabTitle(InboxType.PRIVATE, titleOf(R.string.inbox_type_private, counts.messages))
-            tabsAdapter.updateTabTitle(InboxType.NOTIFICATIONS, titleOf(R.string.inbox_type_notifications, counts.notifications))
-            tabsAdapter.updateTabTitle(InboxType.STALK, titleOf(R.string.inbox_type_stalk, counts.follows))
-            tabsAdapter.updateTabTitle(InboxType.COMMENTS_IN, titleOf(R.string.inbox_type_comments_in, counts.comments))
-        }
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -11,11 +11,7 @@
 -dontwarn android.support.transition.Transition
 -dontwarn java.lang.ClassValue
 -dontwarn sun.net.spi.nameservice.NameServiceDescriptor
-
-# Ignore annotation used for build tooling.
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
-
-# Ignore JSR 305 annotations for embedding nullability information.
 -dontwarn javax.annotation.**
 
 # keep exception names

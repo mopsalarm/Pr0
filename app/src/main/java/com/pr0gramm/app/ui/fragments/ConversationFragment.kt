@@ -17,6 +17,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -102,6 +103,10 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         } else {
             reloadConversation()
         }
+
+        pagination.updates.observe(viewLifecycleOwner) { (state, newValues) ->
+            applyPaginationUpdate(state, newValues)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -111,10 +116,6 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
     override fun onResume() {
         super.onResume()
-
-        pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
-            applyPaginationUpdate(state, newValues)
-        }
 
         launchWhenResumed(ignoreErrors = true) {
             runEvery(initial = seconds(15), period = seconds(15)) {

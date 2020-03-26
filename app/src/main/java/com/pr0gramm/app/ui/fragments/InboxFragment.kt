@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updatePadding
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -68,6 +69,10 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
                 messagesView.updatePadding(bottom = insets.bottom)
             }
         }
+
+        pagination.updates.observe(viewLifecycleOwner) { (state, newValues) ->
+            handleStateUpdate(state, newValues)
+        }
     }
 
     override fun onResume() {
@@ -77,10 +82,6 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isBefore(Instant.now())) {
             loadStartedTimestamp = Instant.now()
             reloadInboxContent()
-        }
-
-        pagination.updates.bindToLifecycle().subscribe { (state, newValues) ->
-            handleStateUpdate(state, newValues)
         }
     }
 

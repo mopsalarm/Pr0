@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -89,13 +90,13 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
 
             insets.consumeSystemWindowInsets()
         }
+
+        pagination.updates.observe(viewLifecycleOwner) { applyPaginationUpdate(it) }
     }
 
     override fun onResume() {
         super.onResume()
-
         updateConversationsUnreadCount()
-        pagination.updates.bindToLifecycle().subscribe { applyPaginationUpdate(it) }
     }
 
     private fun reloadConversations() {

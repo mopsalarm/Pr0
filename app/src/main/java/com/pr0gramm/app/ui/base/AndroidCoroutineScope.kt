@@ -93,9 +93,10 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 }
 
 val Async = Dispatchers.IO
-val AsyncScope get() = CoroutineScope(Async) + DefaultCoroutineExceptionHandler
+val AsyncScope = CoroutineScope(Async) + SupervisorJob() + DefaultCoroutineExceptionHandler
 
 val Main = Dispatchers.Main.immediate
+val MainScope = CoroutineScope(Main + SupervisorJob() + DefaultCoroutineExceptionHandler)
 
 fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
     if (!isAttachedToWindow) {

@@ -14,6 +14,7 @@ import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.os.PowerManager
 import android.text.Editable
 import android.text.TextWatcher
@@ -31,13 +32,18 @@ import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.MainScope
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import rx.Emitter
 import rx.Observable
@@ -61,10 +67,10 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.BackpressureMode.NONE,
-                                crossinline block: (emitter: Emitter<T>) -> Unit): Observable<T> {
+fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.BackpressureMode.NONE,
+                         block: (emitter: Emitter<T>) -> Unit): Observable<T> {
 
-    return Observable.create({ block(it) }, mode)
+    return Observable.create(block, mode)
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -166,7 +172,7 @@ inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
     return values
 }
 
-inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R) {
+inline fun <R> Cursor.forEach(fn: Cursor.() -> R) {
     return use {
         while (moveToNext()) {
             fn()
@@ -210,10 +216,9 @@ inline fun <T> observeChangeEx(def: T, crossinline onChange: (oldValue: T, newVa
     return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 
-inline val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
+val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
+fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
 
 fun <V : View> ViewGroup.inflateDetachedChild(@LayoutRes res: Int): V {
     @Suppress("UNCHECKED_CAST")
@@ -228,7 +233,7 @@ interface CachedValue<out T> {
 
 object EmptyCache
 
-inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : CachedValue<T> {
+fun <T> cached(fn: () -> T): CachedValue<T> = object : CachedValue<T> {
     private var theValue: Any? = EmptyCache
 
     override val value: T
@@ -298,7 +303,7 @@ inline fun <K, V> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V): V {
     }
 }
 
-inline fun <K, V> lruCache(maxSize: Int, crossinline creator: (K) -> V?): LruCache<K, V> {
+fun <K, V> lruCache(maxSize: Int, creator: (K) -> V?): LruCache<K, V> {
     return object : LruCache<K, V>(maxSize) {
         override fun create(key: K): V? = creator(key)
     }
@@ -326,8 +331,8 @@ inline fun debugOnly(block: () -> Unit) {
     }
 }
 
-inline fun <T : Any?> Observable<T>.subscribeIgnoreError(crossinline onNext: (T) -> Unit): Subscription {
-    return subscribe({ onNext(it) }, { err -> AndroidUtility.logToCrashlytics(err) })
+fun <T : Any?> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
+    return subscribe(onNext, { err -> AndroidUtility.logToCrashlytics(err) })
 }
 
 fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false): Observable<T> {
@@ -448,9 +453,9 @@ class LongValueHolder(private var value: Long) {
     }
 }
 
-inline fun <T : Any?, R : Any> Observable<T>.mapNotNull(crossinline fn: (T) -> R?): Observable<R> {
+fun <T : Any?, R : Any> Observable<T>.mapNotNull(fn: (T) -> R?): Observable<R> {
     @Suppress("UNCHECKED_CAST")
-    return map { fn(it) }.filter { it != null } as Observable<R>
+    return map(fn).filter { it != null } as Observable<R>
 }
 
 inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
@@ -523,7 +528,7 @@ fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
     }
 }
 
-inline fun <T> threadLocal(crossinline supplier: () -> T): ReadOnlyProperty<Any, T> {
+fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
     return object : ThreadLocal<T>(), ReadOnlyProperty<Any, T> {
         override fun initialValue(): T = supplier()
         override fun getValue(thisRef: Any, property: KProperty<*>): T = get()
@@ -623,7 +628,7 @@ val Class<*>.directName: String
         return name.takeLastWhile { it != '.' }.replace('$', '.')
     }
 
-inline fun TextView.addTextChangedListener(crossinline listener: (CharSequence) -> Unit) {
+fun TextView.addTextChangedListener(listener: (CharSequence) -> Unit) {
     addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
 
@@ -635,7 +640,7 @@ inline fun TextView.addTextChangedListener(crossinline listener: (CharSequence) 
     })
 }
 
-inline fun SeekBar.setOnProgressChanged(crossinline listener: (value: Int, fromUser: Boolean) -> Unit) {
+fun SeekBar.setOnProgressChanged(listener: (value: Int, fromUser: Boolean) -> Unit) {
     this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
             listener(progress, fromUser)
@@ -703,7 +708,7 @@ fun View.attachEvents(): Observable<Boolean> {
     }
 }
 
-suspend inline fun runEvery(period: Duration, initial: Duration = Duration.Zero, crossinline task: suspend () -> Unit) {
+suspend fun runEvery(period: Duration, initial: Duration = Duration.Zero, task: suspend () -> Unit) {
     if (initial.millis > 0) {
         delay(initial)
     }
@@ -806,5 +811,29 @@ inline fun skipInTesting(block: () -> Unit) {
 inline fun uiTestOnly(block: () -> Unit) {
     if (isCurrentlyTesting) {
         return block()
+    }
+}
+
+fun <T> LiveData<T>.asObservable(): Observable<T> {
+    return createObservable { emitter ->
+        val observer = Observer<T> { value -> emitter.onNext(value) }
+
+        MainScope.launch {
+            observeForever(observer)
+        }
+
+        emitter.setSubscription(object : MainThreadSubscription() {
+            override fun onUnsubscribe() {
+                removeObserver(observer)
+            }
+        })
+    }
+}
+
+fun <T> MutableLiveData<T>.postOrSetValue(value: T) {
+    if (Looper.getMainLooper().thread === Thread.currentThread()) {
+        this.value = value
+    } else {
+        this.postValue(value)
     }
 }

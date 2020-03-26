@@ -2,11 +2,12 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import androidx.annotation.MainThread
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.directName
+import com.pr0gramm.app.util.postOrSetValue
 import kotlinx.coroutines.*
-import rx.Observable
-import rx.subjects.PublishSubject
 import kotlin.reflect.KMutableProperty0
 
 class PaginationController(
@@ -35,12 +36,12 @@ class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loa
     private val job = SupervisorJob()
     private val scope get() = baseScope + job
 
-    private val updatesSubject: PublishSubject<Update<E>> = PublishSubject.create()
+    private val mutableUpdates = MutableLiveData<Update<E>>()
 
     val state: State<E> get() = State(headState, tailState)
 
     // publishes updates to this pagination
-    val updates: Observable<Update<E>> get() = updatesSubject.startWith(Update(state, listOf()))
+    val updates: LiveData<Update<E>> = mutableUpdates
 
     /**
      * Loads the first page if no data is currently available
@@ -111,21 +112,14 @@ class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loa
     }
 
     private fun publishContent(data: List<E>) {
-        updatesSubject.onNext(Update(state, data))
+        mutableUpdates.postOrSetValue(Update(state, data))
     }
 
     data class Update<E>(val state: State<E>, val newValues: List<E>)
 
     data class State<E>(
             val headState: EndState<E> = EndState(),
-            val tailState: EndState<E> = EndState()) {
-
-        companion object {
-            fun <E> hasMoreState(): State<E> {
-                return State(tailState = EndState(hasMore = true))
-            }
-        }
-    }
+            val tailState: EndState<E> = EndState())
 
     data class EndState<E>(
             val error: Exception? = null,

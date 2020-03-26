@@ -32,6 +32,8 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Collections.synchronizedSet
 import java.util.concurrent.atomic.AtomicInteger
@@ -61,9 +63,11 @@ class NotificationService(private val context: Application,
             createChannels()
         }
 
-        // update the icon to show the current inbox count.
-        this.inboxService.unreadMessagesCount().subscribe { unreadCount ->
-            BadgeService().update(context, unreadCount.total)
+        MainScope().launch {
+            // update the icon to show the current inbox count.
+            inboxService.unreadMessagesCount().observeForever { unreadCount ->
+                BadgeService().update(context, unreadCount.total)
+            }
         }
     }
 
