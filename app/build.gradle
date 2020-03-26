@@ -150,7 +150,7 @@ dependencies {
     implementation project(":model")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.71"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
 
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.browser:browser:1.2.0'
@@ -179,9 +179,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta02'
 
     implementation "com.squareup.retrofit2:retrofit:2.8.1"
-    implementation("com.squareup.retrofit2:converter-moshi:2.8.1") {
-        exclude module: "moshi"
-    }
+    implementation("com.squareup.retrofit2:converter-moshi:2.8.1")
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.4.1"))
     implementation "com.squareup.okhttp3:okhttp"
@@ -189,7 +187,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-brotli"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    implementation "com.github.square.moshi:moshi:b413423d05"
+    implementation "com.squareup.moshi:moshi:1.8.0"
 
     // still issues with version > 1.2.12
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
