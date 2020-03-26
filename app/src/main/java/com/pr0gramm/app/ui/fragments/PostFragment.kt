@@ -98,7 +98,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val repostHint: View by bindView(R.id.repost_hint)
 
     private var viewer: MediaView? = null
-    private var latestInsets: CustomWindowInsets = CustomWindowInsets(0, 0)
 
     override var title: TitleFragment.Title = TitleFragment.Title("pr0gramm")
 
@@ -265,8 +264,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
             }
         }
-
-        setupWindowInsets()
     }
 
     private fun updateTitle(tags: List<Api.Tag>) {
@@ -286,21 +283,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // and ping the activity to update the title
         val mainActivity = activity as? MainActivity
         mainActivity?.updateActionbarTitle()
-    }
-
-    private fun setupWindowInsets() {
-        val activity = activity as? ToolbarActivity ?: return
-
-        activity.rxWindowInsets.bindToLifecycle().subscribe { insets ->
-            recyclerView.clipToPadding = false
-
-            recyclerView.updatePadding(bottom = insets.bottom)
-
-            val abHeight = AndroidUtility.getActionBarHeight(requireActivity())
-            viewer?.updatePadding(top = insets.top + abHeight)
-
-            latestInsets = insets
-        }
     }
 
     private val activeState = activeStateCh.asFlow()
@@ -858,23 +840,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // add space to the top of the viewer or to the screen to compensate
         // for the action bar.
-        val viewerPaddingTop = AndroidUtility.getActionBarHeight(activity) + latestInsets.top
+        val viewerPaddingTop = AndroidUtility.getActionBarContentOffset(activity)
         viewer.updatePadding(top = viewerPaddingTop)
 
         if (feedItem.width > 0 && feedItem.height > 0) {
+            val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
+            val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
+            val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
+            state = state.copy(viewerBaseHeight = expectedViewerHeight)
 
-            val toolbarActivity = activity as? ToolbarActivity
-
-            toolbarActivity?.rxWindowInsets?.bindToLifecycle()?.subscribe { insets ->
-                val currentViewerPaddingTop = AndroidUtility.getActionBarHeight(activity) + insets.top
-
-                val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
-                val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
-                val expectedViewerHeight = expectedMediaHeight + currentViewerPaddingTop
-                state = state.copy(viewerBaseHeight = expectedViewerHeight)
-
-                logger.debug { "Initialized viewer height to $expectedViewerHeight" }
-            }
+            logger.debug { "Initialized viewer height to $expectedViewerHeight" }
         }
 
         viewer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->

@@ -3,8 +3,7 @@ package com.pr0gramm.app.ui
 import android.view.View
 import android.view.ViewPropertyAnimator
 import androidx.core.view.isVisible
-import com.pr0gramm.app.util.CustomWindowInsets
-import rx.Observable
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  */
@@ -117,8 +116,6 @@ class ScrollHideToolbarListener(private val toolbar: View) {
 
     interface ToolbarActivity {
         val scrollHideToolbarListener: ScrollHideToolbarListener
-
-        val rxWindowInsets: Observable<CustomWindowInsets>
     }
 
     companion object {
@@ -131,7 +128,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
          * @param recyclerView The recycler view to estimate scrolling of
          */
 
-        fun estimateRecyclerViewScrollY(recyclerView: androidx.recyclerview.widget.RecyclerView): Int? {
+        fun estimateRecyclerViewScrollY(recyclerView: RecyclerView): Int? {
             var scrollY: Int? = null
             val view = recyclerView.layoutManager?.findViewByPosition(0)
             if (view != null) {

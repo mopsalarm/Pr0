@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui
 
 import android.graphics.Color
-import android.os.Build
 import android.view.ViewGroup
 import androidx.core.view.isEmpty
 import com.google.android.material.snackbar.Snackbar
@@ -31,14 +30,6 @@ fun Snackbar.configureNewStyle(): Snackbar {
     params.bottomMargin += context.dp(12)
 
     val activity = AndroidUtility.activityFromContext(context)
-
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        if (activity is ScrollHideToolbarListener.ToolbarActivity) {
-            activity.rxWindowInsets.take(1).subscribe { insets ->
-                params.bottomMargin += insets.bottom
-            }
-        }
-    }
 
     snackbarView.layoutParams = params
 

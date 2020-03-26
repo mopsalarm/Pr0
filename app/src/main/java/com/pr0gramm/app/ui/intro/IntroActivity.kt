@@ -91,7 +91,7 @@ class IntroActivity : AppIntro(), LazyInjectorAware {
                 bottomMargin = insets.systemWindowInsetBottom
             }
 
-            insets.consumeSystemWindowInsets()
+            insets
         }
     }
 

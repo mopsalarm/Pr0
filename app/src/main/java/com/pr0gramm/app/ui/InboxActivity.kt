@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.updatePadding
 import androidx.lifecycle.observe
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
@@ -119,13 +118,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
         intent.getStringExtra(EXTRA_CONVERSATION_NAME)?.let { name ->
             ConversationActivity.start(this, name, skipInbox = true)
-        }
-
-        coordinator.setOnApplyWindowInsetsListener { _, insets ->
-            coordinator.updatePadding(top = insets.systemWindowInsetTop)
-            pager.updatePadding(bottom = insets.systemWindowInsetBottom)
-            insets.consumeSystemWindowInsets()
-            // insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
         }
 
         inboxService.unreadMessagesCount().observe(this) { counts ->

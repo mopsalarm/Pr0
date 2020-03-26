@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?colorPrimary"
+    android:fitsSystemWindows="true"
     android:elevation="8dp"
     tools:context=".ui.MainActivity"
     tools:showIn="@layout/activity_main">

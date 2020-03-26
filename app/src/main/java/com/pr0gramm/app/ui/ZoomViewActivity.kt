@@ -48,7 +48,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val cache: Cache by instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(ThemeHelper.theme.translucentStatus)
+        setTheme(ThemeHelper.theme.fullscreen)
         super.onCreate(savedInstanceState)
 
         // normal content view

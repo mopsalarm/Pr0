@@ -8,7 +8,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -205,25 +204,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        // apply insets if any
-        (activity as? ToolbarActivity)?.let { toolbarActivity ->
-            toolbarActivity.rxWindowInsets.bindToLifecycle().subscribe { insets ->
-                recyclerView.clipToPadding = false
-
-                val top = if (useToolbarTopMargin()) insets.top else 0
-
-                recyclerView.updatePadding(top = top, bottom = insets.bottom)
-
-
-                if (useToolbarTopMargin()) {
-                    // use height of the toolbar to configure swipe refresh layout.
-                    val abHeight = AndroidUtility.getActionBarContentOffset(activity)
-                    val offset = insets.top
-                    swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
-                }
-            }
-        }
-
         resetToolbar()
 
         createRecyclerViewClickListener()
@@ -322,7 +302,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         logger.time("Update adapter") {
             // add a little spacer to the top to account for the action bar
             if (useToolbarTopMargin()) {
-                val offset = AndroidUtility.getActionBarHeight(context)
+                val offset = AndroidUtility.getActionBarContentOffset(context)
                 if (offset > 0) {
                     entries += FeedAdapter.Entry.Spacer(1, height = offset)
                 }

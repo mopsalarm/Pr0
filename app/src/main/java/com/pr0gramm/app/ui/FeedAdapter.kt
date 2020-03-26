@@ -71,13 +71,13 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         return getItem(position).id
     }
 
-    class ItemCallback : DiffUtil.ItemCallback<FeedAdapter.Entry>() {
-        override fun areItemsTheSame(oldItem: FeedAdapter.Entry, newItem: FeedAdapter.Entry): Boolean {
+    class ItemCallback : DiffUtil.ItemCallback<Entry>() {
+        override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean {
             return oldItem.id == newItem.id
         }
 
         @SuppressLint("DiffUtilEquals")
-        override fun areContentsTheSame(oldItem: FeedAdapter.Entry, newItem: FeedAdapter.Entry): Boolean {
+        override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean {
             return oldItem == newItem
         }
     }

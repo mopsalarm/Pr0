@@ -10,13 +10,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
-import android.widget.FrameLayout
+import android.view.MenuItem
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -48,7 +49,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotterknife.bindOptionalView
 import kotterknife.bindView
-import rx.Observable
 import rx.subjects.BehaviorSubject
 import kotlin.properties.Delegates
 
@@ -83,8 +83,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val infoMessageService: InfoMessageService by instance()
     private val adService: AdService by instance()
 
-    private val windowInsets: BehaviorSubject<CustomWindowInsets> = BehaviorSubject.create()
-
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
     private var startedWithIntent = false
@@ -95,8 +93,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private var coldStart: Boolean = false
 
     val adViewAdapter = AdViewAdapter()
-
-    override val rxWindowInsets: Observable<CustomWindowInsets> = windowInsets.distinctUntilChanged()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.translucentStatus)
@@ -121,17 +117,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name)
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.addDrawerListener(drawerToggle)
-
-        drawerLayout.setOnApplyWindowInsetsListener { v, insets ->
-            toolbar.updatePadding(top = insets.systemWindowInsetTop)
-
-            toolbar.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    AndroidUtility.getActionBarHeight(v.context) + insets.systemWindowInsetTop)
-
-            windowInsets.onNext(CustomWindowInsets(insets))
-
-            insets.consumeSystemWindowInsets()
-        }
 
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
