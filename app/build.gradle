@@ -189,7 +189,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-brotli"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    implementation "com.squareup.moshi:moshi:1.9.2"
+    implementation "com.squareup.moshi:moshi:1.8.0"
 
     // still issues with version > 1.2.12
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
