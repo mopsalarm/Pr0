@@ -10,7 +10,7 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.core.CrashlyticsCore
+import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
