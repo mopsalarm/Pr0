@@ -41,6 +41,7 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 fun appInjector(app: Application) = Module.build {
@@ -359,12 +360,18 @@ private class LoggingInterceptor : Interceptor {
 }
 
 private class CustomDNS(appContext: Application) : Dns {
+    private class CachedValue(val addresses: List<InetAddress>) {
+        private val expiresAt: Long = System.currentTimeMillis() + Duration.hours(1L).millis
+        val isExpired: Boolean
+            get() = expiresAt < System.currentTimeMillis()
+    }
+
+    private val dnsCache = ConcurrentHashMap<String, CachedValue>()
+
     val logger = Logger("CustomDNS")
 
     private val okHttpClient by lazy {
-        okHttpClientBuilder(appContext)
-                .cache(Cache(appContext.cacheDir.resolve("dns-cache"), 1024 * 1024))
-                .build()
+        okHttpClientBuilder(appContext).cache(null).build()
     }
 
     private val dnsOverHttps by lazy {
@@ -379,6 +386,21 @@ private class CustomDNS(appContext: Application) : Dns {
     }
 
     override fun lookup(hostname: String): List<InetAddress> {
+        val value = dnsCache[hostname]
+        if (value?.isExpired == false) {
+            return value.addresses
+        }
+
+        // do actual lookup
+        val newValue = lookupNoCache(hostname)
+        if (newValue.isNotEmpty()) {
+            dnsCache[hostname] = CachedValue(newValue)
+        }
+
+        return newValue
+    }
+
+    private fun lookupNoCache(hostname: String): List<InetAddress> {
         if (hostname == "127.0.0.1" || hostname == "localhost") {
             return listOf(InetAddress.getByName("127.0.0.1"))
         }

@@ -177,8 +177,8 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.1.0'
 
     implementation "com.google.android.gms:play-services-ads-lite:19.0.1"
-    implementation 'com.google.firebase:firebase-analytics:17.2.3'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta02'
+    implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta03'
 
     implementation "com.squareup.retrofit2:retrofit:2.8.1"
     implementation("com.squareup.retrofit2:converter-moshi:2.8.1")
