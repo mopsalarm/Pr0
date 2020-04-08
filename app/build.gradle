@@ -157,7 +157,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.2.0'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.exifinterface:exifinterface:1.1.0'
+    implementation 'androidx.exifinterface:exifinterface:1.2.0'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
@@ -174,7 +174,7 @@ dependencies {
 
     // 1.2.2 does not restore the fragment state correctly when going back.
     // e.g. scroll position in favorites is gone
-    implementation 'androidx.fragment:fragment-ktx:1.1.0'
+    implementation 'androidx.fragment:fragment-ktx:1.2.4'
 
     implementation "com.google.android.gms:play-services-ads-lite:19.0.1"
     implementation 'com.google.firebase:firebase-analytics:17.3.0'
@@ -183,7 +183,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:2.8.1"
     implementation("com.squareup.retrofit2:converter-moshi:2.8.1")
 
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.4.1"))
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.5.0"))
     implementation "com.squareup.okhttp3:okhttp"
     implementation "com.squareup.okhttp3:okhttp-dnsoverhttps"
     implementation "com.squareup.okhttp3:okhttp-brotli"
@@ -209,8 +209,8 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
 
-    debugImplementation "com.github.ChuckerTeam.Chucker:library:3.1.2"
-    releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.1.2"
+    debugImplementation "com.github.ChuckerTeam.Chucker:library:3.2.0"
+    releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.2.0"
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 
