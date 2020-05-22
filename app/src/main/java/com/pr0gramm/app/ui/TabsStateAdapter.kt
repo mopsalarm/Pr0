@@ -24,7 +24,7 @@ class TabsStateAdapter : FragmentPagerAdapter {
         return tabs.size
     }
 
-    fun createFragment(position: Int): Fragment {
+    private fun createFragment(position: Int): Fragment {
         val info = tabs[position]
 
         return info.fragmentConstructor().also { fr ->

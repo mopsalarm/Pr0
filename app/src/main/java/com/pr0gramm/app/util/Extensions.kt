@@ -536,7 +536,8 @@ fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
     }
 }
 
-val traceLogger = Logger("Trace")
+@Suppress("ObjectPropertyName")
+val __doNotUse_traceLogger = Logger("Trace")
 
 inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
@@ -547,7 +548,7 @@ inline fun <T : Any> T.trace(msg: () -> String) {
         }
 
         val type = clazz.directName
-        traceLogger.debug { "$type.${msg()}" }
+        __doNotUse_traceLogger.debug { "$type.${msg()}" }
     }
 }
 
@@ -559,7 +560,7 @@ inline fun <T : Any, R : Any?> T.trace(msg: String, block: () -> R): R {
         try {
             block()
         } finally {
-            traceLogger.debug { "$type.$msg took $watch" }
+            __doNotUse_traceLogger.debug { "$type.$msg took $watch" }
         }
 
     } else {
@@ -837,3 +838,12 @@ fun <T> MutableLiveData<T>.postOrSetValue(value: T) {
         this.postValue(value)
     }
 }
+
+fun String?.equalsIgnoreCase(other: String?): Boolean {
+    return equals(other, ignoreCase = true)
+}
+
+val View.parentView: ViewGroup?
+    get() = parent as? ViewGroup
+
+fun View.requireParentView(): ViewGroup = parent as ViewGroup

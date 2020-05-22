@@ -83,7 +83,7 @@ class BookmarkService(
      * Returns "true", if the item is bookmarkable.
      */
     fun isBookmarkable(filter: FeedFilter): Boolean {
-        if (!canEdit || filter.isBasic || filter.likes != null)
+        if (!canEdit || filter.isBasic || filter.collection != null)
             return false
 
         return byFilter(filter) == null

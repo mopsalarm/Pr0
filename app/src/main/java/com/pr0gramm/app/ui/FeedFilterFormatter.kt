@@ -23,19 +23,20 @@ object FeedFilterFormatter {
             return FeedTitle("", "", "")
 
         if (!filter.isBasic) {
+            // TODO improve formatting logic
             filter.tags?.let { tags ->
                 return FeedTitle(cleanTags(tags), " in ", feedTypeToString(context, filter))
+            }
+
+            filter.collection?.let { collection ->
+                return FeedTitle(
+                        collection,
+                        " in ", feedTypeToString(context, filter))
             }
 
             filter.username?.let {
                 return FeedTitle(
                         context.getString(R.string.filter_format_tag_by) + " " + it,
-                        " in ", feedTypeToString(context, filter))
-            }
-
-            filter.likes?.let {
-                return FeedTitle(
-                        context.getString(R.string.filter_format_fav_of) + " " + it,
                         " in ", feedTypeToString(context, filter))
             }
         }
@@ -44,17 +45,18 @@ object FeedFilterFormatter {
     }
 
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
-        if (filter.likes != null) {
-            return context.getString(R.string.favorites_of, filter.likes)
+        if (filter.collection != null) {
+            // TODO improve formatting logic
+            return context.getString(R.string.favorites_of, filter.username)
         }
 
-        when (filter.feedType) {
-            FeedType.NEW -> return context.getString(R.string.filter_format_new)
-            FeedType.BESTOF -> return context.getString(R.string.filter_format_bestof)
-            FeedType.RANDOM -> return context.getString(R.string.filter_format_random)
-            FeedType.STALK -> return context.getString(R.string.filter_format_premium)
-            FeedType.PROMOTED -> return context.getString(R.string.filter_format_top)
-            FeedType.CONTROVERSIAL -> return context.getString(R.string.filter_format_controversial)
+        return when (filter.feedType) {
+            FeedType.NEW -> context.getString(R.string.filter_format_new)
+            FeedType.BESTOF -> context.getString(R.string.filter_format_bestof)
+            FeedType.RANDOM -> context.getString(R.string.filter_format_random)
+            FeedType.STALK -> context.getString(R.string.filter_format_premium)
+            FeedType.PROMOTED -> context.getString(R.string.filter_format_top)
+            FeedType.CONTROVERSIAL -> context.getString(R.string.filter_format_controversial)
 
             else -> throw IllegalArgumentException("Invalid feed type")
         }

@@ -5,11 +5,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.liveData
+import androidx.lifecycle.observe
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.services.CollectionsService
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.TabsStateAdapter
@@ -17,6 +21,9 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.equalsIgnoreCase
+import com.pr0gramm.app.util.fragmentArgument
 
 /**
  */
@@ -24,15 +31,13 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
     private val pager: ViewPager by bindView(R.id.favorites_pager)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
-    private lateinit var feedFilter: FeedFilter
+    private val userService: UserService by instance()
+    private val collectionsService: CollectionsService by instance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private val argUsername: String by fragmentArgument(name = ARG_USERNAME)
 
-        // build the filter for this view
-        val username = arguments?.getString(ARG_USERNAME) ?: ""
-        feedFilter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username)
-    }
+    override var currentFilter = FeedFilter().withFeedType(FeedType.NEW)
+        private set
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_favorites, container, false)
@@ -44,14 +49,37 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         fixViewTopOffset(view)
         resetToolbar()
 
-        val feedFragmentArguments = FeedFragment.newEmbedArguments(feedFilter)
+        // check what to load
+        val ownUsername = userService.loginState.name
+        val ownView = ownUsername.equalsIgnoreCase(argUsername)
 
-        val adapter = TabsStateAdapter(requireContext(), this).apply {
-            addTab(getString(R.string.action_favorites), feedFragmentArguments) { FeedFragment() }
-            addTab(getString(R.string.action_kfav)) { FavedCommentFragment() }
+        val collectionsLiveData = when {
+            ownView -> collectionsService.collections
+            else -> liveData { emit(userService.info(argUsername).collections) }
         }
 
-        pager.adapter = adapter
+        currentFilter = currentFilter.withCollection(argUsername, "**ANY")
+
+        collectionsLiveData.observe(viewLifecycleOwner) { collections ->
+            pager.adapter = TabsStateAdapter(requireContext(), this).apply {
+                for (collection in collections) {
+                    val filter = FeedFilter()
+                            .withFeedType(FeedType.NEW)
+                            .withCollection(argUsername, collection.keyword)
+
+                    addTab(collection.name,
+                            FeedFragment.newEmbedArguments(filter),
+                            fragmentConstructor = ::FeedFragment)
+
+                }
+
+                if (ownView) {
+                    addTab(getString(R.string.action_kfav),
+                            fragmentConstructor = ::FavedCommentFragment)
+                }
+            }
+        }
+
         pager.offscreenPageLimit = 2
 
         tabLayout.setupWithViewPager(pager)
@@ -77,11 +105,8 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         }
     }
 
-    override val currentFilter: FeedFilter get() = feedFilter
-
     companion object {
         const val ARG_USERNAME = "FavoritesFragment.username"
-
 
         fun newInstance(username: String): FavoritesFragment {
             return FavoritesFragment().arguments {

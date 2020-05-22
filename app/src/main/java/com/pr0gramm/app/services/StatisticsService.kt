@@ -22,11 +22,12 @@ class StatisticsService(private val feedService: FeedService) {
                 .withUser(username))
     }
 
-    fun statsForFavorites(username: String): Observable<Stats> {
-        return streamStats(favoritesCountCache, FeedFilter()
-                .withFeedType(FeedType.NEW)
-                .withLikes(username))
-    }
+    // TODO remove?
+//    fun statsForFavorites(username: String): Observable<Stats> {
+//        return streamStats(favoritesCountCache, FeedFilter()
+//                .withFeedType(FeedType.NEW)
+//                .withLikes(username))
+//    }
 
     private fun streamStats(cache: ConcurrentMap<Long, Stats>, filter: FeedFilter): Observable<Stats> {
 

@@ -4,6 +4,7 @@ import com.google.android.gms.common.util.Strings.emptyToNull
 import com.pr0gramm.app.parcel.Freezable
 import com.pr0gramm.app.parcel.Unfreezable
 import com.pr0gramm.app.parcel.parcelableCreator
+import java.util.*
 
 /**
  */
@@ -14,7 +15,7 @@ class FeedFilter : Freezable {
     var tags: String? = null
         private set
 
-    var likes: String? = null
+    var collection: String? = null
         private set
 
     var username: String? = null
@@ -34,7 +35,6 @@ class FeedFilter : Freezable {
     fun basic(): FeedFilter {
         return copy {
             tags = null
-            likes = null
             username = null
         }
     }
@@ -66,17 +66,21 @@ class FeedFilter : Freezable {
         return normalize(copy)
     }
 
-    /**
-     * Returns a copy of this filter that filters by the likes of the given username.
-     */
-    fun withLikes(username: String): FeedFilter {
+    fun withCollection(owner: String, collectionKey: String): FeedFilter {
         val copy = basic()
-        copy.likes = normalizeString(username)
+        copy.username = normalizeString(owner)
+        copy.collection = normalizeString(collectionKey)
         return normalize(copy)
     }
 
     fun withTagsNoReset(tags: String): FeedFilter {
-        val copy = withLikes(likes ?: "")
+        val copy = basic()
+
+        if (collection != null) {
+            copy.username = username
+            copy.collection = collection
+        }
+
         copy.tags = normalizeString(tags)
         return normalize(copy)
     }
@@ -90,38 +94,29 @@ class FeedFilter : Freezable {
         val copy = FeedFilter()
         copy.feedType = feedType
         copy.tags = tags
-        copy.likes = likes
+        copy.collection = collection
         copy.username = username
         copy.fn()
         return normalize(copy)
     }
 
-    private fun normalize(filter: FeedFilter): FeedFilter {
-        // if it is a non searchable filter, we need to switch to some searchable category.
-        if (!filter.feedType.searchable && !filter.isBasic) {
-            return filter.withFeedType(FeedType.NEW)
-        }
-
-        return filter
-    }
-
     override fun hashCode(): Int {
-        return listOf(feedType, tags, likes, username).hashCode()
+        return Objects.hash(feedType, tags, collection, username)
     }
 
     override fun equals(other: Any?): Boolean {
         return this === other || (other is FeedFilter
                 && feedType === other.feedType
                 && tags == other.tags
-                && likes == other.likes
-                && username == other.username)
+                && username == other.username
+                && collection == other.collection)
     }
 
     override fun freeze(sink: Freezable.Sink) = with(sink) {
         writeInt(feedType.ordinal)
         writeString(tags ?: "")
-        writeString(likes ?: "")
         writeString(username ?: "")
+        writeString(collection ?: "")
     }
 
     companion object : Unfreezable<FeedFilter> {
@@ -133,10 +128,23 @@ class FeedFilter : Freezable {
         override fun unfreeze(source: Freezable.Source): FeedFilter {
             return FeedFilter().apply {
                 this.feedType = values[source.readInt()]
-                this.tags = source.readString().takeIf { it != "" }
-                this.likes = source.readString().takeIf { it != "" }
-                this.username = source.readString().takeIf { it != "" }
+                this.tags = source.readString().ifEmpty { null }
+                this.username = source.readString().ifEmpty { null }
+                this.collection = source.readString().ifEmpty { null }
             }
+        }
+
+        private fun normalize(filter: FeedFilter): FeedFilter {
+            // if it is a non searchable filter, we need to switch to some searchable category.
+            if (!filter.feedType.searchable && !filter.isBasic) {
+                return filter.withFeedType(FeedType.NEW)
+            }
+
+            if (filter.collection != null && filter.username == null) {
+                return filter.copy { collection = null }
+            }
+
+            return filter
         }
     }
 }

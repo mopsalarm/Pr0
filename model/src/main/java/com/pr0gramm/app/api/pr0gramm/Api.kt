@@ -19,7 +19,7 @@ interface Api {
             @Query("id") around: Long?,
             @Query("flags") flags: Int,
             @Query("tags") tags: String?,
-            @Query("likes") likes: String?,
+            @Query("collection") collection: String?,
             @Query("self") self: Boolean?,
             @Query("user") user: String?
     ): Feed
@@ -456,7 +456,8 @@ interface Api {
     class Info(
             val user: User,
             val badges: List<Badge> = listOf(),
-            val likeCount: Int,
+            val collectedCount: Int,
+            val collections: List<Collection>,
             val uploadCount: Int,
             val commentCount: Int,
             val tagCount: Int,
@@ -785,6 +786,7 @@ interface Api {
     class Collection(
             val id: Long,
             val name: String,
+            val keyword: String,
             val isPublic: Boolean,
             val isDefault: Boolean,
             val items: List<Item>

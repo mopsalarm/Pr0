@@ -92,7 +92,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         }
 
         userService.name?.let { username ->
-            showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))
+            // showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))
             showContentTypesOf(typesOfUpload, statsService.statsForUploads(username))
         }
     }

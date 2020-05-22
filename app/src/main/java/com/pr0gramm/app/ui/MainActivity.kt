@@ -583,6 +583,13 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                                  queryState: Bundle? = null,
                                  title: String? = null) {
 
+        // show special fragment if we want to see overivew of collections.
+        newFilter.username?.let { username ->
+            if (newFilter.collection == "**ANY") {
+                return moveToFragment(FavoritesFragment.newInstance(username), clear = false)
+            }
+        }
+
         moveToFragment(FeedFragment.newInstance(newFilter, start, queryState, title), clear)
     }
 

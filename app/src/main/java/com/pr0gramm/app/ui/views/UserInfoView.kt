@@ -79,23 +79,32 @@ class UserInfoView(context: Context) : FrameLayout(context) {
             actions.shareUserProfile(user.name)
         }
 
-        (this.comments.parent as View).setOnClickListener {
+        this.comments.requireParentView().setOnClickListener {
             actions.onShowCommentsClicked()
         }
 
-        (uploads.parent as View).setOnClickListener {
+        uploads.requireParentView().setOnClickListener {
             actions.onShowUploadsClicked(user.name)
         }
 
-        if (info.likesArePublic && info.likeCount > 0) {
-            favorites.text = info.likeCount.toString()
+        if (info.collectedCount > 0) {
+            favorites.text = info.collectedCount.toString()
 
-            (favorites.parent as View).setOnClickListener {
-                actions.onUserFavoritesClicked(user.name)
+            favorites.parentView?.let { parent ->
+                parent.isVisible = true
+
+                parent.setOnClickListener {
+                    val publicCollections = info.collections.filter { it.isPublic }
+                    if (publicCollections.isNotEmpty()) {
+                        actions.onUserViewCollectionsClicked(
+                                user.name,
+                                publicCollections.singleOrNull()?.keyword)
+                    }
+                }
             }
+
         } else {
-            // remove the view
-            (favorites.parent as View).visibility = View.GONE
+            favorites.parentView?.isVisible = false
         }
 
         val badges = mutableListOf<BadgeInfo>()
@@ -192,7 +201,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
     interface UserActionListener {
         fun onWriteMessageClicked(name: String)
-        fun onUserFavoritesClicked(name: String)
+        fun onUserViewCollectionsClicked(name: String, collectionKey: String?)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)
         fun shareUserProfile(name: String)

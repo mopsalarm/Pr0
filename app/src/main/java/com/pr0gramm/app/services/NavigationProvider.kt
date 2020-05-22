@@ -197,7 +197,7 @@ class NavigationProvider(
                     action = ActionType.FAVORITES,
                     title = getString(R.string.action_favorites),
                     icon = iconFavorites,
-                    filter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
+                    filter = FeedFilter().withFeedType(FeedType.NEW).withCollection(username, "**ANY"))
         }
 
         return items

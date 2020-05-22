@@ -167,9 +167,9 @@ object Track : InjectorAware {
 
     fun openFeed(filter: FeedFilter) {
         send("view_feed") {
-            filter.tags?.let { putString("tags", it) }
-            filter.likes?.let { putString("likes", it) }
-            filter.username?.let { putString("username", it) }
+            filter.tags?.let { putBoolean("tags", true) }
+            filter.collection?.let { putBoolean("collection", true) }
+            filter.username?.let { putBoolean("username", true) }
         }
     }
 

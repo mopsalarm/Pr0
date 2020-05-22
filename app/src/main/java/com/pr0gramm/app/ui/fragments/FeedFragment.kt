@@ -349,9 +349,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
             if (!state.userInfoCommentsOpen) {
                 // check if we need to check if the posts are 'seen'
-                val markAsSeen = state.markItemsAsSeen && !(
-                        state.ownUsername != null && state.ownUsername.equals(filter.likes
-                                ?: filter.username, ignoreCase = true))
+                val markAsSeen = state.markItemsAsSeen && !run {
+                    state.ownUsername != null && state.ownUsername.equalsIgnoreCase(filter.username)
+                }
 
                 val adsVisible = state.adsVisible
 
@@ -447,8 +447,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        override fun onUserFavoritesClicked(name: String) {
-            val filter = currentFilter.basic().withLikes(name)
+        override fun onUserViewCollectionsClicked(name: String, collectionKey: String?) {
+            val filter = currentFilter.basic().withCollection(name, collectionKey ?: "**ANY")
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
@@ -485,7 +485,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     private suspend fun queryUserInfo(): UserInfo? {
         val filter = filterArgument
 
-        val queryString = filter.username ?: filter.tags ?: filter.likes
+        val queryString = filter.username ?: filter.tags
 
         if (queryString != null && queryString.matches("[A-Za-z0-9_]{2,}".toRegex())) {
             val contentTypes = selectedContentType
@@ -1139,7 +1139,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun showFeedNotPublicError() {
-        val username = currentFilter.likes ?: "???"
+        // TODO do we keep this?
+        val username = currentFilter.username ?: "???"
 
         val targetItem = autoScrollRef
 

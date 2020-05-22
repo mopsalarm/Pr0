@@ -1,18 +1,17 @@
 package com.pr0gramm.app.services
 
 import androidx.lifecycle.MutableLiveData
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.readOnly
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import java.util.*
 
 class CollectionsService(private val api: Api, private val userService: UserService) {
+    private val logger = Logger("CollectionsService")
     private val _collections: MutableLiveData<List<Api.Collection>> = MutableLiveData()
 
     val collections = _collections.readOnly()
@@ -21,10 +20,18 @@ class CollectionsService(private val api: Api, private val userService: UserServ
         AsyncScope.launchIgnoreErrors {
             userService.loginStates.asFlow().collect { loginState ->
                 if (loginState.authorized && loginState.premium) {
-                    launch {
-                        _collections.postValue(api.collectionsGet().collections)
+                    launchIgnoreErrors {
+                        val collections = api.collectionsGet().collections
+                        logger.info { "Found ${collections.size} collections" }
+
+                        // take default collection first, sort the rest by name
+                        val (defaultCollections, otherCollections) = collections.partition { it.isDefault }
+                        val sortedCollections = defaultCollections + otherCollections.sortedBy { it.name }
+
+                        _collections.postValue(sortedCollections)
                     }
                 } else {
+                    logger.info { "Reset all collections." }
                     _collections.postValue(listOf())
                 }
             }

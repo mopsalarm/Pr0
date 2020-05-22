@@ -309,10 +309,10 @@ private class NavigationDelegateAdapter(
                 callback.onOtherNavigationItemClicked()
             }
 
-            NavigationProvider.ActionType.FAVORITES ->
-                item.filter?.likes?.let { likes ->
-                    callback.onNavigateToFavorites(likes)
-                }
+            NavigationProvider.ActionType.FAVORITES -> {
+                val username = item.filter?.username!!
+                callback.onNavigateToFavorites(username)
+            }
 
             NavigationProvider.ActionType.URI ->
                 item.uri?.let { openActionUri(it) }

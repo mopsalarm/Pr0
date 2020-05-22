@@ -4,10 +4,13 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.equalsIgnoreCase
 import kotlinx.coroutines.runBlocking
 import rx.Emitter
 import rx.Observable
+import java.util.*
 
 /**
  * Performs the actual request to get the items for a feed.
@@ -29,7 +32,7 @@ interface FeedService {
 
 }
 
-class FeedServiceImpl(private val api: Api) : FeedService {
+class FeedServiceImpl(private val api: Api, private val userService: UserService) : FeedService {
     override suspend fun load(query: FeedService.FeedQuery): Api.Feed {
         val feedFilter = query.filter
 
@@ -38,16 +41,13 @@ class FeedServiceImpl(private val api: Api) : FeedService {
         val following = if (feedFilter.feedType === FeedType.STALK) 1 else null
 
         val flags = ContentType.combine(query.contentTypes)
-        val user = feedFilter.username
-
-        // FIXME this is quite hacky right now.
-        val likes = feedFilter.likes
-        val self = if (likes.isNullOrBlank()) null else true
 
         val feedType = feedFilter.feedType
 
         // statistics
-        Stats().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
+        Stats().incrementCounter(
+                "feed.loaded",
+                "type:" + feedType.name.toLowerCase(Locale.ROOT))
 
         val tags = feedFilter.tags?.replaceFirst("^\\s*\\?\\s*".toRegex(), "!")
 
@@ -79,10 +79,20 @@ class FeedServiceImpl(private val api: Api) : FeedService {
             }
 
             else -> {
+                val collection = feedFilter.collection
+                val user = feedFilter.username
+
+                val self = userService.loginState
+                        .let { loginState ->
+                            // we have a user and it is the same as in the query.
+                            loginState.name != null && loginState.name.equalsIgnoreCase(user)
+                        }
+                        .takeIf { self -> self }
+
                 // do the normal query as is.
                 api.itemsGet(promoted, following,
                         query.older, query.newer, query.around,
-                        flags, tags, likes, self, user)
+                        flags, tags, collection, self, user)
             }
         }
     }
