@@ -123,16 +123,13 @@ class Module private constructor() {
         }
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun <T : Any> instance(value: T): Provider<T> = InstanceProvider(value)
+    fun <T : Any> instance(value: T): Provider<T> = InstanceProvider(value)
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun <T : Any> singleton(noinline factory: Injector.() -> T): Provider<T> {
+    fun <T : Any> singleton(factory: Injector.() -> T): Provider<T> {
         return SingletonProvider(factory)
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun <T : Any> eagerSingleton(noinline factory: suspend Injector.() -> T): Provider<T> {
+    fun <T : Any> eagerSingleton(factory: suspend Injector.() -> T): Provider<T> {
         return AsyncSingletonProvider(factory)
     }
 

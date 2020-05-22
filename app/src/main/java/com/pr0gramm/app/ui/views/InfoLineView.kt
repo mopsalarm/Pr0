@@ -38,6 +38,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private val usernameView: UsernameView by bindView(R.id.username)
     private val voteView: VoteView by bindView(R.id.voting)
     private val followStateView: ImageView by bindView(R.id.action_follow)
+    private val collectionView: CollectView by bindView(R.id.collect)
 
     private val drawableCache = DrawableCache()
 
@@ -118,6 +119,8 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
         voteView.setVoteState(vote, animate = false)
         voteView.toggleFavIconVisibility(!isSelfPost)
+
+        collectionView.itemId = item.id
 
         updateViewState(vote)
     }

@@ -21,28 +21,32 @@ interface Api {
             @Query("tags") tags: String?,
             @Query("likes") likes: String?,
             @Query("self") self: Boolean?,
-            @Query("user") user: String?): Feed
+            @Query("user") user: String?
+    ): Feed
 
     @FormUrlEncoded
     @POST("/api/items/vote")
     suspend fun vote(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Unit
+            @Field("vote") voteValue: Int
+    )
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
     suspend fun voteTag(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Unit
+            @Field("vote") voteValue: Int
+    )
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
     suspend fun voteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Unit
+            @Field("vote") voteValue: Int
+    )
 
     @FormUrlEncoded
     @POST("/api/user/login")
@@ -50,7 +54,8 @@ interface Api {
             @Field("name") username: String,
             @Field("password") password: String,
             @Field("token") token: String,
-            @Field("captcha") answer: String): Response<Login>
+            @Field("captcha") answer: String
+    ): Response<Login>
 
     @GET("/api/user/identifier")
     suspend fun identifier(): Identifier
@@ -60,7 +65,8 @@ interface Api {
     suspend fun addTags(
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") lastId: Long,
-            @Field("tags") tags: String): NewTag
+            @Field("tags") tags: String
+    ): NewTag
 
     @GET("/api/tags/top")
     suspend fun topTags(): TagTopList
@@ -71,30 +77,35 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") itemId: Long,
             @Field("parentId") parentId: Long,
-            @Field("comment") comment: String): NewComment
+            @Field("comment") comment: String
+    ): NewComment
 
     @FormUrlEncoded
     @POST("/api/comments/delete")
     suspend fun hardDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Unit
+            @Field("reason") reason: String
+    )
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
     suspend fun softDeleteComment(
             @Field("_nonce") nonce: Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Unit
+            @Field("reason") reason: String
+    )
 
     @GET("/api/items/info")
     suspend fun info(
             @Query("itemId") itemId: Long,
-            @Query("bust") bust: Long?): Post
+            @Query("bust") bust: Long?
+    ): Post
 
     @GET("/api/user/sync")
     suspend fun sync(
-            @Query("offset") offset: Long): Sync
+            @Query("offset") offset: Long
+    ): Sync
 
     @GET("/api/user/info")
     suspend fun accountInfo(): AccountInfo
@@ -102,70 +113,82 @@ interface Api {
     @GET("/api/profile/info")
     suspend fun info(
             @Query("name") name: String,
-            @Query("flags") flags: Int?): Info
+            @Query("flags") flags: Int?
+    ): Info
 
     @GET("/api/inbox/pending")
     suspend fun inboxPending(): Inbox
 
     @GET("/api/inbox/conversations")
     suspend fun listConversations(
-            @Query("older") older: Long?): Conversations
+            @Query("older") older: Long?
+    ): Conversations
 
     @GET("/api/inbox/messages")
     suspend fun messagesWith(
             @Query("with") name: String,
-            @Query("older") older: Long?): ConversationMessages
+            @Query("older") older: Long?
+    ): ConversationMessages
 
 
     @GET("/api/inbox/comments")
     suspend fun inboxComments(
-            @Query("older") older: Long?): Inbox
+            @Query("older") older: Long?
+    ): Inbox
 
     @GET("/api/inbox/all")
     suspend fun inboxAll(
-            @Query("older") older: Long?): Inbox
+            @Query("older") older: Long?
+    ): Inbox
 
     @GET("/api/inbox/follows")
     suspend fun inboxFollows(
-            @Query("older") older: Long?): Inbox
+            @Query("older") older: Long?
+    ): Inbox
 
     @GET("/api/inbox/notifications")
     suspend fun inboxNotifications(
             @Query("older")
-            older: Long?): Inbox
+            older: Long?
+    ): Inbox
 
     @GET("/api/profile/comments")
     suspend fun userComments(
             @Query("name") user: String,
             @Query("before") before: Long?,
-            @Query("flags") flags: Int?): UserComments
+            @Query("flags") flags: Int?
+    ): UserComments
 
     @GET("/api/profile/commentlikes")
     suspend fun userCommentsLike(
             @Query("name") user: String,
             @Query("before") before: Long,
-            @Query("flags") flags: Int?): FavedUserComments
+            @Query("flags") flags: Int?
+    ): FavedUserComments
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
     suspend fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientId") recipient: Long): Unit
+            @Field("recipientId") recipient: Long
+    )
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
     suspend fun sendMessage(
             @Field("_nonce") nonce: Nonce?,
             @Field("comment") text: String,
-            @Field("recipientName") recipient: String): ConversationMessages
+            @Field("recipientName") recipient: String
+    ): ConversationMessages
 
     @GET("/api/items/ratelimited")
-    suspend fun ratelimited(): Unit
+    suspend fun ratelimited()
 
     @POST("/api/items/upload")
     suspend fun upload(
-            @Body body: RequestBody): Upload
+            @Body body: RequestBody
+    ): Upload
 
     @FormUrlEncoded
     @POST("/api/items/post")
@@ -175,17 +198,20 @@ interface Api {
             @Field("tags") tags: String,
             @Field("checkSimilar") checkSimilar: Int,
             @Field("key") key: String,
-            @Field("processAsync") processAsync: Int?): Posted
+            @Field("processAsync") processAsync: Int?
+    ): Posted
 
     @GET("/api/items/queue")
     suspend fun queue(
-            @Query("id") id: Long?): QueueState
+            @Query("id") id: Long?
+    ): QueueState
 
     @FormUrlEncoded
     @POST("/api/user/invite")
     suspend fun invite(
             @Field("_nonce") nonce: Nonce?,
-            @Field("email") email: String): Invited
+            @Field("email") email: String
+    ): Invited
 
     // Extra stuff for admins
     @FormUrlEncoded
@@ -196,7 +222,8 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("banUser") banUser: String?,
-            @Field("days") days: Float?): Unit
+            @Field("days") days: Float?
+    )
 
     @FormUrlEncoded
     @POST("backend/admin/?view=users&action=ban")
@@ -205,11 +232,13 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") reasonCustom: String,
             @Field("days") days: Float,
-            @Field("mode") mode: BanMode): Unit
+            @Field("mode") mode: BanMode
+    )
 
     @GET("api/tags/details")
     suspend fun tagDetails(
-            @Query("itemId") itemId: Long): TagDetails
+            @Query("itemId") itemId: Long
+    ): TagDetails
 
     @FormUrlEncoded
     @POST("api/tags/delete")
@@ -218,35 +247,41 @@ interface Api {
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
             @Field("days") days: Float?,
-            @Field("tags[]") tagId: List<Long> = listOf()): Unit
+            @Field("tags[]") tagId: List<Long> = listOf()
+    )
 
     @FormUrlEncoded
     @POST("api/profile/follow")
     suspend fun profileFollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Unit
+            @Field("name") username: String
+    )
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
     suspend fun profileUnfollow(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Unit
+            @Field("name") username: String
+    )
 
     @FormUrlEncoded
     @POST("api/profile/subscribe")
     suspend fun profileSubscribe(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Unit
+            @Field("name") username: String
+    )
 
     @FormUrlEncoded
     @POST("api/profile/unsubscribe")
     suspend fun profileUnsubscribe(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") username: String): Unit
+            @Field("name") username: String
+    )
 
     @GET("api/profile/suggest")
     suspend fun suggestUsers(
-            @Query("prefix") prefix: String): Names
+            @Query("prefix") prefix: String
+    ): Names
 
     @FormUrlEncoded
     @POST("api/contact/send")
@@ -254,7 +289,8 @@ interface Api {
             @Field("subject") subject: String,
             @Field("email") email: String,
             @Field("message") message: String,
-            @Field("extraText") extraText: String?): Unit
+            @Field("extraText") extraText: String?
+    )
 
     @FormUrlEncoded
     @POST("api/contact/report")
@@ -262,24 +298,28 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
-            @Field("reason") reason: String): Unit
+            @Field("reason") reason: String
+    )
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
     suspend fun requestPasswordRecovery(
-            @Field("email") email: String): Unit
+            @Field("email") email: String
+    )
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")
     suspend fun resetPassword(
             @Field("name") name: String,
             @Field("token") token: String,
-            @Field("password") password: String): ResetPassword
+            @Field("password") password: String
+    ): ResetPassword
 
     @FormUrlEncoded
     @POST("api/user/handoverrequest")
     suspend fun handoverToken(
-            @Field("_nonce") nonce: Nonce?): HandoverToken
+            @Field("_nonce") nonce: Nonce?
+    ): HandoverToken
 
     @GET("api/bookmarks/get")
     suspend fun bookmarks(): Bookmarks
@@ -292,19 +332,44 @@ interface Api {
     suspend fun bookmarksAdd(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") name: String,
-            @Field("link") link: String): Bookmarks
+            @Field("link") link: String
+    ): Bookmarks
 
     @FormUrlEncoded
     @POST("api/bookmarks/delete")
     suspend fun bookmarksDelete(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") name: String): Bookmarks
+            @Field("name") name: String
+    ): Bookmarks
 
     @GET("media/app-config.json")
     suspend fun remoteConfig(@Query("bust") bust: Long): List<Rule>
 
     @GET("api/user/captcha")
     suspend fun userCaptcha(): UserCaptcha
+
+    @GET("api/collections/get")
+    suspend fun collectionsGet(): Collections
+
+    @FormUrlEncoded
+    @POST("api/collections/create")
+    suspend fun collectionsCreate(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("name") name: String): CollectionCreated
+
+    @FormUrlEncoded
+    @POST("api/collections/add")
+    suspend fun collectionsAdd(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("collectionId") collectionId: Long,
+            @Field("itemId") itemId: Long)
+
+    @FormUrlEncoded
+    @POST("api/collections/remove")
+    suspend fun collectionsRemove(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("collectionId") collectionId: Long,
+            @Field("itemId") itemId: Long)
 
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
@@ -314,24 +379,28 @@ interface Api {
     class Error(
             val error: String,
             val code: Int,
-            val msg: String)
+            val msg: String
+    )
 
     @JsonClass(generateAdapter = true)
     class AccountInfo(
             val account: Account,
-            val invited: List<Invite> = listOf()) {
+            val invited: List<Invite> = listOf()
+    ) {
 
         @JsonClass(generateAdapter = true)
         class Account(
                 val email: String,
-                val invites: Int)
+                val invites: Int
+        )
 
         @JsonClass(generateAdapter = true)
         class Invite(
                 val email: String,
                 val created: Instant,
                 val name: String?,
-                val mark: Int?)
+                val mark: Int?
+        )
     }
 
     @JsonClass(generateAdapter = true)
@@ -344,7 +413,8 @@ interface Api {
             val parent: Long,
             val up: Int,
             val down: Int,
-            val mark: Int) {
+            val mark: Int
+    ) {
 
         val score: Int get() = up - down
     }
@@ -354,7 +424,8 @@ interface Api {
             val error: String? = null,
             @Json(name = "items") val _items: List<Item>? = null,
             @Json(name = "atStart") val isAtStart: Boolean = false,
-            @Json(name = "atEnd") val isAtEnd: Boolean = false) {
+            @Json(name = "atEnd") val isAtEnd: Boolean = false
+    ) {
 
         @Transient
         val items = _items.orEmpty()
@@ -376,7 +447,8 @@ interface Api {
                 val height: Int = 0,
                 val created: Instant,
                 val audio: Boolean = false,
-                val deleted: Boolean = false)
+                val deleted: Boolean = false
+        )
     }
 
 
@@ -390,14 +462,16 @@ interface Api {
             val tagCount: Int,
             val likesArePublic: Boolean,
             val following: Boolean,
-            val appLinks: List<AppLink>? = null) {
+            val appLinks: List<AppLink>? = null
+    ) {
 
         @JsonClass(generateAdapter = true)
         class Badge(
                 val created: Instant,
                 val link: String,
                 val image: String,
-                val description: String?)
+                val description: String?
+        )
 
         @JsonClass(generateAdapter = true)
         class User(
@@ -410,13 +484,15 @@ interface Api {
                 val bannedUntil: Instant?,
                 val inactive: Boolean = false,
                 @Json(name = "commentDelete") val commentDeleteCount: Int,
-                @Json(name = "itemDelete") val itemDeleteCount: Int)
+                @Json(name = "itemDelete") val itemDeleteCount: Int
+        )
 
         @JsonClass(generateAdapter = true)
         class AppLink(
                 val text: String,
                 val icon: String? = null,
-                val link: String? = null)
+                val link: String? = null
+        )
     }
 
     @JsonClass(generateAdapter = true)
@@ -430,13 +506,15 @@ interface Api {
             val success: Boolean? = null,
             val identifier: String? = null,
             val error: String? = null,
-            @Json(name = "ban") val banInfo: BanInfo? = null) {
+            @Json(name = "ban") val banInfo: BanInfo? = null
+    ) {
 
         @JsonClass(generateAdapter = true)
         class BanInfo(
                 val banned: Boolean,
                 val reason: String,
-                @Json(name = "till") val endTime: Instant?)
+                @Json(name = "till") val endTime: Instant?
+        )
     }
 
     @JsonClass(generateAdapter = true)
@@ -456,31 +534,36 @@ interface Api {
                 val message: String? = null,
                 val flags: Int? = null,
                 val image: String? = null,
-                @Json(name = "thumb") val thumbnail: String? = null)
+                @Json(name = "thumb") val thumbnail: String? = null
+        )
     }
 
 
     @JsonClass(generateAdapter = true)
     class NewComment(
             val commentId: Long? = null,
-            val comments: List<Comment> = listOf())
+            val comments: List<Comment> = listOf()
+    )
 
 
     @JsonClass(generateAdapter = true)
     class NewTag(
             val tagIds: List<Long> = listOf(),
-            val tags: List<Tag> = listOf())
+            val tags: List<Tag> = listOf()
+    )
 
     @JsonClass(generateAdapter = true)
     class Post(
             val tags: List<Tag> = listOf(),
-            val comments: List<Comment> = listOf())
+            val comments: List<Comment> = listOf()
+    )
 
     @JsonClass(generateAdapter = true)
     class QueueState(
             val position: Long,
             val item: Posted.PostedItem?,
-            val status: String)
+            val status: String
+    )
 
     @JsonClass(generateAdapter = true)
     class Posted(
@@ -488,7 +571,8 @@ interface Api {
             val item: PostedItem?,
             val similar: List<SimilarItem> = listOf(),
             val report: VideoReport?,
-            val queueId: Long?) {
+            val queueId: Long?
+    ) {
 
         val itemId: Long = item?.id ?: -1
 
@@ -499,7 +583,8 @@ interface Api {
         class SimilarItem(
                 val id: Long,
                 val image: String,
-                @Json(name = "thumb") val thumbnail: String)
+                @Json(name = "thumb") val thumbnail: String
+        )
 
         @JsonClass(generateAdapter = true)
         class VideoReport(
@@ -508,12 +593,14 @@ interface Api {
                 val width: Int = 0,
                 val format: String?,
                 val error: String?,
-                val streams: List<MediaStream> = listOf())
+                val streams: List<MediaStream> = listOf()
+        )
 
         @JsonClass(generateAdapter = true)
         class MediaStream(
                 val codec: String?,
-                val type: String)
+                val type: String
+        )
     }
 
     @JsonClass(generateAdapter = true)
@@ -521,7 +608,8 @@ interface Api {
             val logLength: Long,
             val log: String,
             val score: Int,
-            val inbox: InboxCounts = InboxCounts())
+            val inbox: InboxCounts = InboxCounts()
+    )
 
     @JsonClass(generateAdapter = true)
     class InboxCounts(
@@ -529,7 +617,8 @@ interface Api {
             val mentions: Int = 0,
             val notifications: Int = 0,
             val follows: Int = 0,
-            val messages: Int = 0) {
+            val messages: Int = 0
+    ) {
 
         val total: Int get() = comments + mentions + messages + notifications + follows
     }
@@ -538,7 +627,8 @@ interface Api {
     class Tag(
             val id: Long,
             val confidence: Float,
-            val tag: String) {
+            val tag: String
+    ) {
 
         override fun hashCode(): Int = tag.hashCode()
 
@@ -551,7 +641,8 @@ interface Api {
     @JsonClass(generateAdapter = true)
     class UserComments(
             val user: UserInfo,
-            val comments: List<UserComment> = listOf()) {
+            val comments: List<UserComment> = listOf()
+    ) {
 
         @JsonClass(generateAdapter = true)
         class UserComment(
@@ -561,7 +652,8 @@ interface Api {
                 val thumb: String,
                 val up: Int,
                 val down: Int,
-                val content: String) {
+                val content: String
+        ) {
 
             val score: Int get() = up - down
         }
@@ -570,13 +662,15 @@ interface Api {
         class UserInfo(
                 val id: Int,
                 val mark: Int,
-                val name: String)
+                val name: String
+        )
     }
 
     @JsonClass(generateAdapter = true)
     class FavedUserComments(
             val user: UserComments.UserInfo,
-            val comments: List<FavedUserComment> = listOf())
+            val comments: List<FavedUserComment> = listOf()
+    )
 
     @JsonClass(generateAdapter = true)
     class FavedUserComment(
@@ -589,14 +683,16 @@ interface Api {
             val down: Int,
             val mark: Int,
             val content: String,
-            @Json(name = "ccreated") val commentCreated: Instant)
+            @Json(name = "ccreated") val commentCreated: Instant
+    )
 
     @JsonClass(generateAdapter = true)
     class ResetPassword(val error: String?)
 
     @JsonClass(generateAdapter = true)
     class TagDetails(
-            val tags: List<TagInfo> = listOf()) {
+            val tags: List<TagInfo> = listOf()
+    ) {
 
         @JsonClass(generateAdapter = true)
         class TagInfo(
@@ -606,7 +702,8 @@ interface Api {
                 val confidence: Float,
                 val tag: String,
                 val user: String,
-                val votes: List<Vote> = listOf())
+                val votes: List<Vote> = listOf()
+        )
 
         @JsonClass(generateAdapter = true)
         class Vote(val vote: Int, val user: String)
@@ -621,49 +718,84 @@ interface Api {
     @JsonClass(generateAdapter = true)
     class TagTopList(
             val tags: List<String> = listOf(),
-            val blacklist: List<String> = listOf())
+            val blacklist: List<String> = listOf()
+    )
 
     @JsonClass(generateAdapter = true)
     class Conversations(
             val conversations: List<Conversation>,
-            val atEnd: Boolean)
+            val atEnd: Boolean
+    )
 
     @JsonClass(generateAdapter = true)
     data class Conversation(
             val lastMessage: Instant,
             val mark: Int,
             val name: String,
-            val unreadCount: Int)
+            val unreadCount: Int
+    )
 
     @JsonClass(generateAdapter = true)
     class ConversationMessages(
             val atEnd: Boolean = true,
             val error: String? = null,
-            val messages: List<ConversationMessage> = listOf())
+            val messages: List<ConversationMessage> = listOf()
+    )
 
     @JsonClass(generateAdapter = true)
     class ConversationMessage(
             val id: Long,
             @Json(name = "created") val creationTime: Instant,
             val message: String,
-            val sent: Boolean)
+            val sent: Boolean
+    )
 
     @JsonClass(generateAdapter = true)
     class Bookmarks(
             val bookmarks: List<Bookmark> = listOf(),
             val trending: List<Bookmark> = listOf(),
-            val error: String? = null)
+            val error: String? = null
+    )
 
     @JsonClass(generateAdapter = true)
     class Bookmark(
             val name: String,
             val link: String,
-            val velocity: Float = 0.0f)
+            val velocity: Float = 0.0f
+    )
 
     @JsonClass(generateAdapter = true)
     class UserCaptcha(
             val token: String,
-            @Json(name = "captcha") val image: String)
+            @Json(name = "captcha") val image: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    class Collections(
+            val collections: List<Collection>
+    )
+
+    @JsonClass(generateAdapter = true)
+    class CollectionCreated(
+            val collectionId: Long,
+            val collections: List<Collection>
+    )
+
+    @JsonClass(generateAdapter = true)
+    class Collection(
+            val id: Long,
+            val name: String,
+            val isPublic: Boolean,
+            val isDefault: Boolean,
+            val items: List<Item>
+    ) {
+        @JsonClass(generateAdapter = true)
+        class Item(
+                val id: Long,
+                val thumb: String
+        )
+    }
+
 
     enum class BanMode {
         Default, Single, Branch;

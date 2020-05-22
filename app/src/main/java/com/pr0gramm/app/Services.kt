@@ -182,6 +182,10 @@ fun appInjector(app: Application) = Module.build {
 
     bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
 
+    bind<CollectionsService>() with eagerSingleton {
+        CollectionsService(instance(), instance())
+    }
+
     bind<Config>() with provider { instance<ConfigService>().config() }
 }
 
