@@ -37,6 +37,7 @@ class UserService(private val api: Api,
                   private val cookieJar: LoginCookieJar,
                   private val preferences: SharedPreferences,
                   private val benisService: BenisRecordService,
+                  private val collectionsItemsService: CollectionItemsService,
                   private val config: Config) {
 
     private val logger = Logger("UserService")
@@ -225,6 +226,9 @@ class UserService(private val api: Api,
         // clear the seen items
         seenService.clear()
 
+        // remove all cached collection items
+        collectionsItemsService.clear()
+
         // no more read messages.
         inboxService.forgetUnreadMessages()
         inboxService.publishUnreadMessagesCount(Api.InboxCounts())
@@ -298,7 +302,7 @@ class UserService(private val api: Api,
         }
     }
 
-    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v4:" + config.syncVersion
+    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v5:" + config.syncVersion
 
     /**
      * Retrieves the user data and stores part of the data in the database.

@@ -142,7 +142,7 @@ fun appInjector(app: Application) = Module.build {
     bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
-    bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
@@ -184,6 +184,10 @@ fun appInjector(app: Application) = Module.build {
 
     bind<CollectionsService>() with eagerSingleton {
         CollectionsService(instance(), instance())
+    }
+
+    bind<CollectionItemsService>() with singleton {
+        CollectionItemsService(instance(), instance<AppDB>().collectionItemQueries)
     }
 
     bind<Config>() with provider { instance<ConfigService>().config() }

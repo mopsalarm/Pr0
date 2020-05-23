@@ -1,0 +1,22 @@
+
+CREATE TABLE collectionItem (
+    itemId INTEGER NOT NULL,
+    collectionId INTEGER NOT NULL,
+
+    UNIQUE (itemId, collectionId)
+);
+
+all:
+SELECT itemId, collectionId
+FROM collectionItem;
+
+clear:
+DELETE FROM collectionItem;
+
+add:
+INSERT OR IGNORE INTO collectionItem (itemId, collectionId)
+VALUES (?, ?);
+
+remove:
+DELETE FROM collectionItem
+WHERE itemId=? AND collectionId=?;

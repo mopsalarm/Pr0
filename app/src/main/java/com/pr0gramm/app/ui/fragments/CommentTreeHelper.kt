@@ -196,9 +196,9 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         val grey = itemView.context.getColorCompat(R.color.grey_700)
         val accent = itemView.context.getColorCompat(ThemeHelper.accentColor)
 
-        more.setImageDrawable(drawableCache.get(R.drawable.ic_more_vert_vec, grey))
-        fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, grey))
-        reply.setImageDrawable(drawableCache.get(R.drawable.ic_reply_vec, accent))
+        more.setImageDrawable(DrawableCache.get(R.drawable.ic_more_vert_vec, grey))
+        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, grey))
+        reply.setImageDrawable(DrawableCache.get(R.drawable.ic_reply_vec, accent))
 
         itemView.addOnAttachStateChangeListener { isAttached ->
             removeOnScrollListener()
@@ -285,10 +285,10 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
             if (isFavorite) {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav, color))
+                fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav, color))
             } else {
                 val color = context.getColorCompat(R.color.grey_700)
-                fav.setImageDrawable(drawableCache.get(R.drawable.ic_vote_fav_outline, color))
+                fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, color))
             }
 
             fav.isVisible = true
@@ -372,10 +372,6 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         fun collapseComment(comment: Api.Comment)
 
         fun expandComment(comment: Api.Comment)
-    }
-
-    companion object {
-        private val drawableCache = DrawableCache()
     }
 }
 

@@ -22,6 +22,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.*
@@ -847,3 +848,10 @@ val View.parentView: ViewGroup?
     get() = parent as? ViewGroup
 
 fun View.requireParentView(): ViewGroup = parent as ViewGroup
+
+fun CompoundButton.setOnCheckedChangeListenerWithInitial(checkedState: Boolean, listener: (isChecked: Boolean) -> Unit) {
+    setOnCheckedChangeListener(null)
+    isChecked = checkedState
+
+    setOnCheckedChangeListener { buttonView, isChecked -> listener(isChecked) }
+}

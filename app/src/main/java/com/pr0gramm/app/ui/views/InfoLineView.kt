@@ -40,8 +40,6 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private val followStateView: ImageView by bindView(R.id.action_follow)
     private val collectionView: CollectView by bindView(R.id.collect)
 
-    private val drawableCache = DrawableCache()
-
     private val admin: Boolean = !isInEditMode && context.injector.instance<UserService>().userIsAdmin
 
     private var feedItem: FeedItem? = null
@@ -71,13 +69,13 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             popup.inflate(R.menu.menu_follow)
             popup.setOnMenuItemClickListener { followMenuClicked(it.itemId); true }
 
-            popup.menu.findItem(R.id.action_follow_off)?.icon = drawableCache
+            popup.menu.findItem(R.id.action_follow_off)?.icon = DrawableCache
                     .get(R.drawable.ic_action_follow_off, iconColor)
 
-            popup.menu.findItem(R.id.action_follow_normal)?.icon = drawableCache
+            popup.menu.findItem(R.id.action_follow_normal)?.icon = DrawableCache
                     .get(R.drawable.ic_action_follow_normal, iconColor)
 
-            popup.menu.findItem(R.id.action_follow_full)?.icon = drawableCache
+            popup.menu.findItem(R.id.action_follow_full)?.icon = DrawableCache
                     .get(R.drawable.ic_action_follow_full, iconColor)
 
             popup.show()
@@ -96,6 +94,11 @@ class InfoLineView(context: Context) : LinearLayout(context) {
 
             true
         }
+
+        collectionView.setOnClickListener {
+            onDetailClickedListener?.collectClicked()
+        }
+
     }
 
     /**
@@ -159,10 +162,10 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         val textSize = captionView.textSize.toInt()
         val offset = context.dp(2)
 
-        val dClock = drawableCache.get(R.drawable.ic_clock, textColor).withInsets(bottom = offset)
+        val dClock = DrawableCache.get(R.drawable.ic_clock, textColor).withInsets(bottom = offset)
         dClock.setBounds(0, 0, textSize, textSize + offset)
 
-        val dPlus = drawableCache.get(R.drawable.ic_plus, textColor).withInsets(bottom = offset)
+        val dPlus = DrawableCache.get(R.drawable.ic_plus, textColor).withInsets(bottom = offset)
         dPlus.setBounds(0, 0, textSize, textSize + offset)
 
         ViewUpdater.replaceText(captionView, feedItem.created) {
@@ -235,17 +238,17 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         when {
             followState.subscribed -> {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_full, color))
+                followStateView.setImageDrawable(DrawableCache.get(R.drawable.ic_action_follow_full, color))
             }
 
             followState.following -> {
                 val color = context.getColorCompat(ThemeHelper.accentColor)
-                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_normal, color))
+                followStateView.setImageDrawable(DrawableCache.get(R.drawable.ic_action_follow_normal, color))
             }
 
             else -> {
                 val color = context.getStyledColor(android.R.attr.textColorSecondary)
-                followStateView.setImageDrawable(drawableCache.get(R.drawable.ic_action_follow_off, color))
+                followStateView.setImageDrawable(DrawableCache.get(R.drawable.ic_action_follow_off, color))
             }
         }
     }

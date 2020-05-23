@@ -8,7 +8,7 @@ import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.util.checkMainThread
 import com.pr0gramm.app.util.getOrPut
 
-class DrawableCache {
+object DrawableCache {
     fun get(drawableId: Int, @ColorInt tint: Int): Drawable {
         return get(ApplicationClass.appContext, drawableId, tint)
     }
@@ -26,10 +26,8 @@ class DrawableCache {
 
     private data class CacheKey(val drawableId: Int, val color: Int)
 
-    companion object {
-        // we are using a shared lru cache
-        private val drawableCache = LruCache<CacheKey, Drawable>(64)
-    }
+    // we are using a shared lru cache
+    private val drawableCache = LruCache<CacheKey, Drawable>(64)
 }
 
 

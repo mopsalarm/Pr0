@@ -144,6 +144,10 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         }
     }
 
+    fun addItem(item: SheetMenuItem) {
+        items += item
+    }
+
     /**
      * Sets the title text of the sheet
      *
@@ -257,7 +261,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
         }
     }
 
-    private class SheetMenuItem private constructor(val menuItem: MenuItem?) {
+    class SheetMenuItem private constructor(val menuItem: MenuItem?) {
 
         val isSeparator: Boolean
             get() = this === SEPARATOR

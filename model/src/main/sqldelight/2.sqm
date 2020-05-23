@@ -1,0 +1,6 @@
+CREATE TABLE collectionItem (
+    itemId INTEGER NOT NULL,
+    collectionId INTEGER NOT NULL,
+
+    UNIQUE (itemId, collectionId)
+);

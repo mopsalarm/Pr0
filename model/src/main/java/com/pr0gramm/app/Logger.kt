@@ -41,7 +41,7 @@ inline class Logger(val name: String) {
     }
 }
 
-typealias RemoteLoggingHandler = (level: Int, tag: String, message: String) -> Boolean
+typealias RemoteLoggingHandler = (level: Int, tag: String, message: String) -> Unit
 
 object Logging {
     private const val ENTRY_BUFFER_SIZE = 4096
@@ -58,7 +58,7 @@ object Logging {
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
-    private var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> false }
+    private var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> Unit }
 
     fun configureLoggingOutput(handler: RemoteLoggingHandler) {
         for (idx in 0..entriesIndex.get()) {
@@ -75,12 +75,13 @@ object Logging {
         val thread = Thread.currentThread().name
         val tag = "[$thread] $name"
 
-        val logged = name != "OkHttpClient" && remoteLoggingHandler(level, tag, message)
-        if (!logged) {
-            if (BuildConfig.DEBUG) {
-                // log to stdout
-                Log.println(level, tag, message)
-            }
+        if (name != "OkHttpClient") {
+            remoteLoggingHandler(level, tag, message)
+        }
+
+        if (BuildConfig.DEBUG) {
+            // log to stdout
+            Log.println(level, tag, message)
         }
 
         // store in buffer. Not 100% thread safe but close enough.

@@ -42,4 +42,9 @@ interface PostActions {
      * Follow the user
      */
     suspend fun updateFollowUser(follow: FollowState): Boolean
+
+    /**
+     * The user clicked on the button to collect the item.
+     */
+    fun collectClicked()
 }

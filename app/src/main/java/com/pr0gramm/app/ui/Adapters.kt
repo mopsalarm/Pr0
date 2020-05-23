@@ -145,6 +145,19 @@ abstract class DelegateAdapter<T : Any>(
     }
 }
 
+fun <T : Any> delegateAdapterOf(
+        name: String,
+        vararg delegates: AdapterDelegate<T, *>,
+        diffCallback: DiffUtil.ItemCallback<T> = AsyncListAdapter.InstanceDiffCallback(),
+        detectMoves: Boolean = false): DelegateAdapter<T> {
+
+    return object : DelegateAdapter<T>(diffCallback, detectMoves, name = name) {
+        init {
+            this.delegates += delegates
+        }
+    }
+}
+
 interface RecycleAware {
     fun onViewRecycled()
 }

@@ -36,6 +36,7 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.*
+import com.pr0gramm.app.ui.dialogs.CollectionsSelectionDialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.views.PostActions
@@ -1389,6 +1390,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override suspend fun updateFollowUser(follow: FollowState): Boolean {
             return doIfAuthorizedHelper.runAuthSuspend {
                 followService.update(follow, feedItem.userId, feedItem.user)
+            }
+        }
+
+        override fun collectClicked() {
+            return doIfAuthorizedHelper.run {
+                val dialog = CollectionsSelectionDialog.newInstance(feedItem.id)
+                dialog.show(childFragmentManager, null)
             }
         }
     }

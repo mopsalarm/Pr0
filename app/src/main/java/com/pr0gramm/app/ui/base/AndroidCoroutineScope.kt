@@ -100,6 +100,7 @@ val MainScope = CoroutineScope(Main + SupervisorJob() + DefaultCoroutineExceptio
 
 fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
     if (!isAttachedToWindow) {
+        Logger(javaClass.directName).warn { "whileIsAttachedScope called on view that is currently not attached." }
         return Job()
     }
 
@@ -227,7 +228,7 @@ fun Fragment.launchWhenCreated(
     debugVerifyLifecycle(this, Lifecycle.State.CREATED)
 
     return lifecycleScope.launchWhenCreated {
-        decorate(requireActivity(), ignoreErrors, busyIndicator, block)
+        decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
     }
 }
 

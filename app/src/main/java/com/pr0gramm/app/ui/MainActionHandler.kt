@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui
 
 import android.os.Bundle
+import androidx.fragment.app.DialogFragment
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.ui.fragments.CommentRef
 
@@ -18,6 +19,6 @@ interface MainActionHandler {
 
     fun bookmarkFilter(filter: FeedFilter, title: String)
 
-    fun showUploadBottomSheet()
+    fun showUploadBottomSheet(dialog: DialogFragment)
 
 }

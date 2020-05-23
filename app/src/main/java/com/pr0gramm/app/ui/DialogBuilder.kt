@@ -313,7 +313,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
     }
 }
 
-private fun resolveDialogTheme(context: Context, @StyleRes resid: Int): Int {
+fun resolveDialogTheme(context: Context, @StyleRes resid: Int): Int {
     // Check to see if this resourceId has a valid package ID.
     return if (resid.ushr(24) and 0x000000ff >= 0x00000001) {   // start of real resource IDs.
         resid

@@ -19,6 +19,7 @@ import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
@@ -40,7 +41,6 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment
 import com.pr0gramm.app.ui.fragments.FavoritesFragment
 import com.pr0gramm.app.ui.fragments.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
-import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
@@ -684,8 +684,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return permissionHelper.requirePermission(permission, callback)
     }
 
-    override fun showUploadBottomSheet() {
-        UploadTypeDialogFragment().show(supportFragmentManager, null)
+    override fun showUploadBottomSheet(dialog: DialogFragment) {
+        dialog.show(supportFragmentManager, null)
     }
 
     companion object {

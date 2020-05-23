@@ -115,16 +115,19 @@ class VoteService(private val api: Api,
             "Length of vote log must be a multiple of 5"
         }
 
-
         val actionCount = decoded.size / 5
         val actionStream = ByteArrayInputStream(decoded).source().buffer()
 
         val watch = Stopwatch()
         appDB.transaction {
+            var pendingCollectOp: PendingCollectOp? = null
+
             logger.info { "Applying $actionCount vote actions" }
             for (idx in 0 until actionCount) {
                 val id = actionStream.readIntLe().toLong()
                 val action = actionStream.readByte().unsigned
+
+                logger.debug { "Handle action $action with id argument $id" }
 
                 val voteAction = VOTE_ACTIONS[action]
                 if (voteAction != null) {
@@ -138,11 +141,37 @@ class VoteService(private val api: Api,
                 if (followAction != null) {
                     storeFollowAction(id, followAction)
                 }
+
+                when (action) {
+                    ACTION_ITEM_COLLECT ->
+                        pendingCollectOp = PendingCollectOp(id, true)
+
+                    ACTION_ITEM_UNCOLLECT ->
+                        pendingCollectOp = PendingCollectOp(id, false)
+
+                    ACTION_COLLECTION_ID -> {
+                        if (pendingCollectOp != null) {
+                            executePendingCollectionOp(pendingCollectOp, id)
+                            pendingCollectOp = null
+                        }
+                    }
+                }
+
             }
         }
 
         logger.info { "Applying vote actions took $watch" }
     }
+
+    private fun executePendingCollectionOp(op: PendingCollectOp, collectionId: Long) {
+        if (op.isCollect) {
+            appDB.collectionItemQueries.add(itemId = op.itemId, collectionId = collectionId)
+        } else {
+            appDB.collectionItemQueries.remove(itemId = op.itemId, collectionId = collectionId)
+        }
+    }
+
+    private class PendingCollectOp(val itemId: Long, val isCollect: Boolean)
 
     private fun storeFollowAction(userId: Long, state: FollowState) {
         appDB.userFollowEntryQueries.updateUser(userId, state.ordinal)
@@ -241,7 +270,7 @@ class VoteService(private val api: Api,
     companion object {
         private val logger = Logger("VoteService")
 
-        private val VOTE_ACTIONS = mapOf(
+        private val VOTE_ACTIONS: Map<Int, VoteAction> = hashMapOf(
                 1 to VoteAction(CachedVote.Type.ITEM, Vote.DOWN),
                 2 to VoteAction(CachedVote.Type.ITEM, Vote.NEUTRAL),
                 3 to VoteAction(CachedVote.Type.ITEM, Vote.UP),
@@ -250,14 +279,17 @@ class VoteService(private val api: Api,
                 6 to VoteAction(CachedVote.Type.COMMENT, Vote.UP),
                 7 to VoteAction(CachedVote.Type.TAG, Vote.DOWN),
                 8 to VoteAction(CachedVote.Type.TAG, Vote.NEUTRAL),
-                9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
-                10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE),
-                11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
+                9 to VoteAction(CachedVote.Type.TAG, Vote.UP))
 
-        private val FOLLOW_ACTION = mapOf(
+        private val FOLLOW_ACTION: Map<Int, FollowState> = hashMapOf(
                 12 to FollowState.FOLLOW,
                 13 to FollowState.NONE,
                 14 to FollowState.SUBSCRIBED,
                 15 to FollowState.FOLLOW)
+
+        private const val ACTION_ITEM_UNCOLLECT = 18
+        private const val ACTION_ITEM_COLLECT = 19
+        private const val ACTION_COLLECTION_ID = 20
+
     }
 }

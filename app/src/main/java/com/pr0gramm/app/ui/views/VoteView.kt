@@ -55,7 +55,6 @@ private val iconsDef = mapOf(
  * A plus and a minus sign to handle votes.
  */
 class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
-    private val drawableCache = DrawableCache()
     private val views: Map<Vote, AppCompatImageView>
 
     private var voteIconSize: Int
@@ -230,7 +229,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawableGet(drawableId: Int, color: Int): Drawable {
-        return drawableCache.get(context, drawableId, color)
+        return DrawableCache.get(context, drawableId, color)
     }
 
     private fun updateViewState(view: View, animated: Boolean, rotated: Boolean, alpha: Boolean) {

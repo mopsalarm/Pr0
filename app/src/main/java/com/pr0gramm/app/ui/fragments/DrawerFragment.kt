@@ -37,6 +37,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.dialogs.EditBookmarkDialog
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
+import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.pr0gramm.app.util.di.Injector
@@ -376,7 +377,8 @@ private class NavigationDelegateAdapter(
 
     private fun showUploadActivity() {
         val run = Runnable {
-            (activity as MainActionHandler).showUploadBottomSheet()
+            val dialog = UploadTypeDialogFragment()
+            (activity as MainActionHandler).showUploadBottomSheet(dialog)
         }
 
         doIfAuthorizedHelper.runAuth(run, run)
