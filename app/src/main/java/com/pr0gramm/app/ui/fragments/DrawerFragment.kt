@@ -410,7 +410,7 @@ private class NavigationDelegateAdapter(
 data class TitleInfo(val name: String?, val userClass: UserClassesService.UserClass)
 
 private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
-    : ListItemTypeAdapterDelegate<TitleInfo, TitleViewHolder>() {
+    : ListItemTypeAdapterDelegate<TitleInfo, Any, TitleViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): TitleViewHolder {
         return TitleViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_title))
@@ -446,7 +446,7 @@ private class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
 data class BenisInfo(val score: Int, val graph: Graph?)
 
 private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
-    : ListItemTypeAdapterDelegate<BenisInfo, BenisGraphViewHolder>() {
+    : ListItemTypeAdapterDelegate<BenisInfo, Any, BenisGraphViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): BenisGraphViewHolder {
         return BenisGraphViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_benis))
@@ -492,7 +492,7 @@ private class BenisGraphViewHolder(itemView: View) : RecyclerView.ViewHolder(ite
 
 private object Spacer
 
-private object SpacerAdapterDelegate : ListItemTypeAdapterDelegate<Spacer, RecyclerView.ViewHolder>() {
+private object SpacerAdapterDelegate : ListItemTypeAdapterDelegate<Spacer, Any, RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         return object : RecyclerView.ViewHolder(
                 parent.inflateDetachedChild(R.layout.left_drawer_nav_spacer)) {}

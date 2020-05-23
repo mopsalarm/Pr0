@@ -48,7 +48,7 @@ class MessageAdapter(
         }
     }
 
-    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Message, MessageAdapter.MessageViewHolder>() {
+    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Message, Any, MessageAdapter.MessageViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup): MessageAdapter.MessageViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
             return MessageViewHolder(view)

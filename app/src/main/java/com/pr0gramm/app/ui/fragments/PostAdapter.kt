@@ -94,7 +94,7 @@ class PostAdapter
 }
 
 private object CommentItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, CommentView>() {
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, PostAdapter.Item, CommentView>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentView {
         return CommentView(parent)
@@ -106,7 +106,7 @@ private object CommentItemAdapterDelegate
 }
 
 private class TagsViewHolderAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, TagsViewHolderAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, PostAdapter.Item, TagsViewHolderAdapterDelegate.ViewHolder>() {
 
     private var viewStates = ViewHolderState()
 
@@ -156,7 +156,7 @@ private class TagsViewHolderAdapterDelegate
 
 
 private object InfoLineItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, InfoLineItemAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, PostAdapter.Item, InfoLineItemAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(InfoLineView(parent.context))
@@ -180,7 +180,7 @@ private object InfoLineItemAdapterDelegate
 }
 
 private object PlaceholderItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.PlaceholderItem, PlaceholderItemAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.PlaceholderItem, PostAdapter.Item, PlaceholderItemAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(PlaceholderView(parent.context))

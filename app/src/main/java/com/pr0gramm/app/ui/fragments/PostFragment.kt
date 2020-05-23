@@ -1394,10 +1394,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun collectClicked() {
-            return doIfAuthorizedHelper.run {
-                val dialog = CollectionsSelectionDialog.newInstance(feedItem.id)
-                dialog.show(childFragmentManager, null)
+            val r = Runnable {
+                CollectionsSelectionDialog.addToCollection(this@PostFragment, feedItem.id)
             }
+
+            doIfAuthorizedHelper.runAuth(r)
         }
     }
 

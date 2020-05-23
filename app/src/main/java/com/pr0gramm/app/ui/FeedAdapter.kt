@@ -129,7 +129,7 @@ data class UserAndMark(val name: String, val mark: Int)
 
 
 class AdViewAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Ad, AdViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Ad, FeedAdapter.Entry, AdViewHolder>() {
 
     private var lastSeenAdview: AdView? = null
 
@@ -150,7 +150,7 @@ class AdViewAdapter
 }
 
 private object FeedItemEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Item, FeedItemViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Item, FeedAdapter.Entry, FeedItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): FeedItemViewHolder {
         return FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view) as FrameLayout)
@@ -234,7 +234,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
 }
 
 private object UserHintEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserHint, UserHintEntryAdapter.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserHint, FeedAdapter.Entry, UserHintEntryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(UserHintView(parent.context))
@@ -248,7 +248,7 @@ private object UserHintEntryAdapter
 }
 
 private object UserLoadingEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserLoading, UserLoadingEntryAdapter.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.UserLoading, FeedAdapter.Entry, UserLoadingEntryAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(UserInfoLoadingView(parent.context))
@@ -263,7 +263,7 @@ private object UserLoadingEntryAdapter
 
 
 private object SpacerEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Spacer, SpacerEntryAdapter.SpacerViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Spacer, FeedAdapter.Entry, SpacerEntryAdapter.SpacerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): SpacerViewHolder {
         return SpacerViewHolder(parent.context)
@@ -294,7 +294,7 @@ private object SpacerEntryAdapter
 }
 
 private object CommentEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Comment, CommentEntryAdapter.CommentViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Comment, FeedAdapter.Entry, CommentEntryAdapter.CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentViewHolder {
         val inflater = parent.layoutInflater
@@ -323,7 +323,7 @@ private object CommentEntryAdapter
 }
 
 private object UserEntryAdapter
-    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.User, UserEntryAdapter.UserInfoViewHolder>() {
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.User, FeedAdapter.Entry, UserEntryAdapter.UserInfoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): UserInfoViewHolder {
         return UserInfoViewHolder(UserInfoView(parent.context))

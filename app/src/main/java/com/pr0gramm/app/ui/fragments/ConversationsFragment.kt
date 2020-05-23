@@ -172,7 +172,7 @@ private class ConversationsLoader(private val inboxService: InboxService) : Pagi
 private class ConversationAdapterDelegate(
         context: Context,
         private val conversationClicked: (Api.Conversation) -> Unit)
-    : ListItemTypeAdapterDelegate<Api.Conversation, ConversationAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<Api.Conversation, Any, ConversationAdapterDelegate.ViewHolder>() {
 
     private val userIconService = UserDrawables(context)
 

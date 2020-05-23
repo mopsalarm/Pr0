@@ -151,4 +151,14 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
             return oldItem == newItem
         }
     }
+
+    class KeyDiffCallback<T>(private val keyOf: (T) -> Any?) : DiffUtil.ItemCallback<T>() {
+        override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
+            return keyOf(oldItem) == keyOf(newItem)
+        }
+
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

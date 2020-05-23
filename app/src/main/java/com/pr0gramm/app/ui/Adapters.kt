@@ -48,23 +48,23 @@ abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder>
     abstract fun onBindViewHolder(holder: VH, value: E)
 }
 
-abstract class ListItemValueAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>(private val itemValue: Any)
-    : ItemAdapterDelegate<E, Any, VH>() {
+abstract class ListItemValueAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>(private val itemValue: L)
+    : ItemAdapterDelegate<E, L, VH>() {
 
-    final override fun isForViewType(value: Any): Boolean {
+    final override fun isForViewType(value: L): Boolean {
         @Suppress("SuspiciousEqualsCombination")
         return itemValue === value || itemValue == value
     }
 }
 
-abstract class ListItemTypeAdapterDelegate<E : Any, VH : RecyclerView.ViewHolder>
-    : ItemAdapterDelegate<E, Any, VH>() {
+abstract class ListItemTypeAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>
+    : ItemAdapterDelegate<E, L, VH>() {
 
     // Get the actual type for E.
     @Suppress("UNCHECKED_CAST")
     private val type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<E>
 
-    final override fun isForViewType(value: Any): Boolean {
+    final override fun isForViewType(value: L): Boolean {
         return type.isInstance(value)
     }
 }
@@ -198,7 +198,7 @@ fun staticLayoutAdapterDelegate(layout: Int, itemValue: Any)
 
 
 class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_error)
-    : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, ErrorAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, Any, ErrorAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(parent.layoutInflater.inflate(layout, parent, false))

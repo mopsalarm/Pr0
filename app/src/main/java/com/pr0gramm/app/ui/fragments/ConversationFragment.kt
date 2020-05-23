@@ -361,7 +361,7 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
 }
 
 class DividerAdapterDelegate
-    : ListItemTypeAdapterDelegate<DividerAdapterDelegate.Value, DividerAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<DividerAdapterDelegate.Value, Any, DividerAdapterDelegate.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(parent.inflateDetachedChild(R.layout.item_date_divider))

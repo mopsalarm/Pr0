@@ -361,15 +361,15 @@ interface Api {
     @POST("api/collections/add")
     suspend fun collectionsAdd(
             @Field("_nonce") nonce: Nonce?,
-            @Field("collectionId") collectionId: Long,
-            @Field("itemId") itemId: Long)
+            @Field("collectionId") collectionId: Long?,
+            @Field("itemId") itemId: Long): AddToCollectionResponse
 
     @FormUrlEncoded
     @POST("api/collections/remove")
     suspend fun collectionsRemove(
             @Field("_nonce") nonce: Nonce?,
             @Field("collectionId") collectionId: Long,
-            @Field("itemId") itemId: Long)
+            @Field("itemId") itemId: Long): CollectionResponse
 
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
@@ -380,6 +380,17 @@ interface Api {
             val error: String,
             val code: Int,
             val msg: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    class CollectionResponse(
+            val error: String? = null
+    )
+
+    @JsonClass(generateAdapter = true)
+    class AddToCollectionResponse(
+            val error: String? = null,
+            val collectionId: Long = 0
     )
 
     @JsonClass(generateAdapter = true)

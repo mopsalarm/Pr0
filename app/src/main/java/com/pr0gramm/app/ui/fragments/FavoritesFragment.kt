@@ -13,6 +13,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.CollectionsService
+import com.pr0gramm.app.services.PostCollection
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
@@ -55,7 +56,11 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
 
         val collectionsLiveData = when {
             ownView -> collectionsService.collections
-            else -> liveData { emit(userService.info(argUsername).collections) }
+
+            else -> liveData {
+                val info = userService.info(argUsername)
+                emit(PostCollection.fromApi(info.collections))
+            }
         }
 
         currentFilter = currentFilter.withCollection(argUsername, "**ANY")
@@ -65,9 +70,9 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
                 for (collection in collections) {
                     val filter = FeedFilter()
                             .withFeedType(FeedType.NEW)
-                            .withCollection(argUsername, collection.keyword)
+                            .withCollection(argUsername, collection.key)
 
-                    addTab(collection.name,
+                    addTab(collection.title,
                             FeedFragment.newEmbedArguments(filter),
                             fragmentConstructor = ::FeedFragment)
 
