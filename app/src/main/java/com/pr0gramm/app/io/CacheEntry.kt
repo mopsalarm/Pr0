@@ -362,8 +362,6 @@ internal class CacheEntry(
         private fun writeResponseToEntry(stream: InputStream) {
             val lockExpireTime = Instant.now().plus(1, TimeUnit.SECONDS)
 
-            var localWritten = 0
-
             readStream(stream, bufferSize = 64 * 1024) { buffer, byteCount ->
                 lock.withLock {
                     logger.debug { "Got $byteCount new bytes from cache." }
@@ -379,12 +377,6 @@ internal class CacheEntry(
                     if (canceled) {
                         logger.debug { "Caching canceled, stopping now." }
                         return
-                    }
-
-                    debugOnly {
-                        localWritten += byteCount
-                        if (localWritten > 1024 * 1024)
-                            throw EOFException("DEBUG Simulate network loss")
                     }
 
                     if (refCount.toInt() == 1 && lockExpireTime.isBefore(Instant.now())) {
