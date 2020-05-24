@@ -9,7 +9,7 @@ import com.pr0gramm.app.adapter
 import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.StateFlow
+import com.pr0gramm.app.util.LazyStateFlow
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encode
@@ -41,7 +41,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
      * Observe the existing cookie. Get a null value if the cookie
      * was removed and changed to null.
      */
-    val observeCookie: StateFlow<LoginCookie?> = StateFlow()
+    val observeCookie: LazyStateFlow<LoginCookie?> = LazyStateFlow()
 
     fun hasCookie(): Boolean {
         return httpCookie != null && parsedCookie?.id != null
@@ -118,7 +118,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
                 }
 
                 this.httpCookie = cookie
-                this.observeCookie.sendOrBlock(parsedCookie)
+                this.observeCookie.send(parsedCookie)
                 return true
 
             } else {
@@ -141,7 +141,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
             // and publish cookie to listeners
             httpCookie = null
-            observeCookie.sendOrBlock(null)
+            observeCookie.send(null)
         }
     }
 

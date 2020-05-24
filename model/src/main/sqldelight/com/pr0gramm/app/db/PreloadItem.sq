@@ -1,0 +1,22 @@
+CREATE TABLE preloadItem (
+    itemId INTEGER PRIMARY KEY NOT NULL,
+    creation INTEGER NOT NULL,
+    media TEXT NOT NULL,
+    thumbnail TEXT NOT NULL,
+    thumbnail_full TEXT DEFAULT NULL
+);
+
+all:
+SELECT * FROM preloadItem;
+
+save:
+INSERT OR REPLACE INTO preloadItem (itemId, creation, media, thumbnail, thumbnail_full)
+VALUES (?, ?, ?, ?, ?);
+
+deleteOlderThan:
+DELETE FROM preloadItem
+WHERE creation < ?;
+
+deleteOne:
+DELETE FROM preloadItem
+WHERE itemId=?;

@@ -1,37 +1,55 @@
 package com.pr0gramm.app.services.preloading
 
-import android.content.ContentValues
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
-import androidx.core.database.getStringOrNull
+import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.db.PreloadItemQueries
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.Databases.withTransaction
-import com.squareup.sqlbrite.BriteDatabase
-import rx.Observable
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.io.File
-import java.util.concurrent.TimeUnit
 
+
+private fun intervalFlow(): Flow<Unit> {
+    return flow {
+        while (true) {
+            emit(Unit)
+            delay(Duration.minutes(10))
+        }
+    }
+}
 
 /**
  */
 
-class PreloadManager(private val database: BriteDatabase) {
+class PreloadManager(private val db: PreloadItemQueries) {
+    private val logger = Logger("PreloadManager")
+
     @Volatile
     private var preloadCache = LongSparseArray<PreloadItem>()
 
-    private val observeAllItems = Observable.interval(0, 10, TimeUnit.MINUTES)
-            .switchMap {
-                database.createQuery(TABLE_NAME, "SELECT * FROM $TABLE_NAME")
-                        .mapToList { cursor -> readPreloadItem(cursor) }
-            }
+    private val observeAllItems = intervalFlow()
+            .flatMapLatest { db.all(this::mapper).asFlow().mapToList() }
             .map { items -> validateItems(items) }
-            .share()
 
     init {
-        // initialize and cache in background for polling
-        observeAllItems.subscribe { preloadCache = it }
+        AsyncScope.launch {
+            // initialize and cache in background for polling
+            observeAllItems.collect { preloadCache = it }
+        }
+    }
+
+    private fun mapper(itemId: Long, creationTime: Long, media: String, thumbnail: String, fullThumbnail: String?): PreloadItem {
+        return PreloadItem(
+                itemId = itemId,
+                creation = Instant(creationTime),
+                media = File(media),
+                thumbnail = File(thumbnail),
+                thumbnailFull = fullThumbnail?.let(::File)
+        )
     }
 
     private fun validateItems(items: List<PreloadItem>): LongSparseArray<PreloadItem> {
@@ -49,29 +67,10 @@ class PreloadManager(private val database: BriteDatabase) {
 
         if (missing.isNotEmpty()) {
             // delete missing entries in background.
-            doInBackground {
-                withTransaction(database) {
-                    deleteTx(database, missing)
-                }
-            }
+            doInBackground { deleteItems(missing) }
         }
 
         return longSparseArrayOf(available) { it.itemId }
-    }
-
-    private fun readPreloadItem(cursor: Cursor): PreloadItem {
-        val cItemId = cursor.getColumnIndexOrThrow("itemId")
-        val cCreation = cursor.getColumnIndexOrThrow("creation")
-        val cMedia = cursor.getColumnIndexOrThrow("media")
-        val cThumbnail = cursor.getColumnIndexOrThrow("thumbnail")
-        val cThumbnailFull = cursor.getColumnIndexOrThrow("thumbnail_full")
-
-        return PreloadItem(
-                itemId = cursor.getLong(cItemId),
-                creation = Instant(cursor.getLong(cCreation)),
-                media = File(cursor.getString(cMedia)),
-                thumbnail = File(cursor.getString(cThumbnail)),
-                thumbnailFull = cursor.getStringOrNull(cThumbnailFull)?.let { File(it) })
     }
 
     /**
@@ -80,13 +79,7 @@ class PreloadManager(private val database: BriteDatabase) {
     fun store(entry: PreloadItem) {
         checkNotMainThread()
 
-        val values = ContentValues()
-        values.put("itemId", entry.itemId)
-        values.put("creation", entry.creation.millis)
-        values.put("media", entry.media.path)
-        values.put("thumbnail", entry.thumbnail.path)
-        values.put("thumbnail_full", entry.thumbnailFull?.path)
-        database.insert(TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE)
+        db.save(entry.itemId, entry.creation.millis, entry.media.path, entry.thumbnail.path, entry.thumbnailFull?.path)
     }
 
     /**
@@ -100,48 +93,43 @@ class PreloadManager(private val database: BriteDatabase) {
      * Returns the [PreloadItem] with a given id.
      */
     operator fun get(itemId: Long): PreloadItem? {
-        return preloadCache.get(itemId)
+        return preloadCache[itemId]
     }
 
     fun deleteOlderThan(threshold: Instant) {
         logger.info { "Removing all files preloaded before $threshold" }
+        deleteItems(preloadCache.values().filter { it.creation < threshold })
+    }
 
-        withTransaction(database) {
-            val items = database.query("SELECT * FROM $TABLE_NAME WHERE creation<?",
-                    threshold.millis.toString()).use { cursor ->
+    private fun deleteItems(items: Iterable<PreloadItem>) {
+        checkNotMainThread()
 
-                cursor.mapToList { readPreloadItem(this) }
+        db.transaction {
+            for (item in items) {
+                logger.info { "Removing files for itemId=${item.itemId}" }
+
+                if (!item.media.delete()) {
+                    logger.warn { "Could not delete media file ${item.media}" }
+                }
+
+                if (!item.thumbnail.delete()) {
+                    logger.warn { "Could not delete thumbnail file ${item.thumbnail}" }
+                }
+
+                if (item.thumbnailFull?.delete() == false) {
+                    logger.warn { "Could not delete thumbnail file ${item.thumbnailFull}" }
+                }
+
+                // delete entry from database
+                db.deleteOne(item.itemId)
             }
-
-            deleteTx(database, items)
         }
     }
 
-    private fun deleteTx(db: BriteDatabase, items: Iterable<PreloadItem>) {
-        for (item in items) {
-            logger.info { "Removing files for itemId=${item.itemId}" }
+    val currentItems: LongSparseArray<PreloadItem>
+        get() = preloadCache.clone()
 
-            if (!item.media.delete()) {
-                logger.warn { "Could not delete media file ${item.media}" }
-            }
-
-            if (!item.thumbnail.delete()) {
-                logger.warn { "Could not delete thumbnail file ${item.thumbnail}" }
-            }
-
-            if (item.thumbnailFull?.delete() == false) {
-                logger.warn { "Could not delete thumbnail file ${item.thumbnailFull}" }
-            }
-
-            // delete entry from database
-            db.delete(TABLE_NAME, "itemId=?", item.itemId.toString())
-        }
-    }
-
-    val items: Observable<LongSparseArray<PreloadItem>>
-        get() {
-            return observeAllItems.startWith(preloadCache).map { it.clone() }.share()
-        }
+    val items: Flow<LongSparseArray<PreloadItem>> = observeAllItems
 
     /**
      * A item that was preloaded.
@@ -152,10 +140,5 @@ class PreloadManager(private val database: BriteDatabase) {
         override fun equals(other: Any?): Boolean {
             return other is PreloadItem && other.itemId == itemId
         }
-    }
-
-    companion object {
-        private const val TABLE_NAME = "preload_items"
-        private val logger = Logger("PreloadManager")
     }
 }

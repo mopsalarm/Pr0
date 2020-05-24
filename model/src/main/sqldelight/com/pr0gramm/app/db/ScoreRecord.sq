@@ -1,0 +1,18 @@
+
+CREATE TABLE scoreRecord (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    score INTEGER as Int NOT NULL,
+    time INTEGER NOT NULL,
+    owner_id INTEGER as Int NOT NULL
+);
+
+CREATE INDEX scoreRecord_time ON scoreRecord(time);
+
+save:
+INSERT INTO scoreRecord (time, score, owner_id)
+VALUES (?, ?, ?);
+
+list:
+SELECT time, score
+FROM scoreRecord
+WHERE time>? AND owner_id=?;

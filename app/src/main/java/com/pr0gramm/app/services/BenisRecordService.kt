@@ -1,31 +1,95 @@
 package com.pr0gramm.app.services
 
+import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
+import android.database.sqlite.SQLiteOpenHelper
+import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.TimeFactory
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.db.ScoreRecordQueries
 import com.pr0gramm.app.orm.BenisRecord
-import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.Holder
-import com.pr0gramm.app.util.arrayOfStrings
-import com.pr0gramm.app.util.checkNotMainThread
-import com.pr0gramm.app.util.mapToList
+import com.pr0gramm.app.time
+import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.util.di.injector
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
-class BenisRecordService(private val database: Holder<SQLiteDatabase>) {
-    suspend fun findValuesLaterThan(ownerId: Int, time: Instant): List<BenisRecord> = withBackgroundContext {
-        val columns = arrayOf("time", "benis")
+class BenisRecordService(private val db: ScoreRecordQueries) {
+    private val logger = Logger("BenisRecordService")
 
-        database.get().query("benis_record", columns,
-                "time >= ? and owner_id=?", arrayOfStrings(time.millis, ownerId),
-                null, null, "time ASC").use { cursor ->
-
-            cursor.mapToList { BenisRecord(getLong(0), getInt(1)) }
-        }
+    suspend fun findValuesLaterThan(ownerId: Int, minTime: Instant): List<BenisRecord> {
+        return db.list(minTime.millis, ownerId) { time, score -> BenisRecord(time, score) }
+                .asFlow()
+                .mapToList()
+                .first()
     }
 
     suspend fun storeValue(ownerId: Int, benis: Int) {
-        checkNotMainThread()
+        withContext(Dispatchers.IO) {
+            db.save(System.currentTimeMillis(), benis, ownerId)
+        }
+    }
 
-        val sql = "INSERT INTO benis_record (owner_id, time, benis) VALUES (?, ?, ?)"
-        database.get().execSQL(sql, arrayOfStrings(ownerId, TimeFactory.currentTimeMillis(), benis))
+    init {
+        AsyncScope.launchIgnoreErrors { migrate() }
+    }
+
+    private fun migrate(): Unit = logger.time("Migrate old benis record data") {
+        val context = ApplicationClass.appContext
+
+        val singleShotService: SingleShotService = context.injector.instance()
+        if (!singleShotService.isFirstTime("migrate:benis-records")) {
+            logger.debug { "No migration needed." }
+            return
+        }
+
+        try {
+            migrateNow(context)
+            singleShotService.markAsDoneOnce("migrate:benis-records")
+
+        } catch (err: SQLiteException) {
+            if ("no such table" in err.message ?: "") {
+                singleShotService.markAsDoneOnce("migrate:benis-records")
+                logger.info { "No 'benis_record' table found, skipping migration." }
+                return
+            }
+
+            logger.warn { "Ignoring error during migration: $err" }
+        }
+    }
+
+    private fun migrateNow(context: Context) {
+        val sqlOpenHelper = object : SQLiteOpenHelper(context, "pr0gramm.db", null, 12) {
+            override fun onCreate(db: SQLiteDatabase) = Unit
+            override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+        }
+
+        sqlOpenHelper.writableDatabase.use { sql ->
+            var recordsCount = 0
+
+            db.transaction {
+                val query = "SELECT benis, time, owner_id FROM benis_record"
+                sql.rawQuery(query, emptyArray()).use { cursor: Cursor ->
+                    while (cursor.moveToNext()) {
+                        val score = cursor.getInt(0)
+                        val time = cursor.getLong(1)
+                        val ownerId = cursor.getInt(2)
+
+                        recordsCount++
+                        db.save(time, score, ownerId)
+                    }
+                }
+            }
+
+            logger.info { "Migrated $recordsCount entries, dropping old table now." }
+
+            sql.execSQL("DROP TABLE benis_record")
+        }
     }
 }

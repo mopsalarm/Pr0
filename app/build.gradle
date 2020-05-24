@@ -196,7 +196,6 @@ dependencies {
 
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"
-    implementation "com.squareup.sqlbrite:sqlbrite:1.1.2"
     implementation "com.infstory:proguard-annotations:1.0.2"
     implementation "com.github.mopsalarm:subsampling-scale-image-view:v3.10.0-1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"

@@ -3,8 +3,6 @@ package com.pr0gramm.app
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.os.Build
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -26,14 +24,11 @@ import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.di.Module
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
-import com.squareup.sqlbrite.BriteDatabase
-import com.squareup.sqlbrite.SqlBrite
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.dnsoverhttps.DnsOverHttps
-import rx.schedulers.Schedulers
 import java.io.File
 import java.net.Inet4Address
 import java.net.InetAddress
@@ -52,25 +47,6 @@ fun appInjector(app: Application) = Module.build {
 
     bind<Settings>() with singleton {
         Settings.get()
-    }
-
-    bind<SQLiteOpenHelper>() with singleton {
-        Databases.PlainOpenHelper(app)
-    }
-
-    bind<Holder<SQLiteDatabase>>() with singleton {
-        Holder {
-            val helper: SQLiteOpenHelper = instance()
-            helper.writableDatabase
-        }
-    }
-
-    bind<BriteDatabase>() with singleton {
-        val logger = Logger("SqlBrite")
-        SqlBrite.Builder()
-                .logger { logger.info { it } }
-                .build()
-                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), Schedulers.computation())
     }
 
     bind<AppDB>() with singleton {
@@ -142,9 +118,9 @@ fun appInjector(app: Application) = Module.build {
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
-    bind<VoteService>() with singleton { VoteService(instance(), instance(), instance(), instance()) }
+    bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
-    bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
+    bind<PreloadManager>() with eagerSingleton { PreloadManager(instance<AppDB>().preloadItemQueries) }
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
 
@@ -159,7 +135,8 @@ fun appInjector(app: Application) = Module.build {
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
     bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
-    bind<BenisRecordService>() with singleton { BenisRecordService(instance()) }
+    bind<BenisRecordService>() with singleton { BenisRecordService(instance<AppDB>().scoreRecordQueries) }
+
     bind<ShareService>() with singleton { ShareService(instance()) }
 
     bind<KVService>() with singleton { KVService(instance()) }

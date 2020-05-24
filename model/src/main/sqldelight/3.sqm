@@ -1,0 +1,7 @@
+CREATE TABLE preloadItem (
+    itemId INTEGER PRIMARY KEY NOT NULL,
+    creation INTEGER NOT NULL,
+    media TEXT NOT NULL,
+    thumbnail TEXT NOT NULL,
+    thumbnail_full TEXT DEFAULT NULL
+);

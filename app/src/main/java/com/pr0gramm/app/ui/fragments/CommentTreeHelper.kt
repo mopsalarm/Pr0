@@ -48,7 +48,7 @@ abstract class CommentTreeHelper : CommentView.Listener {
     private var state: CommentTree.Input by StateProperty()
     private var stateUpdateSync = false
 
-    private val subject = StateFlow<List<CommentTree.Item>>(listOf())
+    private val subject = LazyStateFlow<List<CommentTree.Item>>(listOf())
     val itemsObservable = subject as Flow<List<CommentTree.Item>>
 
     // update the currently selected comment

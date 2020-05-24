@@ -10,12 +10,10 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.checkNotMainThread
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.unsigned
-import com.squareup.sqlbrite.BriteDatabase
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,7 +27,6 @@ import java.io.ByteArrayInputStream
 
 class VoteService(private val api: Api,
                   private val seenService: SeenService,
-                  private val database: BriteDatabase,
                   private val appDB: AppDB) {
 
     /**
@@ -186,7 +183,7 @@ class VoteService(private val api: Api,
 
         val response = api.addTags(null, itemId, tagString)
 
-        withTransaction(database) {
+        appDB.transaction {
             // auto-apply up-vote to newly created tags
             for (tagId in response.tagIds) {
                 storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)

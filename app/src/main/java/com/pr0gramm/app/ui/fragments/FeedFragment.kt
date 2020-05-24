@@ -590,18 +590,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 checkForNewItems()
             }
 
+            // start with the initial set of items
+            state = state.copy(preloadedItemIds = preloadManager.currentItems)
+
             // Observe all preloaded items to get them into the cache and to show the
             // correct state in the ui once they are loaded
             preloadManager.items.let { preloadItems ->
-                preloadItems
-                        .skip(1)
-                        .throttleLast(1, TimeUnit.SECONDS)
-                        .startWith(preloadItems.first())
-                        .observeOnMainThread()
-                        .bindToLifecycle()
-                        .subscribe { items ->
-                            state = state.copy(preloadedItemIds = items)
-                        }
+                launchUntilPause {
+                    preloadItems.sample(1_000).collect { items ->
+                        state = state.copy(preloadedItemIds = items)
+                    }
+                }
             }
 
             requestLoadFeedSubject

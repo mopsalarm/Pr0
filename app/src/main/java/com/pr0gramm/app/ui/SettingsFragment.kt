@@ -14,6 +14,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BasePreferenceFragment
+import com.pr0gramm.app.ui.base.launchUntilPause
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
@@ -21,8 +22,9 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ignoreAllExceptions
-import com.pr0gramm.app.util.observeOnMainThread
-import rx.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withContext
 
 class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -92,20 +94,25 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
     }
 
     private fun updatePreloadInfo() {
-        val preference: Preference? = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
-        if (preference != null) {
-            preloadManager.items
-                    .subscribeOn(Schedulers.io())
-                    .map { items ->
-                        items.values().sumBy { (it.media.length() + it.thumbnail.length()).toInt() }
+        val preference: Preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
+                ?: return
+
+        launchUntilPause {
+            preloadManager.items.collect { items ->
+
+                val totalSize = withContext(Dispatchers.IO) {
+                    items.values().sumBy { item ->
+                        item.media.length().toInt() +
+                                item.thumbnail.length().toInt() +
+                                (item.thumbnailFull?.length()?.toInt() ?: 0)
+
                     }
-                    .observeOnMainThread()
-                    .compose(bindToLifecycle())
-                    .subscribe { totalSize ->
-                        preference.summary = getString(
-                                R.string.pseudo_clean_preloaded_summary_with_size,
-                                totalSize / (1024f * 1024f))
-                    }
+                }
+
+                preference.summary = getString(
+                        R.string.pseudo_clean_preloaded_summary_with_size,
+                        totalSize / (1024f * 1024f))
+            }
         }
     }
 
