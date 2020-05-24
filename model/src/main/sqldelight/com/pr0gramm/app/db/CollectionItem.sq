@@ -20,3 +20,7 @@ VALUES (?, ?);
 remove:
 DELETE FROM collectionItem
 WHERE itemId=? AND collectionId=?;
+
+removeCollection:
+DELETE FROM collectionItem
+WHERE collectionId=?;

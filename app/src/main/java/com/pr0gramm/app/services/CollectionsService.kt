@@ -181,6 +181,12 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
         }
     }
 
+    suspend fun deleteCollection(collectionId: Long) {
+        withBackgroundContext {
+            db.removeCollection(collectionId)
+        }
+    }
+
     private suspend fun observeDatabaseUpdates() {
         db.all().asFlow().mapToList().collect { collectionItems ->
             synchronized(lock) {

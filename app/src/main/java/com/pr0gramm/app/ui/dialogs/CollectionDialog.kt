@@ -8,9 +8,7 @@ import android.widget.*
 import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.CollectionsService
-import com.pr0gramm.app.services.PostCollection
-import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.dialog
@@ -21,6 +19,7 @@ import kotlinx.coroutines.withContext
 
 class CollectionDialog : BaseDialogFragment("CollectionDialog") {
     private val collectionsService: CollectionsService by instance()
+    private val collectionItemService: CollectionItemsService by instance()
     private val userService: UserService by instance()
 
     private val editCollectionId: Long? by optionalFragmentArgument(name = "editCollectionId")
@@ -86,7 +85,10 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
     private fun deleteCollection(collectionId: Long) {
         launchUntilDestroy(busyIndicator = true) {
             withContext(NonCancellable) {
-                collectionsService.delete(collectionId)
+                val result = collectionsService.delete(collectionId)
+                if (result is Result.Success) {
+                    collectionItemService.deleteCollection(collectionId)
+                }
             }
 
             dismissAllowingStateLoss()
