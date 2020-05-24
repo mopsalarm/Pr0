@@ -1,6 +1,7 @@
 package com.pr0gramm.app.io
 
 import android.net.Uri
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
@@ -11,6 +12,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.*
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -240,7 +242,12 @@ internal class CacheEntry(
     private inner class Cacher {
         val canceled get() = fileCacher !== this
 
-        val totalSize = SettableFuture<Int>()
+        private lateinit var totalSizeResolver: CallbackToFutureAdapter.Completer<Int>
+
+        val totalSize: Future<Int> = CallbackToFutureAdapter.getFuture { completer ->
+            totalSizeResolver = completer
+            null
+        }
 
         /**
          * This method is called from the caching thread once caching stops.
@@ -332,7 +339,7 @@ internal class CacheEntry(
                 response.use {
                     response.body?.use { body ->
                         // we now know the size, publish it to waiting consumers
-                        this.totalSize.setValue(totalSize)
+                        totalSizeResolver.set(totalSize)
 
                         if (offset < totalSize) {
                             logger.debug { "Writing response to cache file" }
@@ -348,7 +355,7 @@ internal class CacheEntry(
 
             } catch (err: Exception) {
                 logger.error { "Error in caching thread ($err" }
-                this.totalSize.setError(err)
+                this.totalSizeResolver.setException(err)
 
             } finally {
                 cachingStopped()
