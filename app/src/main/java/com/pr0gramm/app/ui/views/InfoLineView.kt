@@ -98,6 +98,11 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         collectionView.setOnClickListener {
             onDetailClickedListener?.collectClicked()
         }
+
+        collectionView.setOnLongClickListener {
+            onDetailClickedListener?.showCollectionsClicked()
+            true
+        }
     }
 
     /**

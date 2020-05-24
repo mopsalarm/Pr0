@@ -23,6 +23,7 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
         <Button
+            android:id="@+id/action_new"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

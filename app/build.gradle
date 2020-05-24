@@ -189,7 +189,8 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-brotli"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    implementation "com.squareup.moshi:moshi:1.9.2"
+    // kotlin 1.9.2 keeps kotlin.Metadata
+    implementation "com.squareup.moshi:moshi:1.8.0"
 
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.20"
 
@@ -207,9 +208,6 @@ dependencies {
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.4'
-
-    debugImplementation "com.github.ChuckerTeam.Chucker:library:3.2.0"
-    releaseImplementation "com.github.ChuckerTeam.Chucker:library-no-op:3.2.0"
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 

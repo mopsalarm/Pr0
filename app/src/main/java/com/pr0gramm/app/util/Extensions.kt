@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.ContentProvider
 import android.content.Context
 import android.content.Intent
@@ -260,6 +261,11 @@ inline fun <reified T : View> Activity.find(id: Int): T {
 inline fun <reified T : View> View.find(id: Int): T {
     return findViewById(id) ?: throw Resources.NotFoundException(
             "View ${resources.getResourceName(id)} not found")
+}
+
+inline fun <reified T : View> Dialog.find(id: Int): T {
+    return findViewById(id) ?: throw Resources.NotFoundException(
+            "View ${this.context.resources.getResourceName(id)} not found")
 }
 
 inline fun <reified T : View> View.findOptional(id: Int): T? {

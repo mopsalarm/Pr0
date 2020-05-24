@@ -61,7 +61,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
                     launchIgnoreErrors { refresh() }
                 } else {
                     logger.info { "Reset all collections." }
-                    _collections.postValue(listOf())
+                    publishCollections(listOf())
                 }
             }
         }
@@ -69,24 +69,45 @@ class CollectionsService(private val api: Api, private val userService: UserServ
 
     fun isValidNameForNewCollection(name: String): Boolean {
         val existing = _collections.value.orEmpty().map { it.title.toLowerCase(Locale.getDefault()) }
-        return name.length > 3 && name !in existing
-    }
-
-    suspend fun create(name: String): Long {
-        val response = api.collectionsCreate(null, name)
-        _collections.postValue(PostCollection.fromApi(response.collections))
-        return response.collectionId
+        return name.length in 2..20 && name !in existing
     }
 
     suspend fun refresh() {
-        val collections = PostCollection.fromApi(api.collectionsGet().collections)
-        logger.info { "Found ${collections.size} collections" }
+        publishCollections(PostCollection.fromApi(api.collectionsGet().collections))
+    }
+
+    private fun publishCollections(collections: List<PostCollection>) {
+        logger.debug { "Publishing ${collections.size} collections: ${collections.joinToString { it.uniqueTitle }}" }
 
         // take default collection first, sort the rest by name
         val (defaultCollections, otherCollections) = collections.partition { it.isDefault }
         val sortedCollections = defaultCollections + otherCollections.sortedBy { it.uniqueTitle }
 
         _collections.postValue(sortedCollections)
+    }
+
+    suspend fun delete(collectionId: Long): Result<Unit> {
+        val response = Result.ofValue(api.collectionsDelete(null, collectionId))
+        handleCollectionUpdated(response)
+        return response.map { Unit }
+    }
+
+    suspend fun create(name: String, isPublic: Boolean, isDefault: Boolean): Result<Long> {
+        val response = Result.ofValue(api.collectionsCreate(null, name, isPublic, isDefault))
+        handleCollectionUpdated(response)
+        return response.map { it.collectionId }
+    }
+
+    suspend fun edit(id: Long, name: String, isPublic: Boolean, isDefault: Boolean): Result<Long> {
+        val response = Result.ofValue(api.collectionsEdit(null, id, name, isPublic, isDefault))
+        handleCollectionUpdated(response)
+        return response.map { it.collectionId }
+    }
+
+    private fun handleCollectionUpdated(response: Result<Api.CollectionCreated>) {
+        if (response is Result.Success) {
+            publishCollections(PostCollection.fromApi(response.value.collections))
+        }
     }
 
     fun byId(collectionId: Long): PostCollection? {
@@ -178,6 +199,6 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
     sealed class Result {
         class ItemAdded(val collectionId: Long) : Result()
         object CollectionNotFound : Result()
-        class UnknownError(errorCode: String) : Result()
+        class UnknownError(val errorCode: String) : Result()
     }
 }

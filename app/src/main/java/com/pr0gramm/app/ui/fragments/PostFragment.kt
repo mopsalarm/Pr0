@@ -1400,6 +1400,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             doIfAuthorizedHelper.runAuth(r)
         }
+
+        override fun showCollectionsClicked() {
+            val r = Runnable {
+                val dialog = CollectionsSelectionDialog.newInstance(feedItem.id)
+                dialog.show(childFragmentManager, null)
+            }
+
+            doIfAuthorizedHelper.runAuth(r)
+        }
     }
 
     private data class FragmentState(

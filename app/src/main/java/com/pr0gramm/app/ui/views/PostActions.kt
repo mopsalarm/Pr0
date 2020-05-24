@@ -47,4 +47,9 @@ interface PostActions {
      * The user clicked on the button to collect the item.
      */
     fun collectClicked()
+
+    /**
+     * Shows the collection dialog
+     */
+    fun showCollectionsClicked()
 }

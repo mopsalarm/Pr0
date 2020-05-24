@@ -13,6 +13,7 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.text.buildSpannedString
 import androidx.core.text.italic
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,7 +56,7 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
         val view: View = themedInflater.inflate(R.layout.dialog_collections, container, false)
 
         val adapter = delegateAdapterOf("CollectionsAdapter",
-                CollectionAdapterDelegate(this::onCollectionClicked),
+                CollectionAdapterDelegate(this::onCollectionClicked), detectMoves = true,
                 diffCallback = AsyncListAdapter.KeyDiffCallback { it.collection.id })
 
         // gets the collections containing the itemId
@@ -66,23 +67,29 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
             collectionsService.refresh()
         }
 
+        val actionNew = view.find<View>(R.id.action_new)
+        actionNew.setOnClickListener {
+            CollectionDialog().show(parentFragmentManager, null)
+        }
+
         // observe changes to collections
         collectionsService.collections.observe(this) { collections ->
+            val userIsPremium = userService.userIsPremium
+
             adapter.submitList(collections.map { c ->
                 val isSelected = c.id in selectedCollections
-                val isEnabled = c.isDefault || userService.userIsPremium
+                val isEnabled = c.isDefault || userIsPremium
                 CollectionAdapterDelegate.Item(c, isSelected, isEnabled)
             })
+
+            actionNew.isEnabled = userIsPremium || collections.isEmpty()
         }
 
         val recyclerView: RecyclerView = view.find(R.id.collections)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val done: View = view.find(R.id.done)
-
-        done.setOnClickListener {
-            logger.info { "Closing dialog" }
+        view.find<View>(R.id.done).setOnClickListener {
             dismiss()
         }
 
@@ -205,6 +212,12 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
         holder.itemView.setOnClickListener {
             holder.checkbox.toggle()
         }
+
+        holder.edit.setOnClickListener { view ->
+            val fragment: Fragment = FragmentManager.findFragment(view)
+            val dialog = CollectionDialog.newInstance(value.collection)
+            dialog.show(fragment.childFragmentManager, null)
+        }
     }
 
     private class CollectionViewHolder(parent: ViewGroup)
@@ -213,6 +226,7 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
         val name: TextView = find(R.id.name)
         val icon: ImageView = find(R.id.icon)
         val checkbox: CheckBox = find(R.id.checkbox)
+        val edit: View = find(R.id.action_edit)
     }
 
     data class Item(val collection: PostCollection, val selected: Boolean, val enabled: Boolean)

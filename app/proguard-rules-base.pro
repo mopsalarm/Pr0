@@ -57,6 +57,7 @@
 }
 -checkdiscard class kotlinx.coroutines.internal.FastServiceLoader
 
+-checkdiscard class kotlin.Metadata
 
 ## Firebase logging
 -keep class * extends java.lang.Exception

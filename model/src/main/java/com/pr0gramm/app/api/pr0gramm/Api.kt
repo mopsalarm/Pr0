@@ -355,7 +355,24 @@ interface Api {
     @POST("api/collections/create")
     suspend fun collectionsCreate(
             @Field("_nonce") nonce: Nonce?,
-            @Field("name") name: String): CollectionCreated
+            @Field("name") name: String,
+            @Field("isPublic") isPublic: Boolean,
+            @Field("isDefault") isDefault: Boolean): CollectionCreated
+
+    @FormUrlEncoded
+    @POST("api/collections/edit")
+    suspend fun collectionsEdit(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("collectionId") id: Long,
+            @Field("name") name: String,
+            @Field("isPublic") isPublic: Boolean,
+            @Field("isDefault") isDefault: Boolean): CollectionCreated
+
+    @FormUrlEncoded
+    @POST("api/collections/delete")
+    suspend fun collectionsDelete(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("collectionId") collectionId: Long): CollectionCreated
 
     @FormUrlEncoded
     @POST("api/collections/add")
@@ -789,9 +806,10 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     class CollectionCreated(
-            val collectionId: Long,
-            val collections: List<Collection>
-    )
+            val collectionId: Long = 0,
+            val collections: List<Collection> = listOf(),
+            override val error: String? = null
+    ) : HasError
 
     @JsonClass(generateAdapter = true)
     class Collection(
@@ -814,5 +832,9 @@ interface Api {
         Default, Single, Branch;
 
         override fun toString(): String = name.toLowerCase(Locale.ROOT)
+    }
+
+    interface HasError {
+        val error: String?
     }
 }
