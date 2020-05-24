@@ -169,7 +169,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
 
     // 1.2.0 fails with a precomputed text issue when selecting
-    // and dragging text in the comments
+    // and dragging text in the comments.
     implementation 'androidx.core:core-ktx:1.1.0'
 
     // 1.2.2 does not restore the fragment state correctly when going back.
@@ -189,10 +189,9 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-brotli"
     implementation "com.squareup.picasso:picasso:2.71828"
 
-    implementation "com.squareup.moshi:moshi:1.8.0"
+    implementation "com.squareup.moshi:moshi:1.9.2"
 
-    // still issues with version > 1.2.12
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.20"
 
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"

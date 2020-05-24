@@ -26,12 +26,9 @@ import com.pr0gramm.app.services.CollectionItemsService
 import com.pr0gramm.app.services.CollectionsService
 import com.pr0gramm.app.services.PostCollection
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.ui.AsyncListAdapter
-import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.base.launchWhenCreated
-import com.pr0gramm.app.ui.delegateAdapterOf
-import com.pr0gramm.app.ui.resolveDialogTheme
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
@@ -146,7 +143,9 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
             val collectionsService: CollectionsService = context.injector.instance()
 
             parent.launchWhenCreated {
-                val snackbar = Snackbar.make(fragmentView, "Adding...", Snackbar.LENGTH_LONG)
+                val snackbar = Snackbar
+                        .make(fragmentView, "Adding...", Snackbar.LENGTH_LONG)
+                        .configureNewStyle()
 
                 // show info that we are currently doing the request
                 snackbar.show()
