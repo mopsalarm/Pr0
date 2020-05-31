@@ -40,7 +40,7 @@ object FilterParser {
                 filter = if ("uploads" == subcategory || subcategory == null) {
                     filter.withFeedType(FeedType.NEW).withUser(user)
                 } else {
-                    filter.withFeedType(FeedType.NEW).withCollection(user, subcategory)
+                    filter.withFeedType(FeedType.NEW).withCollection(user, subcategory, subcategory.capitalize())
                 }
             }
 

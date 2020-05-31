@@ -125,7 +125,6 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
 
         voteView.setVoteState(vote, animate = false)
-        voteView.toggleFavIconVisibility(!isSelfPost)
 
         collectionView.itemId = item.id
 

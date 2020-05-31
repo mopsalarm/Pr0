@@ -44,7 +44,12 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.MainScope
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import rx.Emitter
@@ -860,4 +865,14 @@ fun CompoundButton.setOnCheckedChangeListenerWithInitial(checkedState: Boolean, 
     isChecked = checkedState
 
     setOnCheckedChangeListener { buttonView, isChecked -> listener(isChecked) }
+}
+
+fun <T> Flow<T>.toStateFlow(context: CoroutineScope, initialValue: T): StateFlow<T> {
+    val state = MutableStateFlow<T>(initialValue)
+
+    context.launch {
+        collect { value -> state.value = value }
+    }
+
+    return state
 }

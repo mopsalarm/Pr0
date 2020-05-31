@@ -63,14 +63,14 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
             }
         }
 
-        currentFilter = currentFilter.withCollection(argUsername, "**ANY")
+        currentFilter = currentFilter.withCollection(argUsername, "**ANY", "**ANY")
 
         collectionsLiveData.observe(viewLifecycleOwner) { collections ->
             pager.adapter = TabsStateAdapter(requireContext(), this).apply {
                 for (collection in collections) {
                     val filter = FeedFilter()
                             .withFeedType(FeedType.NEW)
-                            .withCollection(argUsername, collection.key)
+                            .withCollection(argUsername, collection.key, collection.title)
 
                     addTab(collection.title,
                             FeedFragment.newEmbedArguments(filter),

@@ -1,0 +1,18 @@
+CREATE TABLE favedComments (
+    -- basically a glorified set
+    commentId INTEGER PRIMARY KEY NOT NULL
+);
+
+all:
+SELECT * FROM favedComments;
+
+insert:
+INSERT OR IGNORE INTO favedComments (commentId)
+VALUES (?);
+
+
+remove:
+DELETE FROM favedComments WHERE commentId=?;
+
+removeAll:
+DELETE FROM favedComments;

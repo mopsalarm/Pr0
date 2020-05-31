@@ -45,9 +45,12 @@ import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.trello.rxlifecycle.android.FragmentEvent
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import rx.schedulers.Schedulers
 import java.io.IOException
 import java.util.*
@@ -83,6 +86,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val settings = Settings.get()
     private val feedService: FeedService by instance()
     private val voteService: VoteService by instance()
+    private val favedCommentService: FavedCommentService by instance()
     private val seenService: SeenService by instance()
     private val followService: FollowService by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
@@ -938,7 +942,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun executeTapAction(action: Settings.TapAction) = launchWhenStarted {
+    private fun executeTapAction(action: Settings.TapAction) {
         when (action) {
             Settings.TapAction.NONE -> Unit
 
@@ -956,15 +960,27 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 doVoteOnDoubleTap(Vote.DOWN)
 
             Settings.TapAction.FAVORITE ->
-                doVoteOnDoubleTap(Vote.FAVORITE)
+                doCollectOnDoubleTap()
         }
     }
 
-    private suspend fun doVoteOnDoubleTap(targetVote: Vote) {
-        if (voteService.getVote(feedItem).first() != targetVote) {
-            doVoteFeedItem(targetVote)
-        } else {
-            doVoteFeedItem(Vote.NEUTRAL)
+    private fun doVoteOnDoubleTap(targetVote: Vote) {
+        launchWhenStarted {
+            if (voteService.getVote(feedItem).first() != targetVote) {
+                doVoteFeedItem(targetVote)
+            } else {
+                doVoteFeedItem(Vote.NEUTRAL)
+            }
+        }
+    }
+
+    private fun doCollectOnDoubleTap() {
+        collectClicked()
+    }
+
+    private fun collectClicked() {
+        doIfAuthorizedHelper.runAuthNoRetry {
+            CollectionsSelectionDialog.addToCollection(this@PostFragment, feedItem.id)
         }
     }
 
@@ -1252,15 +1268,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     inner class PostFragmentCommentTreeHelper : CommentTreeHelper() {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
-            return runBlocking {
-                doIfAuthorizedHelper.run {
-                    launchWhenStarted {
-                        withBackgroundContext(NonCancellable) {
-                            voteService.vote(comment, vote)
-                        }
-                    }
+            return doIfAuthorizedHelper.runAuthNoRetry {
+                launchWhenStarted {
+                    voteService.vote(comment, vote)
+                }
+            }
+        }
 
-                    true
+        override fun onCommentFavedClicked(comment: Api.Comment, faved: Boolean): Boolean {
+            return doIfAuthorizedHelper.runAuthNoRetry {
+                launchWhenStarted {
+                    if (faved) {
+                        favedCommentService.markAsFaved(comment.id)
+                    } else {
+                        favedCommentService.markAsNotFaved(comment.id)
+                    }
                 }
             }
         }
@@ -1382,32 +1404,26 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override suspend fun writeCommentClicked(text: String) {
-            doIfAuthorizedHelper.runAuthSuspend {
+            doIfAuthorizedHelper.runAuthNoRetrySuspend {
                 onNewComments(voteService.postComment(feedItem.id, 0, text))
             }
         }
 
         override suspend fun updateFollowUser(follow: FollowState): Boolean {
-            return doIfAuthorizedHelper.runAuthSuspend {
+            return doIfAuthorizedHelper.runAuthNoRetrySuspend {
                 followService.update(follow, feedItem.userId, feedItem.user)
             }
         }
 
         override fun collectClicked() {
-            val r = Runnable {
-                CollectionsSelectionDialog.addToCollection(this@PostFragment, feedItem.id)
-            }
-
-            doIfAuthorizedHelper.runAuth(r)
+            this@PostFragment.collectClicked()
         }
 
         override fun showCollectionsClicked() {
-            val r = Runnable {
+            doIfAuthorizedHelper.runAuthNoRetry {
                 val dialog = CollectionsSelectionDialog.newInstance(feedItem.id)
                 dialog.show(childFragmentManager, null)
             }
-
-            doIfAuthorizedHelper.runAuth(r)
         }
     }
 

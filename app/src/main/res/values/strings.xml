@@ -184,7 +184,7 @@
     <string name="error_ssl_error">Could not perform ssl handshake.</string>
     <string name="share_using">Share using</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
-    <string name="kpi_desc_favorites">FAVORITES</string>
+    <string name="kpi_desc_collected">COLLECTED</string>
     <string name="kpi_desc_comments">COMMENTS</string>
     <string name="kpi_desc_tags">TAGS</string>
     <string name="upper_benis">BENIS</string>
@@ -512,7 +512,7 @@
     <string name="pref_tap_action_none">No action</string>
     <string name="pref_tap_action_upvote">Upvote</string>
     <string name="pref_tap_action_downvote">Downvote</string>
-    <string name="pref_tap_action_favorite">Favorite</string>
+    <string name="pref_tap_action_collect">Collect</string>
     <string name="pref_tap_action_fullscreen">Fullscreen</string>
 
     <string name="pref_single_tap_action_title">Single tap action</string>
@@ -537,6 +537,7 @@
     <string name="notify_hint_tap_to_open_post">Tap to view this upload</string>
     <string name="notify_to_inbox">Open inbox</string>
     <string name="hint_no_file_manager_available">No file manager available to select a directory.</string>
+    <string name="filter_format_collection_of">\'%1$s\' by %2$s</string>
 
 </resources>
 

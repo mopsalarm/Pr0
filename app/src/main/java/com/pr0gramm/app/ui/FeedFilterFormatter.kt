@@ -19,8 +19,7 @@ object FeedFilterFormatter {
 
     fun format(context: Context?, filter: FeedFilter): FeedTitle {
         // prevent null pointer exceptions
-        if (context == null)
-            return FeedTitle("", "", "")
+        context ?: return FeedTitle("", "", "")
 
         if (!filter.isBasic) {
             // TODO improve formatting logic
@@ -28,9 +27,9 @@ object FeedFilterFormatter {
                 return FeedTitle(cleanTags(tags), " in ", feedTypeToString(context, filter))
             }
 
-            filter.collection?.let { collection ->
+            filter.collectionTitle?.let { collectionTitle ->
                 return FeedTitle(
-                        collection,
+                        context.getString(R.string.filter_format_collection_of, collectionTitle, filter.username),
                         " in ", feedTypeToString(context, filter))
             }
 

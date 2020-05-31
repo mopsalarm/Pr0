@@ -447,8 +447,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        override fun onUserViewCollectionsClicked(name: String, collectionKey: String?) {
-            val filter = currentFilter.basic().withCollection(name, collectionKey ?: "**ANY")
+        override fun onUserViewCollectionsClicked(name: String, targetCollection: PostCollection?) {
+            val filter = currentFilter.basic().withCollection(name,
+                    targetCollection?.key ?: "**ANY", targetCollection?.title ?: "**ANY")
+
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
@@ -776,10 +778,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_feed, menu)
-
-        // hide search item, if we are not searchable
-        val searchable = currentFilter.feedType.searchable && isNormalMode
-        menu.findItem(R.id.action_search)?.isVisible = searchable
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -788,21 +786,23 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val filter = currentFilter
         val feedType = filter.feedType
 
-        menu.findItem(R.id.action_refresh)
-                ?.isVisible = settings.showRefreshButton
+        menu.findItem(R.id.action_refresh)?.isVisible = settings.showRefreshButton
+        menu.findItem(R.id.action_bookmark)?.isVisible = bookmarkable
+        menu.findItem(R.id.action_preload)?.isVisible = feedType.preloadable
 
-        menu.findItem(R.id.action_bookmark)
-                ?.isVisible = bookmarkable
+        // hide search item, if we are not searchable
+        val searchable = currentFilter.feedType.searchable && isNormalMode
+        menu.findItem(R.id.action_search)?.isVisible = searchable
 
-        menu.findItem(R.id.action_preload)
-                ?.isVisible = feedType.preloadable
+        // switching to normal mode leaves the special favorites fragment.
+        menu.findItem(R.id.action_feedtype)?.isVisible = isNormalMode
 
         val adminOnUserProfile = userService.userIsAdmin && activeUsername != null
         menu.findItem(R.id.action_block_user)?.isVisible = adminOnUserProfile
         menu.findItem(R.id.action_open_in_admin)?.isVisible = adminOnUserProfile
 
         menu.findItem(R.id.action_feedtype)?.let { item ->
-            item.isVisible = !filter.isBasic
+            item.isVisible = !filter.isBasic && isNormalMode
 
             item.setTitle(if (switchFeedTypeTarget(filter) === FeedType.PROMOTED)
                 R.string.action_switch_to_top else R.string.action_switch_to_new)
@@ -1196,16 +1196,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun resetAndShowSearchContainer() {
-        if (isNormalMode) {
-            searchView.applyState(initialSearchViewState())
-            showSearchContainer(true)
-        }
+        searchView.applyState(initialSearchViewState())
+        showSearchContainer(true)
     }
 
     private fun showSearchContainer(animated: Boolean) {
         val context = context ?: return
 
-        if (!isNormalMode || searchContainerIsVisible())
+        if (searchContainerIsVisible())
             return
 
         val view = view ?: return
@@ -1260,7 +1258,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun hideSearchContainer() {
-        if (!searchContainerIsVisible() || !isNormalMode)
+        if (!searchContainerIsVisible())
             return
 
         val containerView = this.searchContainer

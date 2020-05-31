@@ -49,6 +49,20 @@ interface Api {
     )
 
     @FormUrlEncoded
+    @POST("/api/comments/fav")
+    suspend fun commentsFav(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("id") id: Long
+    )
+
+    @FormUrlEncoded
+    @POST("/api/comments/unfav")
+    suspend fun commentsUnfav(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("id") id: Long
+    )
+
+    @FormUrlEncoded
     @POST("/api/user/login")
     suspend fun login(
             @Field("name") username: String,
@@ -485,7 +499,7 @@ interface Api {
             val user: User,
             val badges: List<Badge> = listOf(),
             val collectedCount: Int,
-            val collections: List<Collection>,
+            val collections: List<Collection> = listOf(),
             val uploadCount: Int,
             val commentCount: Int,
             val tagCount: Int,

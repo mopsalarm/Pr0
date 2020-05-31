@@ -38,6 +38,7 @@ class UserService(private val api: Api,
                   private val preferences: SharedPreferences,
                   private val benisService: BenisRecordService,
                   private val collectionsItemsService: CollectionItemsService,
+                  private val favedCommentService: FavedCommentService,
                   private val config: Config) {
 
     private val logger = Logger("UserService")
@@ -228,6 +229,9 @@ class UserService(private val api: Api,
 
         // remove all cached collection items
         collectionsItemsService.clear()
+
+        // remove all faved comments
+        favedCommentService.clear()
 
         // no more read messages.
         inboxService.forgetUnreadMessages()

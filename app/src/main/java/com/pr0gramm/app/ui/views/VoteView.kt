@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
@@ -33,23 +32,15 @@ private val iconsDef = mapOf(
         Vote.UP to VoteState(Vote.NEUTRAL,
                 Vote.NEUTRAL to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.NEUTRAL),
                 Vote.UP to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.MARKED_UP, rotated = true),
-                Vote.DOWN to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.INACTIVE),
-                Vote.FAVORITE to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.MARKED_UP, rotated = true)
+                Vote.DOWN to VoteIcon(R.drawable.ic_vote_up, VoteIconColor.INACTIVE)
         ),
 
         Vote.DOWN to VoteState(Vote.NEUTRAL,
                 Vote.NEUTRAL to VoteIcon(R.drawable.ic_vote_down, VoteIconColor.NEUTRAL),
                 Vote.UP to VoteIcon(R.drawable.ic_vote_down, VoteIconColor.INACTIVE),
-                Vote.DOWN to VoteIcon(R.drawable.ic_vote_down, VoteIconColor.MARKED_DOWN, rotated = true),
-                Vote.FAVORITE to VoteIcon(R.drawable.ic_vote_down, VoteIconColor.INACTIVE)
-        ),
-
-        Vote.FAVORITE to VoteState(Vote.UP,
-                Vote.NEUTRAL to VoteIcon(R.drawable.ic_vote_fav_outline, VoteIconColor.NEUTRAL),
-                Vote.UP to VoteIcon(R.drawable.ic_vote_fav_outline, VoteIconColor.INACTIVE),
-                Vote.DOWN to VoteIcon(R.drawable.ic_vote_fav_outline, VoteIconColor.INACTIVE),
-                Vote.FAVORITE to VoteIcon(R.drawable.ic_vote_fav, VoteIconColor.MARKED_UP)
-        ))
+                Vote.DOWN to VoteIcon(R.drawable.ic_vote_down, VoteIconColor.MARKED_DOWN, rotated = true)
+        )
+)
 
 /**
  * A plus and a minus sign to handle votes.
@@ -79,8 +70,6 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     val vote: Vote get() = voteState
 
     init {
-        val fav: Boolean
-
         context.theme.obtainStyledAttributes(attrs, R.styleable.VoteView, 0, 0).use { a ->
             orientationIsVertical = a.getInteger(R.styleable.VoteView_orientation, 0) == 1
             voteIconSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, context.dp(24))
@@ -89,28 +78,22 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             markedColorUp = a.getColor(R.styleable.VoteView_markedColor, context.getColorCompat(ThemeHelper.accentColor))
             markedColorDown = a.getColor(R.styleable.VoteView_markedColorDown, context.getColorCompat(R.color.white))
             defaultColor = a.getColor(R.styleable.VoteView_defaultColor, context.getColorCompat(R.color.white))
-
-            fav = a.getBoolean(R.styleable.VoteView_fav, false)
         }
-
-        val votes = if (fav) listOf(Vote.UP, Vote.DOWN, Vote.FAVORITE) else listOf(Vote.UP, Vote.DOWN)
 
         // ripple effect
         val backgroundId = context.getStyledResourceId(android.R.attr.selectableItemBackgroundBorderless)
 
-        views = votes
-                .mapIndexed { idx, vote ->
-                    val def = iconsDef.getValue(vote)
+        views = listOf(Vote.UP, Vote.DOWN).associateWith { vote ->
+            val def = iconsDef.getValue(vote)
 
-                    // create the actual view
-                    val view = AppCompatImageView(context)
-                    view.setBackgroundResource(backgroundId)
-                    view.setImageDrawable(iconOf(def.icons.getValue(Vote.NEUTRAL)))
-                    view.setOnClickListener { triggerVoteClicked(vote) }
+            // create the actual view
+            val view = AppCompatImageView(context)
+            view.setBackgroundResource(backgroundId)
+            view.setImageDrawable(iconOf(def.icons.getValue(Vote.NEUTRAL)))
+            view.setOnClickListener { triggerVoteClicked(vote) }
 
-                    vote to view
-                }
-                .toMap()
+            view
+        }
 
 
         views.values.forEach { addView(it) }
@@ -182,10 +165,6 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         } else {
             doVote(vote)
         }
-    }
-
-    fun toggleFavIconVisibility(isVisible: Boolean) {
-        views[Vote.FAVORITE]?.isVisible = isVisible
     }
 
     /**

@@ -117,11 +117,11 @@ fun appInjector(app: Application) = Module.build {
     bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
-    bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with eagerSingleton { PreloadManager(instance<AppDB>().preloadItemQueries) }
-    bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
+    bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance<AppDB>().favedCommentsQueries) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }

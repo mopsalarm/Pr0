@@ -18,22 +18,23 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.services.FavedCommentService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
+import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.views.CommentScore
 import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.VoteView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.absoluteValue
 import kotlin.math.sign
@@ -160,6 +161,8 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     private var parentScrollView: RecyclerView? = null
     private var parentChain: List<View>? = null
 
+    private var favJob: Job? = null
+
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
         private val minimalScrollSpace = itemView.context.dp(16f)
 
@@ -279,20 +282,25 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
             ViewCompat.setBackground(itemView, null)
         }
 
-        fav.let { fav ->
-            val isFavorite = item.vote == Vote.FAVORITE
-            val newVote = if (isFavorite) Vote.UP else Vote.FAVORITE
+        itemView.onAttachedScope {
+            favJob?.cancel()
 
-            if (isFavorite) {
-                val color = context.getColorCompat(ThemeHelper.accentColor)
-                fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav, color))
-            } else {
-                val color = context.getColorCompat(R.color.grey_700)
-                fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, color))
+            favJob = launch {
+                val service: FavedCommentService = context.injector.instance()
+
+                service.observeCommentIsFaved(comment.id).collect { isFavorite ->
+                    if (isFavorite) {
+                        val color = context.getColorCompat(ThemeHelper.accentColor)
+                        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav, color))
+                    } else {
+                        val color = context.getColorCompat(R.color.grey_700)
+                        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, color))
+                    }
+
+                    fav.isVisible = true
+                    fav.setOnClickListener { actionListener.onCommentFavedClicked(comment, !isFavorite) }
+                }
             }
-
-            fav.isVisible = true
-            fav.setOnClickListener { actionListener.onCommentVoteClicked(item.comment, newVote) }
         }
 
         if (item.isCollapsed) {
@@ -356,6 +364,8 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
     interface Listener : Linkify.Callback {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean
+
+        fun onCommentFavedClicked(comment: Api.Comment, faved: Boolean): Boolean
 
         fun onReplyClicked(comment: Api.Comment)
 

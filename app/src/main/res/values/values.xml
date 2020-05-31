@@ -82,7 +82,7 @@
         <item>@string/pref_tap_action_none</item>
         <item>@string/pref_tap_action_upvote</item>
         <item>@string/pref_tap_action_downvote</item>
-        <item>@string/pref_tap_action_favorite</item>
+        <item>@string/pref_tap_action_collect</item>
         <item>@string/pref_tap_action_fullscreen</item>
     </string-array>
 

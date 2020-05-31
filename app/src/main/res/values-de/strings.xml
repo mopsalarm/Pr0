@@ -168,7 +168,7 @@
     <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden.</string>
     <string name="share_using">Teilen mit</string>
     <string name="kpi_desc_comments">KOMMENTARE</string>
-    <string name="kpi_desc_favorites">FAVORITEN</string>
+    <string name="kpi_desc_collected">GESAMMELT</string>
     <string name="kpi_desc_tags">TAGS</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
     <string name="upper_benis">BENIS</string>
@@ -492,7 +492,7 @@
     <string name="pref_tap_action_none">Keine Aktion</string>
     <string name="pref_tap_action_upvote">Upvote</string>
     <string name="pref_tap_action_downvote">Downvote</string>
-    <string name="pref_tap_action_favorite">Favorisieren</string>
+    <string name="pref_tap_action_collect">Sammeln</string>
     <string name="pref_tap_action_fullscreen">Vollbild</string>
 
     <string name="pref_single_tap_action_title">Einfach Tap Aktion</string>

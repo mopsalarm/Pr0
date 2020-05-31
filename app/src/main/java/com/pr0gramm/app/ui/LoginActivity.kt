@@ -310,11 +310,11 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             return runAuth(runnable, runnable)
         }
 
-        fun runAuth(runnable: Runnable, retry: Runnable? = null): Boolean {
-            return runAuth({ runnable.run() }, { retry?.run() })
+        fun runAuthNoRetry(runnable: Callback): Boolean {
+            return runAuth(runnable, retry = null)
         }
 
-        suspend fun runAuthSuspend(runnable: suspend () -> Unit): Boolean {
+        suspend fun runAuthNoRetrySuspend(runnable: suspend () -> Unit): Boolean {
             val context = fragment.context ?: return false
             val userService: UserService = context.injector.instance()
 

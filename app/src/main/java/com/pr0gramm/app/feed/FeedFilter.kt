@@ -18,6 +18,9 @@ class FeedFilter : Freezable {
     var collection: String? = null
         private set
 
+    var collectionTitle: String? = null
+        private set
+
     var username: String? = null
         private set
 
@@ -66,10 +69,11 @@ class FeedFilter : Freezable {
         return normalize(copy)
     }
 
-    fun withCollection(owner: String, collectionKey: String): FeedFilter {
+    fun withCollection(owner: String, collectionKey: String, collectionTitle: String): FeedFilter {
         val copy = basic()
         copy.username = normalizeString(owner)
         copy.collection = normalizeString(collectionKey)
+        copy.collectionTitle = collectionTitle
         return normalize(copy)
     }
 
@@ -79,6 +83,7 @@ class FeedFilter : Freezable {
         if (collection != null) {
             copy.username = username
             copy.collection = collection
+            copy.collectionTitle = collectionTitle
         }
 
         copy.tags = normalizeString(tags)
@@ -95,6 +100,7 @@ class FeedFilter : Freezable {
         copy.feedType = feedType
         copy.tags = tags
         copy.collection = collection
+        copy.collectionTitle = collectionTitle
         copy.username = username
         copy.fn()
         return normalize(copy)
@@ -114,9 +120,10 @@ class FeedFilter : Freezable {
 
     override fun freeze(sink: Freezable.Sink) = with(sink) {
         writeInt(feedType.ordinal)
-        writeString(tags ?: "")
-        writeString(username ?: "")
-        writeString(collection ?: "")
+        writeString(tags.orEmpty())
+        writeString(username.orEmpty())
+        writeString(collection.orEmpty())
+        writeString(collectionTitle.orEmpty())
     }
 
     companion object : Unfreezable<FeedFilter> {
@@ -131,6 +138,7 @@ class FeedFilter : Freezable {
                 this.tags = source.readString().ifEmpty { null }
                 this.username = source.readString().ifEmpty { null }
                 this.collection = source.readString().ifEmpty { null }
+                this.collectionTitle = source.readString().ifEmpty { null }
             }
         }
 
@@ -141,7 +149,10 @@ class FeedFilter : Freezable {
             }
 
             if (filter.collection != null && filter.username == null) {
-                return filter.copy { collection = null }
+                return filter.copy {
+                    collection = null
+                    collectionTitle = null
+                }
             }
 
             return filter

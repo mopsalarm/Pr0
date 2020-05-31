@@ -98,6 +98,9 @@ val AsyncScope = CoroutineScope(Async) + SupervisorJob() + DefaultCoroutineExcep
 val Main = Dispatchers.Main.immediate
 val MainScope = CoroutineScope(Main + SupervisorJob() + DefaultCoroutineExceptionHandler)
 
+/**
+ * Runs a job as long as the view is attached to some window.
+ */
 fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
     if (!isAttachedToWindow) {
         Logger(javaClass.directName).warn { "whileIsAttachedScope called on view that is currently not attached." }

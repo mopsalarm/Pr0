@@ -366,22 +366,18 @@ private class NavigationDelegateAdapter(
     }
 
     private fun showInboxActivity(inboxType: InboxType) {
-        val run = Runnable {
+        doIfAuthorizedHelper.runAuthWithRetry {
             val intent = Intent(activity, InboxActivity::class.java)
             intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal)
             activity.startActivity(intent)
         }
-
-        doIfAuthorizedHelper.runAuth(run, run)
     }
 
     private fun showUploadActivity() {
-        val run = Runnable {
+        doIfAuthorizedHelper.runAuthWithRetry {
             val dialog = UploadTypeDialogFragment()
             (activity as MainActionHandler).showUploadBottomSheet(dialog)
         }
-
-        doIfAuthorizedHelper.runAuth(run, run)
     }
 
     /**

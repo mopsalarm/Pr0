@@ -241,7 +241,7 @@ class VoteService(private val api: Api,
         counts.mapValues { entry ->
             Summary(up = entry.value[Vote.UP] ?: 0,
                     down = entry.value[Vote.DOWN] ?: 0,
-                    fav = entry.value[Vote.FAVORITE] ?: 0)
+                    fav = 0)
         }
     }
 
@@ -283,6 +283,9 @@ class VoteService(private val api: Api,
                 13 to FollowState.NONE,
                 14 to FollowState.SUBSCRIBED,
                 15 to FollowState.FOLLOW)
+
+        private const val ACTION_COMMENT_FAV = 16
+        private const val ACTION_COMMENT_UNFAV = 17
 
         private const val ACTION_ITEM_UNCOLLECT = 18
         private const val ACTION_ITEM_COLLECT = 19

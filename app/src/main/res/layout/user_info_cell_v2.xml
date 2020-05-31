@@ -113,14 +113,14 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
-                android:text="@string/kpi_desc_favorites"
+                android:text="@string/kpi_desc_collected"
                 app:autoSizeMaxTextSize="12sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeStepGranularity="1sp"
                 app:autoSizeTextType="uniform" />
 
             <TextView
-                android:id="@+id/kpi_favorites"
+                android:id="@+id/kpi_collected"
                 style="@style/UserInfo_Kpi_Value"
                 tools:text="96" />
         </LinearLayout>

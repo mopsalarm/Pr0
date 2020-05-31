@@ -1,0 +1,4 @@
+CREATE TABLE favedComments (
+    -- basically a glorified set
+    commentId INTEGER PRIMARY KEY NOT NULL
+);

@@ -19,6 +19,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.PostCollection
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
@@ -35,7 +36,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
     private val username: UsernameView = find(R.id.username)
     private val benis: TextView = find(R.id.kpi_benis)
-    private val favorites: TextView = find(R.id.kpi_favorites)
+    private val collected: TextView = find(R.id.kpi_collected)
     private val comments: TextView = find(R.id.kpi_comments)
     private val tags: TextView = find(R.id.kpi_tags)
     private val uploads: TextView = find(R.id.kpi_uploads)
@@ -88,23 +89,21 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         }
 
         if (info.collectedCount > 0) {
-            favorites.text = info.collectedCount.toString()
+            collected.text = info.collectedCount.toString()
 
-            favorites.parentView?.let { parent ->
+            collected.parentView?.let { parent ->
                 parent.isVisible = true
 
                 parent.setOnClickListener {
-                    val publicCollections = info.collections.filter { it.isPublic }
+                    val publicCollections = PostCollection.fromApi(info.collections).filter { it.isPublic }
                     if (publicCollections.isNotEmpty()) {
-                        actions.onUserViewCollectionsClicked(
-                                user.name,
-                                publicCollections.singleOrNull()?.keyword)
+                        actions.onUserViewCollectionsClicked(user.name, null)
                     }
                 }
             }
 
         } else {
-            favorites.parentView?.isVisible = false
+            collected.parentView?.isVisible = false
         }
 
         val badges = mutableListOf<BadgeInfo>()
@@ -201,7 +200,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
     interface UserActionListener {
         fun onWriteMessageClicked(name: String)
-        fun onUserViewCollectionsClicked(name: String, collectionKey: String?)
+        fun onUserViewCollectionsClicked(name: String, targetCollection: PostCollection?)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)
         fun shareUserProfile(name: String)
