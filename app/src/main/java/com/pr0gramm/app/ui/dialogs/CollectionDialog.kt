@@ -28,7 +28,7 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
         // lookup collection to edit if it exists.
         val editCollection: PostCollection? = editCollectionId?.let { collectionsService.byId(it) }
 
-        val dialog = dialog(requireContext()) {
+        return dialog(requireContext()) {
             title(if (editCollection != null) "Edit collection" else "New collection")
             layout(R.layout.dialog_collection_create)
             positive("Save")
@@ -42,8 +42,6 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
 
             onShow { dialog -> configureDialog(dialog, editCollection) }
         }
-
-        return dialog
     }
 
     private fun configureDialog(dialog: Dialog, editCollection: PostCollection?) {

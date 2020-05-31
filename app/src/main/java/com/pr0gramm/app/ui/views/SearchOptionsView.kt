@@ -94,7 +94,10 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     fun setQueryHint(hint: String) {
-        initView()
+        require(initView.initialized) {
+            "SearchOptionsView must be initialized."
+        }
+
         searchTermView.hint = hint
     }
 

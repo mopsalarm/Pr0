@@ -778,9 +778,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         inflater.inflate(R.menu.menu_feed, menu)
 
         // hide search item, if we are not searchable
-        menu.findItem(R.id.action_search)?.let { item ->
-            item.isVisible = currentFilter.feedType.searchable
-        }
+        val searchable = currentFilter.feedType.searchable && isNormalMode
+        menu.findItem(R.id.action_search)?.isVisible = searchable
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -1197,14 +1196,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun resetAndShowSearchContainer() {
-        searchView.applyState(initialSearchViewState())
-        showSearchContainer(true)
+        if (isNormalMode) {
+            searchView.applyState(initialSearchViewState())
+            showSearchContainer(true)
+        }
     }
 
     private fun showSearchContainer(animated: Boolean) {
         val context = context ?: return
 
-        if (searchContainerIsVisible())
+        if (!isNormalMode || searchContainerIsVisible())
             return
 
         val view = view ?: return
@@ -1218,7 +1219,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val typeName = FeedFilterFormatter.feedTypeToString(context, currentFilter.withTagsNoReset("dummy"))
         searchView.setQueryHint(getString(R.string.action_search, typeName))
 
-        val paddingTop = if (isNormalMode) AndroidUtility.getStatusBarHeight(context) else 0
+        val paddingTop = AndroidUtility.getStatusBarHeight(context)
         searchView.setPadding(0, paddingTop, 0, 0)
 
         searchContainer.visibility = View.VISIBLE
@@ -1259,7 +1260,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun hideSearchContainer() {
-        if (!searchContainerIsVisible())
+        if (!searchContainerIsVisible() || !isNormalMode)
             return
 
         val containerView = this.searchContainer
