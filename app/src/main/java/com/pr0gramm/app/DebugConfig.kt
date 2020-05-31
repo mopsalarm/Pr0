@@ -10,7 +10,7 @@ private val actualDebugConfig = DebugConfig(
 //                PendingNotifications.Comment("UserB", 571121),
 //                PendingNotifications.Comment("UserA", 571122, flags = 2)
 //        ))
-        mockApiUrl = "https://b6de46307ac7.eu.ngrok.io"
+        mockApiUrl = "https://ca10fd6ea66c.eu.ngrok.io"
         // versionOverride = 100
 )
 

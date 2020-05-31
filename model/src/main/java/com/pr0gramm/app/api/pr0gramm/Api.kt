@@ -348,7 +348,7 @@ interface Api {
     @GET("api/user/captcha")
     suspend fun userCaptcha(): UserCaptcha
 
-    @GET("api/collections/get")
+    @GET("api/collections/get?thumbs=0")
     suspend fun collectionsGet(): Collections
 
     @FormUrlEncoded
@@ -356,8 +356,8 @@ interface Api {
     suspend fun collectionsCreate(
             @Field("_nonce") nonce: Nonce?,
             @Field("name") name: String,
-            @Field("isPublic") isPublic: Boolean,
-            @Field("isDefault") isDefault: Boolean): CollectionCreated
+            @Field("isPublic") isPublic: Int,
+            @Field("isDefault") isDefault: Int): CollectionCreated
 
     @FormUrlEncoded
     @POST("api/collections/edit")
@@ -365,8 +365,8 @@ interface Api {
             @Field("_nonce") nonce: Nonce?,
             @Field("collectionId") id: Long,
             @Field("name") name: String,
-            @Field("isPublic") isPublic: Boolean,
-            @Field("isDefault") isDefault: Boolean): CollectionCreated
+            @Field("isPublic") isPublic: Int,
+            @Field("isDefault") isDefault: Int): CollectionCreated
 
     @FormUrlEncoded
     @POST("api/collections/delete")
@@ -817,8 +817,8 @@ interface Api {
             val name: String,
             val keyword: String,
             val isPublic: Boolean,
-            val isDefault: Boolean,
-            val items: List<Item>
+            val isDefault: Boolean
+            // val items: List<Item>,
     ) {
         @JsonClass(generateAdapter = true)
         class Item(

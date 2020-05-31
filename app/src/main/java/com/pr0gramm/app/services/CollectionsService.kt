@@ -10,6 +10,7 @@ import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.readOnly
+import com.pr0gramm.app.util.toInt
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,13 +94,13 @@ class CollectionsService(private val api: Api, private val userService: UserServ
     }
 
     suspend fun create(name: String, isPublic: Boolean, isDefault: Boolean): Result<Long> {
-        val response = Result.ofValue(api.collectionsCreate(null, name, isPublic, isDefault))
+        val response = Result.ofValue(api.collectionsCreate(null, name, isPublic.toInt(), isDefault.toInt()))
         handleCollectionUpdated(response)
         return response.map { it.collectionId }
     }
 
     suspend fun edit(id: Long, name: String, isPublic: Boolean, isDefault: Boolean): Result<Long> {
-        val response = Result.ofValue(api.collectionsEdit(null, id, name, isPublic, isDefault))
+        val response = Result.ofValue(api.collectionsEdit(null, id, name, isPublic.toInt(), isDefault.toInt()))
         handleCollectionUpdated(response)
         return response.map { it.collectionId }
     }
