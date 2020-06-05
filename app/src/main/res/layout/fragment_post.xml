@@ -1,61 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:id="@+id/post_fragment_root"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
-        android:id="@+id/player_container"
+    <!-- this layout fixes issues with 0 height in 'VerticallyUnboundedFrameLayout'. -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/vote_indicator"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-80dp"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:visibility="gone"
-            app:tint="?colorAccent"
-            tools:srcCompat="@drawable/ic_vote_fav"
-            tools:visibility="visible"
-            tools:ignore="NegativeMargin" />
-
-        <TextView
-            android:id="@+id/repost_hint"
-            android:layout_width="200dp"
-            android:layout_height="32dp"
-            android:layout_gravity="right|top"
-            android:background="@color/transparent_black"
-            android:gravity="center"
-            android:rotation="45"
-            android:text="@string/repost"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:transformPivotX="100dp"
-            android:transformPivotY="-32sp"
-            android:translationX="100dp"
-            android:visibility="gone" />
-
-    </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.pr0gramm.app.ui.StatefulRecyclerView
-            android:id="@+id/post_content"
+        <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
+            android:id="@+id/player_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:descendantFocusability="beforeDescendants"
-            android:focusableInTouchMode="true"
-            tools:listitem="@layout/comment_layout"
-            android:overScrollMode="never" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/vote_indicator"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="-80dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:visibility="gone"
+                app:tint="?colorAccent"
+                tools:ignore="NegativeMargin"
+                tools:srcCompat="@drawable/ic_vote_fav"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/repost_hint"
+                android:layout_width="200dp"
+                android:layout_height="32dp"
+                android:layout_gravity="right|top"
+                android:background="@color/transparent_black"
+                android:gravity="center"
+                android:rotation="45"
+                android:text="@string/repost"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:transformPivotX="100dp"
+                android:transformPivotY="-32sp"
+                android:translationX="100dp"
+                android:visibility="gone" />
+
+        </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.pr0gramm.app.ui.StatefulRecyclerView
+                android:id="@+id/post_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:overScrollMode="never"
+                tools:listitem="@layout/comment_layout" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
