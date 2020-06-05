@@ -538,6 +538,18 @@
     <string name="notify_to_inbox">Open inbox</string>
     <string name="hint_no_file_manager_available">No file manager available to select a directory.</string>
     <string name="filter_format_collection_of">\'%1$s\' by %2$s</string>
+    <string name="collections_save_to">Save post to…</string>
+    <string name="collections_new">+ New Collection</string>
+    <string name="collections_done">Done</string>
+    <string name="collection_title">Title</string>
+    <string name="collection_default">Default collection</string>
+    <string name="collection_edit">Edit collection</string>
+    <string name="collection_new">New collection</string>
+    <string name="action_save">Save</string>
+    <string name="collection_prive">Private</string>
+    <string name="collection_public">Public</string>
+    <string name="collecton_added">Added to collection</string>
+    <string name="collecton_adding">Adding…</string>
 
 </resources>
 

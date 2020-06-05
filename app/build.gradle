@@ -178,8 +178,8 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.1.0'
 
     implementation "com.google.android.gms:play-services-ads-lite:19.1.0"
-    implementation 'com.google.firebase:firebase-analytics:17.4.2'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
@@ -207,7 +207,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.4'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.5'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 

@@ -11,7 +11,7 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Title"
+        android:hint="@string/collection_title"
         android:inputType="textShortMessage"
         android:maxLines="1"
         android:minHeight="48dp" />
@@ -23,7 +23,7 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:minHeight="48dp"
-        android:text="Default Collection" />
+        android:text="@string/collection_default" />
 
     <Spinner
         android:id="@+id/privacy_options"

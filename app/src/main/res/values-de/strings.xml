@@ -517,6 +517,19 @@
     <string name="notify_hint_tap_to_open_post">Tap um den Hochlad zu sehen</string>
     <string name="notify_to_inbox">Inbox öffnen</string>
     <string name="hint_no_file_manager_available">Es wurde kein Dateimanager gefunden um einen Ordner auszuwählen.</string>
+    <string name="filter_format_collection_of">\'%1$s\' von %2$s</string>
+    <string name="collections_save_to">Zu Sammlung hinzufügen…</string>
+    <string name="collections_new">+ Neu</string>
+    <string name="collections_done">Fertig</string>
+    <string name="collection_title">Name</string>
+    <string name="collection_default">Als Standard festlegen</string>
+    <string name="collection_edit">Sammlung bearbeiten</string>
+    <string name="collection_new">Neue Sammlung</string>
+    <string name="action_save">Speichern</string>
+    <string name="collection_prive">Privat</string>
+    <string name="collection_public">Öffentlich</string>
+    <string name="collecton_added">Hinzugefügt zur Sammlung</string>
+    <string name="collecton_adding">Sammle…</string>
 
 
 </resources>

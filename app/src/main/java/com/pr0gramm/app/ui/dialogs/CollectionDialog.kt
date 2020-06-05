@@ -29,13 +29,13 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
         val editCollection: PostCollection? = editCollectionId?.let { collectionsService.byId(it) }
 
         return dialog(requireContext()) {
-            title(if (editCollection != null) "Edit collection" else "New collection")
+            title(if (editCollection != null) R.string.collection_edit else R.string.collection_new)
             layout(R.layout.dialog_collection_create)
-            positive("Save")
+            positive(R.string.action_save)
             negative { dismissAllowingStateLoss() }
 
             if (editCollection != null) {
-                neutral("Delete") { deleteCollection(editCollection.id) }
+                neutral(R.string.action_delete) { deleteCollection(editCollection.id) }
             }
 
             noAutoDismiss()
@@ -131,11 +131,11 @@ private class PrivacySpinnerAdapter : BaseAdapter() {
         val view: TextView = parent.inflateDetachedChild(R.layout.row_collection_privacy)
 
         val (text, icon) = when (position) {
-            0 -> Pair("Private", R.drawable.ic_collection_private)
-            else -> Pair("Public", R.drawable.ic_collection_public)
+            0 -> Pair(R.string.collection_prive, R.drawable.ic_collection_private)
+            else -> Pair(R.string.collection_public, R.drawable.ic_collection_public)
         }
 
-        view.text = text
+        view.setText(text)
         view.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, 0, 0, 0)
         return view
     }

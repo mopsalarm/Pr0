@@ -19,7 +19,7 @@
             android:layout_gravity="start|center_vertical"
             android:layout_marginStart="16dp"
             android:layout_marginTop="-4dp"
-            android:text="Save post to..."
+            android:text="@string/collections_save_to"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
         <Button
@@ -30,7 +30,7 @@
             android:layout_gravity="end|center_vertical"
             android:layout_marginTop="-4dp"
             android:layout_marginEnd="4dp"
-            android:text="+ New Collection" />
+            android:text="@string/collections_new" />
     </FrameLayout>
 
     <View
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="32dp"
-            android:text="Done"
+            android:text="@string/collections_done"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
     </FrameLayout>
 
