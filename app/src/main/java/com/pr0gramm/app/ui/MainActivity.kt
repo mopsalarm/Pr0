@@ -535,11 +535,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerLayout.closeDrawers()
     }
 
-    override fun onNavigateToFavorites(username: String) {
+    override fun onNavigateToCollections(username: String) {
         // move to new fragment
-        val fragment = FavoritesFragment.newInstance(username)
-        moveToFragment(fragment, true)
-
+        moveToFragment(FavoritesFragment.newInstance(username), clear = true)
         drawerLayout.closeDrawers()
     }
 
@@ -583,7 +581,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                                  queryState: Bundle? = null,
                                  title: String? = null) {
 
-        // show special fragment if we want to see overivew of collections.
+        // show special fragment if we want to see overview of collections of some user.
         newFilter.username?.let { username ->
             if (newFilter.collection == "**ANY") {
                 return moveToFragment(FavoritesFragment.newInstance(username), clear = false)

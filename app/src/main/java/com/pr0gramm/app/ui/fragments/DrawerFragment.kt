@@ -155,7 +155,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         /**
          * Navigate to the favorites of the given user
          */
-        fun onNavigateToFavorites(username: String)
+        fun onNavigateToCollections(username: String)
 
         fun hintBookmarksEditableWithPremium()
     }
@@ -310,9 +310,9 @@ private class NavigationDelegateAdapter(
                 callback.onOtherNavigationItemClicked()
             }
 
-            NavigationProvider.ActionType.FAVORITES -> {
+            NavigationProvider.ActionType.COLLECTIONS -> {
                 val username = item.filter?.username!!
-                callback.onNavigateToFavorites(username)
+                callback.onNavigateToCollections(username)
             }
 
             NavigationProvider.ActionType.URI ->

@@ -69,6 +69,10 @@ class FeedFilter : Freezable {
         return normalize(copy)
     }
 
+    fun withAnyCollection(owner: String): FeedFilter {
+        return withCollection(owner, "**ANY", "**ANY")
+    }
+
     fun withCollection(owner: String, collectionKey: String, collectionTitle: String): FeedFilter {
         val copy = basic()
         copy.username = normalizeString(owner)

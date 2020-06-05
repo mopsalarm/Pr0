@@ -42,7 +42,7 @@ class NavigationProvider(
 
     private val iconBookmark by drawable(R.drawable.ic_action_bookmark)
     private val iconBookmarkTrending by drawable(R.drawable.ic_action_trending)
-    private val iconFavorites by drawable(R.drawable.ic_action_favorite)
+    private val iconCollections by drawable(R.drawable.ic_collection_yes)
     private val iconFeedTypeBestOf by drawable(R.drawable.ic_action_bestof)
     private val iconFeedTypeControversial by drawable(R.drawable.ic_action_controversial)
     private val iconFeedTypeNew by drawable(R.drawable.ic_action_new)
@@ -194,10 +194,12 @@ class NavigationProvider(
 
         if (username != null) {
             items += makeItem(
-                    action = ActionType.FAVORITES,
-                    title = getString(R.string.action_favorites),
-                    icon = iconFavorites,
-                    filter = FeedFilter().withFeedType(FeedType.NEW).withCollection(username, "**ANY", "**ANY"))
+                    action = ActionType.COLLECTIONS,
+                    title = getString(R.string.action_collections),
+                    icon = iconCollections,
+                    filter = FeedFilter()
+                            .withFeedType(FeedType.NEW)
+                            .withCollection(username, "**ANY", "**ANY"))
         }
 
         return items
@@ -403,7 +405,7 @@ class NavigationProvider(
     }
 
     enum class ActionType {
-        HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI,
+        HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, COLLECTIONS, URI,
         DIVIDER,
         SETTINGS, CONTACT, INVITES, FAQ, PREMIUM, LOGIN, LOGOUT
     }
