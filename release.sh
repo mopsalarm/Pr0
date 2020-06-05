@@ -79,8 +79,8 @@ trap - ERR
 git tag -a "$(format_version ${VERSION_NEXT})" \
         -m "Released version $(format_version ${VERSION_NEXT})"
 
-# git push
-# git push --tags
+git push
+git push --tags
 
 deploy_upload_apk
 
