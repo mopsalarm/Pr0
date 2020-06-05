@@ -1,5 +1,14 @@
 [
   {
+    "version": 182,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Sammlungen."
+      }
+    ]
+  },
+  {
     "version": 181,
     "changes": [
       {
