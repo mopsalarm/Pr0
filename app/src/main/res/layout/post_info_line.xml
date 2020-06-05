@@ -33,7 +33,7 @@
         <com.pr0gramm.app.ui.views.CollectView
             android:id="@+id/collect"
             android:layout_marginStart="4dp"
-            android:layout_width="32dp"
+            android:layout_width="36dp"
             android:padding="4dp"
             android:background="?selectableItemBackgroundBorderless"
             android:layout_height="48dp"/>
