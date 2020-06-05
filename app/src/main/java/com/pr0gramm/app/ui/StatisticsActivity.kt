@@ -43,7 +43,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private val voteCountUp: TextView by bindView(R.id.stats_up)
     private val voteCountDown: TextView by bindView(R.id.stats_down)
-    private val voteCountFavs: TextView by bindView(R.id.stats_fav)
 
     private val votesByTags: CircleChartView by bindView(R.id.votes_by_tags)
     private val votesByItems: CircleChartView by bindView(R.id.votes_by_items)
@@ -92,7 +91,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         }
 
         userService.name?.let { username ->
-            // showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))
             showContentTypesOf(typesOfUpload, statsService.statsForUploads(username))
         }
     }
@@ -122,7 +120,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     private fun handleVoteCounts(votes: Map<CachedVote.Type, VoteService.Summary>) {
         voteCountUp.text = "UP " + votes.values.sumBy { it.up }
         voteCountDown.text = "DOWN " + votes.values.sumBy { it.down }
-        voteCountFavs.text = "FAVS " + votes.values.sumBy { it.fav }
 
         votesByTags.chartValues = toChartValues(votes[CachedVote.Type.TAG])
         votesByItems.chartValues = toChartValues(votes[CachedVote.Type.ITEM])
@@ -134,8 +131,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         return listOf(
                 CircleChartView.Value(summary.up, getColorCompat(R.color.stats_up)),
-                CircleChartView.Value(-summary.down, getColorCompat(R.color.stats_down)),
-                CircleChartView.Value(summary.fav, getColorCompat(R.color.stats_fav)))
+                CircleChartView.Value(-summary.down, getColorCompat(R.color.stats_down)))
     }
 
     private fun updateTimeRange() {
@@ -151,16 +147,19 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         benisGraphLoading.isVisible = false
         benisGraphTimeSelector.isVisible = true
 
+        var actualValues = true
         var records = optimizeValuesBy(benisValues) { it.benis.toDouble() }
 
-        // dont show if not enough data available
+        // don't show if not enough data available
         if (records.size < 2 ||
                 records.all { it.benis == records[0].benis } ||
                 System.currentTimeMillis() - records[0].time < 60 * 1000) {
 
             benisGraphEmpty.isVisible = true
             benisGraphTimeSelector.isVisible = false
+
             records = randomBenisGraph()
+            actualValues = false
         }
 
         // convert to graph
@@ -185,10 +184,12 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         // and show the graph
         ViewCompat.setBackground(benisGraph, dr)
 
-        // calculate the recent changes of benis
-        formatChange(original, 1, benisChangeDay)
-        formatChange(original, 7, benisChangeWeek)
-        formatChange(original, 30, benisChangeMonth)
+        if (actualValues) {
+            // calculate the recent changes of benis
+            formatChange(original, 1, benisChangeDay)
+            formatChange(original, 7, benisChangeWeek)
+            formatChange(original, 30, benisChangeMonth)
+        }
     }
 
     private fun randomBenisGraph(): List<BenisRecord> {

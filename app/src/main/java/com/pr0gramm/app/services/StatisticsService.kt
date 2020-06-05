@@ -14,20 +14,12 @@ class StatisticsService(private val feedService: FeedService) {
     class Stats(val counts: Map<ContentType, Int>)
 
     private val uploadsCountCache = ConcurrentHashMap<Long, Stats>()
-    private val favoritesCountCache = ConcurrentHashMap<Long, Stats>()
 
     fun statsForUploads(username: String): Observable<Stats> {
         return streamStats(uploadsCountCache, FeedFilter()
                 .withFeedType(FeedType.NEW)
                 .withUser(username))
     }
-
-    // TODO remove?
-//    fun statsForFavorites(username: String): Observable<Stats> {
-//        return streamStats(favoritesCountCache, FeedFilter()
-//                .withFeedType(FeedType.NEW)
-//                .withLikes(username))
-//    }
 
     private fun streamStats(cache: ConcurrentMap<Long, Stats>, filter: FeedFilter): Observable<Stats> {
 

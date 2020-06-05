@@ -75,10 +75,6 @@ class UriHelper private constructor(context: Context) {
         return start().path("/user/$user/uploads").build()
     }
 
-    fun favorites(user: String): Uri {
-        return start().path("/user/$user/likes").build()
-    }
-
     fun badgeImageUrl(image: String): Uri {
         if (image.startsWith("http://") || image.startsWith("https://")) {
             return Uri.parse(image)

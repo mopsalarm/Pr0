@@ -265,7 +265,7 @@
     <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
     <string name="error_json_mapping">Die Antwort der API konnte nicht verarbeitet werden: %s</string>
     <string name="error_origin_timeout_ddos">Sieht so aus, als wäre das pr0gramm gerade nicht erreichbar. Vielleicht wieder DDoS?</string>
-    <string name="favorites_of">Sammlungen von %s</string>
+    <string name="collections_of">Sammlungen von %s</string>
     <string name="media_exo_error">Video konnte nicht abgespielt werden. Fehler ist: %s</string>
     <string name="media_exo_error_io">Ein Netzwerkfehler ist aufgetreten (%s).</string>
     <string name="report_video_stream">Stream, Typ: %1$s, Codec: %2$s</string>

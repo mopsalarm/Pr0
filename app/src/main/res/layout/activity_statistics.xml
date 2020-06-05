@@ -188,12 +188,6 @@
                             android:textColor="@color/stats_down"
                             tools:text="DOWN 486" />
 
-                        <TextView
-                            android:id="@+id/stats_fav"
-                            style="@style/Statistics.VoteCount"
-                            android:textColor="@color/stats_fav"
-                            tools:text="FAVS 64" />
-
                     </LinearLayout>
 
                     <LinearLayout

@@ -45,8 +45,7 @@ object FeedFilterFormatter {
 
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
         if (filter.collection != null) {
-            // TODO improve formatting logic
-            return context.getString(R.string.favorites_of, filter.username)
+            return context.getString(R.string.collections_of, filter.username)
         }
 
         return when (filter.feedType) {

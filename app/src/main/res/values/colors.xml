@@ -61,7 +61,6 @@
     <color name="transparent_black">#8000</color>
     <color name="stats_up">#50bc80</color>
     <color name="stats_down">#ff9b84</color>
-    <color name="stats_fav">#d45099</color>
 
     <color name="type_sfw">#2f9b16</color>
     <color name="type_nsfw">#c9cc28</color>

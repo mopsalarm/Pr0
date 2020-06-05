@@ -222,8 +222,8 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         NONE,
         UPVOTE,
         DOWNVOTE,
-        FAVORITE,
-        FULLSCREEN
+        FULLSCREEN,
+        COLLECT,
     }
 
     companion object {
@@ -261,6 +261,15 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
                 p.edit {
                     putString("pref_double_tap_action", TapAction.NONE.name)
                     remove("pref_double_tap_to_upvote")
+                }
+            }
+
+            listOf("pref_single_tap_action", "pref_double_tap_to_upvote").forEach { pref ->
+                // migrate the old favorite actions
+                if (p.getStringOrNull(pref) == "FAVORITE") {
+                    p.edit {
+                        putString(pref, TapAction.COLLECT.name)
+                    }
                 }
             }
 

@@ -959,7 +959,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             Settings.TapAction.DOWNVOTE ->
                 doVoteOnDoubleTap(Vote.DOWN)
 
-            Settings.TapAction.FAVORITE ->
+            Settings.TapAction.COLLECT ->
                 doCollectOnDoubleTap()
         }
     }

@@ -240,8 +240,7 @@ class VoteService(private val api: Api,
 
         counts.mapValues { entry ->
             Summary(up = entry.value[Vote.UP] ?: 0,
-                    down = entry.value[Vote.DOWN] ?: 0,
-                    fav = 0)
+                    down = entry.value[Vote.DOWN] ?: 0)
         }
     }
 
@@ -262,7 +261,7 @@ class VoteService(private val api: Api,
 
     private class VoteAction(internal val type: CachedVote.Type, internal val vote: Vote)
 
-    data class Summary(val up: Int, val down: Int, val fav: Int)
+    data class Summary(val up: Int, val down: Int)
 
     companion object {
         private val logger = Logger("VoteService")
