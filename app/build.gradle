@@ -193,7 +193,8 @@ dependencies {
     // kotlin 1.9.2 keeps kotlin.Metadata
     implementation "com.squareup.moshi:moshi:1.8.0"
 
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.20"
+    // still issues with version > 1.2.12
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
 
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"

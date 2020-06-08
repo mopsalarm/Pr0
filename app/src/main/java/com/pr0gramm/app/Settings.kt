@@ -264,7 +264,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
                 }
             }
 
-            listOf("pref_single_tap_action", "pref_double_tap_to_upvote").forEach { pref ->
+            listOf("pref_single_tap_action", "pref_double_tap_action").forEach { pref ->
                 // migrate the old favorite actions
                 if (p.getStringOrNull(pref) == "FAVORITE") {
                     p.edit {
