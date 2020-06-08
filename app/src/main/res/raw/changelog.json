@@ -1,5 +1,14 @@
 [
   {
+    "version": 183,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Probleme beim Abspielen von GIFs behoben"
+      }
+    ]
+  },
+  {
     "version": 182,
     "changes": [
       {
