@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Scrollposition wird beim Zurückgehen wieder beibehalten"
+      },
+      {
+        "type": "Fix",
+        "change": "Bestätigungsdialog beim Löschen von Sammlungen"
       }
     ]
   },

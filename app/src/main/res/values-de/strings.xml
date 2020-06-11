@@ -530,6 +530,7 @@
     <string name="collection_public">Öffentlich</string>
     <string name="collecton_added">Hinzugefügt zur Sammlung</string>
     <string name="collecton_adding">Sammle…</string>
+    <string name="collection_delete_confirm">Möchtest du diese Sammlung wirklich löschen? Der Vorgang kann nicht rückgängig gemacht werden.</string>
 
 
 </resources>

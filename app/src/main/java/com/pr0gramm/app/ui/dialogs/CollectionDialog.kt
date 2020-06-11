@@ -12,6 +12,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.dialog
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
@@ -35,7 +36,7 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
             negative { dismissAllowingStateLoss() }
 
             if (editCollection != null) {
-                neutral(R.string.action_delete) { deleteCollection(editCollection.id) }
+                neutral(R.string.action_delete) { askToDeleteCollection(editCollection.id) }
             }
 
             noAutoDismiss()
@@ -77,6 +78,18 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
             } else {
                 updateCollection(editCollection.id, name, isPublic, isDefault)
             }
+        }
+    }
+
+    private fun askToDeleteCollection(id: Long) {
+        showDialog(this) {
+            content(R.string.collection_delete_confirm)
+
+            positive(R.string.action_delete) {
+                deleteCollection(id)
+            }
+
+            negative(R.string.cancel)
         }
     }
 

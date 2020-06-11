@@ -550,6 +550,7 @@
     <string name="collection_public">Public</string>
     <string name="collecton_added">Added to collection</string>
     <string name="collecton_adding">Adding…</string>
+    <string name="collection_delete_confirm">Do you really want to delete this collection? The collection can not be restored.</string>
 
 </resources>
 
