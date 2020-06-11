@@ -44,6 +44,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.MainScope
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.ui.views.CompatibleTextView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -755,9 +756,10 @@ fun AppCompatTextView.setTextFuture(text: CharSequence) {
 }
 
 fun TextView.setTextFuture(text: CharSequence) {
-    if (this is AppCompatTextView) {
+    if (this is CompatibleTextView) {
         setTextFuture(text)
     } else {
+        Logger("TextView").warn { "setTextFuture called on non-compatible text view." }
         setText(text)
     }
 }

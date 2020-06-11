@@ -32,7 +32,7 @@ object Linkify {
     private val RE_WEB_LINK = Pattern.compile("""\bhttps?://(?:[^<>\s]+\([^<>\s]+[^<>!,.:\s]|[^(<>\s]+[^<>)!,.:\s])""")
 
     fun linkifyClean(view: TextView, content: String, callback: Callback? = null) {
-        var cleanedContent = content.take(1024 * 32)
+        var cleanedContent = content.take(1024 * 64)
         cleanedContent = MALICIOUS_COMMENT_CHARS.matcher(cleanedContent).replaceAll("$1")
         cleanedContent = RE_GENERIC_LINK.matcher(cleanedContent).replaceAll("$1")
 
@@ -95,14 +95,6 @@ object Linkify {
                     // open it internally in the app, looks like we understand the format.
                     parsed != null ->
                         InternalURLSpan(url)
-
-                    // ENABLED: true,
-                    //                        SEARCH_REGEXP: /(pornhub|redtube|tube8|youporn|xtube|spankwire)\.com/,
-                    //                        QUERY_PARAMS: {
-                    //                                utm_source: 'paid',
-                    //                                utm_medium: 'hubtraffic',
-                    //                                utm_campaign: 'hubtraffic_pr0gramm'
-                    //                        }
 
                     // nope, never seen this kind of url
                     else -> null

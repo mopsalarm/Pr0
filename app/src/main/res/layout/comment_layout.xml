@@ -22,7 +22,7 @@
         app:spacing="2dp"
         app:textSize="24dp" />
 
-    <com.pr0gramm.app.ui.views.RecyclerViewCompatibleTextView
+    <com.pr0gramm.app.ui.views.CompatibleTextView
         android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
