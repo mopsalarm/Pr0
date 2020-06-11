@@ -354,7 +354,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             AndroidUtility.logToCrashlytics(throwable)
 
             val str = ErrorFormatting.getFormatter(throwable).getMessage(activity, throwable)
-            ErrorDialogFragment.showErrorString(fragmentManager, str)
+            ErrorDialogFragment.showErrorString(parentFragmentManager, str)
         }
     }
 
