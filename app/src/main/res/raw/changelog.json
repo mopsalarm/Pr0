@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Probleme beim Abspielen von GIFs behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Sammlungen sind wieder über das eigene Profil aufrufbar"
       }
     ]
   },

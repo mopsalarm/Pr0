@@ -88,7 +88,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
             actions.onShowUploadsClicked(user.name)
         }
 
-        if (info.collectedCount > 0) {
+        if (info.collectedCount > 0 || myself) {
             collected.text = info.collectedCount.toString()
 
             collected.parentView?.let { parent ->
@@ -96,7 +96,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
                 parent.setOnClickListener {
                     val publicCollections = PostCollection.fromApi(info.collections).filter { it.isPublic }
-                    if (publicCollections.isNotEmpty()) {
+                    if (myself || publicCollections.isNotEmpty()) {
                         actions.onUserViewCollectionsClicked(user.name, null)
                     }
                 }
