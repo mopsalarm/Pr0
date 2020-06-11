@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui
 
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 interface RecyclerViewPoolProvider {
@@ -31,9 +30,14 @@ class RecyclerViewPoolMap : RecyclerViewPoolProvider {
 fun RecyclerViewPoolProvider.configureRecyclerView(key: String, view: RecyclerView) {
     view.setRecycledViewPool(recyclerViewPool(key))
 
+    // FIXME this would be nice, but, there seems to be a bug in androidx.fragment > 1.1.0.
+    //  if we use a nested fragment, the view is detached from the window before
+    //  the view state is saved. With the recycleChildrenOnDetach the recyclerview
+    //  recycles and removes all views prior to saving their state.
+
     // if possible, recycle views on detach
-    val lm = view.layoutManager
-    if (lm is LinearLayoutManager) {
-        lm.recycleChildrenOnDetach = true
-    }
+    //    val lm = view.layoutManager
+    //    if (lm is LinearLayoutManager) {
+    //        lm.recycleChildrenOnDetach = true
+    //    }
 }

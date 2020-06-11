@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Sammlungen sind wieder über das eigene Profil aufrufbar"
+      },
+      {
+        "type": "Fix",
+        "change": "Scrollposition wird beim Zurückgehen wieder beibehalten"
       }
     ]
   },
