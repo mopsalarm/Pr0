@@ -5,11 +5,9 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.equalsIgnoreCase
-import kotlinx.coroutines.runBlocking
-import rx.Emitter
-import rx.Observable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.*
 
 /**
@@ -25,7 +23,7 @@ interface FeedService {
      * Streams feed items - giving one page after the next until
      * the end of the stream.
      */
-    fun stream(startQuery: FeedQuery): Observable<Api.Feed>
+    fun stream(startQuery: FeedQuery): Flow<Api.Feed>
 
     data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
                          val newer: Long? = null, val older: Long? = null, val around: Long? = null)
@@ -102,33 +100,23 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
         return api.info(id, bust = buster)
     }
 
-    override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {
+    override fun stream(startQuery: FeedService.FeedQuery): Flow<Api.Feed> {
         // move from low to higher numbers if newer is set.
         val upwards = startQuery.newer != null
 
-        return createObservable(Emitter.BackpressureMode.BUFFER) { emitter ->
-            runBlocking {
-                try {
-                    var query: FeedService.FeedQuery? = startQuery
+        return flow {
+            var query: FeedService.FeedQuery? = startQuery
 
-                    while (true) {
-                        val currentQuery = query ?: break
-                        val feed = load(currentQuery)
-                        emitter.onNext(feed)
+            while (true) {
+                val currentQuery = query ?: break
+                val feed = load(currentQuery)
+                emit(feed)
 
-                        // get the previous (or next) page from the current set of items.
-                        query = when {
-                            upwards && !feed.isAtStart -> feed.items.maxBy { it.id }?.let { currentQuery.copy(newer = it.id) }
-                            !upwards && !feed.isAtEnd -> feed.items.minBy { it.id }?.let { currentQuery.copy(older = it.id) }
-                            else -> null
-                        }
-                    }
-
-                    emitter.onCompleted()
-
-
-                } catch (err: Throwable) {
-                    emitter.onError(err)
+                // get the previous (or next) page from the current set of items.
+                query = when {
+                    upwards && !feed.isAtStart -> feed.items.maxBy { it.id }?.let { currentQuery.copy(newer = it.id) }
+                    !upwards && !feed.isAtEnd -> feed.items.minBy { it.id }?.let { currentQuery.copy(older = it.id) }
+                    else -> null
                 }
             }
         }

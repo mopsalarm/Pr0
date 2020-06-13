@@ -13,16 +13,11 @@ import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.orm.migrate
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.getStringOrNull
-import com.pr0gramm.app.util.tryEnumValueOf
+import com.pr0gramm.app.util.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import rx.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
 
@@ -51,9 +46,12 @@ class BookmarkService(
                     .collect { persist(it) }
         }
 
-        userService.loginStates
-                .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .subscribe { updateQueue.sendBlocking { update() } }
+        AsyncScope.launch {
+            userService.loginStates
+                    .asFlow()
+                    .debounce(100.milliseconds)
+                    .collect { updateQueue.send { update() } }
+        }
 
         doInBackground {
             for (action in updateQueue) {

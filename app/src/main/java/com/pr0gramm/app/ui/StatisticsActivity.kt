@@ -15,17 +15,23 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenCreated
-import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.observeChange
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withTimeout
 import kotterknife.bindView
-import rx.Observable
 import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.minutes
 
+@OptIn(ExperimentalTime::class)
 class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private val userService: UserService by instance()
@@ -91,14 +97,18 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         }
 
         userService.name?.let { username ->
-            showContentTypesOf(typesOfUpload, statsService.statsForUploads(username))
+            launchWhenCreated {
+                showContentTypes(typesOfUpload, username)
+            }
         }
     }
 
-    private fun showContentTypesOf(view: CircleChartView, stats: Observable<StatisticsService.Stats>) {
-        stats.subscribeOnBackground().observeOnMainThread()
-                .bindToLifecycle()
-                .subscribeWithErrorHandling(supportFragmentManager) { showContentTypes(view, it) }
+    private suspend fun showContentTypes(view: CircleChartView, username: String) {
+        withTimeout(1.minutes) {
+            statsService.statsForUploads(username).collect { state ->
+                showContentTypes(view, state)
+            }
+        }
     }
 
     private fun showContentTypes(view: CircleChartView, stats: StatisticsService.Stats) {

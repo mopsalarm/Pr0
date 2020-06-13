@@ -44,7 +44,6 @@ import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -827,9 +826,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // remember for later
         this.viewer = viewer
 
-        viewer.viewed().subscribe {
-            //  mark this item seen. We do that in a background thread
-            doInBackground { seenService.markAsSeen(feedItem.id) }
+        launchWhenCreated {
+            viewer.viewed().collect {
+                doInBackground { seenService.markAsSeen(feedItem.id) }
+            }
         }
 
         registerTapListener(viewer)
@@ -872,11 +872,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         state = state.copy(mediaControlsContainer = mediaControlsContainer)
 
-        // add the controls as child of the controls-container.
-        viewer.controllerView()
-                .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                .doOnNext { view -> logger.debug { "Adding view $view to placeholder" } }
-                .subscribe { mediaControlsContainer.addView(it) }
+        launchUntilViewDestroy {
+            viewer.controllerViews().collect { view ->
+                logger.debug { "Adding view $view to placeholder" }
+                mediaControlsContainer.addView(view)
+            }
+        }
 
         // show sfw/nsfw as a little flag, if the user is admin
         if (settings.showContentTypeFlag) {

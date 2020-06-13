@@ -3,6 +3,9 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.base.onAttachedScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import rx.subscriptions.CompositeSubscription
 
 /**
@@ -27,10 +30,16 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
 
         // forward double clicks
         child.tapListener = ForwardingTapListener()
-        subscription.add(child.viewed().subscribe { this.onMediaShown() })
 
-        // forward controller view
-        subscription.add(child.controllerView().subscribe { this.publishControllerView(it) })
+        onAttachedScope {
+            launch {
+                child.viewed().collect { onMediaShown() }
+            }
+
+            launch {
+                child.controllerViews().collect { view -> publishControllerView(view) }
+            }
+        }
     }
 
     /**

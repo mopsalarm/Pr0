@@ -15,13 +15,13 @@ import androidx.core.view.isVisible
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.views.AspectImageView
 import com.pr0gramm.app.ui.views.InjectorViewMixin
@@ -29,10 +29,13 @@ import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.withContext
 import rx.Observable
-import rx.functions.Action1
-import rx.subjects.BehaviorSubject
-import rx.subjects.ReplaySubject
 
 /**
  */
@@ -45,9 +48,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         Logger("MediaView")
     }
 
-    private val previewTarget = PreviewTarget(logger, this)
-    private val onViewListener = BehaviorSubject.create<Void>()
-    private val controllerView = ReplaySubject.create<View>()
+    private val mutableWasViewed = MutableStateFlow(false)
+    private val controllerViews = Channel<View>(Channel.UNLIMITED)
     private val gestureDetector: GestureDetector
 
     private var mediaShown: Boolean = false
@@ -110,15 +112,15 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
 
         if (hasPreviewView() && config.previewInfo?.fullThumbUri != null) {
-            addOnAttachListener {
-                // test if we need to request the thumby preview.
+            onAttachedScope {
                 if (hasPreviewView()) {
+                    ignoreAllExceptions {
+                        val bitmap = withContext(Dispatchers.IO) {
+                            picasso.load(config.previewInfo.fullThumbUri).noPlaceholder().get()
+                        }
 
-                    logger.debug { "Requesting full preview image at (${config.previewInfo.fullThumbUri})." }
-                    RxPicasso.load(picasso, picasso.load(config.previewInfo.fullThumbUri).noPlaceholder())
-                            .onErrorResumeEmpty()
-                            .compose(RxLifecycleAndroid.bindView(this))
-                            .subscribe(previewTarget)
+                        updatePreviewImage(bitmap)
+                    }
                 }
             }
         }
@@ -130,8 +132,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     /**
      * An observable that produces a value on the main thread if the video was seen.
      */
-    fun viewed(): Observable<Void> {
-        return onViewListener
+    fun viewed(): Flow<Boolean> {
+        return mutableWasViewed
     }
 
     @SuppressLint("SetTextI18n")
@@ -173,13 +175,13 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         info.fancy?.valueOrNull?.let { preview ->
             logger.debug { "Using provided fancy preview image." }
             val drawable = BitmapDrawable(resources, preview)
-            setPreviewDrawable(drawable)
+            updatePreviewImage(drawable)
             return
         }
 
         info.preview?.let { preview ->
             logger.debug { "Using provided preview image." }
-            setPreviewDrawable(preview)
+            updatePreviewImage(preview)
         }
 
         launchWhenCreated(ignoreErrors = true) {
@@ -190,7 +192,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                 }
             }
 
-            previewTarget.call(fancyPreview)
+            updatePreviewImage(fancyPreview)
         }
     }
 
@@ -327,11 +329,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         removePreviewImage()
         mediaShown = true
 
-        if (isPlaying && onViewListener != null) {
-            if (!onViewListener.hasCompleted()) {
-                onViewListener.onNext(null)
-                onViewListener.onCompleted()
-            }
+        if (isPlaying) {
+            mutableWasViewed.value = true
         }
     }
 
@@ -353,8 +352,15 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
     }
 
-    fun setPreviewDrawable(previewDrawable: Drawable) {
-        this.previewView?.setImageDrawable(previewDrawable)
+    private fun updatePreviewImage(bitmap: Bitmap) {
+        if (previewView != null) {
+            val nextImage = BitmapDrawable(resources, bitmap)
+            updatePreviewImage(nextImage)
+        }
+    }
+
+    private fun updatePreviewImage(drawable: Drawable) {
+        this.previewView?.setImageDrawable(drawable)
     }
 
     protected fun hasAudio(): Boolean {
@@ -362,33 +368,17 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     }
 
     protected fun publishControllerView(view: View) {
-        controllerView.onNext(view)
+        controllerViews.offer(view)
     }
 
-    fun controllerView(): Observable<View> {
-        return controllerView
+    fun controllerViews(): Flow<View> {
+        return controllerViews.receiveAsFlow()
     }
 
     interface TapListener {
         fun onSingleTap(event: MotionEvent): Boolean
 
         fun onDoubleTap(event: MotionEvent): Boolean
-    }
-
-    private class PreviewTarget(private val logger: Logger, mediaView: MediaView) : Action1<Bitmap> {
-        private val mediaView by weakref(mediaView)
-        private val watch = Stopwatch()
-
-        override fun call(bitmap: Bitmap) {
-            logger.debug { "Got a preview image after $watch" }
-
-            this.mediaView?.let { mediaView ->
-                if (mediaView.previewView != null) {
-                    val nextImage = BitmapDrawable(mediaView.resources, bitmap)
-                    mediaView.setPreviewDrawable(nextImage)
-                }
-            }
-        }
     }
 
     data class Config(val activity: Activity, val mediaUri: MediaUri,

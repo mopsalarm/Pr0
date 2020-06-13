@@ -9,10 +9,6 @@ import kotlinx.coroutines.flow.channelFlow
 import rx.Observable
 
 
-fun <T> liveDataOf(value: T): LiveData<T> {
-    return MutableLiveData(value)
-}
-
 fun <T> MutableLiveData<T>.readOnly(): LiveData<T> {
     return this
 }

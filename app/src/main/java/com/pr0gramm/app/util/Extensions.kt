@@ -443,13 +443,13 @@ inline fun catchAll(block: () -> Unit) {
     }
 }
 
-inline fun ignoreAllExceptions(block: () -> Unit) {
+inline fun Any.ignoreAllExceptions(block: () -> Unit) {
     try {
         block()
     } catch (err: Throwable) {
-        // i don't care.
+        // i don't care on production - but give me some nice logging on test :)
         debugOnly {
-            Logger("IgnoreAllExceptions").warn(err) { "Ignoring error" }
+            Logger(javaClass.simpleName).warn(err) { "Ignoring error" }
         }
     }
 }
