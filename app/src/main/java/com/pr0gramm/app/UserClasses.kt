@@ -4,27 +4,31 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.config.ConfigService
-import rx.Observable
-import rx.subjects.PublishSubject
+import com.pr0gramm.app.util.doInBackground
+import kotlinx.coroutines.flow.*
 import java.util.*
 
-class UserClassesService(configObservable: Observable<Config>) {
+class UserClassesService(configObservable: Flow<Config>) {
     data class UserClass(val name: String, val symbol: String, @get:ColorInt val color: Int)
 
     private var userClasses: List<UserClass> = listOf()
 
-    val changes: PublishSubject<Unit> = PublishSubject.create()
+    private val mutableChanges = MutableStateFlow(0)
+
+    val onChange: Flow<Unit> = mutableChanges.map { Unit }
 
     init {
-        configObservable
-                .map { config -> config.userClasses.map { parseClass(it) } }
-                .distinctUntilChanged()
-                .subscribe {
-                    userClasses = it
+        doInBackground {
+            configObservable
+                    .map { config -> config.userClasses.map { parseClass(it) } }
+                    .distinctUntilChanged()
+                    .collect {
+                        userClasses = it
 
-                    // publish changes
-                    changes.onNext(Unit)
-                }
+                        // publish changes
+                        mutableChanges.value++
+                    }
+        }
     }
 
     private fun parseClass(inputValue: Config.UserClass): UserClass {

@@ -17,7 +17,7 @@ import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat
-import rx.Observable
+import kotlinx.coroutines.flow.emptyFlow
 
 
 /**
@@ -26,7 +26,7 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
         AppCompatTextView(context, attrs, defStyleAttr) {
 
     private val userClassesService: UserClassesService = if (isInEditMode) {
-        UserClassesService(Observable.empty())
+        UserClassesService(emptyFlow())
     } else {
         context.injector.instance()
     }

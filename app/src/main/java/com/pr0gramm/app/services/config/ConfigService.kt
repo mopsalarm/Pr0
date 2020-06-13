@@ -13,8 +13,8 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.squareup.moshi.JsonDataException
-import rx.Observable
-import rx.subjects.BehaviorSubject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 /**
@@ -29,7 +29,7 @@ class ConfigService(context: Application,
     @Volatile
     private var configState: Config = Config()
 
-    private val configSubject = BehaviorSubject.create<Config>(configState).toSerialized()
+    private val configSubject = MutableStateFlow(configState)
 
     // We are using a device hash so we can return the same config if
     // the devices asks multiple times. We do this so that we can always derive the same
@@ -91,17 +91,13 @@ class ConfigService(context: Application,
 
     private fun publishState() {
         logger.debug { "Publishing change in config state" }
-        try {
-            configSubject.onNext(config())
-        } catch (err: Throwable) {
-            logger.warn("Could not publish the current state Oo", err)
-        }
+        configSubject.value = config()
     }
 
     /**
      * Observes the config. The config changes are not observed on any particual thread.
      */
-    fun observeConfig(): Observable<Config> {
+    fun observeConfig(): Flow<Config> {
         return configSubject
     }
 

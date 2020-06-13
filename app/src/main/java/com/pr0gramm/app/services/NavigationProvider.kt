@@ -17,18 +17,18 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.RxPicasso
-import com.pr0gramm.app.util.asObservable
-import com.pr0gramm.app.util.observeOnMainThread
+import com.pr0gramm.app.util.asFlow
 import com.squareup.picasso.Picasso
-import rx.Observable
-import rx.Observable.combineLatest
-import rx.subjects.BehaviorSubject
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 /**
  */
+@OptIn(ExperimentalTime::class)
 class NavigationProvider(
         private val context: Activity,
         private val userService: UserService,
@@ -60,7 +60,8 @@ class NavigationProvider(
     private val iconLogin by drawable(R.drawable.ic_action_login)
     private val iconLogout by drawable(R.drawable.ic_action_logout)
 
-    private val triggerNavigationUpdate = BehaviorSubject.create<Unit>(Unit)
+    // set value to true to trigger a refresh of the flow once.
+    private val refreshAfterNavItemWasDeletedStateFlow = MutableStateFlow(false)
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
         return lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -68,11 +69,11 @@ class NavigationProvider(
         }
     }
 
-    fun navigationItems(currentSelection: Observable<FeedFilter?>): Observable<List<NavigationItem>> {
-        val loginStates = userService.loginStates
+    fun navigationItems(currentSelection: Flow<FeedFilter?>): Flow<List<NavigationItem>> {
+        val loginStates = userService.loginStates.asFlow()
 
-        val items = loginStates.switchMap { loginState ->
-            val rawSources = listOf<Observable<List<NavigationItem>>>(
+        val items = loginStates.flatMapLatest { loginState ->
+            val rawSources = listOf(
                     remoteConfigItems(loginState, upper = true),
 
                     currentSelection.map { selection ->
@@ -82,41 +83,29 @@ class NavigationProvider(
                     remoteConfigItems(loginState, upper = false),
 
                     inboxService.unreadMessagesCount()
-                            .asObservable()
                             .map { listOf(inboxNavigationItem(it)) },
 
-                    Observable.just(listOf(uploadNavigationItem)),
+                    flowOf(listOf(uploadNavigationItem)),
 
-                    combineLatest(bookmarkService.observe(), currentSelection) { bookmarks, selection ->
+                    bookmarkService.observe().combine(currentSelection) { bookmarks, selection ->
                         bookmarksToNavItem(selection, bookmarks)
                     },
 
-                    Observable.just(footerItems(loginState)))
+                    flowOf(footerItems(loginState)))
 
-            val sources = rawSources.map { navigationItemSource ->
-                navigationItemSource
-                        .startWith(emptyList<NavigationItem>())
-                        .retryWhen { errorStream ->
-                            errorStream
-                                    .doOnNext { errValue -> logger.warn("Could not get category sub-items: ", errValue) }
-                                    .delay(5, TimeUnit.SECONDS)
-                        }
-            }
-
-            // observe and merge the menu items from different sources
-            fun merge(args: Array<Any>): List<NavigationItem> {
-                val result = mutableListOf<NavigationItem>()
-                args.filterIsInstance<List<Any?>>().forEach { items ->
-                    items.filterIsInstanceTo(result)
+            val sources = rawSources.map { source ->
+                source.onStart { emit(listOf()) }.retryWhen { err, _ ->
+                    logger.warn("Could not get category sub-items, retrying soon: ", err)
+                    delay(5.seconds)
+                    true
                 }
-
-                return result
             }
 
-            combineLatest(sources, ::merge)
+            // flatten generated lists into one list.
+            combine(sources) { values -> values.flatMap { it } }
         }
 
-        return triggerNavigationUpdate.switchMap { items }.distinctUntilChanged()
+        return refreshAfterNavItemWasDeletedStateFlow.flatMapLatest { items }.distinctUntilChanged()
     }
 
     private fun footerItems(loginState: LoginState): List<NavigationItem> {
@@ -247,7 +236,7 @@ class NavigationProvider(
                     layout = R.layout.left_drawer_nav_item_hint,
                     customAction = {
                         singleShotService.markAsDoneOnce(actionKey)
-                        triggerNavigationUpdate.onNext(Unit)
+                        refreshAfterNavItemWasDeletedStateFlow.value = true
                     })
 
             items.add(0, hint)
@@ -317,11 +306,12 @@ class NavigationProvider(
         return context.getString(id)
     }
 
-    private fun remoteConfigItems(loginState: LoginState, upper: Boolean): Observable<List<NavigationItem>> {
+    private fun remoteConfigItems(loginState: LoginState, upper: Boolean): Flow<List<NavigationItem>> {
         return configService.observeConfig()
                 .map { config -> config.specialMenuItems }
                 .distinctUntilChanged()
-                .switchMap { item -> resolveRemoteConfigItems(loginState, upper, item) }
+                .flatMapLatest { item -> resolveRemoteConfigItems(loginState, upper, item) }
+
     }
 
     /**
@@ -330,33 +320,22 @@ class NavigationProvider(
      */
     private fun resolveRemoteConfigItems(
             loginState: LoginState, upper: Boolean,
-            items: List<Config.MenuItem>): Observable<List<NavigationItem>> {
+            items: List<Config.MenuItem>): Flow<List<NavigationItem>> {
 
-        return Observable.from(items)
-                .concatMapEager<NavigationItem> { item ->
-                    if (item.requireLogin && !loginState.authorized || item.lower != !upper) {
-                        return@concatMapEager Observable.empty()
-                    }
+        val images = flow {
+            val itemsToLoad = items.filterNot { item ->
+                item.requireLogin && !loginState.authorized || item.lower != !upper
+            }
 
-                    loadMenuItem(item)
-                }
-                .toList()
-    }
+            val navItems = withContext(Dispatchers.IO) {
+                itemsToLoad.map { item ->
+                    logger.debug { "Loading item $item" }
 
-    private fun loadMenuItem(item: Config.MenuItem): Observable<NavigationItem> {
-        logger.debug { "Loading item $item" }
-
-        return Observable.just(item)
-
-                // Picasso load call need to be on the main thread.
-                .observeOnMainThread()
-
-                .flatMap {
-                    RxPicasso.load(picasso, picasso.load(Uri.parse(item.icon))
+                    val bitmap = picasso.load(Uri.parse(item.icon))
                             .noPlaceholder()
-                            .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight))
-                }
-                .map { bitmap ->
+                            .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight)
+                            .get()
+
                     logger.info { "Loaded image for $item" }
                     val icon = BitmapDrawable(context.resources, bitmap)
                     val uri = Uri.parse(item.link)
@@ -364,13 +343,14 @@ class NavigationProvider(
                     val layout = if (item.noHighlight) R.layout.left_drawer_nav_item else R.layout.left_drawer_nav_item_special
                     NavigationItem(ActionType.URI, item.name, icon, uri = uri, layout = layout)
                 }
-                .retryWhen { err ->
-                    err.doOnNext { logger.warn(it) { "could not load item" } }.zipWith(Observable.range(1, 3)) { _, i -> i }.flatMap { idx ->
-                        logger.debug { "Delay retry by $idx second(s) because of $err" }
-                        Observable.timer(idx.toLong(), TimeUnit.SECONDS)
-                    }
-                }
-                .ignoreError()
+            }
+
+            emit(navItems)
+        }
+
+        return images.retry(retries = 3).catch { err ->
+            logger.warn(err) { "Could not load item after 3 retries." }
+        }
     }
 
     class NavigationItem(val action: ActionType,

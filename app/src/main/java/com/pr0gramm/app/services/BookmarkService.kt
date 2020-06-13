@@ -12,26 +12,30 @@ import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.orm.migrate
+import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
-import rx.Observable
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import rx.schedulers.Schedulers
-import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 
 /**
  */
+@OptIn(ExperimentalTime::class)
 class BookmarkService(
         private val preferences: SharedPreferences,
         private val userService: UserService,
         private val bookmarkSyncService: BookmarkSyncService) {
 
     private val logger = Logger("BookmarkService")
-    private val bookmarks = BehaviorSubject.create<List<Bookmark>>(listOf())
+    private val bookmarks = MutableStateFlow<List<Bookmark>>(listOf())
 
     private val updateQueue = Channel<suspend () -> Unit>(Channel.UNLIMITED)
 
@@ -39,11 +43,13 @@ class BookmarkService(
         // restore previous json
         restoreFromSerialized(preferences.getStringOrNull("Bookmarks.json") ?: "[]")
 
-        // serialize updates back to the preferences
-        bookmarks.skip(1)
-                .distinctUntilChanged()
-                .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .subscribe { persist(it) }
+        AsyncScope.launch {
+            // serialize updates back to the preferences
+            bookmarks.drop(1)
+                    .distinctUntilChanged()
+                    .debounce(100.milliseconds)
+                    .collect { persist(it) }
+        }
 
         userService.loginStates
                 .debounce(100, TimeUnit.MILLISECONDS, Schedulers.computation())
@@ -69,7 +75,7 @@ class BookmarkService(
         val bookmarks = MoshiInstance.adapter<List<Bookmark>>().fromJson(json) ?: listOf()
 
         logger.debug { "Restored ${bookmarks.size} bookmarks" }
-        this.bookmarks.onNext(bookmarks.filter { it.title.length <= 255 })
+        this.bookmarks.value = bookmarks.filter { it.title.length <= 255 }
     }
 
     private fun persist(bookmarks: List<Bookmark>) {
@@ -92,7 +98,7 @@ class BookmarkService(
     /**
      * Observes change to the bookmarks
      */
-    fun observe(): Observable<List<Bookmark>> {
+    fun observe(): Flow<List<Bookmark>> {
         val comparator = compareBy<Bookmark> { !it.trending }.thenBy { it.title.toLowerCase() }
         return bookmarks.map { it.sortedWith(comparator) }.distinctUntilChanged()
     }
@@ -104,7 +110,7 @@ class BookmarkService(
         synchronized(bookmarks) {
             // remove all matching bookmarks
             val newValues = bookmarks.value.filterNot { it.hasTitle(bookmark.title) }
-            bookmarks.onNext(newValues)
+            bookmarks.value = newValues
         }
 
         if (bookmarkSyncService.isAuthorized && bookmark.syncable) {
@@ -139,7 +145,7 @@ class BookmarkService(
             // and merge them together, with the local ones winning.
             val merged = (local + update).distinctBy { it.title.toLowerCase() }
 
-            bookmarks.onNext(merged)
+            bookmarks.value = merged
         }
     }
 
@@ -180,7 +186,7 @@ class BookmarkService(
             }
 
             // dispatch changes
-            bookmarks.onNext(values)
+            bookmarks.value = values
         }
 
         if (bookmarkSyncService.isAuthorized) {

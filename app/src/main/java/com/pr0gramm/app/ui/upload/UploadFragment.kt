@@ -29,10 +29,7 @@ import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagSuggestionService
-import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.ui.base.launchWhenStarted
-import com.pr0gramm.app.ui.base.launchWhenViewCreated
+import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.showDialog
@@ -100,8 +97,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
         tagSuggestions.setupView(tags)
 
         // add the small print to the view
-        val smallPrintView = view.find<TextView>(R.id.small_print)
-        rulesService.displayInto(smallPrintView)
+        launchUntilViewDestroy {
+            rulesService.displayInto(view.find(R.id.small_print))
+        }
+
         upload.setOnClickListener { onUploadClicked() }
 
         // react on change in the tag input window

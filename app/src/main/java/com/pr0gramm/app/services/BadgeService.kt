@@ -14,6 +14,7 @@ class BadgeService {
 
     fun update(context: Context, badgeCount: Int) {
         val appContext = context.applicationContext
+
         executor.execute {
             updateInternal(appContext, badgeCount)
         }

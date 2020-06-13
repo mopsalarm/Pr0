@@ -35,6 +35,7 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.EditBookmarkDialog
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
@@ -45,18 +46,21 @@ import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
-import rx.schedulers.Schedulers
-import rx.subjects.BehaviorSubject
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 
 /**
+ *
  */
+@OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
 class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val userClassesService: UserClassesService by instance()
 
-    private val currentSelection = BehaviorSubject.create(null as FeedFilter?)
+    private val currentSelection = MutableStateFlow(null as FeedFilter?)
 
     private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
 
@@ -77,16 +81,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         navItemsRecyclerView.adapter = navigationAdapter
         navItemsRecyclerView.itemAnimator = null
         navItemsRecyclerView.layoutManager = LinearLayoutManager(activity)
+
+        observeNavigationItems()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
+    private fun observeNavigationItems() {
         val provider = with(requireContext().injector) {
             val picasso = instance<Picasso>()
             val inboxService = instance<InboxService>()
@@ -100,38 +99,39 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         val rxNavItems = provider.navigationItems(currentSelection)
-                .subscribeOn(Schedulers.computation())
-                .startWith(listOf<NavigationItem>())
+                .flowOn(Dispatchers.Default)
+                .onStart { emit(listOf()) }
 
-        rx.Observable
-                .combineLatest(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.changes.startWith(Unit)) { state, navItems, _ ->
-                    mutableListOf<Any>().also { items ->
-                        val userClass = userClassesService.get(state.loginState.mark)
-                        items += TitleInfo(state.loginState.name, userClass)
+        val elements = combine(userService.loginStateWithBenisGraph.asFlow(), rxNavItems, userClassesService.onChange) { state, navItems, _ ->
+            buildList {
+                val userClass = userClassesService.get(state.loginState.mark)
+                add(TitleInfo(state.loginState.name, userClass))
 
-                        if (state.loginState.authorized) {
-                            items += BenisInfo(state.loginState.score, state.benisGraph)
-                        }
-
-                        items += Spacer
-                        items.addAll(navItems)
-                        items += Spacer
-                    }
+                if (state.loginState.authorized) {
+                    add(BenisInfo(state.loginState.score, state.benisGraph))
                 }
 
-                .distinctUntilChanged()
+                add(Spacer)
+                addAll(navItems)
+                add(Spacer)
+            }
+        }
 
-                // the first should come directly and can be applied here in "resume"
-                .debounce(100, TimeUnit.MILLISECONDS, MainThreadScheduler)
-                .bindToLifecycle()
-                .subscribe { items ->
-                    logger.debug { "Submitting ${items.size} navigation items" }
-                    navigationAdapter.submitList(items)
-                }
+        launchWhenStarted {
+            elements.distinctUntilChanged().debounce(100.milliseconds).collect { items ->
+                logger.debug { "Submitting ${items.size} navigation items" }
+                navigationAdapter.submitList(items)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode)
     }
 
     fun updateCurrentFilters(current: FeedFilter?) {
-        currentSelection.onNext(current)
+        currentSelection.value = current
     }
 
     interface Callbacks {
