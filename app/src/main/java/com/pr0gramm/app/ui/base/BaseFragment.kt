@@ -4,14 +4,10 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
-import com.pr0gramm.app.ui.dialogs.OnComplete
-import com.pr0gramm.app.ui.dialogs.OnNext
-import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Observable
-import rx.Subscription
 
 /**
  * A fragment that provides lifecycle events as an observable.
@@ -37,12 +33,6 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
     override fun onDestroyView() {
         super.onDestroyView()
         this.viewCache.reset()
-    }
-
-    fun <T> Observable<T>.subscribeWithErrorHandling(
-            onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
-
-        return subscribeWithErrorHandling(childFragmentManager, onComplete, onNext)
     }
 
     fun setTitle(title: String) {

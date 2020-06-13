@@ -14,22 +14,23 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.update.UpdateModel
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.launchUntilDestroy
+import com.pr0gramm.app.ui.fragments.ProgressDialogController
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.MainThreadScheduler
+import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.async
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
-import rx.Observable
-import rx.functions.Action1
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -113,65 +114,77 @@ class UpdateChecker {
             val downloadService = activity.injector.instance<DownloadService>()
             val notificationService = activity.injector.instance<NotificationService>()
 
-            val progress = downloadService
-                    .downloadUpdateFile(Uri.parse(update.apk))
-                    .subscribeOn(BackgroundScheduler)
-                    .unsubscribeOn(BackgroundScheduler)
-                    .observeOn(MainThreadScheduler)
-                    .share()
+            activity as BaseAppCompatActivity
 
-            // install on finish
-            val appContext = activity.applicationContext
-            progress.filter { it.file != null }
-                    .flatMap<Any> {
-                        try {
-                            install(appContext, it.file!!.toFile())
-                            Observable.empty()
+            activity.launchUntilDestroy {
+                val progress = downloadService
+                        .downloadUpdateFile(Uri.parse(update.apk))
+                        .subscribeOn(BackgroundScheduler)
+                        .unsubscribeOn(BackgroundScheduler)
+                        .observeOn(MainThreadScheduler)
+                        .asFlow()
 
-                        } catch (error: IOException) {
-                            Observable.error(error)
-                        }
-                    }
-                    .subscribe(Action1 {}, defaultOnError())
+                // show the progress dialog.
+                val dialog = ProgressDialogController(activity)
 
-            // show a progress dialog
-            val dialog = DownloadUpdateDialog(progress)
-            dialog.show(activity.supportFragmentManager, null)
+                dialog.show()
+
+                val fileUri = try {
+                    // download the file and show progress as long as the dialog is open
+                    progress.onEach { status -> dialog.updateStatus(status) }
+                            .firstOrNull { state -> state.file != null }
+                            ?.file
+
+                } finally {
+                    // remove dialog again
+                    dialog.dismiss()
+                }
+
+                if (fileUri != null) {
+                    install(activity, fileUri.toFile())
+                }
+            }
 
             // remove pending upload notification
             notificationService.cancelForUpdate()
         }
 
         @SuppressLint("SdCardPath")
-        private fun install(context: Context, apk: File) {
-            val uri: Uri
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
-                uri = FileProvider.getUriForFile(context, provider, apk)
+        private suspend fun install(context: Context, apk: File) {
+            val uri = withContext(Dispatchers.IO + NonCancellable) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                    val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
+                    FileProvider.getUriForFile(context, provider, apk)
 
-            } else {
-                val candidates = listOf<File?>(context.externalCacheDir,
-                        Environment.getExternalStorageDirectory(),
-                        File("/sdcard"))
+                } else {
+                    val candidates = listOf(
+                            { context.externalCacheDir },
+                            { Environment.getExternalStorageDirectory() },
+                            { File("/sdcard") }
+                    )
 
-                val directory = candidates.firstOrNull { it != null && it.canWrite() }
-                        ?: throw IOException("Could not find a public place to write the update to")
 
-                val file = File(directory, "update.apk")
+                    val directory = candidates
+                            .mapNotNull { runCatching(it).getOrNull() }
+                            .firstOrNull { dir -> dir.canWrite() }
+                            ?: throw IOException("Could not find a public place to write the update to")
 
-                logger.info { "Copy apk to public space." }
-                FileInputStream(apk).use { input ->
-                    FileOutputStream(file).use { output ->
-                        input.copyTo(output)
+                    val file = File(directory, "update.apk")
+
+                    logger.info { "Copy apk to public space." }
+                    FileInputStream(apk).use { input ->
+                        FileOutputStream(file).use { output ->
+                            input.copyTo(output)
+                        }
                     }
-                }
 
-                // make file readable
-                if (!file.setReadable(true)) {
-                    logger.info { "Could not make file readable" }
-                }
+                    // make file readable
+                    if (!file.setReadable(true)) {
+                        logger.info { "Could not make file readable" }
+                    }
 
-                uri = Uri.fromFile(file)
+                    Uri.fromFile(file)
+                }
             }
 
             val intent = Intent(Intent.ACTION_VIEW)

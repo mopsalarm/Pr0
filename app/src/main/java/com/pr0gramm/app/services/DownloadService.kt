@@ -9,10 +9,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.CountingInputStream
-import com.pr0gramm.app.util.closeQuietly
-import com.pr0gramm.app.util.createObservable
-import com.pr0gramm.app.util.readStream
+import com.pr0gramm.app.util.*
 import rx.Emitter
 import rx.Observable
 import java.io.File
@@ -109,10 +106,19 @@ class DownloadService(
                                 readStream(input) { buffer, count ->
                                     output.write(buffer, 0, count)
 
+                                    debugOnly {
+                                        if (Math.random() < 0.1) {
+                                            Thread.sleep(100)
+                                        }
+                                    }
+
                                     // only give status if we know the size of the file
                                     if (totalSize > 0L) {
                                         interval.doIfTime {
                                             val progress = input.count / totalSize.toFloat()
+
+                                            logger.debug { "Informing about progress: $progress" }
+
                                             emitter.onNext(Status(progress, null))
                                         }
                                     }
