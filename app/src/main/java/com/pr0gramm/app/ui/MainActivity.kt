@@ -44,9 +44,7 @@ import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
-import com.trello.rxlifecycle.android.ActivityEvent
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.*
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.subjects.BehaviorSubject
@@ -89,9 +87,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override var scrollHideToolbarListener: ScrollHideToolbarListener by Delegates.notNull()
 
-    // how the app was started as seen by onCreate
-    private var coldStart: Boolean = false
-
     val adViewAdapter = AdViewAdapter()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,8 +122,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             val intent: Intent? = intent
             val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
 
-            coldStart = true
-
             // reset to sfw only.
             if (settings.feedStartAtSfw && startedFromLauncher) {
                 logger.info { "Force-switch to sfw only." }
@@ -145,14 +138,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true)
 
-                lifecycle()
-                        .takeFirst { it == ActivityEvent.RESUME }
-                        .subscribe { checkForInfoMessage() }
+                launchWhenResumed {
+                    checkForInfoMessage()
+                }
 
             } else {
                 startedWithIntent = true
                 onNewIntent(intent)
             }
+
+            launchWhenStarted { onColdStart() }
         }
 
         // show the intro activity if this is the first time the app started.
@@ -188,31 +183,33 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {
-        return singleShotService.firstTimeToday("hint_ads_pr0mium:2") && !userService.userIsPremium
+        return !userService.userIsPremium && singleShotService.firstTimeToday("hint_ads_pr0mium:5")
     }
 
     private fun showBuyPremiumHint() {
-        val showAnyAds = adService.enabledForType(Config.AdType.FEED).take(1)
+        launchWhenStarted {
+            val adsEnabledFlow = merge(
+                    adService.enabledForType(Config.AdType.FEED).take(1).asFlow(),
+                    adService.enabledForType(Config.AdType.FEED_TO_POST_INTERSTITIAL).take(1).asFlow())
 
-        showAnyAds.takeFirst { v -> v }
-                .observeOnMainThread()
-                .bindToLifecycle()
-                .onErrorResumeEmpty()
-                .filter { !userService.userIsPremium }
-                .subscribe {
-                    Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
-                        configureNewStyle()
+            val showAnyAds = adsEnabledFlow
+                    .onEach { logger.info { "should show ads: $it" } }
+                    .firstOrNull { it } ?: false
 
-                        setAction("pr0mium") {
-                            Track.registerLinkClicked()
-                            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
-                            BrowserHelper.openCustomTab(this@MainActivity, uri)
-                        }
+            if (!userService.userIsPremium && showAnyAds) {
+                Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
+                    configureNewStyle()
 
-                        show()
+                    setAction("pr0mium") {
+                        Track.registerLinkClicked()
+                        val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
+                        BrowserHelper.openCustomTab(this@MainActivity, uri)
                     }
-                }
 
+                    show()
+                }
+            }
+        }
     }
 
     override fun hintBookmarksEditableWithPremium() {
@@ -442,13 +439,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 SyncWorker.syncNow(this@MainActivity)
             }
         }
-
-        if (coldStart) {
-            onColdStart()
-        }
     }
 
-    private fun onColdStart() {
+    private suspend fun onColdStart() {
         var updateCheck = true
         var updateCheckDelay = false
 

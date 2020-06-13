@@ -6,7 +6,6 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
-import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Observable
 
 /**
@@ -18,10 +17,6 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, LazyInje
     override val injector: PropertyInjector = PropertyInjector()
 
     override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
-
-    fun <T> bindUntilEventAsync(event: FragmentEvent): Observable.Transformer<T, T> {
-        return AsyncLifecycleTransformer(bindUntilEvent(event))
-    }
 
     fun <T> Observable<T>.bindToLifecycle(): Observable<T> = compose(this@BaseFragment.bindToLifecycle())
 

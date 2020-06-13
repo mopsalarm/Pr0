@@ -8,6 +8,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,12 +35,12 @@ import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
-import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
@@ -133,8 +134,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         setHasOptionsMenu(true)
 
         debugOnly {
-            lifecycle().subscribe { event ->
-                this@FeedFragment.trace { "$event" }
+            MainScope.launch {
+                lifecycle.asEventFlow().collect { event ->
+                    this@FeedFragment.trace { "$event" }
+                }
             }
         }
     }
@@ -697,7 +700,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
 
         // dismiss once the fragment stops.
-        lifecycle().filter { it == FragmentEvent.STOP }.subscribe { snackbar.dismiss() }
+        launchUntilViewDestroy {
+            // wait for the stop event
+            lifecycle.asEventFlow().firstOrNull { it == Lifecycle.Event.ON_STOP }
+            snackbar.dismiss()
+        }
     }
 
     private fun recheckContentTypes() {

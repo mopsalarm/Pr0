@@ -15,6 +15,7 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
@@ -80,8 +81,10 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        benisGraphTimeSelector.selectedTimeRange.bindToLifecycle().subscribe { millis ->
-            benisTimeRangeStart = System.currentTimeMillis() - millis
+        launchWhenStarted {
+            benisGraphTimeSelector.selectedTimeRange.collect { millis ->
+                benisTimeRangeStart = System.currentTimeMillis() - millis
+            }
         }
 
         launchWhenCreated(ignoreErrors = true) {

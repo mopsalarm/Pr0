@@ -6,25 +6,25 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.ofType
+import com.pr0gramm.app.util.ignoreAllExceptions
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.toInt
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okio.BufferedSink
 import retrofit2.HttpException
-import rx.Observable
-import rx.subjects.BehaviorSubject
 import java.io.*
-import java.util.concurrent.TimeUnit
+import java.util.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 
 /**
@@ -35,6 +35,8 @@ class UploadService(private val api: Api,
                     private val configService: ConfigService,
                     private val voteService: VoteService,
                     private val cacheService: InMemoryCacheService) {
+
+    private val logger = Logger("UploadService")
 
     /**
      * Maximum upload size for the currently signed in user.
@@ -110,75 +112,36 @@ class UploadService(private val api: Api,
         }
     }
 
-    private fun upload(file: File): Observable<State> {
-        if (!file.exists() || !file.isFile || !file.canRead())
-            return Observable.error(FileNotFoundException("Can not read file to upload"))
+    private fun upload(file: File): Flow<State> {
+        val states = channelFlow {
+            if (!file.exists() || !file.isFile || !file.canRead())
+                throw FileNotFoundException("Can not read file to upload")
 
-        val result = BehaviorSubject.create<State>(State.Uploading(progress = 0f)).toSerialized()
+            // prepare the upload
+            offer(State.Uploading(progress = 0f))
 
-        val output = object : RequestBody() {
-            override fun contentType(): MediaType {
-                val fallback = "image/jpeg".toMediaTypeOrNull()!!
-                return try {
-                    MimeTypeHelper.guess(file)?.let { it.toMediaTypeOrNull() } ?: fallback
-                } catch (ignored: IOException) {
-                    fallback
-                }
-            }
+            val image = RequestBodyWithProgress(file) { state -> offer(state) }
 
-            override fun contentLength(): Long {
-                return file.length()
-            }
+            val body = MultipartBody.Builder()
+                    .setType("multipart/form-data".toMediaTypeOrNull()!!)
+                    .addFormDataPart("image", file.name, image)
+                    .build()
 
-            override fun writeTo(sink: BufferedSink) {
-                val length = file.length().toFloat()
+            // upload the actual file
+            val response = api.upload(body)
+            send(State.Uploaded(response.key))
 
-                var lastTime = 0L
-                FileInputStream(file).use { input ->
-                    // send first progress report.
-                    result.onNext(State.Uploading(progress = 0f))
-
-                    var sent = 0
-                    readStream(input) { buffer, len ->
-                        sink.write(buffer, 0, len)
-                        sent += len
-
-                        val now = System.currentTimeMillis()
-                        if (now - lastTime >= 100) {
-                            lastTime = now
-
-                            // send progress now.
-                            val progress = sent / length
-                            result.onNext(State.Uploading(progress = progress))
-                        }
-                    }
-
-                    // tell that the file is sent
-                    result.onNext(State.Uploading(progress = 1f))
-                }
-            }
+            // track the uploaded file
+            Track.upload(size = file.length())
         }
 
-        val body = MultipartBody.Builder()
-                .setType("multipart/form-data".toMediaTypeOrNull()!!)
-                .addFormDataPart("image", file.name, output)
-                .build()
-
-        val size = file.length()
-
-        // perform the upload!
-        toObservable { api.upload(body) }
-                .doOnEach { Track.upload(size) }
-                .map { response -> State.Uploaded(response.key) }
-                .subscribe(result)
-
-        return result.ignoreElements().mergeWith(result)
+        return states.buffer(16).flowOn(Dispatchers.IO)
     }
 
     private fun post(key: String, contentType: ContentType, userTags: Set<String>,
-                     checkSimilar: Boolean): Observable<State> {
+                     checkSimilar: Boolean): Flow<State> {
 
-        val contentTypeTag = contentType.name.toLowerCase()
+        val contentTypeTag = contentType.name.toLowerCase(Locale.ROOT)
         val tags = userTags.map { it.trim() }.filter { isValidTag(it) }
 
         // we can only post 4 extra tags with an upload, so lets add the rest later
@@ -195,35 +158,25 @@ class UploadService(private val api: Api,
             extraTags = tags.drop(4)
         }
 
-        return toObservable { api.post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1) }
-                .map { postedToState(key, it) }
+        val uploadState = flow {
+            val posted = api.post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1)
 
-                .flatMap { state ->
-                    if (state is State.Pending) {
-                        waitOnQueue(state.queue)
-                    } else {
-                        Observable.just(state)
-                    }
+            val state = postedToState(key, posted)
+
+            if (state is State.Pending) {
+                emitAll(waitOnQueue(state.queue))
+            } else {
+                emit(state)
+            }
+        }
+
+        return uploadState.onEach { state ->
+            if (state is State.Success && extraTags.isNotEmpty()) {
+                ignoreAllExceptions {
+                    voteService.tag(state.id, extraTags)
                 }
-
-                .doOnNext { state ->
-                    // cache tags so that they appear immediately
-                    if (state is State.Success) {
-                        cacheService.cacheTags(state.id, tags)
-                    }
-                }
-
-                .flatMap { state ->
-                    if (state is State.Success && extraTags.isNotEmpty()) {
-                        // try to add the extra parameters.
-                        toObservable { voteService.tag(state.id, extraTags) }
-                                .ignoreError().ofType<State>()
-                                .concatWith(Observable.just(state))
-
-                    } else {
-                        Observable.just(state)
-                    }
-                }
+            }
+        }
     }
 
     private fun postedToState(key: String, posted: Api.Posted): State {
@@ -247,32 +200,33 @@ class UploadService(private val api: Api,
         throw IllegalStateException("can not map result to state")
     }
 
-    private fun waitOnQueue(queue: Long): Observable<State> {
-        return toObservable { api.queue(queue) }
-                .map { info ->
-                    val itemId = info.item?.id ?: 0
-                    when {
-                        info.status == "done" && itemId > 0 -> State.Success(itemId)
-                        info.status == "processing" -> State.Processing
-                        else -> State.Pending(queue, info.position)
-                    }
+    @OptIn(ExperimentalTime::class)
+    private fun waitOnQueue(queue: Long): Flow<State> {
+        return flow {
+            while (true) {
+                kotlinx.coroutines.delay(2.seconds)
+
+                // get the current state from the queue - on error just try again.
+                val info = try {
+                    api.queue(queue)
+                } catch (err: Exception) {
+                    logger.warn(err) { "Error polling queue" }
+                    continue
                 }
 
-                .retryWhen { errObservable ->
-                    errObservable
-                            .doOnNext { err -> logger.warn("Error polling queue", err) }
-                            .delay(2, TimeUnit.SECONDS)
-                }
+                val itemId = info.item?.id ?: 0
+                when {
+                    info.status == "done" && itemId > 0 ->
+                        return@flow emit(State.Success(itemId))
 
-                .flatMap { value ->
-                    if (value is State.Success) {
-                        Observable.just(value)
-                    } else {
-                        Observable.just(value).concatWith(waitOnQueue(queue))
-                    }
-                }
+                    info.status == "processing" ->
+                        emit(State.Processing)
 
-                .delaySubscription(2, TimeUnit.SECONDS)
+                    else ->
+                        emit(State.Pending(queue, info.position))
+                }
+            }
+        }
     }
 
     sealed class State {
@@ -285,21 +239,17 @@ class UploadService(private val api: Api,
         class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
     }
 
-    fun upload(file: File, sfw: ContentType, tags: Set<String>): Observable<State> {
-        return upload(file).flatMap { state ->
+    fun upload(file: File, sfw: ContentType, tags: Set<String>): Flow<State> {
+        return upload(file).transform { state ->
+            emit(state)
+
             if (state is State.Uploaded) {
-                Observable
-                        .just<State>(state)
-                        .concatWith(post(state.key, sfw, tags, true))
-            } else {
-                Observable.just(state)
+                emitAll(post(state.key, sfw, tags, true))
             }
         }
     }
 
-    fun post(state: State.Uploaded, contentType: ContentType, tags: Set<String>,
-             checkSimilar: Boolean): Observable<State> {
-
+    fun post(state: State.Uploaded, contentType: ContentType, tags: Set<String>, checkSimilar: Boolean): Flow<State> {
         return post(state.key, contentType, tags, checkSimilar)
     }
 
@@ -325,9 +275,43 @@ class UploadService(private val api: Api,
         val errorCode: String get() = message!!
     }
 
-    companion object {
-        private val logger = Logger("UploadService")
+    private class RequestBodyWithProgress(private val file: File, private val publishState: (State) -> Unit) : RequestBody() {
+        override fun contentType(): MediaType {
+            val guessed = runCatching { MimeTypeHelper.guess(file)?.toMediaTypeOrNull() }
+            return guessed.getOrNull() ?: "image/jpeg".toMediaType()
+        }
 
+        override fun contentLength(): Long {
+            return file.length()
+        }
+
+        override fun writeTo(sink: BufferedSink) {
+            val length = file.length().toFloat()
+
+            var lastTime = 0L
+            FileInputStream(file).use { input ->
+                // send first progress report.
+                publishState(State.Uploading(progress = 0f))
+
+                var sent = 0
+                readStream(input) { buffer, len ->
+                    sink.write(buffer, 0, len)
+                    sent += len
+
+                    val now = System.currentTimeMillis()
+                    if (now - lastTime >= 100) {
+                        lastTime = now
+
+                        // send progress now.
+                        val progress = sent / length
+                        publishState(State.Uploading(progress = progress))
+                    }
+                }
+
+                // tell that the file is sent
+                publishState(State.Uploading(progress = 1f))
+            }
+        }
     }
 }
 

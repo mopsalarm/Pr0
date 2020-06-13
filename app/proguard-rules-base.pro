@@ -61,6 +61,9 @@
 }
 -checkdiscard class kotlinx.coroutines.internal.FastServiceLoader
 
+
+-whyareyoukeeping class kotlin.Metadata
+
 -checkdiscard class kotlin.Metadata
 
 ## Firebase logging

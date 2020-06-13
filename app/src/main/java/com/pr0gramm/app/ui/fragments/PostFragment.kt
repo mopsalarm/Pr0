@@ -126,14 +126,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        // check if we are admin or not
-        userService.loginStates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
-            activity?.invalidateOptionsMenu()
+        launchWhenStarted {
+            userService.loginStates.asFlow().drop(1).collect {
+                activity?.invalidateOptionsMenu()
+            }
         }
 
         debugOnly {
-            lifecycle().subscribe { event ->
-                this@PostFragment.trace { "${feedItem.id}: $event" }
+            MainScope.launch {
+                lifecycle.asEventFlow().collect { event ->
+                    this@PostFragment.trace { "${feedItem.id}: $event" }
+                }
             }
         }
     }
@@ -194,19 +197,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow(smoothScroll = false) }
 
-        userService.loginStates
-                .observeOnMainThread(firstIsSync = true)
-                .bindToLifecycle()
-                .distinctUntilChanged { loginState -> loginState.id }
-                .subscribe { loginState ->
-                    stateTransaction {
-                        if (state.commentsVisible != loginState.authorized) {
-                            state = state.copy(commentsVisible = loginState.authorized)
-                        }
-
-                        commentTreeHelper.userIsAdmin(loginState.admin)
+        launchUntilViewDestroy {
+            userService.loginStates.asFlow().distinctUntilChangedBy { it.id }.collect { loginState ->
+                stateTransaction {
+                    if (state.commentsVisible != loginState.authorized) {
+                        state = state.copy(commentsVisible = loginState.authorized)
                     }
+
+                    commentTreeHelper.userIsAdmin(loginState.admin)
                 }
+            }
+        }
 
         val tags = this.apiTagsCh.value
         val comments = this.apiCommentsCh.value

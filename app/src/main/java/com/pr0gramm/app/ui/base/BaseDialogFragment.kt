@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDialogFragment
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
@@ -12,7 +13,7 @@ import com.pr0gramm.app.util.di.PropertyInjector
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), LazyInjectorAware, HasViewCache {
+abstract class BaseDialogFragment(name: String) : AppCompatDialogFragment(), LazyInjectorAware, HasViewCache {
     protected val logger = Logger(name)
 
     override val injector: PropertyInjector = PropertyInjector()

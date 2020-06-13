@@ -8,11 +8,12 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
+import com.pr0gramm.app.util.LazyStateFlow
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
-import rx.Observable
-import rx.subjects.BehaviorSubject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.concurrent.TimeUnit
 
 class TimeRangeSelectorView @JvmOverloads constructor(
@@ -24,8 +25,8 @@ class TimeRangeSelectorView @JvmOverloads constructor(
     var defaultColor: Int = 0
     var selectedColor: Int = 0
 
-    private val subject: BehaviorSubject<Long> = BehaviorSubject.create()
-    val selectedTimeRange: Observable<Long> = subject.distinctUntilChanged()
+    private val subject = LazyStateFlow<Long>()
+    val selectedTimeRange: Flow<Long> = subject.distinctUntilChanged()
 
     private val steps = listOf(
             Step(R.id.view_all, ALL),
@@ -57,7 +58,7 @@ class TimeRangeSelectorView @JvmOverloads constructor(
                 view.setTextColor(selectedColor)
 
                 // and publish the new value
-                subject.onNext(step.millis)
+                subject.send(step.millis)
             }
 
             // mark the first one

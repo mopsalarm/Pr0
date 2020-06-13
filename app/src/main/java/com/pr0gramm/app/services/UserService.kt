@@ -13,6 +13,7 @@ import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
+import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import rx.Observable
-import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -56,7 +56,6 @@ class UserService(private val api: Api,
     val loginState: LoginState get() = loginStateSubject.value
     val loginStates: Observable<LoginState> = loginStateSubject.distinctUntilChanged()
 
-
     init {
         restoreLatestUserInfo()
 
@@ -65,15 +64,23 @@ class UserService(private val api: Api,
             cookieJar.observeCookie.distinctUntilChanged().collect { onCookieChanged(it) }
         }
 
-        // persist the login state every time it changes.
-        loginStates.observeOn(Schedulers.computation()).subscribe { state -> persistLatestLoginState(state) }
-
-        loginStates.map { Track.AuthState(it.authorized, it.premium) }
-                .distinctUntilChanged().subscribe { state -> Track.updateUserState(state) }
+        AsyncScope.launch {
+            // persist the login state every time it changes.
+            loginStates.asFlow().collect { state -> persistLatestLoginState(state) }
+        }
     }
 
-    private fun updateLoginState(newLoginState: LoginState) {
-        this.loginStateSubject.onNext(newLoginState)
+    private fun updateLoginState(state: LoginState) {
+        if (this.loginStateSubject.value == state) {
+            return
+        }
+
+        logger.debug { "LoginState is now: $state" }
+
+        // update the current 'auth' state for tracking
+        Track.updateUserState(Track.AuthState(state.authorized, state.premium))
+
+        this.loginStateSubject.onNext(state)
     }
 
 

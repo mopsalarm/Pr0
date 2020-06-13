@@ -47,8 +47,7 @@ class BookmarkService(
         }
 
         AsyncScope.launch {
-            userService.loginStates
-                    .asFlow()
+            userService.loginStates.asFlow()
                     .debounce(100.milliseconds)
                     .collect { updateQueue.send { update() } }
         }

@@ -197,8 +197,6 @@ fun AppCompatActivity.launchWhenCreated(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    debugVerifyLifecycle(this, Lifecycle.State.CREATED)
-
     return lifecycleScope.launchWhenCreated(decorate(this, ignoreErrors, busyIndicator, block))
 }
 
@@ -206,8 +204,6 @@ fun AppCompatActivity.launchWhenStarted(
         ignoreErrors: Boolean = false,
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
-
-    debugVerifyLifecycle(this, Lifecycle.State.STARTED)
 
     return lifecycleScope.launchWhenStarted(decorate(this, ignoreErrors, busyIndicator, block))
 }
@@ -217,8 +213,6 @@ fun AppCompatActivity.launchWhenResumed(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    debugVerifyLifecycle(this, Lifecycle.State.RESUMED)
-
     return lifecycleScope.launchWhenResumed(decorate(this, ignoreErrors, busyIndicator, block))
 }
 
@@ -227,8 +221,6 @@ fun Fragment.launchWhenCreated(
         ignoreErrors: Boolean = false,
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
-
-    debugVerifyLifecycle(this, Lifecycle.State.CREATED)
 
     return lifecycleScope.launchWhenCreated {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
@@ -240,8 +232,6 @@ fun Fragment.launchWhenViewCreated(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    debugVerifyLifecycle(viewLifecycleOwner, Lifecycle.State.CREATED)
-
     return viewLifecycleOwner.lifecycleScope.launchWhenCreated {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
     }
@@ -252,8 +242,6 @@ fun Fragment.launchWhenStarted(
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
 
-    debugVerifyLifecycle(this, Lifecycle.State.STARTED)
-
     return lifecycleScope.launchWhenStarted {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
     }
@@ -263,8 +251,6 @@ fun Fragment.launchWhenResumed(
         ignoreErrors: Boolean = false,
         busyIndicator: Boolean = false,
         block: suspend CoroutineScope.() -> Unit): Job {
-
-    debugVerifyLifecycle(this, Lifecycle.State.RESUMED)
 
     return lifecycleScope.launchWhenResumed {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()

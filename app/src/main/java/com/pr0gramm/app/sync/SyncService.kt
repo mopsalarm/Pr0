@@ -6,17 +6,24 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.mapNotNull
 import com.pr0gramm.app.util.unless
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 
 /**
  */
+@OptIn(ExperimentalTime::class)
 class SyncService(private val userService: UserService,
                   private val notificationService: NotificationService,
                   private val singleShotService: SingleShotService,
@@ -30,13 +37,13 @@ class SyncService(private val userService: UserService,
 
 
     init {
-        // do a sync every time the user token changes
-        userService.loginStates
-                .mapNotNull { state -> state.uniqueToken }
-                .distinctUntilChanged()
-                .doOnNext { logger.debug { "Unique token is now $it" } }
-                .delaySubscription(1, TimeUnit.SECONDS)
-                .subscribe { AsyncScope.launch { performSyncSeenService(it) } }
+        AsyncScope.launch {
+            userService.loginStates.asFlow()
+                    .mapNotNull { state -> state.uniqueToken }
+                    .distinctUntilChanged()
+                    .onStart { delay(1.seconds) }
+                    .collect { token -> launch { performSyncSeenService(token) } }
+        }
     }
 
     suspend fun dailySync() {
@@ -123,7 +130,7 @@ class SyncService(private val userService: UserService,
             return
         }
 
-        logger.info { "Syncing of seen bits." }
+        logger.info { "Syncing of seen bits with token '$token'" }
 
         try {
             kvService.update(token, "seen-bits") { previous ->

@@ -39,9 +39,9 @@ import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import com.trello.rxlifecycle.android.FragmentEvent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -161,6 +161,52 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun updateUploadState(state: UploadService.State) {
+        updateBusyState(state)
+
+        when (state) {
+            is UploadService.State.Uploading -> {
+                if (state.progress < 0.99) {
+                    logger.info { "Uploading, progress is ${state.progress}" }
+                    busyIndicator.progress = state.progress
+                } else {
+                    logger.info { "Uploading, progress is nearly finished" }
+                    if (!busyIndicator.isSpinning)
+                        busyIndicator.spin()
+                }
+            }
+
+            is UploadService.State.Uploaded -> {
+                logger.info { "Got upload key, storing." }
+                this.uploadInfo = state
+            }
+
+            is UploadService.State.SimilarItems -> {
+                logger.info { "Found similar posts. Showing them now" }
+
+                showSimilarPosts(state.items)
+                setFormEnabled(true)
+            }
+
+            is UploadService.State.Error -> {
+                val err = UploadService.UploadFailedException(state.error, state.report)
+                onUploadError(err)
+            }
+
+            is UploadService.State.Success -> {
+                logger.info { "Finished! item id is ${state.id}" }
+                onUploadComplete(state.id)
+
+            }
+
+            else -> {
+                logger.info { "Upload state: $state" }
+                busyIndicator.spin()
+            }
+        }
+
+    }
+
+    private fun updateBusyState(state: UploadService.State) {
         val text = when (state) {
             is UploadService.State.Processing -> getString(R.string.upload_state_processing)
             is UploadService.State.Uploading -> getString(R.string.upload_state_uploading)
@@ -193,62 +239,29 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         busyContainer.isVisible = true
 
-        // start the upload
-        val upload = if (uploadInfo == null) {
-            busyIndicator.progress = 0f
-            uploadService.upload(file, type, tags)
-        } else {
-            busyIndicator.spin()
-            uploadService.post(uploadInfo, type, tags, false)
-        }
+        launchUntilViewDestroy {
+            logger.info { "Start upload of type $type with tags $tags" }
 
-        logger.info { "Start upload of type $type with tags $tags" }
-        upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .doAfterTerminate { busyContainer.isVisible = false }
-                .subscribe({ state ->
+            // start the upload
+            val uploadStates = if (uploadInfo == null) {
+                busyIndicator.progress = 0f
+                uploadService.upload(file, type, tags)
+            } else {
+                busyIndicator.spin()
+                uploadService.post(uploadInfo, type, tags, false)
+            }
+
+            try {
+                uploadStates.collect { state ->
                     updateUploadState(state)
+                }
 
-                    when (state) {
-                        is UploadService.State.Uploading -> {
-                            if (state.progress < 0.99) {
-                                logger.info { "Uploading, progress is ${state.progress}" }
-                                busyIndicator.progress = state.progress
-                            } else {
-                                logger.info { "Uploading, progress is nearly finished" }
-                                if (!busyIndicator.isSpinning)
-                                    busyIndicator.spin()
-                            }
-                        }
+            } catch (err: Exception) {
+                onUploadError(err)
+            }
 
-                        is UploadService.State.Uploaded -> {
-                            logger.info { "Got upload key, storing." }
-                            this.uploadInfo = state
-                        }
-
-                        is UploadService.State.SimilarItems -> {
-                            logger.info { "Found similar posts. Showing them now" }
-
-                            showSimilarPosts(state.items)
-                            setFormEnabled(true)
-                        }
-
-                        is UploadService.State.Error -> {
-                            val err = UploadService.UploadFailedException(state.error, state.report)
-                            onUploadError(err)
-                        }
-
-                        is UploadService.State.Success -> {
-                            logger.info { "Finished! item id is ${state.id}" }
-                            onUploadComplete(state.id)
-
-                        }
-
-                        else -> {
-                            logger.info { "Upload state: $state" }
-                            busyIndicator.spin()
-                        }
-                    }
-                }, { this.onUploadError(it) })
+            busyContainer.isVisible = false
+        }
 
         // scroll back up
         scrollView.fullScroll(View.FOCUS_UP)
