@@ -38,7 +38,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import rx.exceptions.OnErrorNotImplementedException
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -111,10 +110,6 @@ object AndroidUtility {
         if (causalChain.containsType<SQLiteFullException>()) {
             logger.warn { "Database is full: $error" }
             return
-        }
-
-        if (causalChain.containsType<OnErrorNotImplementedException>()) {
-            error = error.rootCause
         }
 
         try {

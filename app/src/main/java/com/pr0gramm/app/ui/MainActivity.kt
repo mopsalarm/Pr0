@@ -47,7 +47,6 @@ import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.*
 import kotterknife.bindOptionalView
 import kotterknife.bindView
-import rx.subjects.BehaviorSubject
 import kotlin.properties.Delegates
 
 
@@ -60,11 +59,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler,
         PermissionHelperActivity,
-        RecyclerViewPoolProvider by RecyclerViewPoolMap(),
-        AdControl {
+        RecyclerViewPoolProvider by RecyclerViewPoolMap() {
 
     private val handler = Handler(Looper.getMainLooper())
-    private val doNotShowAds = BehaviorSubject.create(false)
     private var permissionHelper = PermissionHelperDelegate(this)
     private val settings = Settings.get()
 
@@ -189,8 +186,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun showBuyPremiumHint() {
         launchWhenStarted {
             val adsEnabledFlow = merge(
-                    adService.enabledForType(Config.AdType.FEED).take(1).asFlow(),
-                    adService.enabledForType(Config.AdType.FEED_TO_POST_INTERSTITIAL).take(1).asFlow())
+                    adService.enabledForType(Config.AdType.FEED).take(1),
+                    adService.enabledForType(Config.AdType.FEED_TO_POST_INTERSTITIAL).take(1))
 
             val showAnyAds = adsEnabledFlow
                     .onEach { logger.info { "should show ads: $it" } }
@@ -226,10 +223,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             show()
         }
-    }
-
-    override fun showAds(show: Boolean) {
-        doNotShowAds.onNext(!show)
     }
 
     private fun checkForInfoMessage() {

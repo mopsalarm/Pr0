@@ -16,6 +16,7 @@ import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.readStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -25,6 +26,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.coroutineContext
 
 
 /**
@@ -103,6 +105,8 @@ class DownloadService(
                     entry.inputStreamAt(0).use { body ->
                         CountingInputStream(body).use { input ->
                             readStream(input) { buffer, count ->
+                                coroutineContext.ensureActive()
+
                                 output.write(buffer, 0, count)
 
                                 debugOnly {

@@ -3,10 +3,10 @@ package com.pr0gramm.app.ui
 
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import rx.Observable
-import rx.subjects.PublishSubject
+import com.pr0gramm.app.util.OnClickListener
+import com.pr0gramm.app.util.OnViewClickListener
+import com.pr0gramm.app.util.invoke
 
 class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private val mGestureDetector: GestureDetector
@@ -14,16 +14,12 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private val touchListener = Listener()
     private val scrollListener = ScrollListener()
 
-    private val itemClickedSubject = PublishSubject.create<View>()
-    private val itemLongClickedSubject = PublishSubject.create<View>()
-    private val itemLongClickEndedSubject = PublishSubject.create<Unit>()
-
     private var longClickEnabled: Boolean = false
     private var longPressTriggered: Boolean = false
 
-    val itemClicked get() = itemClickedSubject as Observable<View>
-    val itemLongClicked get() = itemLongClickedSubject as Observable<View>
-    val itemLongClickEnded get() = itemLongClickEndedSubject as Observable<Unit>
+    var itemClicked: OnViewClickListener? = null
+    var itemLongClicked: OnViewClickListener? = null
+    var itemLongClickEnded: OnClickListener? = null
 
     init {
         mGestureDetector = GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
@@ -36,7 +32,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
                     val childView = recyclerView.findChildViewUnder(e.x, e.y)
                     if (childView != null) {
                         longPressTriggered = true
-                        itemLongClickedSubject.onNext(childView)
+                        itemLongClicked(childView)
                     }
                 }
             }
@@ -56,7 +52,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
             val childView = view.findChildViewUnder(e.x, e.y)
 
             if (childView != null && mGestureDetector.onTouchEvent(e)) {
-                itemClickedSubject.onNext(childView)
+                itemClicked(childView)
             }
 
             // a long press might have been triggered between the last touch event
@@ -81,7 +77,7 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
                 MotionEvent.ACTION_CANCEL,
                 MotionEvent.ACTION_HOVER_EXIT,
                 MotionEvent.ACTION_POINTER_UP ->
-                    itemLongClickEndedSubject.onNext(Unit)
+                    itemLongClickEnded()
             }
         }
     }

@@ -17,22 +17,17 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.Tags
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.dp
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.setOnProgressChanged
 import kotterknife.bindView
-import rx.Observable
-import rx.subjects.PublishSubject
 
 /**
  * View for more search options.
  */
 
 class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
-    private val searchQuery = PublishSubject.create<SearchQuery>()
-    private val searchCanceled = PublishSubject.create<Boolean>()
+    var searchQuery: Listener<SearchQuery>? = null
+    var searchCanceled: Listener<Unit>? = null
 
     private val excludedTags = hashSetOf<String>()
 
@@ -114,7 +109,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun cancel() {
-        searchCanceled.onNext(true)
+        searchCanceled(Unit)
     }
 
     private fun showAdvancedHelpPage() {
@@ -203,7 +198,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         // replace all new line characters (why would you add a new line?)
         searchTerm = searchTerm.replace('\n', ' ')
 
-        searchQuery.onNext(SearchQuery(searchTerm, baseTerm))
+        searchQuery(SearchQuery(searchTerm, baseTerm))
     }
 
     private fun roundScoreValue(score: Int): Int {
@@ -231,14 +226,6 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
                 .filterTo(withoutTags) { it != "" }
 
         return withoutTags
-    }
-
-    fun searchQuery(): Observable<SearchQuery> {
-        return searchQuery
-    }
-
-    fun searchCanceled(): Observable<Boolean> {
-        return searchCanceled
     }
 
     private fun updateTagsCheckboxes() {

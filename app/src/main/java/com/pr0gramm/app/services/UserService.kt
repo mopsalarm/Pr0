@@ -12,16 +12,14 @@ import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.debugOnly
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.ticker
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
-import rx.Observable
-import rx.subjects.BehaviorSubject
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -48,10 +46,10 @@ class UserService(private val api: Api,
     private val fullSyncInProgress = AtomicBoolean()
 
     private val loginStateLock = ReentrantLock()
-    private val loginStateSubject = BehaviorSubject.create(NotAuthorized)
+    private val loginStateSubject = MutableStateFlow(NotAuthorized)
 
     val loginState: LoginState get() = loginStateSubject.value
-    val loginStates: Observable<LoginState> = loginStateSubject.distinctUntilChanged()
+    val loginStates: Flow<LoginState> = loginStateSubject
 
     init {
         restoreLatestUserInfo()
@@ -63,7 +61,7 @@ class UserService(private val api: Api,
 
         AsyncScope.launch {
             // persist the login state every time it changes.
-            loginStates.asFlow().collect { state -> persistLatestLoginState(state) }
+            loginStates.collect { state -> persistLatestLoginState(state) }
         }
     }
 
@@ -77,7 +75,7 @@ class UserService(private val api: Api,
         // update the current 'auth' state for tracking
         Track.updateUserState(Track.AuthState(state.authorized, state.premium))
 
-        this.loginStateSubject.onNext(state)
+        this.loginStateSubject.value = state
     }
 
 
@@ -379,7 +377,7 @@ class UserService(private val api: Api,
         get() = loginState.authorized && cookieJar.parsedCookie?.admin == true
 
     val loginStateWithBenisGraph = run {
-        val graphs = loginStates.asFlow().mapLatest { loginState ->
+        val graphs = loginStates.mapLatest { loginState ->
             if (loginState.authorized) {
                 LoginStateWithScoreGraph(loginState, loadScoreHistoryAsGraph(loginState.id))
             } else {

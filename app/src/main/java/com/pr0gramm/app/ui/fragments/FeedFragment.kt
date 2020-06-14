@@ -37,15 +37,15 @@ import com.pr0gramm.app.util.di.instance
 import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.math.min
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 
 /**
@@ -76,7 +76,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
-    private val requestLoadFeedSubject = PublishSubject.create<() -> Unit>()
+    private val taskQueue = Channel<() -> Unit>(Channel.UNLIMITED)
 
     private var bookmarkable: Boolean = false
     private var autoScrollRef: ScrollRef? = null
@@ -116,12 +116,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private var state: State by observeChange(State()) {
         updateAdapterState()
-        stateCh.offer(state)
+        stateCh.send(state)
     }
 
     private var stateTransaction = StateTransaction({ state }, { updateAdapterState() })
 
-    private val stateCh = ConflatedBroadcastChannel<State>()
+    private val stateCh = LazyStateFlow<State>()
 
     private var followState: FollowState? by observeChange(null) {
         activity?.invalidateOptionsMenu()
@@ -173,6 +173,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction {
         super.onViewCreated(view, savedInstanceState)
 
@@ -212,8 +213,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         createRecyclerViewClickListener()
 
         // execute a search when we get a search term
-        searchView.searchQuery().bindToLifecycle().subscribe { this.performSearch(it) }
-        searchView.searchCanceled().bindToLifecycle().subscribe { hideSearchContainer() }
+        searchView.searchQuery = { this.performSearch(it) }
+        searchView.searchCanceled = { hideSearchContainer() }
 
         // restore open search
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
@@ -230,13 +231,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         launchUntilViewDestroy(ignoreErrors = true) { queryForUserInfo() }
 
-        // start showing ads.
-        adService.enabledForType(Config.AdType.FEED)
-                .bindToLifecycle()
-                .subscribe { show ->
-                    trace { "enableAds($show)" }
-                    state = state.copy(adsVisible = show)
-                }
+        launchWhenViewCreated {
+            adService.enabledForType(Config.AdType.FEED).collect { show ->
+                this@FeedFragment.trace { "enableAds($show)" }
+                state = state.copy(adsVisible = show)
+            }
+        }
+
+        launchUntilViewDestroy {
+            taskQueue.consumeAsFlow().sample(1.seconds).collect { task -> task() }
+        }
     }
 
     private suspend fun observeFeedUpdates() {
@@ -607,17 +611,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                     }
                 }
             }
-
-            requestLoadFeedSubject
-                    .throttleFirst(1, TimeUnit.SECONDS, MainThreadScheduler)
-                    .bindToLifecycle()
-                    .subscribe { it() }
-
         }
 
         launchUntilPause(ignoreErrors = true) {
-            stateCh.asFlow()
-                    .mapNotNull { it.userInfo?.info?.user?.id }
+            stateCh.mapNotNull { it.userInfo?.info?.user?.id }
                     .flatMapLatest { userId -> followService.getState(userId.toLong()) }
                     .collect { followState -> this@FeedFragment.followState = followState }
         }
@@ -1041,7 +1038,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     private fun createRecyclerViewClickListener() {
         val listener = RecyclerItemClickListener(recyclerView)
 
-        listener.itemClicked.bindToLifecycle().subscribeIgnoreError { view ->
+        listener.itemClicked = { view ->
             extractFeedItemHolder(view)?.let { holder ->
                 interstitialAdler.runWithAd {
                     onItemClicked(holder.item, preview = holder.imageView)
@@ -1049,9 +1046,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        listener.itemLongClicked.bindToLifecycle().subscribeIgnoreError { view ->
-            val holder = extractFeedItemHolder(view) ?: return@subscribeIgnoreError
-            val activity = this.activity ?: return@subscribeIgnoreError
+        listener.itemLongClicked = itemLongClicked@{ view ->
+            val holder = extractFeedItemHolder(view) ?: return@itemLongClicked
+            val activity = this.activity ?: return@itemLongClicked
 
             if (!this@FeedFragment.isStateSaved) {
                 PopupPlayer.open(activity, holder.item)
@@ -1059,9 +1056,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
         }
 
-        listener.itemLongClickEnded.bindToLifecycle().subscribeIgnoreError {
+        listener.itemLongClickEnded = itemLongClickEnded@{
             if (!this@FeedFragment.isStateSaved) {
-                PopupPlayer.close(activity ?: return@subscribeIgnoreError)
+                PopupPlayer.close(activity ?: return@itemLongClickEnded)
                 swipeRefreshLayout.isEnabled = true
             }
         }
@@ -1367,7 +1364,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                             .takeIf { it >= 0 } ?: return
 
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        requestLoadFeedSubject.onNext {
+                        taskQueue.offer {
                             logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount" }
                             loader.next()
                         }
@@ -1379,7 +1376,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                             .takeIf { it >= 0 } ?: return
 
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        requestLoadFeedSubject.onNext {
+                        taskQueue.offer {
                             logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount)" }
                             loader.previous()
                         }

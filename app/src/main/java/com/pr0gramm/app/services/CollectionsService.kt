@@ -8,7 +8,6 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.readOnly
 import com.pr0gramm.app.util.toInt
 import com.squareup.sqldelight.runtime.coroutines.asFlow
@@ -55,7 +54,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
 
     init {
         AsyncScope.launchIgnoreErrors {
-            userService.loginStates.asFlow().collect { loginState ->
+            userService.loginStates.collect { loginState ->
                 logger.debug { "Update list of collections after loginState changed: user=${loginState.name}" }
 
                 if (loginState.authorized) {

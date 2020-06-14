@@ -17,7 +17,6 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.asFlow
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -70,7 +69,7 @@ class NavigationProvider(
     }
 
     fun navigationItems(currentSelection: Flow<FeedFilter?>): Flow<List<NavigationItem>> {
-        val loginStates = userService.loginStates.asFlow()
+        val loginStates = userService.loginStates
 
         val items = loginStates.flatMapLatest { loginState ->
             val rawSources = listOf(

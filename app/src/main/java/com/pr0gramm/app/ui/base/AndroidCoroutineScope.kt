@@ -21,9 +21,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
-import rx.Observable
-import rx.Scheduler
-import rx.schedulers.Schedulers
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -154,27 +151,6 @@ fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit) {
     if (isAttachedToWindow) {
         listener(true)
     }
-}
-
-fun <T> toObservable(scheduler: Scheduler = Schedulers.computation(), block: suspend () -> T): Observable<T> {
-    val observable = createObservable<T> { emitter ->
-        val job = AsyncScope.launch {
-            try {
-                emitter.onNext(block())
-                emitter.onCompleted()
-            } catch (err: CancellationException) {
-                // ignored
-            } catch (err: Throwable) {
-                emitter.onError(err)
-            }
-        }
-
-        emitter.setCancellation {
-            job.cancel()
-        }
-    }
-
-    return observable.observeOn(scheduler)
 }
 
 inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T): T {
@@ -321,7 +297,7 @@ private fun Any.debugVerifyLifecycle(lifecycleOwner: LifecycleOwner, expectedSta
 fun Lifecycle.asEventFlow(): Flow<Lifecycle.Event> = channelFlow {
     val observer = withContext(Dispatchers.Main.immediate) {
         val observer = LifecycleEventObserver { _, event ->
-            channel.offer(event)
+            offer(event)
         }
 
         addObserver(observer)

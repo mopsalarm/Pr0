@@ -12,9 +12,8 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ignoreAllExceptions
-import com.pr0gramm.app.util.observeOnMainThread
-import rx.Observable
-import rx.subjects.ReplaySubject
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import java.util.concurrent.TimeUnit
 
 
@@ -29,15 +28,39 @@ class AdService(private val configService: ConfigService, private val userServic
      * Loads an ad into this view. This method also registers a listener to track the view.
      * The resulting completable completes once the ad finishes loading.
      */
-    fun load(view: AdView?, type: Config.AdType): Observable<AdLoadState> {
+    fun load(view: AdView?, type: Config.AdType): Flow<AdLoadState> {
         if (view == null) {
-            return Observable.empty()
+            return emptyFlow()
         }
 
-        val listener = RxAdListener()
-        view.adListener = listener
-        view.loadAd(AdRequest.Builder().build())
-        return listener.loadedSubject
+        return channelFlow {
+            view.adListener = object : TrackingAdListener("b") {
+                override fun onAdLoaded() {
+                    super.onAdLoaded()
+                    if (!isClosedForSend) {
+                        offer(AdLoadState.SUCCESS)
+                    }
+                }
+
+                override fun onAdFailedToLoad(p0: Int) {
+                    super.onAdFailedToLoad(p0)
+                    if (!isClosedForSend) {
+                        offer(AdLoadState.FAILURE)
+                    }
+                }
+
+                override fun onAdClosed() {
+                    super.onAdClosed()
+                    if (!isClosedForSend) {
+                        offer(AdLoadState.CLOSED)
+                    }
+                }
+            }
+
+            view.loadAd(AdRequest.Builder().build())
+
+            awaitClose()
+        }
     }
 
     fun enabledForTypeNow(type: Config.AdType): Boolean {
@@ -57,9 +80,8 @@ class AdService(private val configService: ConfigService, private val userServic
         }
     }
 
-    fun enabledForType(type: Config.AdType): Observable<Boolean> {
+    fun enabledForType(type: Config.AdType): Flow<Boolean> {
         return userService.loginStates
-                .observeOnMainThread(firstIsSync = true)
                 .map { enabledForTypeNow(type) }
                 .distinctUntilChanged()
     }
@@ -134,25 +156,6 @@ class AdService(private val configService: ConfigService, private val userServic
 
     enum class AdLoadState {
         SUCCESS, FAILURE, CLOSED
-    }
-
-    private class RxAdListener : TrackingAdListener("b") {
-        val loadedSubject = ReplaySubject.create<AdLoadState>().toSerialized()!!
-
-        override fun onAdLeftApplication() {
-        }
-
-        override fun onAdLoaded() {
-            loadedSubject.onNext(AdLoadState.SUCCESS)
-        }
-
-        override fun onAdFailedToLoad(p0: Int) {
-            loadedSubject.onNext(AdLoadState.FAILURE)
-        }
-
-        override fun onAdClosed() {
-            loadedSubject.onNext(AdLoadState.CLOSED)
-        }
     }
 
     open class TrackingAdListener(private val prefix: String) : AdListener() {

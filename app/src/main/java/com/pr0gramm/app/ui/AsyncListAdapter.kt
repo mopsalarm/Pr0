@@ -8,9 +8,11 @@ import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.checkMainThread
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
-import rx.Observable
-import rx.subjects.PublishSubject
 
 abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T> = InstanceDiffCallback(),
@@ -19,14 +21,16 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
 
     internal val logger = Logger(name)
 
-    private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
-    val updates = updateSubject as Observable<List<T>>
-
-    var items: List<T> = listOf()
-        private set
+    private val updateSubject = ConflatedBroadcastChannel<List<T>>()
 
     // Max generation of currently scheduled runnable
     private var maxScheduledGeneration: Int = 0
+
+    val updates: Flow<List<T>>
+        get() = updateSubject.asFlow()
+
+    var items: List<T> = listOf()
+        private set
 
     override fun getItemCount(): Int {
         return items.size
@@ -108,7 +112,7 @@ abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.Recycl
 
         this.items = items
         dispatch()
-        updateSubject.onNext(items)
+        updateSubject.sendBlocking(items)
     }
 
     protected open fun preApplyNewItems(items: List<T>) {}

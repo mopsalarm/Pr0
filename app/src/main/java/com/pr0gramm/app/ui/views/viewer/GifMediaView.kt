@@ -6,12 +6,12 @@ import androidx.core.view.isVisible
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
+import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.instance
-import com.pr0gramm.app.util.addOnAttachListener
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
+import kotlinx.coroutines.flow.collect
 import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
 
@@ -29,54 +29,53 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
     init {
         imageView.alpha = 0f
 
-        loadGif()
-
-        // reload on attach
-        addOnAttachListener {
-            loadGif()
+        onAttachedScope {
+            if (gif == null) {
+                loadGif()
+            }
         }
 
         // cleanup on detach!
         addOnDetachListener {
             imageView.setImageDrawable(null)
+
             gif?.recycle()
             gif = null
         }
     }
 
-    private fun loadGif() {
-        if (gif != null) {
-            return
-        }
-
+    private suspend fun loadGif() {
         showBusyIndicator()
 
-        gifDrawableLoader.load(effectiveUri)
-                .compose(backgroundBindView())
-                .doAfterTerminate { hideBusyIndicator() }
-                .subscribe({ onDownloadStatus(it) }, { err -> handleOnError(err) })
+        try {
+            gifDrawableLoader.load(effectiveUri).collect { state ->
+                onDownloadStatus(state)
+            }
+        } finally {
+            hideBusyIndicator()
+        }
     }
 
-    private fun onDownloadStatus(state: GifDrawableLoader.Status) {
+    private fun onDownloadStatus(state: GifDrawableLoader.State) {
         checkMainThread()
 
         onDownloadProgress(state.progress)
 
-        if (state.finished) {
-            gif = state.drawable?.also { gif ->
-                imageView.setImageDrawable(gif)
+        if (state.drawable != null && isAttachedToWindow) {
+            this.gif = state.drawable
 
-                viewAspect = gif.intrinsicWidth.toFloat() / gif.intrinsicHeight
+            imageView.setImageDrawable(state.drawable)
 
-                if (isPlaying) {
-                    imageView.animate().alpha(1f)
-                            .withEndAction { onMediaShown() }
-                            .setDuration(MediaView.ANIMATION_DURATION)
-                            .start()
-                } else {
-                    imageView.alpha = 1f
-                    gif.stop()
-                }
+            viewAspect = state.drawable.intrinsicWidth.toFloat() / state.drawable.intrinsicHeight
+
+            if (isPlaying) {
+                imageView.animate().alpha(1f)
+                        .withEndAction { onMediaShown() }
+                        .setDuration(MediaView.ANIMATION_DURATION)
+                        .start()
+            } else {
+                imageView.alpha = 1f
+                state.drawable.stop()
             }
         }
     }

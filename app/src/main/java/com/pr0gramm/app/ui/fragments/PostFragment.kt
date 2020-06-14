@@ -44,12 +44,9 @@ import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
 import kotlin.math.min
@@ -126,7 +123,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launchWhenStarted {
-            userService.loginStates.asFlow().drop(1).collect {
+            userService.loginStates.drop(1).collect {
                 activity?.invalidateOptionsMenu()
             }
         }
@@ -191,13 +188,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             initializeMediaView()
         }
 
-        postAdapter.updates
-                .observeOnMainThread()
-                .bindToLifecycle()
-                .subscribe { tryAutoScrollToCommentNow(smoothScroll = false) }
+        launchWhenResumed {
+            postAdapter.updates.collect {
+                tryAutoScrollToCommentNow(smoothScroll = false)
+            }
+        }
 
         launchUntilViewDestroy {
-            userService.loginStates.asFlow().distinctUntilChangedBy { it.id }.collect { loginState ->
+            userService.loginStates.distinctUntilChangedBy { it.id }.collect { loginState ->
                 stateTransaction {
                     if (state.commentsVisible != loginState.authorized) {
                         state = state.copy(commentsVisible = loginState.authorized)
@@ -500,10 +498,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 mcc.removeFromParent()
                 viewer.addView(mcc)
             }
-
-            if (activity is AdControl) {
-                activity.showAds(false)
-            }
         }
     }
 
@@ -549,10 +543,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (activity is ToolbarActivity) {
             // show the toolbar again
             activity.scrollHideToolbarListener.reset()
-        }
-
-        if (activity is AdControl) {
-            activity.showAds(true)
         }
 
         Screen.unlockOrientation(activity)
@@ -689,11 +679,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        // observeOnMainThread uses post to scroll in the next frame.
         // this prevents the viewer from getting bad clipping.
         recyclerView.postAdapter?.let { adapter ->
-            adapter.updates.skip(1).observeOnMainThread().bindToLifecycle().subscribe {
-                simulateScroll()
+            launchUntilStop {
+                // run on Main, not Main.immediate.
+                withContext(Dispatchers.Main) {
+                    adapter.updates.drop(1).collect {
+                        simulateScroll()
+                    }
+                }
             }
         }
     }

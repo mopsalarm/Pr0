@@ -34,6 +34,8 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -235,8 +237,10 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
             }
 
         } else {
-            adapter.updates.take(1).subscribe {
-                scrollToEndOfConversation(force = true)
+            launchWhenStarted {
+                adapter.updates.take(1).collect {
+                    scrollToEndOfConversation(force = true)
+                }
             }
         }
     }

@@ -6,7 +6,6 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.unless
 import kotlinx.coroutines.delay
@@ -38,7 +37,7 @@ class SyncService(private val userService: UserService,
 
     init {
         AsyncScope.launch {
-            userService.loginStates.asFlow()
+            userService.loginStates
                     .mapNotNull { state -> state.uniqueToken }
                     .distinctUntilChanged()
                     .onStart { delay(1.seconds) }

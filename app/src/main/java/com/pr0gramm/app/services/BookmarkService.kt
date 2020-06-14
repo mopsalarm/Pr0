@@ -13,7 +13,10 @@ import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.orm.migrate
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.getStringOrNull
+import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.*
@@ -47,7 +50,7 @@ class BookmarkService(
         }
 
         AsyncScope.launch {
-            userService.loginStates.asFlow()
+            userService.loginStates
                     .debounce(100.milliseconds)
                     .collect { updateQueue.send { update() } }
         }

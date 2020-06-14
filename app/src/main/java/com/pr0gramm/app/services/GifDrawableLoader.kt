@@ -6,44 +6,51 @@ import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.millis
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.createObservable
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.readStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifDrawableBuilder
 import pl.droidsonroids.gif.GifOptions
-import rx.Emitter
-import rx.Observable
-import rx.subscriptions.Subscriptions
 import java.io.File
 import java.io.RandomAccessFile
-import java.lang.System.identityHashCode
+import kotlin.coroutines.coroutineContext
 
 /**
  */
 class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
     private val logger = Logger("GifLoader")
 
-    fun load(uri: Uri): Observable<Status> {
-        return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
+    fun load(uri: Uri): Flow<State> {
+        val result = flow {
             try {
                 if (uri.isLocalFile) {
-                    val drawable = RandomAccessFile(uri.toFile(), "r").use { createGifDrawable(it) }
+                    val drawable = RandomAccessFile(uri.toFile(), "r").use {
+                        createGifDrawable(it)
+                    }
 
-                    emitter.onNext(Status(drawable))
-                    emitter.onCompleted()
+                    emit(State(drawable))
+
                 } else {
                     cache.get(uri).use { entry ->
-                        loadGifUsingTempFile(emitter, entry)
+                        emitAll(loadGifUsingTempFile(entry))
                     }
                 }
 
             } catch (error: Throwable) {
-                logger.warn("Error during gif-loading", error)
-                emitter.onError(error)
+                logger.warn(error) { "Error during gif-loading" }
+                throw error
             }
         }
+
+        return result.flowOn(Dispatchers.IO)
     }
 
     /**
@@ -51,55 +58,44 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
      * loads the gif from this temporary file. The temporary file is removed
      * after loading the gif (or on failure).
      */
-    private fun loadGifUsingTempFile(emitter: Emitter<in Status>,
-                                     entry: Cache.Entry) {
+    private fun loadGifUsingTempFile(entry: Cache.Entry): Flow<State> {
+        return flow {
+            val temporary = File.createTempFile("tmp", ".gif", fileCache)
 
-        val temporary = File(fileCache, "tmp" + identityHashCode(emitter) + ".gif")
+            logger.info { "storing data into temporary file" }
 
-        logger.info { "storing data into temporary file" }
+            RandomAccessFile(temporary, "rw").use { storage ->
+                // remove entry from filesystem now - the system will remove the data
+                // when the stream closes.
 
-        val subscription = Subscriptions.empty()
-        emitter.setSubscription(subscription)
+                temporary.delete()
 
-        RandomAccessFile(temporary, "rw").use { storage ->
-            // remove entry from filesystem now - the system will remove the data
-            // when the stream closes.
+                val publishState = OnceEvery(millis(100))
 
-            temporary.delete()
+                // copy data to the file.
+                val contentLength = entry.totalSize.toFloat()
 
-            val publishState = OnceEvery(millis(100))
+                entry.inputStreamAt(0).use { stream ->
+                    var count = 0
 
-            // copy data to the file.
-            val contentLength = entry.totalSize.toFloat()
+                    readStream(stream) { buffer, length ->
+                        coroutineContext.ensureActive()
 
-            entry.inputStreamAt(0).use { stream ->
-                var count = 0
-                readStream(stream) { buffer, length ->
-                    storage.write(buffer, 0, length)
-                    count += length
+                        debugOnly {
+                            // simulate slow network connection in debug mode
+                            Thread.sleep(if (Math.random() < 0.1) 100 else 0)
+                        }
 
-                    if (subscription.isUnsubscribed) {
-                        logger.info { "Stopped because the subscriber unsubscribed" }
-                        return
-                    }
+                        storage.write(buffer, 0, length)
+                        count += length
 
-                    publishState {
-                        emitter.onNext(Status(progress = count / contentLength))
+                        publishState {
+                            emit(State(progress = count / contentLength))
+                        }
                     }
                 }
-            }
 
-            if (subscription.isUnsubscribed) {
-                return
-            }
-
-            try {
-                val drawable = createGifDrawable(storage)
-
-                emitter.onNext(Status(drawable))
-                emitter.onCompleted()
-            } catch (error: Throwable) {
-                emitter.onError(error)
+                emit(State(createGifDrawable(storage)))
             }
         }
     }
@@ -123,10 +119,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
                 .build()
     }
 
-    data class Status(
+    class State(
             val drawable: GifDrawable? = null,
-            val progress: Float = 1.0f) {
-
-        val finished = drawable != null
-    }
+            val progress: Float = 1.0f)
 }

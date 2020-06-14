@@ -26,7 +26,10 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.annotation.*
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.collection.LruCache
 import androidx.core.content.ContextCompat
@@ -34,27 +37,18 @@ import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.base.MainScope
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CompatibleTextView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import rx.Emitter
-import rx.Observable
-import rx.Subscription
-import rx.android.MainThreadSubscription
-import rx.functions.Action1
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
@@ -69,28 +63,6 @@ import kotlin.properties.Delegates
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-
-fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.BackpressureMode.NONE,
-                         block: (emitter: Emitter<T>) -> Unit): Observable<T> {
-
-    return Observable.create(block, mode)
-}
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = ignoreError()
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler)
-
-fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observable<T> {
-    if (firstIsSync) {
-        val shared = share()
-        return shared.take(1).concatWith(shared.skip(1).observeOnMainThread())
-    }
-
-    return observeOn(MainThreadScheduler)
-}
-
 
 fun InputStream.readAsMuchAsPossible(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
     if (len < 0) {
@@ -339,10 +311,6 @@ inline fun debugOnly(block: () -> Unit) {
     }
 }
 
-fun <T : Any?> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
-    return subscribe(onNext, { err -> AndroidUtility.logToCrashlytics(err) })
-}
-
 @Suppress("NOTHING_TO_INLINE")
 @ColorInt
 inline fun Context.getColorCompat(@ColorRes id: Int): Int {
@@ -416,10 +384,6 @@ fun Boolean.toInt(): Int {
     return if (this) 1 else 0
 }
 
-inline fun <reified R> Observable<*>.ofType(): Observable<R> {
-    return ofType(R::class.java)
-}
-
 inline fun catchAll(block: () -> Unit) {
     try {
         block()
@@ -453,11 +417,6 @@ class LongValueHolder(private var value: Long) {
         value = newValue
         return changed
     }
-}
-
-fun <T : Any?, R : Any> Observable<T>.mapNotNull(fn: (T) -> R?): Observable<R> {
-    @Suppress("UNCHECKED_CAST")
-    return map(fn).filter { it != null } as Observable<R>
 }
 
 inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
@@ -516,17 +475,6 @@ inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
         enumValueOf<T>(key)
     } catch (err: IllegalArgumentException) {
         null
-    }
-}
-
-fun updateTextView(view: TextView) = object : Action1<CharSequence?> {
-    private var previousValue: CharSequence? = null
-
-    override fun call(newValue: CharSequence?) {
-        if (previousValue != newValue) {
-            view.text = newValue
-            previousValue = newValue
-        }
     }
 }
 
@@ -686,31 +634,6 @@ fun View.addOnDetachListener(listener: () -> Unit): View.OnAttachStateChangeList
     }
 }
 
-fun View.attachEvents(): Observable<Boolean> {
-    return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
-        checkMainThread()
-
-
-        val listener = object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(@NonNull v: View) {
-                emitter.onNext(true)
-            }
-
-            override fun onViewDetachedFromWindow(@NonNull v: View) {
-                emitter.onNext(false)
-            }
-        }
-
-        emitter.setSubscription(object : MainThreadSubscription() {
-            override fun onUnsubscribe() {
-                removeOnAttachStateChangeListener(listener)
-            }
-        })
-
-        addOnAttachStateChangeListener(listener)
-    }
-}
-
 suspend fun runEvery(period: Duration, initial: Duration = Duration.Zero, task: suspend () -> Unit) {
     if (initial.millis > 0) {
         delay(initial)
@@ -818,22 +741,6 @@ inline fun uiTestOnly(block: () -> Unit) {
     }
 }
 
-fun <T> LiveData<T>.asObservable(): Observable<T> {
-    return createObservable { emitter ->
-        val observer = Observer<T> { value -> emitter.onNext(value) }
-
-        MainScope.launch {
-            observeForever(observer)
-        }
-
-        emitter.setSubscription(object : MainThreadSubscription() {
-            override fun onUnsubscribe() {
-                removeObserver(observer)
-            }
-        })
-    }
-}
-
 fun <T> MutableLiveData<T>.postOrSetValue(value: T) {
     if (Looper.getMainLooper().thread === Thread.currentThread()) {
         this.value = value
@@ -880,3 +787,19 @@ fun ticker(interval: Duration, delay: Duration = Duration(0)): Flow<Int> {
         }
     }
 }
+
+typealias Listener<T> = (value: T) -> Unit
+
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun <T> Listener<T>?.invoke(value: T) {
+    this?.invoke(value)
+}
+typealias OnClickListener = () -> Unit
+
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun OnClickListener?.invoke() {
+    this?.invoke()
+}
+
+
+typealias OnViewClickListener = Listener<View>

@@ -18,13 +18,13 @@ import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
+import com.pr0gramm.app.util.ExceptionHandler
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.InjectorAware
+import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.runBlocking
-import rx.Scheduler
-import rx.plugins.RxJavaPlugins
-import rx.plugins.RxJavaSchedulersHook
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -52,14 +52,6 @@ open class ApplicationClass : Application(), InjectorAware {
                 StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX)
                 StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX)
             }
-
-            RxJavaPlugins.getInstance().registerSchedulersHook(object : RxJavaSchedulersHook() {
-                private val betterIoScheduler = CachedThreadScheduler("RxIoScheduler")
-
-                override fun getIOScheduler(): Scheduler {
-                    return betterIoScheduler
-                }
-            })
         }
 
         lateinit var appContext: Context

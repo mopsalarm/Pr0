@@ -28,14 +28,12 @@ import com.pr0gramm.app.ui.views.InjectorViewMixin
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
-import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
-import rx.Observable
 
 /**
  */
@@ -144,19 +142,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             preloadHint.layoutParams = DEFAULT_PARAMS
             preloadHint.setTextColor(context.getColorCompat(ThemeHelper.accentColor))
             addView(preloadHint)
-        }
-    }
-
-    protected fun <T> bindView(): Observable.Transformer<T, T> {
-        return RxLifecycleAndroid.bindView<T>(this)
-    }
-
-    protected fun <T> backgroundBindView(): Observable.Transformer<T, T> {
-        return Observable.Transformer {
-            it.subscribeOn(BackgroundScheduler)
-                    .unsubscribeOn(BackgroundScheduler)
-                    .observeOn(MainThreadScheduler)
-                    .compose(RxLifecycleAndroid.bindView<T>(this))
         }
     }
 

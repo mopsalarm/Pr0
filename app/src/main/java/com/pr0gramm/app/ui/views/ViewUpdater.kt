@@ -1,60 +1,74 @@
 package com.pr0gramm.app.ui.views
 
-import android.view.View
 import android.widget.TextView
-import androidx.core.view.ViewCompat
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
-import com.pr0gramm.app.R
-import com.pr0gramm.app.util.MainThreadScheduler
-import com.pr0gramm.app.util.attachEvents
-import com.pr0gramm.app.util.updateTextView
-import rx.Observable
-import rx.Subscription
+import com.pr0gramm.app.ui.base.MainScope
+import com.pr0gramm.app.util.delay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 object ViewUpdater {
-    private val tickerSeconds: Observable<Unit> = Observable
-            .interval(1, 1, TimeUnit.SECONDS, MainThreadScheduler)
-            .map { Unit }
-            .share()
+    private val tickerSeconds = sharedTickerFlow(Duration.seconds(1))
+    private val tickerMinute = sharedTickerFlow(Duration.minutes(1))
 
-    private val tickerMinute: Observable<Unit> = Observable
-            .interval(1, 1, TimeUnit.MINUTES, MainThreadScheduler)
-            .map { Unit }
-            .share()
-
-    private fun ofView(view: View, ticker: Observable<Unit>): Observable<Unit> {
-        val currentlyAttached = ViewCompat.isAttachedToWindow(view)
-
-        return view.attachEvents()
-                .startWith(currentlyAttached)
-                .switchMap { attached ->
-                    val selectedTicker = if (attached) ticker else Observable.empty()
-                    selectedTicker.startWith(Unit)
-                }
-    }
-
-    private fun ofView(view: View, instant: Instant): Observable<Unit> {
+    private fun ofInstant(instant: Instant): Flow<Unit> {
         val delta = Duration.between(Instant.now(), instant)
                 .convertTo(TimeUnit.SECONDS)
                 .absoluteValue
 
-        val ticker = when {
-            delta > 3600 -> Observable.empty<Unit>()
+        return when {
+            delta > 3600 -> emptyFlow()
             delta > 60 -> tickerMinute
             else -> tickerSeconds
         }
-
-        return ofView(view, ticker)
     }
 
     fun replaceText(view: TextView, instant: Instant, text: () -> CharSequence) {
-        val previousSubscription = view.getTag(R.id.date) as? Subscription
-        previousSubscription?.unsubscribe()
+        // TODO do this.
+        view.text = text()
 
-        val subscription = ofView(view, instant).map { text() }.subscribe(updateTextView(view))
-        view.setTag(R.id.date, subscription)
+//        val previousSubscription = view.getTag(R.id.date) as? Subscription
+//        previousSubscription?.unsubscribe()
+//
+//        val subscription = ofInstant(view, instant).map { text() }.subscribe(updateTextView(view))
+//        view.setTag(R.id.date, subscription)
+    }
+}
+
+fun sharedTickerFlow(interval: Duration): Flow<Unit> {
+    val flow = MutableStateFlow<Long>(0)
+
+    var subscriptionCount = 0
+    var jobTicker: Job? = null
+
+    return flow {
+        if (jobTicker == null) {
+            jobTicker = MainScope.launch {
+                while (true) {
+                    delay(Duration.seconds(1))
+                    flow.value = System.currentTimeMillis()
+                }
+            }
+        }
+
+        subscriptionCount++
+
+        try {
+            emitAll(flow.drop(1).map { Unit })
+
+        } finally {
+            withContext(NonCancellable) {
+                if (--subscriptionCount == 0) {
+                    jobTicker?.cancel()
+                    jobTicker = null
+                }
+            }
+        }
     }
 }
