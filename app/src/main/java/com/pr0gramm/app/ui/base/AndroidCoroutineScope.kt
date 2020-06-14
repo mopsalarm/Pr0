@@ -35,7 +35,7 @@ inline fun withErrorDialog(block: () -> Unit): Unit {
         return block()
     } catch (err: Throwable) {
         if (err !is CancellationException) {
-            ErrorDialogFragment.defaultOnError().call(err)
+            ErrorDialogFragment.handleOnError(err)
         }
     }
 }
@@ -86,7 +86,7 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
     }
 
     if (BuildConfig.DEBUG) {
-        ErrorDialogFragment.defaultOnError().call(throwable)
+        ErrorDialogFragment.handleOnError(throwable)
     } else {
         AndroidUtility.logToCrashlytics(throwable)
     }
@@ -299,7 +299,7 @@ fun decorate(context: Context, ignoreErrors: Boolean, busyIndicator: Boolean,
                 if (ignoreErrors) {
                     Logger(javaClass.simpleName).warn(err) { "Ignoring error in coroutine" }
                 } else {
-                    ErrorDialogFragment.defaultOnError().call(err)
+                    ErrorDialogFragment.handleOnError(err)
                 }
             }
         }

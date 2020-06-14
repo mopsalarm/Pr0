@@ -50,7 +50,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import rx.schedulers.Schedulers
 import java.io.IOException
 import java.util.*
 import kotlin.math.min
@@ -77,8 +76,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private var fullscreenAnimator: ObjectAnimator? = null
     private var rewindOnNextLoad: Boolean = false
 
-    private val apiCommentsCh = ConflatedBroadcastChannel(listOf<Api.Comment>())
-    private val apiTagsCh = ConflatedBroadcastChannel(listOf<Api.Tag>())
+    private val apiComments = MutableStateFlow(listOf<Api.Comment>())
+    private val apiTags = MutableStateFlow(listOf<Api.Tag>())
 
     private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
 
@@ -118,11 +117,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     ?.comments
 
             if (tags != null) {
-                this.apiTagsCh.offer(tags)
+                this.apiTags.value = tags
             }
 
             if (comments != null) {
-                this.apiCommentsCh.offer(comments)
+                this.apiComments.value = comments
             }
         }
 
@@ -209,8 +208,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        val tags = this.apiTagsCh.value
-        val comments = this.apiCommentsCh.value
+        val tags = this.apiTags.value
+        val comments = this.apiComments.value
 
         if (comments.isNotEmpty()) {
             // if we have saved comments we need to apply immediately to ensure
@@ -241,7 +240,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launchUntilViewDestroy {
-            apiTagsCh.asFlow().collect { tags ->
+            apiTags.collect { tags ->
                 hideProgressIfLoop(tags)
                 updateTitle(tags)
             }
@@ -367,13 +366,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        val tags = apiTagsCh.value
+        val tags = apiTags.value
         if (tags.isNotEmpty()) {
             outState.putExternalValue(requireContext(),
                     "PostFragment.tags", TagListParceler(tags))
         }
 
-        val comments = apiCommentsCh.value
+        val comments = apiComments.value
         if (comments.isNotEmpty()) {
             outState.putExternalValue(requireContext(),
                     "PostFragment.comments", CommentListParceler(comments))
@@ -619,6 +618,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun downloadPostMedia() {
         if (!Storage.hasTreeUri(requireContext())) {
             val intent = Storage.openTreeIntent(requireContext())
+
             ignoreAllExceptions {
                 val noActivityAvailable = requireContext().packageManager.queryIntentActivities(intent, 0).isEmpty()
                 if (noActivityAvailable) {
@@ -651,19 +651,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val bitmapDrawable = previewInfo.preview as? BitmapDrawable
         val preview = bitmapDrawable?.bitmap ?: previewInfo.fancy?.valueOrNull
 
-        downloadService
-                .downloadWithNotification(feedItem, preview)
-                .subscribeOn(Schedulers.io())
-                .decoupleSubscribe()
-                .observeOnMainThread()
-                .bindToLifecycle()
-                .subscribe({}, { err: Throwable ->
-                    if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
-                        showErrorString(parentFragmentManager, getString(R.string.error_could_not_create_download_directory))
-                    } else {
-                        AndroidUtility.logToCrashlytics(DownloadException(err))
-                    }
-                })
+        launchWhenStarted {
+            try {
+                downloadService.downloadWithNotification(feedItem, preview)
+            } catch (_: DownloadService.CouldNotCreateDownloadDirectoryException) {
+                showErrorString(parentFragmentManager, getString(R.string.error_could_not_create_download_directory))
+            }
+        }
     }
 
     private class DownloadException(cause: Throwable) : Exception(cause)
@@ -680,16 +674,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launchUntilStop(ignoreErrors = true) {
-            apiCommentsCh
-                    .asFlow()
-                    .flatMapLatest { comments -> voteService.getCommentVotes(comments) }
+            apiComments.flatMapLatest { comments -> voteService.getCommentVotes(comments) }
                     .collect { votes -> commentTreeHelper.updateVotes(votes) }
         }
 
         launchUntilStop(ignoreErrors = true) {
-            apiTagsCh
-                    .asFlow()
-                    .flatMapLatest { tags -> voteService.getTagVotes(tags) }
+            apiTags.flatMapLatest { tags -> voteService.getTagVotes(tags) }
                     .collect { votes -> state = state.copy(tagVotes = votes) }
         }
 
@@ -739,7 +729,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // update state to show "loading" items
         state = state.copy(
-                commentsLoading = firstLoad || state.commentsLoadError || apiCommentsCh.value.isEmpty(),
+                commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
                 commentsLoadError = false)
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
@@ -1012,7 +1002,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .enhanceTags(feedItem.id, tags_)
                 .sortedWith(comparator)
 
-        apiTagsCh.offer(tags)
+        apiTags.value = tags
 
         state = state.copy(tags = tags)
     }
@@ -1035,7 +1025,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             updateSync: Boolean = false,
             extraChanges: (CommentTree.Input) -> CommentTree.Input = { it }): Unit = stateTransaction {
 
-        this.apiCommentsCh.offer(comments.toList())
+        this.apiComments.value = comments.toList()
 
         // show comments now
         logger.info { "Sending ${comments.size} comments to tree helper" }
@@ -1067,7 +1057,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        val previousTags = this.apiTagsCh.value
+        val previousTags = this.apiTags.value
 
         // allow op to tag a more restrictive content type.
         val op = feedItem.user.equals(userService.name, true) || userService.userIsAdmin
@@ -1290,7 +1280,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onReplyClicked(comment: Api.Comment) {
-            val byId = apiCommentsCh.value.associateBy { it.id }
+            val byId = apiComments.value.associateBy { it.id }
 
             val parentComments = mutableListOf<WriteMessageActivity.ParentComment>()
 

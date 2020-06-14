@@ -460,7 +460,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
             // read the "header"
             val bytes = ByteArray(512)
-            val count = input.readSimple(bytes)
+            val count = input.readAsMuchAsPossible(bytes)
 
             // and guess the type
             val ext = MimeTypeHelper.guess(bytes)

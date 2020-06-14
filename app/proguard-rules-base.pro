@@ -59,11 +59,8 @@
 -assumevalues class kotlinx.coroutines.internal.MainDispatcherLoader {
   boolean FAST_SERVICE_LOADER_ENABLED return false;
 }
+
 -checkdiscard class kotlinx.coroutines.internal.FastServiceLoader
-
-
--whyareyoukeeping class kotlin.Metadata
-
 -checkdiscard class kotlin.Metadata
 
 ## Firebase logging

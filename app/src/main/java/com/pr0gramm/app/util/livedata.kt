@@ -15,7 +15,7 @@ fun <T> MutableLiveData<T>.readOnly(): LiveData<T> {
 
 fun <T> Observable<T>.asFlow(): Flow<T> {
     return channelFlow {
-        val sub = subscribe({ sendBlocking(it) }, { err -> close(err) })
+        val sub = subscribe({ sendBlocking(it) }, { err -> close(err) }, { close() })
         awaitClose { sub.unsubscribe() }
     }
 }

@@ -11,20 +11,17 @@ import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.base.toObservable
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.util.asFlow
-import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.debugOnly
-import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.*
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -381,24 +378,19 @@ class UserService(private val api: Api,
     val userIsAdmin: Boolean
         get() = loginState.authorized && cookieJar.parsedCookie?.admin == true
 
-    val loginStateWithBenisGraph: Observable<LoginStateWithBenisGraph> = run {
-        val rxStart = loginStates.first().map { LoginStateWithBenisGraph(loginState) }
-
-        val rxGraphed = loginStates.flatMap { loginState ->
+    val loginStateWithBenisGraph = run {
+        val graphs = loginStates.asFlow().mapLatest { loginState ->
             if (loginState.authorized) {
-                toObservable {
-                    LoginStateWithBenisGraph(loginState, loadBenisHistoryAsGraph(loginState.id))
-                }
+                LoginStateWithScoreGraph(loginState, loadScoreHistoryAsGraph(loginState.id))
             } else {
-                Observable.just(LoginStateWithBenisGraph(loginState))
+                LoginStateWithScoreGraph(loginState, scoreGraph = null)
             }
         }
 
-        val ticker = Observable.interval(0, 10, TimeUnit.MINUTES)
-        rxStart.concatWith(ticker.switchMap { rxGraphed })
+        ticker(Duration.minutes(10)).flatMapLatest { graphs }
     }
 
-    private suspend fun loadBenisHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
+    private suspend fun loadScoreHistoryAsGraph(userId: Int): Graph = logger.time("Loading benis graph") {
         val now = Instant.now()
         val start = now - Duration.days(7)
 
@@ -445,8 +437,8 @@ class UserService(private val api: Api,
 
     val canViewCategoryStalk: Boolean get() = config.followIsFreeForAll || userIsPremium
 
-    class LoginStateWithBenisGraph(
-            val loginState: LoginState, val benisGraph: Graph? = null)
+    class LoginStateWithScoreGraph(
+            val loginState: LoginState, val scoreGraph: Graph?)
 
     sealed class LoginResult {
         object Success : LoginResult()

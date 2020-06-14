@@ -17,7 +17,7 @@ import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withBackgroundContext
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
@@ -144,10 +144,10 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
                     positive()
                 }
 
-                else -> defaultOnError().call(error)
+                else -> handleOnError(error)
             }
         } else {
-            defaultOnError().call(error)
+            handleOnError(error)
         }
     }
 

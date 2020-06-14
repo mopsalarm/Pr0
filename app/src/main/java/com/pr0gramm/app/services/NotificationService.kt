@@ -128,18 +128,28 @@ class NotificationService(private val context: Application,
                 setLargeIcon(preview)
             }
 
-            if (progress < 1) {
-                // only show progress if download is still in progress.
-                setProgress(1000, (1000f * progress.coerceIn(0f, 1f)).toInt(), progress <= 0)
-                setSmallIcon(android.R.drawable.stat_sys_download)
-                setAutoCancel(false)
-            } else {
-                setContentText(context.getString(R.string.download_complete))
-                setSmallIcon(android.R.drawable.stat_sys_download_done)
+            when {
+                progress < 0 -> {
+                    setContentText(context.getString(R.string.download_failed))
+                    setSmallIcon(android.R.drawable.stat_notify_error)
+                    setAutoCancel(true)
+                }
 
-                // make it clickable
-                setAutoCancel(true)
-                setContentIntent(viewFileIntent(uri))
+                progress < 1 -> {
+                    // only show progress if download is still in progress.
+                    setProgress(1000, (1000f * progress.coerceIn(0f, 1f)).toInt(), progress <= 0)
+                    setSmallIcon(android.R.drawable.stat_sys_download)
+                    setAutoCancel(false)
+                }
+
+                else -> {
+                    setContentText(context.getString(R.string.download_complete))
+                    setSmallIcon(android.R.drawable.stat_sys_download_done)
+
+                    // make it clickable
+                    setAutoCancel(true)
+                    setContentIntent(viewFileIntent(uri))
+                }
             }
         }
     }

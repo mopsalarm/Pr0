@@ -3,35 +3,45 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.base.onAttachedScope
+import com.pr0gramm.app.ui.base.whileIsAttachedScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import rx.subscriptions.CompositeSubscription
 
 /**
  */
 @SuppressLint("ViewConstructor")
-abstract class ProxyMediaView internal constructor(config: MediaView.Config) : MediaView(config, R.layout.player_proxy) {
-    private val subscription = CompositeSubscription()
-
-    private var child: MediaView? = null
+abstract class ProxyMediaView internal constructor(config: Config) : MediaView(config, R.layout.player_proxy) {
+    private var delegate: MediaView? = null
 
     init {
         showBusyIndicator()
     }
 
     internal fun setChild(child: MediaView) {
-        removeChildView()
         hideBusyIndicator()
 
-        setChildView(child)
+        var idx = childCount
 
-        bootupChild()
+        val previewView = previewView
+        if (previewView?.parent === this) {
+            idx = indexOfChild(previewView) + 1
+        }
+
+        child.layoutParams = layoutParams
+        child.viewAspect = viewAspect
+
+        addView(child, idx)
+
+        delegate = child
+
+        if (isPlaying) {
+            child.playMedia()
+        }
 
         // forward double clicks
         child.tapListener = ForwardingTapListener()
 
-        onAttachedScope {
+        whileIsAttachedScope {
             launch {
                 child.viewed().collect { onMediaShown() }
             }
@@ -42,66 +52,22 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
         }
     }
 
-    /**
-     * Adds the proxied child above the preview.
-     */
-    private fun setChildView(mediaView: MediaView) {
-        var idx = childCount
-        val previewView = previewView
-        if (previewView != null && previewView.parent === this) {
-            idx = indexOfChild(previewView) + 1
-        }
-
-        // transfer the layout parameters
-        mediaView.layoutParams = layoutParams
-        mediaView.viewAspect = viewAspect
-        addView(mediaView, idx)
-
-        child = mediaView
-    }
-
-    private fun removeChildView() {
-        if (child == null)
-            return
-
-        subscription.clear()
-
-        teardownChild()
-        removeView(child)
-
-        child = null
-    }
-
-    private fun bootupChild() {
-        if (child != null) {
-            if (isPlaying)
-                child!!.playMedia()
-        }
-    }
-
-    private fun teardownChild() {
-        child?.let { child ->
-            if (isPlaying)
-                child.stopMedia()
-        }
-    }
-
     override fun playMedia() {
         super.playMedia()
-        child?.playMedia()
+        delegate?.playMedia()
     }
 
     override fun stopMedia() {
         super.stopMedia()
-        child?.stopMedia()
+        delegate?.stopMedia()
     }
 
     override fun rewind() {
-        child?.rewind()
+        delegate?.rewind()
     }
 
     override val actualMediaView: MediaView
-        get() = child ?: this
+        get() = delegate ?: this
 
     override fun onMediaShown() {
         viewAspect = -1f
@@ -110,7 +76,7 @@ abstract class ProxyMediaView internal constructor(config: MediaView.Config) : M
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        child?.let { child ->
+        delegate?.let { child ->
             event.offsetLocation(
                     (child.paddingLeft - paddingLeft).toFloat(),
                     (child.paddingTop - paddingTop).toFloat())

@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.addOnAttachListener
@@ -14,7 +14,6 @@ import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
 import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
-import rx.functions.Action1
 
 /**
  */
@@ -54,8 +53,8 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
 
         gifDrawableLoader.load(effectiveUri)
                 .compose(backgroundBindView())
-                .doAfterTerminate { this.hideBusyIndicator() }
-                .subscribe(Action1 { this.onDownloadStatus(it) }, defaultOnError())
+                .doAfterTerminate { hideBusyIndicator() }
+                .subscribe({ onDownloadStatus(it) }, { err -> handleOnError(err) })
     }
 
     private fun onDownloadStatus(state: GifDrawableLoader.Status) {

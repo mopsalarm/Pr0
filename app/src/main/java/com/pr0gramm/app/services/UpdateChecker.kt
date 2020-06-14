@@ -18,9 +18,6 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.fragments.ProgressDialogController
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.MainThreadScheduler
-import com.pr0gramm.app.util.asFlow
 import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -117,12 +114,7 @@ class UpdateChecker {
             activity as BaseAppCompatActivity
 
             activity.launchUntilDestroy {
-                val progress = downloadService
-                        .downloadUpdateFile(Uri.parse(update.apk))
-                        .subscribeOn(BackgroundScheduler)
-                        .unsubscribeOn(BackgroundScheduler)
-                        .observeOn(MainThreadScheduler)
-                        .asFlow()
+                val progress = downloadService.downloadUpdateFile(Uri.parse(update.apk))
 
                 // show the progress dialog.
                 val dialog = ProgressDialogController(activity)

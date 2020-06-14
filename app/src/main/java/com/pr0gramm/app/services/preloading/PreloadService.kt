@@ -19,9 +19,9 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.NotificationService.Types
+import com.pr0gramm.app.services.OnceEvery
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.LazyInjectorAware
@@ -46,7 +46,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     private var canceled: Boolean = false
 
     private var jobId: Long = 0
-    private val interval = DownloadService.Interval(500)
+    private val updateNotificationSchedule = OnceEvery(Duration.millis(500))
 
     private val preloadCache: File by lazy {
         File(cacheDir, "preload").also { path ->
@@ -300,9 +300,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     }
 
     private inline fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {
-        interval.doIfTime {
-            show(config)
-        }
+        updateNotificationSchedule { show(config) }
     }
 
     private fun download(uri: Uri, targetFile: File, progress: (Float) -> Unit) {

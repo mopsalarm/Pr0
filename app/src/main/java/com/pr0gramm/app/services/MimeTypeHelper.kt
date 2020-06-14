@@ -1,6 +1,6 @@
 package com.pr0gramm.app.services
 
-import com.pr0gramm.app.util.readSimple
+import com.pr0gramm.app.util.readAsMuchAsPossible
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -44,7 +44,7 @@ object MimeTypeHelper {
     }
 
     fun guess(input: InputStream): String? {
-        return guess(ByteArray(512).also { input.readSimple(it) })
+        return guess(ByteArray(512).also { input.readAsMuchAsPossible(it) })
     }
 
     fun extension(type: String): String? {

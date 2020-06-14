@@ -9,7 +9,6 @@ import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.bundle
 import com.pr0gramm.app.util.weakref
-import rx.functions.Action1
 import java.util.concurrent.CancellationException
 
 /**
@@ -92,15 +91,10 @@ class ErrorDialogFragment : androidx.fragment.app.DialogFragment() {
             } catch (error: Throwable) {
                 logger.warn("Error removing previous dialog", error)
             }
-
         }
 
-        /**
-         * Creates the default error callback [rx.functions.Action1]
-         */
-
-        fun defaultOnError(): Action1<Throwable> {
-            return Action1 { error -> processError(error, GlobalErrorDialogHandler) }
+        fun handleOnError(err: Throwable) {
+            processError(err, GlobalErrorDialogHandler)
         }
     }
 }

@@ -48,7 +48,7 @@ class PermissionHelperDelegate(private val activity: Activity) : ActivityCompat.
 
             // show error dialog
             if (permission != null) {
-                ErrorDialogFragment.defaultOnError().call(PermissionNotGranted(permission))
+                ErrorDialogFragment.handleOnError(PermissionNotGranted(permission))
             }
         }
     }

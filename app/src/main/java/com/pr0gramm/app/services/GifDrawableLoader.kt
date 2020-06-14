@@ -3,6 +3,7 @@ package com.pr0gramm.app.services
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.core.net.toFile
+import com.pr0gramm.app.Duration.Companion.millis
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.createObservable
@@ -66,9 +67,11 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
 
             temporary.delete()
 
+            val publishState = OnceEvery(millis(100))
+
             // copy data to the file.
-            val iv = DownloadService.Interval(250)
             val contentLength = entry.totalSize.toFloat()
+
             entry.inputStreamAt(0).use { stream ->
                 var count = 0
                 readStream(stream) { buffer, length ->
@@ -80,7 +83,7 @@ class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
                         return
                     }
 
-                    iv.doIfTime {
+                    publishState {
                         emitter.onNext(Status(progress = count / contentLength))
                     }
                 }

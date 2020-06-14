@@ -102,13 +102,13 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .flowOn(Dispatchers.Default)
                 .onStart { emit(listOf()) }
 
-        val elements = combine(userService.loginStateWithBenisGraph.asFlow(), rxNavItems, userClassesService.onChange) { state, navItems, _ ->
+        val elements = combine(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.onChange) { state, navItems, _ ->
             buildList {
                 val userClass = userClassesService.get(state.loginState.mark)
                 add(TitleInfo(state.loginState.name, userClass))
 
                 if (state.loginState.authorized) {
-                    add(BenisInfo(state.loginState.score, state.benisGraph))
+                    add(BenisInfo(state.loginState.score, state.scoreGraph))
                 }
 
                 add(Spacer)

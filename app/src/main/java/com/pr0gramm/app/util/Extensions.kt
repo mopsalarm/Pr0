@@ -47,10 +47,7 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CompatibleTextView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import rx.Emitter
@@ -58,8 +55,6 @@ import rx.Observable
 import rx.Subscription
 import rx.android.MainThreadSubscription
 import rx.functions.Action1
-import rx.subjects.BehaviorSubject
-import rx.subjects.ReplaySubject
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
@@ -97,7 +92,7 @@ fun <T> Observable<T>.observeOnMainThread(firstIsSync: Boolean = false): Observa
 }
 
 
-fun InputStream.readSimple(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
+fun InputStream.readAsMuchAsPossible(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
     if (len < 0) {
         throw IllegalArgumentException("Length must not be negative: $len")
     }
@@ -148,7 +143,7 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (Byt
     val buffer = ByteArray(bufferSize)
 
     while (true) {
-        val read = stream.readSimple(buffer)
+        val read = stream.readAsMuchAsPossible(buffer)
         if (read <= 0) {
             break
         }
@@ -346,12 +341,6 @@ inline fun debugOnly(block: () -> Unit) {
 
 fun <T : Any?> Observable<T>.subscribeIgnoreError(onNext: (T) -> Unit): Subscription {
     return subscribe(onNext, { err -> AndroidUtility.logToCrashlytics(err) })
-}
-
-fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false): Observable<T> {
-    val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
-    subscribe(subject)
-    return subject
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -877,4 +866,17 @@ fun <T> Flow<T>.toStateFlow(context: CoroutineScope, initialValue: T): StateFlow
     }
 
     return state
+}
+
+
+fun ticker(interval: Duration, delay: Duration = Duration(0)): Flow<Int> {
+    return flow {
+        var idx = 0
+
+        delay(delay)
+        while (true) {
+            emit(idx++)
+            delay(interval)
+        }
+    }
 }

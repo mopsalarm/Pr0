@@ -160,7 +160,7 @@ class TagsView(context: Context) : LinearLayout(context) {
 
                     } catch (err: Exception) {
                         if (err !is CancellationException) {
-                            ErrorDialogFragment.defaultOnError().call(err)
+                            ErrorDialogFragment.handleOnError(err)
                         } else {
                             throw err
                         }
