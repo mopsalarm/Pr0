@@ -287,6 +287,12 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     }
 
     private val videoListener = object : VideoListener {
+        override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
+            if (viewAspect < 0) {
+                viewAspect = width.toFloat() / height.toFloat() * pixelWidthHeightRatio
+            }
+        }
+
         override fun onRenderedFirstFrame() {
             hideBusyIndicator()
             if (isPlaying) {
@@ -294,10 +300,5 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
                 onMediaShown()
             }
         }
-    }
-
-    companion object {
-        private val logger = Logger("VideoMediaView")
-
     }
 }

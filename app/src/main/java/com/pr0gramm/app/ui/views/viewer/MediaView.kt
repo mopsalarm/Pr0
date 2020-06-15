@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 /**
  */
@@ -53,13 +54,14 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     private var mediaShown: Boolean = false
 
     protected val picasso: Picasso by instance()
+
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val fancyThumbnailGenerator: FancyExifThumbnailGenerator by instance()
 
     /**
      * Returns the url that this view should display.
      */
-    protected val mediaUri: MediaUri
+    private val mediaUri: MediaUri
 
     var tapListener: TapListener? = null
 
@@ -79,7 +81,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      */
     open var viewAspect = -1f
         set(viewAspect) {
-            previewView?.aspect = if (viewAspect > 0) Math.max(viewAspect, MIN_PREVIEW_ASPECT) else -1f
+            previewView?.aspect = if (viewAspect > 0) max(viewAspect, MIN_PREVIEW_ASPECT) else -1f
 
             if (this.viewAspect != viewAspect) {
                 field = viewAspect
