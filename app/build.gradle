@@ -179,7 +179,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0") {
+        // exclude original moshi, we're using a patched moshi version
+        exclude(group: "com.squareup.moshi")
+    }
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.7.2"))
     implementation "com.squareup.okhttp3:okhttp"
@@ -188,7 +191,7 @@ dependencies {
     implementation "com.squareup.picasso:picasso:2.71828"
 
     // kotlin 1.9.2 keeps kotlin.Metadata
-    implementation "com.squareup.moshi:moshi:1.8.0"
+    implementation "com.github.mopsalarm.moshi:moshi:1.9.3-1"
 
     // still issues with version at least 1.2.20
     implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
