@@ -44,9 +44,12 @@ import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
 import kotlin.math.min
@@ -682,11 +685,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // this prevents the viewer from getting bad clipping.
         recyclerView.postAdapter?.let { adapter ->
             launchUntilStop {
-                // run on Main, not Main.immediate.
-                withContext(Dispatchers.Main) {
-                    adapter.updates.drop(1).collect {
-                        simulateScroll()
-                    }
+                adapter.updates.drop(1).collect {
+                    simulateScroll()
                 }
             }
         }
@@ -902,6 +902,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
+        if (view == null) {
+            AndroidUtility.logToCrashlytics(RuntimeException("simulateScroll() without a view."))
+            return
+        }
+
         recyclerView.primaryScrollListener?.onScrolled(this.recyclerView, 0, 0)
     }
 

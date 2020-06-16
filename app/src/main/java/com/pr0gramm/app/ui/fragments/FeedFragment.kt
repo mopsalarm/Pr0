@@ -50,6 +50,7 @@ import kotlin.time.seconds
 
 /**
  */
+@OptIn(ExperimentalTime::class)
 class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
     private val settings = Settings.get()
 
@@ -165,6 +166,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
 
         interstitialAdler = InterstitialAdler(requireContext())
+
+
+        launchWhenStarted {
+            trace { "Consume taskQueue $taskQueue" }
+            try {
+                taskQueue.receiveAsFlow().sample(1.seconds).collect { task -> task() }
+            } finally {
+                trace { "Stop consume taskQueue $taskQueue" }
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -173,7 +184,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-    @OptIn(ExperimentalTime::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction {
         super.onViewCreated(view, savedInstanceState)
 
@@ -224,7 +234,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
-        launchUntilViewDestroy {
+        launchWhenViewCreated {
             // lets start receiving feed updates
             observeFeedUpdates()
         }
@@ -236,10 +246,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 this@FeedFragment.trace { "enableAds($show)" }
                 state = state.copy(adsVisible = show)
             }
-        }
-
-        launchUntilViewDestroy {
-            taskQueue.consumeAsFlow().sample(1.seconds).collect { task -> task() }
         }
     }
 

@@ -39,6 +39,10 @@ open class ApplicationClass : Application(), InjectorAware {
     private val logger = Logger("Pr0grammApp")
 
     init {
+        debugOnly {
+            System.setProperty("kotlinx.coroutines.debug", "on")
+        }
+
         appContext = this
     }
 
