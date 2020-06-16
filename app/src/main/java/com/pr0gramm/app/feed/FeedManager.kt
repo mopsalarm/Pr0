@@ -3,19 +3,18 @@ package com.pr0gramm.app.feed
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.util.LazyStateFlow
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 class FeedManager(private val feedService: FeedService, private var feed: Feed) {
     private val logger = Logger("FeedService")
 
-    private val subject: ConflatedBroadcastChannel<Update> = ConflatedBroadcastChannel()
+    private val subject = LazyStateFlow<Update>()
     private var job: Job? = null
 
     /**
@@ -26,7 +25,7 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
     private val feedType: FeedType get() = feed.feedType
 
     val updates: Flow<Update>
-        get() = subject.asFlow().onStart { emit(Update.NewFeed(feed)) }
+        get() = subject.onStart { emit(Update.NewFeed(feed)) }
 
     /**
      * Stops all loading operations and resets the feed to the given value.
@@ -131,11 +130,11 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
     }
 
     private fun publishError(err: Throwable) {
-        subject.offer(Update.Error(err))
+        subject.send(Update.Error(err))
     }
 
     private fun publish(update: Update) {
-        subject.offer(update)
+        subject.send(update)
     }
 
     private fun feedQuery(): FeedService.FeedQuery {

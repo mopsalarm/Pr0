@@ -914,7 +914,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         loader.reset()
         loader.restart()
 
-        launchWhenViewCreated {
+        launchWhenStarted {
             queryForUserInfo()
         }
     }
