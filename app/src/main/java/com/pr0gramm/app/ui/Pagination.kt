@@ -9,6 +9,8 @@ import com.pr0gramm.app.util.directName
 import com.pr0gramm.app.util.postOrSetValue
 import kotlinx.coroutines.*
 import kotlin.reflect.KMutableProperty0
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 class PaginationController(
         private val pagination: Pagination<*>,
@@ -26,6 +28,7 @@ class PaginationController(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loader: Loader<E>) {
 
     private val logger = Logger("Pagination(${javaClass.directName})")
@@ -80,12 +83,19 @@ class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loa
             loadCallback: suspend (previousValue: E?) -> Page<E>,
             endStateRef: KMutableProperty0<EndState<E>>) {
 
+        val previousStateWasError = endStateRef.get().error != null
+
         // update state first
         endStateRef.set(endStateRef.get().copy(loading = true, error = null))
 
         scope.launch {
             try {
-                logger.warn { "Start loading" }
+                if (previousStateWasError) {
+                    logger.debug { "Was in error state, delay loading" }
+                    delay(1.seconds)
+                }
+
+                logger.debug { "Start loading" }
                 val (data, endValue) = loadCallback(endStateRef.get().value)
 
                 logger.debug { "Loading finished, updating state" }
