@@ -906,15 +906,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private fun refreshFeedWithIndicator() {
         swipeRefreshLayout.isRefreshing = true
+
         refreshContent()
     }
 
     private fun refreshContent() {
         resetToolbar()
+
         loader.reset()
         loader.restart()
 
-        launchWhenStarted {
+        launchWhenStarted(ignoreErrors = true) {
             queryForUserInfo()
         }
     }
