@@ -45,7 +45,7 @@ data class PostCollection(
 
 class CollectionsService(private val api: Api, private val userService: UserService) {
     private val logger = Logger("CollectionsService")
-    private val _collections: MutableLiveData<List<PostCollection>> = MutableLiveData()
+    private val _collections: MutableLiveData<List<PostCollection>> = MutableLiveData(listOf())
 
     val collections = _collections.readOnly()
 
