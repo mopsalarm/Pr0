@@ -811,10 +811,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // remember for later
         this.viewer = viewer
 
-        launchWhenCreated {
-            viewer.viewed().collect {
-                doInBackground { seenService.markAsSeen(feedItem.id) }
-            }
+        viewer.wasViewed = {
+            doInBackground { seenService.markAsSeen(feedItem.id) }
         }
 
         registerTapListener(viewer)

@@ -31,7 +31,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
 import kotlin.math.max
@@ -47,7 +46,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         Logger("MediaView")
     }
 
-    private val mutableWasViewed = MutableStateFlow(false)
     private val controllerViews = Channel<View>(Channel.UNLIMITED)
     private val gestureDetector: GestureDetector
 
@@ -62,6 +60,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      * Returns the url that this view should display.
      */
     private val mediaUri: MediaUri
+
+    var wasViewed: Listener<Unit>? = null
 
     var tapListener: TapListener? = null
 
@@ -127,13 +127,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         // set preview info
         config.previewInfo?.let { updatePreview(it) }
-    }
-
-    /**
-     * An observable that produces a value on the main thread if the video was seen.
-     */
-    fun viewed(): Flow<Boolean> {
-        return mutableWasViewed
     }
 
     @SuppressLint("SetTextI18n")
@@ -317,7 +310,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         mediaShown = true
 
         if (isPlaying) {
-            mutableWasViewed.value = true
+            wasViewed(Unit)
         }
     }
 

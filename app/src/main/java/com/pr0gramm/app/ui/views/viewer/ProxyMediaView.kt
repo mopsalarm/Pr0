@@ -41,11 +41,9 @@ abstract class ProxyMediaView internal constructor(config: Config) : MediaView(c
         // forward double clicks
         child.tapListener = ForwardingTapListener()
 
-        whileIsAttachedScope {
-            launch {
-                child.viewed().collect { onMediaShown() }
-            }
+        child.wasViewed = { onMediaShown() }
 
+        whileIsAttachedScope {
             launch {
                 child.controllerViews().collect { view -> publishControllerView(view) }
             }
