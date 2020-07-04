@@ -1,5 +1,26 @@
 [
   {
+    "version": 184,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Favoriten sind wieder durchsuchbar."
+      },
+      {
+        "type": "Fix",
+        "change": "Beim Senden von Nachrichten wird automatisch heruntergescrollt."
+      },
+      {
+        "type": "Fix",
+        "change": "Scrollposition wird beim Rotieren wieder beibehalten"
+      },
+      {
+        "type": "Fix",
+        "change": "Noch mehr Bugfixes"
+      }
+    ]
+  },
+  {
     "version": 183,
     "changes": [
       {
