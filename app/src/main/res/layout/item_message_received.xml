@@ -8,21 +8,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="48dp"
-        android:layout_marginRight="48dp"
-        android:layout_marginBottom="4dp"
-        android:background="#333">
+        android:layout_marginBottom="4dp">
 
         <com.pr0gramm.app.ui.views.CompatibleTextView
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true"
+            android:background="#333"
             android:padding="8dp"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+            android:textIsSelectable="true"
             tools:text="Hallo cha0s, schön dass du das pr0gramm entwickelt hast. Deine Benutzer freuen sich jeden Tag." />
 
         <TextView
@@ -30,9 +28,8 @@
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginBottom="4dp"
             android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
             android:gravity="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"

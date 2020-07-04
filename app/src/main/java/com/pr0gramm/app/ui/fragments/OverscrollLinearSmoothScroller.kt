@@ -1,13 +1,14 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
+import androidx.recyclerview.widget.LinearSmoothScroller
 import kotlin.math.absoluteValue
 
 class OverscrollLinearSmoothScroller(
         context: Context, idx: Int,
         private val dontScrollIfVisible: Boolean,
         private val offsetTop: Int,
-        private val offsetBottom: Int) : androidx.recyclerview.widget.LinearSmoothScroller(context) {
+        private val offsetBottom: Int) : LinearSmoothScroller(context) {
 
     init {
         targetPosition = idx
@@ -24,12 +25,22 @@ class OverscrollLinearSmoothScroller(
     }
 }
 
-class CenterLinearSmoothScroller(ctx: Context, idx: Int) : androidx.recyclerview.widget.LinearSmoothScroller(ctx) {
+class CenterLinearSmoothScroller(ctx: Context, idx: Int) : LinearSmoothScroller(ctx) {
     init {
         targetPosition = idx
     }
 
     override fun calculateDtToFit(viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int): Int {
         return boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
+    }
+}
+
+class EndOfViewSmoothScroller(context: Context, idx: Int) : LinearSmoothScroller(context) {
+    init {
+        targetPosition = idx
+    }
+
+    override fun getVerticalSnapPreference(): Int {
+        return SNAP_TO_END
     }
 }

@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
@@ -84,13 +85,17 @@ class AdapterDelegateManager<T : Any>(
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val delegate = delegates[viewType]
 
-        delegate.trace("onCreateViewHolder()") {
-            return delegate.onCreateViewHolder(parent)
+        val holder = delegate.trace("onCreateViewHolder()") {
+            delegate.onCreateViewHolder(parent)
         }
+
+        holder.itemView.setTag(R.id.rv_view_type, viewType)
+
+        return holder
     }
 
     fun onBindViewHolder(holder: RecyclerView.ViewHolder, values: List<T>, index: Int) {
-        val delegate = delegates[holder.itemViewType]
+        val delegate = delegates[holder.itemView.getTag(R.id.rv_view_type) as Int]
         delegate.onBindViewHolder(holder, values, index)
     }
 
@@ -158,6 +163,35 @@ fun <T : Any> delegateAdapterOf(
     }
 }
 
+abstract class DelegatePagingDataAdapter<T : Any>(
+        diffCallback: DiffUtil.ItemCallback<T>) : PagingDataAdapter<T, RecyclerView.ViewHolder>(diffCallback) {
+
+    protected val delegates: MutableList<AdapterDelegate<in T, out RecyclerView.ViewHolder>> = mutableListOf()
+
+    private val manager by lazy(LazyThreadSafetyMode.NONE) {
+        @Suppress("UNCHECKED_CAST")
+        AdapterDelegateManager(delegates as List<AdapterDelegate<T, RecyclerView.ViewHolder>>)
+    }
+
+    protected val items = object : AbstractList<T>() {
+        override val size: Int get() = itemCount
+        override fun get(index: Int): T = getItem(index)
+                ?: throw UnsupportedOperationException("placeholder not supported")
+    }
+
+    final override fun getItemViewType(position: Int): Int {
+        return manager.getItemViewType(items, position)
+    }
+
+    final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return manager.onCreateViewHolder(parent, viewType)
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        manager.onBindViewHolder(holder, items, position)
+    }
+}
+
 interface RecycleAware {
     fun onViewRecycled()
 }
@@ -221,6 +255,33 @@ class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_error)
             return object : Value {
                 override val errorText: String = ErrorFormatting.format(context, err)
             }
+        }
+
+        fun errorValueOf(text: String): Value {
+            return object : Value {
+                override val errorText: String = text
+            }
+        }
+    }
+}
+
+
+inline fun <reified AdaptedE : AdaptedT, reified AdaptedT : Any, E : T, T : Any, VH : RecyclerView.ViewHolder>
+        ItemAdapterDelegate<E, T, VH>.adaptTo(crossinline convert: (AdaptedE) -> E): AdapterDelegate<AdaptedT, VH> {
+
+    val delegate = this
+
+    return object : ItemAdapterDelegate<AdaptedE, AdaptedT, VH>() {
+        override fun onCreateViewHolder(parent: ViewGroup): VH {
+            return delegate.onCreateViewHolder(parent)
+        }
+
+        override fun isForViewType(value: AdaptedT): Boolean {
+            return value is AdaptedE && delegate.isForViewType(convert(value))
+        }
+
+        override fun onBindViewHolder(holder: VH, value: AdaptedE) {
+            return delegate.onBindViewHolder(holder, convert(value))
         }
     }
 }

@@ -789,7 +789,7 @@ interface Api {
     class ConversationMessage(
             val id: Long,
             @Json(name = "created") val creationTime: Instant,
-            val message: String,
+            @Json(name = "message") val messageText: String,
             val sent: Boolean
     )
 

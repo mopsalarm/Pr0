@@ -20,6 +20,7 @@ import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.fragments.conversation.StringValue
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChange
 import java.util.concurrent.TimeUnit
@@ -103,7 +104,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         // if we have at least one unread message
         val dividerIndex = values.indexOfFirst { it is Message && it.read }
         if (dividerIndex > 0) {
-            val divider = DividerAdapterDelegate.Value(context.getString(R.string.inbox_type_unread))
+            val divider = StringValue(context.getString(R.string.inbox_type_unread))
             values.add(dividerIndex, divider)
         }
 

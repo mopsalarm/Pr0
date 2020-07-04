@@ -9,7 +9,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.fragments.ConversationFragment
+import com.pr0gramm.app.ui.fragments.conversation.ConversationFragment
 import com.pr0gramm.app.util.activityIntent
 import com.pr0gramm.app.util.find
 

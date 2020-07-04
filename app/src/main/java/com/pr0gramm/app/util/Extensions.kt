@@ -48,7 +48,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
@@ -389,7 +388,7 @@ inline fun catchAll(block: () -> Unit) {
         block()
 
     } catch (err: CancellationException) {
-        // ignore
+        throw err
 
     } catch (err: Throwable) {
         AndroidUtility.logToCrashlytics(err)
@@ -641,10 +640,7 @@ suspend fun runEvery(period: Duration, initial: Duration = Duration.Zero, task: 
 
     while (true) {
         try {
-            supervisorScope { task() }
-
-        } catch (err: CancellationException) {
-            return
+            task()
         } catch (err: Exception) {
             AndroidUtility.logToCrashlytics(err)
         }

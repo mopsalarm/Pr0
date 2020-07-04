@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.base.Main
 import com.pr0gramm.app.ui.base.withBackgroundContext
@@ -14,10 +15,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 
-abstract class AsyncListAdapter<T : Any, V : androidx.recyclerview.widget.RecyclerView.ViewHolder>(
+abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T> = InstanceDiffCallback(),
         private val detectMoves: Boolean = false,
-        name: String = "AsyncListAdapter") : androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
+        name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
 
     internal val logger = Logger(name)
 

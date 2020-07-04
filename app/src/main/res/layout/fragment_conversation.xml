@@ -6,18 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/messages"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_message_sent" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_weight="1"
+        tools:listitem="@layout/item_message_sent" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -27,23 +21,22 @@
         android:elevation="8dp">
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/message_input"
+            style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="48dp"
-            android:layout_marginRight="48dp"
             android:background="@android:color/transparent"
             android:gravity="center_vertical"
-            android:maxLines="6"
             android:hint="@string/write_message_placeholder"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:paddingEnd="16dp"
+            android:maxLines="6"
+            android:paddingStart="16dp"
             android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
             android:paddingRight="16dp"
-            android:paddingStart="16dp" />
+            android:paddingBottom="8dp" />
 
         <ImageButton
             android:id="@+id/action_send"
@@ -51,8 +44,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="top|end"
-            app:tint="#888"
-            app:srcCompat="@drawable/ic_action_send" />
+            app:srcCompat="@drawable/ic_action_send"
+            app:tint="#888" />
     </FrameLayout>
 
 </LinearLayout>
