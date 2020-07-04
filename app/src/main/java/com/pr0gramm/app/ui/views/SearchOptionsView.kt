@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.Tags
 import com.pr0gramm.app.services.RecentSearchesServices
@@ -35,6 +36,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private val minimumScoreLabel: TextView by bindView(R.id.minimum_benis_label)
     private val minimumScoreSlider: SeekBar by bindView(R.id.minimum_benis_slider)
     private val customExcludesView: EditText by bindView(R.id.without_tags_text)
+
+    private val extendedSearchViews: View by bindView(R.id.extended_search_fields)
 
     private var pendingState: Bundle? = null
 
@@ -80,6 +83,11 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         } else {
             updateTagsCheckboxes()
         }
+    }
+
+    fun enableSimpleSearch() {
+        extendedSearchViews.isVisible = false
+        find<View>(R.id.search_advanced).isVisible = false
     }
 
     private fun initAutoCompleteView(recentSearchesServices: RecentSearchesServices) {

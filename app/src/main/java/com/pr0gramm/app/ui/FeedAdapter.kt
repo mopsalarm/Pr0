@@ -41,8 +41,6 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
     : DelegateAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
 
     init {
-        setHasStableIds(true)
-
         delegates += FeedItemEntryAdapter
         delegates += CommentEntryAdapter
         delegates += adViewAdapter

@@ -115,9 +115,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val feed: Feed get() = state.feed
 
-    private var state: State by observeChange(State()) {
-        updateAdapterState()
-        stateCh.send(state)
+    private var state: State by observeChangeEx(State()) { previousState, newState ->
+        if (!stateTransaction.isActive) {
+            if (previousState != newState) {
+                updateAdapterState()
+            }
+
+            stateCh.send(state)
+        }
     }
 
     private var stateTransaction = StateTransaction({ state }, { updateAdapterState() })
@@ -234,14 +239,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
-        launchWhenViewCreated {
+        launchInViewScope {
             // lets start receiving feed updates
             observeFeedUpdates()
         }
 
-        launchUntilViewDestroy(ignoreErrors = true) { queryForUserInfo() }
+        launchInViewScope(ignoreErrors = true) { queryForUserInfo() }
 
-        launchWhenViewCreated {
+        launchInViewScope {
             adService.enabledForType(Config.AdType.FEED).collect { show ->
                 this@FeedFragment.trace { "enableAds($show)" }
                 state = state.copy(adsVisible = show)
@@ -801,7 +806,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         menu.findItem(R.id.action_preload)?.isVisible = feedType.preloadable
 
         // hide search item, if we are not searchable
-        val searchable = currentFilter.feedType.searchable && isNormalMode
+        val searchable = currentFilter.feedType.searchable
         menu.findItem(R.id.action_search)?.isVisible = searchable
 
         // switching to normal mode leaves the special favorites fragment.
@@ -1229,10 +1234,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         val typeName = FeedFilterFormatter.feedTypeToString(context, currentFilter.withTagsNoReset("dummy"))
         searchView.setQueryHint(getString(R.string.action_search, typeName))
 
-        val paddingTop = AndroidUtility.getStatusBarHeight(context)
-        searchView.setPadding(0, paddingTop, 0, 0)
+        if (isNormalMode) {
+            val paddingTop = AndroidUtility.getStatusBarHeight(context)
+            searchView.setPadding(0, paddingTop, 0, 0)
+        } else {
+            searchView.enableSimpleSearch()
+        }
 
-        searchContainer.visibility = View.VISIBLE
+        searchContainer.isVisible = true
 
         if (animated) {
             searchContainer.alpha = 0f

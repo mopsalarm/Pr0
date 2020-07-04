@@ -20,11 +20,8 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.TabsStateAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.equalsIgnoreCase
-import com.pr0gramm.app.util.fragmentArgument
 
 /**
  */
@@ -88,6 +85,11 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         pager.offscreenPageLimit = 2
 
         tabLayout.setupWithViewPager(pager)
+
+        if (ownView) {
+            // trigger a reload of the users collections
+            doInBackground { collectionsService.refresh() }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

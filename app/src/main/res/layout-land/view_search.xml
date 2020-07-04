@@ -50,6 +50,7 @@
         android:background="?dropshadowPrimaryDark"/>
 
     <LinearLayout
+        android:id="@+id/extended_search_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimaryDark"
