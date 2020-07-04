@@ -44,9 +44,6 @@ function deploy_upload_apk() {
   ./upload.sh github_api_token="${CREDENTIALS_GITHUB}" \
     owner="mopsalarm" repo="pr0" tag="$TAG" \
     filename="${APK_ALIGNED}"
-
-  ssh apk.pr0gramm.com "wget -O www/pr0gramm-$TAG.apk \
-    https://github.com/mopsalarm/Pr0/releases/download/$TAG/app-release.apk"
 }
 
 # increase app version for further development
