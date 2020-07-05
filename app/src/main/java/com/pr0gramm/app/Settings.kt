@@ -17,6 +17,8 @@ import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 /**
@@ -229,6 +231,14 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var instance: Settings
+
+        fun <T> changes(what: Settings.() -> T): Flow<T> {
+            return instance.changes().map { instance.what() }.distinctUntilChanged()
+        }
+
+        fun <T> observe(what: Settings.() -> T): Flow<T> {
+            return changes(what).distinctUntilChanged()
+        }
 
         fun initialize(context: Context) {
             PreferenceManager.setDefaultValues(context, R.xml.preferences, true)

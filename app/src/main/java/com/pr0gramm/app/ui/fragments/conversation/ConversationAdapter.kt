@@ -1,30 +1,20 @@
 package com.pr0gramm.app.ui.fragments.conversation
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.os.Parcel
-import android.os.Parcelable
-import android.text.TextPaint
-import android.text.style.ReplacementSpan
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.Unfreezable
-import com.pr0gramm.app.parcel.parcelableCreator
-import com.pr0gramm.app.ui.DelegatePagingDataAdapter
-import com.pr0gramm.app.ui.ItemAdapterDelegate
-import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
-import com.pr0gramm.app.ui.adaptTo
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.ui.adapters2.BindableViewHolder
+import com.pr0gramm.app.ui.adapters2.DelegatingPagingDataAdapter
+import com.pr0gramm.app.ui.adapters2.ViewHolders
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.setTextFuture
+import com.pr0gramm.app.util.sp
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,21 +24,15 @@ sealed class ConversationItem {
     class Divider(val text: String) : ConversationItem()
 }
 
-
-class ConversationAdapter
-    : DelegatePagingDataAdapter<ConversationItem>(ItemCallback) {
-
-    init {
-        delegates += MessageAdapterDelegate(sentValue = true)
-        delegates += MessageAdapterDelegate(sentValue = false)
-
-        delegates += DividerAdapterDelegate().adaptTo { value: ConversationItem.Divider -> value.text }
-
-//        delegates += staticLayoutAdapterDelegate(R.layout.item_conversation_empty, NoConversationsValue)
+class ConversationAdapter : DelegatingPagingDataAdapter<ConversationItem>(ItemCallback) {
+    override val delegate = ViewHolders<ConversationItem> {
+        register(ConversationItemMessageViewHolder.Factory(sentValue = true))
+        register(ConversationItemMessageViewHolder.Factory(sentValue = false))
+        register(ConversationItemDividerViewHolder.Factory)
     }
 
     val messages: List<Api.ConversationMessage>
-        get() = items.mapNotNull { (it as? ConversationItem.Message)?.message }
+        get() = items.mapNotNull { item -> (item as? ConversationItem.Message)?.message }
 
     private object ItemCallback : DiffUtil.ItemCallback<ConversationItem>() {
         override fun areItemsTheSame(oldItem: ConversationItem, newItem: ConversationItem): Boolean {
@@ -70,22 +54,16 @@ class ConversationAdapter
     }
 }
 
-private class MessageAdapterDelegate(private val sentValue: Boolean)
-    : ItemAdapterDelegate<ConversationItem.Message, ConversationItem, MessageAdapterDelegate.ViewHolder>() {
+private class ConversationItemMessageViewHolder private constructor(parent: ViewGroup, layoutId: Int)
+    : BindableViewHolder<ConversationItem.Message>(parent, layoutId) {
 
     private val format = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    override fun isForViewType(value: ConversationItem): Boolean {
-        return value is ConversationItem.Message && value.message.sent == sentValue
-    }
+    private val messageView = find<AppCompatTextView>(R.id.message)
+    private val timeView = find<TextView>(R.id.time)
 
-    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        val layout = if (sentValue) R.layout.item_message_sent else R.layout.item_message_received
-        return ViewHolder(parent.inflateDetachedChild(layout))
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, value: ConversationItem.Message) {
-        val context = holder.itemView.context
+    override fun bindTo(value: ConversationItem.Message) {
+        val context = itemView.context
 
         val text = buildSpannedString {
             append(Linkify.linkify(context, value.message.messageText))
@@ -95,83 +73,33 @@ private class MessageAdapterDelegate(private val sentValue: Boolean)
             }
         }
 
-        holder.message.setTextFuture(text)
+        messageView.setTextFuture(text)
 
-        holder.time.text = value.message.creationTime.toString(format)
+        timeView.text = value.message.creationTime.toString(format)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val message = find<AppCompatTextView>(R.id.message)
-        val time = find<TextView>(R.id.time)
-    }
-}
-
-class DividerAdapterDelegate : ListItemTypeAdapterDelegate<String, String, DividerAdapterDelegate.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        return ViewHolder(parent.inflateDetachedChild(R.layout.item_date_divider))
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, value: String) {
-        holder.textView.text = value
-    }
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView = find<TextView>(R.id.text)
-    }
-}
-
-data class StringValue(val text: String)
-
-class SpaceSpan(private val pxWidth: Int) : ReplacementSpan(), Parcelable {
-    constructor(parcel: Parcel) : this(parcel.readInt())
-
-    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
-        return pxWidth
-    }
-
-    override fun draw(canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {}
-
-    override fun updateMeasureState(textPaint: TextPaint) {}
-
-    override fun updateDrawState(tp: TextPaint?) {}
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(pxWidth)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<SpaceSpan> {
-        override fun createFromParcel(parcel: Parcel): SpaceSpan {
-            return SpaceSpan(parcel)
+    class Factory(private val sentValue: Boolean) : BindableViewHolder.Factory<ConversationItem.Message> {
+        override fun convertValue(value: Any): ConversationItem.Message? {
+            return (value as? ConversationItem.Message).takeIf { it?.message?.sent == sentValue }
         }
 
-        override fun newArray(size: Int): Array<SpaceSpan?> {
-            return arrayOfNulls(size)
+        override fun createViewHolder(parent: ViewGroup): BindableViewHolder<ConversationItem.Message> {
+            val layoutId = if (sentValue) R.layout.item_message_sent else R.layout.item_message_received
+            return ConversationItemMessageViewHolder(parent, layoutId)
         }
     }
 }
 
-private class ConversationMessageFreezer(val message: Api.ConversationMessage) : Freezable {
-    override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeLong(message.id)
-        write(message.creationTime)
-        writeString(message.messageText)
-        writeBoolean(message.sent)
+class ConversationItemDividerViewHolder private constructor(parent: ViewGroup)
+    : BindableViewHolder<ConversationItem.Divider>(parent, R.layout.item_date_divider) {
+
+    private val textView = find<TextView>(R.id.text)
+
+    override fun bindTo(value: ConversationItem.Divider) {
+        textView.text = value.text
     }
 
-    companion object : Unfreezable<ConversationMessageFreezer> {
-        @JvmField
-        val CREATOR = parcelableCreator()
-
-        override fun unfreeze(source: Freezable.Source): ConversationMessageFreezer {
-            return ConversationMessageFreezer(Api.ConversationMessage(
-                    id = source.readLong(),
-                    creationTime = source.read(Instant),
-                    messageText = source.readString(),
-                    sent = source.readBoolean()))
-        }
-    }
+    companion object Factory : BindableViewHolder.DefaultFactory<ConversationItem.Divider>(::ConversationItemDividerViewHolder)
 }
+
+

@@ -28,7 +28,7 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.parcel.CommentListParceler
 import com.pr0gramm.app.parcel.TagListParceler
-import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.getFreezableOrNull
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
@@ -61,7 +61,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
-    val feedItem: FeedItem by lazy { arguments?.getFreezable(ARG_FEED_ITEM, FeedItem)!! }
+    val feedItem: FeedItem by lazy { arguments?.getFreezableOrNull(ARG_FEED_ITEM, FeedItem)!! }
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 

@@ -5,10 +5,10 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -105,7 +105,7 @@ class InMemoryCacheService {
 
     suspend fun refreshRepostsCache(feedService: FeedService, query: FeedService.FeedQuery): Boolean {
         catchAll {
-            return withBackgroundContext(NonCancellable) {
+            return withContext(NonCancellable) {
                 val feed = feedService.load(query)
                 cacheReposts(feed.items.map { it.id })
                 true

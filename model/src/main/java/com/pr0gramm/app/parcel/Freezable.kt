@@ -129,23 +129,25 @@ inline fun <reified T : Freezable> Unfreezable<T>.parcelableCreator() = object :
     override fun newArray(size: Int): Array<T?> = arrayOfNulls(size)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun Bundle.putFreezable(key: String, f: Freezable) {
+fun Bundle.putFreezable(key: String, f: Freezable) {
     putParcelable(key, f)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T : Freezable> Bundle.getFreezable(key: String, c: Unfreezable<T>): T? {
+fun <T : Freezable> Bundle.getFreezableOrNull(key: String, c: Unfreezable<T>): T? {
     return getParcelable(key)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T : Freezable> Bundle.getParcelable(key: String, c: Unfreezable<T>): T? {
+fun <T : Freezable> Bundle.getFreezable(key: String, c: Unfreezable<T>): T {
+    return getFreezableOrNull(key, c)
+            ?: throw IllegalArgumentException("No freezable found for '$key'")
+}
+
+
+fun <T : Freezable> Bundle.getParcelable(key: String, c: Unfreezable<T>): T? {
     return getParcelable(key)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <T : Freezable> Intent.getFreezableExtra(key: String, c: Unfreezable<T>): T? {
+fun <T : Freezable> Intent.getFreezableExtra(key: String, c: Unfreezable<T>): T? {
     return getParcelableExtra(key)
 }
 

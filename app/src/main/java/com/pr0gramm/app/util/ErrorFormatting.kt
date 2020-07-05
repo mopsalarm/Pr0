@@ -60,7 +60,7 @@ object ErrorFormatting {
         if (message.isNullOrBlank())
             message = context.getString(R.string.error_exception_of_type, err.javaClass.directName)
 
-        return message ?: err.toString()
+        return message
     }
 
     private class Builder<out T : Throwable>(private val errorType: Class<in T>) {
@@ -314,6 +314,18 @@ private val HttpException.bodyContent: String
         return runCatching { body.string() }.getOrDefault("")
     }
 
-class StringException(errorKey: String, val messageProvider: (Context) -> String) : RuntimeException(errorKey) {
-    constructor(errorKey: String, id: Int) : this(errorKey, { it.getString(id) })
+class StringException : RuntimeException {
+    val messageProvider: (Context) -> String
+
+    constructor(cause: Throwable, @StringRes stringId: Int) : super(cause) {
+        messageProvider = { ctx -> ctx.getString(stringId) }
+    }
+
+    constructor(internalMessage: String, @StringRes stringId: Int) : super(internalMessage) {
+        messageProvider = { ctx -> ctx.getString(stringId) }
+    }
+
+    constructor(internalMessage: String, provider: (Context) -> String) : super(internalMessage) {
+        messageProvider = provider
+    }
 }

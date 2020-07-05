@@ -20,6 +20,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -245,6 +246,30 @@ class UserService(private val api: Api,
 
         // do not load automatically anymore
         Settings.get().feedStartWithUri = null
+    }
+
+    val selectedContentType: Set<ContentType>
+        get() {
+            return if (isAuthorized) {
+                Settings.get().contentType
+            } else {
+                EnumSet.of(ContentType.SFW)
+            }
+        }
+
+    val selectedContentTypes: Flow<Set<ContentType>> = run {
+        val types = loginStates.flatMapLatest { loginState ->
+            val settings = Settings.get()
+            if (loginState.authorized) {
+                settings.changes()
+                        .map { settings.contentType }
+                        .onStart { emit(settings.contentType) }
+            } else {
+                flowOf(EnumSet.of(ContentType.SFW))
+            }
+        }
+
+        types.distinctUntilChanged()
     }
 
     /**

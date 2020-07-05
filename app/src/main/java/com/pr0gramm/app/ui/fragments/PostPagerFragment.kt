@@ -8,18 +8,20 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
-import com.pr0gramm.app.parcel.getFreezable
+import com.pr0gramm.app.parcel.getFreezableOrNull
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.launchUntilViewDestroy
+import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
@@ -76,7 +78,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
         // get the feed to show and setup a loader to load more data
         val previousFeed = getArgumentFeed(savedInstanceState)
-        val manager = FeedManager(feedService, previousFeed)
+        val manager = FeedManager(viewLifecycleOwner.lifecycleScope, feedService, previousFeed)
 
         // create the adapter on the view
         adapter = PostAdapter(manager, previousFeed)
@@ -155,7 +157,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         latestActivePostFragment?.feedItem?.let { feedItem ->
             val feed = adapter.feed
             if (feedItem in feed) {
-                val target = targetFragment as? FeedFragment ?: return@let
+                val target = targetFragment as? FeedFragment
+                        ?: return@let
                 target.updateFeedItemTarget(adapter.feed, feedItem)
             }
         }
@@ -178,8 +181,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
      * Get the feed from the given bundle.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val parceled = savedState?.getFreezable(ARG_FEED, Feed.FeedParcel)
-                ?: arguments?.getFreezable(ARG_FEED, Feed.FeedParcel)
+        val parceled = savedState?.getFreezableOrNull(ARG_FEED, Feed.FeedParcel)
+                ?: arguments?.getFreezableOrNull(ARG_FEED, Feed.FeedParcel)
                 ?: throw IllegalStateException("No feed found.")
 
         return parceled.feed
@@ -189,8 +192,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
      * @see getArgumentFeed
      */
     private fun getArgumentStartItem(savedState: Bundle?): FeedItem {
-        return savedState?.getFreezable(ARG_START_ITEM, FeedItem)
-                ?: arguments?.getFreezable(ARG_START_ITEM, FeedItem)
+        return savedState?.getFreezableOrNull(ARG_START_ITEM, FeedItem)
+                ?: arguments?.getFreezableOrNull(ARG_START_ITEM, FeedItem)
                 ?: throw IllegalStateException("No initial item found.")
     }
 

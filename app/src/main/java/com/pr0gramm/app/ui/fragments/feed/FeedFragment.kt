@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.fragments
+package com.pr0gramm.app.ui.fragments.feed
 
 import android.content.Context
 import android.net.Uri
@@ -8,7 +8,9 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.whenResumed
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,34 +20,30 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
-import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
+import com.pr0gramm.app.ui.fragments.CommentRef
+import com.pr0gramm.app.ui.fragments.ItemUserAdminDialog
+import com.pr0gramm.app.ui.fragments.OverscrollLinearSmoothScroller
+import com.pr0gramm.app.ui.fragments.PostPagerFragment
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.net.ConnectException
 import java.util.*
 import kotlin.math.min
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 
 /**
@@ -54,17 +52,42 @@ import kotlin.time.seconds
 class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
     private val settings = Settings.get()
 
+    private val feedStateModel by viewModels {
+        val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
+        if (start != null) {
+            logger.debug { "Requested to open item $start on load" }
+            autoScrollRef = ScrollRef(start, autoOpen = true)
+        }
+
+        FeedViewModel(
+                filter = requireArguments().getFreezable(ARG_FEED_FILTER, FeedFilter),
+                loadAroundItemId = autoScrollRef?.ref?.itemId,
+
+                feedService = instance(),
+                userService = instance(),
+                seenService = instance(),
+                inMemoryCacheService = instance(),
+                preloadManager = instance(),
+                adService = instance()
+        )
+    }
+
+    private val userStateModel by viewModels {
+        UserStateModel(
+                filter = requireArguments().getFreezable(ARG_FEED_FILTER, FeedFilter),
+                queryForUserInfo = isNormalMode,
+                userService = instance(),
+                inboxService = instance()
+        )
+    }
+
     private val feedService: FeedService by instance()
-    private val seenService: SeenService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val userService: UserService by instance()
     private val singleShotService: SingleShotService by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
-    private val preloadManager: PreloadManager by instance()
-    private val inboxService: InboxService by instance()
     private val recentSearchesServices: RecentSearchesServices by instance()
     private val followService: FollowService by instance()
-    private val adService: AdService by instance()
     private val shareService: ShareService by instance()
 
     private val recyclerView: RecyclerView by bindView(R.id.list)
@@ -72,66 +95,25 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
-    private val filterArgument: FeedFilter by lazy { arguments?.getFreezable(ARG_FEED_FILTER, FeedFilter)!! }
     private val isNormalMode: Boolean by fragmentArgumentWithDefault(true, ARG_NORMAL_MODE)
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
-
-    private val taskQueue = Channel<() -> Unit>(Channel.UNLIMITED)
 
     private var bookmarkable: Boolean = false
     private var autoScrollRef: ScrollRef? = null
 
     private var lastCheckForNewItemsTime = Instant(0)
 
-    private lateinit var loader: FeedManager
     private lateinit var interstitialAdler: InterstitialAdler
 
-    private val feedAdapter by lazy {
-        val mainActivity = requireActivity() as MainActivity
-        FeedAdapter(mainActivity.adViewAdapter)
-    }
+    private lateinit var feedAdapter: FeedAdapter
 
-    private val activeUsername: String? get() = state.userInfo?.info?.user?.name
-
-    private val activeUserId: Int? get() = state.userInfo?.info?.user?.id
-
-    private var scrollToolbar: Boolean = false
+    private val scrollToolbar: Boolean
+        get() = isNormalMode
 
     private val actionHandler: MainActionHandler get() = activity as MainActionHandler
 
-    private data class State(
-            val feed: Feed = Feed(),
-            val preloadedItemIds: LongSparseArray<PreloadManager.PreloadItem> = LongSparseArray(initialCapacity = 0),
-            val ownUsername: String? = null,
-            val userInfo: UserInfo? = null,
-            val adsVisible: Boolean = false,
-            val markItemsAsSeen: Boolean = false,
-            val userInfoCommentsOpen: Boolean = false,
-            val repostRefreshTime: Long = 0,
-            val empty: Boolean = false,
-            val loading: FeedManager.LoadingSpace? = null,
-            val error: String? = null)
-
-    private val feed: Feed get() = state.feed
-
-    private var state: State by observeChangeEx(State()) { previousState, newState ->
-        if (!stateTransaction.isActive) {
-            if (previousState != newState) {
-                updateAdapterState()
-            }
-
-            stateCh.send(state)
-        }
-    }
-
-    private var stateTransaction = StateTransaction({ state }, { updateAdapterState() })
-
-    private val stateCh = LazyStateFlow<State>()
-
-    private var followState: FollowState? by observeChange(null) {
-        activity?.invalidateOptionsMenu()
-    }
+    private val feed: Feed get() = feedStateModel.feedState.value.feed
 
     /**
      * Initialize a new feed fragment.
@@ -150,49 +132,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // initialize auto opening (only on first start)
-        if (savedInstanceState == null) {
-            val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
-            if (start != null) {
-                logger.debug { "Requested to open item $start on load" }
-                autoScrollRef = ScrollRef(start, autoOpen = true)
-            }
-        }
-
-        this.scrollToolbar = isNormalMode
-
-        val previousFeed = savedInstanceState?.getExternalValue(requireContext(), ARG_FEED, Feed.FeedParcel)?.feed
-        val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
-        loader = FeedManager(feedService, feed)
-
-        if (previousFeed == null) {
-            loader.restart(around = autoScrollRef?.ref?.itemId)
-        }
-
         interstitialAdler = InterstitialAdler(requireContext())
-
-
-        launchWhenStarted {
-            trace { "Consume taskQueue $taskQueue" }
-            try {
-                taskQueue.receiveAsFlow().sample(1.seconds).collect { task -> task() }
-            } finally {
-                trace { "Stop consume taskQueue $taskQueue" }
-            }
-        }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val activity = requireActivity()
+
+        val abHeight = AndroidUtility.getActionBarContentOffset(activity)
+
+        feedAdapter = FeedAdapter((activity as MainActivity).adViewAdapter)
 
         // prepare the list of items
         val spanCount = thumbnailColumCount
@@ -202,25 +156,24 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             spanSizeLookup = feedAdapter.SpanSizeLookup(spanCount)
         }
 
-        if (activity is RecyclerViewPoolProvider) {
-            activity.configureRecyclerView("Feed", recyclerView)
-        }
+        activity.configureRecyclerView("Feed", recyclerView)
 
         recyclerView.addOnScrollListener(onScrollListener)
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.canScrollUpTest = { !state.empty && state.error == null && !feed.isAtStart }
+        swipeRefreshLayout.setCanChildScrollUpTest {
+            val state = feedStateModel.feedState.value
+            trace { "empty=${state.empty}, atStart=${feed.isAtStart}" }
+            !state.empty && !feed.isAtStart && feed.size > 0
+        }
 
         swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
+        swipeRefreshLayout.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
 
         swipeRefreshLayout.setOnRefreshListener {
             logger.debug { "onRefresh called for swipe view." }
-            if (feed.isAtStart || feed.isEmpty()) {
-                refreshContent()
-            } else {
-                // do not refresh
-                swipeRefreshLayout.isRefreshing = false
-            }
+            swipeRefreshLayout.isRefreshing = false
+            refreshContent()
         }
 
         resetToolbar()
@@ -239,71 +192,54 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
-        launchInViewScope {
-            // lets start receiving feed updates
-            observeFeedUpdates()
-        }
-
-        launchInViewScope(ignoreErrors = true) { queryForUserInfo() }
 
         launchInViewScope {
-            adService.enabledForType(Config.AdType.FEED).collect { show ->
-                this@FeedFragment.trace { "enableAds($show)" }
-                state = state.copy(adsVisible = show)
+            data class Update(
+                    val feedState: FeedViewModel.FeedState,
+                    val userState: UserStateModel.UserState
+            )
+
+            combine(feedStateModel.feedState, userStateModel.userState) { feedState, userState -> Update(feedState, userState) }.collect { update ->
+                logger.debug { "Apply update: $update" }
+
+                update.feedState.errorConsumable?.consume { error ->
+                    displayFeedError(error)
+                }
+
+                update.feedState.autoScrollRef?.consume { ref ->
+                    autoScrollRef = ref
+                }
+
+                updateAdapterState(update.feedState, update.userState)
             }
         }
-    }
 
-    private suspend fun observeFeedUpdates() {
-        var lastLoadingSpace: FeedManager.LoadingSpace? = null
+        launchInViewScope {
+            whenResumed {
+                userStateModel.userState.collectLatest { userState ->
+                    requireActivity().invalidateOptionsMenu()
 
-        loader.updates.collect { update ->
-            trace { "gotFeedUpdate($update)" }
-
-            when (update) {
-                is FeedManager.Update.NewFeed -> {
-                    refreshRepostInfos(feed, update.feed)
-
-                    if (lastLoadingSpace == FeedManager.LoadingSpace.PREV) {
-                        // scroll down a bit so the new items can be inserted
-                        // without scrolling to the to of those new items.
-                        feed.getOrNull(0)?.let { item ->
-                            autoScrollRef = ScrollRef(CommentRef(item), smoothScroll = false)
+                    val userId = userState.userInfo?.info?.user?.id
+                    if (userId != null) {
+                        followService.getState(userId.toLong()).collect {
+                            requireActivity().invalidateOptionsMenu()
                         }
                     }
-
-                    state = state.copy(
-                            feed = update.feed,
-                            empty = update.remote && update.feed.isEmpty(),
-                            error = null, loading = null)
                 }
+            }
+        }
 
-                is FeedManager.Update.Error -> {
-                    onFeedError(update.err)
-                }
-
-                is FeedManager.Update.LoadingStarted -> {
-                    lastLoadingSpace = update.where
-
-                    if (view == null || !swipeRefreshLayout.isRefreshing) {
-                        state = state.copy(loading = update.where)
-                    }
-                }
-
-                FeedManager.Update.LoadingStopped -> {
-                    if (view != null) {
-                        swipeRefreshLayout.isRefreshing = false
-                    }
-
-                    state = state.copy(loading = null)
+        launchInViewScope {
+            userService.selectedContentTypes.collect { contentTypes ->
+                if (feed.contentType != contentTypes) {
+                    replaceFeedFilter()
                 }
             }
         }
     }
 
-    private fun updateAdapterState() {
+    private fun updateAdapterState(feedState: FeedViewModel.FeedState, userState: UserStateModel.UserState) {
         trace { "updateAdapterState()" }
-        checkMainThread()
 
         val context = context
         if (this.activity == null || context == null) {
@@ -311,9 +247,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             return
         }
 
-        val state = this.state
-
-        val filter = state.feed.filter
+        val filter = feedState.feed.filter
 
         val entries = mutableListOf<FeedAdapter.Entry>()
 
@@ -326,12 +260,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
             }
 
-            if (state.loading == FeedManager.LoadingSpace.PREV) {
+            if (feedState.loading == FeedManager.LoadingSpace.PREV) {
                 entries += FeedAdapter.Entry.LoadingHint
             }
 
-            if (state.userInfo != null) {
-                val userInfo = state.userInfo
+            if (userState.userInfo != null) {
+                val userInfo = userState.userInfo
                 val isSelfInfo = isSelfInfo(userInfo.info)
 
                 // if we found this user using a normal 'search', we will show a hint
@@ -343,12 +277,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                     }
 
                 } else {
-                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo, userActionListener)
+                    entries += FeedAdapter.Entry.User(userState.userInfo, isSelfInfo, userActionListener)
 
-                    if (state.userInfoCommentsOpen) {
+                    if (userState.userInfoCommentsOpen) {
                         val user = userService.name
                         userInfo.comments.mapTo(entries) { comment ->
-                            val msg = MessageConverter.of(state.userInfo.info.user, comment)
+                            val msg = MessageConverter.of(userState.userInfo.info.user, comment)
                             FeedAdapter.Entry.Comment(msg, user)
                         }
                     }
@@ -357,7 +291,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
 
             } else if (filter.username != null) {
-                val item = state.feed.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
+                val item = feedState.feed.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
                 if (item != null) {
                     val user = UserAndMark(item.user, item.mark)
                     entries += FeedAdapter.Entry.UserLoading(user)
@@ -365,27 +299,25 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
             }
 
-            if (!state.userInfoCommentsOpen) {
+            if (!userState.userInfoCommentsOpen) {
                 // check if we need to check if the posts are 'seen'
-                val markAsSeen = state.markItemsAsSeen && !run {
-                    state.ownUsername != null && state.ownUsername.equalsIgnoreCase(filter.username)
+                val markAsSeen = feedState.markItemsAsSeen && !run {
+                    userState.ownUsername != null && userState.ownUsername.equalsIgnoreCase(filter.username)
                 }
 
-                val adsVisible = state.adsVisible
-
                 // always show at least one ad banner - e.g. during load
-                if (adsVisible && state.feed.isEmpty()) {
+                if (feedState.adsVisible && feedState.feed.isEmpty()) {
                     entries += FeedAdapter.Entry.Ad(0)
                 }
 
-                for ((idx, item) in state.feed.withIndex()) {
+                for ((idx, item) in feedState.feed.withIndex()) {
                     val id = item.id
-                    val seen = markAsSeen && seenService.isSeen(id)
+                    val seen = markAsSeen && id in feedState.seen
                     val repost = inMemoryCacheService.isRepost(id)
-                    val preloaded = id in state.preloadedItemIds
+                    val preloaded = id in feedState.preloadedItemIds
 
                     // show an ad banner every ~50 lines
-                    if (adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
+                    if (feedState.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
                         entries += FeedAdapter.Entry.Ad(idx.toLong())
                     }
 
@@ -393,20 +325,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
 
                 when {
-                    state.loading == FeedManager.LoadingSpace.NEXT ->
+                    feedState.loading == FeedManager.LoadingSpace.NEXT ->
                         entries += FeedAdapter.Entry.LoadingHint
 
-                    state.error != null ->
-                        entries += FeedAdapter.Entry.Error(state.error)
+                    feedState.error != null -> {
+                        val errorStr = ErrorFormatting.format(requireContext(), feedState.error)
+                        entries += FeedAdapter.Entry.Error(errorStr)
+                    }
 
-                    state.empty ->
+                    feedState.empty ->
                         entries += FeedAdapter.Entry.EmptyHint
                 }
-            }
-
-            if (entries == feedAdapter.latestEntries) {
-                logger.debug { "Skip submit of feed items, no change in state." }
-                return@time
             }
 
             val ref = autoScrollRef
@@ -424,13 +353,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         super.onSaveInstanceState(outState)
 
         if (view != null) {
-            val lastVisibleItem = findLastVisibleFeedItem()
-            val lastVisibleIndex = lastVisibleItem?.let { feed.indexById(it.id) }
-
-            if (lastVisibleItem != null && lastVisibleIndex != null) {
-                outState.putExternalValue(requireContext(), ARG_FEED, feed.parcelAll())
-            }
-
             outState.putBoolean("searchContainerVisible", searchContainerIsVisible())
         }
     }
@@ -441,17 +363,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 SearchOptionsView.ofQueryTerm(tags)
             }
         }
-    }
-
-    private suspend fun queryForUserInfo() {
-        if (!isNormalMode) {
-            return
-        }
-
-        val userInfo = queryUserInfo()
-
-        state = state.copy(userInfo = userInfo)
-        activity?.invalidateOptionsMenu()
     }
 
     private fun useToolbarTopMargin(): Boolean {
@@ -473,7 +384,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
 
-            state = state.copy(userInfoCommentsOpen = false)
+            userStateModel.closeUserComments()
         }
 
         override fun onShowUploadsClicked(name: String) {
@@ -482,13 +393,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
 
-            state = state.copy(userInfoCommentsOpen = false)
+            userStateModel.closeUserComments()
         }
 
         override fun onShowCommentsClicked() {
-            if (userService.isAuthorized) {
-                state = state.copy(userInfoCommentsOpen = true)
-            }
+            userStateModel.openUserComments()
         }
 
         override fun shareUserProfile(name: String) {
@@ -500,44 +409,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         actionHandler.onFeedFilterSelected(currentFilter.basic()
                 .withFeedType(FeedType.NEW)
                 .withUser(name))
-    }
-
-    private suspend fun queryUserInfo(): UserInfo? {
-        val filter = filterArgument
-
-        val queryString = filter.username ?: filter.tags
-
-        if (queryString != null && queryString.matches("[A-Za-z0-9_]{2,}".toRegex())) {
-            val contentTypes = selectedContentType
-
-//            val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
-//            if (cached != null) {
-//                return cached
-//            }
-
-            return coroutineScope {
-                // fan out
-                val first = async {
-                    userService.info(queryString, contentTypes)
-                }
-
-                val second = async {
-                    inboxService.getUserComments(queryString, contentTypes)
-                }
-
-                // and wait for responses with defaults
-                val info = runCatching { first.await() }.getOrNull() ?: return@coroutineScope null
-                val comments = runCatching { second.await().comments }.getOrElse { listOf() }
-
-                val userInfo = UserInfo(info, comments)
-                // inMemoryCacheService.cacheUserInfo(contentTypes, userInfo)
-
-                userInfo
-            }
-
-        } else {
-            return null
-        }
     }
 
     override fun onDestroyView() {
@@ -583,51 +454,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     override fun onResume() {
         super.onResume()
 
-        stateTransaction {
-            Track.openFeed(currentFilter)
+        Track.openFeed(currentFilter)
 
-            // check if we should show the pin button or not.
-            if (settings.showPinButton) {
-                val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
-                onBookmarkableStateChanged(bookmarkable)
-            }
-
-            recheckContentTypes()
-
-            if (state.markItemsAsSeen != settings.markItemsAsSeen) {
-                state = state.copy(markItemsAsSeen = settings.markItemsAsSeen)
-            }
-
-            if (state.ownUsername != userService.name) {
-                state = state.copy(ownUsername = userService.name)
-            }
-
-            // we might want to check for new items on reload, but only once every two minutes.
-            val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
-            val threshold = Instant.now().minus(checkForNewItemInterval)
-            if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
-                lastCheckForNewItemsTime = Instant.now()
-                checkForNewItems()
-            }
-
-            // start with the initial set of items
-            state = state.copy(preloadedItemIds = preloadManager.currentItems)
-
-            // Observe all preloaded items to get them into the cache and to show the
-            // correct state in the ui once they are loaded
-            preloadManager.items.let { preloadItems ->
-                launchUntilPause {
-                    preloadItems.sample(1_000).collect { items ->
-                        state = state.copy(preloadedItemIds = items)
-                    }
-                }
-            }
+        // check if we should show the pin button or not.
+        if (settings.showPinButton) {
+            val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
+            onBookmarkableStateChanged(bookmarkable)
         }
 
-        launchUntilPause(ignoreErrors = true) {
-            stateCh.mapNotNull { it.userInfo?.info?.user?.id }
-                    .flatMapLatest { userId -> followService.getState(userId.toLong()) }
-                    .collect { followState -> this@FeedFragment.followState = followState }
+        // we might want to check for new items on reload, but only once every two minutes.
+        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
+        val threshold = Instant.now().minus(checkForNewItemInterval)
+        if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
+            lastCheckForNewItemsTime = Instant.now()
+            checkForNewItems()
         }
     }
 
@@ -661,7 +501,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             autoScrollRef = ref.copy(feed = null)
 
             // apply the updated feed reference
-            state = state.copy(feed = feed.mergeIfPossible(ref.feed) ?: ref.feed)
+            feedStateModel.replaceCurrentFeed(feed.mergeIfPossible(ref.feed) ?: ref.feed)
         }
     }
 
@@ -715,32 +555,19 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
     }
 
-    private fun recheckContentTypes() {
-        // check if content type has changed, and reload if necessary
-        val feedFilter = feed.filter
-        val newContentType = selectedContentType
-        if (feed.contentType != newContentType) {
-            replaceFeedFilter(feedFilter, newContentType)
-
-            launchUntilPause(ignoreErrors = true) {
-                queryForUserInfo()
-            }
-        }
-    }
-
-    private fun replaceFeedFilter(feedFilter: FeedFilter, newContentType: Set<ContentType>, item: Long? = null) {
+    private fun replaceFeedFilter(feedFilter: FeedFilter? = null, item: Long? = null) {
         val startAtItemId = item
                 ?: autoScrollRef?.ref?.itemId
-                ?: findLastVisibleFeedItem(newContentType)?.id
+                ?: findLastVisibleFeedItem(userService.selectedContentType)?.id
 
         if (autoScrollRef == null) {
             autoScrollRef = startAtItemId?.let { id -> ScrollRef(CommentRef(id)) }
         }
 
-        // set a new adapter if we have a new content type
         // this clears the current feed immediately
-        loader.reset(Feed(feedFilter, newContentType))
-        loader.restart(around = startAtItemId)
+        val filter = feedFilter ?: feed.filter
+        feedStateModel.loader.reset(Feed(filter, userService.selectedContentType))
+        feedStateModel.loader.restart(around = startAtItemId)
 
         activity?.invalidateOptionsMenu()
     }
@@ -812,7 +639,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         // switching to normal mode leaves the special favorites fragment.
         menu.findItem(R.id.action_feedtype)?.isVisible = isNormalMode
 
-        val adminOnUserProfile = userService.userIsAdmin && activeUsername != null
+        val adminOnUserProfile = userService.userIsAdmin && userStateModel.userInfo?.info?.user?.name != null
         menu.findItem(R.id.action_block_user)?.isVisible = adminOnUserProfile
         menu.findItem(R.id.action_open_in_admin)?.isVisible = adminOnUserProfile
 
@@ -881,7 +708,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             }
 
             // this applies the new content types and refreshes the menu.
-            recheckContentTypes()
             return true
         }
 
@@ -899,7 +725,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun openUserInAdmin() {
-        val uri = "https://pr0gramm.com/backend/admin/?view=users&action=show&id=$activeUserId"
+        val uri = "https://pr0gramm.com/backend/admin/?view=users&action=show&id=${userStateModel.userInfo?.info?.user?.id}"
         BrowserHelper.openCustomTab(requireContext(), Uri.parse(uri), handover = true)
     }
 
@@ -910,20 +736,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun refreshFeedWithIndicator() {
-        swipeRefreshLayout.isRefreshing = true
-
         refreshContent()
     }
 
     private fun refreshContent() {
         resetToolbar()
 
-        loader.reset()
-        loader.restart()
-
-        launchWhenStarted(ignoreErrors = true) {
-            queryForUserInfo()
-        }
+        feedStateModel.loader.reset()
+        feedStateModel.loader.restart()
     }
 
     private fun pinCurrentFeedFilter() {
@@ -968,7 +788,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun onBlockUserClicked() {
-        this.activeUsername?.let { name ->
+        this.userStateModel.userInfo?.info?.user?.name?.let { name ->
             val dialog = ItemUserAdminDialog.forUser(name)
             dialog.maybeShow(parentFragmentManager, "BlockUserDialog")
         }
@@ -1083,62 +903,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
     }
 
-    private fun refreshRepostInfos(old: Feed, new: Feed) {
-        trace { "refreshRepostInfos" }
-
-        val filter = new.filter
-        if (filter.feedType !== FeedType.NEW && filter.feedType !== FeedType.PROMOTED)
-            return
-
-        // check if it is possible to get repost info.
-        val queryTooLong = (filter.tags ?: "")
-                .split("\\s+".toRegex())
-                .dropLastWhile { it.isEmpty() }
-                .size >= 5
-
-        if (queryTooLong)
-            return
-
-        // get the most recent item in the updated feed items
-        val newestItem = (new - old).filter { !it.isPinned }.maxBy { new.feedTypeId(it) } ?: return
-
-        // add 'repost' to query
-        val queryTerm = Tags.join("! 'repost'", filter.tags)
-
-        // load repost info for the new items, starting at the most recent one
-        val query = FeedService.FeedQuery(filter.withTags(queryTerm),
-                contentTypes = new.contentType, older = new.feedTypeId(newestItem))
-
-        launchWhenResumed {
-            if (inMemoryCacheService.refreshRepostsCache(feedService, query)) {
-                logger.debug { "Repost info was refreshed, updating state now" }
-                state = state.copy(repostRefreshTime = System.currentTimeMillis())
-            }
-        }
-    }
-
-    private fun onFeedError(error: Throwable) {
+    private fun displayFeedError(error: Throwable) {
         logger.error("Error loading the feed", error)
 
-        when {
-            error is FeedException.InvalidContentTypeException -> showInvalidContentTypeError(error)
-
-            error is FeedException.NotPublicException -> showFeedNotPublicError()
-
-            error is FeedException.NotFoundException -> showFeedNotFoundError()
-
-            error is JsonEncodingException -> {
-                state = state.copy(error = getString(R.string.could_not_load_feed_json))
-            }
-
-            error.rootCause is ConnectException -> {
-                state = state.copy(error = getString(R.string.could_not_load_feed_https))
-            }
-
-            else -> {
-                val text = ErrorFormatting.getFormatter(error).getMessage(requireContext(), error)
-                state = state.copy(error = text)
-            }
+        when (error) {
+            is FeedException.InvalidContentTypeException -> showInvalidContentTypeError(error)
+            is FeedException.NotPublicException -> showFeedNotPublicError()
+            is FeedException.NotFoundException -> showFeedNotFoundError()
         }
     }
 
@@ -1148,7 +919,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             positive {
                 // open top instead
                 autoScrollRef = null
-                replaceFeedFilter(FeedFilter(), selectedContentType)
+                replaceFeedFilter(FeedFilter())
             }
         }
     }
@@ -1167,7 +938,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
                 positive {
                     val filter = currentFilter.basic()
-                    replaceFeedFilter(filter, selectedContentType, targetItem.itemId)
+                    replaceFeedFilter(filter, targetItem.itemId)
                 }
             }
         } else {
@@ -1200,8 +971,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                         putBoolean(key, true)
                     }
 
-                    val newContentType = selectedContentType + requiredType
-                    replaceFeedFilter(currentFilter, newContentType)
+//                    val newContentType = selectedContentType + requiredType
+//                    replaceFeedFilter(currentFilter, newContentType)
                 }
             }
         } else {
@@ -1369,7 +1140,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 activity.scrollHideToolbarListener.onScrolled(dy)
             }
 
-            if (loader.isLoading)
+            if (feedStateModel.loader.isLoading)
                 return
 
             val layoutManager = recyclerView.layoutManager
@@ -1381,9 +1152,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                             .takeIf { it >= 0 } ?: return
 
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        taskQueue.offer {
+                        feedStateModel.schedule {
                             logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount" }
-                            loader.next()
+                            feedStateModel.loader.next()
                         }
                     }
                 }
@@ -1393,9 +1164,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                             .takeIf { it >= 0 } ?: return
 
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        taskQueue.offer {
+                        feedStateModel.schedule {
                             logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount)" }
-                            loader.previous()
+                            feedStateModel.loader.previous()
                         }
                     }
                 }
@@ -1418,7 +1189,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     companion object {
         internal val logger = Logger("FeedFragment")
 
-        private const val ARG_FEED = "FeedFragment.feed"
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
         private const val ARG_FEED_START = "FeedFragment.start"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
@@ -1447,11 +1217,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             putBoolean(ARG_NORMAL_MODE, false)
         }
     }
+}
 
-    private data class ScrollRef(val ref: CommentRef, val feed: Feed? = null,
-                                 val autoOpen: Boolean = false,
-                                 val smoothScroll: Boolean = false) {
-
-        val itemId: Long get() = ref.itemId
-    }
+fun Fragment.requireArguments(): Bundle {
+    return arguments ?: throw IllegalArgumentException("fragment has no arguments.")
 }

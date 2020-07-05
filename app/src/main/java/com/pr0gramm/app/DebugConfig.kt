@@ -5,7 +5,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private val actualDebugConfig = DebugConfig(
         ignoreUnreadState = true
-        , delayApiRequests = true
+        // , delayApiRequests = true
 //        pendingNotifications = Api.Inbox(listOf(
 //                PendingNotifications.Comment("UserA", 571121),
 //                PendingNotifications.Comment("UserB", 571121),

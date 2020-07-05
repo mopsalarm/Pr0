@@ -5,7 +5,7 @@ import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.services.Track.injector
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.fragments.FeedFragment.Companion.logger
+import com.pr0gramm.app.ui.fragments.feed.FeedFragment.Companion.logger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

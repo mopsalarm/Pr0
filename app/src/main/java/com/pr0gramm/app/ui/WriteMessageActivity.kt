@@ -227,7 +227,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         val extras = intent?.extras ?: return
 
-        val message = extras.getFreezable(ARGUMENT_MESSAGE, MessageSerializer)?.message
+        val message = extras.getFreezableOrNull(ARGUMENT_MESSAGE, MessageSerializer)?.message
         if (message != null) {
             messageView.update(message, userService.name)
             messageView.isVisible = true

@@ -39,7 +39,8 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.DrawerFragment
 import com.pr0gramm.app.ui.fragments.FavoritesFragment
-import com.pr0gramm.app.ui.fragments.FeedFragment
+import com.pr0gramm.app.ui.fragments.feed.AdViewAdapter
+import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector

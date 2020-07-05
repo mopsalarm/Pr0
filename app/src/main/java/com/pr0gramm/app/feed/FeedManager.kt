@@ -2,9 +2,9 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class FeedManager(private val feedService: FeedService, private var feed: Feed) {
+class FeedManager(private val scope: CoroutineScope, private val feedService: FeedService, private var feed: Feed) {
     private val logger = Logger("FeedService")
 
     private val subject = BroadcastChannel<Update>(8)
@@ -84,7 +84,8 @@ class FeedManager(private val feedService: FeedService, private var feed: Feed) 
         stop()
 
         logger.debug { "Start new load request now." }
-        job = AsyncScope.launch {
+
+        job = scope.launch {
             try {
                 val update = try {
                     block()

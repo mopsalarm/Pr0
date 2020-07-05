@@ -60,7 +60,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
             return
         }
 
-        trace { "submitList(new=${newList.size} items, old=${oldList.size})" }
+        trace { "submitList(old=${oldList.size}, new=${newList.size})" }
 
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration

@@ -119,10 +119,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         }
     }
 
-    fun parcelAll(): FeedParcel {
-        return FeedParcel(this)
-    }
-
     fun parcelAround(pivot: Int): FeedParcel {
         // how many items to save to older and newer than the pivot item.
         val itemCountAround = 64

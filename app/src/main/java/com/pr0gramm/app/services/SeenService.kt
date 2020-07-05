@@ -6,6 +6,7 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.unsigned
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -29,6 +30,8 @@ class SeenService(context: Context) {
     private val buffer = AtomicReference<ByteBuffer>()
 
     private val logger = Logger("SeenService")
+
+    val currentGeneration = MutableStateFlow(0)
 
     init {
         doInBackground {
@@ -64,10 +67,16 @@ class SeenService(context: Context) {
         }
 
         // only one thread can write the buffer at a time.
-        synchronized(lock) {
+        val changed = synchronized(lock) {
             val value = buffer.get(idx).unsigned
             val updatedValue = value or (1 shl (7 - id.toInt() % 8))
+
             buffer.put(idx, updatedValue.toByte())
+            value != updatedValue
+        }
+
+        if (changed) {
+            currentGeneration.value++
         }
     }
 
@@ -83,6 +92,8 @@ class SeenService(context: Context) {
                 buffer.put(idx, 0.toByte())
             }
         }
+
+        currentGeneration.value++
     }
 
     // Merges the other value into this one. Returns true, if the
@@ -134,25 +145,13 @@ class SeenService(context: Context) {
                 }
             }
 
+            if (diffCount > 0) {
+                currentGeneration.value++
+            }
         }
 
         logger.info { "Changes in $diffCount out of $totalCount bytes in seen cache" }
         return diffCount == 0 && totalCount == buffer.limit()
-    }
-
-    /**
-     * Workaround to reset the lower n bytes.
-     */
-    fun clearUpTo(n: Int) {
-        val buffer = this.buffer.get() ?: return
-
-        logger.info { "Setting the first $n bits to zero." }
-
-        synchronized(lock) {
-            for (idx in 0 until n.coerceAtMost(buffer.limit())) {
-                buffer.put(idx, 0)
-            }
-        }
     }
 
     fun export(): ByteArray {
@@ -184,7 +183,7 @@ class SeenService(context: Context) {
      */
     private fun mapByteBuffer(file: File): ByteBuffer {
         // space for up to a few million posts
-        val size = (6000000 / 8).toLong()
+        val size = (8_000_000 / 8).toLong()
 
         logger.info { "Mapping cache: $file" }
         RandomAccessFile(file, "rw").use { raf ->
