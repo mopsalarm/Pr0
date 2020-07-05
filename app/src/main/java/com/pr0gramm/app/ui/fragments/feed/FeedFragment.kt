@@ -8,7 +8,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.whenResumed
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,12 +42,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.min
-import kotlin.time.ExperimentalTime
 
 
 /**
  */
-@OptIn(ExperimentalTime::class)
 class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
     private val settings = Settings.get()
 
@@ -110,8 +107,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val scrollToolbar: Boolean
         get() = isNormalMode
-
-    private val actionHandler: MainActionHandler get() = activity as MainActionHandler
 
     private val feed: Feed get() = feedStateModel.feedState.value.feed
 
@@ -406,7 +401,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     private fun openUserUploads(name: String) {
-        actionHandler.onFeedFilterSelected(currentFilter.basic()
+        val handler = requireActivity() as MainActionHandler
+        handler.onFeedFilterSelected(currentFilter.basic()
                 .withFeedType(FeedType.NEW)
                 .withUser(name))
     }
@@ -1217,8 +1213,4 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             putBoolean(ARG_NORMAL_MODE, false)
         }
     }
-}
-
-fun Fragment.requireArguments(): Bundle {
-    return arguments ?: throw IllegalArgumentException("fragment has no arguments.")
 }
