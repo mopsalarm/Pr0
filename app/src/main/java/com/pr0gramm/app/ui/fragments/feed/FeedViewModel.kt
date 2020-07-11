@@ -20,16 +20,13 @@ import com.pr0gramm.app.util.rootCause
 import com.pr0gramm.app.util.trace
 import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import kotlin.math.abs
-import kotlin.time.milliseconds
 import kotlin.time.seconds
 
 class FeedViewModel(
@@ -52,8 +49,6 @@ class FeedViewModel(
             feed = Feed(filter, userService.selectedContentType)
     ))
 
-    private val taskQueue = Channel<() -> Unit>(Channel.UNLIMITED)
-
     init {
         viewModelScope.launch { observeFeedUpdates() }
         viewModelScope.launch { observeAdsVisibility() }
@@ -61,23 +56,8 @@ class FeedViewModel(
         viewModelScope.launch { observeSettings() }
         viewModelScope.launch { observePreloadState() }
 
-        viewModelScope.launch { consumeTaskQueue() }
-
         // start loading the feed
         loader.restart(around = loadAroundItemId)
-    }
-
-    fun schedule(block: () -> Unit) {
-        taskQueue.offer(block)
-    }
-
-    private suspend fun consumeTaskQueue() {
-        trace { "Consume taskQueue $taskQueue" }
-        try {
-            taskQueue.consumeAsFlow().sample(250.milliseconds).collect { task -> task() }
-        } finally {
-            trace { "Stop consume taskQueue $taskQueue" }
-        }
     }
 
     private suspend fun observePreloadState() {
