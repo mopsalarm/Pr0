@@ -18,7 +18,7 @@ class PicassoDecoder(private val tag: String, private val picasso: Picasso) : Im
         try {
             val bitmap = picasso.load(uri).tag(tag)
                     .config(Bitmap.Config.ARGB_8888)
-                    .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .memoryPolicy(MemoryPolicy.NO_STORE)
                     .get()
 
             return bitmap ?: throw IOException("Could not load bitmap")

@@ -95,7 +95,7 @@ fun appInjector(app: Application) = Module.build {
     bind<Picasso>() with singleton {
         Picasso.Builder(app)
                 .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
-                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
+                .memoryCache(LruPicassoCache.defaultSizedCache())
                 .downloader(instance<Downloader>())
                 .build()
     }

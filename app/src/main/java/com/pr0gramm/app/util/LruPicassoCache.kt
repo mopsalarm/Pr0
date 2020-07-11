@@ -12,8 +12,8 @@ import com.squareup.picasso.Cache
  *
  * This should prevent further out of memory errors.
  */
-class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
-    private val logger = Logger("GuavaPicassoCache")
+class LruPicassoCache private constructor(maxSize: Int) : Cache {
+    private val logger = Logger("LruPicassoCache")
 
     private val cache = object : LruCache<String, Bitmap>(maxSize) {
         override fun sizeOf(key: String, value: Bitmap): Int = BitmapCompat.getAllocationByteCount(value)
@@ -28,8 +28,14 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     }
 
     override fun set(key: String, bitmap: Bitmap) {
-        if (BitmapCompat.getAllocationByteCount(bitmap) <= MAX_CACHE_ITEM_SIZE) {
-            cache.put(key, bitmap)
+        cache.put(key, bitmap)
+
+        debugOnly {
+            val bitmapCount = cache.snapshot().size
+            logger.debug {
+                "Added bitmap ${bitmap.width}x${bitmap.height} image to cache. " +
+                        "There are now $bitmapCount elements cached at ${cache.size() / 1024}kb of ${cache.maxSize() / 1024}kb"
+            }
         }
     }
 
@@ -50,13 +56,11 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
     }
 
     companion object {
-        private const val MAX_CACHE_ITEM_SIZE = (128 * 128 * 4).toLong()
+        fun defaultSizedCache(): LruPicassoCache {
+            val maxMemory = (Runtime.getRuntime().maxMemory() / 10L).toInt()
+                    .coerceIn(minimumValue = 4 * 1024 * 1024, maximumValue = 8 * 1024 * 1024)
 
-        fun defaultSizedGuavaCache(): GuavaPicassoCache {
-            val maxMemory = (Runtime.getRuntime().maxMemory() / 20L).toInt()
-                    .coerceIn(minimumValue = 2 * 1024 * 1024, maximumValue = 8 * 1024 * 1024)
-
-            return GuavaPicassoCache(maxMemory)
+            return LruPicassoCache(maxMemory)
         }
     }
 }
