@@ -64,4 +64,4 @@
 -checkdiscard class kotlin.Metadata
 
 ## Firebase logging
--keep class * extends java.lang.Exception
+-keepnames class * extends java.lang.Exception
