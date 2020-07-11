@@ -329,15 +329,19 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                         entries += FeedAdapter.Entry.Ad(itemColumnIndex.toLong())
                     }
 
-                    val highlight = item.id in feedState.highlightedItemIds
-                    var position = entries.size
+                    val highlight = thumbnailColumCount <= 3
+                            && settings.highlightItemsInFeed
+                            && item.id in feedState.highlightedItemIds
+
+                    var indexToInsert = entries.size
+
                     if (highlight) {
-                        position -= itemColumnIndex % thumbnailColumCount
+                        indexToInsert -= itemColumnIndex % thumbnailColumCount
                     } else {
                         itemColumnIndex++
                     }
 
-                    entries.add(position, FeedAdapter.Entry.Item(item, repost, preloaded, seen, highlight))
+                    entries.add(indexToInsert, FeedAdapter.Entry.Item(item, repost, preloaded, seen, highlight))
                 }
 
                 when {

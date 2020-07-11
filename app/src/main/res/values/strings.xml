@@ -555,6 +555,8 @@
     <string name="hint_sending">…</string>
     <string name="negative_go_to_top">No, open \'top\'</string>
     <string name="positive_include_ct">Yes, include %s</string>
+    <string name="pref_highlight_items_in_feed">Highlight uploads</string>
+    <string name="pref_highlight_items_in_feed_summary">Increase size of uploads with a high score in feed on mobile devices.</string>
 
 </resources>
 

@@ -68,6 +68,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             return path?.let { Uri.parse(path) }
         }
 
+    val highlightItemsInFeed: Boolean
+        get() = preferences.getBoolean("pref_highlight_items_in_feed", true)
+
     val markItemsAsSeen: Boolean
         get() = preferences.getBoolean("pref_mark_items_as_seen", false)
 

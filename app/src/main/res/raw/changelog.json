@@ -1,5 +1,14 @@
 [
   {
+    "version": 185,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Option um besonders gut bewertete Hochlads im Feed hervorzuheben"
+      }
+    ]
+  },
+  {
     "version": 184,
     "changes": [
       {

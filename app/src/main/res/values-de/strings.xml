@@ -535,6 +535,8 @@
     <string name="hint_sending">…</string>
     <string name="negative_go_to_top">Nein, öffne \'Top\'</string>
     <string name="positive_include_ct">Ja</string>
+    <string name="pref_highlight_items_in_feed">Hochlads hervorheben</string>
+    <string name="pref_highlight_items_in_feed_summary">Hebt einige Hochlads mit viel Benis im Feed hervor.</string>
 
 
 </resources>
