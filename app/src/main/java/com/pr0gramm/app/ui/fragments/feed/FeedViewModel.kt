@@ -120,11 +120,14 @@ class FeedViewModel(
                     feedState.update { previousState ->
                         previousState.copy(
                                 feed = update.feed,
-                                highlightedItemIds = highlightedItemIds,
                                 seen = update.feed.filter { item -> seenService.isSeen(item.id) }.mapTo(HashSet()) { it.id },
                                 empty = update.remote && update.feed.isEmpty(),
+                                highlightedItemIds = highlightedItemIds,
                                 autoScrollRef = autoScrollRef,
-                                error = null, loading = null
+                                error = null,
+                                errorConsumable = null,
+                                missingContentType = null,
+                                loading = null,
                         )
                     }
                 }
@@ -134,20 +137,34 @@ class FeedViewModel(
 
                     logger.error("Error loading the feed", error)
 
-                    if (error is FeedException) {
-                        feedState.value = feedState.value.copy(error = null, errorConsumable = ConsumableValue(error))
-                    } else {
-                        val errorValue: Throwable = when {
-                            error is JsonEncodingException ->
-                                StringException(error, R.string.could_not_load_feed_json)
+                    feedState.update { previousState ->
+                        val baseState = previousState.copy(
+                                error = null, errorConsumable = null, missingContentType = null,
+                        )
 
-                            error.rootCause is ConnectException ->
-                                StringException(error, R.string.could_not_load_feed_https)
+                        when (error) {
+                            is FeedException.InvalidContentTypeException -> {
+                                baseState.copy(missingContentType = error.requiredType)
+                            }
 
-                            else -> error
+                            is FeedException -> {
+                                baseState.copy(errorConsumable = ConsumableValue(error))
+                            }
+
+                            else -> {
+                                val errorValue: Throwable = when {
+                                    error is JsonEncodingException ->
+                                        StringException(error, R.string.could_not_load_feed_json)
+
+                                    error.rootCause is ConnectException ->
+                                        StringException(error, R.string.could_not_load_feed_https)
+
+                                    else -> error
+                                }
+
+                                baseState.copy(error = errorValue)
+                            }
                         }
-
-                        feedState.value = feedState.value.copy(error = errorValue, errorConsumable = null)
                     }
                 }
 
@@ -287,6 +304,7 @@ class FeedViewModel(
             val errorStr: String? = null,
             val error: Throwable? = null,
             val errorConsumable: ConsumableValue<Throwable>? = null,
+            val missingContentType: ContentType? = null,
             val loading: FeedManager.LoadingSpace? = null,
             val repostRefreshTime: Long = 0,
             val adsVisible: Boolean = false,

@@ -5,9 +5,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
@@ -16,8 +19,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
+import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.UserInfo
@@ -45,6 +50,7 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         delegates += UserLoadingEntryAdapter
         delegates += SpacerEntryAdapter
         delegates += ErrorAdapterDelegate(R.layout.feed_error)
+        delegates += MissingContentTypeEntryAdapter
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, Entry.EmptyHint)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Entry.LoadingHint)
     }
@@ -90,6 +96,9 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
 
         data class Comment(val message: Message, val currentUsername: String?)
             : Entry(idInCategory(9, message.id))
+
+        class MissingContentType(val contentType: ContentType)
+            : Entry(idInCategory(10))
     }
 
     inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {
@@ -314,6 +323,49 @@ private object CommentEntryAdapter
         }
     }
 }
+
+private object MissingContentTypeEntryAdapter
+    : ListItemTypeAdapterDelegate<FeedAdapter.Entry.MissingContentType, FeedAdapter.Entry, MissingContentTypeEntryAdapter.ViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
+        return ViewHolder(parent.inflateDetachedChild<View>(R.layout.feed_hint_content_type))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, value: FeedAdapter.Entry.MissingContentType) {
+        val context = holder.itemView.context
+
+        holder.desc.text = buildString {
+            append(context.getString(R.string.could_not_load_feed_content_type, value.contentType.name))
+            append(" ")
+            append(context.getString(R.string.could_not_load_feed_content_type__change, value.contentType.name))
+        }
+
+        holder.button.text = context.getString(
+                R.string.feed_hint_add_content_type, value.contentType.name,
+        )
+
+        holder.button.setOnClickListener {
+            addContentType(value.contentType)
+        }
+    }
+
+    private fun addContentType(contentType: ContentType) {
+        val key = when (contentType) {
+            ContentType.NSFW -> "pref_feed_type_nsfw"
+            ContentType.NSFL -> "pref_feed_type_nsfl"
+            else -> "pref_feed_type_sfw"
+        }
+
+        // enable the content type
+        Settings.get().edit { putBoolean(key, true) }
+    }
+
+    private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val desc = find<TextView>(R.id.error)
+        val button = find<Button>(R.id.confirm_button)
+    }
+}
+
 
 private object UserEntryAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.User, FeedAdapter.Entry, UserEntryAdapter.UserInfoViewHolder>() {

@@ -17,7 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
-import com.pr0gramm.app.feed.ContentType.*
+import com.pr0gramm.app.feed.ContentType.SFW
 import com.pr0gramm.app.parcel.getFreezable
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
@@ -305,7 +305,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
             }
 
-            if (!userState.userInfoCommentsOpen) {
+            if (feedState.missingContentType != null) {
+                if (userService.isAuthorized) {
+                    entries += FeedAdapter.Entry.MissingContentType(feedState.missingContentType)
+                } else {
+                    val msg = buildString {
+                        append(getString(R.string.could_not_load_feed_content_type, feedState.missingContentType.name))
+                        append(" ")
+                        append(getString(R.string.could_not_load_feed_content_type__signin, feedState.missingContentType.name))
+                    }
+
+                    entries += FeedAdapter.Entry.Error(msg)
+                }
+
+            } else if (!userState.userInfoCommentsOpen) {
                 // check if we need to check if the posts are 'seen'
                 val markAsSeen = feedState.markItemsAsSeen && !run {
                     userState.ownUsername != null && userState.ownUsername.equalsIgnoreCase(filter.username)
@@ -936,7 +949,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         logger.error("Error loading the feed", error)
 
         when (error) {
-            is FeedException.InvalidContentTypeException -> showInvalidContentTypeError(error)
             is FeedException.NotPublicException -> showFeedNotPublicError()
             is FeedException.NotFoundException -> showFeedNotFoundError()
         }
@@ -973,40 +985,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         } else {
             showDialog(this) {
                 content(R.string.error_feed_not_public__general, username)
-                positive()
-            }
-        }
-    }
-
-    private fun showInvalidContentTypeError(error: FeedException.InvalidContentTypeException) {
-        val requiredType = error.requiredType
-
-        val msg = getString(R.string.could_not_load_feed_content_type, requiredType.name)
-
-        if (userService.isAuthorized) {
-            showDialog(this) {
-                content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__change, requiredType.name))
-
-                negative(R.string.negative_go_to_top) {
-                    // go back to top
-                    replaceFeedFilter(FeedFilter())
-                }
-
-                positive(getString(R.string.positive_include_ct, requiredType.name.toLowerCase(Locale.ROOT))) {
-                    val key = when (requiredType) {
-                        NSFW -> "pref_feed_type_nsfw"
-                        NSFL -> "pref_feed_type_nsfl"
-                        else -> "pref_feed_type_sfw"
-                    }
-
-                    settings.edit {
-                        putBoolean(key, true)
-                    }
-                }
-            }
-        } else {
-            showDialog(this) {
-                content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__signin, requiredType.name))
                 positive()
             }
         }
