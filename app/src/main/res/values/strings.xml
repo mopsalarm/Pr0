@@ -553,6 +553,8 @@
     <string name="collection_delete_confirm">Do you really want to delete this collection? The collection can not be restored.</string>
     <string name="download_failed">Download failed.</string>
     <string name="hint_sending">…</string>
+    <string name="negative_go_to_top">No, open \'top\'</string>
+    <string name="positive_include_ct">Yes, include %s</string>
 
 </resources>
 

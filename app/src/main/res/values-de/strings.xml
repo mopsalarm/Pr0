@@ -531,6 +531,10 @@
     <string name="collecton_added">Hinzugefügt zur Sammlung</string>
     <string name="collecton_adding">Sammle…</string>
     <string name="collection_delete_confirm">Möchtest du diese Sammlung wirklich löschen? Der Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="download_failed">Download fehlgeschlagen.</string>
+    <string name="hint_sending">…</string>
+    <string name="negative_go_to_top">Nein, öffne \'Top\'</string>
+    <string name="positive_include_ct">Ja</string>
 
 
 </resources>

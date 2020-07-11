@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
@@ -239,6 +238,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 if (feed.contentType != contentTypes) {
                     replaceFeedFilter()
                 }
+
+                activity.invalidateOptionsMenu()
             }
         }
     }
@@ -271,7 +272,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
             if (userState.userInfo != null) {
                 val userInfo = userState.userInfo
-                val isSelfInfo = isSelfInfo(userInfo.info)
+                val isSelfInfo = userInfo.info.user.name.equals(userState.ownUsername, ignoreCase = true)
 
                 // if we found this user using a normal 'search', we will show a hint
                 // that the user exists
@@ -486,8 +487,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             onBookmarkableStateChanged(bookmarkable)
         }
 
-        // we might want to check for new items on reload, but only once every two minutes.
-        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
+        // we might want to check for new items on resume, but only once every two minutes.
+        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 60)
         val threshold = Instant.now().minus(checkForNewItemInterval)
         if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
             lastCheckForNewItemsTime = Instant.now()
@@ -504,7 +505,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         // if we currently scroll the view, lets just do this later.
         if (recyclerView.isComputingLayout) {
-            launchWhenResumed {
+            launchInViewScope {
                 awaitFrame()
                 performAutoScroll()
             }
@@ -982,9 +983,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             showDialog(this) {
                 content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__change, requiredType.name))
 
-                negative()
+                negative(R.string.negative_go_to_top) {
+                    // go back to top
+                    replaceFeedFilter(FeedFilter())
+                }
 
-                positive {
+                positive(getString(R.string.positive_include_ct, requiredType.name.toLowerCase(Locale.ROOT))) {
                     val key = when (requiredType) {
                         NSFW -> "pref_feed_type_nsfw"
                         NSFL -> "pref_feed_type_nsfl"
@@ -994,13 +998,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                     settings.edit {
                         putBoolean(key, true)
                     }
-
-//                    val newContentType = selectedContentType + requiredType
-//                    replaceFeedFilter(currentFilter, newContentType)
                 }
             }
         } else {
-            showDialog(context ?: return) {
+            showDialog(this) {
                 content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__signin, requiredType.name))
                 positive()
             }
@@ -1139,15 +1140,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
     }
 
-    private fun isSelfInfo(info: Api.Info): Boolean {
-        return info.user.name.equals(userService.name, ignoreCase = true)
-    }
-
     private fun extractFeedItemHolder(view: View): FeedItemViewHolder? {
         return view.tag as? FeedItemViewHolder
     }
 
-    inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
+    private inner class InternalGridLayoutManager(context: Context, spanCount: Int) : GridLayoutManager(context, spanCount) {
         override fun onLayoutCompleted(state: RecyclerView.State?) {
             super.onLayoutCompleted(state)
             performAutoScroll()
