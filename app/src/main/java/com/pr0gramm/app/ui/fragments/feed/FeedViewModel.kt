@@ -11,6 +11,7 @@ import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.SeenService
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.util.LongSparseArray
@@ -18,13 +19,16 @@ import com.pr0gramm.app.util.StringException
 import com.pr0gramm.app.util.rootCause
 import com.pr0gramm.app.util.trace
 import com.squareup.moshi.JsonEncodingException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.ConnectException
+import kotlin.math.abs
 import kotlin.time.milliseconds
 import kotlin.time.seconds
 
@@ -41,8 +45,12 @@ class FeedViewModel(
 
     private val logger = Logger("FeedViewModel")
 
-    val loader = FeedManager(viewModelScope, feedService, Feed(filter, userService.selectedContentType))
-    val feedState = MutableStateFlow(FeedState())
+    private val loader = FeedManager(viewModelScope, feedService, Feed(filter, userService.selectedContentType))
+
+    val feedState = MutableStateFlow(FeedState(
+            // correctly initialize the state
+            feed = Feed(filter, userService.selectedContentType)
+    ))
 
     private val taskQueue = Channel<() -> Unit>(Channel.UNLIMITED)
 
@@ -74,22 +82,21 @@ class FeedViewModel(
 
     private suspend fun observePreloadState() {
         preloadManager.items.sample(1.seconds).collect { items ->
-            feedState.update { copy(preloadedItemIds = items) }
+            feedState.update { previousState -> previousState.copy(preloadedItemIds = items) }
         }
     }
 
     private suspend fun observeSettings() {
         Settings.changes { markItemsAsSeen }.collect { markAsSeen ->
-            feedState.update { copy(markItemsAsSeen = markAsSeen) }
+            feedState.update { previousState -> previousState.copy(markItemsAsSeen = markAsSeen) }
         }
     }
 
     private suspend fun observeSeenService() {
         seenService.currentGeneration.collect {
-            feedState.update {
-                copy(seen = feed
-                        .filter { seenService.isSeen(it.id) }
-                        .mapTo(HashSet()) { it.id })
+            feedState.update { previousState ->
+                val seen = previousState.feed.map { it.id }.filterTo(HashSet()) { id -> seenService.isSeen(id) }
+                previousState.copy(seen = seen)
             }
         }
     }
@@ -104,31 +111,42 @@ class FeedViewModel(
         var lastLoadingSpace: FeedManager.LoadingSpace? = null
 
         loader.updates.collect { update ->
-            trace { "gotFeedUpdate($update)" }
+            trace { "observeFeedUpdates($update)" }
 
             when (update) {
                 is FeedManager.Update.NewFeed -> {
+                    val currentState = feedState.value
+
                     viewModelScope.launch {
                         // update repost info in background
-                        refreshRepostInfos(feedState.value.feed, update.feed)
+                        refreshRepostInfos(currentState.feed, update.feed)
                     }
 
                     var autoScrollRef: ConsumableValue<ScrollRef>? = null
 
                     if (lastLoadingSpace == FeedManager.LoadingSpace.PREV) {
-                        val firstOldItem = feedState.value.feed.firstOrNull()
+                        val firstOldItem = currentState.feed.firstOrNull()
                         if (firstOldItem != null) {
-                            // without scrolling to the to of those new items.
-                            autoScrollRef = ConsumableValue(ScrollRef(CommentRef(firstOldItem), smoothScroll = false))
+                            autoScrollRef = ConsumableValue(ScrollRef(CommentRef(firstOldItem), keepScroll = true, smoothScroll = false))
                         }
                     }
 
-                    feedState.value = feedState.value.copy(
-                            feed = update.feed,
-                            seen = update.feed.filter { item -> seenService.isSeen(item.id) }.mapTo(HashSet()) { it.id },
-                            empty = update.remote && update.feed.isEmpty(),
-                            autoScrollRef = autoScrollRef,
-                            error = null, loading = null)
+                    val highlightedItemIds = withContext(Dispatchers.Default) {
+                        logger.time("Updating highlighted item ids") {
+                            findHighlightedItemIds(update.feed, currentState.highlightedItemIds)
+                        }
+                    }
+
+                    feedState.update { previousState ->
+                        previousState.copy(
+                                feed = update.feed,
+                                highlightedItemIds = highlightedItemIds,
+                                seen = update.feed.filter { item -> seenService.isSeen(item.id) }.mapTo(HashSet()) { it.id },
+                                empty = update.remote && update.feed.isEmpty(),
+                                autoScrollRef = autoScrollRef,
+                                error = null, loading = null
+                        )
+                    }
                 }
 
                 is FeedManager.Update.Error -> {
@@ -165,6 +183,63 @@ class FeedViewModel(
         }
     }
 
+    private fun findHighlightedItemIds(feed: Feed, highlightedItemIds: Set<Long>): Set<Long> {
+        val allItemIds = feed.mapTo(HashSet()) { it.id }
+
+        // list of items sorted by ascending points
+        val topItems = feed.drop(10).dropLast(10)
+                .filter { item -> isTopCandidate(item) }
+                .sortedByDescending { it.up - it.down }
+
+        // start with items that are actually still in the feed
+        val result = highlightedItemIds.filterTo(HashSet()) { itemId -> itemId in allItemIds }
+
+        // list of indices that are actually taken
+        val indicesThatAreTaken = feed.mapIndexedNotNullTo(ArrayList()) { index, item ->
+            index.takeIf { item.id in result }
+        }
+
+        outer@ while (result.size < feed.size / 50) {
+            for (item in topItems) {
+                // skip already highlighted items
+                if (item.id in result) {
+                    continue
+                }
+
+                val itemIndex = feed.indexOf(item)
+
+                val isNearToAnyHighlightedItem = indicesThatAreTaken.any { takeIndex ->
+                    abs(takeIndex - itemIndex) < 12
+                }
+
+                if (isNearToAnyHighlightedItem) {
+                    continue
+                }
+
+                // looks good, lets take this item.
+                result += item.id
+                indicesThatAreTaken += itemIndex
+
+                continue@outer
+            }
+
+            // we did not find a place for any item, give up now.
+            break
+        }
+
+        return result
+    }
+
+    private fun isTopCandidate(item: FeedItem): Boolean {
+        // only items with an aspect ratio of more than than 3/2 are candidates.
+        if (item.width.toDouble() / item.height < 3.0 / 2.0) {
+            return false
+        }
+
+        // only images & videos are candidates right now.
+        return item.isImage || item.isVideo
+    }
+
     private suspend fun refreshRepostInfos(old: Feed, new: Feed) {
         trace { "refreshRepostInfos" }
 
@@ -197,11 +272,37 @@ class FeedViewModel(
     }
 
     fun replaceCurrentFeed(feed: Feed) {
-        feedState.update { copy(feed = feed) }
+        feedState.update { previousState -> previousState.copy(feed = feed) }
+    }
+
+    fun restart(feed: Feed, aroundItemId: Long?) {
+        loader.reset(feed)
+        loader.restart(around = aroundItemId)
+    }
+
+    fun refresh() {
+        loader.reset()
+        loader.restart()
+    }
+
+    fun loaderNext() {
+        feedState.update { previousState ->
+            previousState.copy(loading = FeedManager.LoadingSpace.NEXT)
+        }
+
+        loader.next()
+    }
+
+    fun loaderPrevious() {
+        feedState.update { previousState ->
+            previousState.copy(loading = FeedManager.LoadingSpace.PREV)
+        }
+
+        loader.previous()
     }
 
     data class FeedState(
-            val feed: Feed = Feed(),
+            val feed: Feed,
             val seen: Set<Long> = setOf(),
             val errorStr: String? = null,
             val error: Throwable? = null,
@@ -212,11 +313,14 @@ class FeedViewModel(
             val markItemsAsSeen: Boolean = Settings.get().markItemsAsSeen,
             val preloadedItemIds: LongSparseArray<PreloadManager.PreloadItem> = LongSparseArray(initialCapacity = 0),
             val autoScrollRef: ConsumableValue<ScrollRef>? = null,
+            val highlightedItemIds: Set<Long> = setOf(),
             val empty: Boolean = false
-    )
+    ) {
+        val isLoading = loading != null
+    }
 }
 
-inline fun <T> MutableStateFlow<T>.update(block: T.() -> T) {
-    value = value.block()
+inline fun <T> MutableStateFlow<T>.update(block: (previousState: T) -> T) {
+    value = block(value)
 }
 

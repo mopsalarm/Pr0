@@ -38,8 +38,8 @@ class UserStateModel(
 
     private suspend fun observeLoginState() {
         userService.loginStates.collect { loginState ->
-            userState.update {
-                copy(ownUsername = loginState.name)
+            userState.update { previousState ->
+                previousState.copy(ownUsername = loginState.name)
             }
         }
     }
@@ -47,7 +47,7 @@ class UserStateModel(
     private suspend fun observeUserInfo() {
         userService.selectedContentTypes.collect { contentType ->
             val userInfo = queryUserInfo(contentType) ?: return@collect
-            userState.update { copy(userInfo = userInfo) }
+            userState.update { previousState -> previousState.copy(userInfo = userInfo) }
         }
     }
 
@@ -84,15 +84,15 @@ class UserStateModel(
 
     fun openUserComments() {
         if (userService.isAuthorized) {
-            userState.update {
-                copy(userInfoCommentsOpen = true)
+            userState.update { previousState ->
+                previousState.copy(userInfoCommentsOpen = true)
             }
         }
     }
 
     fun closeUserComments() {
-        userState.update {
-            copy(userInfoCommentsOpen = false)
+        userState.update { previousState ->
+            previousState.copy(userInfoCommentsOpen = false)
         }
     }
 

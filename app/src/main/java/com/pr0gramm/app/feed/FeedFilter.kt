@@ -122,6 +122,18 @@ class FeedFilter : Freezable {
                 && collection == other.collection)
     }
 
+    override fun toString(): String {
+        val fields = listOfNotNull(
+                feedType.toString(),
+                tags?.let { "tags=$tags" },
+                username?.let { "username=$username" },
+                collection?.let { "collection=$collection" }
+        )
+
+        return "FeedFilter(${fields.joinToString(", ")})"
+    }
+
+
     override fun freeze(sink: Freezable.Sink) = with(sink) {
         writeInt(feedType.ordinal)
         writeString(tags.orEmpty())

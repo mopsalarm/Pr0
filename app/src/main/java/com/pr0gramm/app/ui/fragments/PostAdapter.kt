@@ -32,7 +32,7 @@ private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
 }
 
 class PostAdapter
-    : DelegateAdapter<PostAdapter.Item>(ItemCallback(), name = "PostAdapter") {
+    : DelegateAdapter<PostAdapter.Item>(ItemCallback()) {
 
     init {
         setHasStableIds(true)

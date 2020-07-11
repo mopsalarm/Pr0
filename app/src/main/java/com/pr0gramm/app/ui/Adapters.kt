@@ -110,9 +110,8 @@ class AdapterDelegateManager<T : Any>(
 
 abstract class DelegateAdapter<T : Any>(
         diffCallback: DiffUtil.ItemCallback<T> = AsyncListAdapter.InstanceDiffCallback(),
-        detectMoves: Boolean = false,
-        name: String = "AsyncListAdapter")
-    : AsyncListAdapter<T, RecyclerView.ViewHolder>(diffCallback, detectMoves, name),
+        detectMoves: Boolean = false)
+    : AsyncListAdapter<T, RecyclerView.ViewHolder>(diffCallback, detectMoves),
         StatefulRecyclerView.InstanceStateAware {
 
     protected val delegates: MutableList<AdapterDelegate<in T, out RecyclerView.ViewHolder>> = mutableListOf()
@@ -151,12 +150,11 @@ abstract class DelegateAdapter<T : Any>(
 }
 
 fun <T : Any> delegateAdapterOf(
-        name: String,
         vararg delegates: AdapterDelegate<T, *>,
         diffCallback: DiffUtil.ItemCallback<T> = AsyncListAdapter.InstanceDiffCallback(),
         detectMoves: Boolean = false): DelegateAdapter<T> {
 
-    return object : DelegateAdapter<T>(diffCallback, detectMoves, name = name) {
+    return object : DelegateAdapter<T>(diffCallback, detectMoves) {
         init {
             this.delegates += delegates
         }

@@ -143,6 +143,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         feedAdapter = FeedAdapter((activity as MainActivity).adViewAdapter)
 
+        launchInViewScope {
+            feedAdapter.state.collect {
+                this@FeedFragment.autoScrollRef?.let { autoScrollRef ->
+                    if (autoScrollRef.autoOpen) {
+                        performAutoOpen(autoScrollRef.ref)
+                    }
+                }
+            }
+        }
+
         // prepare the list of items
         val spanCount = thumbnailColumCount
         recyclerView.itemAnimator = null
@@ -305,18 +315,28 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                     entries += FeedAdapter.Entry.Ad(0)
                 }
 
-                for ((idx, item) in feedState.feed.withIndex()) {
+                var itemColumnIndex = 0
+
+                for (item in feedState.feed) {
                     val id = item.id
                     val seen = markAsSeen && id in feedState.seen
                     val repost = inMemoryCacheService.isRepost(id)
                     val preloaded = id in feedState.preloadedItemIds
 
                     // show an ad banner every ~50 lines
-                    if (feedState.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
-                        entries += FeedAdapter.Entry.Ad(idx.toLong())
+                    if (feedState.adsVisible && (itemColumnIndex % (50 * thumbnailColumCount)) == 0) {
+                        entries += FeedAdapter.Entry.Ad(itemColumnIndex.toLong())
                     }
 
-                    entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+                    val highlight = item.id in feedState.highlightedItemIds
+                    var position = entries.size
+                    if (highlight) {
+                        position -= itemColumnIndex % thumbnailColumCount
+                    } else {
+                        itemColumnIndex++
+                    }
+
+                    entries.add(position, FeedAdapter.Entry.Item(item, repost, preloaded, seen, highlight))
                 }
 
                 when {
@@ -333,14 +353,22 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
                 }
             }
 
-            val ref = autoScrollRef
+            autoScrollRef?.let { ref ->
+                logger.debug { "autoScrollRef before setting new items: $autoScrollRef" }
+                if (ref.keepScroll) {
+                    val lm = recyclerView.layoutManager as GridLayoutManager
 
-            val forceSyncUpdate = ref != null
-            feedAdapter.submitList(entries, forceSyncUpdate)
+                    val pos = lm.findLastVisibleItemPosition()
+                    if (pos != RecyclerView.NO_POSITION) {
+                        val vh = recyclerView.findViewHolderForLayoutPosition(pos)
+                        vh?.itemView?.requestFocus()
+                    }
 
-            if (ref?.autoOpen == true) {
-                performAutoOpen(ref.ref)
+                    autoScrollRef = null
+                }
             }
+
+            feedAdapter.submitList(entries)
         }
     }
 
@@ -484,7 +512,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
             return
         }
 
-        val containsRef = feedAdapter.latestEntries.any { entry ->
+        val containsRef = feedAdapter.items.any { entry ->
             entry is FeedAdapter.Entry.Item && entry.item.id == ref.itemId
         }
 
@@ -562,8 +590,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         // this clears the current feed immediately
         val filter = feedFilter ?: feed.filter
-        feedStateModel.loader.reset(Feed(filter, userService.selectedContentType))
-        feedStateModel.loader.restart(around = startAtItemId)
+        feedStateModel.restart(
+                feed = Feed(filter, userService.selectedContentType),
+                aroundItemId = startAtItemId
+        )
 
         activity?.invalidateOptionsMenu()
     }
@@ -737,9 +767,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private fun refreshContent() {
         resetToolbar()
-
-        feedStateModel.loader.reset()
-        feedStateModel.loader.restart()
+        feedStateModel.refresh()
     }
 
     private fun pinCurrentFeedFilter() {
@@ -922,7 +950,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private fun showFeedNotPublicError() {
         // TODO do we keep this?
-        val username = currentFilter.username ?: "???"
+        val username = currentFilter.username ?: return
 
         val targetItem = autoScrollRef
 
@@ -1073,25 +1101,22 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
         // scroll to item now and click
         scrollToItem(ref.itemId)
-        onItemClicked(feed[idx], ref)
 
-        // reset auto open/scroll reference, so we won't scroll again
-        resetAutoScroll()
+        launchInViewScope {
+            awaitFrame()
+            onItemClicked(feed[idx], ref)
+        }
 
         // prevent flickering of items before executing the child
         // fragment transaction.
         recyclerView.visibility = View.INVISIBLE
     }
 
-    private fun resetAutoScroll() {
-        autoScrollRef = null
-    }
-
     private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
         trace { "scrollToItem($itemId, smooth=$smoothScroll)" }
 
         logger.debug { "Checking if we can scroll to item $itemId" }
-        val idx = feedAdapter.latestEntries
+        val idx = feedAdapter.items
                 .indexOfFirst { it is FeedAdapter.Entry.Item && it.item.id == itemId }
                 .takeIf { it >= 0 } ?: return
 
@@ -1131,40 +1156,35 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
             val activity = activity as? ToolbarActivity
             if (scrollToolbar && activity != null) {
                 activity.scrollHideToolbarListener.onScrolled(dy)
             }
 
-            if (feedStateModel.loader.isLoading)
+            if (feedStateModel.feedState.value.isLoading || feedAdapter.updating) {
                 return
+            }
 
-            val layoutManager = recyclerView.layoutManager
-            if (layoutManager is GridLayoutManager) {
-                val totalItemCount = layoutManager.itemCount
+            val layoutManager = recyclerView.gridLayoutManager
+            val totalItemCount = layoutManager.itemCount
 
-                if (dy > 0 && !feed.isAtEnd) {
-                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-                            .takeIf { it >= 0 } ?: return
+            // start loading the next page pretty early.
+            val maxEdgeDistance = 48
 
-                    if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        feedStateModel.schedule {
-                            logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount" }
-                            feedStateModel.loader.next()
-                        }
-                    }
+            if (dy > 0 && !feed.isAtEnd) {
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (lastVisibleItem >= 0 && totalItemCount > maxEdgeDistance && lastVisibleItem >= totalItemCount - maxEdgeDistance) {
+                    logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount. Last feed item is ${feed.oldestItem}" }
+                    feedStateModel.loaderNext()
                 }
+            }
 
-                if (dy < 0 && !feed.isAtStart) {
-                    val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-                            .takeIf { it >= 0 } ?: return
-
-                    if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        feedStateModel.schedule {
-                            logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount)" }
-                            feedStateModel.loader.previous()
-                        }
-                    }
+            if (dy < 0 && !feed.isAtStart) {
+                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+                if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
+                    logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestItem}" }
+                    feedStateModel.loaderPrevious()
                 }
             }
         }
@@ -1183,8 +1203,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     }
 
     companion object {
-        internal val logger = Logger("FeedFragment")
-
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
         private const val ARG_FEED_START = "FeedFragment.start"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
@@ -1214,3 +1232,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
     }
 }
+
+private val RecyclerView.gridLayoutManager: GridLayoutManager
+    get() = layoutManager as GridLayoutManager

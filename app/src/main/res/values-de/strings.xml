@@ -395,8 +395,8 @@
     <string name="benisgraph_empty">Es sind noch nicht genügend Daten verfügbar,\num deinen Graphen anzuzeigen.</string>
     <string name="could_not_load_feed_content_type__change">Möchtest du %s in deinen Filter mit aufnehmen?</string>
     <string name="could_not_load_feed_content_type__signin">Um Beiträge in %s zu sehen, musst du dich anmelden.</string>
-    <string name="error_feed_not_public__item">Die Favoriten von %s sind nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
-    <string name="error_feed_not_public__general">Die Favoriten von %s sind nicht öffentlich.</string>
+    <string name="error_feed_not_public__item">Diese Sammlung von %s ist nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
+    <string name="error_feed_not_public__general">Diese Sammlungn von %s ist nicht öffentlich.</string>
     <string name="stats_title_uploads_favs">Uploads und Favoriten</string>
     <string name="stats_title_votes">Voteverhalten</string>
     <string name="stats_day">TAG</string>

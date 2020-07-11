@@ -278,7 +278,7 @@ class TagsView(context: Context) : LinearLayout(context) {
             val alwaysShowVoteView: Boolean = true)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
-            RecyclerView.ViewHolder>(DiffCallback(), name = "TagAdapter", detectMoves = true) {
+            RecyclerView.ViewHolder>(DiffCallback(), detectMoves = true) {
 
         private val viewTypeWriteComment = 0
         private val viewTypeWriteTag = 1

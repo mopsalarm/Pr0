@@ -28,10 +28,15 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
     val updates: Flow<Update>
         get() = subject.asFlow().onStart { emit(Update.NewFeed(feed)) }
 
+    init {
+        trace { "<init>(${feed.filter}" }
+    }
+
     /**
      * Stops all loading operations and resets the feed to the given value.
      */
     fun reset(feed: Feed = this.feed.copy(items = listOf(), isAtStart = false, isAtEnd = false)) {
+        trace { "reset(${feed.filter})" }
         publish(feed, remote = false)
     }
 
@@ -40,6 +45,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
      * Leave 'around' null to just load from the beginning.
      */
     fun restart(around: Long? = null) {
+        trace { "reload(${feed.filter})" }
         load {
             publish(Update.LoadingStarted(LoadingSpace.NEXT))
             feedService.load(feedQuery().copy(around = around))
@@ -50,7 +56,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
      * Load the next page of the feed
      */
     fun next() {
-        val oldest = feed.oldest
+        val oldest = feed.oldestItem
         if (feed.isAtEnd || isLoading || oldest == null)
             return
 
@@ -64,7 +70,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
      * Load the previous page of the feed
      */
     fun previous() {
-        val newest = feed.newest
+        val newest = feed.newestItem
         if (feed.isAtStart || isLoading || newest == null)
             return
 
@@ -75,7 +81,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
     }
 
     fun stop() {
-        trace { "stop" }
+        trace { "stop()" }
 
         job?.cancel()
     }

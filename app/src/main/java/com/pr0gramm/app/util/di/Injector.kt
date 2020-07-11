@@ -2,10 +2,10 @@ package com.pr0gramm.app.util.di
 
 import android.content.Context
 import com.pr0gramm.app.ApplicationClass
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track.injector
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.fragments.feed.FeedFragment.Companion.logger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -158,6 +158,8 @@ class Module private constructor() {
 }
 
 class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
+    private val logger = Logger("Injector")
+
     inline fun <reified T : Any> instance(): T {
         return instance(Key(T::class.java))
     }
@@ -224,7 +226,7 @@ private class InjectedProperty<T : Any>(private val key: Injector.Key) : ReadOnl
             ?: throw IllegalStateException("injected property ${property.name} not initialized")
 
     fun inject(injector: Injector) {
-        logger.time("Injection of $key") {
+        Logger("InjectedProperty").time("Injection of $key") {
             value = injector.instance(key) as T
         }
     }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -22,15 +23,9 @@ import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.UserInfo
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.fragments.AdViewHolder
-import com.pr0gramm.app.ui.views.OnUserClickedListener
-import com.pr0gramm.app.ui.views.UserHintView
-import com.pr0gramm.app.ui.views.UserInfoLoadingView
-import com.pr0gramm.app.ui.views.UserInfoView
+import com.pr0gramm.app.ui.views.*
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.inflate
-import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.removeFromParent
 import com.squareup.picasso.Picasso
 
 @Suppress("NOTHING_TO_INLINE")
@@ -39,7 +34,7 @@ private inline fun idInCategory(cat: Long, idOffset: Long = 0): Long {
 }
 
 class FeedAdapter(adViewAdapter: AdViewAdapter)
-    : DelegateAdapter<FeedAdapter.Entry>(ItemCallback(), name = "FeedAdapter") {
+    : DelegateAdapter<FeedAdapter.Entry>(ItemCallback()) {
 
     init {
         delegates += FeedItemEntryAdapter
@@ -52,22 +47,6 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         delegates += ErrorAdapterDelegate(R.layout.feed_error)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, Entry.EmptyHint)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Entry.LoadingHint)
-    }
-
-    /**
-     * The list of entries that is currently displayed.
-     */
-    @Volatile
-    var latestEntries: List<Entry> = listOf()
-        private set
-
-    override fun submitList(newList: List<Entry>, forceSync: Boolean) {
-        latestEntries = newList
-        super.submitList(newList, forceSync)
-    }
-
-    override fun getItemId(position: Int): Long {
-        return getItem(position).id
     }
 
     class ItemCallback : DiffUtil.ItemCallback<Entry>() {
@@ -100,7 +79,7 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         object LoadingHint
             : Entry(idInCategory(5))
 
-        data class Item(val item: FeedItem, val repost: Boolean = false, val preloaded: Boolean, val seen: Boolean)
+        data class Item(val item: FeedItem, val repost: Boolean = false, val preloaded: Boolean, val seen: Boolean, val highlight: Boolean)
             : Entry(idInCategory(6, item.id))
 
         data class Spacer(val idx: Long, val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, @LayoutRes val layout: Int? = null)
@@ -119,7 +98,8 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         }
 
         override fun getSpanSize(position: Int): Int {
-            return if (getItem(position) is Entry.Item) 1 else spanCount
+            val item = getItem(position) as? Entry.Item
+            return if (item == null || item.highlight) spanCount else 1
         }
     }
 }
@@ -164,7 +144,7 @@ private object FeedItemEntryAdapter
  * View holder for one feed item.
  */
 class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.ViewHolder(container) {
-    val imageView: ImageView = find(R.id.image)
+    val imageView: AspectImageView = find(R.id.image)
 
     // lazy views
     private var flagView: ImageView? = null
@@ -191,7 +171,7 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     }
 
     private fun inflateView(id: Int): ImageView {
-        return itemView.layoutInflater.inflate(id, container, false) as ImageView
+        return container.inflateDetachedChild(id) as ImageView
     }
 
     private fun setItemFlag(@DrawableRes res: Int) {
@@ -209,7 +189,22 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
     fun bindTo(entry: FeedAdapter.Entry.Item) {
         val item = entry.item
 
-        val imageUri = UriHelper.of(itemView.context).thumbnail(item.asThumbnail())
+        val imageUri: Uri?
+
+        if (entry.highlight) {
+            imageUri = if (item.isImage) {
+                UriHelper.of(itemView.context).media(item, hq = false)
+            } else {
+                UriHelper.of(itemView.context).fullThumbnail(item.asThumbnail())
+            }
+
+            imageView.aspect = entry.item.width.toFloat() / entry.item.height
+
+        } else {
+            imageUri = UriHelper.of(itemView.context).thumbnail(item.asThumbnail())
+            imageView.aspect = 1f
+        }
+
         itemView.context.injector.instance<Picasso>().load(imageUri)
                 .config(Bitmap.Config.RGB_565)
                 .placeholder(ColorDrawable(0xff333333.toInt()))

@@ -57,6 +57,9 @@ class FeedItem : Freezable {
     val isVideo: Boolean
         get() = isVideoUri(image)
 
+    val isImage: Boolean
+        get() = isImageUri(image)
+
     val isPinned: Boolean
         get() = promotedId > 1_000_000_000
 
@@ -133,4 +136,8 @@ class FeedItem : Freezable {
 
 fun isVideoUri(image: String): Boolean {
     return image.endsWith(".webm") || image.endsWith(".mp4")
+}
+
+fun isImageUri(image: String): Boolean {
+    return image.endsWith(".jpg") || image.endsWith(".png")
 }

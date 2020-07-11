@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import com.pr0gramm.app.R
@@ -20,12 +21,17 @@ class AspectImageView @JvmOverloads constructor(context: Context, attrs: Attribu
      */
     var aspect: Float = 0.toFloat()
         get() {
-            return if (field > 0) {
-                field
-            } else {
-                drawable?.run { intrinsicWidth.toFloat() / intrinsicHeight }?.takeIf { it > 0 }
-                        ?: 1.75f
+            if (field > 0) {
+                return field
             }
+
+            val drawable: Drawable? = this.drawable
+            if (drawable != null && drawable.intrinsicWidth > 0) {
+                return drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight
+            }
+
+            // fallback
+            return 1.75f
         }
         set(value) {
             if (field != value) {

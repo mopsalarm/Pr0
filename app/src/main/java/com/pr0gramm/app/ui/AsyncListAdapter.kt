@@ -1,34 +1,33 @@
 package com.pr0gramm.app.ui
 
+import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.base.Main
 import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.checkMainThread
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T> = InstanceDiffCallback(),
-        private val detectMoves: Boolean = false,
-        name: String = "AsyncListAdapter") : RecyclerView.Adapter<V>() {
+        private val detectMoves: Boolean = false) : RecyclerView.Adapter<V>() {
 
-    internal val logger = Logger(name)
-
-    private val updateSubject = ConflatedBroadcastChannel<List<T>>()
+    // updates also go to the state
+    private val mutableState = MutableStateFlow<List<T>>(listOf())
 
     // Max generation of currently scheduled runnable
     private var maxScheduledGeneration: Int = 0
 
-    val updates: Flow<List<T>>
-        get() = updateSubject.asFlow()
+    var updating: Boolean = false
+        private set
+
+    val state: Flow<List<T>>
+        get() = mutableState
 
     var items: List<T> = listOf()
         private set
@@ -65,6 +64,8 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
 
+        updating = true
+
         // fast simple remove all
         if (newList.isEmpty()) {
             applyNewItems(emptyList()) {
@@ -83,10 +84,14 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
             return
         }
 
-        if (!forceSync && (oldList.size > 32 || newList.size > 32)) {
+        if (forceSync || oldList.size < 32 || newList.size < 32) {
+            applyNewItems(newList) {
+                calculateDiff(oldList, newList).dispatchUpdatesTo(this)
+            }
+
+        } else {
             CoroutineScope(Main).launch {
                 val diff = withBackgroundContext {
-                    logger.debug { "Calculate diff in background" }
                     calculateDiff(oldList, newList)
                 }
 
@@ -96,31 +101,23 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
                     }
                 }
             }
-        } else {
-            val diff = calculateDiff(oldList, newList)
-            applyNewItems(newList) {
-                diff.dispatchUpdatesTo(this)
-            }
         }
     }
 
-    private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {
+    private inline fun applyNewItems(items: List<T>, dispatchToAdapter: () -> Unit) {
         trace { "applyNewItems(${items.size} items)" }
 
-        checkMainThread()
-
-        preApplyNewItems(items)
-
         this.items = items
-        dispatch()
-        updateSubject.sendBlocking(items)
+        this.updating = false
+
+        // dispatch changes to listeners. We inform the native recyclerview listeners before
+        // we inform any other listeners using the state flow below.
+        dispatchToAdapter()
+
+        mutableState.value = items
     }
 
-    protected open fun preApplyNewItems(items: List<T>) {}
-
     private fun calculateDiff(oldList: List<T>, newList: List<T>): DiffUtil.DiffResult {
-        trace { "calculateDiff(...)" }
-
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize(): Int {
                 return oldList.size
@@ -152,6 +149,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
             return oldItem === newItem
         }
 
+        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem == newItem
         }
@@ -162,6 +160,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
             return keyOf(oldItem) == keyOf(newItem)
         }
 
+        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem == newItem
         }

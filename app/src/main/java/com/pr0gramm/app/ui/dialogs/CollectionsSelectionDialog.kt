@@ -55,7 +55,7 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
         val themedInflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = themedInflater.inflate(R.layout.dialog_collections, container, false)
 
-        val adapter = delegateAdapterOf("CollectionsAdapter",
+        val adapter = delegateAdapterOf(
                 CollectionAdapterDelegate(this::onCollectionClicked), detectMoves = true,
                 diffCallback = AsyncListAdapter.KeyDiffCallback { it.collection.id })
 

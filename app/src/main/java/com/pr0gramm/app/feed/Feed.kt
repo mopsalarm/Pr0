@@ -22,18 +22,19 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
     private val itemComparator = compareByDescending(this::feedTypeId)
 
     val feedType: FeedType get() = filter.feedType
-    val oldest: FeedItem? get() = items.maxWith(itemComparator)
-    val newest: FeedItem? get() = items.minWith(itemComparator)
+
+    val oldestItem: FeedItem? get() = items.maxWith(itemComparator)
+    val newestItem: FeedItem? get() = items.minWith(itemComparator)
 
     /**
      * Merges this feed with the provided low level feed representation
      * and returns a new, immutable merged feed.
      */
-    fun mergeWith(feed: Api.Feed): Feed {
-        val isAtEnd = isAtEnd or feed.isAtEnd
-        val isAtStart = isAtStart or feed.isAtStart or !feedType.sortable
+    fun mergeWith(update: Api.Feed): Feed {
+        val isAtEnd = isAtEnd or update.isAtEnd
+        val isAtStart = isAtStart or update.isAtStart or !feedType.sortable
 
-        val newItems = mergeItems(feed.items.map { FeedItem(it) })
+        val newItems = mergeItems(update.items.map { FeedItem(it) })
         return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
     }
 
@@ -50,28 +51,18 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
      * a list of items.
      */
     private fun mergeItems(newItems: List<FeedItem>): List<FeedItem> {
-        // merge them in the correct order.
         val target = ArrayList<FeedItem>(items.size + newItems.size)
 
+        // add them to the target
+        target += this
+        target += newItems
+
         if (feedType.sortable) {
-            // get two sorted iterators.
-            val old = PeekingIterator(items.sortedWith(itemComparator).iterator())
-            val new = PeekingIterator(newItems.sortedWith(itemComparator).iterator())
-
-            while (new.hasNext() && old.hasNext()) {
-                val cmp = itemComparator.compare(new.peek(), old.peek())
-                target.add(if (cmp > 0) old.next() else new.next())
-            }
-
-            // just add the rest
-            new.forEach { target.add(it) }
-            old.forEach { target.add(it) }
-        } else {
-            target += this
-            target += newItems
+            // sort them correctly
+            target.sortWith(itemComparator)
         }
 
-        // verify that we did not at an item twice
+        // and remove any duplicates in the end.
         return target.distinctBy { it.id }
     }
 
@@ -85,38 +76,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
     }
 
     override fun toString(): String {
-        return "Feed[newest=${newest?.id}, oldest=${oldest?.id}, size=$size]"
-    }
-
-    /**
-     * Implementation of PeekingIterator that avoids peeking unless necessary.
-     */
-    private class PeekingIterator<out E>(private val iterator: Iterator<E>) : Iterator<E> {
-        private var hasPeeked: Boolean = false
-        private var peekedElement: E? = null
-
-        override fun hasNext(): Boolean {
-            return hasPeeked || iterator.hasNext()
-        }
-
-        override fun next(): E {
-            if (!hasPeeked) {
-                return iterator.next()
-            }
-            val result = peekedElement!!
-            hasPeeked = false
-            peekedElement = null
-            return result
-        }
-
-        fun peek(): E? {
-            if (!hasPeeked) {
-                peekedElement = iterator.next()
-                hasPeeked = true
-            }
-
-            return peekedElement
-        }
+        return "Feed(newest=${newestItem?.id}, oldest=${oldestItem?.id}, size=$size, filter=$filter)"
     }
 
     fun parcelAround(pivot: Int): FeedParcel {

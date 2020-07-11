@@ -192,7 +192,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launchWhenResumed {
-            postAdapter.updates.collect {
+            postAdapter.state.collect {
                 tryAutoScrollToCommentNow(smoothScroll = false)
             }
         }
@@ -685,7 +685,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // this prevents the viewer from getting bad clipping.
         recyclerView.postAdapter?.let { adapter ->
             launchUntilStop {
-                adapter.updates.drop(1).collect {
+                adapter.state.drop(1).collect {
                     simulateScroll()
                 }
             }

@@ -485,19 +485,10 @@ fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
     }
 }
 
-@Suppress("ObjectPropertyName")
-val __doNotUse_traceLogger = Logger("Trace")
-
 inline fun <T : Any> T.trace(msg: () -> String) {
     if (BuildConfig.DEBUG) {
-        // jump to parent class if inside a companion object.
-        var clazz: Class<*> = javaClass
-        if (clazz.directName == "Companion") {
-            clazz = clazz.enclosingClass!!
-        }
-
-        val type = clazz.directName
-        __doNotUse_traceLogger.debug { "$type.${msg()}" }
+        val type = traceType(this)
+        Logger("Trace").debug { "$type.${msg()}" }
     }
 }
 
@@ -509,7 +500,7 @@ inline fun <T : Any, R : Any?> T.trace(msg: String, block: () -> R): R {
         try {
             block()
         } finally {
-            __doNotUse_traceLogger.debug { "$type.$msg took $watch" }
+            Logger("Trace").debug { "$type.$msg took $watch" }
         }
 
     } else {
@@ -524,8 +515,9 @@ fun traceType(obj: Any): String {
         clazz = clazz.enclosingClass ?: clazz
     }
 
+    val id = Integer.toHexString(System.identityHashCode(obj))
     val type = clazz.directName
-    return type
+    return "$type($id)"
 }
 
 fun Closeable?.closeQuietly() {
