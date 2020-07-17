@@ -23,10 +23,6 @@
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
-# Keep until > okhttp 4.7.2
-# https://github.com/square/okhttp/issues/6092
--keepnames class okhttp3.OkHttpClient
-
 # keep enums!
 -keepclassmembers enum * {
     public static **[] values();
