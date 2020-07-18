@@ -7,14 +7,15 @@ import com.pr0gramm.app.db.CollectionItemQueries
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.readOnly
 import com.pr0gramm.app.util.toInt
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 data class PostCollection(
@@ -142,7 +143,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
 
         if (response.error == null) {
             // delete on server side was okay, remove locally
-            withBackgroundContext {
+            withContext(Dispatchers.Default) {
                 db.remove(itemId, collectionId)
             }
         }
@@ -161,7 +162,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
 
         if (result is Result.ItemAdded) {
             // mimic adding to collection locally
-            withBackgroundContext {
+            withContext(Dispatchers.Default) {
                 db.add(itemId, result.collectionId)
             }
         }
@@ -182,7 +183,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
     }
 
     suspend fun deleteCollection(collectionId: Long) {
-        withBackgroundContext {
+        withContext(Dispatchers.Default) {
             db.removeCollection(collectionId)
         }
     }

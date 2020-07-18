@@ -22,6 +22,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindView
 import com.pr0gramm.app.ui.base.launchUntilViewDestroy
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
+import com.pr0gramm.app.ui.fragments.post.PostFragment
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
@@ -230,7 +231,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     fun onTagClicked(tag: Api.Tag) {
         val handler = activity as MainActionHandler
-        handler.onFeedFilterSelected(currentFilter.withTags(tag.tag))
+        handler.onFeedFilterSelected(currentFilter.withTags(tag.text))
     }
 
     fun onUsernameClicked(username: String) {

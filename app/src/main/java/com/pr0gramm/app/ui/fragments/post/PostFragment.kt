@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.fragments
+package com.pr0gramm.app.ui.fragments.post
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder.ofFloat
@@ -13,21 +13,18 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenResumed
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.parcel.CommentListParceler
-import com.pr0gramm.app.parcel.TagListParceler
 import com.pr0gramm.app.parcel.getFreezableOrNull
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.*
@@ -39,18 +36,19 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.CollectionsSelectionDialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
+import com.pr0gramm.app.ui.fragments.*
+import com.pr0gramm.app.ui.fragments.feed.update
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.io.IOException
+import kotlinx.coroutines.withContext
+import okhttp3.internal.toHexString
 import java.util.*
 import kotlin.math.min
 
@@ -65,24 +63,33 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
-    private var state by LazyObservableProperty({ FragmentState(feedItem) }) { _, _ -> adapterStateUpdated() }
-    private val stateTransaction = StateTransaction({ state }, { adapterStateUpdated() })
+    private val model by viewModels {
+        val requiresCacheBust = true == commentRef?.notificationTime?.let { notificationTime ->
+            val threshold = Instant.now().minus(Duration.seconds(60))
+            notificationTime.isAfter(threshold)
+        }
+
+        PostViewModel(
+                feedItem, requiresCacheBust,
+                userService = instance(),
+                feedService = instance(),
+                voteService = instance(),
+                followService = instance(),
+                inMemoryCacheService = instance(),
+        )
+    }
+
 
     // start with an empty adapter here
-    private val commentTreeHelper = PostFragmentCommentTreeHelper()
+    private val commentTreeHelper = CommentListener()
 
-    private val activeStateCh = ConflatedBroadcastChannel<Boolean>(false)
+    private val activeState = MutableStateFlow(false)
 
     private var fullscreenAnimator: ObjectAnimator? = null
-    private var rewindOnNextLoad: Boolean = false
-
-    private val apiComments = MutableStateFlow(listOf<Api.Comment>())
-    private val apiTags = MutableStateFlow(listOf<Api.Tag>())
 
     private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
 
     private val settings = Settings.get()
-    private val feedService: FeedService by instance()
     private val voteService: VoteService by instance()
     private val favedCommentService: FavedCommentService by instance()
     private val seenService: SeenService by instance()
@@ -94,36 +101,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val shareService: ShareService by instance()
     private val interstitialAdler by lazy { InterstitialAdler(requireContext()) }
 
-    private val swipeRefreshLayout: SwipeRefreshLayout? by bindOptionalView(R.id.refresh)
+    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
     private val playerContainer: ViewGroup by bindView(R.id.player_container)
     private val recyclerView: StatefulRecyclerView by bindView(R.id.post_content)
     private val voteAnimationIndicator: ImageView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
 
+    // only set while we have a viewScope
+    private var mediaViewState: StateFlow<MediaViewState>? = null
+
     private var viewer: MediaView? = null
 
     override var title: TitleFragment.Title = TitleFragment.Title("pr0gramm")
 
-    override fun onCreate(savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.NEVER) {
+    override fun onCreate(savedInstanceState: Bundle?): Unit {
         super.onCreate(savedInstanceState)
-
-        if (savedInstanceState != null) {
-            val tags = savedInstanceState
-                    .getExternalValue(requireContext(), "PostFragment.tags", TagListParceler)
-                    ?.tags
-
-            val comments = savedInstanceState
-                    .getExternalValue(requireContext(), "PostFragment.comments", CommentListParceler)
-                    ?.comments
-
-            if (tags != null) {
-                this.apiTags.value = tags
-            }
-
-            if (comments != null) {
-                this.apiComments.value = comments
-            }
-        }
 
         launchWhenStarted {
             userService.loginStates.drop(1).collect {
@@ -140,21 +132,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun stopMediaOnViewer() {
-        viewer?.stopMedia()
-    }
-
-    private fun playMediaOnViewer() {
-        viewer?.playMedia()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_post, container, false) as ViewGroup
         addWarnOverlayIfNecessary(inflater, view)
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction(StateTransaction.Dispatch.ALWAYS) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit {
         super.onViewCreated(view, savedInstanceState)
 
         val activity = requireActivity()
@@ -164,12 +148,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val abHeight = AndroidUtility.getActionBarContentOffset(activity)
 
         // handle swipe to refresh
-        swipeRefreshLayout?.setColorSchemeResources(ThemeHelper.accentColor)
-        swipeRefreshLayout?.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
-        swipeRefreshLayout?.setOnRefreshListener {
+        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
+        swipeRefreshLayout.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
+        swipeRefreshLayout.setOnRefreshListener {
             if (!isVideoFullScreen) {
-                rewindOnNextLoad = true
-                loadItemDetails()
+                model.refreshAsync()
             }
         }
 
@@ -187,71 +170,50 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             activity.configureRecyclerView("Post", recyclerView)
         }
 
-        logger.time("Initialize media view") {
-            initializeMediaView()
+        val mediaViewState = initializeMediaView()
+
+        this.mediaViewState = mediaViewState
+
+        // show the repost badge if this is a repost
+        repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
+
+        launchInViewScope {
+            class State(val modelState: PostViewModel.State, val mediaViewState: MediaViewState)
+
+            val combinedState = combine(model.state, mediaViewState) { modelState, mediaViewState ->
+                State(modelState, mediaViewState)
+            }
+
+            combinedState.collect { state ->
+                updateAdapterFromState(state.modelState, state.mediaViewState)
+
+                if (!state.modelState.refreshing) {
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
         }
 
-        launchWhenResumed {
+        launchInViewScope {
             postAdapter.state.collect {
                 tryAutoScrollToCommentNow(smoothScroll = false)
             }
         }
 
-        launchUntilViewDestroy {
-            userService.loginStates.distinctUntilChangedBy { it.id }.collect { loginState ->
-                stateTransaction {
-                    if (state.commentsVisible != loginState.authorized) {
-                        state = state.copy(commentsVisible = loginState.authorized)
-                    }
-
-                    commentTreeHelper.userIsAdmin(loginState.admin)
+        launchInViewScope {
+            whenResumed {
+                model.state.distinctUntilChangedBy { it.tags }.collect { state ->
+                    hideProgressIfLoop(state.tags)
+                    updateTitle(state.tags)
                 }
             }
         }
 
-        val tags = this.apiTags.value
-        val comments = this.apiComments.value
-
-        if (comments.isNotEmpty()) {
-            // if we have saved comments we need to apply immediately to ensure
-            // we can restore scroll position and stuff.
-            updateComments(comments, updateSync = true)
-        }
-
-        if (tags.isNotEmpty()) {
-            updateTags(tags)
-        }
-
-        // listen to comment changes
-        launchUntilViewDestroy {
-            commentTreeHelper.itemsObservable.collect { commentItems ->
-                logger.debug { "Got new list of ${commentItems.size} comments" }
-                state = state.copy(comments = commentItems, commentsLoading = false)
-            }
-        }
-
-        // we do this after the first commentTreeHelper callback above
-        if (comments.isEmpty() && tags.isEmpty()) {
-            val requiresCacheBust = commentRef?.notificationTime?.let { notificationTime ->
-                val threshold = Instant.now().minus(Duration.seconds(60))
-                notificationTime.isAfter(threshold)
+        launchInViewScope {
+            val activeAndResumed = combine(activeState, lifecycle.asStateFlow()) { active, state ->
+                active && state.isAtLeast(Lifecycle.State.RESUMED)
             }
 
-            loadItemDetails(firstLoad = true, bust = requiresCacheBust ?: false)
-        }
-
-        launchUntilViewDestroy {
-            apiTags.collect { tags ->
-                hideProgressIfLoop(tags)
-                updateTitle(tags)
-            }
-        }
-
-        // show the repost badge if this is a repost
-        repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
-
-        launchUntilViewDestroy {
-            activeState.collect { active ->
+            activeAndResumed.distinctUntilChanged().collect { active ->
                 trace { "${feedItem.id}.activeState($active): Switching viewer state" }
 
                 if (active) {
@@ -269,6 +231,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
             }
         }
+
+        // this prevents the viewer from getting bad clipping.
+        launchInViewScope {
+            postAdapter.state.drop(1).collect {
+                simulateScroll()
+            }
+        }
+    }
+
+    private fun stopMediaOnViewer() {
+        viewer?.stopMedia()
+    }
+
+    private fun playMediaOnViewer() {
+        viewer?.playMedia()
     }
 
     private fun updateTitle(tags: List<Api.Tag>) {
@@ -278,45 +255,38 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // take the best rated tag that is not excluded
         val title = tags.sortedByDescending { it.confidence }.firstOrNull {
-            val tag = it.tag.toLowerCase(Locale.GERMANY)
+            val tag = it.text.toLowerCase(Locale.GERMANY)
             tag !in exclude && "loop" !in tag
         } ?: return
 
         // use the tag as the title for this fragment.
-        this.title = TitleFragment.Title(title.tag)
+        this.title = TitleFragment.Title(title.text)
 
         // and ping the activity to update the title
         val mainActivity = activity as? MainActivity
         mainActivity?.updateActionbarTitle()
     }
 
-    private val activeState = activeStateCh.asFlow()
-            .combine(lifecycle.asStateFlow()) { active, state -> active && state.isAtLeast(Lifecycle.State.RESUMED) }
-            .distinctUntilChanged()
-
-    private fun adapterStateUpdated() {
-        checkMainThread()
-
-        if (stateTransaction.isActive) {
-            return
-        }
-
-        val state: FragmentState = this.state
+    private fun updateAdapterFromState(state: PostViewModel.State, mediaViewState: MediaViewState) {
+        val viewerBaseHeight = mediaViewState.height
+        val mediaControlsContainer: ViewGroup? = mediaViewState.controlsContainer
 
         logger.debug {
-            "Applying post fragment state: h=${state.viewerBaseHeight}, " +
-                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size}, " +
-                    "comments=${state.comments.size} (${state.comments.hashCode()}), " +
-                    "l=${state.commentsLoading}, viewer=${viewer != null}, " +
-                    "mcc=${state.mediaControlsContainer != null}"
+            "Applying post fragment state: h=${viewerBaseHeight}, refreshing=${state.refreshing}, " +
+                    "itemVote=${state.itemVote}, " +
+                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size}/${state.tagVotes.hashCode().toHexString()}, " +
+                    "comments=${state.comments.size}/${state.comments.hashCode()}, " +
+                    "loading=${state.commentsLoading}, commentsVisible=${state.commentsVisible}, " +
+                    "followState=${state.followState}, " +
+                    "mcc=${mediaControlsContainer?.identityHashCode()?.toHexString()}"
         }
 
         val items = mutableListOf<PostAdapter.Item>()
 
         viewer?.let { viewer ->
-            if (state.viewerBaseHeight > 0) {
-                items += PostAdapter.Item.PlaceholderItem(state.viewerBaseHeight,
-                        viewer, state.mediaControlsContainer)
+            if (viewerBaseHeight > 0) {
+                items += PostAdapter.Item.PlaceholderItem(viewerBaseHeight,
+                        viewer, mediaControlsContainer)
             }
         }
 
@@ -344,13 +314,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        submitItemsToAdapter(items)
-    }
-
-    private fun submitItemsToAdapter(items: MutableList<PostAdapter.Item>) {
-        if (view != null) {
-            recyclerView.postAdapter?.submitList(items)
-        }
+        postAdapter.submitList(items)
     }
 
     override fun onDestroyView() {
@@ -361,23 +325,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             Screen.unlockOrientation(it)
         }
 
+        // reset state flow for previous view.
+        mediaViewState = null
+
         super.onDestroyView()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        val tags = apiTags.value
-        if (tags.isNotEmpty()) {
-            outState.putExternalValue(requireContext(),
-                    "PostFragment.tags", TagListParceler(tags))
-        }
-
-        val comments = apiComments.value
-        if (comments.isNotEmpty()) {
-            outState.putExternalValue(requireContext(),
-                    "PostFragment.comments", CommentListParceler(comments))
-        }
     }
 
     private fun addWarnOverlayIfNecessary(inflater: LayoutInflater, view: ViewGroup) {
@@ -479,7 +430,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             repostHint.isVisible = false
 
             // hide content below
-            swipeRefreshLayout?.isVisible = false
+            swipeRefreshLayout.isVisible = false
 
             if (activity is ToolbarActivity) {
                 // hide the toolbar if required necessary
@@ -497,11 +448,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             // move to fullscreen!?
             AndroidUtility.applyWindowFullscreen(activity, true)
 
-            state.mediaControlsContainer?.let { mcc ->
+            // move media controls directly to viewer
+            currentMediaViewState().controlsContainer?.let { mcc ->
                 mcc.removeFromParent()
                 viewer.addView(mcc)
             }
         }
+    }
+
+    private fun currentMediaViewState(): MediaViewState {
+        return mediaViewState?.value ?: throw IllegalStateException("must in view lifecycle.")
     }
 
     private fun realignFullScreen() {
@@ -521,13 +477,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
 
         val activity = activity ?: return
+
         AndroidUtility.applyWindowFullscreen(activity, false)
 
 
         fullscreenAnimator?.cancel()
         fullscreenAnimator = null
 
-        swipeRefreshLayout?.isVisible = true
+        swipeRefreshLayout.isVisible = true
 
         // reset the values correctly
         viewer?.apply {
@@ -550,8 +507,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         Screen.unlockOrientation(activity)
 
-        // remove view from the player
-        state.mediaControlsContainer?.removeFromParent()
+        // gets attached to different parent somewhere else
+        currentMediaViewState().controlsContainer?.removeFromParent()
 
         // and tell the adapter to bind it back to the view.
         recyclerView.postAdapter?.let { adapter ->
@@ -600,12 +557,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun refreshWithIndicator() {
-        if (swipeRefreshLayout?.isRefreshing == true || isDetached)
-            return
-
-        rewindOnNextLoad = true
-        swipeRefreshLayout?.isRefreshing = true
-        swipeRefreshLayout?.postDelayed({ this.loadItemDetails() }, 500)
+        if (!swipeRefreshLayout.isRefreshing) {
+            swipeRefreshLayout.isRefreshing = true
+            swipeRefreshLayout.postDelayed({ model.refreshAsync() }, 500)
+        }
     }
 
     private fun downloadPostMedia() {
@@ -653,45 +608,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private class DownloadException(cause: Throwable) : Exception(cause)
-
-    override fun onStart() {
-        super.onStart()
-
-        trace { "onStart(${feedItem.id})" }
-
-        launchUntilStop(ignoreErrors = true) {
-            voteService.getVote(feedItem).collect { vote ->
-                state = state.copy(itemVote = vote)
-            }
-        }
-
-        launchUntilStop(ignoreErrors = true) {
-            apiComments.flatMapLatest { comments -> voteService.getCommentVotes(comments) }
-                    .collect { votes -> commentTreeHelper.updateVotes(votes) }
-        }
-
-        launchUntilStop(ignoreErrors = true) {
-            apiTags.flatMapLatest { tags -> voteService.getTagVotes(tags) }
-                    .collect { votes -> state = state.copy(tagVotes = votes) }
-        }
-
-        launchUntilStop(ignoreErrors = true) {
-            followService.getState(feedItem.userId).collect { followState ->
-                state = state.copy(followState = followState)
-            }
-        }
-
-        // this prevents the viewer from getting bad clipping.
-        recyclerView.postAdapter?.let { adapter ->
-            launchUntilStop {
-                adapter.state.drop(1).collect {
-                    simulateScroll()
-                }
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
 
@@ -703,53 +619,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         setActive(false)
         super.onPause()
-    }
-
-    /**
-     * Loads the information about the post. This includes the
-     * tags and the comments.
-     */
-    private fun loadItemDetails(firstLoad: Boolean = false, bust: Boolean = false) {
-        // postDelayed could execute this if it is not added anymore
-        if (!isAdded || isDetached) {
-            return
-        }
-
-        if (feedItem.deleted) {
-            // that can be handled quickly...
-            swipeRefreshLayout?.isRefreshing = false
-            return
-        }
-
-        // update state to show "loading" items
-        state = state.copy(
-                commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
-                commentsLoadError = false)
-
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-            launchWhenViewCreated(ignoreErrors = true) {
-                try {
-                    onPostReceived(feedService.post(feedItem.id, bust))
-                    swipeRefreshLayout?.isRefreshing = false
-
-                } catch (err: Exception) {
-                    if (err is CancellationException) {
-                        return@launchWhenViewCreated
-                    }
-
-                    swipeRefreshLayout?.isRefreshing = false
-
-                    if (err.rootCause !is IOException) {
-                        AndroidUtility.logToCrashlytics(err)
-                    }
-
-                    stateTransaction {
-                        updateComments(emptyList(), updateSync = true)
-                        state = state.copy(commentsLoadError = true, commentsLoading = false)
-                    }
-                }
-            }
-        }
     }
 
     private fun showDeleteItemDialog() {
@@ -797,7 +666,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun initializeMediaView() {
+    private fun initializeMediaView(): StateFlow<MediaViewState> {
         val activity = requireActivity()
         val uri = buildMediaUri()
 
@@ -826,6 +695,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
                 LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
 
+        // initialize the view state
+        val mediaViewState = MutableStateFlow(MediaViewState(
+                controlsContainer = mediaControlsContainer,
+        ))
+
         // add space to the top of the viewer or to the screen to compensate
         // for the action bar.
         val viewerPaddingTop = AndroidUtility.getActionBarContentOffset(activity)
@@ -835,17 +709,24 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val screenSize = Point().also { activity.windowManager.defaultDisplay.getSize(it) }
             val expectedMediaHeight = screenSize.x * feedItem.height / feedItem.width
             val expectedViewerHeight = expectedMediaHeight + viewerPaddingTop
-            state = state.copy(viewerBaseHeight = expectedViewerHeight)
 
-            logger.debug { "Initialized viewer height to $expectedViewerHeight" }
+            logger.debug { "Initialize viewer height to $expectedViewerHeight" }
+
+            mediaViewState.update { previousState ->
+                previousState.copy(height = expectedViewerHeight)
+            }
         }
 
         viewer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             val newHeight = viewer.measuredHeight
-            if (newHeight != state.viewerBaseHeight) {
-                logger.debug { "Change in viewer height detected, setting height to ${state.viewerBaseHeight} to $newHeight" }
+            val oldHeight = mediaViewState.value.height
 
-                state = state.copy(viewerBaseHeight = newHeight)
+            if (newHeight != oldHeight) {
+                logger.debug { "Change in viewer height detected, setting height to $oldHeight to $newHeight" }
+
+                mediaViewState.update { previousState ->
+                    previousState.copy(height = newHeight)
+                }
 
                 if (isVideoFullScreen) {
                     realignFullScreen()
@@ -853,24 +734,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        state = state.copy(mediaControlsContainer = mediaControlsContainer)
-
-        launchUntilViewDestroy {
+        launchInViewScope {
             viewer.controllerViews().collect { view ->
-                logger.debug { "Adding view $view to placeholder" }
+                logger.debug { "Adding view to media container: $view" }
                 mediaControlsContainer.addView(view)
             }
         }
 
-        // show sfw/nsfw as a little flag, if the user is admin
         if (settings.showContentTypeFlag) {
             // show the little admin triangle
-            val size = requireContext().dp(16)
-            ViewCompat.setBackground(mediaControlsContainer,
-                    TriangleDrawable(feedItem.contentType, size))
-
-            mediaControlsContainer.minimumHeight = size
+            mediaControlsContainer.background = TriangleDrawable(feedItem.contentType, activity.dp(16))
+            mediaControlsContainer.minimumHeight = activity.dp(16)
         }
+
+        return mediaViewState
     }
 
     private fun buildMediaUri(): MediaUri {
@@ -900,12 +777,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
-        if (view == null) {
-            AndroidUtility.logToCrashlytics(RuntimeException("simulateScroll() without a view."))
-            return
-        }
-
-        recyclerView.primaryScrollListener?.onScrolled(this.recyclerView, 0, 0)
+        recyclerView.primaryScrollListener?.onScrolled(recyclerView, 0, 0)
     }
 
     /**
@@ -955,7 +827,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun doVoteOnDoubleTap(targetVote: Vote) {
         launchWhenStarted {
-            if (voteService.getVote(feedItem).first() != targetVote) {
+            if (voteService.getItemVote(feedItem.id).first() != targetVote) {
                 doVoteFeedItem(targetVote)
             } else {
                 doVoteFeedItem(Vote.NEUTRAL)
@@ -974,69 +846,22 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     /**
-     * Called with the downloaded post information.
-
-     * @param post The post information that was downloaded.
-     */
-    private fun onPostReceived(post: Api.Post) {
-        stateTransaction {
-            // update from post
-            updateTags(post.tags)
-            updateComments(post.comments)
-        }
-
-        if (rewindOnNextLoad) {
-            rewindOnNextLoad = false
-            viewer?.rewind()
-        }
-    }
-
-    private fun updateTags(tags_: List<Api.Tag>) {
-        // ensure a deterministic ordering for the tasks
-        val comparator = compareByDescending<Api.Tag> { it.confidence }.thenBy { it.id }
-
-        val tags = inMemoryCacheService
-                .enhanceTags(feedItem.id, tags_)
-                .sortedWith(comparator)
-
-        apiTags.value = tags
-
-        state = state.copy(tags = tags)
-    }
-
-    /**
      * If the current post is a loop, we'll check if it is a loop. If it is,
      * we will hide the little video progress bar.
      */
     private fun hideProgressIfLoop(tags: List<Api.Tag>) {
         val actualView = viewer?.actualMediaView
+
         if (actualView is AbstractProgressMediaView) {
-            if (tags.any { it.isLoopTag() }) {
+            if (tags.any { tag -> isLoopTag(tag) }) {
                 actualView.hideVideoProgress()
             }
         }
     }
 
-    private fun updateComments(
-            comments: List<Api.Comment>,
-            updateSync: Boolean = false,
-            extraChanges: (CommentTree.Input) -> CommentTree.Input = { it }): Unit = stateTransaction {
-
-        this.apiComments.value = comments.toList()
-
-        // show comments now
-        logger.info { "Sending ${comments.size} comments to tree helper" }
-        commentTreeHelper.updateComments(comments, updateSync) { state ->
-            extraChanges(state.copy(
-                    op = feedItem.user,
-                    self = userService.name,
-                    isAdmin = userService.userIsAdmin))
-        }
-
-        // if we dont have any comments, we stop loading now.
-        if (comments.isEmpty()) {
-            state = state.copy(commentsLoading = false)
-        }
+    private fun isLoopTag(tag: Api.Tag): Boolean {
+        val lower = tag.text.toLowerCase(Locale.GERMANY)
+        return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
     }
 
     /**
@@ -1046,31 +871,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * @param active The new active status.
      */
     private fun setActive(active: Boolean) {
-        activeStateCh.offer(active)
+        activeState.value = active
 
         if (active) {
             Track.viewItem(feedItem.id)
         }
     }
 
-    override fun onAddNewTags(tags: List<String>) {
-        val previousTags = this.apiTags.value
-
-        // allow op to tag a more restrictive content type.
-        val op = feedItem.user.equals(userService.name, true) || userService.userIsAdmin
-        val newTags = tags.filter { tag ->
-            isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(previousTags, tag))
-        }
-
-        if (newTags.isNotEmpty()) {
-            logger.info { "Adding new tags $newTags to post" }
-
-            launchWhenStarted(busyIndicator = true) {
-                updateTags(withBackgroundContext(NonCancellable) {
-                    voteService.tag(feedItem.id, newTags)
-                })
-            }
-        }
+    override fun onNewTags(tags: List<String>) {
+        this.model.addTagsByUserAsync(tags)
     }
 
     private fun onNewComments(response: Api.NewComment) {
@@ -1079,14 +888,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             autoScrollToComment(commentId, delayed = true)
         }
 
-        updateComments(response.comments) { state ->
-            state.copy(selectedCommentId = response.commentId
-                    ?: 0, baseVotes = state.baseVotes.let { votes ->
-                val copy = votes.clone()
-                copy.put(response.commentId ?: 0, Vote.UP)
-                copy
-            })
-        }
+        model.updateComments(response.comments, response.commentId)
 
         view?.let { fragmentView ->
             Snackbar.make(fragmentView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
@@ -1107,23 +909,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun tryAutoScrollToCommentNow(smoothScroll: Boolean) {
         val commentId = commentRef?.commentId ?: return
 
-        // get the current recycler view and adapter.
-        val adapter = this.recyclerView.postAdapter ?: return
-
-        val idx = adapter.items.indexOfFirst { item ->
+        val idx = postAdapter.items.indexOfFirst { item ->
             item is PostAdapter.Item.CommentItem && item.commentTreeItem.commentId == commentId
         }
 
         if (idx >= 0) {
+            val lm = recyclerView.layoutManager as LinearLayoutManager
+
             if (smoothScroll) {
-                val scroller = CenterLinearSmoothScroller(this.recyclerView.context, idx)
-                this.recyclerView.layoutManager?.startSmoothScroll(scroller)
+                val scroller = CenterLinearSmoothScroller(recyclerView.context, idx)
+                lm.startSmoothScroll(scroller)
 
             } else {
-                this.recyclerView.scrollToPosition(idx)
+                // scroll the comment in the top quarter of the screen
+                val offset = requireView().height * 1 / 4
+                lm.scrollToPositionWithOffset(idx, offset)
             }
 
-            commentTreeHelper.selectComment(commentId)
+            model.selectComment(commentId)
+
             commentRef = null
         }
     }
@@ -1221,14 +1025,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     /**
-     * Returns true, if the given tag looks like some "loop" tag.
-     */
-    private fun Api.Tag.isLoopTag(): Boolean {
-        val lower = tag.toLowerCase(Locale.GERMANY)
-        return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
-    }
-
-    /**
      * Returns true, if the given url links to a static image.
      * This does only a check on the filename and not on the data.
 
@@ -1245,7 +1041,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             showPostVoteAnimation(vote)
 
             launchWhenStarted {
-                withBackgroundContext(NonCancellable) {
+                withContext(NonCancellable + Dispatchers.Default) {
                     voteService.vote(feedItem, vote)
                 }
             }
@@ -1253,9 +1049,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private val postAdapter: PostAdapter
-        get() = recyclerView.postAdapter ?: throw IllegalStateException("no comment adapter set")
+        get() = recyclerView.postAdapter ?: throw IllegalStateException("no post adapter set")
 
-    inner class PostFragmentCommentTreeHelper : CommentTreeHelper() {
+    inner class CommentListener : CommentView.Listener {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
             return doIfAuthorizedHelper.runAuthNoRetry {
                 launchWhenStarted {
@@ -1277,14 +1073,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onReplyClicked(comment: Api.Comment) {
-            val byId = apiComments.value.associateBy { it.id }
+            val allComments = model.state.value.comments.map { it.comment }
 
             val parentComments = mutableListOf<WriteMessageActivity.ParentComment>()
 
             var current: Api.Comment? = comment
             while (current != null) {
                 parentComments.add(WriteMessageActivity.ParentComment.ofComment(current))
-                current = byId[current.parent]
+
+                val parentId = current.parentId
+                current = allComments.firstOrNull { it.id == parentId }
             }
 
             doIfAuthorizedHelper.runAuthWithRetry {
@@ -1292,7 +1090,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 startActivityForResult(
                         WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
                         RequestCodes.WRITE_COMMENT)
-
             }
         }
 
@@ -1319,6 +1116,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun onReportCommentClicked(comment: Api.Comment) {
             val dialog = ReportDialog.forComment(feedItem, comment.id)
             dialog.maybeShow(parentFragmentManager)
+        }
+
+        override fun collapseComment(comment: Api.Comment) {
+            model.collapseComment(comment.id)
+        }
+
+        override fun expandComment(comment: Api.Comment) {
+            model.expandComment(comment.id)
         }
 
         override fun itemClicked(ref: Linkify.Item): Boolean {
@@ -1361,7 +1166,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean {
             return doIfAuthorizedHelper.runAuthWithRetry {
                 launchWhenStarted {
-                    withBackgroundContext(NonCancellable) {
+                    withContext(NonCancellable + Dispatchers.Default) {
                         voteService.vote(tag, vote)
                     }
                 }
@@ -1416,18 +1221,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private data class FragmentState(
-            val item: FeedItem,
-            val itemVote: Vote = Vote.NEUTRAL,
-            val tags: List<Api.Tag> = emptyList(),
-            val tagVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
-            val viewerBaseHeight: Int = 0,
-            val comments: List<CommentTree.Item> = emptyList(),
-            val commentsVisible: Boolean = true,
-            val commentsLoading: Boolean = false,
-            val commentsLoadError: Boolean = false,
-            val followState: FollowState? = null,
-            val mediaControlsContainer: View? = null)
+    private data class MediaViewState(
+            val height: Int = 0,
+            val controlsContainer: ViewGroup? = null,
+    )
 
     companion object {
         private const val ARG_FEED_ITEM = "PF.post"

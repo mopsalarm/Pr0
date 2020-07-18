@@ -10,6 +10,7 @@ import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.LazyStateFlow
+import com.pr0gramm.app.util.lazyStateFlow
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encode
@@ -41,7 +42,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
      * Observe the existing cookie. Get a null value if the cookie
      * was removed and changed to null.
      */
-    val observeCookie: LazyStateFlow<LoginCookie?> = LazyStateFlow()
+    val observeCookie: LazyStateFlow<LoginCookie?> = lazyStateFlow()
 
     fun hasCookie(): Boolean {
         return httpCookie != null && parsedCookie?.id != null

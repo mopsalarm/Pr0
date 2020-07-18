@@ -18,6 +18,7 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.FollowState
 import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.fragments.post.CommentTree
 import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
@@ -59,7 +60,7 @@ class PostAdapter
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
         }
 
-        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val followState: FollowState?, val actions: PostActions)
+        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val followState: FollowState, val actions: PostActions)
             : Item(idInCategory(1))
 
         data class TagsItem(val itemId: Long, val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)

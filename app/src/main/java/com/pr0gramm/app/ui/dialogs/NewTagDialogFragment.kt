@@ -50,7 +50,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
             return
 
         // inform parent
-        (parentFragment as OnAddNewTagsListener).onAddNewTags(tags)
+        (parentFragment as OnAddNewTagsListener).onNewTags(tags)
 
         AndroidUtility.hideSoftKeyboard(tagInput)
     }
@@ -63,6 +63,6 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
         /**
          * Called when the dialog finishes with new tags.
          */
-        fun onAddNewTags(tags: List<String>)
+        fun onNewTags(tags: List<String>)
     }
 }

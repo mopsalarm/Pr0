@@ -3,7 +3,6 @@ package com.pr0gramm.app.orm
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.db.CachedVoteQueries
 import com.pr0gramm.app.time
-import com.pr0gramm.app.ui.base.Async
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
@@ -36,7 +35,7 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
         fun find(cv: CachedVoteQueries, type: Type, itemId: Long): Flow<CachedVote> {
             return cv.findOne(voteId(type, itemId), this::toCachedVote)
                     .asFlow()
-                    .mapToOneOrDefault(CachedVote(itemId, type, Vote.NEUTRAL), Async)
+                    .mapToOneOrDefault(CachedVote(itemId, type, Vote.NEUTRAL))
         }
 
         fun find(cv: CachedVoteQueries, type: Type, ids: List<Long>): Flow<List<CachedVote>> {
@@ -48,7 +47,7 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
             val flows: List<Flow<List<CachedVote>>> = ids.chunked(512)
                     .map { chunk -> chunk.map { voteId(type, it) } }
                     .map { chunk -> cv.findSome(chunk, this::toCachedVote) }
-                    .map { it.asFlow().mapToList(Async) }
+                    .map { it.asFlow().mapToList() }
 
             return combine(flows) { votes -> votes.asList().flatten() }
         }

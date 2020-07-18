@@ -10,7 +10,7 @@ class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
     override fun freeze(sink: Freezable.Sink) = with(sink) {
         writeValues(comments) { comment ->
             writeLong(comment.id)
-            writeLong(comment.parent)
+            writeLong(comment.parentId)
             writeFloat(comment.confidence)
             writeShort(comment.up)
             writeShort(comment.down)
@@ -29,7 +29,7 @@ class CommentListParceler(val comments: List<Api.Comment>) : Freezable {
             val comments = source.readValuesIndexed { idx ->
                 Api.Comment(
                         id = source.readLong(),
-                        parent = source.readLong(),
+                        parentId = source.readLong(),
                         confidence = source.readFloat(),
                         up = source.readShort().toInt(),
                         down = source.readShort().toInt(),

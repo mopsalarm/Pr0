@@ -9,11 +9,12 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.instance
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotterknife.bindView
 
 class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRecoveryActivity") {
@@ -43,7 +44,7 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
 
         launchWhenStarted(busyIndicator = true) {
             withViewDisabled(submit) {
-                withBackgroundContext(NonCancellable) {
+                withContext(NonCancellable + Dispatchers.Default) {
                     userService.requestPasswordRecovery(email)
                 }
             }

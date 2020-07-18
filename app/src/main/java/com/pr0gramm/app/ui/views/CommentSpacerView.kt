@@ -10,7 +10,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.Themes
-import com.pr0gramm.app.ui.fragments.Spacings
+import com.pr0gramm.app.ui.fragments.post.Spacings
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat

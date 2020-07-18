@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.LazyStateFlow
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.lazyStateFlow
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ class TimeRangeSelectorView @JvmOverloads constructor(
     var defaultColor: Int = 0
     var selectedColor: Int = 0
 
-    private val subject = LazyStateFlow<Long>()
+    private val subject = lazyStateFlow<Long>()
     val selectedTimeRange: Flow<Long> = subject.distinctUntilChanged()
 
     private val steps = listOf(

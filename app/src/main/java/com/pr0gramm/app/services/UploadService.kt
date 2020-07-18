@@ -6,7 +6,6 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.ignoreAllExceptions
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.toInt
@@ -53,11 +52,11 @@ class UploadService(private val api: Api,
             return if (userService.loginState.premium) config.maxUploadPixelsPremium else config.maxUploadPixelsNormal
         }
 
-    suspend fun sizeOkay(file: File): Boolean = withBackgroundContext {
+    suspend fun sizeOkay(file: File): Boolean = withContext(Dispatchers.Default) {
         val fileSizeOk = file.length() < maxUploadSize
 
         if (!fileSizeOk)
-            return@withBackgroundContext false
+            return@withContext false
 
         val pixelsOkay = runCatching {
             // get image size, ignore errors
@@ -173,7 +172,7 @@ class UploadService(private val api: Api,
         return uploadState.onEach { state ->
             if (state is State.Success && extraTags.isNotEmpty()) {
                 ignoreAllExceptions {
-                    voteService.tag(state.id, extraTags)
+                    voteService.createTags(state.id, extraTags)
                 }
             }
         }
@@ -317,18 +316,19 @@ class UploadService(private val api: Api,
 
 fun isValidTag(tag: String): Boolean {
     val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound", "text")
-    val invalid = tag.toLowerCase() in invalidTags || tag.length < 2 || tag.length > 32
+    val invalid = tag.toLowerCase(Locale.ROOT) in invalidTags || tag.length < 2 || tag.length > 32
     return !invalid
 }
 
-fun isMoreRestrictiveContentTypeTag(tags: List<Api.Tag>, tag: String): Boolean {
+fun isMoreRestrictiveContentTypeTag(tags: List<String>, tag: String): Boolean {
     val sorted = listOf("sfw", "nsfp", "nsfw", "nsfl")
 
-    val newTagIndex = sorted.indexOf(tag.toLowerCase())
-    if (newTagIndex < 0)
+    val newTagIndex = sorted.indexOf(tag.toLowerCase(Locale.ROOT))
+    if (newTagIndex < 0) {
         return false
+    }
 
-    val maxExistingTagIndex = tags.map { sorted.indexOf(it.tag.toLowerCase()) }.max()
+    val maxExistingTagIndex = tags.map { sorted.indexOf(it.toLowerCase(Locale.ROOT)) }.max()
     return maxExistingTagIndex == null || maxExistingTagIndex < newTagIndex
 }
 

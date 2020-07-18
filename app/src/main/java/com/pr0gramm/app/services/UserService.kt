@@ -11,14 +11,15 @@ import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ticker
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Cookie
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -208,7 +209,7 @@ class UserService(private val api: Api,
     /**
      * Performs a logout of the user.
      */
-    suspend fun logout() = withBackgroundContext(NonCancellable) {
+    suspend fun logout() = withContext(NonCancellable + Dispatchers.Default) {
         updateLoginState(NotAuthorized)
 
         // removing cookie from requests

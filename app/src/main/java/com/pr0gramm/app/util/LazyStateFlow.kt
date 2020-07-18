@@ -8,7 +8,7 @@ interface LazyStateFlow<T : Any?> : Flow<T> {
     fun send(newValue: T)
 }
 
-fun <T : Any> LazyStateFlow(initialValue: T): LazyStateFlow<T> {
+fun <T : Any> lazyStateFlow(initialValue: T): LazyStateFlow<T> {
     val delegate = MutableStateFlow(initialValue)
 
     return object : LazyStateFlow<T>, Flow<T> by delegate {
@@ -24,7 +24,7 @@ fun <T : Any> LazyStateFlow(initialValue: T): LazyStateFlow<T> {
     }
 }
 
-inline fun <reified T : Any?> LazyStateFlow(): LazyStateFlow<T> {
+inline fun <reified T : Any?> lazyStateFlow(): LazyStateFlow<T> {
     val noValue = Any()
     val delegate: MutableStateFlow<Any?> = MutableStateFlow(noValue)
 

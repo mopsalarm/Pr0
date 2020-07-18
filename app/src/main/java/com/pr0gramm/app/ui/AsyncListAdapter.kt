@@ -5,13 +5,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.ui.base.Main
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.checkMainThread
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T> = InstanceDiffCallback(),
@@ -91,7 +92,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
 
         } else {
             CoroutineScope(Main).launch {
-                val diff = withBackgroundContext {
+                val diff = withContext(Dispatchers.Default) {
                     calculateDiff(oldList, newList)
                 }
 

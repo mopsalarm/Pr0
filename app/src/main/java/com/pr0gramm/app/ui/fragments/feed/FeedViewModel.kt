@@ -14,10 +14,7 @@ import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.fragments.CommentRef
-import com.pr0gramm.app.util.LongSparseArray
-import com.pr0gramm.app.util.StringException
-import com.pr0gramm.app.util.rootCause
-import com.pr0gramm.app.util.trace
+import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -320,5 +317,9 @@ class FeedViewModel(
 
 inline fun <T> MutableStateFlow<T>.update(block: (previousState: T) -> T) {
     value = block(value)
+}
+
+inline fun <T> LazyStateFlow<T>.update(block: (previousState: T) -> T) {
+    send(block(value))
 }
 

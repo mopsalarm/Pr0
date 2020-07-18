@@ -9,7 +9,7 @@ class TagListParceler(val tags: List<Api.Tag>) : Freezable {
         sink.writeValues(tags) { tag ->
             writeLong(tag.id)
             writeFloat(tag.confidence)
-            writeString(tag.tag)
+            writeString(tag.text)
         }
     }
 

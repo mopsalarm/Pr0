@@ -791,3 +791,12 @@ inline operator fun OnClickListener?.invoke() {
 
 
 typealias OnViewClickListener = Listener<View>
+
+
+fun Iterable<String>.containsIgnoreCase(text: String): Boolean {
+    return any { it.equalsIgnoreCase(text) }
+}
+
+fun Any.identityHashCode(): Int {
+    return System.identityHashCode(this)
+}

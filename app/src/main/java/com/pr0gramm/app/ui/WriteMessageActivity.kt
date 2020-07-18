@@ -25,7 +25,6 @@ import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.TextViewCache
 import com.pr0gramm.app.util.di.injector
@@ -33,7 +32,9 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.observeChangeEx
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotterknife.bindView
 
 /**
@@ -183,7 +184,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
             launchWhenStarted(busyIndicator = true) {
                 withViewDisabled(buttonSubmit) {
-                    val newComments = withBackgroundContext(NonCancellable) {
+                    val newComments = withContext(NonCancellable + Dispatchers.Default) {
                         voteService.postComment(itemId, parentComment, message)
                     }
 
@@ -205,7 +206,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         } else {
             launchWhenStarted(busyIndicator = true) {
                 withViewDisabled(buttonSubmit) {
-                    withBackgroundContext(NonCancellable) {
+                    withContext(NonCancellable + Dispatchers.Default) {
                         inboxService.send(receiverId, message)
                     }
 

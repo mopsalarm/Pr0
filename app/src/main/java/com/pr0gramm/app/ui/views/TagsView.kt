@@ -365,7 +365,7 @@ class TagsView(context: Context) : LinearLayout(context) {
             val (tag, vote, selected) = votedTag
             val holderChanged = id.update(tag.id)
 
-            tagView.text = tag.tag
+            tagView.text = tag.text
             tagView.setOnClickListener {
                 actions?.onTagClicked(tag)
             }
@@ -406,7 +406,7 @@ class TagsView(context: Context) : LinearLayout(context) {
 
             if (votedTag.alwaysShowVoteView) {
                 tagView.setOnLongClickListener {
-                    val text = votedTag.tag.tag
+                    val text = votedTag.tag.text
 
                     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))

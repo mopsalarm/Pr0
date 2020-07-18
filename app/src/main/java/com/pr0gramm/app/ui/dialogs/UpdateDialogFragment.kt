@@ -15,14 +15,15 @@ import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.base.launchWhenStarted
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.trace
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -82,7 +83,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     return
             }
 
-            val update = withBackgroundContext {
+            val update = withContext(Dispatchers.Default) {
                 UpdateChecker().queryAll()
             }
 

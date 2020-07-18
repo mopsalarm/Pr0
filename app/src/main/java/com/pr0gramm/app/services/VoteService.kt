@@ -9,14 +9,16 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.checkNotMainThread
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.unsigned
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
 import java.io.ByteArrayInputStream
@@ -64,8 +66,11 @@ class VoteService(private val api: Api,
      * Observes the votes for an item.
      * @param item The item to get the vote for.
      */
-    fun getVote(item: FeedItem): Flow<Vote> {
-        return CachedVote.find(appDB.cachedVoteQueries, ITEM, item.id).map { vote -> vote.vote }
+    fun getItemVote(itemId: Long): Flow<Vote> {
+        return CachedVote
+                .find(appDB.cachedVoteQueries, ITEM, itemId)
+                .map { vote -> vote.vote }
+                .distinctUntilChanged()
     }
 
     /**
@@ -77,6 +82,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValueInTx(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
+
         appDB.cachedVoteQueries.transaction {
             storeVoteValue(type, itemId, vote)
         }
@@ -178,26 +184,30 @@ class VoteService(private val api: Api,
      * Tags the given post. This methods adds the tags to the given post
      * and returns a list of tags.
      */
-    suspend fun tag(itemId: Long, tags: List<String>): List<Api.Tag> {
-        val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
-
-        val response = api.addTags(null, itemId, tagString)
-
-        appDB.transaction {
-            // auto-apply up-vote to newly created tags
-            for (tagId in response.tagIds) {
-                storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
-            }
+    suspend fun createTags(itemId: Long, tags: List<String>): List<Api.Tag> {
+        val tagString = tags.joinToString(",") { tag ->
+            tag.replace(',', ' ')
         }
 
-        return response.tags
+        return withContext(Dispatchers.IO + NonCancellable) {
+            val response = api.addTags(null, itemId, tagString)
+
+            appDB.transaction {
+                // auto-apply up-vote to newly created tags
+                for (tagId in response.tagIds) {
+                    storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
+                }
+            }
+
+            response.tags
+        }
     }
 
     /**
      * Writes a comment to the given post.
      */
     suspend fun postComment(itemId: Long, parentId: Long, comment: String): Api.NewComment {
-        return withBackgroundContext(NonCancellable) {
+        return withContext(NonCancellable + Dispatchers.Default) {
             val response = api.postComment(null, itemId, parentId, comment)
 
             val commentId = response.commentId
@@ -218,24 +228,15 @@ class VoteService(private val api: Api,
         CachedVote.clear(appDB.cachedVoteQueries)
     }
 
-    /**
-     * Gets the votes for the given comments
-
-     * @param comments A list of comments to get the votes for.
-     * *
-     * @return A map containing the vote from commentId to vote
-     */
-    fun getCommentVotes(comments: List<Api.Comment>): Flow<LongSparseArray<Vote>> {
-        val ids = comments.map { it.id }
-        return findCachedVotes(CachedVote.Type.COMMENT, ids)
+    fun getCommentVotes(commentIds: List<Long>): Flow<LongSparseArray<Vote>> {
+        return findCachedVotes(CachedVote.Type.COMMENT, commentIds).distinctUntilChanged()
     }
 
-    fun getTagVotes(tags: List<Api.Tag>): Flow<LongSparseArray<Vote>> {
-        val ids = tags.map { it.id }
-        return findCachedVotes(CachedVote.Type.TAG, ids)
+    fun getTagVotes(tagIds: List<Long>): Flow<LongSparseArray<Vote>> {
+        return findCachedVotes(CachedVote.Type.TAG, tagIds).distinctUntilChanged()
     }
 
-    suspend fun summary(): Map<CachedVote.Type, Summary> = withBackgroundContext {
+    suspend fun summary(): Map<CachedVote.Type, Summary> = withContext(Dispatchers.Default) {
         val counts = CachedVote.count(appDB.cachedVoteQueries)
 
         counts.mapValues { entry ->
@@ -259,7 +260,7 @@ class VoteService(private val api: Api,
         }
     }
 
-    private class VoteAction(internal val type: CachedVote.Type, internal val vote: Vote)
+    private class VoteAction(val type: CachedVote.Type, val vote: Vote)
 
     data class Summary(val up: Int, val down: Int)
 

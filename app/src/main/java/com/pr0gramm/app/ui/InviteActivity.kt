@@ -16,7 +16,6 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
@@ -26,7 +25,9 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotterknife.bindView
 import kotterknife.bindViews
 
@@ -67,7 +68,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
         launchWhenStarted(busyIndicator = true) {
             try {
-                withBackgroundContext(NonCancellable) {
+                withContext(NonCancellable + Dispatchers.Default) {
                     inviteService.send(email)
                 }
 

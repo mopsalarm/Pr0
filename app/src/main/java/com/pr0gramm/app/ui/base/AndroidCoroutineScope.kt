@@ -59,14 +59,6 @@ inline fun <T> withViewDisabled(vararg views: View, block: () -> T): T {
     }
 }
 
-suspend inline fun <T> withBackgroundContext(
-        context: CoroutineContext? = null,
-        noinline block: suspend CoroutineScope.() -> T): T {
-
-    val newContext = if (context != null) context + Async else Async
-    return withContext(newContext, block)
-}
-
 private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
     if (throwable is CancellationException) {
         return@CoroutineExceptionHandler
@@ -90,7 +82,7 @@ private val DefaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 }
 
 val Async = Dispatchers.IO
-val AsyncScope = CoroutineScope(Async) + SupervisorJob() + DefaultCoroutineExceptionHandler
+val AsyncScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + DefaultCoroutineExceptionHandler)
 
 val Main = Dispatchers.Main.immediate
 val MainScope = CoroutineScope(Main + SupervisorJob() + DefaultCoroutineExceptionHandler)

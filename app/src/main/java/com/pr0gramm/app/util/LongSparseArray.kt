@@ -51,15 +51,11 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
     }
 
     public override fun clone(): LongSparseArray<E> {
-        try {
-            @Suppress("UNCHECKED_CAST")
-            val clone = super.clone() as LongSparseArray<E>
-            clone.mKeys = mKeys.clone()
-            clone.mValues = mValues.clone()
-            return clone
-        } catch (e: CloneNotSupportedException) {
-            throw AssertionError(e) // Cannot happen as we implement Cloneable.
-        }
+        @Suppress("UNCHECKED_CAST")
+        val clone = super.clone() as LongSparseArray<E>
+        clone.mKeys = mKeys.clone()
+        clone.mValues = mValues.clone()
+        return clone
     }
 
     /**

@@ -2,13 +2,13 @@ package com.pr0gramm.app.services
 
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.AppDB
-import com.pr0gramm.app.ui.base.Async
-import com.pr0gramm.app.ui.base.withBackgroundContext
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 
 class FollowService(private val api: Api, private val db: AppDB) {
     suspend fun update(state: FollowState, userId: Long, name: String) {
-        withBackgroundContext(NonCancellable) {
+        withContext(NonCancellable + Dispatchers.Default) {
             when (state) {
                 FollowState.NONE ->
                     api.profileUnfollow(null, name)
@@ -38,7 +38,7 @@ class FollowService(private val api: Api, private val db: AppDB) {
     fun getState(userId: Long): Flow<FollowState> {
         return db.userFollowEntryQueries.forUser(userId)
                 .asFlow()
-                .mapToOneOrNull(Async)
+                .mapToOneOrNull()
                 .map { value -> mapToState(value?.state) }
     }
 

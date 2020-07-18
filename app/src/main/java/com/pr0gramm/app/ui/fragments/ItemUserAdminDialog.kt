@@ -10,11 +10,16 @@ import com.pr0gramm.app.parcel.getFreezableOrNull
 import com.pr0gramm.app.parcel.putFreezable
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.base.*
+import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.bindOptionalView
+import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
  */
@@ -89,7 +94,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         }
 
         launchWhenStarted(busyIndicator = true) {
-            withBackgroundContext(NonCancellable) {
+            withContext(NonCancellable + Dispatchers.Default) {
                 user?.let { blockUser(it, reason) }
                 item?.let { deleteItem(it, reason) }
                 comment?.let { deleteComment(it, reason) }

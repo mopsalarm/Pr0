@@ -446,13 +446,14 @@ interface Api {
     }
 
     @JsonClass(generateAdapter = true, readOnly = true)
-    class Comment(
+    data class Comment(
             val id: Long,
             val confidence: Float,
             val name: String,
             val content: String,
             val created: Instant,
-            val parent: Long,
+            @Json(name = "parent")
+            val parentId: Long,
             val up: Int,
             val down: Int,
             val mark: Int
@@ -670,12 +671,12 @@ interface Api {
     class Tag(
             val id: Long,
             val confidence: Float,
-            val tag: String
+
+            @Json(name = "tag")
+            val text: String
     ) {
-
-        override fun hashCode(): Int = tag.hashCode()
-
-        override fun equals(other: Any?): Boolean = other is Tag && other.tag == tag
+        override fun hashCode(): Int = text.hashCode()
+        override fun equals(other: Any?): Boolean = other is Tag && other.text == text
     }
 
     @JsonClass(generateAdapter = true, readOnly = true)
