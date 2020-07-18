@@ -1,12 +1,9 @@
 package com.pr0gramm.app.feed
 
+import android.os.Parcel
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.listOfSize
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.Unfreezable
-import com.pr0gramm.app.parcel.parcelableCreator
-import com.pr0gramm.app.parcel.writeValues
+import com.pr0gramm.app.parcel.*
 
 /**
  * Represents a feed.
@@ -104,26 +101,26 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return if (overlap) mergeWith(other) else null
     }
 
-    class FeedParcel(val feed: Feed) : Freezable {
-        override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
-            sink.write(feed.filter)
-            sink.writeInt(ContentType.combine(feed.contentType))
-            sink.writeBoolean(feed.isAtStart)
-            sink.write(feed.created)
-            sink.writeValues(feed.items)
+    class FeedParcel(val feed: Feed) : DefaultParcelable {
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            dest.write(feed.filter)
+            dest.writeInt(ContentType.combine(feed.contentType))
+            dest.writeBooleanCompat(feed.isAtStart)
+            dest.write(feed.created)
+            dest.writeValues(feed.items)
         }
 
-        companion object : Unfreezable<FeedParcel> {
-            @JvmField
-            val CREATOR = parcelableCreator()
+        companion object CREATOR : SimpleCreator<FeedParcel>() {
 
-            override fun unfreeze(source: Freezable.Source): FeedParcel = with(source) {
+            override fun createFromParcel(source: Parcel): FeedParcel = with(source) {
                 return FeedParcel(Feed(
                         filter = read(FeedFilter),
                         contentType = ContentType.decompose(readInt()),
-                        isAtStart = readBoolean(),
+                        isAtStart = readBooleanCompat(),
                         created = read(Instant),
-                        items = listOfSize(readInt()) { read(FeedItem) }))
+                        items = readValues(FeedItem),
+                ))
             }
         }
     }

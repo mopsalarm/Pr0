@@ -27,7 +27,6 @@ import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.feed.isVideoUri
-import com.pr0gramm.app.parcel.Freezer
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
@@ -233,7 +232,7 @@ class NotificationService(private val context: Application,
 
     private fun updateActivityIntent(update: Update): PendingIntent {
         val intent = Intent(context, UpdateActivity::class.java)
-        intent.putExtra(UpdateActivity.EXTRA_UPDATE, Freezer.freeze(update))
+        intent.putExtra(UpdateActivity.EXTRA_UPDATE, update)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
 import android.text.SpannableStringBuilder
 import android.view.Menu
 import android.view.MenuItem
@@ -27,7 +28,6 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.TextViewCache
-import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
@@ -58,7 +58,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     private val titleOverride: String? by lazy { intent.getStringExtra(ARGUMENT_TITLE) }
 
     private val parentComments: List<ParentComment> by lazy {
-        intent.getFreezableExtra(ARGUMENT_EXCERPTS, ParentComments)?.comments ?: listOf()
+        intent.getParcelableExtra<ParentComments>(ARGUMENT_EXCERPTS)?.comments ?: listOf()
     }
 
     private var selectedUsers by observeChangeEx(setOf<String>()) { _, _ -> updateViewState() }
@@ -188,12 +188,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                         voteService.postComment(itemId, parentComment, message)
                     }
 
-                    val parcelStore = baseContext.injector.instance<ParcelStore>()
-
                     val result = Intent()
 
-                    result.putExtra(RESULT_EXTRA_NEW_COMMENT,
-                            parcelStore.store(NewCommentParceler(newComments)))
+                    result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
 
                     setResult(Activity.RESULT_OK, result)
 
@@ -228,7 +225,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         val extras = intent?.extras ?: return
 
-        val message = extras.getFreezableOrNull(ARGUMENT_MESSAGE, MessageSerializer)?.message
+        val message = extras.getParcelableOrNull<MessageSerializer>(ARGUMENT_MESSAGE)?.message
         if (message != null) {
             messageView.update(message, userService.name)
             messageView.isVisible = true
@@ -280,9 +277,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             }
         }
 
-        fun getNewCommentFromActivityResult(context: Context, data: Intent): Api.NewComment {
+        fun getNewCommentFromActivityResult(data: Intent): Api.NewComment {
             return data.extras
-                    ?.getExternalValue(context, RESULT_EXTRA_NEW_COMMENT, NewCommentParceler)
+                    ?.getParcelableOrNull<NewCommentParceler>(RESULT_EXTRA_NEW_COMMENT)
                     ?.value
                     ?: throw IllegalArgumentException("no comment found in Intent")
         }
@@ -351,22 +348,24 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-    class ParentComments(val comments: List<ParentComment>) : Freezable {
-        override fun freeze(sink: Freezable.Sink) {
-            sink.writeValues(comments) { comment ->
-                sink.writeString(comment.user)
-                sink.writeString(comment.excerpt)
+    class ParentComments(val comments: List<ParentComment>) : DefaultParcelable {
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            dest.writeValues(comments) { comment ->
+                writeString(comment.user)
+                writeString(comment.excerpt)
             }
         }
 
-        companion object : Unfreezable<ParentComments> {
-            @JvmField
-            val CREATOR = parcelableCreator()
+        companion object CREATOR : SimpleCreator<ParentComments>() {
+            override fun createFromParcel(source: Parcel): ParentComments {
+                val comments = source.readValues {
+                    ParentComment(
+                            user = source.readStringNotNull(),
+                            excerpt = source.readStringNotNull(),
+                    )
+                }
 
-            override fun unfreeze(source: Freezable.Source): ParentComments {
-                return ParentComments(comments = source.readValues {
-                    ParentComment(user = source.readString(), excerpt = source.readString())
-                })
+                return ParentComments(comments)
             }
         }
     }

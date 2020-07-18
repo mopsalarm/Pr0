@@ -1,20 +1,14 @@
 package com.pr0gramm.app
 
 import android.os.Parcel
-import android.os.Parcelable
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.Unfreezable
-import com.pr0gramm.app.parcel.creator
+import com.pr0gramm.app.parcel.DefaultParcelable
+import com.pr0gramm.app.parcel.SimpleCreator
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
-    override fun freeze(sink: Freezable.Sink) {
-        sink.writeLong(millis)
-    }
-
+class Instant(val millis: Long) : Comparable<Instant>, DefaultParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeLong(millis)
     }
@@ -67,20 +61,16 @@ class Instant(val millis: Long) : Comparable<Instant>, Freezable, Parcelable {
         return format.format(Date(millis))
     }
 
-    companion object : Unfreezable<Instant> {
-        override fun unfreeze(source: Freezable.Source): Instant {
-            return Instant(source.readLong())
-        }
-
-
+    companion object CREATOR : SimpleCreator<Instant>() {
         fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
 
         fun ofEpochSeconds(epochSeconds: Long): Instant {
             return Instant(1000 * epochSeconds)
         }
 
-        @JvmField
-        val CREATOR = creator { p -> Instant(p.readLong()) }
+        override fun createFromParcel(source: Parcel): Instant {
+            return Instant(source.readLong())
+        }
     }
 }
 

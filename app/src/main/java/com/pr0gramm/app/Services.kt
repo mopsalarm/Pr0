@@ -109,7 +109,6 @@ fun appInjector(app: Application) = Module.build {
 
     bind<SeenService>() with instance(seenService)
     bind<InMemoryCacheService>() with instance(inMemoryCacheService)
-    bind<ParcelStore>() with singleton { ParcelStore(instance<AppDB>().parcelableStoreQueries) }
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
     bind<ConfigService>() with singleton { ConfigService(app, instance(), instance()) }

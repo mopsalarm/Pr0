@@ -1,14 +1,14 @@
 package com.pr0gramm.app.feed
 
+import android.os.Parcel
 import com.google.android.gms.common.util.Strings.emptyToNull
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.Unfreezable
-import com.pr0gramm.app.parcel.parcelableCreator
+import com.pr0gramm.app.parcel.DefaultParcelable
+import com.pr0gramm.app.parcel.SimpleCreator
 import java.util.*
 
 /**
  */
-class FeedFilter : Freezable {
+class FeedFilter : DefaultParcelable {
     var feedType: FeedType = FeedType.PROMOTED
         private set
 
@@ -134,27 +134,24 @@ class FeedFilter : Freezable {
     }
 
 
-    override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeInt(feedType.ordinal)
-        writeString(tags.orEmpty())
-        writeString(username.orEmpty())
-        writeString(collection.orEmpty())
-        writeString(collectionTitle.orEmpty())
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(feedType.ordinal)
+        dest.writeString(tags)
+        dest.writeString(username)
+        dest.writeString(collection)
+        dest.writeString(collectionTitle)
     }
 
-    companion object : Unfreezable<FeedFilter> {
+    companion object CREATOR : SimpleCreator<FeedFilter>() {
         private val values: Array<FeedType> = FeedType.values()
 
-        @JvmField
-        val CREATOR = parcelableCreator()
-
-        override fun unfreeze(source: Freezable.Source): FeedFilter {
+        override fun createFromParcel(source: Parcel): FeedFilter {
             return FeedFilter().apply {
                 this.feedType = values[source.readInt()]
-                this.tags = source.readString().ifEmpty { null }
-                this.username = source.readString().ifEmpty { null }
-                this.collection = source.readString().ifEmpty { null }
-                this.collectionTitle = source.readString().ifEmpty { null }
+                this.tags = source.readString()?.ifBlank { null }
+                this.username = source.readString()?.ifBlank { null }
+                this.collection = source.readString()?.ifBlank { null }
+                this.collectionTitle = source.readString()?.ifBlank { null }
             }
         }
 

@@ -6,8 +6,7 @@ import android.widget.*
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.parcel.getFreezableOrNull
-import com.pr0gramm.app.parcel.putFreezable
+import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
@@ -40,7 +39,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     // one of those must be set.
     private val user: String? by lazy { arguments?.getString(KEY_USER) }
-    private val item: FeedItem? by lazy { arguments?.getFreezableOrNull(KEY_FEED_ITEM, FeedItem) }
+    private val item: FeedItem? by lazy { arguments?.getParcelableOrNull(KEY_FEED_ITEM) }
     private val comment: Long? by lazy { arguments?.getLong(KEY_COMMENT)?.takeIf { it > 0 } }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -132,7 +131,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
         private const val KEY_COMMENT = "commentId"
 
         fun forItem(item: FeedItem) = ItemUserAdminDialog().arguments {
-            putFreezable(KEY_FEED_ITEM, item)
+            putParcelable(KEY_FEED_ITEM, item)
         }
 
         fun forUser(name: String) = ItemUserAdminDialog().arguments {

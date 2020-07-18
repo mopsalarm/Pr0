@@ -1,8 +1,6 @@
 package com.pr0gramm.app
 
 import com.squareup.moshi.*
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 
 val MoshiInstance: Moshi = run {
     removeClassJsonAdapter()
@@ -12,10 +10,6 @@ val MoshiInstance: Moshi = run {
             .adapter(Base64ByteArrayAdapter)
             .adapter(BooleanAdapter)
             .build()
-}
-
-abstract class TypeToken<T> {
-    val type: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
 }
 
 inline fun <reified T : Any> Moshi.Builder.adapter(adapter: JsonAdapter<T>): Moshi.Builder {

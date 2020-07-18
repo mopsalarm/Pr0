@@ -25,8 +25,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.parcel.getFreezableOrNull
-import com.pr0gramm.app.parcel.putFreezable
+import com.pr0gramm.app.parcel.getParcelableOrThrow
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.*
@@ -57,9 +56,11 @@ import kotlin.math.min
  */
 class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, TitleFragment, BackAwareFragment {
     /**
-     * Returns the feed item that is displayed in this [PostFragment].
+     * The item that is displayed
      */
-    val feedItem: FeedItem by lazy { arguments?.getFreezableOrNull(ARG_FEED_ITEM, FeedItem)!! }
+    val feedItem: FeedItem by lazy {
+        requireArguments().getParcelableOrThrow(ARG_FEED_ITEM)
+    }
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
@@ -354,7 +355,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         if (resultCode == Activity.RESULT_OK && data != null) {
             if (requestCode == RequestCodes.WRITE_COMMENT) {
-                onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(requireContext(), data))
+                onNewComments(WriteMessageActivity.getNewCommentFromActivityResult(data))
             }
 
             if (requestCode == RequestCodes.SELECT_DOWNLOAD_PATH) {
@@ -1236,7 +1237,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
          */
         fun newInstance(item: FeedItem, commentRef: CommentRef? = null): PostFragment {
             return PostFragment().arguments {
-                putFreezable(ARG_FEED_ITEM, item)
+                putParcelable(ARG_FEED_ITEM, item)
                 putParcelable(ARG_COMMENT_REF, commentRef)
             }
         }

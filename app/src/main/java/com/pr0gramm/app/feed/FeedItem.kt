@@ -1,16 +1,15 @@
 package com.pr0gramm.app.feed
 
+import android.os.Parcel
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.Unfreezable
-import com.pr0gramm.app.parcel.parcelableCreator
+import com.pr0gramm.app.parcel.*
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by the data of an [Api.Feed.Item].
  */
-class FeedItem : Freezable {
+class FeedItem : DefaultParcelable {
     val created: Instant
     val thumbnail: String
     val image: String
@@ -82,56 +81,51 @@ class FeedItem : Freezable {
 
     override fun toString(): String = "FeedItem(id=$id)"
 
-    override fun freeze(sink: Freezable.Sink): Unit = with(sink) {
-        sink.writeLong(id)
-        sink.writeLong(promotedId)
-        sink.writeLong(userId)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeLong(id)
+        dest.writeLong(promotedId)
+        dest.writeLong(userId)
 
-        sink.writeString(thumbnail)
-        sink.writeString(image)
-        sink.writeString(fullsize)
-        sink.writeString(user)
+        dest.writeString(thumbnail)
+        dest.writeString(image)
+        dest.writeString(fullsize)
+        dest.writeString(user)
 
-        sink.writeShort(up)
-        sink.writeShort(down)
-        sink.write(created)
-        sink.writeInt(width)
-        sink.writeInt(height)
+        dest.writeInt(up)
+        dest.writeInt(down)
+        dest.write(created)
+        dest.writeInt(width)
+        dest.writeInt(height)
 
-        sink.writeByte(mark)
-        sink.writeByte(flags)
-        sink.writeBoolean(audio)
-        sink.writeBoolean(deleted)
+        dest.writeByte(mark.toByte())
+        dest.writeByte(flags.toByte())
+        dest.writeBooleanCompat(audio)
+        dest.writeBooleanCompat(deleted)
     }
 
-    constructor(source: Freezable.Source) {
+    constructor(source: Parcel) {
         id = source.readLong()
         promotedId = source.readLong()
         userId = source.readLong()
 
-        thumbnail = source.readString()
-        image = source.readString()
-        fullsize = source.readString()
-        user = source.readString()
+        thumbnail = source.readStringNotNull()
+        image = source.readStringNotNull()
+        fullsize = source.readStringNotNull()
+        user = source.readStringNotNull()
 
-        up = source.readShort().toInt()
-        down = source.readShort().toInt()
+        up = source.readInt()
+        down = source.readInt()
         created = source.read(Instant)
         width = source.readInt()
         height = source.readInt()
 
         mark = source.readByte().toInt()
         flags = source.readByte().toInt()
-        audio = source.readBoolean()
-        deleted = source.readBoolean()
+        audio = source.readBooleanCompat()
+        deleted = source.readBooleanCompat()
     }
 
-    companion object : Unfreezable<FeedItem> {
-        @JvmField
-        val CREATOR = parcelableCreator()
-
-        override fun unfreeze(source: Freezable.Source): FeedItem = FeedItem(source)
-    }
+    companion object CREATOR : ConstructorCreator<FeedItem>(::FeedItem)
 }
 
 fun isVideoUri(image: String): Boolean {

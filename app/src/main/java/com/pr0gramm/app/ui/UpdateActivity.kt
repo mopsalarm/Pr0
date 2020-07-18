@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.net.Uri
 import android.os.Bundle
-import com.pr0gramm.app.parcel.Freezer
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
@@ -19,7 +18,7 @@ class UpdateActivity : BaseAppCompatActivity("UpdateActivity"), DialogDismissLis
         super.onCreate(savedInstanceState)
 
 
-        val update = intent.getByteArrayExtra(EXTRA_UPDATE)?.let { Freezer.unfreeze(it, Update) }
+        val update: Update? = intent.getParcelableExtra(EXTRA_UPDATE)
         if (savedInstanceState == null && update != null) {
             UpdateChecker.download(this, update)
 

@@ -3,8 +3,6 @@ package com.pr0gramm.app.util
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
-import com.pr0gramm.app.parcel.Freezable
-import com.pr0gramm.app.parcel.putFreezable
 import java.util.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -63,7 +61,6 @@ private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
         is Double -> args.putDouble(key, value)
         is Bundle -> args.putBundle(key, value)
         is Parcelable -> args.putParcelable(key, value)
-        is Freezable -> args.putFreezable(key, value)
         else -> throw IllegalStateException("Type ${value.javaClass.canonicalName} of property $key is not supported")
     }
 }

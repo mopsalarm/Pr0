@@ -1,32 +1,30 @@
 package com.pr0gramm.app.parcel
 
+import android.os.Parcel
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.MessageType
 
 /**
  */
-class MessageSerializer(val message: Message) : Freezable {
-    override fun freeze(sink: Freezable.Sink) = with(sink) {
-        writeByte(message.type.ordinal)
-        writeByte(message.flags)
-        writeLong(message.id)
-        writeLong(message.itemId)
-        writeInt(message.mark)
-        writeString(message.message)
-        writeString(message.name)
-        writeInt(message.score)
-        writeInt(message.senderId)
-        write(message.creationTime)
-        writeString(message.thumbnail ?: "")
-        writeString(message.image ?: "")
+class MessageSerializer(val message: Message) : DefaultParcelable {
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeByte(message.type.ordinal.toByte())
+        dest.writeByte(message.flags.toByte())
+        dest.writeLong(message.id)
+        dest.writeLong(message.itemId)
+        dest.writeInt(message.mark)
+        dest.writeString(message.message)
+        dest.writeString(message.name)
+        dest.writeInt(message.score)
+        dest.writeInt(message.senderId)
+        dest.write(message.creationTime)
+        dest.writeString(message.thumbnail ?: "")
+        dest.writeString(message.image ?: "")
     }
 
-    companion object : Unfreezable<MessageSerializer> {
-        @JvmField
-        val CREATOR = parcelableCreator()
-
-        override fun unfreeze(source: Freezable.Source): MessageSerializer = with(source) {
+    companion object CREATOR : SimpleCreator<MessageSerializer>() {
+        override fun createFromParcel(source: Parcel): MessageSerializer = with(source) {
             MessageSerializer(Message(
                     read = true,
                     type = MessageType.values[readByte().toInt()],
@@ -34,13 +32,13 @@ class MessageSerializer(val message: Message) : Freezable {
                     id = readLong(),
                     itemId = readLong(),
                     mark = readInt(),
-                    message = readString(),
-                    name = readString(),
+                    message = readStringNotNull(),
+                    name = readStringNotNull(),
                     score = readInt(),
                     senderId = readInt(),
                     creationTime = read(Instant),
-                    thumbnail = readString().takeIf { it.isNotEmpty() },
-                    image = readString().takeIf { it.isNotEmpty() }))
+                    thumbnail = readString()?.ifBlank { null },
+                    image = readString()?.ifBlank { null }))
         }
     }
 }

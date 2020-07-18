@@ -17,7 +17,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.parcel.getFreezableExtra
+import com.pr0gramm.app.parcel.getExtraParcelableOrThrow
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
@@ -35,8 +35,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val tag = "ZoomViewActivity" + System.currentTimeMillis()
 
     internal val item: FeedItem by lazy {
-        intent.getFreezableExtra("ZoomViewActivity__item", FeedItem)
-                ?: throw IllegalArgumentException("no feed item in intent")
+        intent.getExtraParcelableOrThrow("ZoomViewActivity__item")
     }
 
     private val hq: ImageView by bindView(R.id.hq)
@@ -98,7 +97,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private fun hideSystemUI() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+        window.decorView.systemUiVisibility = (SYSTEM_UI_FLAG_IMMERSIVE
                 // Set the content to appear under the system bars so that the
                 // content doesn't resize when the system bars hide and show.
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE

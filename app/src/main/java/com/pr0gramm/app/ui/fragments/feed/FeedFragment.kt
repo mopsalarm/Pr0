@@ -18,8 +18,7 @@ import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.SFW
-import com.pr0gramm.app.parcel.getFreezable
-import com.pr0gramm.app.parcel.putFreezable
+import com.pr0gramm.app.parcel.getParcelableOrThrow
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.preloading.PreloadService
 import com.pr0gramm.app.ui.*
@@ -56,7 +55,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
 
         FeedViewModel(
-                filter = requireArguments().getFreezable(ARG_FEED_FILTER, FeedFilter),
+                filter = requireArguments().getParcelableOrThrow(ARG_FEED_FILTER),
                 loadAroundItemId = autoScrollRef?.ref?.itemId,
 
                 feedService = instance(),
@@ -70,7 +69,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
     private val userStateModel by viewModels {
         UserStateModel(
-                filter = requireArguments().getFreezable(ARG_FEED_FILTER, FeedFilter),
+                filter = requireArguments().getParcelableOrThrow(ARG_FEED_FILTER),
                 queryForUserInfo = isNormalMode,
                 userService = instance(),
                 inboxService = instance()
@@ -1195,7 +1194,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
 
             return FeedFragment().apply {
                 arguments = bundle {
-                    putFreezable(ARG_FEED_FILTER, feedFilter)
+                    putParcelable(ARG_FEED_FILTER, feedFilter)
                     putParcelable(ARG_FEED_START, start)
                     putBoolean(ARG_NORMAL_MODE, true)
                     putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
@@ -1206,7 +1205,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
         }
 
         fun newEmbedArguments(filter: FeedFilter) = bundle {
-            putFreezable(ARG_FEED_FILTER, filter)
+            putParcelable(ARG_FEED_FILTER, filter)
             putBoolean(ARG_NORMAL_MODE, false)
         }
     }
