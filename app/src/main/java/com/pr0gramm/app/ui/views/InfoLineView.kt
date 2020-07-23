@@ -2,15 +2,11 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.style.ImageSpan
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.menuPopupHelper
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Duration
@@ -27,38 +23,36 @@ import com.pr0gramm.app.ui.base.withErrorDialog
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import kotterknife.bindView
 import kotlin.math.min
 
 
 /**
  */
 class InfoLineView(context: Context) : LinearLayout(context) {
-    private val captionView: TextView by bindView(R.id.date)
-    private val usernameView: UsernameView by bindView(R.id.username)
-    private val voteView: VoteView by bindView(R.id.voting)
-    private val followStateView: ImageView by bindView(R.id.action_follow)
-    private val collectionView: CollectView by bindView(R.id.collect)
+    init {
+        inflate(context, R.layout.post_info_line, this)
+    }
 
-    private val admin: Boolean = !isInEditMode && context.injector.instance<UserService>().userIsAdmin
+    private val captionView: TextView = find(R.id.date)
+    private val usernameView: UsernameView = find(R.id.username)
+    private val followStateView: ImageView = find(R.id.action_follow)
+    private val collectionView: CollectView = find(R.id.collect)
+
+    private val admin: Boolean = injector?.instance<UserService>()?.userIsAdmin == true
 
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false
+
+    private val voteController = VoteViewController(find(R.id.vote_up), find(R.id.vote_down))
 
     var onDetailClickedListener: PostActions? = null
 
     init {
         orientation = VERTICAL
 
-        inflate(context, R.layout.post_info_line, this)
-
-        voteView.onVote = { newVote ->
+        voteController.onVoteClicked = { newVote ->
             val changed = onDetailClickedListener?.votePostClicked(newVote) ?: false
-            if (changed) {
-                updateViewState(newVote)
-            }
-
-            changed
+            changed.also { updateViewState(newVote) }
         }
 
         followStateView.setOnClickListener {
@@ -124,7 +118,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             onDetailClickedListener?.onUserClicked(item.user)
         }
 
-        voteView.setVoteState(vote, animate = false)
+        voteController.updateVote(vote, animate = false)
 
         collectionView.itemId = item.id
 
@@ -155,10 +149,9 @@ class InfoLineView(context: Context) : LinearLayout(context) {
     private fun updateViewState(vote: Vote) {
         val feedItem = this.feedItem ?: return
 
-        val viewVisibility = if (feedItem.deleted) View.INVISIBLE else View.VISIBLE
-
-        // also hide the vote view.
-        voteView.visibility = viewVisibility
+        // TODO hide the vote view (and follow state too?)
+        // val viewVisibility = if (feedItem.deleted) View.INVISIBLE else View.VISIBLE
+        // voteView.visibility = viewVisibility
 
         val textColor = captionView.currentTextColor
 
@@ -175,26 +168,12 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             val date = DurationFormat.timeSincePastPointInTime(context, feedItem.created, short = true)
             val score = formatScore(vote)
 
-            val thinsp = "\u2009"
-
-            buildSpannedString {
+            buildString {
                 if (score != null) {
-                    inSpans(ImageSpan(dPlus, ImageSpan.ALIGN_BOTTOM)) {
-                        append(" ")
-                    }
-                    append(thinsp)
-                    append(score)
-                    append(" Benis")
-
-                    append("   ")
+                    append("$score Benis · ")
                 }
 
-                inSpans(ImageSpan(dClock, ImageSpan.ALIGN_BOTTOM)) {
-                    append(" ")
-                }
-                append(thinsp)
                 append(date)
-
             }
         }
     }
@@ -207,7 +186,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
         followStateView.animate()
                 .rotationYBy(360f)
-                .setDuration(500L)
+                .setDuration(250L)
                 .start()
 
         // update view

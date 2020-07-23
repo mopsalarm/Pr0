@@ -57,7 +57,7 @@ class PostViewModel(
     private suspend fun observeVotesForTags() {
         mutableState.drop(1)
                 // wait for tag ids to change
-                .map { it.tags.map { it.id } }
+                .map { state -> state.tags.map { tag -> tag.id } }
                 .distinctUntilChanged()
 
                 // fetch em

@@ -1,88 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="8dp">
 
-        <com.pr0gramm.app.ui.views.VoteView
-            android:id="@+id/voting"
-            android:layout_width="wrap_content"
+        <ImageButton
+            android:id="@+id/vote_up"
+            android:layout_width="32dp"
             android:layout_height="48dp"
-            android:layout_marginStart="8dp"
             android:padding="4dp"
-            app:defaultColor="?android:textColorSecondary"
-            app:markedColor="?colorAccent"
-            app:orientation="horizontal"
-            app:textSize="@dimen/infoline_vote_textSize" />
+            tools:src="@drawable/ic_vote_up"
+            tools:tint="?android:textColorSecondary" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
-            android:background="@color/secondary_background" />
+        <ImageButton
+            android:id="@+id/vote_down"
+            android:layout_width="32dp"
+            android:layout_height="48dp"
+            android:padding="4dp"
+            tools:src="@drawable/ic_vote_down"
+            tools:tint="?android:textColorSecondary" />
 
         <com.pr0gramm.app.ui.views.CollectView
             android:id="@+id/collect"
-            android:layout_marginStart="4dp"
-            android:layout_width="36dp"
+            android:layout_width="32dp"
+            android:layout_height="48dp"
             android:padding="4dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:layout_height="48dp"/>
+            tools:src="@drawable/ic_collection_no"
+            tools:tint="?android:textColorSecondary" />
 
         <View
             android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
-            android:background="@color/secondary_background" />
+            android:layout_height="24dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="16dp"
+            android:background="?android:textColorSecondary" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginRight="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <com.pr0gramm.app.ui.views.UsernameView
                 android:id="@+id/username"
-                style="@style/TextAppearance.AppCompat.Body2"
                 android:layout_width="wrap_content"
-                android:textSize="@dimen/infoline_username_textSize"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextStyle.16.Bold"
+                tools:text="Mopsalarm" />
 
             <TextView
                 android:id="@+id/date"
-                style="@style/TextAppearance.AppCompat.Caption"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextStyle.14"
                 android:textColor="?android:textColorTertiary"
-                android:textSize="@dimen/infoline_caption_textSize"
-                tools:text="@string/dummy_post_date" />
+                tools:text="546 Benis · vor 8 Stunden" />
 
         </LinearLayout>
 
-        <ImageView
+        <ImageButton
             android:id="@+id/action_follow"
-            android:layout_width="@dimen/infoline_follow_size"
-            android:layout_height="@dimen/infoline_follow_size"
-            android:layout_marginRight="8dp"
+            android:layout_width="32dp"
+            android:layout_height="48dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:padding="7dp"
-            android:visibility="gone"
-            tools:visibility="visible"
-            tools:src="@drawable/ic_action_follow_off"
-            tools:tint="?android:textColorSecondary" />
+            tools:src="@drawable/ic_action_follow_new"
+            tools:tint="?android:textColorSecondary"
+            tools:visibility="visible" />
 
     </LinearLayout>
 </merge>

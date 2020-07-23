@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.paging.LoadState
-import androidx.paging.LoadStateAdapter
-import androidx.paging.PagingData
-import androidx.paging.insertSeparators
+import androidx.paging.*
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView

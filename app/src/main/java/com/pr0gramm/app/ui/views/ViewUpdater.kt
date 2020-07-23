@@ -30,7 +30,7 @@ object ViewUpdater {
     }
 
     fun replaceText(view: TextView, instant: Instant, text: () -> CharSequence) {
-        // TODO do this.
+        // TODO do this correctly.
         view.text = text()
 
 //        val previousSubscription = view.getTag(R.id.date) as? Subscription

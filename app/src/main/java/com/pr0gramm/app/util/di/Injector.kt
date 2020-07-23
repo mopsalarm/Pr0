@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util.di
 
 import android.content.Context
+import android.view.View
 import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track.injector
@@ -186,7 +187,11 @@ class Injector(private val providers: Map<Injector.Key, Provider<*>>) {
     data class Key(val type: Class<*>)
 }
 
-inline val Context.injector: Injector get() = (applicationContext as ApplicationClass).injector
+inline val Context.injector: Injector
+    get() = (applicationContext as ApplicationClass).injector
+
+inline val View.injector: Injector?
+    get() = if (isInEditMode) null else context.injector
 
 class PropertyInjector {
     private var injector: Injector? = null

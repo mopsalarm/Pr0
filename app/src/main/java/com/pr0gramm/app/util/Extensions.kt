@@ -42,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
-import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.views.CompatibleTextView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -364,16 +363,9 @@ fun Context.getStyledResourceId(@AttrRes id: Int): Int {
 
 @ColorInt
 fun Context.getStyledColor(@AttrRes id: Int): Int {
-    return getColorCompat(getStyledResourceId(id))
-}
-
-fun View.baseActivity(): BaseAppCompatActivity? {
-    return AndroidUtility.activityFromContext(context) as? BaseAppCompatActivity
-}
-
-fun View.requireBaseActivity(): BaseAppCompatActivity {
-    return AndroidUtility.activityFromContext(context) as? BaseAppCompatActivity
-            ?: throw IllegalArgumentException("Expected BaseAppCompatActivity for context $context")
+    val tv = TypedValue()
+    theme.resolveAttribute(id, tv, true)
+    return tv.data
 }
 
 /**

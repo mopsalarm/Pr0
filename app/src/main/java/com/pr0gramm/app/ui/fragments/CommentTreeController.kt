@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewStub
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,7 +17,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.FavedCommentService
-import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.DrawableCache
@@ -27,7 +25,7 @@ import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.fragments.post.CommentTree
 import com.pr0gramm.app.ui.views.CommentSpacerView
 import com.pr0gramm.app.ui.views.SenderInfoView
-import com.pr0gramm.app.ui.views.VoteView
+import com.pr0gramm.app.ui.views.VoteViewController
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.Job
@@ -39,17 +37,24 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
     private val id = LongValueHolder(0L)
 
-    private val vote: VoteView = itemView.find(R.id.voting)
-    private val reply: ImageView = itemView.find(R.id.action_reply)
-    private val content: TextView = itemView.find(R.id.comment)
-    private val senderInfo: SenderInfoView = itemView.find(R.id.sender_info)
+    private val inactiveColor = itemView.context.getStyledColor(android.R.attr.textColorSecondary)
+    private val accentColor = itemView.context.getStyledColor(android.R.attr.colorAccent)
 
-    private val more: ImageButton = itemView.find(R.id.action_more)
-    private val fav: ImageButton = itemView.find(R.id.action_kfav)
+    private val replyView: ImageView = find(R.id.action_reply)
+    private val contentView: TextView = find(R.id.comment)
+    private val senderInfoView: SenderInfoView = find(R.id.sender_info)
 
-    private var expand: TextView? = null
+    private val moreView: ImageButton = find(R.id.action_more)
+    private val favView: ImageButton = find(R.id.action_kfav)
 
-    private val commentView = itemView as CommentSpacerView
+    private val upVoteView: ImageButton = find(R.id.vote_up)
+    private val downVoteView: ImageButton = find(R.id.vote_down)
+    private val voteController = VoteViewController(upVoteView, downVoteView)
+
+    private val expandContainerView = find<View>(R.id.action_expand)
+    private val expandView: TextView = expandContainerView.find(R.id.action_expand_info)
+
+    private val commentSpacerView = itemView as CommentSpacerView
 
     private var parentScrollView: RecyclerView? = null
     private var parentChain: List<View>? = null
@@ -65,7 +70,9 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         private val statusBarHeight = AndroidUtility.getStatusBarHeight(itemView.context)
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            val availableSpace = (content.height - vote.height).toFloat()
+            val voteViewHeight = upVoteView.height + downVoteView.height
+
+            val availableSpace = (contentView.height - voteViewHeight).toFloat()
             if (availableSpace <= minimalScrollSpace) {
                 removeOnScrollListener()
                 return
@@ -81,7 +88,9 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
                     y -= toolbar.visibleHeight.coerceAtLeast(statusBarHeight)
                 }
 
-                vote.translationY = (-y).coerceIn(0f, availableSpace)
+                // translate vote views to keep in scroll window
+                upVoteView.translationY = (-y).coerceIn(0f, availableSpace)
+                downVoteView.translationY = (-y).coerceIn(0f, availableSpace)
             }
 
             super.onScrolled(recyclerView, dx, dy)
@@ -89,18 +98,15 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     }
 
     init {
-        val grey = itemView.context.getColorCompat(R.color.grey_700)
-        val accent = itemView.context.getColorCompat(ThemeHelper.accentColor)
-
-        more.setImageDrawable(DrawableCache.get(R.drawable.ic_more_vert_vec, grey))
-        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, grey))
-        reply.setImageDrawable(DrawableCache.get(R.drawable.ic_reply_vec, accent))
+        moreView.setImageDrawable(DrawableCache.get(R.drawable.ic_more_vert_vec, inactiveColor))
+        favView.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, inactiveColor))
+        replyView.setImageDrawable(DrawableCache.get(R.drawable.ic_reply_vec, inactiveColor))
 
         itemView.addOnAttachStateChangeListener { isAttached ->
             removeOnScrollListener()
 
             if (isAttached) {
-                val parents = mutableListOf<View>(itemView)
+                val parents = mutableListOf(itemView)
                 var parentView: View? = itemView.parent as View?
                 while (parentView != null && parentView !is RecyclerView) {
                     parents.add(parentView)
@@ -123,7 +129,8 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
             parentChain = null
         }
 
-        vote.translationY = 0f
+        upVoteView.translationY = 0f
+        downVoteView.translationY = 0f
     }
 
 
@@ -135,36 +142,40 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
         // skip animations if this  comment changed
         val changed = id.update(comment.id)
 
-        commentView.depth = item.depth
-        commentView.spacings = item.spacings
+        commentSpacerView.depth = item.depth - 1
+        commentSpacerView.spacings = item.spacings
 
-        reply.isVisible = item.depth < maxLevels
+        replyView.isVisible = item.depth < maxLevels
 
-        senderInfo.setSenderName(comment.name, comment.mark, item.hasOpBadge)
-        senderInfo.setOnSenderClickedListener {
+        senderInfoView.setSenderName(comment.name, comment.mark, item.hasOpBadge)
+        senderInfoView.setOnSenderClickedListener {
             actionListener.onCommentAuthorClicked(comment)
         }
 
         // show the points
         val scoreVisibleThreshold = Instant.now() - Duration.hours(1)
         if (item.pointsVisible || comment.created.isBefore(scoreVisibleThreshold)) {
-            senderInfo.setPoints(item.currentScore)
+            senderInfoView.setPoints(item.currentScore)
         } else {
-            senderInfo.setPointsUnknown()
+            senderInfoView.setPointsUnknown()
         }
 
         // and the date of the post
-        senderInfo.setDate(comment.created)
+        senderInfoView.setDate(comment.created)
 
         // and register a vote handler
-        vote.setVoteState(item.vote, animate = !changed)
-        vote.onVote = { vote -> actionListener.onCommentVoteClicked(item.comment, vote) }
+        voteController.updateVote(item.vote, animate = !changed)
+        voteController.onVoteClicked = { vote -> actionListener.onCommentVoteClicked(item.comment, vote) }
 
-        // set alpha for the sub views. sadly, setting alpha on view.itemView is not working
-        content.alpha = if (item.vote === Vote.DOWN) 0.5f else 1f
-        senderInfo.alpha = if (item.vote === Vote.DOWN) 0.5f else 1f
+        if (item.vote === Vote.DOWN) {
+            contentView.setTextColor(context.getStyledColor(android.R.attr.textColorSecondary))
+            senderInfoView.alpha = 0.5f
+        } else {
+            contentView.setTextColor(context.getStyledColor(android.R.attr.textColorPrimary))
+            senderInfoView.alpha = 1f
+        }
 
-        reply.setOnClickListener {
+        replyView.setOnClickListener {
             actionListener.onReplyClicked(comment)
         }
 
@@ -183,42 +194,27 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
 
                 service.observeCommentIsFaved(comment.id).collect { isFavorite ->
                     if (isFavorite) {
-                        val color = context.getColorCompat(ThemeHelper.accentColor)
-                        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav, color))
+                        favView.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav, accentColor))
                     } else {
-                        val color = context.getColorCompat(R.color.grey_700)
-                        fav.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, color))
+                        favView.setImageDrawable(DrawableCache.get(R.drawable.ic_vote_fav_outline, inactiveColor))
                     }
 
-                    fav.isVisible = true
-                    fav.setOnClickListener { actionListener.onCommentFavedClicked(comment, !isFavorite) }
+                    favView.isVisible = true
+                    favView.setOnClickListener { actionListener.onCommentFavedClicked(comment, !isFavorite) }
                 }
             }
         }
 
+        moreView.setOnClickListener { view -> showCommentMenu(actionListener, view, item) }
+
+        expandContainerView.isVisible = item.isCollapsed
+
         if (item.isCollapsed) {
-            more.isVisible = false
-
-            if (expand == null) {
-                expand = itemView.find<ViewStub>(R.id.action_expand_stub).inflate() as TextView
-            }
-
-            expand?.let { expand ->
-                expand.isVisible = true
-                expand.text = "+" + item.hiddenCount
-                expand.setOnClickListener { actionListener.expandComment(comment) }
-            }
-
-        } else {
-            expand?.let { expand ->
-                expand.isVisible = false
-            }
-
-            more.isVisible = true
-            more.setOnClickListener { view -> showCommentMenu(actionListener, view, item) }
+            expandContainerView.setOnClickListener { actionListener.expandComment(comment) }
+            expandView.text = "+" + item.hiddenCount
         }
 
-        Linkify.linkifyClean(this.content, comment.content, actionListener)
+        Linkify.linkifyClean(this.contentView, comment.content, actionListener)
     }
 
     private fun showCommentMenu(listener: CommentView.Listener, view: View, entry: CommentTree.Item) {

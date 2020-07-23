@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
@@ -17,11 +17,22 @@ import com.pr0gramm.app.util.*
 /**
  */
 class SenderInfoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : FrameLayout(context, attrs, defStyleAttr), View.OnLongClickListener {
+    : LinearLayout(context, attrs, defStyleAttr), View.OnLongClickListener {
 
-    private val nameView: UsernameView
-    private val statsView: TextView
-    private val answerView: TextView?
+    init {
+        orientation = VERTICAL
+
+        val useFullLayout = context.obtainStyledAttributes(attrs, R.styleable.SenderInfoView).use { arr ->
+            arr.getBoolean(R.styleable.SenderInfoView_siv_reply, false)
+        }
+
+        val layout = if (useFullLayout) R.layout.sender_info_answer else R.layout.sender_info
+        View.inflate(getContext(), layout, this)
+    }
+
+    private val nameView: UsernameView = find(R.id.username)
+    private val statsView: TextView = find(R.id.stats)
+    private val answerView: TextView? = findOptional(R.id.answer)
 
     private var date: Instant = Instant.now()
     private var pointsText: String? by observeChange(null) { buildInfoText(apply = true) }
@@ -29,17 +40,6 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var score: CommentScore? = null
 
     init {
-        val useFullLayout = context.obtainStyledAttributes(attrs, R.styleable.SenderInfoView).use { arr ->
-            arr.getBoolean(R.styleable.SenderInfoView_siv_reply, false)
-        }
-
-        val layout = if (useFullLayout) R.layout.sender_info_answer else R.layout.sender_info
-        View.inflate(getContext(), layout, this)
-
-        nameView = find(R.id.username)
-        statsView = find(R.id.stats)
-        answerView = findOptional(R.id.answer)
-
         statsView.setOnLongClickListener(this)
 
         clearOnAnswerClickedListener()

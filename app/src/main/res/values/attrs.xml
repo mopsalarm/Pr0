@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="AppTheme">
-        <attr name="loginBackground" format="reference" />
+
+    <attr name="loginBackground" format="reference" />
         <attr name="roundedCornerBackground" format="reference" />
         <attr name="drawerTheme" format="reference" />
         <attr name="appIcon" format="reference" />
@@ -11,19 +12,6 @@
         <attr name="dropshadowPrimaryDark" format="reference" />
 
         <attr name="secondaryBackground" format="color" />
-    </declare-styleable>
-
-    <declare-styleable name="VoteView">
-        <attr name="orientation" format="enum">
-            <enum name="horizontal" value="0" />
-            <enum name="vertical" value="1" />
-        </attr>
-
-        <attr name="markedColor" format="color|reference" />
-        <attr name="markedColorDown" format="color|reference" />
-        <attr name="defaultColor" format="color|reference" />
-        <attr name="textSize" format="dimension" />
-        <attr name="spacing" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="CommentSpacerView">

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextStyle.12" parent="TextAppearance.AppCompat.Body1">
+        <item name="fontWeight">400</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextStyle.12.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">16sp</item>
+    </style>
+
+    <style name="TextStyle.14" parent="TextAppearance.AppCompat.Body1">
+        <item name="fontWeight">400</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">16sp</item>
+    </style>
+
+    <style name="TextStyle.14.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextStyle.16" parent="TextAppearance.AppCompat.Body1">
+        <item name="fontWeight">400</item>
+        <item name="android:lineSpacingExtra">20sp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextStyle.16.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

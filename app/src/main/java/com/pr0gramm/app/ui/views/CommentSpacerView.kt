@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.ThemeHelper
@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 
 /**
  */
-class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
+class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleRes: Int = 0) : ConstraintLayout(context, attrs, defStyleRes) {
     private val basePaddingLeft = paddingLeft
 
     private val lineWidth = context.dp(1f)
@@ -67,6 +67,10 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         return basePaddingLeft + lineMargin * depth.toDouble().pow(1 / 1.2).toFloat()
     }
 
+    private fun lineX(depth: Int): Float {
+        return spaceAtDepth(depth)
+    }
+
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) = logger.time("Draw spacer at depth $depth") {
         super.onDraw(canvas)
@@ -86,17 +90,15 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         paint.color = initialColor(context)
 
         for ((idx, line) in lines.withIndex()) {
-            val depth = line - 1
-
-            val x = (spaceAtDepth(depth) - lineWidth).roundToInt().toFloat()
+            val x = (lineX(line) - lineWidth).roundToInt().toFloat()
 
             if (colorful) {
                 // set the color for the next line
-                paint.color = colorValue(context, depth)
+                paint.color = colorValue(context, line)
             }
 
 
-            if (depth < 2 || idx < lines.lastIndex || !spacings.isFirstChild) {
+            if (line < 3 || idx < lines.lastIndex || !spacings.isFirstChild) {
                 paint.shader = null
 
                 canvas.drawLine(x, 0f, x, height, paint)
@@ -105,13 +107,13 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
                 if (colorful) {
                     paint.shader = LinearGradient(
                             0f, 0f, 0f, connectHeight,
-                            colorValue(context, depth - 1),
-                            colorValue(context, depth),
+                            colorValue(context, line - 1),
+                            colorValue(context, line),
                             Shader.TileMode.CLAMP)
                 }
 
                 // x of the previous line. We use this to connect using the connector
-                val previousX = (spaceAtDepth(depth - 1) - lineWidth).roundToInt().toFloat()
+                val previousX = (lineX(line - 1) - lineWidth).roundToInt().toFloat()
 
                 val path = Path().apply {
                     moveTo(previousX, 0f)

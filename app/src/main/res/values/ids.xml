@@ -6,4 +6,9 @@
 
     <item name="ui_test_activestate" type="id" />
 
+
+    <!-- TODO remove -->
+    <item name="voting" type="id"></item>
+    <item name="tag_vote" type="id"></item>
+
 </resources>

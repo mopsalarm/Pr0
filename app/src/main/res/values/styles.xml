@@ -1,8 +1,15 @@
 <resources>
     <!-- root of all our themes! -->
     <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="android:textColorLink">@color/blue_grey_500</item>
+
         <item name="android:windowBackground">@color/feed_background</item>
+
+        <item name="android:textColorPrimary">#ffffff</item>
+        <item name="android:textColorSecondary">#bbffffff</item>
+
+        <item name="chipSurfaceColor">#3a3a40</item>
+
+        <item name="android:textColorLink">@color/blue_grey_500</item>
         <item name="buttonStyle">@style/Button</item>
         <item name="secondaryBackground">@color/secondary_background</item>
         <item name="drawerTheme">@style/ThemeOverlay.AppCompat.Light</item>
@@ -11,6 +18,8 @@
         <item name="bottomSheetHandle">@drawable/bottomsheet_handle</item>
 
         <item name="android:textViewStyle">@style/NoHyphenateTextViewStyle</item>
+
+        <item name="imageButtonStyle">@style/BorderlessImageButtonStyle</item>
 
         <item name="colorControlNormal">?android:textColorPrimary</item>
     </style>
@@ -367,7 +376,7 @@
     <style name="Statistics.VoteBehaviour.Subtitle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">8dp</item>
+        <item name="android:textSize">8sp</item>
     </style>
 
 
@@ -383,5 +392,10 @@
     </style>
 
     <!-- disable hyphenation in v23+ -->
-    <style name="NoHyphenateTextViewStyle" parent="android:Widget.Material.TextView" />
+    <style name="NoHyphenateTextViewStyle" parent="Widget.AppCompat.TextView" />
+
+    <style name="BorderlessImageButtonStyle" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+    </style>
+
 </resources>

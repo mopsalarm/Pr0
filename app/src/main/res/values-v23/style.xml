@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="NoHyphenateTextViewStyle" parent="android:Widget.Material.TextView">
+    <style name="NoHyphenateTextViewStyle" parent="Widget.AppCompat.TextView">
         <item name="android:hyphenationFrequency">none</item>
     </style>
 </resources>

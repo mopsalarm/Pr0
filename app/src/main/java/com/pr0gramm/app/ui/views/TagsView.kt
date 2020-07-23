@@ -355,11 +355,13 @@ class TagsView(context: Context) : LinearLayout(context) {
     private inner class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val id = LongValueHolder(0L)
         private val tagView: TextView = itemView.find(R.id.tag_text)
-        private val voteView: VoteView = itemView.find(R.id.tag_vote)
+
+        private val voteController = VoteViewController(
+                find(R.id.vote_up), find(R.id.vote_down),
+                activeScale = 1.0f, inactiveScale = 0.9f,
+        )
 
         private val lastTagSpacing = context.dp(16)
-
-        private val voteViewWidth = itemView.context.resources.getDimensionPixelSize(R.dimen.tags_tagVoteViewWidth)
 
         fun set(votedTag: VotedTag) {
             val (tag, vote, selected) = votedTag
@@ -373,47 +375,52 @@ class TagsView(context: Context) : LinearLayout(context) {
             // mark tags based on their confidence.
             itemView.alpha = if (votedTag.tag.confidence < 0.2) 0.8f else 1.0f
 
-            if (selected) {
-                if (!voteView.isVisible) {
-                    voteView.isVisible = true
-                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = voteViewWidth }
-                }
+            voteController.updateVote(vote, animate = !holderChanged)
 
-                voteView.setVoteState(vote, !holderChanged)
-
-                if (!votedTag.alwaysShowVoteView) {
-                    tagView.setOnLongClickListener {
-                        updateSelection(-1)
-                        true
-                    }
-                }
-
-                voteView.onVote = { newVote -> actions?.voteTagClicked(tag, newVote) == true }
-
-            } else {
-                if (voteView.isVisible) {
-                    voteView.isVisible = false
-                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = 0 }
-                }
-
-                if (!votedTag.alwaysShowVoteView) {
-                    tagView.setOnLongClickListener {
-                        updateSelection(tag.id)
-                        true
-                    }
-                }
+            voteController.onVoteClicked = { newVote ->
+                actions?.voteTagClicked(tag, newVote) == true
             }
 
-            if (votedTag.alwaysShowVoteView) {
-                tagView.setOnLongClickListener {
-                    val text = votedTag.tag.text
+            // TODO voting & stuff
+//            if (selected) {
+//                if (!voteView.isVisible) {
+//                    voteView.isVisible = true
+//                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = voteViewWidth }
+//                }
+//
+//                voteView.setVoteState(vote, !holderChanged)
+//
+//                if (!votedTag.alwaysShowVoteView) {
+//                    tagView.setOnLongClickListener {
+//                        updateSelection(-1)
+//                        true
+//                    }
+//                }
+//
+//                voteView.onVote = { newVote -> actions?.voteTagClicked(tag, newVote) == true }
+//
+//            } else {
+//                if (voteView.isVisible) {
+//                    voteView.isVisible = false
+//                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = 0 }
+//                }
+//
+//                if (!votedTag.alwaysShowVoteView) {
+//                    tagView.setOnLongClickListener {
+//                        updateSelection(tag.id)
+//                        true
+//                    }
+//                }
+//            }
 
-                    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
-                    Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+            tagView.setOnLongClickListener {
+                val text = votedTag.tag.text
 
-                    true
-                }
+                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
+                Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+
+                true
             }
 
             itemView.updateLayoutParams<MarginLayoutParams> {
