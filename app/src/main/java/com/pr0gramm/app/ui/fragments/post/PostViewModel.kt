@@ -14,13 +14,15 @@ import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.containsIgnoreCase
 import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
 
 class PostViewModel(
-        val item: FeedItem,
+        item: FeedItem,
         private val requiresCacheBust: Boolean,
         private val userService: UserService,
         private val feedService: FeedService,
@@ -34,6 +36,9 @@ class PostViewModel(
     private val commentTreeController = CommentTreeController(item.user)
 
     val state: StateFlow<State> = mutableState
+
+    private val item: FeedItem
+        get() = state.value.item
 
     init {
         viewModelScope.launch { observeUserInfo() }
@@ -135,7 +140,18 @@ class PostViewModel(
         }
 
         try {
-            val post = feedService.post(item.id, requiresCacheBust)
+            val (item, post) = coroutineScope {
+                val itemAsync = if (initial) null else async {
+                    // query the item from the feed again, ignore errors
+                    runCatching { FeedItem(feedService.item(item.id)) }.getOrNull()
+                }
+
+                // query the post info
+                val post = feedService.post(this@PostViewModel.item.id, requiresCacheBust)
+
+                // wait for both results
+                Pair(itemAsync?.await() ?: item, post)
+            }
 
             // send comments & votes to the tree helper
             val commentIds = post.comments.map { comment -> comment.id }
@@ -147,6 +163,7 @@ class PostViewModel(
 
             mutableState.update { previousState ->
                 previousState.copy(
+                        item = item,
                         refreshing = false,
                         tags = sortTags(post.tags),
                         tagVotes = tagVotes,

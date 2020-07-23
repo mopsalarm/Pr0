@@ -19,6 +19,16 @@ interface FeedService {
 
     suspend fun post(id: Long, bust: Boolean = false): Api.Post
 
+    suspend fun item(itemId: Long): Api.Feed.Item {
+        val query = FeedQuery(
+                filter = FeedFilter().withFeedType(FeedType.NEW),
+                contentTypes = ContentType.AllSet,
+                around = itemId,
+        )
+
+        return load(query).items.single { item -> item.id == itemId }
+    }
+
     /**
      * Streams feed items - giving one page after the next until
      * the end of the stream.

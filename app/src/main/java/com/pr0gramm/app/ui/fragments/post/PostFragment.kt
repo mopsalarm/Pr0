@@ -154,6 +154,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         swipeRefreshLayout.setOnRefreshListener {
             if (!isVideoFullScreen) {
                 model.refreshAsync()
+
+                // rewind video on refresh
+                viewer?.rewind()
             }
         }
 
