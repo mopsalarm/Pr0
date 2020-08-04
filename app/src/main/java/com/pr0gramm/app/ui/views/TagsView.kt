@@ -136,7 +136,7 @@ class TagsView(context: Context) : LinearLayout(context) {
             supportsChangeAnimations = false
         }
 
-        commentViewStub.setOnInflateListener { stub, inflated ->
+        commentViewStub.setOnInflateListener { _, inflated ->
             commentSendView.setOnClickListener {
                 val text = commentInputView.text.toString().trim()
 
@@ -230,13 +230,15 @@ class TagsView(context: Context) : LinearLayout(context) {
 
         val lastTag = tags.lastOrNull()
 
-        trace { "Submit list of ${tags.size} items" }
-        adapter.submitList(tags.map { tag ->
+        val votedTags = tags.map { tag ->
             val vote = votes[tag.id] ?: Vote.NEUTRAL
             val selected = alwaysShowVoteView || tag.id == selectedTagId
             val lastItem = tag === lastTag
             VotedTag(tag, vote, selected, lastItem, alwaysShowVoteView)
-        })
+        }
+
+        trace { "Submit list of ${tags.size} items" }
+        adapter.submitList(votedTags)
     }
 
     private fun setViewState(state: ViewState) {
@@ -356,8 +358,11 @@ class TagsView(context: Context) : LinearLayout(context) {
         private val id = LongValueHolder(0L)
         private val tagView: TextView = itemView.find(R.id.tag_text)
 
+        private val upView = find<ImageButton>(R.id.vote_up)
+        private val downView = find<ImageButton>(R.id.vote_down)
+
         private val voteController = VoteViewController(
-                find(R.id.vote_up), find(R.id.vote_down),
+                upView, downView,
                 activeScale = 1.0f, inactiveScale = 0.9f,
         )
 
@@ -381,46 +386,40 @@ class TagsView(context: Context) : LinearLayout(context) {
                 actions?.voteTagClicked(tag, newVote) == true
             }
 
-            // TODO voting & stuff
-//            if (selected) {
-//                if (!voteView.isVisible) {
-//                    voteView.isVisible = true
-//                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = voteViewWidth }
-//                }
-//
-//                voteView.setVoteState(vote, !holderChanged)
-//
-//                if (!votedTag.alwaysShowVoteView) {
-//                    tagView.setOnLongClickListener {
-//                        updateSelection(-1)
-//                        true
-//                    }
-//                }
-//
-//                voteView.onVote = { newVote -> actions?.voteTagClicked(tag, newVote) == true }
-//
-//            } else {
-//                if (voteView.isVisible) {
-//                    voteView.isVisible = false
-//                    tagView.updateLayoutParams<MarginLayoutParams> { marginEnd = 0 }
-//                }
-//
-//                if (!votedTag.alwaysShowVoteView) {
-//                    tagView.setOnLongClickListener {
-//                        updateSelection(tag.id)
-//                        true
-//                    }
-//                }
-//            }
+            if (selected) {
+                upView.isVisible = true
+                downView.isVisible = true
 
-            tagView.setOnLongClickListener {
-                val text = votedTag.tag.text
+                voteController.updateVote(vote, !holderChanged)
 
-                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
-                Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                if (!votedTag.alwaysShowVoteView) {
+                    tagView.setOnLongClickListener {
+                        updateSelection(-1)
+                        true
+                    }
+                }
+            } else {
+                upView.isVisible = false
+                downView.isVisible = false
 
-                true
+                if (!votedTag.alwaysShowVoteView) {
+                    tagView.setOnLongClickListener {
+                        updateSelection(tag.id)
+                        true
+                    }
+                }
+            }
+
+            if (votedTag.alwaysShowVoteView || selected) {
+                tagView.setOnLongClickListener {
+                    val text = votedTag.tag.text
+
+                    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
+                    Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+
+                    true
+                }
             }
 
             itemView.updateLayoutParams<MarginLayoutParams> {

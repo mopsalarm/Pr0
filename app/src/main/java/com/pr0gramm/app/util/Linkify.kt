@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Parcel
 import android.text.SpannableStringBuilder
 import android.text.style.ClickableSpan
+import android.text.style.RelativeSizeSpan
 import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
@@ -32,7 +33,7 @@ object Linkify {
     private val RE_WEB_LINK = Pattern.compile("""\bhttps?://(?:[^<>\s]+\([^<>\s]+[^<>!,.:\s]|[^(<>\s]+[^<>)!,.:\s])""")
 
     fun linkifyClean(view: TextView, content: String, callback: Callback? = null) {
-        var cleanedContent = content.take(1024 * 64)
+        var cleanedContent = content.take(1024 * 64).replace(Regex("\n(\\s*?\n){2,}"), "\n\n").trim()
         cleanedContent = MALICIOUS_COMMENT_CHARS.matcher(cleanedContent).replaceAll("$1")
         cleanedContent = RE_GENERIC_LINK.matcher(cleanedContent).replaceAll("$1")
 
@@ -113,6 +114,13 @@ object Linkify {
                 text.removeSpan(span)
                 text.setSpan(replacement, start, end, flags)
             }
+        }
+
+        Regex("\r?\n\\s*\n").findAll(text).forEach { match ->
+            val start = match.range.start
+            val end = match.range.endInclusive + 1
+
+            text.setSpan(RelativeSizeSpan(0.5f), start, end, 0)
         }
 
         return text

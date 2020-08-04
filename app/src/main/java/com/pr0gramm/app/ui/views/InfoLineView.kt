@@ -108,6 +108,8 @@ class InfoLineView(context: Context) : LinearLayout(context) {
      * @param vote The vote that belongs to the given item.
      */
     fun setFeedItem(item: FeedItem, isSelfPost: Boolean, vote: Vote) {
+        val isSameItem = feedItem?.id == item.id
+
         this.feedItem = item
         this.isSelfPost = isSelfPost
 
@@ -118,7 +120,7 @@ class InfoLineView(context: Context) : LinearLayout(context) {
             onDetailClickedListener?.onUserClicked(item.user)
         }
 
-        voteController.updateVote(vote, animate = false)
+        voteController.updateVote(vote, animate = isSameItem)
 
         collectionView.itemId = item.id
 

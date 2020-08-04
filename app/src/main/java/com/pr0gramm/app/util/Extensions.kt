@@ -23,6 +23,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -791,4 +792,8 @@ fun Iterable<String>.containsIgnoreCase(text: String): Boolean {
 
 fun Any.identityHashCode(): Int {
     return System.identityHashCode(this)
+}
+
+fun ViewPropertyAnimator.scale(amount: Float): ViewPropertyAnimator {
+    return scaleX(amount).scaleY(amount)
 }

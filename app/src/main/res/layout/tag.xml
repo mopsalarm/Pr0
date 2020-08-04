@@ -5,6 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="32dp"
     android:background="@drawable/tag_background"
+    android:paddingStart="4dp"
     android:orientation="horizontal">
 
     <ImageButton
@@ -12,7 +13,6 @@
         android:layout_width="24dp"
         android:layout_height="32dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="4dp"
         tools:src="@drawable/ic_vote_up"
         tools:tint="?android:textColorSecondary" />
 
@@ -20,6 +20,7 @@
         android:id="@id/vote_down"
         android:layout_width="24dp"
         android:layout_height="32dp"
+        android:background="?chipBackgroundColor"
         android:layout_gravity="center_vertical"
         tools:src="@drawable/ic_vote_down"
         tools:tint="?android:textColorSecondary" />

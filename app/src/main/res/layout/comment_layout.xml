@@ -42,9 +42,8 @@
         android:id="@+id/sender_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="40dp"
+        android:minHeight="48dp"
         android:gravity="center_vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/comment"
         app:layout_constraintTop_toBottomOf="@id/comment" />
 
@@ -52,9 +51,9 @@
         android:id="@+id/action_more"
         android:layout_width="32dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/comment"
+        app:layout_constraintBottom_toBottomOf="@id/sender_info"
         tools:src="@drawable/ic_more_vert_vec"
         tools:tint="?android:textColorSecondary" />
 
