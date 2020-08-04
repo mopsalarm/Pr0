@@ -2,12 +2,12 @@
 <resources>
     <string name="action_add_tag">Neu</string>
     <string name="dialog_action_add">Hinzufügen</string>
-    <string name="action_collections">SAMMLUNGEN</string>
-    <string name="action_feed_type_new">NEU</string>
-    <string name="action_feed_type_promoted">TOP</string>
+    <string name="action_collections">Sammlungen</string>
+    <string name="action_feed_type_new">Neu</string>
+    <string name="action_feed_type_promoted">Top</string>
     <string name="action_search">Suche in %s…</string>
     <string name="action_search_simple">Suchen</string>
-    <string name="action_upload">HOCHLADEN</string>
+    <string name="action_upload">Hochladen</string>
     <string name="app_name">pr0gramm</string>
     <string name="banned">Du bist bis in %1$s gesperrt. Grund: %2$s</string>
     <string name="cancel">Abbrechen</string>
@@ -52,9 +52,9 @@
     <string name="error_socket">Ein Netzwerkfehler ist aufgetreten. Probiere es nochmal.</string>
     <string name="action_answer">Antworten</string>
     <string name="action_download">Herunterladen</string>
-    <string name="action_login">ANMELDEN</string>
-    <string name="action_logout">ABMELDEN</string>
-    <string name="action_settings">EINSTELLUNGEN</string>
+    <string name="action_login">Anmelden</string>
+    <string name="action_logout">Abmelden</string>
+    <string name="action_settings">Einstellungen</string>
     <string name="add_new_tag_summary">Mehrere Tags können <b>mit Komma</b> voneinander getrennt werden.</string>
     <string name="are_you_sure_to_logout">Bist du sicher, dass du Dich auf diesem Gerät abmelden möchtest?</string>
     <string name="benis">Benis: %d</string>
@@ -88,11 +88,11 @@
     <string name="pref_show_refresh_button">Aktualisieren-Button anzeigen</string>
     <string name="pref_show_refresh_button_summary">Wenn aktiviert, wird ein zusätzlicher Aktualisieren-Button angezeigt.</string>
     <string name="nothing_there">Nichts gefunden\n¯\\_(ツ)_/¯</string>
-    <string name="action_feed_type_premium">STELZ</string>
+    <string name="action_feed_type_premium">Stelz</string>
     <string name="error_login_required_exception">Schaut so aus, als wäre deine Sitzung abgelaufen. Hast du Dich vielleicht im Browser abgemeldet?</string>
     <string name="feedback_reminder">Dies ist eine Betaversion. Bei Problemen sende bitte Feedback.</string>
     <string name="filter_format_premium">Stelz</string>
-    <string name="action_inbox">NACHRICHTEN</string>
+    <string name="action_inbox">Nachrichten</string>
     <string name="action_send">Abschicken</string>
     <string name="inbox_activity_title">Inbox</string>
     <string name="inbox_type_private">Privat</string>
@@ -148,7 +148,7 @@
     <string name="share_post">Link zum Post</string>
     <string name="prefcat_misc">Verschiedenes</string>
     <string name="action_search_image">Bild suchen</string>
-    <string name="action_contact">KONTAKT</string>
+    <string name="action_contact">Kontakt</string>
     <string name="pref_image_search_engine_summary">Wähle den Service für die Rückwärtssuche von Bildern aus.</string>
     <string name="pref_image_search_engine_title">Rückwärtssuche für Bilder</string>
     <string name="prefcat_behaviour__datausage_title">Datenverbrauch</string>
@@ -187,7 +187,7 @@
 
     <string name="preload_info_hint">Vorladen begonnen. Die App wird automatisch vorgeladene Dateien älter als einen Tag löschen, wenn du wieder auf Vorladen drückst. Alle vorgeladenen Dateien kannst du unter Einstellungen löschen.</string>
     <string name="preload_not_on_mobile">Du befindest dich nicht im WLAN. Möchtest du über Mobilnetz vorladen?</string>
-    <string name="action_feed_type_random">ZUFALL</string>
+    <string name="action_feed_type_random">Zufall</string>
     <string name="filter_format_random">Zufall</string>
     <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
     <string name="pref_show_category_controversial_summary">Aktiviere die Kontrovers-Kategorie, die Bilder mit einer ähnlichen Zahl Up- und Downvotes zeigt!</string>
@@ -195,12 +195,12 @@
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
     <string name="pref_show_category_premium_title">Stelz-Kategorie</string>
-    <string name="action_feed_type_controversial">KONTROVERS</string>
+    <string name="action_feed_type_controversial">Kontrovers</string>
     <string name="filter_format_controversial">Kontrovers</string>
     <string name="prefcat_behaviour__categories_title">Kategorien</string>
 
     <string name="filter_format_bestof">Best of</string>
-    <string name="action_feed_type_bestof">BEST OF</string>
+    <string name="action_feed_type_bestof">Best of</string>
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
     <string name="user_registered">Dabei seit %s</string>
     <string name="user_registered_inactive">Dabei seit %s, inaktiv</string>
@@ -248,7 +248,7 @@
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
     <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
     <string name="pref_use_incognito_browser_summary">Öffnet Links immer im Firefox Klar Browser. Dieser muss installiert sein.</string>
-    <string name="action_invite">INVITES</string>
+    <string name="action_invite">Invites</string>
     <string name="error_email">Gültige E-Mail erforderlich</string>
     <string name="invite_email_in_use">Ein Benutzer mit dieser Adresse wurde bereits eingeladen.</string>
     <string name="invite_hint_success">Invite verschickt!</string>
@@ -331,7 +331,7 @@
     <string name="action_block_user">Benutzer sperren</string>
     <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
     <string name="download_complete">Download abgeschlossen</string>
-    <string name="action_premium">PR0MIUM</string>
+    <string name="action_premium">pr0mium</string>
 
     <string name="dt_for_few_second">ein paar Sekunden</string>
     <string name="dt_for_n_seconds">$d Sekunden</string>

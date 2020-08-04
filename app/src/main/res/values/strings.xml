@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_add_tag">Add</string>
-    <string name="action_collections">COLLECTIONS</string>
-    <string name="action_feed_type_new">NEW</string>
-    <string name="action_feed_type_promoted">TOP</string>
+    <string name="action_collections">Collections</string>
+    <string name="action_feed_type_new">New</string>
+    <string name="action_feed_type_promoted">Top</string>
     <string name="action_search">Search in %s…</string>
     <string name="action_search_simple">Search</string>
-    <string name="action_upload">UPLOAD</string>
+    <string name="action_upload">Upload</string>
     <string name="action_kfav">COMMENTS</string>
     <string name="app_name">pr0gramm</string>
     <string name="banned">Your account is banned until %1$s from now. Reason: %2$s</string>
@@ -59,9 +59,9 @@
     <string name="action_answer">Reply</string>
     <string name="post_comment">Send</string>
     <string name="benis">Benis: %d</string>
-    <string name="action_settings">SETTINGS</string>
-    <string name="action_logout">LOGOUT</string>
-    <string name="action_login">LOGIN</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_login">Login</string>
     <string name="action_download">Download</string>
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
     <string name="logout">Logout</string>
@@ -94,14 +94,14 @@
     <string name="action_refresh">Refresh</string>
     <string name="pref_show_refresh_button">Show refresh action</string>
     <string name="pref_show_refresh_button_summary">If enabled, a separate button for refresh will be displayed.</string>
-    <string name="action_feed_type_premium">STELZ</string>
+    <string name="action_feed_type_premium">Stelz</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
     <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
     <string name="notify_new_comment_title">One new comment</string>
     <string name="notify_new_comments_title">%d new comments</string>
     <string name="inbox_activity_title">Inbox</string>
-    <string name="action_inbox">MESSAGES</string>
+    <string name="action_inbox">Messages</string>
     <string name="inbox_type_private">Private</string>
     <string name="inbox_type_unread">Unread</string>
     <string name="inbox_type_comments_in">Comments</string>
@@ -163,7 +163,7 @@
     <string name="share_direct">As file</string>
     <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
-    <string name="action_contact">CONTACT</string>
+    <string name="action_contact">Contact</string>
     <string name="action_search_image">Search image</string>
     <string name="pref_image_search_engine_title">Image reverse search</string>
     <string name="pref_image_search_engine_summary">Select which service you would like to use for image reverse search.</string>
@@ -203,9 +203,9 @@
     <string name="share_with">Share with…</string>
     <string name="preload_info_hint">Preloading started. The app will automatically remove preloaded files older than one day when you press the preload button. You can clean preloaded files in the settings.</string>
     <string name="preload_not_on_mobile">You are currently not on wifi - preloading might drain your data volume. Would you like to continue anyways?</string>
-    <string name="action_feed_type_random">RANDOM</string>
+    <string name="action_feed_type_random">Random</string>
     <string name="filter_format_random">Random</string>
-    <string name="action_feed_type_controversial">CONTROVERSIAL</string>
+    <string name="action_feed_type_controversial">Controversial</string>
     <string name="filter_format_controversial">Controversial</string>
     <string name="pref_show_category_random_title">Category \'random\'</string>
     <string name="pref_show_category_controversial_title">Category \'controversial\'</string>
@@ -264,7 +264,7 @@
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
     <string name="pref_use_incognito_browser_summary">Open links from comments in firefox focus browser with no history.</string>
-    <string name="action_invite">INVITES</string>
+    <string name="action_invite">Invites</string>
     <string name="invites_title">Invites</string>
     <string name="invite_description" translatable="false">Wenn Du keine Neuschwuchtel oder Fliesentischbesitzer bist und ein paar Invites übrig hast, kannst du hier Deine Freunde zu pr0gramm einladen.</string>
     <string name="invite_description_warning" translatable="false">Beachte, dass Du für jeden eingeladenen Benutzer bürgst und automatisch bei jedem Ban für die halbe Zeit mit gesperrt wirst!</string>

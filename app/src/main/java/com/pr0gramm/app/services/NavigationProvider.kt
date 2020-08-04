@@ -214,7 +214,7 @@ class NavigationProvider(
                         else -> iconBookmark.constantState!!.newDrawable()
                     }
 
-                    val title = entry.title.toUpperCase()
+                    val title = entry.title
 
                     val filter = entry.asFeedFilter()
 
