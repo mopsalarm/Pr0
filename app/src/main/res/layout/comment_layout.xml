@@ -41,7 +41,9 @@
     <com.pr0gramm.app.ui.views.SenderInfoView
         android:id="@+id/sender_info"
         android:layout_width="wrap_content"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/comment"
         app:layout_constraintTop_toBottomOf="@id/comment" />
@@ -49,7 +51,8 @@
     <ImageButton
         android:id="@+id/action_more"
         android:layout_width="32dp"
-        android:layout_height="48dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/comment"
         tools:src="@drawable/ic_more_vert_vec"
@@ -58,7 +61,8 @@
     <ImageButton
         android:id="@+id/action_kfav"
         android:layout_width="32dp"
-        android:layout_height="48dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/action_more"
         app:layout_constraintRight_toLeftOf="@id/action_more"
         app:layout_constraintTop_toTopOf="@id/action_more"
         tools:src="@drawable/ic_vote_fav_outline"
@@ -67,7 +71,8 @@
     <ImageButton
         android:id="@+id/action_reply"
         android:layout_width="32dp"
-        android:layout_height="48dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/action_more"
         app:layout_constraintRight_toLeftOf="@id/action_kfav"
         app:layout_constraintTop_toTopOf="@id/action_more"
         tools:src="@drawable/ic_reply_vec"
@@ -76,7 +81,8 @@
     <FrameLayout
         android:id="@+id/action_expand"
         android:layout_width="32dp"
-        android:layout_height="48dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/action_more"
         app:layout_constraintRight_toLeftOf="@id/action_kfav"
         app:layout_constraintTop_toTopOf="@id/action_more"
         tools:text="+10"
