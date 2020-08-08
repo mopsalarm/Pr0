@@ -36,6 +36,10 @@ class CommentTreeController(op: String) {
         inputState.update { it.copy(collapsed = it.collapsed + commentId) }
     }
 
+    fun collapseComments(commentIds: Iterable<Long>) {
+        inputState.update { it.copy(collapsed = it.collapsed + commentIds) }
+    }
+
     fun expandComment(commentId: Long) {
         inputState.update { it.copy(collapsed = it.collapsed - commentId) }
     }

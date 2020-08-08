@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.base
 
 import android.content.Context
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.pr0gramm.app.Logger
@@ -11,8 +12,8 @@ import com.pr0gramm.app.util.di.PropertyInjector
 /**
  * A fragment that provides lifecycle events as an observable.
  */
-abstract class BaseFragment(name: String) : Fragment(), HasViewCache, LazyInjectorAware {
-    protected val logger = Logger(name)
+abstract class BaseFragment(name: String, @LayoutRes layoutId: Int = 0) : Fragment(layoutId), HasViewCache, LazyInjectorAware {
+    protected val logger: Logger = Logger(name)
 
     override val injector: PropertyInjector = PropertyInjector()
 

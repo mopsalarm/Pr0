@@ -75,7 +75,7 @@ class CommentTree(val state: Input) {
 
         linearizedComments.mapIndexed { idx, comment ->
             val vote = currentVote(comment)
-            val isCollapsed = comment.id in state.collapsed
+            val isCollapsed = comment.id in state.collapsed && comment.id in byParent
 
             return@mapIndexed Item(
                     comment = comment,

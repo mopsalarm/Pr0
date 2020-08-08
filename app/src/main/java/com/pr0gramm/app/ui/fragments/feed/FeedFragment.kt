@@ -3,7 +3,10 @@ package com.pr0gramm.app.ui.fragments.feed
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
@@ -44,7 +47,7 @@ import kotlin.math.min
 
 /**
  */
-class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment, BackAwareFragment {
+class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), FilterFragment, TitleFragment, BackAwareFragment {
     private val settings = Settings.get()
 
     private val feedStateModel by viewModels {
@@ -126,10 +129,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, TitleFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         interstitialAdler = InterstitialAdler(requireContext())
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

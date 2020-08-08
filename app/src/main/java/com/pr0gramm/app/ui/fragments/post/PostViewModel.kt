@@ -261,6 +261,11 @@ class PostViewModel(
         commentTreeController.collapseComment(commentId)
     }
 
+    fun collapseComments() {
+        val commentIds = state.value.comments.map { comment -> comment.commentId }
+        commentTreeController.collapseComments(commentIds)
+    }
+
     data class State(
             val item: FeedItem,
             val refreshing: Boolean = false,

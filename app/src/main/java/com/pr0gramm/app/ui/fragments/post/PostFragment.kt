@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
+import com.leinardi.android.speeddial.SpeedDialView
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -107,6 +108,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val recyclerView: StatefulRecyclerView by bindView(R.id.post_content)
     private val voteAnimationIndicator: ImageView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
+    private val speedDialView: SpeedDialView by bindView(R.id.speed_dial)
 
     // only set while we have a viewScope
     private var mediaViewState: StateFlow<MediaViewState>? = null
@@ -180,6 +182,33 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // show the repost badge if this is a repost
         repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
+
+        speedDialView.inflate(R.menu.menu_post_dial)
+        speedDialView.overlayLayout = view.find(R.id.overlay)
+
+        speedDialView.setOnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.action_write_comment -> {
+                    val intent = WriteMessageActivity.newComment(requireActivity(), feedItem)
+                    startActivityForResult(intent, RequestCodes.WRITE_COMMENT)
+                }
+
+                R.id.action_write_tag -> {
+                    actions.writeNewTagClicked()
+                }
+
+                R.id.action_scroll_to_top -> {
+                    recyclerView.smoothScrollToPosition(0)
+                }
+
+                R.id.action_collapse_all -> {
+                    model.collapseComments()
+                }
+            }
+
+            speedDialView.close()
+            true
+        }
 
         launchInViewScope {
             class State(val modelState: PostViewModel.State, val mediaViewState: MediaViewState)

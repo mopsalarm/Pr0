@@ -27,11 +27,8 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
-import com.pr0gramm.app.util.TextViewCache
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.observeChangeEx
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
@@ -244,16 +241,26 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private const val RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment"
 
         fun intent(context: Context, message: Message): Intent {
-            val intent = intent(context, message.senderId.toLong(), message.name)
-            intent.putExtra(ARGUMENT_MESSAGE, MessageSerializer(message))
-            return intent
+            return activityIntent<WriteMessageActivity>(context) {
+                putExtra(ARGUMENT_RECEIVER_ID, message.senderId.toLong())
+                putExtra(ARGUMENT_RECEIVER_NAME, message.name)
+                putExtra(ARGUMENT_MESSAGE, MessageSerializer(message))
+            }
         }
 
         fun intent(context: Context, userId: Long, userName: String): Intent {
-            val intent = Intent(context, WriteMessageActivity::class.java)
-            intent.putExtra(ARGUMENT_RECEIVER_ID, userId)
-            intent.putExtra(ARGUMENT_RECEIVER_NAME, userName)
-            return intent
+            return activityIntent<WriteMessageActivity>(context) {
+                putExtra(ARGUMENT_RECEIVER_ID, userId)
+                putExtra(ARGUMENT_RECEIVER_NAME, userName)
+            }
+        }
+
+        fun newComment(context: Context, item: FeedItem): Intent {
+            return activityIntent<WriteMessageActivity>(context) {
+                putExtra(ARGUMENT_ITEM_ID, item.id)
+                putExtra(ARGUMENT_COMMENT_ID, 0)
+                putExtra(ARGUMENT_TITLE, context.getString(R.string.write_comment, item.user))
+            }
         }
 
         fun answerToComment(

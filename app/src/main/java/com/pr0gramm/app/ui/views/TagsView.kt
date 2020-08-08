@@ -4,15 +4,13 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Rect
-import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewStub
-import android.widget.*
-import androidx.core.os.bundleOf
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -25,21 +23,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.UserSuggestionService
-import com.pr0gramm.app.ui.*
-import com.pr0gramm.app.ui.base.onAttachedScope
-import com.pr0gramm.app.ui.base.whileIsAttachedScope
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
+import com.pr0gramm.app.ui.AsyncListAdapter
+import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.di.injector
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.withContext
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 
@@ -47,13 +33,6 @@ import kotterknife.bindView
 class TagsView(context: Context) : LinearLayout(context) {
     private val recyclerView: RecyclerView by bindView(R.id.tags)
     private val recyclerViewWrapper: TagCloudContainerView? by bindOptionalView(R.id.tags_wrapper)
-
-    private val commentViewStub: ViewStub by bindView(R.id.comment_view_stub)
-
-    // the next views are only accessible if the stub view was inflated
-    private val commentBusyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
-    private val commentSendView: Button by bindView(R.id.action_send)
-    private val commentInputView: LineMultiAutoCompleteTextView by bindView(R.id.tags_comment_input)
 
     private val adapter = TagsAdapter()
 
@@ -63,17 +42,6 @@ class TagsView(context: Context) : LinearLayout(context) {
     private var tags: List<Api.Tag> = listOf()
     private var votes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0)
     private var itemId: Long = 0
-
-    private val viewStateCh = ConflatedBroadcastChannel<ViewState>()
-
-    // expose open state as channel
-    val viewState = viewStateCh.asFlow().distinctUntilChanged()
-
-    enum class ViewState {
-        CLOSED,
-        INPUT,
-        SENDING,
-    }
 
     private val tagSpacings = object {
         val padding = sp(6)
@@ -127,74 +95,11 @@ class TagsView(context: Context) : LinearLayout(context) {
             })
         }
 
-        // initialize in normal state
-        setViewState(ViewState.CLOSED)
-
         recyclerView.adapter = adapter
 
         recyclerView.itemAnimator = DefaultItemAnimator().apply {
             supportsChangeAnimations = false
         }
-
-        commentViewStub.setOnInflateListener { _, inflated ->
-            commentSendView.setOnClickListener {
-                val text = commentInputView.text.toString().trim()
-
-                if (text.length < 3) {
-                    showDialog(context) {
-                        content(R.string.message_must_not_be_empty)
-                        positive()
-                    }
-
-                    return@setOnClickListener
-                }
-
-                whileIsAttachedScope {
-                    setViewState(ViewState.SENDING)
-                    try {
-                        withContext(NonCancellable) {
-                            actions?.writeCommentClicked(text)
-                        }
-
-                        commentInputView.setText("")
-
-                    } catch (err: Exception) {
-                        if (err !is CancellationException) {
-                            ErrorDialogFragment.handleOnError(err)
-                        } else {
-                            throw err
-                        }
-
-                    } finally {
-                        setViewState(ViewState.CLOSED)
-                    }
-                }
-            }
-
-            val suggestionService: UserSuggestionService = context.injector.instance()
-            commentInputView.setTokenizer(UsernameTokenizer())
-            commentInputView.setAdapter(UsernameAutoCompleteAdapter(suggestionService, context,
-                    android.R.layout.simple_dropdown_item_1line, "@"))
-
-            commentInputView.setAnchorView(inflated.find(R.id.auto_complete_popup_anchor))
-
-        }
-    }
-
-    override fun onSaveInstanceState(): Parcelable {
-        return bundleOf(
-                "superState" to super.onSaveInstanceState(),
-                "viewState" to viewStateCh.value.ordinal
-        )
-    }
-
-    override fun onRestoreInstanceState(state: Parcelable) {
-        val viewState = state as Bundle
-        super.onRestoreInstanceState(viewState.getParcelable("superState"))
-
-        // restore open/close state
-        val stateIdx = state.getInt("viewState", ViewState.CLOSED.ordinal)
-        setViewState(ViewState.values()[stateIdx])
     }
 
     fun updateTags(itemId: Long, tags: List<Api.Tag>, votes: LongSparseArray<Vote>) {
@@ -213,10 +118,6 @@ class TagsView(context: Context) : LinearLayout(context) {
             }
 
             recyclerViewWrapper?.reset()
-        }
-
-        if (viewStateCh.value !== ViewState.CLOSED) {
-            TextViewCache.addCaching(commentInputView, "tagsView:$itemId")
         }
     }
 
@@ -241,116 +142,20 @@ class TagsView(context: Context) : LinearLayout(context) {
         adapter.submitList(votedTags)
     }
 
-    private fun setViewState(state: ViewState) {
-        if (viewStateCh.valueOrNull === state) {
-            return
-        }
-
-        if (state === ViewState.CLOSED) {
-            commentViewStub.isVisible = false
-
-        } else {
-            commentViewStub.isVisible = true
-
-            commentBusyIndicator.isVisible = state === ViewState.SENDING
-
-            commentInputView.isVisible = state === ViewState.INPUT
-            commentSendView.isVisible = state === ViewState.INPUT
-
-            // might be the first time after inflate
-            TextViewCache.addCaching(commentInputView, "tagsView:$itemId")
-
-
-            for (view in listOf(commentSendView, commentInputView, commentBusyIndicator)) {
-                view.alpha = 0f
-                view.animate().alpha(1f).setDuration(250).start()
-            }
-        }
-
-        viewStateCh.offer(state)
-
-        if (state === ViewState.INPUT) {
-            recyclerViewWrapper?.reset(animated = true)
-        }
-    }
-
     private data class VotedTag(
             val tag: Api.Tag, val vote: Vote = Vote.NEUTRAL,
             val selected: Boolean = false, val lastItem: Boolean = false,
             val alwaysShowVoteView: Boolean = true)
 
     private inner class TagsAdapter : AsyncListAdapter<VotedTag,
-            RecyclerView.ViewHolder>(DiffCallback(), detectMoves = true) {
+            TagViewHolder>(DiffCallback(), detectMoves = true) {
 
-        private val viewTypeWriteComment = 0
-        private val viewTypeWriteTag = 1
-        private val viewTypeTag = 2
-
-        private val placeholders = listOf(
-                VotedTag(Api.Tag(-3L, 0f, "placeholder write comment")),
-                VotedTag(Api.Tag(-2L, 0f, "placeholder write tag")))
-
-        override fun submitList(newList: List<VotedTag>, forceSync: Boolean) {
-            super.submitList(placeholders + newList, forceSync)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagViewHolder {
+            return TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
         }
 
-        override fun getItemViewType(position: Int): Int {
-            return position.coerceAtMost(placeholders.size)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            return when (viewType) {
-                viewTypeTag ->
-                    TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
-
-                viewTypeWriteTag ->
-                    ButtonViewHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false)) {
-                        actions?.writeNewTagClicked()
-                    }
-
-                viewTypeWriteComment ->
-                    WriteCommentViewHolder(parent.layoutInflater.inflate(R.layout.tags_comment, parent, false))
-
-                else -> throw IllegalArgumentException("Unknown view type")
-            }
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            when (holder) {
-                is TagViewHolder -> holder.set(items[position])
-            }
-        }
-    }
-
-    private inner class ButtonViewHolder(itemView: View, onClick: () -> Unit) : RecyclerView.ViewHolder(itemView) {
-        init {
-            itemView.setOnClickListener { onClick() }
-        }
-    }
-
-    private inner class WriteCommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        init {
-            itemView.setOnClickListener {
-                when (viewStateCh.value) {
-                    ViewState.CLOSED -> setViewState(ViewState.INPUT)
-                    ViewState.INPUT -> setViewState(ViewState.CLOSED)
-                    else -> Unit
-                }
-            }
-
-            val buttonView = find<ImageView>(R.id.tag_button)
-
-            itemView.onAttachedScope {
-                viewState.collect { viewState ->
-                    val color = if (viewState == ViewState.CLOSED) {
-                        context.getStyledColor(android.R.attr.textColorSecondary)
-                    } else {
-                        context.getColorCompat(ThemeHelper.accentColor)
-                    }
-
-                    buttonView.imageTintList = ColorStateList.valueOf(color)
-                }
-            }
+        override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
+            holder.set(items[position])
         }
     }
 
