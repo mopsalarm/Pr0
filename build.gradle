@@ -15,8 +15,8 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "1.4-M2" apply false
-    id "org.jetbrains.kotlin.kapt" version "1.4-M2" apply false
+    id "org.jetbrains.kotlin.android" version "1.4.0-rc" apply false
+    id "org.jetbrains.kotlin.kapt" version "1.4.0-rc" apply false
     id "com.github.ben-manes.versions" version "0.28.0"
 }
 
@@ -38,9 +38,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-
-        // kotlin eap
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+//
+//        // kotlin eap
+        // maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         maven { url 'https://kotlin.bintray.com/kotlinx' }
     }
 
