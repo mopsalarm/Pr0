@@ -108,7 +108,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val recyclerView: StatefulRecyclerView by bindView(R.id.post_content)
     private val voteAnimationIndicator: ImageView by bindView(R.id.vote_indicator)
     private val repostHint: View by bindView(R.id.repost_hint)
-    private val speedDialView: SpeedDialView by bindView(R.id.speed_dial)
+    private val fab: SpeedDialView by bindView(R.id.speed_dial)
 
     // only set while we have a viewScope
     private var mediaViewState: StateFlow<MediaViewState>? = null
@@ -183,10 +183,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show the repost badge if this is a repost
         repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
-        speedDialView.inflate(R.menu.menu_post_dial)
-        speedDialView.overlayLayout = view.find(R.id.overlay)
+        fab.inflate(R.menu.menu_post_dial)
+        fab.overlayLayout = view.find(R.id.overlay)
 
-        speedDialView.setOnActionSelectedListener { actionItem ->
+        fab.setOnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.action_write_comment -> {
                     doIfAuthorizedHelper.runAuthNoRetry {
@@ -210,7 +210,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
             }
 
-            speedDialView.close()
+            fab.close()
             true
         }
 
@@ -491,7 +491,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 viewer.addView(mcc)
             }
 
-            speedDialView.hide()
+            fab.hide()
         }
     }
 
@@ -754,6 +754,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             mediaViewState.update { previousState ->
                 previousState.copy(height = expectedViewerHeight)
+            }
+
+            // if we can guess, that the height of the media will be more than the height of the
+            // screen, we can directly hide the FAB
+            if (expectedMediaHeight > screenSize.y) {
+                // fab.hide()
             }
         }
 
@@ -1037,21 +1043,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             // smooth out very small scrolls up & down
             scrollAcc = (scrollAcc + dy).coerceIn(-32, 32)
 
-            val fabThreshold = viewerHeight - recyclerHeight + speedDialView.height / 2
+            // padding + half of the fab button
+            val fabTopThreshold = viewerHeight - recyclerHeight + fab.context.dp(16 + 56 / 2)
+            val fabHideThreshold = fabTopThreshold + fab.context.dp(96)
+
+            fab.translationY = (fabTopThreshold - scroll).coerceAtLeast(0f)
+
             when {
-                scrollAcc >= 0 && scroll >= fabThreshold -> {
-                    speedDialView.show()
-                }
-
-                speedDialView.isVisible && !speedDialView.isOpen && dy == 0 -> {
-                    // hide without animation. This should only happen the first time
-                    speedDialView.isVisible = false
-                }
-
-                speedDialView.isVisible -> {
-                    // hide normally with animation.
-                    speedDialView.hide()
-                }
+                scroll.toInt() in (fabTopThreshold..fabHideThreshold) || scrollAcc < 0 && !fab.isVisible -> fab.show()
+                scrollAcc > 0 && fab.isVisible -> fab.hide()
             }
         }
 
