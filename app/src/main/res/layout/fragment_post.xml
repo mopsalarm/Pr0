@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        app:layout_behavior="com.pr0gramm.app.ui.fragments.post.ScrollingViewSnackbarBehavior"
+        app:layout_behavior="com.leinardi.android.speeddial.SpeedDialView$SnackbarBehavior"
         app:sdMainFabClosedSrc="@drawable/ic_add" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

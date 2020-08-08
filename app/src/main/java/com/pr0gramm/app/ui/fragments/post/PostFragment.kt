@@ -490,6 +490,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 mcc.removeFromParent()
                 viewer.addView(mcc)
             }
+
+            speedDialView.hide()
         }
     }
 
@@ -510,8 +512,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     fun exitFullscreen() {
-        if (!isVideoFullScreen)
+        if (!isVideoFullScreen) {
             return
+        }
 
         val activity = activity ?: return
 
@@ -979,7 +982,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
-        val fancyScrollVertical = settings.fancyScrollVertical
+        private val fancyScrollVertical = settings.fancyScrollVertical
+
+        private var scrollAcc = 0
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
@@ -1028,6 +1033,26 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     ((recyclerHeight - tbVisibleHeight) / 2).toFloat())
 
             voteAnimationIndicator.translationY = voteIndicatorY
+
+            // smooth out very small scrolls up & down
+            scrollAcc = (scrollAcc + dy).coerceIn(-32, 32)
+
+            val fabThreshold = viewerHeight - recyclerHeight + speedDialView.height / 2
+            when {
+                scrollAcc >= 0 && scroll >= fabThreshold -> {
+                    speedDialView.show()
+                }
+
+                speedDialView.isVisible && !speedDialView.isOpen && dy == 0 -> {
+                    // hide without animation. This should only happen the first time
+                    speedDialView.isVisible = false
+                }
+
+                speedDialView.isVisible -> {
+                    // hide normally with animation.
+                    speedDialView.hide()
+                }
+            }
         }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
