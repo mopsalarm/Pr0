@@ -219,7 +219,7 @@ object PostView {
     }
 
     fun scrollTo(idx: Int) {
-        val recyclerViewMatcher = allOf(withId(R.id.post_content), InActivePost)
+        val recyclerViewMatcher = allOf(withId(R.id.recycler_view), InActivePost)
 
         onView(recyclerViewMatcher) {
             perform(RecyclerViewActions.scrollToPosition<VH>(idx))

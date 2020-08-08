@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
@@ -19,11 +18,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.whenResumed
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
-import com.leinardi.android.speeddial.SpeedDialView
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.FragmentPostBinding
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.parcel.getParcelableOrThrow
@@ -103,12 +101,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val shareService: ShareService by instance()
     private val interstitialAdler by lazy { InterstitialAdler(requireContext()) }
 
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
-    private val playerContainer: ViewGroup by bindView(R.id.player_container)
-    private val recyclerView: StatefulRecyclerView by bindView(R.id.post_content)
-    private val voteAnimationIndicator: ImageView by bindView(R.id.vote_indicator)
-    private val repostHint: View by bindView(R.id.repost_hint)
-    private val fab: SpeedDialView by bindView(R.id.speed_dial)
+    private val views by bindViews(FragmentPostBinding::bind)
 
     // only set while we have a viewScope
     private var mediaViewState: StateFlow<MediaViewState>? = null
@@ -151,9 +144,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val abHeight = AndroidUtility.getActionBarContentOffset(activity)
 
         // handle swipe to refresh
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
-        swipeRefreshLayout.setOnRefreshListener {
+        views.refresh.setColorSchemeResources(ThemeHelper.accentColor)
+        views.refresh.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
+        views.refresh.setOnRefreshListener {
             if (!isVideoFullScreen) {
                 model.refreshAsync()
 
@@ -166,14 +159,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // as long as the fragment is visible, the screen stays on.
         view.keepScreenOn = true
 
-        recyclerView.primaryScrollListener = ScrollHandler()
+        views.recyclerView.primaryScrollListener = ScrollHandler()
 
-        recyclerView.itemAnimator = null
-        recyclerView.layoutManager = recyclerView.LinearLayoutManager(getActivity())
-        recyclerView.adapter = PostAdapter()
+        views.recyclerView.itemAnimator = null
+        views.recyclerView.layoutManager = views.recyclerView.LinearLayoutManager(getActivity())
+        views.recyclerView.adapter = PostAdapter()
 
         if (activity is RecyclerViewPoolProvider) {
-            activity.configureRecyclerView("Post", recyclerView)
+            activity.configureRecyclerView("Post", views.recyclerView)
         }
 
         val mediaViewState = initializeMediaView()
@@ -181,12 +174,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.mediaViewState = mediaViewState
 
         // show the repost badge if this is a repost
-        repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
+        views.repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
-        fab.inflate(R.menu.menu_post_dial)
-        fab.overlayLayout = view.find(R.id.overlay)
+        views.fab.inflate(R.menu.menu_post_dial)
+        views.fab.overlayLayout = view.find(R.id.overlay)
 
-        fab.setOnActionSelectedListener { actionItem ->
+        views.fab.setOnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.action_write_comment -> {
                     doIfAuthorizedHelper.runAuthNoRetry {
@@ -202,7 +195,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
 
                 R.id.action_scroll_to_top -> {
-                    recyclerView.smoothScrollToPosition(0)
+                    views.recyclerView.smoothScrollToPosition(0)
                 }
 
                 R.id.action_collapse_all -> {
@@ -210,7 +203,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
             }
 
-            fab.close()
+            views.fab.close()
             true
         }
 
@@ -225,7 +218,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 updateAdapterFromState(state.modelState, state.mediaViewState)
 
                 if (!state.modelState.refreshing) {
-                    swipeRefreshLayout.isRefreshing = false
+                    views.refresh.isRefreshing = false
                 }
             }
         }
@@ -355,7 +348,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onDestroyView() {
-        recyclerView.primaryScrollListener = null
+        views.recyclerView.primaryScrollListener = null
 
         activity?.let {
             // restore orientation if the user closes this view
@@ -464,10 +457,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 start()
             }
 
-            repostHint.isVisible = false
+            views.repostHint.isVisible = false
 
             // hide content below
-            swipeRefreshLayout.isVisible = false
+            views.refresh.isVisible = false
 
             if (activity is ToolbarActivity) {
                 // hide the toolbar if required necessary
@@ -491,7 +484,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 viewer.addView(mcc)
             }
 
-            fab.hide()
+            views.fab.hide()
         }
     }
 
@@ -524,7 +517,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         fullscreenAnimator?.cancel()
         fullscreenAnimator = null
 
-        swipeRefreshLayout.isVisible = true
+        views.refresh.isVisible = true
 
         // reset the values correctly
         viewer?.apply {
@@ -551,7 +544,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         currentMediaViewState().controlsContainer?.removeFromParent()
 
         // and tell the adapter to bind it back to the view.
-        recyclerView.postAdapter?.let { adapter ->
+        views.recyclerView.postAdapter?.let { adapter ->
             val idx = adapter.items.indexOfFirst { it is PostAdapter.Item.PlaceholderItem }
             if (idx >= 0) {
                 adapter.notifyItemChanged(idx)
@@ -597,9 +590,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun refreshWithIndicator() {
-        if (!swipeRefreshLayout.isRefreshing) {
-            swipeRefreshLayout.isRefreshing = true
-            swipeRefreshLayout.postDelayed({ model.refreshAsync() }, 500)
+        if (!views.refresh.isRefreshing) {
+            views.refresh.isRefreshing = true
+            views.refresh.postDelayed({ model.refreshAsync() }, 500)
         }
     }
 
@@ -683,7 +676,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // quickly center the vote button
         simulateScroll()
 
-        val voteAnimationIndicator = voteAnimationIndicator
+        val voteAnimationIndicator = views.voteAnimationIndicator
 
         voteAnimationIndicator.setImageResource(when (vote) {
             Vote.UP -> R.drawable.ic_vote_up
@@ -727,8 +720,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         registerTapListener(viewer)
 
         // add views in the correct order (normally first child)
-        val idx = playerContainer.indexOfChild(voteAnimationIndicator)
-        playerContainer.addView(viewer, idx)
+        val idx = views.playerContainer.indexOfChild(views.voteAnimationIndicator)
+        views.playerContainer.addView(viewer, idx)
 
         // Add a container for the children
         val mediaControlsContainer = FrameLayout(requireContext())
@@ -823,7 +816,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
-        recyclerView.primaryScrollListener?.onScrolled(recyclerView, 0, 0)
+        views.recyclerView.primaryScrollListener?.onScrolled(views.recyclerView, 0, 0)
     }
 
     /**
@@ -960,10 +953,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         if (idx >= 0) {
-            val lm = recyclerView.layoutManager as LinearLayoutManager
+            val lm = views.recyclerView.layoutManager as LinearLayoutManager
 
             if (smoothScroll) {
-                val scroller = CenterLinearSmoothScroller(recyclerView.context, idx)
+                val scroller = CenterLinearSmoothScroller(views.recyclerView.context, idx)
                 lm.startSmoothScroll(scroller)
 
             } else {
@@ -999,8 +992,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val viewer = viewer ?: return
 
             // get our facts straight
-            val recyclerHeight = recyclerView.height
-            val scrollEstimate = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
+            val recyclerHeight = views.recyclerView.height
+            val scrollEstimate = ScrollHideToolbarListener.estimateRecyclerViewScrollY(views.recyclerView)
             var viewerVisible = scrollEstimate != null
 
             val scrollY = scrollEstimate ?: viewer.height
@@ -1038,26 +1031,26 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     (remaining - tbVisibleHeight) / 2,
                     ((recyclerHeight - tbVisibleHeight) / 2).toFloat())
 
-            voteAnimationIndicator.translationY = voteIndicatorY
+            views.voteAnimationIndicator.translationY = voteIndicatorY
 
             // smooth out very small scrolls up & down
             scrollAcc = (scrollAcc + dy).coerceIn(-32, 32)
 
             // padding + half of the fab button
-            val fabTopThreshold = viewerHeight - recyclerHeight + fab.context.dp(16 + 56 / 2)
-            val fabHideThreshold = fabTopThreshold + fab.context.dp(96)
+            val fabTopThreshold = viewerHeight - recyclerHeight + views.fab.context.dp(16 + 56 / 2)
+            val fabHideThreshold = fabTopThreshold + views.fab.context.dp(96)
 
-            fab.translationY = (fabTopThreshold - scroll).coerceAtLeast(0f)
+            views.fab.translationY = (fabTopThreshold - scroll).coerceAtLeast(0f)
 
             when {
-                scroll.toInt() in (fabTopThreshold..fabHideThreshold) || scrollAcc < 0 && !fab.isVisible -> fab.show()
-                scrollAcc > 0 && fab.isVisible -> fab.hide()
+                scroll.toInt() in (fabTopThreshold..fabHideThreshold) || scrollAcc < 0 && !views.fab.isVisible -> views.fab.show()
+                scrollAcc > 0 && views.fab.isVisible -> views.fab.hide()
             }
         }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
+                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(views.recyclerView)
                         ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
@@ -1077,12 +1070,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             // position the repost badge, if it is visible
             if (inMemoryCacheService.isRepost(feedItem)) {
-                repostHint.isVisible = true
-                repostHint.translationY = viewer.paddingTop.toFloat() - repostHint.pivotY - offset
+                views.repostHint.isVisible = true
+                views.repostHint.translationY = viewer.paddingTop.toFloat() - views.repostHint.pivotY - offset
             }
         } else {
             viewer.isVisible = false
-            repostHint.isVisible = false
+            views.repostHint.isVisible = false
         }
     }
 
@@ -1111,7 +1104,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private val postAdapter: PostAdapter
-        get() = recyclerView.postAdapter ?: throw IllegalStateException("no post adapter set")
+        get() = views.recyclerView.postAdapter ?: throw IllegalStateException("no post adapter set")
 
     inner class CommentListener : CommentView.Listener {
         override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
@@ -1194,8 +1187,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
 
             // scroll to the top
-            recyclerView.adapter?.itemCount?.takeIf { it > 0 }?.let {
-                recyclerView.smoothScrollToPosition(0)
+            views.recyclerView.adapter?.itemCount?.takeIf { it > 0 }?.let {
+                views.recyclerView.smoothScrollToPosition(0)
             }
 
             return true

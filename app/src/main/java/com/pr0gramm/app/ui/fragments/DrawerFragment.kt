@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClassesService
+import com.pr0gramm.app.databinding.LeftDrawerBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.isImmutable
 import com.pr0gramm.app.services.*
@@ -34,7 +35,7 @@ import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.EditBookmarkDialog
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
@@ -55,22 +56,18 @@ import kotlin.time.milliseconds
  *
  */
 @OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
-class DrawerFragment : BaseFragment("DrawerFragment") {
+class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val userClassesService: UserClassesService by instance()
 
     private val currentSelection = MutableStateFlow(null as FeedFilter?)
 
-    private val navItemsRecyclerView: RecyclerView by bindView(R.id.drawer_nav_list)
+    private val views by bindViews(LeftDrawerBinding::bind)
 
     private lateinit var navigationAdapter: Adapter
 
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.left_drawer, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -78,9 +75,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         navigationAdapter = Adapter(requireActivity() as Callbacks)
 
         // initialize the top navigation items
-        navItemsRecyclerView.adapter = navigationAdapter
-        navItemsRecyclerView.itemAnimator = null
-        navItemsRecyclerView.layoutManager = LinearLayoutManager(activity)
+        views.drawerNavList.adapter = navigationAdapter
+        views.drawerNavList.itemAnimator = null
+        views.drawerNavList.layoutManager = LinearLayoutManager(activity)
 
         observeNavigationItems()
     }
@@ -178,14 +175,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     fun scrollTo(filter: FeedFilter) {
-        navItemsRecyclerView.postDelayed(delayInMillis = 500) {
+        views.drawerNavList.postDelayed(delayInMillis = 500) {
             val context = requireContext()
 
             val idx = navigationAdapter.items.indexOfFirst { item -> item is NavigationItem && item.filter == filter }
             if (idx == -1)
                 return@postDelayed
 
-            val lm = navItemsRecyclerView.layoutManager as? LinearLayoutManager
+            val lm = views.drawerNavList.layoutManager as? LinearLayoutManager
                     ?: return@postDelayed
 
             lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,

@@ -29,7 +29,7 @@ import java.io.IOException
 /**
  */
 class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
-    private val recyclerView: RecyclerView by bindView(R.id.changelog)
+    private val recyclerView: RecyclerView by bindView(R.id.recycler_view)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(requireContext()) {

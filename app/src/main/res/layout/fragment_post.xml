@@ -17,7 +17,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/vote_indicator"
+                android:id="@+id/vote_animation_indicator"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_gravity="center_horizontal"
@@ -55,7 +55,7 @@
             android:layout_height="match_parent">
 
             <com.pr0gramm.app.ui.StatefulRecyclerView
-                android:id="@+id/post_content"
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
@@ -74,7 +74,7 @@
         android:layout_height="match_parent" />
 
     <com.leinardi.android.speeddial.SpeedDialView
-        android:id="@+id/speed_dial"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
