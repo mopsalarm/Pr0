@@ -5,21 +5,21 @@
     <item
         android:id="@+id/action_write_tag"
         android:icon="@drawable/ic_action_add_tag"
-        android:title="Add tags" />
+        android:title="@string/action_add_tags" />
 
     <item
         android:id="@+id/action_write_comment"
         android:icon="@drawable/ic_action_add_comment"
-        android:title="Add comment" />
+        android:title="@string/action_add_comment" />
 
     <item
         android:id="@+id/action_collapse_all"
         android:icon="@drawable/ic_collapse_all"
-        android:title="Collapse comments" />
+        android:title="@string/action_collapse_comments" />
 
     <item
         android:id="@+id/action_scroll_to_top"
         android:icon="@drawable/ic_arrow_up"
-        android:title="Scroll to top" />
+        android:title="@string/action_scroll_to_top" />
 
 </menu>

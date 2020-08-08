@@ -189,12 +189,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         speedDialView.setOnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.action_write_comment -> {
-                    val intent = WriteMessageActivity.newComment(requireActivity(), feedItem)
-                    startActivityForResult(intent, RequestCodes.WRITE_COMMENT)
+                    doIfAuthorizedHelper.runAuthNoRetry {
+                        val intent = WriteMessageActivity.newComment(requireActivity(), feedItem)
+                        startActivityForResult(intent, RequestCodes.WRITE_COMMENT)
+                    }
                 }
 
                 R.id.action_write_tag -> {
-                    actions.writeNewTagClicked()
+                    doIfAuthorizedHelper.runAuthNoRetry {
+                        actions.writeNewTagClicked()
+                    }
                 }
 
                 R.id.action_scroll_to_top -> {

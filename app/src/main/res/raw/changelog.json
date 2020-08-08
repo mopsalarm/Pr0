@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Option um besonders gut bewertete Hochlads im Feed hervorzuheben"
+      },
+      {
+        "type": "Neu",
+        "change": "Aussehen der App überarbeitet und mehr an die Material Design Richtlinien angepasst."
       }
     ]
   },

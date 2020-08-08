@@ -537,6 +537,11 @@
     <string name="positive_include_ct">Ja</string>
     <string name="pref_highlight_items_in_feed">Hochlads hervorheben</string>
     <string name="pref_highlight_items_in_feed_summary">Hebt einige Hochlads mit viel Benis im Feed hervor.</string>
+    <string name="feed_hint_add_content_type">Füge \'%s\' zu deinem Filter hinzu</string>
+    <string name="action_scroll_to_top">Nach oben scrollen</string>
+    <string name="action_collapse_comments">Kommentare einklappen</string>
+    <string name="action_add_comment">Kommentar verfassen</string>
+    <string name="action_add_tags">Tags hinzufügen</string>
 
 
 </resources>
