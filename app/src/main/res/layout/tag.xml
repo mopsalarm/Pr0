@@ -35,7 +35,7 @@
         android:paddingStart="8dp"
         android:paddingEnd="12dp"
         android:singleLine="true"
-        android:textAppearance="@style/TextStyle.14"
+        android:textAppearance="@style/TextStyle.12.Bold"
         android:textColor="?android:textColorSecondary"
         tools:text="Kreiselficker" />
 </LinearLayout>
