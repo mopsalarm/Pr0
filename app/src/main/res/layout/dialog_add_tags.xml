@@ -32,7 +32,7 @@
 
         <com.pr0gramm.app.ui.views.PlainMultiTextAutoCompleteTextView
             style="@style/Widget.AppCompat.AutoCompleteTextView"
-            android:id="@+id/tag"
+            android:id="@+id/tag_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

@@ -129,7 +129,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_post, container, false) as ViewGroup
+        val view = FragmentPostBinding.inflate(inflater).root as ViewGroup
         addWarnOverlayIfNecessary(inflater, view)
         return view
     }
@@ -348,8 +348,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onDestroyView() {
-        views.recyclerView.primaryScrollListener = null
-
         activity?.let {
             // restore orientation if the user closes this view
             Screen.unlockOrientation(it)
@@ -983,8 +981,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
         private val fancyScrollVertical = settings.fancyScrollVertical
 
-        private var scrollAcc = 0
-
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)
                 return
@@ -1033,18 +1029,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             views.voteAnimationIndicator.translationY = voteIndicatorY
 
-            // smooth out very small scrolls up & down
-            scrollAcc = (scrollAcc + dy).coerceIn(-32, 32)
-
-            // padding + half of the fab button
-            val fabTopThreshold = viewerHeight - recyclerHeight + views.fab.context.dp(16 + 56 / 2)
-            val fabHideThreshold = fabTopThreshold + views.fab.context.dp(96)
+            // padding + height of the fab button
+            val fabTopThreshold = viewerHeight - recyclerHeight + views.fab.context.dp(32 + 56)
+            val fabHideThreshold = fabTopThreshold + views.fab.context.dp(256)
 
             views.fab.translationY = (fabTopThreshold - scroll).coerceAtLeast(0f)
 
             when {
-                scroll.toInt() in (fabTopThreshold..fabHideThreshold) || scrollAcc < 0 && !views.fab.isVisible -> views.fab.show()
-                scrollAcc > 0 && views.fab.isVisible -> views.fab.hide()
+                scroll.toInt() < fabHideThreshold || dy < 0 && !views.fab.isVisible -> views.fab.show()
+                dy > 0 && views.fab.isVisible -> views.fab.hide()
             }
         }
 

@@ -41,7 +41,8 @@ class StatefulRecyclerView @JvmOverloads constructor(
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
-        val bundle = state as? Bundle ?: return
+        val bundle = state as? Bundle ?: return super.onRestoreInstanceState(state)
+
         super.onRestoreInstanceState(bundle.getParcelable("viewState"))
 
         val adapter = this.adapter

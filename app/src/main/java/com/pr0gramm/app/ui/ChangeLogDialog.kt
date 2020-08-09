@@ -2,19 +2,19 @@ package com.pr0gramm.app.ui
 
 import android.app.Dialog
 import android.content.Context
-import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.View
 import android.widget.TextView
 import androidx.core.text.bold
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.adapter
+import com.pr0gramm.app.databinding.ChangelogBinding
 import com.pr0gramm.app.model.update.Change
 import com.pr0gramm.app.model.update.ChangeGroup
 import com.pr0gramm.app.services.ThemeHelper.accentColor
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
@@ -28,20 +28,18 @@ import java.io.IOException
 
 /**
  */
-class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
-    private val recyclerView: RecyclerView by bindView(R.id.recycler_view)
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDialog", ChangelogBinding::inflate) {
+    override fun onCreateDialog(contentView: View): Dialog {
         return dialog(requireContext()) {
-            layout(R.layout.changelog)
+            contentView(contentView)
             positive()
         }
     }
 
     override fun onDialogViewCreated() {
         val changes = loadChangelog(requireContext())
-        recyclerView.adapter = changeAdapter(changes)
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        views.recyclerView.adapter = changeAdapter(changes)
+        views.recyclerView.layoutManager = LinearLayoutManager(context)
     }
 
     private fun changeAdapter(changeGroups: List<ChangeGroup>): SimpleAdapter<Any> {

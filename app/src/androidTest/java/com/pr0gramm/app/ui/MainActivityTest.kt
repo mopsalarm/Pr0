@@ -181,7 +181,7 @@ object FeedView {
     }
 
     fun clickItem(idx: Int) {
-        onView(withId(R.id.list)) {
+        onView(withId(R.id.recycler_view)) {
             perform(actionOnItemAtPosition<VH>(idx, click()))
         }
     }

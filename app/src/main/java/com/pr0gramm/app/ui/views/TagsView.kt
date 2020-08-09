@@ -22,17 +22,17 @@ import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.PostTagsCloudBinding
+import com.pr0gramm.app.databinding.PostTagsNormalBinding
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.util.*
-import kotterknife.bindOptionalView
-import kotterknife.bindView
 
 @SuppressLint("ViewConstructor")
 class TagsView(context: Context) : LinearLayout(context) {
-    private val recyclerView: RecyclerView by bindView(R.id.tags)
-    private val recyclerViewWrapper: TagCloudContainerView? by bindOptionalView(R.id.tags_wrapper)
+    private val recyclerView: RecyclerView
+    private val recyclerViewWrapper: TagCloudContainerView?
 
     private val adapter = TagsAdapter()
 
@@ -43,43 +43,46 @@ class TagsView(context: Context) : LinearLayout(context) {
     private var votes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0)
     private var itemId: Long = 0
 
-    private val tagSpacings = object {
-        val padding = sp(6)
-        val height = context.resources.getDimensionPixelSize(R.dimen.tag_height)
-
-        fun moreOffset(): Int {
-            return recyclerView.paddingBottom + dp(8)
-        }
-
-        fun clipSize(rows: Int): Int {
-            return rows * (height + padding) + recyclerView.paddingTop
-        }
-    }
-
     init {
         layoutParams = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        layoutInflater.inflate(R.layout.post_tags, this, true)
         orientation = LinearLayout.VERTICAL
 
         if (Settings.get().tagCloudView) {
-            addView(layoutInflater.inflate(R.layout.post_tags_cloud, this, false), 0)
+            val views = PostTagsCloudBinding.inflate(layoutInflater, this, true)
+            recyclerView = views.tagsRecyclerView
+            recyclerViewWrapper = views.tagsWrapper
+
+            val tagSpacings = object {
+                val padding = sp(6)
+                val height = context.resources.getDimensionPixelSize(R.dimen.tag_height)
+
+                fun moreOffset(): Int {
+                    return recyclerView.paddingBottom + dp(8)
+                }
+
+                fun clipSize(rows: Int): Int {
+                    return rows * (height + padding) + recyclerView.paddingTop
+                }
+            }
 
             recyclerView.layoutManager = ChipsLayoutManager.newBuilder(context).build()
             recyclerView.addItemDecoration(SpacingItemDecoration(tagSpacings.padding, tagSpacings.padding))
 
-            recyclerViewWrapper?.clipHeight = tagSpacings.clipSize(3)
-            recyclerViewWrapper?.moreOffset = tagSpacings.moreOffset()
+            recyclerViewWrapper.clipHeight = tagSpacings.clipSize(3)
+            recyclerViewWrapper.moreOffset = tagSpacings.moreOffset()
 
-            recyclerViewWrapper?.updateLayoutParams<MarginLayoutParams> {
+            recyclerViewWrapper.updateLayoutParams<MarginLayoutParams> {
                 marginStart -= tagSpacings.padding / 2
                 marginEnd -= tagSpacings.padding / 2
             }
 
         } else {
-            addView(layoutInflater.inflate(R.layout.post_tags_normal, this, false), 0)
+            val views = PostTagsNormalBinding.inflate(layoutInflater, this, true)
+            recyclerView = views.tagsRecyclerView
+            recyclerViewWrapper = null
 
             recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
             recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {

@@ -5,10 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
@@ -110,23 +107,9 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         showUploadFragment(type, addToBackstack = true)
     }
 
-    class CheckUploadAllowedFragment : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            return inflater.inflate(R.layout.fragment_upload_check, container, false)
-        }
-    }
-
-    class UploadLimitReachedFragment : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            return inflater.inflate(R.layout.fragment_upload_limit_reached, container, false)
-        }
-    }
-
-    class SomethingWentWrongFragment : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            return inflater.inflate(R.layout.fragment_upload_something_went_wrong, container, false)
-        }
-    }
+    class CheckUploadAllowedFragment : Fragment(R.layout.fragment_upload_check)
+    class UploadLimitReachedFragment : Fragment(R.layout.fragment_upload_limit_reached)
+    class SomethingWentWrongFragment : Fragment(R.layout.fragment_upload_something_went_wrong)
 
     companion object {
         const val MEDIA_TYPE_IMAGE = "image/*"

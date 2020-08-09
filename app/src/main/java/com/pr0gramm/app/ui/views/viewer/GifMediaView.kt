@@ -1,10 +1,10 @@
 package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
-import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.PlayerGifBinding
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.ui.views.BusyIndicator
@@ -12,7 +12,6 @@ import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
 import kotlinx.coroutines.flow.collect
-import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
 
 /**
@@ -21,13 +20,13 @@ import pl.droidsonroids.gif.GifDrawable
 class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.player_gif) {
     private val gifDrawableLoader: GifDrawableLoader by instance()
 
-    private val imageView: ImageView by bindView(R.id.image)
+    private val views = PlayerGifBinding.bind(this)
 
     // the gif that is shown
     private var gif: GifDrawable? = null
 
     init {
-        imageView.alpha = 0f
+        views.image.alpha = 0f
 
         onAttachedScope {
             if (gif == null) {
@@ -37,7 +36,7 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
 
         // cleanup on detach!
         addOnDetachListener {
-            imageView.setImageDrawable(null)
+            views.image.setImageDrawable(null)
 
             gif?.recycle()
             gif = null
@@ -64,17 +63,17 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
         if (state.drawable != null && isAttachedToWindow) {
             this.gif = state.drawable
 
-            imageView.setImageDrawable(state.drawable)
+            views.image.setImageDrawable(state.drawable)
 
             viewAspect = state.drawable.intrinsicWidth.toFloat() / state.drawable.intrinsicHeight
 
             if (isPlaying) {
-                imageView.animate().alpha(1f)
+                views.image.animate().alpha(1f)
                         .withEndAction { onMediaShown() }
                         .setDuration(MediaView.ANIMATION_DURATION)
                         .start()
             } else {
-                imageView.alpha = 1f
+                views.image.alpha = 1f
                 state.drawable.stop()
             }
         }
@@ -86,7 +85,7 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
     }
 
     override fun onPreviewRemoved() {
-        imageView.isVisible = true
+        views.image.isVisible = true
     }
 
     override fun currentVideoProgress(): ProgressInfo? {

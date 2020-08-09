@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.paging.*
 import androidx.recyclerview.widget.ConcatAdapter
@@ -12,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.FragmentConversationBinding
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.SimpleTextWatcher
@@ -29,13 +29,10 @@ import kotlin.time.seconds
 
 /**
  */
-class ConversationFragment : BaseFragment("ConversationFragment") {
+class ConversationFragment : BaseFragment("ConversationFragment", R.layout.fragment_conversation) {
     private val notifyService: NotificationService by instance()
 
-    private val listView: RecyclerView by bindView(R.id.messages)
-
-    private val messageText: TextView by bindView(R.id.message_input)
-    private val buttonSend: ImageButton by bindView(R.id.action_send)
+    private val views by bindViews(FragmentConversationBinding::bind)
 
     private val conversationAdapter = ConversationAdapter()
     private val pendingMessagesAdapter = PendingMessagesAdapter()
@@ -77,10 +74,6 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_conversation, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -112,26 +105,26 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
             }
         })
 
-        listView.itemAnimator = null
+        views.messages.itemAnimator = null
 
-        listView.layoutManager = LinearLayoutManager(activity).apply {
+        views.messages.layoutManager = LinearLayoutManager(activity).apply {
             stackFromEnd = true
         }
 
-        listView.adapter = adapter
+        views.messages.adapter = adapter
 
         setTitle(conversationName)
         setHasOptionsMenu(true)
 
-        messageText.addTextChangedListener(object : SimpleTextWatcher() {
+        views.messageInput.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                buttonSend.isEnabled = s.toString().isNotBlank()
+                views.actionSend.isEnabled = s.toString().isNotBlank()
             }
         })
 
-        TextViewCache.addCaching(messageText, "conversation:$conversationName")
+        TextViewCache.addCaching(views.messageInput, "conversation:$conversationName")
 
-        buttonSend.setOnClickListener {
+        views.actionSend.setOnClickListener {
             sendInboxMessage()
         }
     }
@@ -161,7 +154,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
      * Returns true, if the user has scrolled to the current end of the conversation.
      */
     private fun isAtConversationTail(): Boolean {
-        val llm = listView.layoutManager as? LinearLayoutManager
+        val llm = views.messages.layoutManager as? LinearLayoutManager
         return llm?.findLastVisibleItemPosition() == adapter.lastIndex
     }
 
@@ -193,10 +186,10 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
     }
 
     private fun sendInboxMessage() {
-        val message = messageText.text.trim().toString()
+        val message = (views.messageInput.text ?: "").trim().toString()
 
         // directly clear the input field
-        messageText.text = ""
+        views.messageInput.setText("")
 
         // send the message
         launchWhenCreated { model.send(message) }
@@ -204,7 +197,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 
     private fun scrollToEndOfConversation() {
         if (adapter.lastIndex >= 0) {
-            val lm = listView.layoutManager as LinearLayoutManager
+            val lm = views.messages.layoutManager as LinearLayoutManager
             lm.startSmoothScroll(EndOfViewSmoothScroller(requireContext(), adapter.lastIndex))
         }
     }
@@ -214,7 +207,7 @@ class ConversationFragment : BaseFragment("ConversationFragment") {
 val RecyclerView.Adapter<*>.lastIndex: Int
     get() = itemCount - 1
 
-class SimpleLoadStateAdapter : LoadStateAdapter<RecyclerView.ViewHolder>() {
+private class SimpleLoadStateAdapter : LoadStateAdapter<RecyclerView.ViewHolder>() {
     override fun getStateViewType(loadState: LoadState): Int {
         return when (loadState) {
             is LoadState.Loading -> R.layout.feed_hint_loading

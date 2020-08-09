@@ -103,7 +103,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
-            android:id="@+id/opinion_hint"
+            android:id="@+id/tag_opinion_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
@@ -144,7 +144,7 @@
             android:visibility="gone" />
 
         <com.pr0gramm.app.ui.upload.SimilarImageView
-            android:id="@+id/similar_list"
+            android:id="@+id/similar_images"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:layout_marginBottom="8dp"

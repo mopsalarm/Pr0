@@ -20,6 +20,7 @@ class LogoutDialogFragment : BaseDialogFragment("LogoutDialogFragment") {
     }
 
     private fun logout() {
-        (activity as? MainActionHandler)?.onLogoutClicked()
+        val handler = activity as MainActionHandler
+        handler.onLogoutClicked()
     }
 }

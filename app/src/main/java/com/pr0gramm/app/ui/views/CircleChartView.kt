@@ -3,43 +3,29 @@ package com.pr0gramm.app.ui.views
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.view.ViewCompat
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.CircleChartViewBinding
 import com.pr0gramm.app.ui.BaseDrawable
 import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
-import kotterknife.bindView
-import kotterknife.bindViews
 
-class CircleChartView : AspectLayout {
-    private val viewValue: TextView by bindView(R.id.value)
-    private val viewLines: List<TextView> by bindViews(R.id.line1, R.id.line2, R.id.line3)
+class CircleChartView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AspectLayout(context, attrs, defStyleAttr) {
+    private val views = CircleChartViewBinding.inflate(layoutInflater, this)
+
+    private val viewLines = listOf(
+            views.line1, views.line2, views.line3,
+    )
 
     private val chart = CircleChartDrawable()
 
-    @JvmOverloads
-    constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
-        inflate(context, R.layout.circle_chart_view, this)
-
-        aspect = 1f
-
-        context.theme.obtainStyledAttributes(attrs, R.styleable.CircleChartView, 0, 0).use {
-            viewLines[0].text = it.getString(R.styleable.CircleChartView_lineTop) ?: ""
-            viewLines[2].text = it.getString(R.styleable.CircleChartView_lineBottom) ?: ""
-
-            viewLines[1].text = it.getString(R.styleable.CircleChartView_chartType) ?: "POST"
-        }
-
-        ViewCompat.setBackground(this, chart)
-    }
-
     var chartValues: List<Value> by observeChange(listOf()) {
         val score = chartValues.sumBy { it.amount }
-        viewValue.text = formatScore(score)
+        views.value.text = formatScore(score)
         chart.invalidateSelf()
     }
 
@@ -86,6 +72,17 @@ class CircleChartView : AspectLayout {
     }
 
     class Value(val amount: Int, @ColorInt val color: Int)
+
+    init {
+        aspect = 1f
+        context.theme.obtainStyledAttributes(attrs, R.styleable.CircleChartView, 0, 0).use {
+            viewLines[0].text = it.getString(R.styleable.CircleChartView_lineTop) ?: ""
+            viewLines[2].text = it.getString(R.styleable.CircleChartView_lineBottom) ?: ""
+
+            viewLines[1].text = it.getString(R.styleable.CircleChartView_chartType) ?: "POST"
+        }
+        ViewCompat.setBackground(this, chart)
+    }
 }
 
 fun formatScore(value: Int): String {

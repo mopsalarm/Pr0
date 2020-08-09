@@ -58,7 +58,7 @@
         android:theme="?searchTheme">
 
         <TextView
-            android:id="@+id/minimum_benis_label"
+            android:id="@+id/minimum_score_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
@@ -68,7 +68,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <SeekBar
-            android:id="@+id/minimum_benis_slider"
+            android:id="@+id/minimum_score_slider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
@@ -109,7 +109,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <com.pr0gramm.app.ui.views.PlainEditText
-            android:id="@+id/without_tags_text"
+            android:id="@+id/custom_excludes"
             style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_marginTop="8dp"
-    android:orientation="vertical">
-
-    <ListView
-        android:id="@+id/reason"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_weight="1" />
-
-    <EditText
-        android:id="@+id/custom_reason"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:hint="@string/reason" />
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBox
         android:id="@+id/soft_delete"
@@ -45,16 +25,15 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:minEms="3"
-            android:text="1"
-            tools:ignore="HardcodedText" />
+            android:text="1" />
     </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/block_mode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp" />
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp" />
 
-</LinearLayout>
+</merge>

@@ -2,46 +2,44 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.view.View
-import android.widget.TextView
 import androidx.core.view.isVisible
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.PlayerKindImageBinding
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.injector
-import kotterknife.bindView
 import kotlin.math.max
 
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
-    private val CAP_IMAGE_RATIO = 1f / 30f
+    private val capImageRatio = 1f / 64f
 
     private val tag = "ImageMediaView" + System.identityHashCode(this)
 
-    private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
-    private val errorIndicator: TextView by bindView(R.id.error)
+    private val views = PlayerKindImageBinding.bind(this)
 
     init {
-        imageView.visibility = View.VISIBLE
-        imageView.alpha = 0f
-        imageView.isZoomEnabled = false
-        imageView.isQuickScaleEnabled = false
-        imageView.isPanEnabled = false
+        views.image.visibility = View.VISIBLE
+        views.image.alpha = 0f
+        views.image.isZoomEnabled = false
+        views.image.isQuickScaleEnabled = false
+        views.image.isPanEnabled = false
 
         debugOnly {
-            imageView.setDebug(true)
+            views.image.setDebug(true)
         }
 
         // try not to use too much memory, even on big devices
-        imageView.setMaxTileSize(2048)
+        views.image.setMaxTileSize(2048)
 
-        imageView.setBitmapDecoderFactory(PicassoDecoder.factory(tag, picasso))
-        imageView.setRegionDecoderFactory(Decoders.regionDecoderFactory(context.injector.instance()))
+        views.image.setBitmapDecoderFactory(PicassoDecoder.factory(tag, picasso))
+        views.image.setRegionDecoderFactory(Decoders.regionDecoderFactory(context.injector.instance()))
 
-        imageView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
+        views.image.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onImageLoaded() {
                 hideBusyIndicator()
                 onMediaShown()
@@ -57,49 +55,49 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
             }
         })
 
-        imageView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            if (imageView.sWidth > 0 && imageView.sHeight > 0) {
+        views.image.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (views.image.sWidth > 0 && views.image.sHeight > 0) {
                 applyScaling()
             }
         }
 
 //        addOnDetachListener {
 //            picasso.cancelTag(tag)
-//            imageView.recycle()
-//            imageView.setOnImageEventListener(null)
-//            imageView.removeFromParent()
+//            views.image.recycle()
+//            views.image.setOnImageEventListener(null)
+//            views.image.removeFromParent()
 //        }
 
         // start loading
         val tiling = config.previewInfo?.let { it.width > 2000 || it.height > 2000 } ?: false
-        imageView.setImage(ImageSource.uri(effectiveUri).tiling(tiling))
+        views.image.setImage(ImageSource.uri(effectiveUri).tiling(tiling))
 
         showBusyIndicator()
     }
 
     internal fun applyScaling() {
-        val ratio = imageView.sWidth.toFloat() / imageView.sHeight.toFloat()
-        val ratioCapped = max(ratio, CAP_IMAGE_RATIO)
+        val ratio = views.image.sWidth.toFloat() / views.image.sHeight.toFloat()
+        val ratioCapped = max(ratio, capImageRatio)
 
         viewAspect = ratioCapped
 
-        val viewWidth = imageView.width.toFloat()
-        val viewHeight = imageView.height.toFloat()
+        val viewWidth = views.image.width.toFloat()
+        val viewHeight = views.image.height.toFloat()
 
-        val maxScale = viewWidth / imageView.sWidth
-        val minScale = viewHeight / imageView.sHeight
+        val maxScale = viewWidth / views.image.sWidth
+        val minScale = viewHeight / views.image.sHeight
 
-        imageView.minScale = minScale
-        imageView.maxScale = maxScale
-        imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
-        imageView.resetScaleAndCenter()
+        views.image.minScale = minScale
+        views.image.maxScale = maxScale
+        views.image.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
+        views.image.resetScaleAndCenter()
     }
 
     override fun onMediaShown() {
-        imageView.isVisible = true
+        views.image.isVisible = true
 
-        if (imageView.alpha == 0f) {
-            imageView.animate().alpha(1f)
+        if (views.image.alpha == 0f) {
+            views.image.animate().alpha(1f)
                     .setDuration(MediaView.ANIMATION_DURATION)
                     .withEndAction { super.onMediaShown() }
                     .start()
@@ -110,12 +108,12 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
 
     @SuppressLint("SetTextI18n")
     internal fun showErrorIndicator(error: Exception) {
-        errorIndicator.visibility = View.VISIBLE
-        errorIndicator.alpha = 0f
-        errorIndicator.animate().alpha(1f).start()
+        views.error.visibility = View.VISIBLE
+        views.error.alpha = 0f
+        views.error.animate().alpha(1f).start()
 
         // set a more useful error message
-        errorIndicator.text = context.getText(R.string.could_not_load_image).toString() +
+        views.error.text = context.getText(R.string.could_not_load_image).toString() +
                 "\n\n" + ErrorFormatting.getFormatter(error).getMessage(context, error)
     }
 }

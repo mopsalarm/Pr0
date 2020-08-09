@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
-import android.os.Bundle
 import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
@@ -9,9 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.AdminTagsDetailsBinding
 import com.pr0gramm.app.services.AdminService
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
@@ -23,21 +22,16 @@ import com.pr0gramm.app.util.removeFromParent
 
 /**
  */
-class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
+class TagsDetailsDialog : ViewBindingDialogFragment<AdminTagsDetailsBinding>("TagsDetailsDialog", AdminTagsDetailsBinding::inflate) {
     private val adminService: AdminService by instance()
 
     private val itemId: Long by fragmentArgument(name = KEY_FEED_ITEM_ID)
 
-    private val tagsView: androidx.recyclerview.widget.RecyclerView by bindView(R.id.tags)
-    private val busyView: View by bindView(R.id.busy_indicator)
-    private val blockUser: CheckBox by bindView(R.id.block_user)
-    private val blockUserDays: TextView by bindView(R.id.block_user_days)
-
     private val selected: MutableSet<Long> = mutableSetOf()
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateDialog(contentView: View): Dialog {
         return dialog(requireContext()) {
-            layout(R.layout.admin_tags_details)
+            contentView(contentView)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.action_delete) { onDeleteClicked() }
             noAutoDismiss()
@@ -45,7 +39,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     override fun onDialogViewCreated() {
-        tagsView.layoutManager = LinearLayoutManager(
+        views.recyclerView.layoutManager = LinearLayoutManager(
                 requireDialog().context, RecyclerView.VERTICAL, false)
 
         launchWhenStarted {
@@ -56,7 +50,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     private fun showTagsDetails(tagDetails: Api.TagDetails) {
         // set the new tags and notify the recycler view to redraw itself.
         updateTagsAdapter(tagDetails.tags.sortedBy { it.confidence })
-        busyView.removeFromParent()
+        views.busyIndicator.removeFromParent()
     }
 
     private fun onDeleteClicked() {
@@ -65,7 +59,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
             return
         }
 
-        val blockAmountStr = if (blockUser.isChecked) blockUserDays.text.toString() else ""
+        val blockAmountStr = if (views.blockUser.isChecked) views.blockUserDays.text.toString() else ""
         val blockAmount = blockAmountStr.toFloatOrNull()
 
         launchWhenStarted(busyIndicator = true) {
@@ -75,7 +69,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     private fun updateTagsAdapter(tags: List<Api.TagDetails.TagInfo>) {
-        tagsView.adapter = recyclerViewAdapter(tags) {
+        views.recyclerView.adapter = recyclerViewAdapter(tags) {
             handle<Api.TagDetails.TagInfo>() with layout(R.layout.tags_details) { holder ->
                 val info: TextView = holder.find(R.id.tag_info)
                 val checkbox: CheckBox = holder.find(R.id.tag_text)
@@ -95,8 +89,8 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
                             selected.remove(item.id)
                         }
 
-                        if (changed && adapterPosition != -1) {
-                            tagsView.adapter?.notifyItemChanged(adapterPosition)
+                        if (changed && bindingAdapterPosition != -1) {
+                            views.recyclerView.adapter?.notifyItemChanged(bindingAdapterPosition)
                         }
                     }
                 }
@@ -105,7 +99,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     companion object {
-        private val KEY_FEED_ITEM_ID = "TagsDetailsDialog__feedItem"
+        private const val KEY_FEED_ITEM_ID = "TagsDetailsDialog__feedItem"
 
         fun newInstance(itemId: Long) = TagsDetailsDialog().arguments {
             putLong(KEY_FEED_ITEM_ID, itemId)

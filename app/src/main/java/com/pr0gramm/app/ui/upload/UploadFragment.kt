@@ -8,10 +8,11 @@ import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.CompoundButton
+import android.widget.FrameLayout
+import android.widget.RadioButton
 import androidx.annotation.MainThread
 import androidx.core.text.bold
 import androidx.core.text.inSpans
@@ -20,9 +21,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.FragmentUploadBinding
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
@@ -33,7 +34,6 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.showDialog
-import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
@@ -50,25 +50,13 @@ import java.io.IOException
 /**
  * This activity performs the actual upload.
  */
-class UploadFragment : BaseFragment("UploadFragment") {
+class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) {
     private val uploadService: UploadService by instance()
     private val rulesService: RulesService by instance()
 
-    private val config: Config by instance()
     private val tagSuggestions: TagSuggestionService by instance()
 
-    private val busyContainer: View by bindView(R.id.busy_container)
-    private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
-    private val busyState: TextView by bindView(R.id.busy_state)
-
-    private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
-    private val preview: FrameLayout by bindView(R.id.preview)
-    private val scrollView: ScrollView by bindView(R.id.scroll_view)
-    private val similarHintView: View by bindView(R.id.similar_hint)
-    private val similarImages: SimilarImageView by bindView(R.id.similar_list)
-    private val tags: MultiAutoCompleteTextView by bindView(R.id.tags)
-    private val upload: Button by bindView(R.id.upload)
-    private val tagOpinionHint: View by bindView(R.id.opinion_hint)
+    private val views by bindViews(FragmentUploadBinding::bind)
 
     private var file: File? = null
     private var fileMediaType: MediaUri.MediaType? = null
@@ -77,10 +65,6 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
     private var urlArgument: Uri? by optionalFragmentArgument()
     private var mediaTypeArgument: String? by optionalFragmentArgument(default = "image/*")
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_upload, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,25 +78,25 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
 
         // enable auto-complete
-        tagSuggestions.setupView(tags)
+        tagSuggestions.setupView(views.tags)
 
         // add the small print to the view
         launchUntilViewDestroy {
             rulesService.displayInto(view.find(R.id.small_print))
         }
 
-        upload.setOnClickListener { onUploadClicked() }
+        views.upload.setOnClickListener { onUploadClicked() }
 
         // react on change in the tag input window
-        tags.addTextChangedListener { text ->
-            tagOpinionHint.isVisible = tagSuggestions.containsQuestionableTag(text)
+        views.tags.addTextChangedListener { text ->
+            views.tagOpinionHint.isVisible = tagSuggestions.containsQuestionableTag(text)
         }
 
         val types = listOf(R.id.upload_type_sfw, R.id.upload_type_nsfp, R.id.upload_type_nsfw, R.id.upload_type_nsfl)
         types.forEach { viewId ->
             view.findOptional<CompoundButton>(viewId)?.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    upload.isEnabled = true
+                    views.upload.isEnabled = true
                 }
             }
         }
@@ -167,11 +151,11 @@ class UploadFragment : BaseFragment("UploadFragment") {
             is UploadService.State.Uploading -> {
                 if (state.progress < 0.99) {
                     logger.info { "Uploading, progress is ${state.progress}" }
-                    busyIndicator.progress = state.progress
+                    views.busyIndicator.progress = state.progress
                 } else {
                     logger.info { "Uploading, progress is nearly finished" }
-                    if (!busyIndicator.isSpinning)
-                        busyIndicator.spin()
+                    if (!views.busyIndicator.isSpinning)
+                        views.busyIndicator.spin()
                 }
             }
 
@@ -200,7 +184,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
             else -> {
                 logger.info { "Upload state: $state" }
-                busyIndicator.spin()
+                views.busyIndicator.spin()
             }
         }
 
@@ -216,10 +200,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
 
         if (text == null) {
-            busyState.isVisible = false
+            views.busyState.isVisible = false
         } else {
-            busyState.isVisible = true
-            busyState.text = text
+            views.busyState.isVisible = true
+            views.busyState.text = text
         }
     }
 
@@ -230,24 +214,24 @@ class UploadFragment : BaseFragment("UploadFragment") {
         // get those from UI
         val type = selectedContentType()
 
-        val tags = tags.text.split('#', ',')
+        val tags = (views.tags.text ?: "").split('#', ',')
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .toSet()
 
         val uploadInfo = uploadInfo
 
-        busyContainer.isVisible = true
+        views.busyContainer.isVisible = true
 
         launchUntilViewDestroy {
             logger.info { "Start upload of type $type with tags $tags" }
 
             // start the upload
             val uploadStates = if (uploadInfo == null) {
-                busyIndicator.progress = 0f
+                views.busyIndicator.progress = 0f
                 uploadService.upload(file, type, tags)
             } else {
-                busyIndicator.spin()
+                views.busyIndicator.spin()
                 uploadService.post(uploadInfo, type, tags, false)
             }
 
@@ -260,27 +244,27 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 onUploadError(err)
             }
 
-            busyContainer.isVisible = false
+            views.busyContainer.isVisible = false
         }
 
         // scroll back up
-        scrollView.fullScroll(View.FOCUS_UP)
+        views.scrollView.fullScroll(View.FOCUS_UP)
     }
 
     private fun showSimilarPosts(similar: List<Api.Posted.SimilarItem>) {
-        similarHintView.isVisible = true
-        similarImages.isVisible = true
-        similarImages.items = similar
+        views.similarHint.isVisible = true
+        views.similarImages.isVisible = true
+        views.similarImages.items = similar
 
-        similarHintView.requestFocus()
+        views.similarHint.requestFocus()
     }
 
     private fun setFormEnabled(enabled: Boolean) {
-        upload.isEnabled = enabled
-        tags.isEnabled = enabled
+        views.upload.isEnabled = enabled
+        views.tags.isEnabled = enabled
 
-        for (idx in 0..contentTypeGroup.childCount - 1) {
-            val view = contentTypeGroup.getChildAt(idx)
+        for (idx in 0 until views.contentTypeGroup.childCount) {
+            val view = views.contentTypeGroup.getChildAt(idx)
             view.isEnabled = enabled
         }
     }
@@ -318,7 +302,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val activity = activity ?: return
 
-        busyContainer.isVisible = true
+        views.busyContainer.isVisible = true
 
         launchWhenViewCreated(busyIndicator = true) {
             logger.info { "copy image to private memory" }
@@ -387,10 +371,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         viewer.addOnAttachListener { viewer.playMedia() }
 
-        preview.removeAllViews()
-        preview.addView(viewer)
+        views.preview.removeAllViews()
+        views.preview.addView(viewer)
 
-        busyContainer.isVisible = false
+        views.busyContainer.isVisible = false
     }
 
     private fun handleSizeNotOkay() {

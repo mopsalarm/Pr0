@@ -1,15 +1,12 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.liveData
-import androidx.lifecycle.observe
-import androidx.viewpager.widget.ViewPager
-import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.FragmentFavoritesBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.CollectionsService
@@ -19,16 +16,15 @@ import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.TabsStateAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 
 /**
  */
-class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
-    private val pager: ViewPager by bindView(R.id.favorites_pager)
-    private val tabLayout: TabLayout by bindView(R.id.tabs)
+class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_favorites), FilterFragment {
+    private val views by bindViews(FragmentFavoritesBinding::bind)
 
     private val userService: UserService by instance()
     private val collectionsService: CollectionsService by instance()
@@ -37,10 +33,6 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
 
     override var currentFilter = FeedFilter().withFeedType(FeedType.NEW)
         private set
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_favorites, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,7 +56,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         currentFilter = currentFilter.withCollection(argUsername, "**ANY", "**ANY")
 
         collectionsLiveData.observe(viewLifecycleOwner) { collections ->
-            pager.adapter = TabsStateAdapter(requireContext(), this).apply {
+            views.favoritesPager.adapter = TabsStateAdapter(requireContext(), this).apply {
                 for (collection in collections) {
                     val filter = FeedFilter()
                             .withFeedType(FeedType.NEW)
@@ -83,9 +75,9 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
             }
         }
 
-        pager.offscreenPageLimit = 2
+        views.favoritesPager.offscreenPageLimit = 2
 
-        tabLayout.setupWithViewPager(pager)
+        views.tabs.setupWithViewPager(views.favoritesPager)
 
         if (ownView) {
             // trigger a reload of the users collections

@@ -1,39 +1,43 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
-import android.os.Bundle
-import android.widget.*
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.Spinner
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.AdminActionDialogBinding
+import com.pr0gramm.app.databinding.AdminBanUserBinding
+import com.pr0gramm.app.databinding.AdminDeleteCommentBinding
+import com.pr0gramm.app.databinding.AdminDeleteItemBinding
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindOptionalView
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.layoutInflater
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
 /**
  */
-class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
+class ItemUserAdminDialog : ViewBindingDialogFragment<AdminActionDialogBinding>("ItemUserAdminDialog", AdminActionDialogBinding::inflate) {
     private val adminService: AdminService by instance()
     private val configService: ConfigService by instance()
 
-    private val reasonListView: ListView by bindView(R.id.reason)
-    private val customReasonText: EditText by bindView(R.id.custom_reason)
-
-    private val blockUser: CheckBox? by bindOptionalView(R.id.block_user)
-    private val blockUserForDays: EditText? by bindOptionalView(R.id.block_user_days)
-    private val blockMode: Spinner? by bindOptionalView(R.id.block_mode)
-
-    private val deleteSoft: CheckBox? by bindOptionalView(R.id.soft_delete)
+    // extra views
+    private var blockUser: CheckBox? = null
+    private var blockUserForDays: EditText? = null
+    private var blockMode: Spinner? = null
+    private var deleteSoft: CheckBox? = null
 
     private val reasons: List<String> by lazy { configService.config().adminReasons }
 
@@ -42,16 +46,33 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val item: FeedItem? by lazy { arguments?.getParcelableOrNull(KEY_FEED_ITEM) }
     private val comment: Long? by lazy { arguments?.getLong(KEY_COMMENT)?.takeIf { it > 0 } }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val layout = when {
-            comment != null -> R.layout.admin_delete_comment
-            user != null -> R.layout.admin_ban_user
-            item != null -> R.layout.admin_delete_item
-            else -> throw IllegalArgumentException()
+    override fun onCreateDialog(contentView: View): Dialog {
+        when {
+            comment != null -> {
+                val view = AdminDeleteCommentBinding.inflate(contentView.layoutInflater, contentView as ViewGroup)
+                blockUser = view.blockUser
+                blockUserForDays = view.blockUserDays
+                blockMode = view.blockMode
+                deleteSoft = view.softDelete
+            }
+
+            user != null -> {
+                val view = AdminBanUserBinding.inflate(contentView.layoutInflater, contentView as ViewGroup)
+                blockUser = view.blockUser
+                blockUserForDays = view.blockUserDays
+                blockMode = view.blockMode
+            }
+
+            item != null -> {
+                val view = AdminDeleteItemBinding.inflate(contentView.layoutInflater, contentView as ViewGroup)
+                blockUser = view.blockUser
+                blockUserForDays = view.blockUserDays
+                blockMode = view.blockMode
+            }
         }
 
         return dialog(requireContext()) {
-            layout(layout)
+            contentView(contentView)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.okay) { onConfirmClicked() }
             noAutoDismiss()
@@ -61,8 +82,8 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     override fun onDialogViewCreated() {
         val dialog = requireDialog()
 
-        reasonListView.adapter = ArrayAdapter(dialog.context,
-                android.R.layout.simple_list_item_1, reasons)
+        views.reasons.adapter = ArrayAdapter(
+                dialog.context, android.R.layout.simple_list_item_1, reasons)
 
         blockUser?.let { blockUser ->
             blockMode?.isEnabled = blockUser.isChecked
@@ -81,13 +102,13 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
         blockMode?.setSelection(0)
 
-        reasonListView.setOnItemClickListener { _, _, position, _ ->
-            customReasonText.setText(reasons[position])
+        views.reasons.setOnItemClickListener { _, _, position, _ ->
+            views.customReason.setText(reasons[position])
         }
     }
 
     private fun onConfirmClicked() {
-        val reason = customReasonText.text.toString().trim()
+        val reason = views.customReason.text.toString().trim()
         if (reason.isEmpty()) {
             return
         }

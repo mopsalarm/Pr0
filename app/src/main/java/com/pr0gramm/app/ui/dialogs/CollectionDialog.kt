@@ -1,15 +1,17 @@
 package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
-import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.BaseAdapter
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.DialogCollectionCreateBinding
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.showDialog
@@ -18,22 +20,25 @@ import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
-class CollectionDialog : BaseDialogFragment("CollectionDialog") {
+class CollectionDialog : ViewBindingDialogFragment<DialogCollectionCreateBinding>("CollectionDialog", DialogCollectionCreateBinding::inflate) {
+
     private val collectionsService: CollectionsService by instance()
     private val collectionItemService: CollectionItemsService by instance()
     private val userService: UserService by instance()
 
     private val editCollectionId: Long? by optionalFragmentArgument(name = "editCollectionId")
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateDialog(contentView: View): Dialog {
         // lookup collection to edit if it exists.
         val editCollection: PostCollection? = editCollectionId?.let { collectionsService.byId(it) }
 
         return dialog(requireContext()) {
             title(if (editCollection != null) R.string.collection_edit else R.string.collection_new)
-            layout(R.layout.dialog_collection_create)
+
             positive(R.string.action_save)
             negative { dismissAllowingStateLoss() }
+
+            contentView(contentView)
 
             if (editCollection != null) {
                 neutral(R.string.action_delete) { askToDeleteCollection(editCollection.id) }
@@ -46,32 +51,28 @@ class CollectionDialog : BaseDialogFragment("CollectionDialog") {
     }
 
     private fun configureDialog(dialog: Dialog, editCollection: PostCollection?) {
-        val spinner = dialog.find<Spinner>(R.id.privacy_options)
-        spinner.adapter = PrivacySpinnerAdapter()
-        spinner.setSelection(if (editCollection?.isPublic == true) 1 else 0)
+        views.privacyOptions.adapter = PrivacySpinnerAdapter()
+        views.privacyOptions.setSelection(if (editCollection?.isPublic == true) 1 else 0)
 
         val buttonView: Button = dialog.find(android.R.id.button1)
         buttonView.isEnabled = editCollection != null
 
+        views.name.setText(editCollection?.title ?: "")
 
-        val nameView = dialog.find<TextView>(R.id.name)
-        nameView.text = editCollection?.title ?: ""
-
-        nameView.addTextChangedListener { changedText ->
+        views.name.addTextChangedListener { changedText ->
             val name = changedText.toString().trim()
             val isValidName = collectionsService.isValidNameForNewCollection(name)
             buttonView.isEnabled = isValidName
         }
 
 
-        val defaultCollectionView: CompoundButton = dialog.find(R.id.default_collection)
-        defaultCollectionView.isChecked = editCollection?.isDefault ?: collectionsService.defaultCollection == null
-        defaultCollectionView.isEnabled = userService.userIsPremium
+        views.defaultCollection.isChecked = editCollection?.isDefault ?: collectionsService.defaultCollection == null
+        views.defaultCollection.isEnabled = userService.userIsPremium
 
         buttonView.setOnClickListener {
-            val name = nameView.text.toString().trim()
-            val isPublic = spinner.selectedItemId == 1L
-            val isDefault = defaultCollectionView.isChecked
+            val name = views.name.text.toString().trim()
+            val isPublic = views.privacyOptions.selectedItemId == 1L
+            val isDefault = views.defaultCollection.isChecked
 
             if (editCollection == null) {
                 createCollection(name, isPublic, isDefault)

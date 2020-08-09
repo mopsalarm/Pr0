@@ -41,7 +41,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
 
         // Inflate the appropriate view and set up the absListView
         View.inflate(context, R.layout.list_sheet_view, this)
-        absListView = findViewById<View>(R.id.list) as AbsListView
+        absListView = findViewById<View>(R.id.recycler_view) as AbsListView
         absListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, id ->
             val item = absListView.adapter.getItem(position) as? SheetMenuItem
             if (item?.menuItem != null) {
@@ -241,7 +241,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
             return getItem(position).isEnabled
         }
 
-        internal inner class NormalViewHolder(root: View) {
+        inner class NormalViewHolder(root: View) {
             val icon: ImageView = root.find(R.id.icon) as ImageView
             val label: TextView = root.find(R.id.label) as TextView
 

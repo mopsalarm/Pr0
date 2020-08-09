@@ -1,28 +1,22 @@
 package com.pr0gramm.app.ui.upload
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.FragmentChooseMediaTypeBinding
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 
 /**
  */
-class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment") {
-    private val btnImage: View by bindView(R.id.media_type_image)
-    private val btnVideo: View by bindView(R.id.media_type_video)
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_choose_media_type, container, false)
-    }
+class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment", R.layout.fragment_choose_media_type) {
+    private val views by bindViews(FragmentChooseMediaTypeBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        btnImage.setOnClickListener { openWithType("image/*") }
-        btnVideo.setOnClickListener { openWithType("video/*") }
+        views.mediaTypeImage.setOnClickListener { openWithType("image/*") }
+        views.mediaTypeVideo.setOnClickListener { openWithType("video/*") }
     }
 
     private fun openWithType(type: String) {

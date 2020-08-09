@@ -2,10 +2,7 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.content.Intent
-import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Switch
+import android.view.View
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -13,44 +10,36 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.databinding.BookmarkEditBinding
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.orm.migrate
 import com.pr0gramm.app.orm.uri
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.ui.MainActivity
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.bottomSheet
 import com.pr0gramm.app.util.activityIntent
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.fragmentArgument
 import okio.ByteString.Companion.encodeUtf8
 
-class EditBookmarkDialog : BaseDialogFragment("EditBookmarkDialog") {
+class EditBookmarkDialog : ViewBindingDialogFragment<BookmarkEditBinding>("EditBookmarkDialog", BookmarkEditBinding::inflate) {
     private val bookmarkService: BookmarkService by instance()
 
     private val bookmarkTitle by fragmentArgument<String>("Bookmark")
 
-    private val bookmarkTitleView: EditText by bindView(R.id.bookmark_name)
-
-    private val buttonSave: Button by bindView(R.id.action_rename)
-    private val buttonDelete: Button by bindView(R.id.action_delete)
-    private val buttonShortcut: Button by bindView(R.id.action_shortcut)
-
-    private val checkMakeDefault: Switch by bindView(R.id.action_bookmark_default)
-
     private val bookmark get() = bookmarkService.byTitle(bookmarkTitle)?.migrate()
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateDialog(contentView: View): Dialog {
         return bottomSheet(requireContext()) {
             title(R.string.bookmark_editor_title)
-            layout(R.layout.bookmark_edit)
+            contentView(contentView)
         }
     }
 
     private fun renameClicked() {
-        val newTitle = bookmarkTitleView.text.toString().take(64).trim()
+        val newTitle = views.bookmarkTitle.text.toString().take(64).trim()
 
         if (newTitle.length > 1 && newTitle != bookmarkTitle) {
             renameTo(newTitle)
@@ -74,21 +63,21 @@ class EditBookmarkDialog : BaseDialogFragment("EditBookmarkDialog") {
     }
 
     override fun onDialogViewCreated() {
-        bookmarkTitleView.setText(bookmarkTitle)
+        views.bookmarkTitle.setText(bookmarkTitle)
 
-        buttonSave.setOnClickListener { renameClicked() }
+        views.actionSave.setOnClickListener { renameClicked() }
 
-        buttonDelete.setOnClickListener { deleteClicked() }
+        views.actionDelete.setOnClickListener { deleteClicked() }
 
         if (ShortcutManagerCompat.isRequestPinShortcutSupported(requireContext())) {
-            buttonShortcut.isVisible = true
-            buttonShortcut.setOnClickListener { shortcutClicked() }
+            views.actionShortcut.isVisible = true
+            views.actionShortcut.setOnClickListener { shortcutClicked() }
         }
 
         val feedStartWithThis = bookmark?.let { it.uri == Settings.get().feedStartWithUri } == true
-        checkMakeDefault.isChecked = feedStartWithThis
+        views.actionBookmarkDefault.isChecked = feedStartWithThis
 
-        checkMakeDefault.setOnCheckedChangeListener { _, isChecked ->
+        views.actionBookmarkDefault.setOnCheckedChangeListener { _, isChecked ->
             makeBookmarkTheDefaultFeed(isChecked)
         }
     }

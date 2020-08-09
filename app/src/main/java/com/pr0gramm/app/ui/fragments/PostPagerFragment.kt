@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -13,12 +12,13 @@ import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.FragmentPostPagerBinding
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchUntilViewDestroy
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.fragments.post.PostFragment
@@ -30,10 +30,10 @@ import kotlinx.coroutines.flow.filterIsInstance
 
 /**
  */
-class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, TitleFragment, PreviewInfoSource {
+class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_post_pager), FilterFragment, TitleFragment, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
-    private val viewPager: ViewPager by bindView(R.id.pager)
+    private val views by bindViews(FragmentPostPagerBinding::bind)
 
     private lateinit var adapter: PostAdapter
 
@@ -69,10 +69,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         childFragmentManager.registerFragmentLifecycleCallbacks(l, false)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_post_pager, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -93,7 +89,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             val activity = activity as ToolbarActivity
             activity.scrollHideToolbarListener.reset()
 
-            viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            views.pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {
                     activity.scrollHideToolbarListener.reset()
                     latestActivePostFragment?.exitFullscreen()
@@ -120,7 +116,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         }
 
         if (Settings.get().fancyScrollHorizontal) {
-            viewPager.setPageTransformer(false) { page: View, position: Float ->
+            views.pager.setPageTransformer(false) { page: View, position: Float ->
                 val viewer = page.findViewWithTag<View>(PostFragment.ViewerTag)
                 if (viewer != null) {
                     viewer.translationX = -(position * page.width / 2.0f)
@@ -128,8 +124,8 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
             }
         }
 
-        viewPager.adapter = adapter
-        viewPager.offscreenPageLimit = 1
+        views.pager.adapter = adapter
+        views.pager.offscreenPageLimit = 1
 
         // calculate index of the first item to show if this is the first
         // time we show this fragment.
@@ -146,7 +142,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
         val item = getArgumentStartItem(savedInstanceState)
 
-        if (adapter.feed.getOrNull(viewPager.currentItem)?.id != item.id) {
+        if (adapter.feed.getOrNull(views.pager.currentItem)?.id != item.id) {
             // the position of the view pager might have been saved. We need to re-save it now.
             logger.info { "Going to restore view position in onViewStateRestored" }
             makeItemCurrent(item)
@@ -170,7 +166,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
         val index = adapter.feed.indexById(item.id) ?: 0
 
         logger.info { "Restore feed at index: $index (${item.id})" }
-        viewPager.setCurrentItem(index, false)
+        views.pager.setCurrentItem(index, false)
     }
 
     override fun previewInfoFor(item: FeedItem): PreviewInfo? {
@@ -244,7 +240,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment"), FilterFragment, Tit
 
     private fun saveStateToBundle(outState: Bundle) {
         if (view != null && adapter.feed.isNotEmpty()) {
-            val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
+            val position = views.pager.currentItem.coerceIn(adapter.feed.indices)
 
             if (lastSavedPosition != position) {
                 lastSavedPosition = position

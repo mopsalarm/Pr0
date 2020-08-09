@@ -3,23 +3,19 @@ package com.pr0gramm.app.ui.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.databinding.FragmentInboxBinding
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.fragments.conversation.StringValue
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChange
@@ -27,11 +23,10 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-abstract class InboxFragment(name: String) : BaseFragment(name) {
+abstract class InboxFragment(name: String) : BaseFragment(name, R.layout.fragment_inbox) {
     protected val inboxService: InboxService by instance()
 
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
-    private val messagesView: RecyclerView by bindView(R.id.messages)
+    private val views by bindViews(FragmentInboxBinding::bind)
 
     private var loadStartedTimestamp = Instant(0)
 
@@ -48,20 +43,16 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
         this.pagination = pagination
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_inbox, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        messagesView.itemAnimator = null
-        messagesView.layoutManager = LinearLayoutManager(activity)
-        messagesView.adapter = adapter
-        messagesView.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
+        views.messages.itemAnimator = null
+        views.messages.layoutManager = LinearLayoutManager(activity)
+        views.messages.adapter = adapter
+        views.messages.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
 
-        swipeRefreshLayout.setOnRefreshListener { reloadInboxContent() }
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
+        views.refresh.setOnRefreshListener { reloadInboxContent() }
+        views.refresh.setColorSchemeResources(ThemeHelper.accentColor)
 
         pagination.updates.observe(viewLifecycleOwner) { (state, newValues) ->
             handleStateUpdate(state, newValues)
@@ -79,7 +70,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name) {
     }
 
     private fun reloadInboxContent() {
-        swipeRefreshLayout.isRefreshing = false
+        views.refresh.isRefreshing = false
 
         // re-set state and re-start pagination
         state = State()

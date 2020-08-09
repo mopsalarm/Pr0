@@ -22,7 +22,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <com.pr0gramm.app.ui.views.PlainEditText
-        android:id="@+id/bookmark_name"
+        android:id="@+id/bookmark_title"
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             android:text="@string/action_delete" />
 
         <Button
-            android:id="@+id/action_rename"
+            android:id="@+id/action_save"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

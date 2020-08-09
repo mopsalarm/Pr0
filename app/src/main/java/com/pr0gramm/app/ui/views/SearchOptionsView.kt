@@ -10,52 +10,45 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.ViewSearchBinding
 import com.pr0gramm.app.feed.Tags
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
-import kotterknife.bindView
 
 /**
  * View for more search options.
  */
-
 class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
     var searchQuery: Listener<SearchQuery>? = null
     var searchCanceled: Listener<Unit>? = null
 
     private val excludedTags = hashSetOf<String>()
 
-    private val searchTermView: EditText by bindView(R.id.search_term)
-    private val minimumScoreLabel: TextView by bindView(R.id.minimum_benis_label)
-    private val minimumScoreSlider: SeekBar by bindView(R.id.minimum_benis_slider)
-    private val customExcludesView: EditText by bindView(R.id.without_tags_text)
-
-    private val extendedSearchViews: View by bindView(R.id.extended_search_fields)
+    private val views = ViewSearchBinding.inflate(layoutInflater, this, true)
 
     private var pendingState: Bundle? = null
 
     val initView = Once {
-        View.inflate(context, R.layout.view_search, this)
-
-        minimumScoreSlider.max = 1000
-        minimumScoreSlider.keyProgressIncrement = 5
+        views.minimumScoreSlider.max = 1000
+        views.minimumScoreSlider.keyProgressIncrement = 5
 
         if (!isInEditMode) {
-            minimumScoreLabel.text = formatMinimumScoreValue(0)
+            views.minimumScoreLabel.text = formatMinimumScoreValue(0)
 
             // update the value field with the slider
-            minimumScoreSlider.setOnProgressChanged { value, _ ->
-                minimumScoreLabel.text = formatMinimumScoreValue(roundScoreValue(value))
+            views.minimumScoreSlider.setOnProgressChanged { value, _ ->
+                views.minimumScoreLabel.text = formatMinimumScoreValue(roundScoreValue(value))
             }
 
-            val editorListener = TextView.OnEditorActionListener { v, actionId, event ->
+            val editorListener = TextView.OnEditorActionListener { v, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     handleSearchButtonClicked()
                 }
@@ -64,14 +57,14 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             }
 
             // enter on search field should start the search
-            searchTermView.setOnEditorActionListener(editorListener)
-            customExcludesView.setOnEditorActionListener(editorListener)
+            views.searchTerm.setOnEditorActionListener(editorListener)
+            views.customExcludes.setOnEditorActionListener(editorListener)
         }
 
-        find<View>(R.id.reset_button).setOnClickListener { reset() }
-        find<View>(R.id.search_cancel).setOnClickListener { cancel() }
-        find<View>(R.id.search_advanced).setOnClickListener { showAdvancedHelpPage() }
-        find<View>(R.id.search_button).setOnClickListener { handleSearchButtonClicked() }
+        views.resetButton.setOnClickListener { reset() }
+        views.searchCancel.setOnClickListener { cancel() }
+        views.searchAdvanced.setOnClickListener { showAdvancedHelpPage() }
+        views.searchButton.setOnClickListener { handleSearchButtonClicked() }
 
         if (!isInEditMode) {
             initAutoCompleteView(context.injector.instance())
@@ -86,12 +79,12 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     fun enableSimpleSearch() {
-        extendedSearchViews.isVisible = false
+        views.extendedSearchFields.isVisible = false
         find<View>(R.id.search_advanced).isVisible = false
     }
 
     private fun initAutoCompleteView(recentSearchesServices: RecentSearchesServices) {
-        (searchTermView as? AutoCompleteTextView)?.setAdapter(
+        views.searchTerm.setAdapter(
                 RecentSearchesAutoCompleteAdapter(recentSearchesServices,
                         context, android.R.layout.simple_dropdown_item_1line))
     }
@@ -101,16 +94,16 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             "SearchOptionsView must be initialized."
         }
 
-        searchTermView.hint = hint
+        views.searchTerm.hint = hint
     }
 
     /**
      * Resets the view back to its "empty" state.
      */
     private fun reset() {
-        searchTermView.setText("")
-        customExcludesView.setText("")
-        minimumScoreSlider.progress = 0
+        views.searchTerm.setText("")
+        views.customExcludes.setText("")
+        views.minimumScoreSlider.progress = 0
 
         excludedTags.clear()
         updateTagsCheckboxes()
@@ -146,9 +139,9 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             return null
 
         return Bundle().apply {
-            putInt("minScore", minimumScoreSlider.progress)
-            putCharSequence("queryTerm", searchTermView.text)
-            putCharSequence("customWithoutTerm", customExcludesView.text)
+            putInt("minScore", views.minimumScoreSlider.progress)
+            putCharSequence("queryTerm", views.searchTerm.text)
+            putCharSequence("customWithoutTerm", views.customExcludes.text)
             putStringArray("selectedWithoutTags", excludedTags.toTypedArray())
         }
     }
@@ -163,9 +156,9 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             return
         }
 
-        minimumScoreSlider.progress = state.getInt("minScore", 0)
-        searchTermView.setText(state.getCharSequence("queryTerm", ""))
-        customExcludesView.setText(state.getCharSequence("customWithoutTerm", ""))
+        views.minimumScoreSlider.progress = state.getInt("minScore", 0)
+        views.searchTerm.setText(state.getCharSequence("queryTerm", ""))
+        views.customExcludes.setText(state.getCharSequence("customWithoutTerm", ""))
 
         // clear original tags
         excludedTags.clear()
@@ -180,12 +173,12 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private fun handleSearchButtonClicked() {
 
         // get the base search-term
-        val baseTerm = searchTermView.text.toString().trim()
+        val baseTerm = views.searchTerm.text.toString().trim()
 
         val specialTerms = mutableListOf<String>()
 
         // add minimum benis score selector
-        val score = roundScoreValue(minimumScoreSlider.progress)
+        val score = roundScoreValue(views.minimumScoreSlider.progress)
         if (score > 0) {
             specialTerms.add("s:$score")
         }
@@ -229,7 +222,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         val withoutTags = this.excludedTags.toHashSet()
 
         // add custom tags
-        customExcludesView.text.toString().toLowerCase()
+        views.customExcludes.text.toString().toLowerCase()
                 .split("\\s+".toPattern())
                 .filterTo(withoutTags) { it != "" }
 
@@ -282,9 +275,9 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
                     ?: false
 
             if (landscape) {
-                searchTermView.requestFocus()
+                views.searchTerm.requestFocus()
             } else {
-                AndroidUtility.showSoftKeyboard(searchTermView)
+                AndroidUtility.showSoftKeyboard(views.searchTerm)
             }
         }
     }
@@ -304,7 +297,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 }
 
-class Once(private val block: () -> Unit) {
+class Once(private val block: () -> Unit) : Function<Unit> {
     var initialized = false
         private set
 

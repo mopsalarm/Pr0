@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import android.widget.ScrollView
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.whenResumed
@@ -19,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
+import com.pr0gramm.app.databinding.FragmentFeedBinding
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.SFW
 import com.pr0gramm.app.parcel.getParcelableOrThrow
@@ -33,7 +33,6 @@ import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.ItemUserAdminDialog
 import com.pr0gramm.app.ui.fragments.OverscrollLinearSmoothScroller
 import com.pr0gramm.app.ui.fragments.PostPagerFragment
-import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
@@ -88,10 +87,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     private val followService: FollowService by instance()
     private val shareService: ShareService by instance()
 
-    private val recyclerView: RecyclerView by bindView(R.id.list)
-    private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
-    private val searchContainer: ScrollView by bindView(R.id.search_container)
-    private val searchView: SearchOptionsView by bindView(R.id.search_options)
+    private val views by bindViews(FragmentFeedBinding::bind)
 
     private val isNormalMode: Boolean by fragmentArgumentWithDefault(true, ARG_NORMAL_MODE)
 
@@ -152,29 +148,29 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         // prepare the list of items
         val spanCount = thumbnailColumCount
-        recyclerView.itemAnimator = null
-        recyclerView.adapter = feedAdapter
-        recyclerView.layoutManager = InternalGridLayoutManager(activity, spanCount).apply {
+        views.recyclerView.itemAnimator = null
+        views.recyclerView.adapter = feedAdapter
+        views.recyclerView.layoutManager = InternalGridLayoutManager(activity, spanCount).apply {
             spanSizeLookup = feedAdapter.SpanSizeLookup(spanCount)
         }
 
-        activity.configureRecyclerView("Feed", recyclerView)
+        activity.configureRecyclerView("Feed", views.recyclerView)
 
-        recyclerView.addOnScrollListener(onScrollListener)
+        views.recyclerView.addOnScrollListener(onScrollListener)
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.setCanChildScrollUpTest {
+        views.refresh.setCanChildScrollUpTest {
             val state = feedStateModel.feedState.value
             trace { "empty=${state.empty}, atStart=${feed.isAtStart}" }
             !state.empty && !feed.isAtStart && feed.size > 0
         }
 
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
+        views.refresh.setColorSchemeResources(ThemeHelper.accentColor)
+        views.refresh.setProgressViewOffset(false, 0, (1.5 * abHeight).toInt())
 
-        swipeRefreshLayout.setOnRefreshListener {
+        views.refresh.setOnRefreshListener {
             logger.debug { "onRefresh called for swipe view." }
-            swipeRefreshLayout.isRefreshing = false
+            views.refresh.isRefreshing = false
             refreshContent()
         }
 
@@ -183,8 +179,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         createRecyclerViewClickListener()
 
         // execute a search when we get a search term
-        searchView.searchQuery = { this.performSearch(it) }
-        searchView.searchCanceled = { hideSearchContainer() }
+        views.searchOptions.searchQuery = { this.performSearch(it) }
+        views.searchOptions.searchCanceled = { hideSearchContainer() }
 
         // restore open search
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
@@ -192,7 +188,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         // close search on click into the darkened area.
-        searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
+        views.searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
 
         launchInViewScope {
@@ -372,11 +368,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             autoScrollRef?.let { ref ->
                 logger.debug { "autoScrollRef before setting new items: $autoScrollRef" }
                 if (ref.keepScroll) {
-                    val lm = recyclerView.layoutManager as GridLayoutManager
+                    val lm = views.recyclerView.layoutManager as GridLayoutManager
 
                     val pos = lm.findLastVisibleItemPosition()
                     if (pos != RecyclerView.NO_POSITION) {
-                        val vh = recyclerView.findViewHolderForLayoutPosition(pos)
+                        val vh = views.recyclerView.findViewHolderForLayoutPosition(pos)
                         vh?.itemView?.requestFocus()
                     }
 
@@ -451,15 +447,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 .withUser(name))
     }
 
-    override fun onDestroyView() {
-        recyclerView.removeOnScrollListener(onScrollListener)
-
-        // destroy any ad views that might still exist
-        // feedAdapter.destroyAdView()
-
-        super.onDestroyView()
-    }
-
     private fun resetToolbar() {
         val activity = activity
         if (activity is ToolbarActivity) {
@@ -519,7 +506,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         // if we currently scroll the view, lets just do this later.
-        if (recyclerView.isComputingLayout) {
+        if (views.recyclerView.isComputingLayout) {
             launchInViewScope {
                 awaitFrame()
                 performAutoScroll()
@@ -629,7 +616,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
 
-        val layoutManager = recyclerView.layoutManager as? GridLayoutManager
+        val layoutManager = views.recyclerView.layoutManager as? GridLayoutManager
         return layoutManager?.let { _ ->
             // if the first row is visible, skip this stuff.
             val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
@@ -850,7 +837,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             startAt = CommentRef(query.combined.filter { it in '0'..'9' }.toLong())
         }
 
-        val searchQueryState = searchView.currentState()
+        val searchQueryState = views.searchOptions.currentState()
         (activity as MainActionHandler).onFeedFilterSelected(filter, searchQueryState, startAt)
 
         // store the term for later
@@ -909,7 +896,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
     private fun createRecyclerViewClickListener() {
-        val listener = RecyclerItemClickListener(recyclerView)
+        val listener = RecyclerItemClickListener(views.recyclerView)
 
         listener.itemClicked = { view ->
             extractFeedItemHolder(view)?.let { holder ->
@@ -925,14 +912,14 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
             if (!this@FeedFragment.isStateSaved) {
                 PopupPlayer.open(activity, holder.item)
-                swipeRefreshLayout.isEnabled = false
+                views.refresh.isEnabled = false
             }
         }
 
         listener.itemLongClickEnded = itemLongClickEnded@{
             if (!this@FeedFragment.isStateSaved) {
                 PopupPlayer.close(activity ?: return@itemLongClickEnded)
-                swipeRefreshLayout.isEnabled = true
+                views.refresh.isEnabled = true
             }
         }
 
@@ -989,7 +976,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun resetAndShowSearchContainer() {
-        searchView.applyState(initialSearchViewState())
+        views.searchOptions.applyState(initialSearchViewState())
         showSearchContainer(true)
     }
 
@@ -1004,26 +991,26 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         view.post { this.hideToolbar() }
 
         // ensure that the search view is initialized
-        searchView.initView()
+        views.searchOptions.initView()
 
         // prepare search view
         val typeName = FeedFilterFormatter.feedTypeToString(context, currentFilter.withTagsNoReset("dummy"))
-        searchView.setQueryHint(getString(R.string.action_search, typeName))
+        views.searchOptions.setQueryHint(getString(R.string.action_search, typeName))
 
         if (isNormalMode) {
             val paddingTop = AndroidUtility.getStatusBarHeight(context)
-            searchView.setPadding(0, paddingTop, 0, 0)
+            views.searchOptions.setPadding(0, paddingTop, 0, 0)
         } else {
-            searchView.enableSimpleSearch()
+            views.searchOptions.enableSimpleSearch()
         }
 
-        searchContainer.isVisible = true
+        views.searchContainer.isVisible = true
 
         if (animated) {
-            searchContainer.alpha = 0f
+            views.searchContainer.alpha = 0f
 
-            val searchView = searchView
-            searchContainer.animate()
+            val searchView = views.searchOptions
+            views.searchContainer.animate()
                     .withEndAction { searchView.requestSearchFocus() }
                     .alpha(1f)
 
@@ -1033,11 +1020,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                     .setInterpolator(DecelerateInterpolator())
                     .translationY(0f)
         } else {
-            searchContainer.animate().cancel()
-            searchContainer.alpha = 1f
+            views.searchContainer.animate().cancel()
+            views.searchContainer.alpha = 1f
 
-            searchView.animate().cancel()
-            searchView.translationY = 0f
+            views.searchOptions.animate().cancel()
+            views.searchOptions.translationY = 0f
         }
     }
 
@@ -1051,24 +1038,24 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun searchContainerIsVisible(): Boolean {
-        return view != null && searchContainer.isVisible
+        return view != null && views.searchContainer.isVisible
     }
 
     private fun hideSearchContainer() {
         if (!searchContainerIsVisible())
             return
 
-        val containerView = this.searchContainer
+        val containerView = this.views.searchContainer
         containerView.animate()
                 .withEndAction { containerView.isVisible = false }
                 .alpha(0f)
 
         val height = view?.height ?: 0
-        searchView.animate().translationY((-(0.1 * height).toInt()).toFloat())
+        views.searchOptions.animate().translationY((-(0.1 * height).toInt()).toFloat())
 
         resetToolbar()
 
-        AndroidUtility.hideSoftKeyboard(searchView)
+        AndroidUtility.hideSoftKeyboard(views.searchOptions)
     }
 
     private fun performAutoOpen(ref: CommentRef) {
@@ -1090,7 +1077,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         // prevent flickering of items before executing the child
         // fragment transaction.
-        recyclerView.visibility = View.INVISIBLE
+        views.recyclerView.visibility = View.INVISIBLE
     }
 
     private fun scrollToItem(itemId: Long, smoothScroll: Boolean = false) {
@@ -1103,12 +1090,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         logger.debug { "Found item at idx=$idx, will scroll now (smooth=$smoothScroll)" }
 
-        val recyclerView = recyclerView
         if (smoothScroll) {
-            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+            val layoutManager = views.recyclerView.layoutManager as? LinearLayoutManager ?: return
 
             // smooth scroll to the target position
-            val context = recyclerView.context
+            val context = views.recyclerView.context
             layoutManager.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
                     dontScrollIfVisible = true,
                     offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dp(32),
@@ -1116,7 +1102,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         } else {
             // over scroll a bit
-            recyclerView.scrollToPosition(idx + thumbnailColumCount)
+            views.recyclerView.scrollToPosition(idx + thumbnailColumCount)
         }
     }
 
@@ -1143,7 +1129,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 return
             }
 
-            val layoutManager = recyclerView.gridLayoutManager
+            val layoutManager = views.recyclerView.gridLayoutManager
             val totalItemCount = layoutManager.itemCount
 
             // start loading the next page pretty early.

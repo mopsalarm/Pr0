@@ -1,16 +1,15 @@
 package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
-import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.ReportItemBinding
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.ContactService
-import com.pr0gramm.app.ui.base.BaseDialogFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.di.instance
@@ -21,18 +20,16 @@ import kotlinx.coroutines.withContext
 
 /**
  */
-class ReportDialog : BaseDialogFragment("ReportDialog") {
+class ReportDialog : ViewBindingDialogFragment<ReportItemBinding>("ReportDialog", ReportItemBinding::inflate) {
     private val contactService: ContactService by instance()
     private val config: Config by instance()
-
-    private val reasonListView: ListView by bindView(R.id.reason)
 
     private var itemId: Long by fragmentArgument()
     private var commentId: Long? by optionalFragmentArgument(0)
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateDialog(contentView: View): Dialog {
         return dialog(requireContext()) {
-            layout(R.layout.report_item)
+            contentView(contentView)
             negative(R.string.cancel) { dismiss() }
             positive(R.string.okay) { onConfirmClicked() }
             noAutoDismiss()
@@ -42,7 +39,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     override fun onDialogViewCreated() {
         val dialog = requireDialog()
 
-        reasonListView.adapter = ArrayAdapter(dialog.context,
+        views.reasons.adapter = ArrayAdapter(dialog.context,
                 android.R.layout.simple_list_item_single_choice,
                 config.reportReasons)
 
@@ -51,14 +48,14 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
 
             button?.isEnabled = false
 
-            reasonListView.setOnItemClickListener { parent, view, position, id ->
+            views.reasons.setOnItemClickListener { parent, view, position, id ->
                 button?.isEnabled = true
             }
         }
     }
 
     private fun onConfirmClicked() {
-        val reason = config.reportReasons.getOrNull(reasonListView.checkedItemPosition) ?: return
+        val reason = config.reportReasons.getOrNull(views.reasons.checkedItemPosition) ?: return
 
         launchWhenStarted(busyIndicator = true) {
             withContext(NonCancellable) {

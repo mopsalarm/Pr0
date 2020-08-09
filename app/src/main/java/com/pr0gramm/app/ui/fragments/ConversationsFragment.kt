@@ -2,25 +2,23 @@ package com.pr0gramm.app.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.FragmentConversationsBinding
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.base.bindView
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchUntilPause
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.ViewUpdater
@@ -30,11 +28,10 @@ import java.util.*
 
 /**
  */
-class ConversationsFragment : BaseFragment("ConversationsFragment") {
+class ConversationsFragment : BaseFragment("ConversationsFragment", R.layout.fragment_conversations) {
     private val inboxService: InboxService by instance()
 
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
-    private val listView: RecyclerView by bindView(R.id.conversations)
+    private val views by bindViews(FragmentConversationsBinding::bind)
 
     private var state by observeChange(State()) { updateAdapterValues() }
 
@@ -65,21 +62,17 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
         adapter.submitList(values)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_conversations, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        listView.itemAnimator = null
-        listView.layoutManager = LinearLayoutManager(activity)
-        listView.adapter = adapter
-        listView.addItemDecoration(SpacingItemDecoration(dp = 8))
-        listView.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
+        views.conversations.itemAnimator = null
+        views.conversations.layoutManager = LinearLayoutManager(activity)
+        views.conversations.adapter = adapter
+        views.conversations.addItemDecoration(SpacingItemDecoration(dp = 8))
+        views.conversations.addItemDecoration(MarginDividerItemDecoration(requireContext(), marginLeftDp = 72))
 
-        swipeRefreshLayout.setOnRefreshListener { reloadConversations() }
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
+        views.refresh.setOnRefreshListener { reloadConversations() }
+        views.refresh.setColorSchemeResources(ThemeHelper.accentColor)
 
         reloadConversations()
 
@@ -92,7 +85,7 @@ class ConversationsFragment : BaseFragment("ConversationsFragment") {
     }
 
     private fun reloadConversations() {
-        swipeRefreshLayout.isRefreshing = false
+        views.refresh.isRefreshing = false
 
         // reset state and re-start pagination
         state = State()

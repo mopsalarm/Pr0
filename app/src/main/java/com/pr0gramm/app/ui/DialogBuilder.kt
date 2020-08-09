@@ -67,7 +67,8 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
 
     private var title: CharSequence? = null
     private var contentText: CharSequence? = null
-    private var contentView: Int? = null
+    private var contentViewId: Int? = null
+    private var contentView: View? = null
 
     private var onNotShown: () -> Unit = {}
 
@@ -78,6 +79,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
     fun content(content: CharSequence) {
         contentText = content
         contentView = null
+        contentViewId = null
     }
 
     fun contentWithLinks(content: String) {
@@ -103,6 +105,13 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
     }
 
     fun layout(@LayoutRes view: Int) {
+        contentViewId = view
+        contentView = null
+        contentText = null
+    }
+
+    fun contentView(view: View) {
+        contentViewId = null
         contentView = view
         contentText = null
     }
@@ -196,7 +205,7 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
 
                 // only one of those two is non zero.
                 contentText?.let { b.setTextContent(it) }
-                contentView?.let { b.setCustomContent(it) }
+                contentViewId?.let { b.setCustomContent(it) }
 
                 b
             }
@@ -210,9 +219,11 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
 
                 title?.let { b.setTitle(it) }
 
-                // only one of those two is non zero.
-                contentText?.let { b.setMessage(it) }
-                contentView?.let { b.setView(it) }
+                when {
+                    contentText != null -> b.setMessage(contentText)
+                    contentView != null -> b.setView(contentView)
+                    contentViewId != null -> b.setView(contentViewId!!)
+                }
 
                 b.create()
             }

@@ -3,14 +3,14 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_write_tag"
-        android:icon="@drawable/ic_action_add_tag"
-        android:title="@string/action_add_tags" />
-
-    <item
         android:id="@+id/action_write_comment"
         android:icon="@drawable/ic_action_add_comment"
         android:title="@string/action_add_comment" />
+
+    <item
+        android:id="@+id/action_write_tag"
+        android:icon="@drawable/ic_action_add_tag"
+        android:title="@string/action_add_tags" />
 
     <item
         android:id="@+id/action_collapse_all"

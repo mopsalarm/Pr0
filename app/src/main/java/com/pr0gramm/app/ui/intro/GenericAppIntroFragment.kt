@@ -3,19 +3,10 @@ package com.pr0gramm.app.ui.intro
 import android.os.Bundle
 import com.github.paolorotolo.appintro.AppIntroBaseFragment
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.base.HasViewCache
-import com.pr0gramm.app.ui.base.ViewCache
 
-class GenericAppIntroFragment : AppIntroBaseFragment(), HasViewCache {
-    override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
-
+class GenericAppIntroFragment : AppIntroBaseFragment() {
     override fun getLayoutId(): Int {
         return R.layout.intro_fragment_generic
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        this.viewCache.reset()
     }
 
     companion object {
