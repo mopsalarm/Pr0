@@ -562,5 +562,6 @@
     <string name="action_collapse_comments">Collapse comments</string>
     <string name="action_add_comment">Add comment</string>
     <string name="action_add_tags">Add tags</string>
+    <string name="bookmark">Bookmark</string>
 </resources>
 

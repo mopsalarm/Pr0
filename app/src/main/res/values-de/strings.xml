@@ -542,6 +542,7 @@
     <string name="action_collapse_comments">Kommentare einklappen</string>
     <string name="action_add_comment">Kommentar verfassen</string>
     <string name="action_add_tags">Tags hinzufügen</string>
+    <string name="bookmark">Lesezeichen</string>
 
 
 </resources>

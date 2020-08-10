@@ -17,5 +17,5 @@ interface TitleFragment {
      */
     val title: Title?
 
-    data class Title(val title: String, val subTitle: String? = null, val single: String? = null)
+    data class Title(val title: String? = null, val subtitle: String? = null)
 }

@@ -57,7 +57,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * The item that is displayed
      */
-    val feedItem: FeedItem by lazy {
+    val feedItem: FeedItem by lazy(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelableOrThrow(ARG_FEED_ITEM)
     }
 
@@ -108,7 +108,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private var viewer: MediaView? = null
 
-    override var title: TitleFragment.Title = TitleFragment.Title("pr0gramm")
+    // works as an override in the PostFragment. Uses only title or subtitle, if set.
+    override var title: TitleFragment.Title = TitleFragment.Title(subtitle = "…")
 
     override fun onCreate(savedInstanceState: Bundle?): Unit {
         super.onCreate(savedInstanceState)
@@ -289,8 +290,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             tag !in exclude && "loop" !in tag
         } ?: return
 
-        // use the tag as the title for this fragment.
-        this.title = TitleFragment.Title(title.text)
+        // use the tag as the new subtitle for this fragment.
+        this.title = TitleFragment.Title(subtitle = title.text)
 
         // and ping the activity to update the title
         val mainActivity = activity as? MainActivity

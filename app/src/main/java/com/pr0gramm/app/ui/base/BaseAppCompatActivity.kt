@@ -36,8 +36,6 @@ abstract class BaseAppCompatActivity(name: String) : AppCompatActivity(), LazyIn
 }
 
 fun <T : ViewBinding> AppCompatActivity.bindViews(inflate: (layoutInflater: LayoutInflater) -> T): Lazy<T> {
-    return lazy(LazyThreadSafetyMode.PUBLICATION) {
-        inflate(layoutInflater)
-    }
+    return lazy(LazyThreadSafetyMode.NONE) { inflate(layoutInflater) }
 }
 

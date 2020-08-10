@@ -8,15 +8,12 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.FragmentFavoritesBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.ui.FilterFragment
-import com.pr0gramm.app.ui.ScrollHideToolbarListener
-import com.pr0gramm.app.ui.TabsStateAdapter
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchInViewScope
 import com.pr0gramm.app.ui.fragments.FavedCommentFragment
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
-import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.getStringOrThrow
@@ -24,7 +21,7 @@ import kotlinx.coroutines.flow.collect
 
 /**
  */
-class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_favorites), FilterFragment {
+class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_favorites), FilterFragment, TitleFragment {
     private val views by bindViews(FragmentFavoritesBinding::bind)
 
     private val model by viewModels {
@@ -35,6 +32,8 @@ class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_fa
         )
     }
 
+    override var title: TitleFragment.Title? = null
+
     override var currentFilter = FeedFilter().withFeedType(FeedType.NEW)
         private set
 
@@ -43,6 +42,11 @@ class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_fa
 
         fixViewTopOffset(view)
         resetToolbar()
+
+        title = TitleFragment.Title(
+                title = getString(R.string.action_collections),
+                subtitle = model.user,
+        )
 
         currentFilter = currentFilter.withCollection(model.user, "**ANY", "**ANY")
 

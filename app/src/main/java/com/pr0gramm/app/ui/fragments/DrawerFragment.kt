@@ -136,7 +136,7 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
          * Called if a drawer filter was clicked.
          * @param filter The feed filter that was clicked.
          */
-        fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef? = null, title: String? = null)
+        fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef? = null)
 
         /*
          * Called if the user name itself was clicked.
@@ -295,7 +295,7 @@ private class NavigationDelegateAdapter(
 
             NavigationProvider.ActionType.FILTER,
             NavigationProvider.ActionType.BOOKMARK ->
-                callback.onFeedFilterSelectedInNavigation(item.filter!!, title = item.bookmark?.title)
+                callback.onFeedFilterSelectedInNavigation(item.filter!!)
 
             NavigationProvider.ActionType.UPLOAD -> {
                 showUploadActivity()

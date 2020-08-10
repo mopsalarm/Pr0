@@ -284,15 +284,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     fun updateActionbarTitle() {
         supportActionBar?.let { bar ->
             val title = (currentFragment as? TitleFragment)?.title
+                    ?: TitleFragment.Title(getString(R.string.pr0gramm))
 
-            if (title != null) {
-                bar.title = title.title
-                bar.subtitle = title.subTitle
-
-            } else {
-                bar.setTitle(R.string.pr0gramm)
-                bar.subtitle = null
-            }
+            bar.title = title.title ?: getString(R.string.pr0gramm)
+            bar.subtitle = title.subtitle
         }
     }
 
@@ -507,8 +502,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return FeedFilter().withFeedType(type)
     }
 
-    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?, title: String?) {
-        gotoFeedFragment(filter, true, start = startAt, title = title)
+    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?) {
+        gotoFeedFragment(filter, true, start = startAt)
         views.drawerLayout.closeDrawers()
     }
 
@@ -558,9 +553,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,
-                                 start: CommentRef? = null,
-                                 queryState: Bundle? = null,
-                                 title: String? = null) {
+                                 start: CommentRef? = null, queryState: Bundle? = null) {
 
         // show special fragment if we want to see overview of collections of some user.
         newFilter.username?.let { username ->
@@ -569,7 +562,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
         }
 
-        moveToFragment(FeedFragment.newInstance(newFilter, start, queryState, title), clear)
+        moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)
     }
 
     private fun moveToFragment(fragment: Fragment, clear: Boolean) {

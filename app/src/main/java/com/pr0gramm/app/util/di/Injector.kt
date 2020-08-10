@@ -252,9 +252,3 @@ interface InjectorAware {
 inline fun <reified T : Any> InjectorAware.instance(): T {
     return injector.instance()
 }
-
-inline fun <reified T : Any> lazyInject(crossinline injector: () -> Injector): Lazy<T> {
-    return lazy(LazyThreadSafetyMode.PUBLICATION) {
-        injector().instance<T>(Injector.Key(T::class.java))
-    }
-}

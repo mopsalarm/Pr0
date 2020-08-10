@@ -17,26 +17,25 @@ object FeedFilterFormatter {
      * @param filter  The filter that is to be converted into a string
      */
 
-    fun format(context: Context?, filter: FeedFilter): FeedTitle {
-        // prevent null pointer exceptions
-        context ?: return FeedTitle("", "", "")
+    fun format(context: Context, filter: FeedFilter): FeedTitle {
+        val category = feedTypeToString(context, filter)
 
         if (!filter.isBasic) {
             // TODO improve formatting logic
             filter.tags?.let { tags ->
-                return FeedTitle(cleanTags(tags), " in ", feedTypeToString(context, filter))
+                // 'Katze in Top'
+                val tagsClean = cleanTags(tags)
+                return FeedTitle(category, tagsClean, "$tagsClean in $category")
             }
 
             filter.collectionTitle?.let { collectionTitle ->
-                return FeedTitle(
-                        context.getString(R.string.filter_format_collection_of, collectionTitle, filter.username),
-                        " in ", feedTypeToString(context, filter))
+                val titleCollectionOf = context.getString(R.string.filter_format_collection_of, collectionTitle, filter.username)
+                return FeedTitle(titleCollectionOf, subtitle = "", singleline = titleCollectionOf)
             }
 
-            filter.username?.let {
-                return FeedTitle(
-                        context.getString(R.string.filter_format_tag_by) + " " + it,
-                        " in ", feedTypeToString(context, filter))
+            filter.username?.let { username ->
+                val subtitle = context.getString(R.string.filter_format_tag_by) + " " + username
+                return FeedTitle(category, subtitle, "$subtitle in $category")
             }
         }
 
@@ -55,8 +54,24 @@ object FeedFilterFormatter {
             FeedType.STALK -> context.getString(R.string.filter_format_premium)
             FeedType.PROMOTED -> context.getString(R.string.filter_format_top)
             FeedType.CONTROVERSIAL -> context.getString(R.string.filter_format_controversial)
+        }
+    }
 
-            else -> throw IllegalArgumentException("Invalid feed type")
+    fun toTitle(context: Context, filter: FeedFilter): TitleFragment.Title {
+        val bookmarkService: BookmarkService = context.injector.instance()
+
+        // format the current filter
+        val formatted = format(context, filter)
+
+        // get a more specific title from a bookmark if possible
+        val bookmarkTitle = bookmarkService.byFilter(filter)?.title
+
+        return when {
+            bookmarkTitle != null ->
+                TitleFragment.Title(bookmarkTitle, context.getString(R.string.bookmark))
+
+            else ->
+                TitleFragment.Title(formatted.title, formatted.subtitle)
         }
     }
 
@@ -83,26 +98,6 @@ object FeedFilterFormatter {
         return mid
     }
 
-    fun toTitle(context: Context, filter: FeedFilter, titleOverride: String? = null): TitleFragment.Title {
-        val bookmarkService: BookmarkService = context.injector.instance()
 
-        // format the current filter
-        val formatted = FeedFilterFormatter.format(context, filter)
-
-        // get a more specific title if possible
-        val title = titleOverride ?: bookmarkService.byFilter(filter)?.title
-
-        return if (title != null) {
-            TitleFragment.Title(title, formatted.singleline, title)
-        } else {
-            TitleFragment.Title(formatted.title, formatted.subtitle, formatted.singleline)
-        }
-    }
-
-    class FeedTitle(val title: String, private val separator: String, val subtitle: String) {
-        val singleline: String
-            get() {
-                return title + separator + subtitle
-            }
-    }
+    class FeedTitle(val title: String, val subtitle: String, val singleline: String)
 }

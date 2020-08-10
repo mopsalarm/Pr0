@@ -778,7 +778,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         onBookmarkableStateChanged(false)
 
         val filter = currentFilter
-        val title = FeedFilterFormatter.format(context, filter).singleline
+        val title = FeedFilterFormatter.format(requireContext(), filter).singleline
         (activity as MainActionHandler).bookmarkFilter(filter, title)
     }
 
@@ -891,8 +891,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     override val title: TitleFragment.Title?
         get() {
             val context = context ?: return null
-            return FeedFilterFormatter.toTitle(context, feed.filter,
-                    titleOverride = arguments?.getString(ARG_TITLE))
+            return FeedFilterFormatter.toTitle(context, feed.filter)
         }
 
     private fun createRecyclerViewClickListener() {
@@ -1169,13 +1168,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
         private const val ARG_FEED_START = "FeedFragment.start"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
-        private const val ARG_TITLE = "FeedFragment.title"
         private const val ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState"
 
         fun newInstance(feedFilter: FeedFilter,
                         start: CommentRef?,
-                        searchQueryState: Bundle?,
-                        title: String? = null): FeedFragment {
+                        searchQueryState: Bundle?): FeedFragment {
 
             return FeedFragment().apply {
                 arguments = bundle {
@@ -1183,8 +1180,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                     putParcelable(ARG_FEED_START, start)
                     putBoolean(ARG_NORMAL_MODE, true)
                     putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
-
-                    title?.let { putString(ARG_TITLE, title) }
                 }
             }
         }
