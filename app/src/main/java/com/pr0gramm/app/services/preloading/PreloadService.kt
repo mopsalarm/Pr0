@@ -13,13 +13,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.net.toFile
-import com.pr0gramm.app.Duration
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
+import androidx.core.net.toUri
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.NotificationService.Types
 import com.pr0gramm.app.services.OnceEvery
 import com.pr0gramm.app.services.UriHelper
@@ -31,6 +28,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.*
 import java.util.concurrent.TimeUnit
+import java.util.zip.Deflater
+import java.util.zip.DeflaterOutputStream
+import java.util.zip.InflaterInputStream
 
 
 /**
@@ -72,7 +72,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // send out the initial notification and bring the service into foreground mode!
-        startForeground(NotificationService.Types.Preload.id, notification.build())
+        startForeground(Types.Preload.id, notification.build())
 
         if (intent?.getLongExtra(EXTRA_CANCEL, -1) == jobId) {
             canceled = true
@@ -140,12 +140,17 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         }
     }
 
-    private fun preloadItemsLocked(items: List<FeedItem>, allowOnlyOnMobile: Boolean) {
+    class Item(
+            val id: Long,
+            val mediaUri: Uri,
+            val thumbUri: Uri,
+            val fullThumbUri: Uri?,
+    )
+
+    private fun preloadItemsLocked(items: List<Item>, allowOnlyOnMobile: Boolean) {
         var statsFailed = 0
         var statsDownloaded = 0
         val startTime = Instant.now()
-
-        val uriHelper = UriHelper.of(this)
 
         var idx = 0
         while (idx < items.size && !canceled) {
@@ -154,10 +159,10 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
             val item = items[idx]
             try {
-                val mediaUri = uriHelper.media(item)
+                val mediaUri = item.mediaUri
                 val mediaFile = if (mediaUri.isLocalFile) mediaUri.toFile() else cacheFileForUri(mediaUri)
 
-                val thumbUri = uriHelper.thumbnail(item.asThumbnail())
+                val thumbUri = item.thumbUri
                 val thumbFile = if (thumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
 
                 // update the notification
@@ -174,8 +179,8 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                 }
 
                 var fullThumbFile: File? = null
-                if (item.isVideo) {
-                    val fullThumbUri = uriHelper.fullThumbnail(item.asThumbnail())
+                if (item.fullThumbUri != null) {
+                    val fullThumbUri = item.fullThumbUri
                     val fullThumbFileTemp = if (fullThumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
 
                     try {
@@ -214,9 +219,10 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         notification.mActions.clear()
     }
 
-    private fun parseFeedItemsFromIntent(intent: Intent?): List<FeedItem> {
-        val feed = intent?.extras?.getParcelableArray(EXTRA_LIST_OF_ITEMS)
-        return feed?.mapNotNull { it as? FeedItem } ?: listOf()
+    private fun parseFeedItemsFromIntent(intent: Intent?): List<Item> {
+        val serialized = intent?.extras?.getByteArray(SERIALIZED_EXTRA_LIST_OF_ITEMS)
+                ?: return listOf()
+        return deserializeItems(serialized)
     }
 
     private fun showEndMessage(downloaded: Int, failed: Int) {
@@ -296,7 +302,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         notification.config()
         NotificationManagerCompat
                 .from(this)
-                .notify(NotificationService.Types.Preload.id, notification.build())
+                .notify(Types.Preload.id, notification.build())
     }
 
     private inline fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {
@@ -355,15 +361,55 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     companion object {
         private val logger = Logger("PreloadService")
 
-        private const val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
+        private const val SERIALIZED_EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
         private const val EXTRA_CANCEL = "PreloadService.cancel"
         private const val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"
 
         fun preload(context: Context, items: List<FeedItem>, allowOnMobile: Boolean) {
             val intent = Intent(context, PreloadService::class.java)
             intent.putExtra(EXTRA_ALLOW_ON_MOBILE, allowOnMobile)
-            intent.putExtra(EXTRA_LIST_OF_ITEMS, items.toTypedArray())
+            intent.putExtra(SERIALIZED_EXTRA_LIST_OF_ITEMS, serializeItems(context, items))
             ContextCompat.startForegroundService(context, intent)
+        }
+
+        private fun deserializeItems(bytes: ByteArray): List<Item> {
+            return DataInputStream(InflaterInputStream(ByteArrayInputStream(bytes))).use { input ->
+                listOfSize(input.readInt()) {
+                    Item(
+                            id = input.readLong(),
+                            mediaUri = input.readUTF().toUri(),
+                            thumbUri = input.readUTF().toUri(),
+                            fullThumbUri = input.readUTF().ifEmpty { null }?.toUri(),
+                    )
+                }
+            }
+        }
+
+        private fun serializeItems(context: Context, items: List<FeedItem>): ByteArray {
+            val uris = UriHelper.of(context)
+
+            // the user sometimes wants to download a lot of files. this breaks the 512k limit
+            // for parcelables and intents. for this to work, we serialize & compress the data.
+            val bytesOut = ByteArrayOutputStream()
+
+            logger.time("Serialize items") {
+                DeflaterOutputStream(bytesOut, Deflater(Deflater.DEFAULT_COMPRESSION)).use { deflateOut ->
+                    DataOutputStream(deflateOut).use { out ->
+                        out.writeInt(items.size)
+
+                        for (item in items) {
+                            out.writeLong(item.id)
+                            out.writeUTF(uris.media(item).toString())
+                            out.writeUTF(uris.thumbnail(item.asThumbnail()).toString())
+                            out.writeUTF(if (item.isVideo) uris.fullThumbnail(item.asThumbnail()).toString() else "")
+                        }
+                    }
+                }
+            }
+
+            logger.info { "Serialized ${items.size} items as ${bytesOut.size()} bytes" }
+
+            return bytesOut.toByteArray()
         }
     }
 }
