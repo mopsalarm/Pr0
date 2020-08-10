@@ -543,6 +543,8 @@
     <string name="action_add_comment">Kommentar verfassen</string>
     <string name="action_add_tags">Tags hinzufügen</string>
     <string name="bookmark">Lesezeichen</string>
+    <string name="uploads_in">Hochlads in %s</string>
+    <string name="uploads">Hochlads</string>
 
 
 </resources>

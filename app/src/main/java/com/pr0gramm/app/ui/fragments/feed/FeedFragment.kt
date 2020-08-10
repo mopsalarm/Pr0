@@ -858,7 +858,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         try {
             val generator: FancyExifThumbnailGenerator by instance()
 
-            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, title?.title)
+            val title = title?.let { title -> "${title.subtitle} in ${title.title}" }
+            val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, title)
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable

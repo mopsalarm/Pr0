@@ -563,5 +563,7 @@
     <string name="action_add_comment">Add comment</string>
     <string name="action_add_tags">Add tags</string>
     <string name="bookmark">Bookmark</string>
+    <string name="uploads_in">Uploads in %s</string>
+    <string name="uploads">Uploads</string>
 </resources>
 

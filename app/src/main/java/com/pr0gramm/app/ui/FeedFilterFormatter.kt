@@ -34,8 +34,13 @@ object FeedFilterFormatter {
             }
 
             filter.username?.let { username ->
+                val title = when (filter.feedType) {
+                    FeedType.NEW -> context.getString(R.string.uploads)
+                    else -> context.getString(R.string.uploads_in, category)
+                }
+
                 val subtitle = context.getString(R.string.filter_format_tag_by) + " " + username
-                return FeedTitle(category, subtitle, "$subtitle in $category")
+                return FeedTitle(title, subtitle, "$subtitle in $category")
             }
         }
 

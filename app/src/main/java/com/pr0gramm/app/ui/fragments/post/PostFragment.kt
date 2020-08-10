@@ -177,36 +177,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show the repost badge if this is a repost
         views.repostHint.isVisible = inMemoryCacheService.isRepost(feedItem)
 
-        views.fab.inflate(R.menu.menu_post_dial)
-        views.fab.overlayLayout = view.find(R.id.overlay)
-
-        views.fab.setOnActionSelectedListener { actionItem ->
-            when (actionItem.id) {
-                R.id.action_write_comment -> {
-                    doIfAuthorizedHelper.runAuthNoRetry {
-                        val intent = WriteMessageActivity.newComment(requireActivity(), feedItem)
-                        startActivityForResult(intent, RequestCodes.WRITE_COMMENT)
-                    }
-                }
-
-                R.id.action_write_tag -> {
-                    doIfAuthorizedHelper.runAuthNoRetry {
-                        actions.writeNewTagClicked()
-                    }
-                }
-
-                R.id.action_scroll_to_top -> {
-                    views.recyclerView.smoothScrollToPosition(0)
-                }
-
-                R.id.action_collapse_all -> {
-                    model.collapseComments()
-                }
-            }
-
-            views.fab.close()
-            true
-        }
+        initializeFloatingActionButton()
 
         launchInViewScope {
             class State(val modelState: PostViewModel.State, val mediaViewState: MediaViewState)
@@ -268,6 +239,40 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             postAdapter.state.drop(1).collect {
                 simulateScroll()
             }
+        }
+    }
+
+    private fun initializeFloatingActionButton() {
+        views.fab.inflate(R.menu.menu_post_dial)
+
+        views.fab.overlayLayout = requireView().find(R.id.fab_overlay)
+
+        views.fab.setOnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.action_write_comment -> {
+                    doIfAuthorizedHelper.runAuthNoRetry {
+                        val intent = WriteMessageActivity.newComment(requireActivity(), feedItem)
+                        startActivityForResult(intent, RequestCodes.WRITE_COMMENT)
+                    }
+                }
+
+                R.id.action_write_tag -> {
+                    doIfAuthorizedHelper.runAuthNoRetry {
+                        actions.writeNewTagClicked()
+                    }
+                }
+
+                R.id.action_scroll_to_top -> {
+                    views.recyclerView.smoothScrollToPosition(0)
+                }
+
+                R.id.action_collapse_all -> {
+                    model.collapseComments()
+                }
+            }
+
+            views.fab.close()
+            true
         }
     }
 
