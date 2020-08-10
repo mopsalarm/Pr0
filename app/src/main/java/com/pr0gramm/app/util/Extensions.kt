@@ -530,6 +530,10 @@ inline fun <reified E : Enum<E>> SharedPreferences.getEnumValue(name: String, de
     return tryEnumValueOf<E>(getStringOrNull(name)) ?: default
 }
 
+fun Bundle.getStringOrThrow(name: String): String {
+    return getString(name) ?: throw IllegalArgumentException("missing value in bundle: '$name'")
+}
+
 inline fun <reified T : Activity> activityIntent(
         context: Context, uri: Uri? = null, configure: Intent.() -> Unit = {}): Intent {
 

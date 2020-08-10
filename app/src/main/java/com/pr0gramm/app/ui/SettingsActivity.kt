@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.transaction
+import androidx.fragment.app.commitNow
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import com.pr0gramm.app.Instant
@@ -28,7 +28,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                         intent?.extras?.getString("rootKey"))
             }
 
-            supportFragmentManager.transaction {
+            supportFragmentManager.commitNow {
                 replace(android.R.id.content, fragment)
             }
 

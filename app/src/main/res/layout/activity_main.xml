@@ -14,13 +14,27 @@
             android:layout_height="match_parent">
 
             <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/content"
+                android:id="@+id/content_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <include layout="@layout/toolbar" />
+        <FrameLayout
+            android:id="@+id/toolbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            android:elevation="8dp"
+            android:fitsSystemWindows="true"
+            tools:context=".ui.MainActivity"
+            tools:showIn="@layout/activity_main">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize" />
+        </FrameLayout>
     </FrameLayout>
 
     <androidx.fragment.app.FragmentContainerView

@@ -1,35 +1,39 @@
-package com.pr0gramm.app.ui.fragments
+package com.pr0gramm.app.ui.fragments.favorites
 
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.liveData
 import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.FragmentFavoritesBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.services.CollectionsService
-import com.pr0gramm.app.services.PostCollection
-import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.FilterFragment
 import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.TabsStateAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
+import com.pr0gramm.app.ui.base.launchInViewScope
+import com.pr0gramm.app.ui.fragments.FavedCommentFragment
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
-import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.ui.viewModels
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.getStringOrThrow
+import kotlinx.coroutines.flow.collect
 
 /**
  */
 class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_favorites), FilterFragment {
     private val views by bindViews(FragmentFavoritesBinding::bind)
 
-    private val userService: UserService by instance()
-    private val collectionsService: CollectionsService by instance()
-
-    private val argUsername: String by fragmentArgument(name = ARG_USERNAME)
+    private val model by viewModels {
+        FavoritesViewModel(
+                user = requireArguments().getStringOrThrow(ARG_USERNAME),
+                userService = instance(),
+                collectionsService = instance(),
+        )
+    }
 
     override var currentFilter = FeedFilter().withFeedType(FeedType.NEW)
         private set
@@ -40,49 +44,40 @@ class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_fa
         fixViewTopOffset(view)
         resetToolbar()
 
-        // check what to load
-        val ownUsername = userService.loginState.name
-        val ownView = ownUsername.equalsIgnoreCase(argUsername)
+        currentFilter = currentFilter.withCollection(model.user, "**ANY", "**ANY")
 
-        val collectionsLiveData = when {
-            ownView -> collectionsService.collections
+        val tabsAdapter = TabsStateAdapter(requireContext(), this)
 
-            else -> liveData {
-                val info = userService.info(argUsername)
-                emit(PostCollection.fromApi(info.collections))
-            }
-        }
-
-        currentFilter = currentFilter.withCollection(argUsername, "**ANY", "**ANY")
-
-        collectionsLiveData.observe(viewLifecycleOwner) { collections ->
-            views.favoritesPager.adapter = TabsStateAdapter(requireContext(), this).apply {
-                for (collection in collections) {
+        launchInViewScope {
+            model.collectionsState.collect { collections ->
+                val tabs = collections.mapTo(ArrayList()) { collection ->
                     val filter = FeedFilter()
                             .withFeedType(FeedType.NEW)
-                            .withCollection(argUsername, collection.key, collection.title)
+                            .withCollection(model.user, collection.key, collection.title)
 
-                    addTab(collection.title,
-                            FeedFragment.newEmbedArguments(filter),
-                            fragmentConstructor = ::FeedFragment)
-
+                    TabsStateAdapter.TabInfo(
+                            id = collection.id,
+                            title = collection.title,
+                            fragmentConstructor = ::FeedFragment,
+                            args = FeedFragment.newEmbedArguments(filter),
+                    )
                 }
 
-                if (ownView) {
-                    addTab(getString(R.string.action_kfav),
-                            fragmentConstructor = ::FavedCommentFragment)
+                if (model.myView) {
+                    tabs += TabsStateAdapter.TabInfo(
+                            title = getString(R.string.action_kfav),
+                            fragmentConstructor = ::FavedCommentFragment,
+                    )
                 }
+
+                tabsAdapter.replaceTabs(tabs)
             }
         }
 
+        views.favoritesPager.adapter = tabsAdapter
         views.favoritesPager.offscreenPageLimit = 2
 
         views.tabs.setupWithViewPager(views.favoritesPager)
-
-        if (ownView) {
-            // trigger a reload of the users collections
-            doInBackground { collectionsService.refresh() }
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

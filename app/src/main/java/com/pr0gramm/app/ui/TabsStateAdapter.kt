@@ -40,9 +40,11 @@ class TabsStateAdapter : FragmentPagerAdapter {
     }
 
     fun addTab(title: String, args: Bundle? = null, id: Any? = null, fragmentConstructor: () -> Fragment) {
-        val info = TabInfo(id ?: Any(), title, fragmentConstructor, args)
-        tabs.add(info)
+        addTab(TabInfo(title, fragmentConstructor, args, id))
+    }
 
+    private fun addTab(tab: TabInfo) {
+        tabs += tab
         notifyDataSetChanged()
     }
 
@@ -67,5 +69,11 @@ class TabsStateAdapter : FragmentPagerAdapter {
         return tabs[position].title
     }
 
-    private data class TabInfo(val id: Any, val title: String, val fragmentConstructor: () -> Fragment, val args: Bundle?)
+    fun replaceTabs(tabs: List<TabInfo>) {
+        this.tabs.clear()
+        this.tabs += tabs
+        notifyDataSetChanged()
+    }
+
+    data class TabInfo(val title: String, val fragmentConstructor: () -> Fragment, val args: Bundle? = null, val id: Any? = null)
 }

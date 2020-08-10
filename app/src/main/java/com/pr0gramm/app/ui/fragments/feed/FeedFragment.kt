@@ -876,7 +876,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             }
 
             activity.supportFragmentManager.beginTransaction()
-                    .replace(R.id.content, fragment)
+                    .replace(R.id.content_container, fragment)
                     .addToBackStack(null)
                     .commit()
 

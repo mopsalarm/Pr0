@@ -16,15 +16,14 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.ActionMenuItem
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
+import com.pr0gramm.app.databinding.ActivityMainBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.config.Config
@@ -38,7 +37,7 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.DrawerFragment
-import com.pr0gramm.app.ui.fragments.FavoritesFragment
+import com.pr0gramm.app.ui.fragments.favorites.FavoritesFragment
 import com.pr0gramm.app.ui.fragments.feed.AdViewAdapter
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
@@ -46,10 +45,7 @@ import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.*
-import kotterknife.bindOptionalView
-import kotterknife.bindView
 import kotlin.properties.Delegates
-
 
 /**
  * This is the main class of our pr0gramm app.
@@ -66,11 +62,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private var permissionHelper = PermissionHelperDelegate(this)
     private val settings = Settings.get()
 
-    private val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
-    private val toolbar: Toolbar by bindView(R.id.toolbar)
-    private val contentContainer: View by bindView(R.id.content)
-
-    private val toolbarContainer: View? by bindOptionalView(R.id.toolbar_container)
+    private val views by bindViews(ActivityMainBinding::inflate)
 
     private val userService: UserService by instance()
     private val configService: ConfigService by instance()
@@ -96,20 +88,21 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
-        setContentView(R.layout.activity_main)
+        setContentView(views.root)
 
         // use toolbar as action bar
-        setSupportActionBar(toolbar)
+        setSupportActionBar(views.toolbar)
 
         // and hide it away on scrolling
-        scrollHideToolbarListener = ScrollHideToolbarListener(toolbarContainer ?: toolbar)
+        val toolbarContainer = findViewById<View?>(R.id.toolbar_container)
+        scrollHideToolbarListener = ScrollHideToolbarListener(toolbarContainer ?: views.toolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // prepare drawer layout
-        drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name)
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
-        drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle = ActionBarDrawerToggle(this, views.drawerLayout, R.string.app_name, R.string.app_name)
+        views.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
+        views.drawerLayout.addDrawerListener(drawerToggle)
 
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
@@ -195,7 +188,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .firstOrNull { it } ?: false
 
             if (!userService.userIsPremium && showAnyAds) {
-                Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000).apply {
+                Snackbar.make(views.contentContainer, R.string.hint_dont_like_ads, 10000).apply {
                     configureNewStyle()
 
                     setAction("pr0mium") {
@@ -211,9 +204,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun hintBookmarksEditableWithPremium() {
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
 
-        Snackbar.make(contentContainer, R.string.hint_edit_bookmarks_premium, 10000).apply {
+        Snackbar.make(views.contentContainer, R.string.hint_edit_bookmarks_premium, 10000).apply {
             configureNewStyle()
 
             setAction("pr0mium") {
@@ -256,7 +249,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
 
         if (requestCode == RequestCodes.FEEDBACK && resultCode == Activity.RESULT_OK) {
-            Snackbar.make(drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
+            Snackbar.make(views.drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
                     .configureNewStyle()
                     .setAction(R.string.okay, { })
                     .show()
@@ -313,7 +306,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         get() = (currentFragment as? FilterFragment)?.currentFilter
 
     private val currentFragment: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.content)
+        get() = supportFragmentManager.findFragmentById(R.id.content_container)
 
     private val shouldClearOnIntent: Boolean
         get() = currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
@@ -359,8 +352,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawers()
+        if (views.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            views.drawerLayout.closeDrawers()
             return
         }
 
@@ -448,7 +441,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
 
             shouldShowFeedbackReminder() -> {
-                Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                Snackbar.make(views.contentContainer, R.string.feedback_reminder, 10000)
                         .configureNewStyle()
                         .setAction(R.string.okay) { }
                         .show()
@@ -461,7 +454,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             }
 
             Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
-                Snackbar.make(contentContainer, R.string.old_android_reminder, 10000)
+                Snackbar.make(views.contentContainer, R.string.old_android_reminder, 10000)
                         .configureNewStyle()
                         .setAction(R.string.okay) { }
                         .show()
@@ -481,14 +474,15 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onLogoutClicked() {
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
+
         Track.logout()
 
         launchWhenStarted(busyIndicator = true) {
             userService.logout()
 
             // show a short information.
-            Snackbar.make(contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
+            Snackbar.make(views.contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
                     .configureNewStyle()
                     .setAction(R.string.okay) { }
                     .show()
@@ -515,17 +509,17 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?, title: String?) {
         gotoFeedFragment(filter, true, start = startAt, title = title)
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
     }
 
     override fun onOtherNavigationItemClicked() {
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
     }
 
     override fun onNavigateToCollections(username: String) {
         // move to new fragment
         moveToFragment(FavoritesFragment.newInstance(username), clear = true)
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
     }
 
     override fun onUsernameClicked() {
@@ -535,7 +529,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             gotoFeedFragment(filter, false)
         }
 
-        drawerLayout.closeDrawers()
+        views.drawerLayout.closeDrawers()
     }
 
     override fun onFeedFilterSelected(filter: FeedFilter) {
@@ -558,7 +552,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override fun bookmarkFilter(filter: FeedFilter, title: String) {
         bookmarkService.save(bookmarkOf(title, filter))
-        drawerLayout.openDrawer(GravityCompat.START)
+        views.drawerLayout.openDrawer(GravityCompat.START)
 
         drawerFragment?.scrollTo(filter)
     }
@@ -589,7 +583,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // and show the fragment
         val transaction = supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.content, fragment)
+                .replace(R.id.content_container, fragment)
 
         if (!clear) {
             logger.debug { "Adding fragment ${fragment.javaClass.name} to backstack" }

@@ -1,8 +1,10 @@
 package com.pr0gramm.app.ui.base
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewbinding.ViewBinding
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 import com.pr0gramm.app.util.di.LazyInjectorAware
@@ -32,3 +34,10 @@ abstract class BaseAppCompatActivity(name: String) : AppCompatActivity(), LazyIn
         }
     }
 }
+
+fun <T : ViewBinding> AppCompatActivity.bindViews(inflate: (layoutInflater: LayoutInflater) -> T): Lazy<T> {
+    return lazy(LazyThreadSafetyMode.PUBLICATION) {
+        inflate(layoutInflater)
+    }
+}
+
