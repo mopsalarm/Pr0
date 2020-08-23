@@ -76,7 +76,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         views.submit.setOnClickListener { sendMessageNow() }
 
-        views.messageText.addTextChangedListener(object : SimpleTextWatcher() {
+        views.newMessageText.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val tooShort = s.toString().trim().length < 3
                 views.submit.isEnabled = !tooShort
@@ -85,16 +85,16 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         })
 
         val cacheKey = if (isCommentAnswer) "$itemId-$parentCommentId" else "msg-$receiverId"
-        TextViewCache.addCaching(views.messageText, cacheKey)
+        TextViewCache.addCaching(views.newMessageText, cacheKey)
 
-        views.messageText.setTokenizer(UsernameTokenizer())
-        views.messageText.setAdapter(UsernameAutoCompleteAdapter(suggestionService, this,
+        views.newMessageText.setTokenizer(UsernameTokenizer())
+        views.newMessageText.setAdapter(UsernameAutoCompleteAdapter(suggestionService, this,
                 android.R.layout.simple_dropdown_item_1line, "@"))
 
-        views.messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
+        views.newMessageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
         if (isCommentAnswer) {
-            views.messageText.hint = getString(R.string.comment_hint)
+            views.newMessageText.hint = getString(R.string.comment_hint)
         }
 
         // only show if we can link to someone else
@@ -118,7 +118,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     override fun onPostResume() {
         super.onPostResume()
 
-        AndroidUtility.showSoftKeyboard(views.messageText)
+        AndroidUtility.showSoftKeyboard(views.newMessageText)
     }
 
     private fun updateViewState() {
@@ -135,9 +135,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         // sorted users, or empty if the list has focus
         val sortedUsers = selectedUsers.sorted()
         if (sortedUsers.isEmpty()) {
-            views.messageText.suffix = null
+            views.newMessageText.suffix = null
         } else {
-            views.messageText.suffix = sortedUsers.joinToString(" ") { "@$it" }
+            views.newMessageText.suffix = sortedUsers.joinToString(" ") { "@$it" }
         }
     }
 
@@ -168,7 +168,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     private fun finishAfterSending() {
-        TextViewCache.invalidate(views.messageText)
+        TextViewCache.invalidate(views.newMessageText)
 
         finish()
     }
@@ -222,7 +222,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     private fun getMessageText(): String {
-        return views.messageText.text.toString().trim()
+        return views.newMessageText.text.toString().trim()
     }
 
     private fun updateMessageView() {

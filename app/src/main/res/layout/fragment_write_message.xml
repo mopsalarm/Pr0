@@ -29,7 +29,7 @@
                 android:visibility="invisible" />
 
             <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
-                android:id="@+id/message_text"
+                android:id="@+id/new_message_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/input_background"
@@ -37,10 +37,7 @@
                 android:hint="@string/write_message_placeholder"
                 android:inputType="textMultiLine|textCapSentences"
                 android:minLines="5"
-                android:padding="8sp">
-
-                <requestFocus />
-            </com.pr0gramm.app.ui.LineMultiAutoCompleteTextView>
+                android:padding="8sp" />
         </FrameLayout>
 
         <Button

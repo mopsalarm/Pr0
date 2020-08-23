@@ -91,7 +91,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
-        setContentView(views.root)
+        setContentView(views)
 
         // use toolbar as action bar
         setSupportActionBar(views.toolbar)

@@ -54,7 +54,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        setContentView(views.root)
+        setContentView(views)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
