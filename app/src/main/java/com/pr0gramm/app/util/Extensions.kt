@@ -801,3 +801,15 @@ fun Any.identityHashCode(): Int {
 fun ViewPropertyAnimator.scale(amount: Float): ViewPropertyAnimator {
     return scaleX(amount).scaleY(amount)
 }
+
+fun Fragment.hideSoftKeyboard() {
+    activity?.hideSoftKeyboard()
+}
+
+fun DialogFragment.hideSoftKeyboard() {
+    AndroidUtility.hideSoftKeyboard(dialog?.window?.decorView?.rootView)
+}
+
+fun Activity.hideSoftKeyboard() {
+    AndroidUtility.hideSoftKeyboard(window?.decorView?.rootView)
+}

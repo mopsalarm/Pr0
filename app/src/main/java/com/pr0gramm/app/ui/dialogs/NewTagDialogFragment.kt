@@ -11,6 +11,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.hideSoftKeyboard
 
 /**
  */
@@ -22,9 +23,12 @@ class NewTagDialogFragment :
     override fun onCreateDialog(contentView: View): Dialog {
         return dialog(this) {
             contentView(contentView)
-            negative(R.string.cancel) { AndroidUtility.hideSoftKeyboard(views.tagInput) }
+            negative(R.string.cancel) { onCancelClicked() }
             positive(R.string.dialog_action_add) { onOkayClicked() }
-            cancelable()
+
+            onShow {
+                AndroidUtility.showSoftKeyboard(views.tagInput)
+            }
         }
     }
 
@@ -49,7 +53,11 @@ class NewTagDialogFragment :
         // inform parent
         (parentFragment as OnAddNewTagsListener).onNewTags(tags)
 
-        AndroidUtility.hideSoftKeyboard(views.tagInput)
+        hideSoftKeyboard()
+    }
+
+    private fun onCancelClicked() {
+        hideSoftKeyboard()
     }
 
     /**

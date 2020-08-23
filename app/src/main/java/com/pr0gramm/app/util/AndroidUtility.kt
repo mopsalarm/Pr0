@@ -27,6 +27,7 @@ import androidx.core.content.res.use
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.ConnectivityManagerCompat
 import androidx.core.text.inSpans
+import androidx.core.view.postDelayed
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
@@ -189,27 +190,28 @@ object AndroidUtility {
         }
     }
 
-    fun hideSoftKeyboard(view: View?) {
-        if (view != null) {
+    fun showSoftKeyboard(view: EditText?) {
+        view?.postDelayed(100) {
             try {
-                val imm = view.context
-                        .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                view.requestFocus()
 
-                imm.hideSoftInputFromWindow(view.windowToken, 0)
-            } catch (ignored: Exception) {
+                val imm = view.context.getSystemService<InputMethodManager>()
+                imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+
+            } catch (err: Exception) {
+                logger.warn(err) { "Failed to show soft keyboard" }
             }
         }
     }
 
-    fun showSoftKeyboard(view: EditText?) {
+    fun hideSoftKeyboard(view: View?) {
         if (view != null) {
             try {
-                view.requestFocus()
+                val imm = view.context.getSystemService<InputMethodManager>()
+                imm?.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 
-                val imm = view.context.getSystemService<InputMethodManager>() ?: return
-                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-
-            } catch (ignored: Exception) {
+            } catch (err: Exception) {
+                logger.warn(err) { "Failed to hide soft keyboard" }
             }
         }
     }

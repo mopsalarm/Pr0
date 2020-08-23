@@ -1062,7 +1062,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         resetToolbar()
 
-        AndroidUtility.hideSoftKeyboard(views.searchOptions)
+        hideSoftKeyboard()
     }
 
     private fun performAutoOpen(ref: CommentRef) {

@@ -118,6 +118,12 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
+    override fun onPostResume() {
+        super.onPostResume()
+
+        AndroidUtility.showSoftKeyboard(messageText)
+    }
+
     private fun updateViewState() {
         val adapter = parentCommentsView.adapter as Adapter
 
@@ -138,13 +144,19 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true == when (item.itemId) {
             android.R.id.home -> finish()
             R.id.action_send -> sendMessageNow()
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun finish() {
+        // hide keyboard before closing the activity.
+        hideSoftKeyboard()
+
+        super.finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -268,10 +268,14 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
                 }
             }
 
+            if (cancelable) {
+                onCancelListener?.let { cl ->
+                    dialog.setOnCancelListener { cl(dialog) }
+                }
+            }
+
             onShowListener?.invoke(dialog)
         }
-
-        onCancelListener?.let { dialog.setOnCancelListener { it(dialog) } }
 
         return dialog
     }

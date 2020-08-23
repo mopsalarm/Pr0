@@ -20,10 +20,10 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.hideSoftKeyboard
 import com.pr0gramm.app.util.matches
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -123,7 +123,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
     private fun submitClicked() {
         // hide keyboard when sending
-        AndroidUtility.hideSoftKeyboard(vText)
+        hideSoftKeyboard()
 
         launchWhenStarted(busyIndicator = true) {
             withViewDisabled(buttonSubmit) {

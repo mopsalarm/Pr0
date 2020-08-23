@@ -1,5 +1,14 @@
 [
   {
+    "version": 186,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Der Dialog fürs Bearbeiten von Lesezeichen wurde nicht richtig angezeigt."
+      }
+    ]
+  },
+  {
     "version": 185,
     "changes": [
       {
