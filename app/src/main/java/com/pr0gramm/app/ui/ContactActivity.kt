@@ -1,35 +1,34 @@
 package com.pr0gramm.app.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Patterns
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioButton
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.ActivityFeedbackBinding
 import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.hideSoftKeyboard
 import com.pr0gramm.app.util.matches
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import kotterknife.bindView
-import kotterknife.bindViews
 
 /**
  */
@@ -37,33 +36,30 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private val contactService: ContactService by instance()
     private val userService: UserService by instance()
 
-    private val buttonSubmit: Button by bindView(R.id.submit)
-    private val vName: EditText by bindView(R.id.feedback_name)
-    private val vText: EditText by bindView(R.id.feedback_text)
-    private val vMail: EditText by bindView(R.id.feedback_email)
-    private val vSubject: EditText by bindView(R.id.feedback_subject)
+    private val views by bindViews(ActivityFeedbackBinding::inflate)
 
-    private val choiceApp: RadioButton by bindView(R.id.action_feedback_app)
-    private val choiceGeneral: RadioButton by bindView(R.id.action_feedback_general)
+    private val groupAllInputViews: List<TextView>
+        get() = listOf(views.feedbackEmail, views.feedbackName, views.feedbackSubject, views.feedbackText)
 
-    private val groupAllInputViews: List<TextView> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_text)
+    private val groupAll: List<View>
+        get() = listOf(views.feedbackEmail, views.feedbackName, views.feedbackSubject, views.feedbackDeletionHint)
 
-    private val groupAll: List<View> by bindViews(R.id.feedback_email, R.id.feedback_name, R.id.feedback_subject, R.id.feedback_deletion_hint)
-    private val groupNormalLoggedIn: List<View> by bindViews(R.id.feedback_subject, R.id.feedback_deletion_hint)
-    private val groupNormalLoggedOut: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_deletion_hint)
-    private val groupAppLoggedIn: List<View> by bindViews(R.id.feedback_subject)
-    private val groupAppLoggedOut: List<View> by bindViews(R.id.feedback_email, R.id.feedback_subject, R.id.feedback_name)
+    private val groupNormalLoggedIn: List<View>
+        get() = listOf(views.feedbackSubject, views.feedbackDeletionHint)
+
+    private val groupNormalLoggedOut: List<View>
+        get() = listOf(views.feedbackEmail, views.feedbackSubject, views.feedbackDeletionHint)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_feedback)
+        setContentView(views.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val primary = ContextCompat.getColor(this, ThemeHelper.accentColor)
-        ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary))
+        ViewCompat.setBackgroundTintList(views.submit, ColorStateList.valueOf(primary))
 
         // register all the change listeners
         for (textView in groupAllInputViews) {
@@ -74,30 +70,41 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
             })
         }
 
-        Linkify.linkify(find(R.id.feedback_deletion_hint))
+        Linkify.linkify(views.feedbackDeletionHint)
 
-        userService.name?.let { vName.setText(it) }
+        views.submit.setOnClickListener { submitClicked() }
 
-        find<View>(R.id.submit).setOnClickListener { submitClicked() }
+        views.faqCategory.adapter = CategoriesAdapter(this)
+        views.faqCategory.setSelection(0)
 
-        listOf(choiceApp, choiceGeneral).forEach { button ->
-            button.setOnCheckedChangeListener { _, _ -> applyViewVisibility() }
+        views.faqCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateSubmitButtonActivation()
+            }
         }
+
+        userService.name?.let { views.feedbackName.setText(it) }
 
         applyViewVisibility()
     }
 
-    private val isNormalSupport: Boolean
-        get() {
-            return choiceGeneral.isChecked
+    private class CategoriesAdapter(context: Context) : ArrayAdapter<Category>(
+            context, android.R.layout.simple_spinner_dropdown_item, faqCategories) {
+
+        override fun isEnabled(position: Int): Boolean = position > 0
+
+        override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+            return super.getDropDownView(position, convertView, parent).also { view ->
+                view.isEnabled = position > 0
+            }
         }
+    }
 
     private fun applyViewVisibility() {
         val activeViews: List<View> = when {
-            isNormalSupport && userService.isAuthorized -> groupNormalLoggedIn
-            isNormalSupport -> groupNormalLoggedOut
-            userService.isAuthorized -> groupAppLoggedIn
-            else -> groupAppLoggedOut
+            userService.isAuthorized -> groupNormalLoggedIn
+            else -> groupNormalLoggedOut
         }
 
         for (view in groupAll) {
@@ -110,15 +117,20 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private fun updateSubmitButtonActivation() {
         // the button is enabled if there is no visible text view that has
         // an empty input.
-        var enabled = groupAllInputViews.none {
-            it.isVisible && it.text.toString().trim().isEmpty()
+        var enabled = groupAllInputViews.none { view ->
+            view.isVisible && view.text.toString().trim().isEmpty()
         }
 
-        if (vMail.isVisible && !vMail.text.matches(Patterns.EMAIL_ADDRESS)) {
+        if (views.feedbackEmail.isVisible && !views.feedbackEmail.text.matches(Patterns.EMAIL_ADDRESS)) {
             enabled = false
         }
 
-        buttonSubmit.isEnabled = enabled
+        val faqCategory = views.faqCategory.selectedItem as Category
+        if (faqCategory.category == "none") {
+            enabled = false
+        }
+
+        views.submit.isEnabled = enabled
     }
 
     private fun submitClicked() {
@@ -126,7 +138,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         hideSoftKeyboard()
 
         launchWhenStarted(busyIndicator = true) {
-            withViewDisabled(buttonSubmit) {
+            withViewDisabled(views.submit) {
                 sendFeedback()
                 onSubmitSuccess()
             }
@@ -134,16 +146,17 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private suspend fun sendFeedback() {
-        val email = vMail.text.toString().trim()
-        val feedback = vText.text.toString().trim()
+        val category = views.faqCategory.selectedItem as Category
+        val email = views.feedbackEmail.text.toString().trim()
+        val feedback = views.feedbackText.text.toString().trim()
+        var subject = views.feedbackSubject.text.toString().trim()
 
-        var subject = vSubject.text.toString().trim()
-        if (!isNormalSupport) {
+        if (category.category == "app") {
             subject = "[app] $subject"
         }
 
         withContext(Dispatchers.IO + NonCancellable) {
-            contactService.post(email, subject, feedback)
+            contactService.post(category.category, email, subject, feedback)
         }
     }
 
@@ -161,3 +174,21 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         return super.onOptionsItemSelected(item)
     }
 }
+
+private class Category(val category: String, val text: String) {
+    override fun toString(): String = text
+}
+
+private val faqCategories = listOf(
+        Category("none", "Kategorie auswählen"),
+        Category("app", "App"),
+        Category("rules", "Regeln"),
+        Category("account", "Account"),
+        Category("pr0mium", "pr0mium"),
+        Category("deletions", "Löschanfragen"),
+        Category("technical", "Bugs"),
+        Category("helpers", "Helfer"),
+        Category("others", "Sonstiges"),
+        Category("glossary", "Glossar"),
+        Category("invites", "Invites"),
+)
