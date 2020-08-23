@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Der Dialog fürs Bearbeiten von Lesezeichen wurde nicht richtig angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Der Actionbutton ist im Theme 'Verdammtes Schwarz' nun dunkel."
       }
     ]
   },
