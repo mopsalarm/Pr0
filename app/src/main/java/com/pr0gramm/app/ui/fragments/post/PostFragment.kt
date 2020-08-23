@@ -922,7 +922,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onNewTags(tags: List<String>) {
-        this.model.addTagsByUserAsync(tags)
+        launchInViewScope {
+            withContext(NonCancellable) {
+                model.addTagsByUser(tags)
+            }
+        }
     }
 
     private fun onNewComments(response: Api.NewComment) {

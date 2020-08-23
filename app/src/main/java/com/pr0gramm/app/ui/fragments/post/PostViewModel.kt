@@ -202,25 +202,23 @@ class PostViewModel(
         commentTreeController.selectComment(commentId)
     }
 
-    fun addTagsByUserAsync(tags: List<String>) {
-        viewModelScope.launch {
-            val previousTags = state.value.tags.map { tag -> tag.text.toLowerCase(Locale.GERMAN) }
+    suspend fun addTagsByUser(tags: List<String>) {
+        val previousTags = state.value.tags.map { tag -> tag.text.toLowerCase(Locale.GERMAN) }
 
-            // allow op to tag a more restrictive content type.
-            val op = item.user.equals(userService.name, true) || userService.userIsAdmin
+        // allow op to tag a more restrictive content type.
+        val op = item.user.equals(userService.name, true) || userService.userIsAdmin
 
-            val newTags = tags
-                    .filterNot { tag -> previousTags.containsIgnoreCase(tag) }
-                    .filter { tag -> isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(previousTags, tag)) }
+        val newTags = tags
+                .filterNot { tag -> previousTags.containsIgnoreCase(tag) }
+                .filter { tag -> isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(previousTags, tag)) }
 
-            if (newTags.isNotEmpty()) {
-                logger.info { "Adding new tags $newTags to post" }
+        if (newTags.isNotEmpty()) {
+            logger.info { "Adding new tags $newTags to post" }
 
-                val sortedApiTags = sortTags(voteService.createTags(item.id, newTags))
+            val sortedApiTags = sortTags(voteService.createTags(item.id, newTags))
 
-                mutableState.update { previousState ->
-                    previousState.copy(tags = sortedApiTags)
-                }
+            mutableState.update { previousState ->
+                previousState.copy(tags = sortedApiTags)
             }
         }
     }
