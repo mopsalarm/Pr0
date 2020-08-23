@@ -5,42 +5,15 @@ import android.view.View
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-fun <V : View> Activity.bindView(id: Int)
-        : ReadOnlyProperty<Activity, V> = required(id, viewFinder)
+fun <V : View> Activity.bindView(id: Int): ReadOnlyProperty<Activity, V> = Lazy { _: Any?, desc ->
+    findViewById<V>(id) ?: viewNotFound(id, desc)
+}
 
-
-fun <V : View> Activity.bindOptionalView(id: Int)
-        : ReadOnlyProperty<Activity, V?> = optional(id, viewFinder)
-
-fun <V : View> Activity.bindViews(vararg ids: Int)
-        : ReadOnlyProperty<Activity, List<V>> = required(ids, viewFinder)
-
-
-private val Activity.viewFinder: Activity.(Int) -> View?
-    get() = { findViewById(it) }
 
 private fun viewNotFound(id: Int, desc: KProperty<*>): Nothing =
         throw IllegalStateException("View ID $id for '${desc.name}' not found.")
 
-@Suppress("UNCHECKED_CAST")
-private fun <T, V : View> required(id: Int, finder: T.(Int) -> View?) = Lazy { t: T, desc ->
-    t.finder(id) as V? ?: viewNotFound(id, desc)
-}
-
-@Suppress("UNCHECKED_CAST")
-private fun <T, V : View> optional(id: Int, finder: T.(Int) -> View?) = Lazy { t: T, desc -> t.finder(id) as V? }
-
-@Suppress("UNCHECKED_CAST")
-private fun <T, V : View> required(ids: IntArray, finder: T.(Int) -> View?) = Lazy { t: T, desc ->
-    ids.map {
-        t.finder(it) as V? ?: viewNotFound(it, desc)
-    }
-}
-
-// Like Kotlin's lazy delegate but the initializer gets the target and metadata passed to it
-private class Lazy<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
-    private object EMPTY
-
+class Lazy<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
     private var value: Any? = EMPTY
 
     override fun getValue(thisRef: T, property: KProperty<*>): V {
@@ -49,5 +22,9 @@ private class Lazy<T, V>(private val initializer: (T, KProperty<*>) -> V) : Read
         }
         @Suppress("UNCHECKED_CAST")
         return value as V
+    }
+
+    companion object {
+        private object EMPTY
     }
 }

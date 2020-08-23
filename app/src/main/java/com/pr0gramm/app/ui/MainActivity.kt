@@ -384,7 +384,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun showInfoMessage(message: InfoMessage) {
         if (message.endOfLife ?: 0 >= AndroidUtility.buildVersionCode()) {
-            VersionNotSupportedDialogFragment().showNow(supportFragmentManager, null)
+            show(VersionNotSupportedDialogFragment())
             return
         }
 

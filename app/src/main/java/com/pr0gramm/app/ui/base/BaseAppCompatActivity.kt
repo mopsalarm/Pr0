@@ -33,9 +33,12 @@ abstract class BaseAppCompatActivity(name: String) : AppCompatActivity(), LazyIn
             true
         }
     }
+
+    protected fun setContentView(bindings: ViewBinding) {
+        setContentView(bindings.root)
+    }
 }
 
 fun <T : ViewBinding> AppCompatActivity.bindViews(inflate: (layoutInflater: LayoutInflater) -> T): Lazy<T> {
     return lazy(LazyThreadSafetyMode.NONE) { inflate(layoutInflater) }
 }
-

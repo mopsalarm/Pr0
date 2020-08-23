@@ -29,7 +29,7 @@
                 android:visibility="invisible" />
 
             <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
-                android:id="@+id/new_message_text"
+                android:id="@+id/message_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/input_background"
@@ -63,7 +63,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/authors"
+            android:id="@+id/parent_comments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"

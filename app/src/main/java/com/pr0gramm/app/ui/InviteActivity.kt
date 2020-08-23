@@ -4,17 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.ActivityInviteBinding
 import com.pr0gramm.app.services.InviteService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
@@ -28,38 +29,35 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import kotterknife.bindView
-import kotterknife.bindViews
 
 /**
  */
 class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     private val inviteService: InviteService by instance()
 
-    private val mailField: EditText by bindView(R.id.mail)
-    private val invites: androidx.recyclerview.widget.RecyclerView by bindView(R.id.invites)
-    private val remainingInvites: TextView by bindView(R.id.remaining)
-    private val invitesEmptyHint: View by bindView(R.id.invites_empty)
+    private val views by bindViews(ActivityInviteBinding::inflate)
 
-    private val formFields: List<View> by bindViews(R.id.mail, R.id.send_invite)
+    private val formFields: List<View>
+        get() = listOf(views.mail, views.sendInvite)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_invite)
+        setContentView(views)
+
         disableInputViews()
 
-        invites.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        views.invites.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
         find<View>(R.id.send_invite).setOnClickListener { onInviteClicked() }
     }
 
     private fun onInviteClicked() {
-        val email = mailField.text.toString()
+        val email = views.mail.text.toString()
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            mailField.error = getString(R.string.error_email)
+            views.mail.error = getString(R.string.error_email)
             return
         }
 
@@ -93,11 +91,11 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     }
 
     private fun handleInvites(invites: InviteService.Invites) {
-        this.invites.adapter = inviteAdapter(invites.invited)
-        this.invitesEmptyHint.visibility = if (invites.invited.isNotEmpty()) View.GONE else View.VISIBLE
+        views.invites.adapter = inviteAdapter(invites.invited)
+        views.invitesEmpty.visibility = if (invites.invited.isNotEmpty()) View.GONE else View.VISIBLE
 
         val text = getString(R.string.invite_remaining, invites.inviteCount)
-        remainingInvites.text = text
+        views.remaining.text = text
 
         if (invites.inviteCount > 0) {
             enableInputViews()
@@ -120,7 +118,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     private fun onInviteSent() {
         Track.inviteSent()
 
-        Snackbar.make(mailField, R.string.invite_hint_success, Snackbar.LENGTH_SHORT)
+        Snackbar.make(views.mail, R.string.invite_hint_success, Snackbar.LENGTH_SHORT)
                 .configureNewStyle()
                 .setAction(R.string.okay, {})
                 .show()

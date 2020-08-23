@@ -37,6 +37,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.PrecomputedTextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
@@ -812,4 +813,12 @@ fun DialogFragment.hideSoftKeyboard() {
 
 fun Activity.hideSoftKeyboard() {
     AndroidUtility.hideSoftKeyboard(window?.decorView?.rootView)
+}
+
+fun FragmentActivity.show(dialog: DialogFragment, tag: String? = null) {
+    dialog.showNow(supportFragmentManager, tag)
+}
+
+fun Fragment.show(dialog: DialogFragment, tag: String? = null) {
+    dialog.showNow(childFragmentManager, tag)
 }

@@ -10,7 +10,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckedTextView
 import androidx.core.text.bold
 import androidx.core.view.isVisible
@@ -21,10 +20,12 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
+import com.pr0gramm.app.databinding.FragmentWriteMessageBinding
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.util.*
@@ -32,7 +33,6 @@ import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import kotterknife.bindView
 
 /**
  */
@@ -42,10 +42,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     private val voteService: VoteService by instance()
     private val suggestionService: UserSuggestionService by instance()
 
-    private val buttonSubmit: Button by bindView(R.id.submit)
-    private val messageText: LineMultiAutoCompleteTextView by bindView(R.id.new_message_text)
-    private val messageView: MessageView by bindView(R.id.message_view)
-    private val parentCommentsView: RecyclerView by bindView(R.id.authors)
+    private val views by bindViews(FragmentWriteMessageBinding::inflate)
 
     private val receiverName: String by lazy { intent.getStringExtra(ARGUMENT_RECEIVER_NAME) }
     private val receiverId: Long by lazy { intent.getLongExtra(ARGUMENT_RECEIVER_ID, 0) }
@@ -64,7 +61,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.fragment_write_message)
+        setContentView(views)
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)
@@ -77,27 +74,27 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         // and previous message
         updateMessageView()
 
-        buttonSubmit.setOnClickListener { sendMessageNow() }
+        views.submit.setOnClickListener { sendMessageNow() }
 
-        messageText.addTextChangedListener(object : SimpleTextWatcher() {
+        views.messageText.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val tooShort = s.toString().trim().length < 3
-                buttonSubmit.isEnabled = !tooShort
+                views.submit.isEnabled = !tooShort
                 invalidateOptionsMenu()
             }
         })
 
         val cacheKey = if (isCommentAnswer) "$itemId-$parentCommentId" else "msg-$receiverId"
-        TextViewCache.addCaching(messageText, cacheKey)
+        TextViewCache.addCaching(views.messageText, cacheKey)
 
-        messageText.setTokenizer(UsernameTokenizer())
-        messageText.setAdapter(UsernameAutoCompleteAdapter(suggestionService, this,
+        views.messageText.setTokenizer(UsernameTokenizer())
+        views.messageText.setAdapter(UsernameAutoCompleteAdapter(suggestionService, this,
                 android.R.layout.simple_dropdown_item_1line, "@"))
 
-        messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
+        views.messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor))
 
         if (isCommentAnswer) {
-            messageText.hint = getString(R.string.comment_hint)
+            views.messageText.hint = getString(R.string.comment_hint)
         }
 
         // only show if we can link to someone else
@@ -108,11 +105,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         if (shouldShowParentComments) {
             // make the views visible
             find<View>(R.id.authors_title).isVisible = true
-            parentCommentsView.isVisible = true
+            views.parentComments.isVisible = true
 
-            parentCommentsView.adapter = Adapter()
-            parentCommentsView.layoutManager = LinearLayoutManager(this)
-            parentCommentsView.itemAnimator = null
+            views.parentComments.adapter = Adapter()
+            views.parentComments.layoutManager = LinearLayoutManager(this)
+            views.parentComments.itemAnimator = null
 
             updateViewState()
         }
@@ -121,11 +118,11 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     override fun onPostResume() {
         super.onPostResume()
 
-        AndroidUtility.showSoftKeyboard(messageText)
+        AndroidUtility.showSoftKeyboard(views.messageText)
     }
 
     private fun updateViewState() {
-        val adapter = parentCommentsView.adapter as Adapter
+        val adapter = views.parentComments.adapter as Adapter
 
         adapter.submitList(parentComments.map { comment ->
             val isReceiverUser = comment.user == receiverName
@@ -138,9 +135,9 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         // sorted users, or empty if the list has focus
         val sortedUsers = selectedUsers.sorted()
         if (sortedUsers.isEmpty()) {
-            messageText.suffix = null
+            views.messageText.suffix = null
         } else {
-            messageText.suffix = sortedUsers.joinToString(" ") { "@$it" }
+            views.messageText.suffix = sortedUsers.joinToString(" ") { "@$it" }
         }
     }
 
@@ -166,12 +163,12 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.action_send)?.isEnabled = buttonSubmit.isEnabled
+        menu.findItem(R.id.action_send)?.isEnabled = views.submit.isEnabled
         return true
     }
 
     private fun finishAfterSending() {
-        TextViewCache.invalidate(messageText)
+        TextViewCache.invalidate(views.messageText)
 
         finish()
     }
@@ -192,7 +189,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val parentComment = parentCommentId
 
             launchWhenStarted(busyIndicator = true) {
-                withViewDisabled(buttonSubmit) {
+                withViewDisabled(views.submit) {
                     val newComments = withContext(NonCancellable + Dispatchers.Default) {
                         voteService.postComment(itemId, parentComment, message)
                     }
@@ -211,7 +208,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         } else {
             launchWhenStarted(busyIndicator = true) {
-                withViewDisabled(buttonSubmit) {
+                withViewDisabled(views.submit) {
                     withContext(NonCancellable + Dispatchers.Default) {
                         inboxService.send(receiverId, message)
                     }
@@ -225,19 +222,19 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     }
 
     private fun getMessageText(): String {
-        return messageText.text.toString().trim()
+        return views.messageText.text.toString().trim()
     }
 
     private fun updateMessageView() {
         // hide view by default and only show, if we found data
-        messageView.isVisible = false
+        views.messageView.isVisible = false
 
         val extras = intent?.extras ?: return
 
         val message = extras.getParcelableOrNull<MessageSerializer>(ARGUMENT_MESSAGE)?.message
         if (message != null) {
-            messageView.update(message, userService.name)
-            messageView.isVisible = true
+            views.messageView.update(message, userService.name)
+            views.messageView.isVisible = true
         }
     }
 

@@ -4,15 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.viewpager.widget.ViewPager
-import com.google.android.material.tabs.TabLayout
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.ActivityInboxBinding
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenCreated
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
 import com.pr0gramm.app.ui.fragments.GenericInboxFragment
@@ -21,7 +21,6 @@ import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.startActivity
 import kotlinx.coroutines.flow.collect
-import kotterknife.bindView
 
 
 /**
@@ -31,9 +30,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     private val userService: UserService by instance()
     private val inboxService: InboxService by instance()
 
-    private val coordinator: CoordinatorLayout by bindView(R.id.coordinator)
-    private val tabLayout: TabLayout by bindView(R.id.tabs)
-    private val pager: ViewPager by bindView(R.id.pager)
+    private val views by bindViews(ActivityInboxBinding::inflate)
 
     private lateinit var tabsAdapter: TabsStateAdapter
 
@@ -47,7 +44,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
             return
         }
 
-        setContentView(R.layout.activity_inbox)
+        setContentView(views)
 
         val toolbar = find<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -94,20 +91,20 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
             }
         }
 
-        pager.adapter = tabsAdapter
-        pager.offscreenPageLimit = 1
+        views.pager.adapter = tabsAdapter
+        views.pager.offscreenPageLimit = 1
 
-        pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        views.pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 onTabChanged()
             }
         })
 
-        tabLayout.setupWithViewPager(pager, true)
+        views.tabs.setupWithViewPager(views.pager, true)
 
         // restore previously selected tab
         if (savedInstanceState != null) {
-            pager.currentItem = savedInstanceState.getInt("tab")
+            views.pager.currentItem = savedInstanceState.getInt("tab")
         } else {
             handleNewIntent(intent)
         }
@@ -164,7 +161,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
     private fun showInboxType(type: InboxType?) {
         if (type != null && type.ordinal < tabsAdapter.getItemCount()) {
-            pager.currentItem = type.ordinal
+            views.pager.currentItem = type.ordinal
         }
     }
 
@@ -174,7 +171,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
     }
 
     private fun onTabChanged() {
-        val index = pager.currentItem
+        val index = views.pager.currentItem
         if (index >= 0 && index < tabsAdapter.getItemCount()) {
             title = tabsAdapter.getPageTitle(index)
         }
@@ -182,7 +179,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("tab", pager.currentItem)
+        outState.putInt("tab", views.pager.currentItem)
     }
 
     companion object {
