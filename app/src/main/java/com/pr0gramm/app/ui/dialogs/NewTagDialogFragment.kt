@@ -21,6 +21,8 @@ class NewTagDialogFragment :
     private val tagSuggestions: TagSuggestionService by instance()
 
     override fun onCreateDialog(contentView: View): Dialog {
+        isCancelable = false
+
         return dialog(this) {
             contentView(contentView)
             negative(R.string.cancel) { onCancelClicked() }

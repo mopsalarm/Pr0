@@ -21,8 +21,11 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
-import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
+import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.databinding.ActivityMainBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -381,19 +384,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun showInfoMessage(message: InfoMessage) {
         if (message.endOfLife ?: 0 >= AndroidUtility.buildVersionCode()) {
-            showDialog(this) {
-                contentWithLinks("Support für deine Version ist eingestellt. " +
-                        "Um die pr0gramm-App weiter benutzen zu können, lade die " +
-                        "aktuelle Version von https://app.pr0gramm.com herunter.")
-
-                positive(R.string.okay) {
-                    if (!BuildConfig.DEBUG) {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://app.pr0gramm.com")))
-                        finish()
-                    }
-                }
-            }
-
+            VersionNotSupportedDialogFragment().showNow(supportFragmentManager, null)
             return
         }
 
