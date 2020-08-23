@@ -71,7 +71,8 @@
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout
         android:id="@+id/fab_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="?fabOverlayBackgroundColor" />
 
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/fab"
@@ -79,6 +80,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         app:layout_behavior="com.leinardi.android.speeddial.SpeedDialView$SnackbarBehavior"
-        app:sdMainFabClosedSrc="@drawable/ic_add" />
+        app:sdMainFabClosedBackgroundColor="?fabColor"
+        app:sdMainFabClosedSrc="@drawable/ic_add"
+        app:sdMainFabOpenedBackgroundColor="?chipBackgroundColor" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

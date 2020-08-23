@@ -9,6 +9,10 @@
 
         <item name="chipBackgroundColor">#3a3a40</item>
 
+        <item name="fabColor">?colorAccent</item>
+        <item name="fabColorOpen">?chipBackgroundColor</item>
+        <item name="fabOverlayBackgroundColor">@color/sd_overlay_color</item>
+
         <item name="android:textColorLink">@color/blue_grey_500</item>
         <item name="buttonStyle">@style/Button</item>
         <item name="secondaryBackground">@color/secondary_background</item>
@@ -22,6 +26,7 @@
         <item name="imageButtonStyle">@style/BorderlessImageButtonStyle</item>
 
         <item name="colorControlNormal">?android:textColorPrimary</item>
+
     </style>
 
     <style name="AppTheme.Orange">
@@ -93,6 +98,12 @@
         <item name="searchTheme">@style/AppTheme.Black.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_black_dark</item>
         <item name="appIcon">@drawable/ic_app_black</item>
+
+        <item name="chipBackgroundColor">#212125</item>
+
+        <item name="fabColor">?colorPrimary</item>
+        <item name="fabColorOpen">?colorPrimary</item>
+        <item name="fabOverlayBackgroundColor">#aa000000</item>
 
         <!-- extra overrides -->
         <item name="drawerTheme">@style/DrawerTheme.Black</item>

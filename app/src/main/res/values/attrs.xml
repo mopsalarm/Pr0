@@ -2,7 +2,7 @@
 <resources>
     <declare-styleable name="AppTheme">
 
-    <attr name="loginBackground" format="reference" />
+        <attr name="loginBackground" format="reference" />
         <attr name="roundedCornerBackground" format="reference" />
         <attr name="drawerTheme" format="reference" />
         <attr name="appIcon" format="reference" />
@@ -10,6 +10,10 @@
         <attr name="bottomSheetBackground" format="reference" />
         <attr name="bottomSheetHandle" format="reference" />
         <attr name="dropshadowPrimaryDark" format="reference" />
+
+        <attr name="fabOverlayBackgroundColor" format="color|reference" />
+        <attr name="fabColor" format="color|reference" />
+        <attr name="fabColorOpen" format="color|reference" />
 
         <attr name="secondaryBackground" format="color" />
     </declare-styleable>
