@@ -858,12 +858,12 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         try {
             val generator: FancyExifThumbnailGenerator by instance()
 
+            val currentTitle = title
             val title = when {
-                title?.subtitle.isNullOrBlank() ->
-                    title?.title
+                currentTitle?.useSubtitleInTitle == true && currentTitle.subtitle?.isNotBlank() == true ->
+                    "${currentTitle.subtitle} in ${currentTitle.title}"
 
-                else ->
-                    title?.let { title -> "${title.subtitle} in ${title.title}" }
+                else -> currentTitle?.title
             }
 
             val fragment = PostPagerFragment.newInstance(feed, idx, commentRef, title)

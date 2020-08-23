@@ -76,7 +76,7 @@ object FeedFilterFormatter {
                 TitleFragment.Title(bookmarkTitle, context.getString(R.string.bookmark))
 
             else ->
-                TitleFragment.Title(formatted.title, formatted.subtitle)
+                TitleFragment.Title(formatted.title, formatted.subtitle, useSubtitleInTitle = true)
         }
     }
 
