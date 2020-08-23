@@ -84,8 +84,11 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         controlsView.find<View>(R.id.pause).setOnClickListener {
             val exo = exo ?: return@setOnClickListener
 
-            // toggle playbook
+            // toggle play
             exo.playWhenReady = !exo.playWhenReady
+
+            // publish state
+            videoPauseState.value = !exo.playWhenReady
 
             updatePauseViewIcon()
         }
@@ -95,11 +98,13 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         val exo = this.exo ?: return
 
         val icon = if (exo.playWhenReady) R.drawable.ic_video_pause else R.drawable.ic_video_play
-        controlsView.find<ImageView>(R.id.pause).setImageResource(icon)
 
+        val pauseView = controlsView.find<ImageView>(R.id.pause)
         if (!exo.playWhenReady) {
             val dr = AndroidUtility.getTintedDrawable(context, R.drawable.ic_video_play, ThemeHelper.accentColor)
-            controlsView.find<ImageView>(R.id.pause).setImageDrawable(dr)
+            pauseView.setImageDrawable(dr)
+        } else {
+            pauseView.setImageResource(icon)
         }
     }
 
@@ -140,7 +145,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             setVideoTextureView(find(R.id.texture_view))
 
             repeatMode = Player.REPEAT_MODE_ONE
-            playWhenReady = true
+            playWhenReady = !videoPauseState.value
             volume = 0f
 
             // don't forget to remove listeners in stop()

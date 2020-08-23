@@ -37,6 +37,8 @@ class PostViewModel(
 
     val state: StateFlow<State> = mutableState
 
+    var videoIsPaused = false
+
     private val item: FeedItem
         get() = state.value.item
 

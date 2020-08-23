@@ -83,8 +83,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     // start with an empty adapter here
     private val commentTreeHelper = CommentListener()
 
-    private val activeState = MutableStateFlow(false)
-
     private var fullscreenAnimator: ObjectAnimator? = null
 
     private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
@@ -211,11 +209,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         launchInViewScope {
-            val activeAndResumed = combine(activeState, lifecycle.asStateFlow()) { active, state ->
-                active && state.isAtLeast(Lifecycle.State.RESUMED)
-            }
+            val isActive = lifecycle.asStateFlow()
+                    .map { state -> state.isAtLeast(Lifecycle.State.RESUMED) }
+                    .distinctUntilChanged()
 
-            activeAndResumed.distinctUntilChanged().collect { active ->
+            isActive.collect { active ->
                 trace { "${feedItem.id}.activeState($active): Switching viewer state" }
 
                 if (active) {
@@ -647,15 +645,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onResume() {
         super.onResume()
-
         setHasOptionsMenu(true)
-        setActive(true)
-    }
-
-    override fun onPause() {
-
-        setActive(false)
-        super.onPause()
     }
 
     private fun showDeleteItemDialog() {
@@ -790,6 +780,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             mediaControlsContainer.minimumHeight = activity.dp(16)
         }
 
+        launchInViewScope {
+            // initialize with view model state
+            viewer.videoPauseState.value = model.videoIsPaused
+
+            // but react to updates from view
+            viewer.videoPauseState.collect { paused ->
+                model.videoIsPaused = paused
+            }
+        }
+
         return mediaViewState
     }
 
@@ -905,20 +905,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun isLoopTag(tag: Api.Tag): Boolean {
         val lower = tag.text.toLowerCase(Locale.GERMANY)
         return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
-    }
-
-    /**
-     * Called from the [PostPagerFragment] if this fragment
-     * is currently the active/selected fragment - or if it is not the active fragment anymore.
-
-     * @param active The new active status.
-     */
-    private fun setActive(active: Boolean) {
-        activeState.value = active
-
-        if (active) {
-            Track.viewItem(feedItem.id)
-        }
     }
 
     override fun onNewTags(tags: List<String>) {

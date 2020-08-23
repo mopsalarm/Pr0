@@ -30,6 +30,8 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
 import kotlin.math.max
@@ -54,6 +56,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val fancyThumbnailGenerator: FancyExifThumbnailGenerator by instance()
+
+    val videoPauseState = MutableStateFlow(false)
 
     /**
      * Returns the url that this view should display.
@@ -126,6 +130,12 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         // set preview info
         config.previewInfo?.let { updatePreview(it) }
+
+        onAttachedScope {
+            videoPauseState.collect { paused ->
+                logger.info { "Paused: $paused" }
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
