@@ -203,6 +203,12 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
 
                 title?.let { b.setTitle(it) }
 
+                when {
+                    contentText != null -> b.setTextContent(contentText!!)
+                    contentView != null -> b.setCustomContent(contentView!!)
+                    contentViewId != null -> b.setCustomContent(contentViewId!!)
+                }
+
                 // only one of those two is non zero.
                 contentText?.let { b.setTextContent(it) }
                 contentViewId?.let { b.setCustomContent(it) }
@@ -354,6 +360,11 @@ private class BottomSheetAlertDialog(ctx: Context, theme: Int = R.style.MyBottom
     fun setCustomContent(@LayoutRes content: Int) {
         customContent.removeAllViews()
         customContent.layoutInflater.inflate(content, customContent, true)
+    }
+
+    fun setCustomContent(@LayoutRes view: View) {
+        customContent.removeAllViews()
+        customContent.addView(view)
     }
 
     fun setTextContent(text: CharSequence) {
