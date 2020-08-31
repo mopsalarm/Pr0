@@ -36,6 +36,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.fragments.feed.update
+import com.pr0gramm.app.ui.fragments.pager.PostPagerFragment
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.viewer.*
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config

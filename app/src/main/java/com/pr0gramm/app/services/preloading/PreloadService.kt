@@ -28,9 +28,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.*
 import java.util.concurrent.TimeUnit
-import java.util.zip.Deflater
-import java.util.zip.DeflaterOutputStream
-import java.util.zip.InflaterInputStream
 
 
 /**
@@ -373,7 +370,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         }
 
         private fun deserializeItems(bytes: ByteArray): List<Item> {
-            return DataInputStream(InflaterInputStream(ByteArrayInputStream(bytes))).use { input ->
+            return Serde.deserialize(bytes) { input ->
                 listOfSize(input.readInt()) {
                     Item(
                             id = input.readLong(),
@@ -388,28 +385,22 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         private fun serializeItems(context: Context, items: List<FeedItem>): ByteArray {
             val uris = UriHelper.of(context)
 
-            // the user sometimes wants to download a lot of files. this breaks the 512k limit
-            // for parcelables and intents. for this to work, we serialize & compress the data.
-            val bytesOut = ByteArrayOutputStream()
+            val bytes = logger.time("Serialize items") {
+                Serde.serialize { out ->
+                    out.writeInt(items.size)
 
-            logger.time("Serialize items") {
-                DeflaterOutputStream(bytesOut, Deflater(Deflater.DEFAULT_COMPRESSION)).use { deflateOut ->
-                    DataOutputStream(deflateOut).use { out ->
-                        out.writeInt(items.size)
-
-                        for (item in items) {
-                            out.writeLong(item.id)
-                            out.writeUTF(uris.media(item).toString())
-                            out.writeUTF(uris.thumbnail(item.asThumbnail()).toString())
-                            out.writeUTF(if (item.isVideo) uris.fullThumbnail(item.asThumbnail()).toString() else "")
-                        }
+                    for (item in items) {
+                        out.writeLong(item.id)
+                        out.writeUTF(uris.media(item).toString())
+                        out.writeUTF(uris.thumbnail(item.asThumbnail()).toString())
+                        out.writeUTF(if (item.isVideo) uris.fullThumbnail(item.asThumbnail()).toString() else "")
                     }
                 }
             }
 
-            logger.info { "Serialized ${items.size} items as ${bytesOut.size()} bytes" }
+            logger.info { "Serialized ${items.size} items as ${bytes.size} bytes" }
 
-            return bytesOut.toByteArray()
+            return bytes
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.fragments
+package com.pr0gramm.app.ui.fragments.pager
 
 import android.os.Bundle
 import android.view.View
@@ -7,33 +7,47 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.FragmentPostPagerBinding
-import com.pr0gramm.app.feed.*
+import com.pr0gramm.app.feed.Feed
+import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.parcel.getParcelableOrNull
+import com.pr0gramm.app.parcel.getParcelableOrThrow
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
-import com.pr0gramm.app.ui.base.launchUntilViewDestroy
+import com.pr0gramm.app.ui.base.launchInViewScope
+import com.pr0gramm.app.ui.fragments.CommentRef
+import com.pr0gramm.app.ui.fragments.IdFragmentStatePagerAdapter
+import com.pr0gramm.app.ui.fragments.PreviewInfoSource
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.fragments.post.PostFragment
 import com.pr0gramm.app.util.arguments
-import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.observeChangeEx
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterIsInstance
 
 /**
  */
 class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_post_pager), FilterFragment, TitleFragment, PreviewInfoSource {
-    private val feedService: FeedService by instance()
 
     private val views by bindViews(FragmentPostPagerBinding::bind)
+
+    private val model by viewModels {
+        // get the feed to show and setup a loader to load more data
+        val feed = requireArguments().getParcelableOrThrow<Feed.FeedParcel>(ARG_FEED).feed
+        val startItem = requireArguments().getParcelableOrThrow<FeedItem>(ARG_START_ITEM)
+
+        PostPagerViewModel(
+                feed = feed, initialItem = startItem,
+                feedService = instance(),
+        )
+    }
 
     private lateinit var adapter: PostAdapter
 
@@ -41,47 +55,38 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
 
     private var latestActivePostFragment: PostFragment? = null
 
-    // to prevent double saving of current state
-    private var lastSavedPosition: Int = -1
-
     private var initialCommentRef: CommentRef? = null
 
-    private val settings = Settings.get()
+    private val fcb = object : FragmentManager.FragmentLifecycleCallbacks() {
+        override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+            if (f is PostFragment && latestActivePostFragment !== f) {
+                latestActivePostFragment = f
+                updateTitle()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initialCommentRef = arguments?.getParcelable(ARG_START_ITEM_COMMENT_REF)
+        initialCommentRef = requireArguments().getParcelableOrNull(ARG_START_ITEM_COMMENT_REF)
 
         // Listen for changes in fragments. We use this, because with the ViewPager2
         // callbacks we don't have any access to the fragment, and we don't even know,
         // when the fragment will be there and available.
-        val l = object : FragmentManager.FragmentLifecycleCallbacks() {
-            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
-                logger.debug { "Fragment was resumed." }
-                if (f is PostFragment && latestActivePostFragment !== f) {
-                    latestActivePostFragment = f
-                    onActiveFragmentChanged()
-                }
-            }
-        }
-
-        childFragmentManager.registerFragmentLifecycleCallbacks(l, false)
+        childFragmentManager.registerFragmentLifecycleCallbacks(fcb, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // get the feed to show and setup a loader to load more data
-        val previousFeed = getArgumentFeed(savedInstanceState)
-        val manager = FeedManager(viewLifecycleOwner.lifecycleScope, feedService, previousFeed)
-
         // create the adapter on the view
-        adapter = PostAdapter(manager, previousFeed)
+        adapter = PostAdapter()
 
-        launchUntilViewDestroy {
-            manager.updates.filterIsInstance<FeedManager.Update.NewFeed>().collect { update ->
-                adapter.feed = update.feed
+        launchInViewScope {
+            model.state.collect { state ->
+                logger.debug { "Update state: $state" }
+                adapter.feed = state.feed
             }
         }
 
@@ -96,19 +101,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
                 }
 
                 override fun onPageSelected(position: Int) {
-                    logger.info { "Page was selected: $position" }
-
-                    val fragment = adapter.getFragment(position)
-                    if (fragment != null && fragment != latestActivePostFragment) {
-                        childFragmentManager.commitNow(allowStateLoss = true) {
-                            val previousFragment = latestActivePostFragment
-                            if (previousFragment != null && previousFragment.isAdded) {
-                                setMaxLifecycle(previousFragment, Lifecycle.State.STARTED)
-                            }
-
-                            setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
-                        }
-                    }
+                    activateFragmentAt(position)
                 }
 
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
@@ -129,34 +122,46 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
 
         // calculate index of the first item to show if this is the first
         // time we show this fragment.
-        makeItemCurrent(getArgumentStartItem(savedInstanceState))
+        makeItemCurrent(model.currentItem)
     }
 
-    private fun onActiveFragmentChanged() {
-        val mainActivity = activity as? MainActivity
-        mainActivity?.updateActionbarTitle()
+    private fun activateFragmentAt(position: Int) {
+        val fragment = adapter.getFragment(position)
+        if (fragment != null && fragment != latestActivePostFragment) {
+            childFragmentManager.commitNow(allowStateLoss = true) {
+                val previousFragment = latestActivePostFragment
+                if (previousFragment != null && previousFragment.isAdded) {
+                    setMaxLifecycle(previousFragment, Lifecycle.State.STARTED)
+                }
+
+                setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+            }
+        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
 
-        val item = getArgumentStartItem(savedInstanceState)
-
-        if (adapter.feed.getOrNull(views.pager.currentItem)?.id != item.id) {
-            // the position of the view pager might have been saved. We need to re-save it now.
-            logger.info { "Going to restore view position in onViewStateRestored" }
-            makeItemCurrent(item)
+        // if we've restored only a subset of the items, the index will be out of range.
+        // we now need to restore it based on the item id.
+        if (adapter.feed.getOrNull(views.pager.currentItem)?.id != model.currentItem.id) {
+            logger.debug { "Going to restore view position in onViewStateRestored" }
+            makeItemCurrent(model.currentItem)
         }
     }
 
+    private fun updateTitle() {
+        val activity = activity as? MainActivity ?: return
+        activity.updateActionbarTitle()
+    }
+
     override fun onStop() {
-        latestActivePostFragment?.feedItem?.let { feedItem ->
-            val feed = adapter.feed
-            if (feedItem in feed) {
-                val target = targetFragment as? FeedFragment
-                        ?: return@let
-                target.updateFeedItemTarget(adapter.feed, feedItem)
-            }
+        val target = targetFragment as? FeedFragment
+
+        // merge the updated feed back into our parent fragment.
+        val feed = model.state.value.feed
+        if (target != null && model.currentItem.id in feed) {
+            target.updateFeedItemTarget(feed, model.currentItem)
         }
 
         super.onStop()
@@ -165,8 +170,10 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 
-        logger.info { "Restore feed at index: $index (${item.id})" }
-        views.pager.setCurrentItem(index, false)
+        if (views.pager.currentItem != index) {
+            logger.info { "Move pager to item ${item.id} at index: $index" }
+            views.pager.setCurrentItem(index, false)
+        }
     }
 
     override fun previewInfoFor(item: FeedItem): PreviewInfo? {
@@ -174,43 +181,18 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
     }
 
     /**
-     * Get the feed from the given bundle.
-     */
-    private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val parceled = savedState?.getParcelableOrNull<Feed.FeedParcel>(ARG_FEED)
-                ?: arguments?.getParcelableOrNull<Feed.FeedParcel>(ARG_FEED)
-                ?: throw IllegalStateException("No feed found.")
-
-        return parceled.feed
-    }
-
-    /**
-     * @see getArgumentFeed
-     */
-    private fun getArgumentStartItem(savedState: Bundle?): FeedItem {
-        return savedState?.getParcelableOrNull<FeedItem>(ARG_START_ITEM)
-                ?: arguments?.getParcelableOrNull<FeedItem>(ARG_START_ITEM)
-                ?: throw IllegalStateException("No initial item found.")
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        saveStateToBundle(outState)
-    }
-
-    /**
      * Returns the feed filter for this fragment.
      */
     override val currentFilter: FeedFilter
-        get() = adapter.feed.filter
+        get() = model.state.value.feed.filter
 
     override val title: TitleFragment.Title?
         get() = buildFragmentTitle()
 
     private fun buildFragmentTitle(): TitleFragment.Title? {
-        val titleOverride = arguments?.getString(ARG_TITLE)
+        val titleOverride = requireArguments().getString(ARG_TITLE)
 
-        if (settings.useTopTagAsTitle) {
+        if (Settings.get().useTopTagAsTitle) {
             // fetch title from the current active post fragment
             var title = latestActivePostFragment?.title
 
@@ -241,22 +223,6 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
         (activity as MainActionHandler).onFeedFilterSelected(newFilter)
     }
 
-    private fun saveStateToBundle(outState: Bundle) {
-        if (view != null && adapter.feed.isNotEmpty()) {
-            val position = views.pager.currentItem.coerceIn(adapter.feed.indices)
-
-            if (lastSavedPosition != position) {
-                lastSavedPosition = position
-
-                val item = adapter.feed[position]
-                outState.putParcelable(ARG_START_ITEM, item)
-                outState.putParcelable(ARG_FEED, adapter.feed.parcelAround(position))
-
-                logger.debug { "Saved $position (id=${item.id})" }
-            }
-        }
-    }
-
     /**
      * Sets the pixels that should be used in the transition.
      */
@@ -264,30 +230,37 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
         this.previewInfo = previewInfo
     }
 
-    private inner class PostAdapter(
-            private val manager: FeedManager,
-            feed: Feed)
+    private inner class PostAdapter
         : IdFragmentStatePagerAdapter(childFragmentManager) {
 
-        var feed: Feed by observeChangeEx(feed) { oldValue, newValue ->
-            notifyDataSetChanged()
+        var feed: Feed by observeChangeEx(Feed()) { oldValue, newValue ->
+            if (oldValue != newValue) {
+                notifyDataSetChanged()
+            }
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
             super.setPrimaryItem(container, position, `object`)
-            arguments?.let { args -> saveStateToBundle(args) }
+
+            val currentItemIndex = views.pager.currentItem
+            val currentItem = feed.getOrNull(currentItemIndex)
+            logger.debug { "setPrimaryItem($currentItemIndex, ${currentItem?.id})" }
+            if (currentItem != null) {
+                // item was updated, make it the new current one.
+                model.currentItem = currentItem
+            }
         }
 
         override fun getItem(position: Int): Fragment {
-            if (!manager.isLoading) {
-                if (position > feed.size - 12) {
+            when {
+                position > feed.size - 12 -> {
                     logger.debug { "Requested pos=$position, load next page" }
-                    manager.next()
+                    model.triggerLoadNext()
                 }
 
-                if (position < 12) {
+                position < 12 -> {
                     logger.debug { "Requested pos=$position, load prev page" }
-                    manager.previous()
+                    model.triggerLoadPrev()
                 }
             }
 

@@ -20,8 +20,8 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     val feedType: FeedType get() = filter.feedType
 
-    val oldestItem: FeedItem? get() = items.maxWith(itemComparator)
-    val newestItem: FeedItem? get() = items.minWith(itemComparator)
+    val oldestItem: FeedItem? get() = items.maxWithOrNull(itemComparator)
+    val newestItem: FeedItem? get() = items.minWithOrNull(itemComparator)
 
     /**
      * Merges this feed with the provided low level feed representation
@@ -67,6 +67,10 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return item.id(feedType)
     }
 
+    operator fun contains(id: Long): Boolean {
+        return any { item -> item.id == id }
+    }
+
     fun indexById(itemId: Long): Int? {
         val index = items.indexOfFirst { it.id == itemId }
         return if (index >= 0) index else null
@@ -78,13 +82,13 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     fun parcelAround(pivot: Int): FeedParcel {
         // how many items to save to older and newer than the pivot item.
-        val itemCountAround = 64
+        val itemCountAround = 16
 
         // add a subset of the items
         val start = (pivot - itemCountAround).coerceIn(0, items.size)
         val stop = (pivot + itemCountAround).coerceIn(0, items.size)
 
-        return FeedParcel(copy(
+        return FeedParcel(this, copy(
                 isAtStart = isAtStart && start == 0,
                 isAtEnd = false,
                 items = this.items.subList(start, stop).toList()))
@@ -101,20 +105,18 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return if (overlap) mergeWith(other) else null
     }
 
-    class FeedParcel(val feed: Feed) : DefaultParcelable {
-
+    class FeedParcel(val feed: Feed, private val partial: Feed = feed) : DefaultParcelable {
         override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.write(feed.filter)
-            dest.writeInt(ContentType.combine(feed.contentType))
-            dest.writeBooleanCompat(feed.isAtStart)
-            dest.write(feed.created)
-            dest.writeValues(feed.items)
+            dest.write(partial.filter)
+            dest.writeInt(ContentType.combine(partial.contentType))
+            dest.writeBooleanCompat(partial.isAtStart)
+            dest.write(partial.created)
+            dest.writeValues(partial.items)
         }
 
         companion object CREATOR : SimpleCreator<FeedParcel>() {
-
             override fun createFromParcel(source: Parcel): FeedParcel = with(source) {
-                return FeedParcel(Feed(
+                return FeedParcel(feed = Feed(
                         filter = read(FeedFilter),
                         contentType = ContentType.decompose(readInt()),
                         isAtStart = readBooleanCompat(),

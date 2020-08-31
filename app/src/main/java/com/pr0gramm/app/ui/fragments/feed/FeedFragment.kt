@@ -32,7 +32,7 @@ import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.ItemUserAdminDialog
 import com.pr0gramm.app.ui.fragments.OverscrollLinearSmoothScroller
-import com.pr0gramm.app.ui.fragments.PostPagerFragment
+import com.pr0gramm.app.ui.fragments.pager.PostPagerFragment
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
@@ -1146,7 +1146,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (lastVisibleItem >= 0 && totalItemCount > maxEdgeDistance && lastVisibleItem >= totalItemCount - maxEdgeDistance) {
                     logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount. Last feed item is ${feed.oldestItem}" }
-                    feedStateModel.loaderNext()
+                    feedStateModel.triggerLoadNext()
                 }
             }
 
@@ -1154,7 +1154,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
                 if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
                     logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestItem}" }
-                    feedStateModel.loaderPrevious()
+                    feedStateModel.triggerLoadPrev()
                 }
             }
         }

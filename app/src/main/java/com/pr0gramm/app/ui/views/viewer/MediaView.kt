@@ -131,9 +131,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         // set preview info
         config.previewInfo?.let { updatePreview(it) }
 
-        onAttachedScope {
-            videoPauseState.collect { paused ->
-                logger.info { "Paused: $paused" }
+        debugOnly {
+            onAttachedScope {
+                videoPauseState.collect { paused ->
+                    logger.info { "Paused: $paused" }
+                }
             }
         }
     }

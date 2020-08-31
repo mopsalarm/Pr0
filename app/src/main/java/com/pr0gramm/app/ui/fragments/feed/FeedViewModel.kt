@@ -247,7 +247,8 @@ class FeedViewModel(
             return
 
         // get the most recent item in the updated feed items
-        val newestItem = (new - old).filter { !it.isPinned }.maxBy { new.feedTypeId(it) } ?: return
+        val newestItem = (new - old).filter { !it.isPinned }.maxByOrNull { new.feedTypeId(it) }
+                ?: return
 
         // add 'repost' to query
         val queryTerm = Tags.join("! 'repost'", filter.tags)
@@ -279,7 +280,7 @@ class FeedViewModel(
         loader.restart()
     }
 
-    fun loaderNext() {
+    fun triggerLoadNext() {
         feedState.update { previousState ->
             previousState.copy(loading = FeedManager.LoadingSpace.NEXT)
         }
@@ -287,7 +288,7 @@ class FeedViewModel(
         loader.next()
     }
 
-    fun loaderPrevious() {
+    fun triggerLoadPrev() {
         feedState.update { previousState ->
             previousState.copy(loading = FeedManager.LoadingSpace.PREV)
         }
