@@ -23,6 +23,7 @@ import com.pr0gramm.app.ui.base.withErrorDialog
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
+import java.text.DateFormat
 import kotlin.math.min
 
 
@@ -78,7 +79,8 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         captionView.setOnLongClickListener { _ ->
             val item = this.feedItem
             if (item != null && scoreIsVisible()) {
-                val text = "${item.up} Blussies, ${item.down} Minus"
+                val date = item.created.toString(DateFormat.getDateTimeInstance())
+                val text = "${item.up} Blussies, ${item.down} Minus\nErstellt am $date"
 
                 Snackbar.make(this, text, Snackbar.LENGTH_SHORT)
                         .configureNewStyle()

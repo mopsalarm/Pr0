@@ -13,6 +13,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
+import java.text.DateFormat
 
 /**
  */
@@ -82,7 +83,8 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     override fun onLongClick(v: View?): Boolean {
         if (v === statsView) {
             val score = this.score ?: return false
-            val msg = String.format("%d Blussies, %d Minus", score.up, score.down)
+            val date = date.toString(DateFormat.getDateTimeInstance())
+            val msg = "${score.up} Blussies, ${score.down} Minus.\nErstellt am $date"
 
             Snackbar.make(this, msg, Snackbar.LENGTH_SHORT)
                     .configureNewStyle()
