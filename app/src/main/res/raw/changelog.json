@@ -1,5 +1,14 @@
 [
   {
+    "version": 187,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "GIFs werden wieder richtig angezeigt."
+      }
+    ]
+  },
+  {
     "version": 186,
     "changes": [
       {
