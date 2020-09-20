@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "GIFs werden wieder richtig angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Hinzufügen zu Sammlungen wird jetzt für Benutzer ohne pr0mium richtig ausgeblendet."
       }
     ]
   },

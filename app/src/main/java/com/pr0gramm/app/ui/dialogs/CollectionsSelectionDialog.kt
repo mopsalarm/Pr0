@@ -203,10 +203,18 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
 
         holder.name.text = value.collection.uniqueTitle
         holder.icon.setImageResource(imageId)
-        holder.itemView.isEnabled = value.enabled
+
+        for (view in listOf(holder.itemView, holder.checkbox, holder.edit)) {
+            view.isEnabled = value.enabled || value.selected
+        }
 
         holder.checkbox.setOnCheckedChangeListenerWithInitial(value.selected) { isChecked ->
             collectionClicked(value.collection, isChecked)
+
+            // update state
+            for (view in listOf(holder.itemView, holder.checkbox, holder.edit)) {
+                view.isEnabled = value.enabled
+            }
         }
 
         holder.itemView.setOnClickListener {
