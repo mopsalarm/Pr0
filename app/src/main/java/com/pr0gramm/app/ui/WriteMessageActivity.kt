@@ -204,7 +204,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                 }
             }
 
-            Track.writeComment()
+            Track.writeComment(root = parentCommentId == 0L)
 
         } else {
             launchWhenStarted(busyIndicator = true) {

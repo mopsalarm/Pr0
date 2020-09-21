@@ -62,8 +62,10 @@ object Track : InjectorAware {
         send("logout")
     }
 
-    fun writeComment() {
-        send("write_comment")
+    fun writeComment(root: Boolean) {
+        send("write_comment") {
+            putBoolean("root", root)
+        }
     }
 
     fun writeMessage() {
