@@ -1,12 +1,14 @@
 package com.pr0gramm.app.ui
 
 import android.net.Uri
+import android.os.BadParcelableException
 import android.os.Bundle
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BrowserHelper
 
 /**
@@ -18,7 +20,19 @@ class UpdateActivity : BaseAppCompatActivity("UpdateActivity"), DialogDismissLis
         super.onCreate(savedInstanceState)
 
 
-        val update: Update? = intent.getParcelableExtra(EXTRA_UPDATE)
+        val update: Update? = try {
+            intent.getParcelableExtra(EXTRA_UPDATE)
+        } catch (err: BadParcelableException) {
+            // do not crash, sometimes this activity is called after the update was installed.
+            // the parcelable is then out of date and crashes the activity.
+            null
+        }
+
+        if (AndroidUtility.buildVersionCode() == update?.version) {
+            // we're already on the right version, stop here.
+            return finish()
+        }
+
         if (savedInstanceState == null && update != null) {
             UpdateChecker.download(this, update)
 
