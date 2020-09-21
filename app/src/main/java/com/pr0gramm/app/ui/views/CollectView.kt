@@ -23,6 +23,9 @@ class CollectView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     var itemId: Long by observeChange(def = 0L) { onUpdateItemId() }
 
+    val isCollected: Boolean
+        get() = collectionItemsService.isItemInAnyCollection(itemId)
+
     init {
         setImageDrawable(R.drawable.ic_collection_no,
                 context.getStyledColor(android.R.attr.textColorSecondary))
@@ -35,7 +38,7 @@ class CollectView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     private fun onUpdateItemId() {
-        if (collectionItemsService.isItemInAnyCollection(itemId)) {
+        if (isCollected) {
             setImageDrawable(R.drawable.ic_collection_yes,
                     context.getColorCompat(ThemeHelper.accentColor))
         } else {

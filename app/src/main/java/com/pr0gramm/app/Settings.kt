@@ -24,7 +24,7 @@ import java.util.*
 /**
  */
 class Settings(private val app: Application) : SharedPreferences.OnSharedPreferenceChangeListener {
-    private val preferenceChanged = BroadcastChannel<String>(1)
+    private val preferenceChanged = BroadcastChannel<String>(16)
     private val preferences = PreferenceManager.getDefaultSharedPreferences(app)
 
     init {
@@ -141,6 +141,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val themeName: String
         get() = preferences.getString("pref_theme", Themes.ORANGE.name)!!
+
+    val upvoteOnCollect: Boolean
+        get() = preferences.getBoolean("pref_upvote_on_collect", false)
 
     val mockApi: Boolean
         get() = BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false)

@@ -1,5 +1,14 @@
 [
   {
+    "version": 188,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Option um beim Sammeln eines Posts automatisch ein Blussi zu vergeben."
+      }
+    ]
+  },
+  {
     "version": 187,
     "changes": [
       {

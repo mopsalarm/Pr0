@@ -63,7 +63,7 @@ class NavigationProvider(
     private val refreshAfterNavItemWasDeletedStateFlow = MutableStateFlow(false)
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
-        return lazy(LazyThreadSafetyMode.PUBLICATION) {
+        return lazy {
             AppCompatResources.getDrawable(context, id)!!
         }
     }
@@ -251,7 +251,7 @@ class NavigationProvider(
     /**
      * Returns the menu item that takes the user to the upload activity.
      */
-    private val uploadNavigationItem: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val uploadNavigationItem: NavigationItem by lazy {
         NavigationItem(
                 action = ActionType.UPLOAD,
                 title = getString(R.string.action_upload),
@@ -261,7 +261,7 @@ class NavigationProvider(
     /**
      * Divider to divide item groups
      */
-    private val staticItemDivider: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemDivider: NavigationItem by lazy {
         NavigationItem(ActionType.DIVIDER,
                 layout = R.layout.left_drawer_nav_item_divider)
     }
@@ -270,31 +270,31 @@ class NavigationProvider(
         return NavigationItem(action, title = title, icon = icon, colorOverride = 0x80808080.toInt())
     }
 
-    private val staticItemFAQ: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemFAQ: NavigationItem by lazy {
         staticItem(ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
     }
 
-    private val staticItemSettings: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemSettings: NavigationItem by lazy {
         staticItem(ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
     }
 
-    private val staticItemInvites: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemInvites: NavigationItem by lazy {
         staticItem(ActionType.INVITES, iconInvite, getString(R.string.action_invite))
     }
 
-    private val staticItemContact: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemContact: NavigationItem by lazy {
         staticItem(ActionType.CONTACT, iconContact, getString(R.string.action_contact))
     }
 
-    private val staticItemPremium: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemPremium: NavigationItem by lazy {
         staticItem(ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
     }
 
-    private val staticItemLogin: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemLogin: NavigationItem by lazy {
         staticItem(ActionType.LOGIN, iconLogin, getString(R.string.action_login))
     }
 
-    private val staticItemLogout: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    private val staticItemLogout: NavigationItem by lazy {
         staticItem(ActionType.LOGOUT, iconLogout, getString(R.string.action_logout))
     }
 
@@ -364,7 +364,7 @@ class NavigationProvider(
                          val isSelected: Boolean = false,
                          val colorOverride: Int? = null) {
 
-        private val hashCode by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        private val hashCode by lazy {
             listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode()
         }
 

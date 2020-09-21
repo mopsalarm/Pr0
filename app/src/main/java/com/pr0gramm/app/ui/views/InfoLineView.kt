@@ -12,15 +12,18 @@ import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.FollowState
+import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.DrawableCache
 import com.pr0gramm.app.ui.base.whileIsAttachedScope
 import com.pr0gramm.app.ui.base.withErrorDialog
 import com.pr0gramm.app.ui.configureNewStyle
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import java.text.DateFormat
@@ -29,10 +32,12 @@ import kotlin.math.min
 
 /**
  */
-class InfoLineView(context: Context) : LinearLayout(context) {
+class InfoLineView(context: Context) : LinearLayout(context), InjectorViewMixin {
     init {
         inflate(context, R.layout.post_info_line, this)
     }
+
+    private val singleShotService: SingleShotService by instance()
 
     private val captionView: TextView = find(R.id.date)
     private val usernameView: UsernameView = find(R.id.username)
@@ -92,13 +97,49 @@ class InfoLineView(context: Context) : LinearLayout(context) {
         }
 
         collectionView.setOnClickListener {
-            onDetailClickedListener?.collectClicked()
+            collectClicked()
         }
 
         collectionView.setOnLongClickListener {
             onDetailClickedListener?.showCollectionsClicked()
             true
         }
+    }
+
+    private fun collectClicked() {
+        if (!collectionView.isCollected && voteController.currentVote !== Vote.UP) {
+            when {
+                Settings.get().upvoteOnCollect -> {
+                    triggerUpvoteOnCollect()
+                }
+
+                singleShotService.markAsDoneOnce("hint:upvoteOnCollect") -> {
+                    askUpvoteOnCollect()
+                }
+            }
+        }
+
+        onDetailClickedListener?.collectClicked()
+    }
+
+    private fun askUpvoteOnCollect() {
+        showDialog(context) {
+            content(R.string.hint_upvote_on_collect)
+            negative(android.R.string.no)
+            positive(android.R.string.yes) {
+                Settings.get().edit {
+                    putBoolean("pref_upvote_on_collect", true)
+                }
+
+                // upvote this post too
+                triggerUpvoteOnCollect()
+            }
+        }
+    }
+
+    private fun triggerUpvoteOnCollect() {
+        // do an upvote if possible
+        voteController.onVoteClicked?.invoke(Vote.UP)
     }
 
     /**

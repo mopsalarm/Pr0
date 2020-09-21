@@ -95,6 +95,12 @@
                 android:title="@string/prefcat_post">
 
                 <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_upvote_on_collect"
+                    android:summary="@string/pref_upvote_on_collect_summary"
+                    android:title="@string/pref_upvote_on_collect_title" />
+
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_rotate_in_fullscreen"
                     android:summary="@string/pref_rotate_in_fullscreen_summary"

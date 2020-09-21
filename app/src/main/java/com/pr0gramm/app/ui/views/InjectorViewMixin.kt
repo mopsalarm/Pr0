@@ -7,6 +7,6 @@ interface InjectorViewMixin {
     fun getContext(): Context
 }
 
-inline fun <reified T : Any> InjectorViewMixin.instance(): Lazy<T> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+inline fun <reified T : Any> InjectorViewMixin.instance(): Lazy<T> = lazy(LazyThreadSafetyMode.NONE) {
     getContext().injector.instance<T>()
 }

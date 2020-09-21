@@ -565,5 +565,8 @@
     <string name="bookmark">Bookmark</string>
     <string name="uploads_in">Uploads in %s</string>
     <string name="uploads">Uploads</string>
+    <string name="pref_upvote_on_collect_title"><![CDATA[Collect & Upvote]]></string>
+    <string name="pref_upvote_on_collect_summary">Automatically upvote collected items</string>
+    <string name="hint_upvote_on_collect">Do you want to automatically upvote a post when you add it to a collection?</string>
 </resources>
 
