@@ -22,15 +22,11 @@ import java.util.*
 
 /**
  */
-object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
+object Settings {
     private lateinit var context: Context
     private lateinit var preferences: SharedPreferences
 
     private val preferenceChanged = BroadcastChannel<String>(16)
-
-    init {
-        this.preferences.registerOnSharedPreferenceChangeListener(this)
-    }
 
     val contentTypeSfw: Boolean
         get() = preferences.getBoolean("pref_feed_type_sfw", true)
@@ -120,7 +116,7 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
 
     var feedStartWithUri: Uri?
         get() = preferences.getStringOrNull("pref_feed_start_with_uri")?.let { Uri.parse(it) }
-        set(uri) = preferences.edit { putString("pref_feed_start_with_uri", uri?.toString()) }
+        set(uri) = edit { putString("pref_feed_start_with_uri", uri?.toString()) }
 
     val feedStartAtSfw: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_sfw", false)
@@ -191,7 +187,7 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
 
     fun resetContentTypeSettings() {
         // reset settings.
-        preferences.edit {
+        edit {
             putBoolean("pref_feed_type_sfw", true)
             putBoolean("pref_feed_type_nsfw", false)
             putBoolean("pref_feed_type_nsfl", false)
@@ -202,8 +198,8 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
         return preferences
     }
 
-    fun edit(edits: SharedPreferences.Editor.() -> Unit) {
-        return preferences.edit { edits() }
+    inline fun edit(crossinline edits: SharedPreferences.Editor.() -> Unit) {
+        return raw().edit { edits() }
     }
 
     /**
@@ -212,10 +208,6 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
      */
     fun changes(): Flow<String> {
         return preferenceChanged.asFlow()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        preferenceChanged.offer(key)
     }
 
     enum class ConfirmOnMobile(val value: Int) {
@@ -236,10 +228,6 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
         return changes().map { this.what() }.distinctUntilChanged()
     }
 
-    fun <T> observe(what: Settings.() -> T): Flow<T> {
-        return changes(what).distinctUntilChanged()
-    }
-
     fun initialize(context: Context) {
         PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
 
@@ -247,6 +235,11 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
         this.preferences = PreferenceManager.getDefaultSharedPreferences(Settings.context)
 
         migrate(preferences)
+
+        // react to changes
+        preferences.registerOnSharedPreferenceChangeListener { _, key ->
+            preferenceChanged.offer(key)
+        }
     }
 }
 
