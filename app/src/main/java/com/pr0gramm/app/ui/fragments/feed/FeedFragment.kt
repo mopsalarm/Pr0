@@ -907,6 +907,10 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
     private fun createRecyclerViewClickListener() {
+        // this is triggered sometimes by a LongPressListener after the fragment
+        // is destroyed. we guard against crashing by checking if the view still exists.
+        view ?: return
+
         val listener = RecyclerItemClickListener(views.recyclerView)
 
         listener.itemClicked = { view ->
