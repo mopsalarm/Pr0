@@ -179,7 +179,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         createRecyclerViewClickListener()
 
         // execute a search when we get a search term
-        views.searchOptions.searchQuery = { this.performSearch(it) }
+        views.searchOptions.searchQuery = { performSearch(it) }
         views.searchOptions.searchCanceled = { hideSearchContainer() }
 
         // restore open search
@@ -822,6 +822,10 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun performSearch(query: SearchOptionsView.SearchQuery) {
+        // this is triggered sometimes by an EditorAction after the fragment
+        // is destroyed. we guard against crashing by checking if the view still exists.
+        view ?: return
+
         hideSearchContainer()
 
         val current = currentFilter
