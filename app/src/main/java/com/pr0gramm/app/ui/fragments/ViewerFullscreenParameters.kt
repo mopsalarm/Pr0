@@ -4,6 +4,7 @@ import android.app.Activity
 import android.graphics.PointF
 import android.view.View
 import com.pr0gramm.app.util.AndroidUtility.screenSize
+import kotlin.math.min
 
 /**
  * Fullscreen parameters for a viewer. This is used with [PostFragment]
@@ -34,11 +35,11 @@ class ViewerFullscreenParameters private constructor(scale: Float, val trY: Floa
             val pivot = PointF(viewerWidth / 2f, viewerHeight - 0.5f * viewerHeight + viewer.paddingTop)
             val trY = windowHeight / 2f - pivot.y
 
-            val scaleRot = Math.min(
+            val scaleRot = min(
                     windowHeight / viewerWidth,
                     windowWidth / viewerHeight)
 
-            val scaleNoRot = Math.min(
+            val scaleNoRot = min(
                     windowHeight / viewerHeight,
                     windowWidth / viewerWidth)
 
