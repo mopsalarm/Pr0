@@ -8,7 +8,10 @@ import com.pr0gramm.app.util.AndroidUtility.screenSize
 /**
  * Fullscreen parameters for a viewer. This is used with [PostFragment]
  */
-class ViewerFullscreenParameters private constructor(val scale: Float, val trY: Float, val pivot: PointF, val rotation: Float) {
+class ViewerFullscreenParameters private constructor(scale: Float, val trY: Float, val pivot: PointF, val rotation: Float) {
+    // work against broken calculations
+    val scale = if (scale.isNaN()) 1.0 else scale
+
     companion object {
         fun forViewer(activity: Activity, viewer: View, rotateIfNeeded: Boolean): ViewerFullscreenParameters {
             val screenSize = screenSize(activity)
