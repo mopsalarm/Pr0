@@ -118,7 +118,7 @@ inline fun handlePlainTextPaste(view: EditText, superCall: (id: Int) -> Boolean)
 }
 
 fun adjustImeOptions(view: EditText) {
-    if (Settings.get().privateInput) {
+    if (Settings.privateInput) {
         view.imeOptions = view.imeOptions or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
     }
 }

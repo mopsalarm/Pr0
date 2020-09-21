@@ -14,8 +14,6 @@ import retrofit2.http.POST
 class SettingsTrackerService(httpClient: OkHttpClient) {
     private val logger = Logger("SettingsTrackerService")
 
-    private val settings: Settings = Settings.get()
-
     private val httpInterface: HttpInterface = Retrofit.Builder()
             .baseUrl("$ServiceBaseURL/")
             .client(httpClient)
@@ -25,10 +23,10 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
             .create(HttpInterface::class.java)
 
     suspend fun track() {
-        val values = settings.raw().all.filterKeys { it.startsWith("pref_") }
+        val values = Settings.raw().all.filterKeys { it.startsWith("pref_") }
 
         val payload: Map<String, Any?> = mapOf(
-                "_id" to settings.raw().getStringOrNull("__unique_settings_id"),
+                "_id" to Settings.raw().getStringOrNull("__unique_settings_id"),
                 "version" to BuildConfig.VERSION_CODE,
                 "abis" to Build.SUPPORTED_ABIS.joinToString(","),
                 "settings" to values)

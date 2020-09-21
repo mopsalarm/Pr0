@@ -1,6 +1,5 @@
 package com.pr0gramm.app
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -23,9 +22,11 @@ import java.util.*
 
 /**
  */
-class Settings(private val app: Application) : SharedPreferences.OnSharedPreferenceChangeListener {
+object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
+    private lateinit var context: Context
+    private lateinit var preferences: SharedPreferences
+
     private val preferenceChanged = BroadcastChannel<String>(16)
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(app)
 
     init {
         this.preferences.registerOnSharedPreferenceChangeListener(this)
@@ -93,11 +94,11 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         get() {
             var prefValue = preferences.getString("pref_confirm_play_on_mobile_list", null)
             if (prefValue == null) {
-                prefValue = app.getString(R.string.pref_confirm_play_on_mobile_default)
+                prefValue = context.getString(R.string.pref_confirm_play_on_mobile_default)
             }
 
             for (enumValue in ConfirmOnMobile.values()) {
-                if (app.getString(enumValue.value) == prefValue) {
+                if (context.getString(enumValue.value) == prefValue) {
                     return enumValue
                 }
             }
@@ -144,9 +145,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
 
     val upvoteOnCollect: Boolean
         get() = preferences.getBoolean("pref_upvote_on_collect", false)
-
-    val mockApi: Boolean
-        get() = BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false)
 
     val enableQuickPeek: Boolean
         get() = preferences.getBoolean("pref_enable_quick_peek", true)
@@ -234,73 +232,69 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
         COLLECT,
     }
 
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        private lateinit var instance: Settings
+    fun <T> changes(what: Settings.() -> T): Flow<T> {
+        return changes().map { this.what() }.distinctUntilChanged()
+    }
 
-        fun <T> changes(what: Settings.() -> T): Flow<T> {
-            return instance.changes().map { instance.what() }.distinctUntilChanged()
+    fun <T> observe(what: Settings.() -> T): Flow<T> {
+        return changes(what).distinctUntilChanged()
+    }
+
+    fun initialize(context: Context) {
+        PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
+
+        this.context = context.applicationContext as Application
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(Settings.context)
+
+        migrate(preferences)
+    }
+}
+
+@Suppress("SameParameterValue")
+private fun migrate(p: SharedPreferences) {
+    p.edit {
+        putString("_supported_abi", Build.SUPPORTED_ABIS.joinToString(","))
+    }
+
+    // migrate the old "mark item as seen" property.
+    p.getStringOrNull("pref_seen_indicator_style")?.let { previousValue ->
+        p.edit {
+            putBoolean("pref_mark_items_as_seen", previousValue != "NONE")
+            remove("pref_seen_indicator_style")
         }
+    }
 
-        fun <T> observe(what: Settings.() -> T): Flow<T> {
-            return changes(what).distinctUntilChanged()
+    // migrate the old "single tap for fullscreen" property.
+    if (p.getBoolean("pref_single_tap_for_fullscreen", false)) {
+        p.edit {
+            putString("pref_single_tap_action", Settings.TapAction.FULLSCREEN.name)
+            remove("pref_single_tap_for_fullscreen")
         }
+    }
 
-        fun initialize(context: Context) {
-            PreferenceManager.setDefaultValues(context, R.xml.preferences, true)
-            instance = Settings(context.applicationContext as Application)
+    // migrate the old "double tap for upvote" property.
+    if (!p.getBoolean("pref_double_tap_to_upvote", true)) {
+        p.edit {
+            putString("pref_double_tap_action", Settings.TapAction.NONE.name)
+            remove("pref_double_tap_to_upvote")
+        }
+    }
 
-            val p = instance.preferences
-
+    listOf("pref_single_tap_action", "pref_double_tap_action").forEach { pref ->
+        // migrate the old favorite actions
+        if (p.getStringOrNull(pref) == "FAVORITE") {
             p.edit {
-                putString("_supported_abi", Build.SUPPORTED_ABIS.joinToString(","))
-            }
-
-            // migrate the old "mark item as seen" property.
-            p.getStringOrNull("pref_seen_indicator_style")?.let { previousValue ->
-                p.edit {
-                    putBoolean("pref_mark_items_as_seen", previousValue != "NONE")
-                    remove("pref_seen_indicator_style")
-                }
-            }
-
-            // migrate the old "single tap for fullscreen" property.
-            if (p.getBoolean("pref_single_tap_for_fullscreen", false)) {
-                p.edit {
-                    putString("pref_single_tap_action", TapAction.FULLSCREEN.name)
-                    remove("pref_single_tap_for_fullscreen")
-                }
-            }
-
-            // migrate the old "double tap for upvote" property.
-            if (!p.getBoolean("pref_double_tap_to_upvote", true)) {
-                p.edit {
-                    putString("pref_double_tap_action", TapAction.NONE.name)
-                    remove("pref_double_tap_to_upvote")
-                }
-            }
-
-            listOf("pref_single_tap_action", "pref_double_tap_action").forEach { pref ->
-                // migrate the old favorite actions
-                if (p.getStringOrNull(pref) == "FAVORITE") {
-                    p.edit {
-                        putString(pref, TapAction.COLLECT.name)
-                    }
-                }
-            }
-
-            // Add some random string to the settings. We do this, so that we can better
-            // analyse the setting selection and know what the users want. This is completely
-            // anonymous.
-            if (!p.contains("__unique_settings_id")) {
-                p.edit {
-                    putString("__unique_settings_id", UUID.randomUUID().toString())
-                }
+                putString(pref, Settings.TapAction.COLLECT.name)
             }
         }
+    }
 
-        fun get(): Settings {
-            return instance
+    // Add some random string to the settings. We do this, so that we can better
+    // analyse the setting selection and know what the users want. This is completely
+    // anonymous.
+    if (!p.contains("__unique_settings_id")) {
+        p.edit {
+            putString("__unique_settings_id", UUID.randomUUID().toString())
         }
     }
 }

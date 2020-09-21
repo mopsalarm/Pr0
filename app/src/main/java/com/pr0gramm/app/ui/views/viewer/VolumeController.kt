@@ -107,7 +107,7 @@ class VolumeController(val view: ImageView, private val exo: () -> SimpleExoPlay
     }
 
     private fun audioFocusGain(): Int {
-        return if (Settings.get().audioFocusTransient) {
+        return if (Settings.audioFocusTransient) {
             AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
         } else {
             AudioManager.AUDIOFOCUS_GAIN

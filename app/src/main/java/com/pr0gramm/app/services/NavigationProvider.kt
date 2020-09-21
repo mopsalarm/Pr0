@@ -152,28 +152,26 @@ class NavigationProvider(
                 icon = iconFeedTypeNew,
                 filter = FeedFilter().withFeedType(FeedType.NEW))
 
-        val settings = Settings.get()
-
         items += makeItem(
                 title = getString(R.string.action_feed_type_bestof),
                 icon = iconFeedTypeBestOf,
                 filter = FeedFilter().withFeedType(FeedType.BESTOF))
 
-        if (settings.showCategoryControversial) {
+        if (Settings.showCategoryControversial) {
             items += makeItem(
                     title = getString(R.string.action_feed_type_controversial),
                     icon = iconFeedTypeControversial,
                     filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
         }
 
-        if (settings.showCategoryRandom) {
+        if (Settings.showCategoryRandom) {
             items += makeItem(
                     title = getString(R.string.action_feed_type_random),
                     icon = iconFeedTypeRandom,
                     filter = FeedFilter().withFeedType(FeedType.RANDOM))
         }
 
-        if (settings.showCategoryStalk && userService.canViewCategoryStalk) {
+        if (Settings.showCategoryStalk && userService.canViewCategoryStalk) {
             items += makeItem(
                     title = getString(R.string.action_feed_type_premium),
                     icon = iconFeedTypePremium,

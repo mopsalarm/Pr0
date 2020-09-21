@@ -50,7 +50,7 @@ class TagsView(context: Context) : LinearLayout(context) {
 
         orientation = LinearLayout.VERTICAL
 
-        if (Settings.get().tagCloudView) {
+        if (Settings.tagCloudView) {
             val views = PostTagsCloudBinding.inflate(layoutInflater, this, true)
             recyclerView = views.tagsRecyclerView
             recyclerViewWrapper = views.tagsWrapper
@@ -130,7 +130,7 @@ class TagsView(context: Context) : LinearLayout(context) {
     }
 
     private fun rebuildAdapterState() {
-        val alwaysShowVoteView = !Settings.get().hideTagVoteButtons
+        val alwaysShowVoteView = !Settings.hideTagVoteButtons
 
         val lastTag = tags.lastOrNull()
 

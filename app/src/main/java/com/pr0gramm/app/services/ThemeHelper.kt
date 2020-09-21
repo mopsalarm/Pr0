@@ -25,8 +25,7 @@ object ThemeHelper {
      * Updates the current theme from settings.
      */
     fun updateTheme() {
-        val settings = Settings.get()
-        val name = settings.themeName
+        val name = Settings.themeName
         theme = tryEnumValueOf<Themes>(name) ?: Themes.ORANGE
     }
 
@@ -34,7 +33,7 @@ object ThemeHelper {
      * Sets the current theme to the given value and stores it in the settings.
      */
     fun updateTheme(theme: Themes) {
-        Settings.get().edit {
+        Settings.edit {
             putString("pref_theme", theme.name)
         }
 

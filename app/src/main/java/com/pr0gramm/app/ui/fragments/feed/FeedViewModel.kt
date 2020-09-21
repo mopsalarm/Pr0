@@ -306,7 +306,7 @@ class FeedViewModel(
             val loading: FeedManager.LoadingSpace? = null,
             val repostRefreshTime: Long = 0,
             val adsVisible: Boolean = false,
-            val markItemsAsSeen: Boolean = Settings.get().markItemsAsSeen,
+            val markItemsAsSeen: Boolean = Settings.markItemsAsSeen,
             val preloadedItemIds: LongSparseArray<PreloadManager.PreloadItem> = LongSparseArray(initialCapacity = 0),
             val autoScrollRef: ConsumableValue<ScrollRef>? = null,
             val highlightedItemIds: Set<Long> = setOf(),

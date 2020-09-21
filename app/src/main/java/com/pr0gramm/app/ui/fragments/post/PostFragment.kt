@@ -88,7 +88,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private var commentRef: CommentRef? by optionalFragmentArgument(name = ARG_COMMENT_REF)
 
-    private val settings = Settings.get()
     private val voteService: VoteService by instance()
     private val favedCommentService: FavedCommentService by instance()
     private val seenService: SeenService by instance()
@@ -366,7 +365,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun addWarnOverlayIfNecessary(inflater: LayoutInflater, view: ViewGroup) {
         // add a view over the main view, if the post is not visible now
-        if (userService.isAuthorized && feedItem.contentType !in settings.contentType) {
+        if (userService.isAuthorized && feedItem.contentType !in Settings.contentType) {
             val overlay = inflater.inflate(R.layout.warn_post_can_not_be_viewed, view, false)
             view.addView(overlay)
 
@@ -414,7 +413,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val alive = !feedItem.deleted
 
         menu.findItem(R.id.action_refresh)
-                ?.isVisible = settings.showRefreshButton && !isVideoFullScreen
+                ?.isVisible = Settings.showRefreshButton && !isVideoFullScreen
 
         menu.findItem(R.id.action_zoom)
                 ?.isVisible = !isVideoFullScreen && alive
@@ -423,7 +422,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = alive
 
         menu.findItem(R.id.action_search_image)
-                ?.isVisible = isImage && settings.imageSearchEngine != ShareService.ImageSearchEngine.NONE && alive
+                ?.isVisible = isImage && Settings.imageSearchEngine != ShareService.ImageSearchEngine.NONE && alive
 
         menu.findItem(R.id.action_delete_item)
                 ?.isVisible = adminMode && alive
@@ -444,7 +443,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             startActivity(intent)
 
         } else {
-            val rotateIfNeeded = settings.rotateInFullscreen
+            val rotateIfNeeded = Settings.rotateInFullscreen
             val params = ViewerFullscreenParameters.forViewer(activity, viewer, rotateIfNeeded)
 
             viewer.pivotX = params.pivot.x
@@ -499,7 +498,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val viewer = viewer ?: return
         val activity = activity ?: return
 
-        val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
+        val params = ViewerFullscreenParameters.forViewer(activity, viewer, Settings.rotateInFullscreen)
         viewer.pivotX = params.pivot.x
         viewer.pivotY = params.pivot.y
         viewer.translationY = params.trY
@@ -775,7 +774,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        if (settings.showContentTypeFlag) {
+        if (Settings.showContentTypeFlag) {
             // show the little admin triangle
             mediaControlsContainer.background = TriangleDrawable(feedItem.contentType, activity.dp(16))
             mediaControlsContainer.minimumHeight = activity.dp(16)
@@ -799,8 +798,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val uri = MediaUri.of(requireContext(), feedItem)
 
         if (!uri.isLocalFile && AndroidUtility.isOnMobile(context)) {
-            val confirmAll = settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.ALL
-            val confirmVideo = settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.VIDEO
+            val confirmAll = Settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.ALL
+            val confirmVideo = Settings.confirmPlayOnMobile === Settings.ConfirmOnMobile.VIDEO
                     && uri.mediaType !== MediaUri.MediaType.IMAGE
 
             if (confirmAll || confirmVideo) {
@@ -836,12 +835,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         viewer.tapListener = object : MediaView.TapListener {
             override fun onSingleTap(event: MotionEvent): Boolean {
-                executeTapAction(settings.singleTapAction)
+                executeTapAction(Settings.singleTapAction)
                 return true
             }
 
             override fun onDoubleTap(event: MotionEvent): Boolean {
-                executeTapAction(settings.doubleTapAction)
+                executeTapAction(Settings.doubleTapAction)
                 return true
             }
         }
@@ -976,7 +975,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private inner class ScrollHandler : RecyclerView.OnScrollListener() {
-        private val fancyScrollVertical = settings.fancyScrollVertical
+        private val fancyScrollVertical = Settings.fancyScrollVertical
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (isVideoFullScreen)

@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.intro.slides
 
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
 
 /**
  */
@@ -17,7 +16,6 @@ class BetaActionItemsSlide : ActionItemsSlide("BetaActionItemsSlide") {
 
     override val introActionItems: List<ActionItem>
         get() {
-            val settings = Settings.get()
-            return listOf(SettingActionItem(settings, "Beta aktivieren", "pref_use_beta_channel"))
+            return listOf(SettingActionItem("Beta aktivieren", "pref_use_beta_channel"))
         }
 }

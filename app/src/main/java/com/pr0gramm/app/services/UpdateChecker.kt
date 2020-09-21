@@ -46,7 +46,7 @@ class UpdateChecker {
             .build().create<UpdateApi>()
 
     private val endpoints: List<String> = mutableListOf<String>().also { urls ->
-        if (Settings.get().useBetaChannel) {
+        if (Settings.useBetaChannel) {
             urls += "https://app.pr0gramm.com/updates/beta/update.json"
             urls += "https://github.com/mopsalarm/pr0gramm-updates/raw/beta/update.json"
         } else {
@@ -84,7 +84,7 @@ class UpdateChecker {
         }
 
         val update = results
-                .mapNotNull { it.getOrNull() }.maxBy { it.version }
+                .mapNotNull { it.getOrNull() }.maxByOrNull { it.version }
                 ?.takeIf { it.version > currentVersion }
                 ?: return Response.NoUpdate
 

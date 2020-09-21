@@ -109,7 +109,7 @@ class InfoLineView(context: Context) : LinearLayout(context), InjectorViewMixin 
     private fun collectClicked() {
         if (!collectionView.isCollected && voteController.currentVote !== Vote.UP) {
             when {
-                Settings.get().upvoteOnCollect -> {
+                Settings.upvoteOnCollect -> {
                     triggerUpvoteOnCollect()
                 }
 
@@ -127,7 +127,7 @@ class InfoLineView(context: Context) : LinearLayout(context), InjectorViewMixin 
             content(R.string.hint_upvote_on_collect)
             negative(android.R.string.no)
             positive(android.R.string.yes) {
-                Settings.get().edit {
+                Settings.edit {
                     putBoolean("pref_upvote_on_collect", true)
                 }
 

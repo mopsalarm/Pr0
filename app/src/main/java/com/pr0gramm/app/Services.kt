@@ -46,7 +46,7 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<Settings>() with singleton {
-        Settings.get()
+        Settings
     }
 
     bind<AppDB>() with singleton {

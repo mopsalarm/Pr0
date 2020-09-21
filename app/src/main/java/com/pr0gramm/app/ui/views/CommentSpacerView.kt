@@ -78,7 +78,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         if (spacings.maxLineIsAt < 2)
             return
 
-        val colorful = Settings.get().colorfulCommentLines
+        val colorful = Settings.colorfulCommentLines
 
         val height = height.toFloat()
 

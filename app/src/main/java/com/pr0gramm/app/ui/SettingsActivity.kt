@@ -32,7 +32,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
                 replace(android.R.id.content, fragment)
             }
 
-            Settings.get().edit {
+            Settings.edit {
                 putLong("_settings_last_seen", Instant.now().millis)
             }
         }

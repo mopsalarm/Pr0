@@ -11,7 +11,7 @@ import kotlin.math.min
  */
 class ViewerFullscreenParameters private constructor(scale: Float, val trY: Float, val pivot: PointF, val rotation: Float) {
     // work against broken calculations
-    val scale = if (scale.isNaN()) 1.0 else scale
+    val scale: Float = if (scale.isNaN()) 1f else scale
 
     companion object {
         fun forViewer(activity: Activity, viewer: View, rotateIfNeeded: Boolean): ViewerFullscreenParameters {

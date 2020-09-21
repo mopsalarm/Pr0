@@ -80,7 +80,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         // draw the image for this post
         val thumbnail = message.thumbnail
         if (thumbnail != null) {
-            val contentTypes = Settings.get().contentType
+            val contentTypes = Settings.contentType
             val blurImage = ContentType.firstOf(message.flags) !in contentTypes
 
             val url = "https://thumb.pr0gramm.com/$thumbnail"

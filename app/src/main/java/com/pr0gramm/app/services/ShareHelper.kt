@@ -31,7 +31,7 @@ class ShareService(private val cache: Cache) {
                 .of(context).media(feedItem).toString()
                 .replace("http://", "https://")
 
-        val uri = Settings.get().imageSearchEngine.searchUri(imageUri) ?: return
+        val uri = Settings.imageSearchEngine.searchUri(imageUri) ?: return
         Track.searchImage()
         BrowserHelper.open(context, uri.toString())
     }

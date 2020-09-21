@@ -64,7 +64,7 @@ class AdService(private val configService: ConfigService, private val userServic
     }
 
     fun enabledForTypeNow(type: Config.AdType): Boolean {
-        if (Settings.get().alwaysShowAds) {
+        if (Settings.alwaysShowAds) {
             // If the user opted in to ads, we always show the feed ad.
             return type == Config.AdType.FEED
         }

@@ -77,7 +77,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
         })
 
 
-        if (Settings.get().loadHqInZoomView && isHqImageAvailable) {
+        if (Settings.loadHqInZoomView && isHqImageAvailable) {
             // dont show the hq button if we load the hq image directly
             hq.isVisible = false
 

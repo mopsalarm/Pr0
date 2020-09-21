@@ -108,7 +108,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
             })
         }
 
-        if (Settings.get().fancyScrollHorizontal) {
+        if (Settings.fancyScrollHorizontal) {
             views.pager.setPageTransformer(false) { page: View, position: Float ->
                 val viewer = page.findViewWithTag<View>(PostFragment.ViewerTag)
                 if (viewer != null) {
@@ -192,7 +192,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
     private fun buildFragmentTitle(): TitleFragment.Title? {
         val titleOverride = requireArguments().getString(ARG_TITLE)
 
-        if (Settings.get().useTopTagAsTitle) {
+        if (Settings.useTopTagAsTitle) {
             // fetch title from the current active post fragment
             var title = latestActivePostFragment?.title
 

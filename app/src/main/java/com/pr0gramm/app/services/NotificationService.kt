@@ -323,7 +323,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
     private val nh = NotificationHelperService(context)
 
     // select the most recent message
-    private val message = messages.maxBy { it.creationTime }
+    private val message = messages.maxByOrNull { it.creationTime }
             ?: throw IllegalArgumentException("Must contain at least one message.")
 
     // the type of all messages, if they all have the same type, null otherwise.
@@ -393,7 +393,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
 
     val icon: Bitmap? = nh.messageThumbnail(messages)
 
-    val timestampWhen: Instant = messages.minBy { it.creationTime }!!.creationTime
+    val timestampWhen: Instant = messages.minByOrNull { it.creationTime }!!.creationTime
 
     val action: NotificationCompat.Action? = when {
         messageType === MessageType.STALK ->
@@ -546,10 +546,10 @@ class NotificationHelperService(val context: Context) {
 
         val uriHelper: UriHelper = UriHelper.of(context)
 
-        val activeContentTypes = if (Settings.get().feedStartAtSfw) {
+        val activeContentTypes = if (Settings.feedStartAtSfw) {
             setOf(ContentType.SFW)
         } else {
-            Settings.get().contentType
+            Settings.contentType
         }
 
         val blurImage = ContentType.firstOf(message.flags) !in activeContentTypes

@@ -7,6 +7,7 @@ import android.view.View
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.util.BrowserHelper
+import java.util.*
 
 /**
  */
@@ -14,13 +15,12 @@ class PrivateBrowserSpan(url: String) : URLSpan(url) {
     override fun onClick(widget: View) {
         val url = url ?: "https://example.com"
 
-        val settings = Settings.get()
-        var useIncognitoBrowser = settings.useIncognitoBrowser
+        var useIncognitoBrowser = Settings.useIncognitoBrowser
 
         // check if youtube-links should be opened in normal app
-        if (useIncognitoBrowser && settings.overrideYouTubeLinks) {
+        if (useIncognitoBrowser && Settings.overrideYouTubeLinks) {
             val host = Uri.parse(url).host
-            if (host != null && BLACKLIST.contains(host.toLowerCase()))
+            if (host != null && BLACKLIST.contains(host.toLowerCase(Locale.ROOT)))
                 useIncognitoBrowser = false
         }
 

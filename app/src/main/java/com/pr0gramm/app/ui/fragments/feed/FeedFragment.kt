@@ -47,7 +47,6 @@ import kotlin.math.min
 /**
  */
 class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), FilterFragment, TitleFragment, BackAwareFragment {
-    private val settings = Settings.get()
 
     private val feedStateModel by viewModels {
         val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
@@ -337,7 +336,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                     }
 
                     val highlight = thumbnailColumCount <= 3
-                            && settings.highlightItemsInFeed
+                            && Settings.highlightItemsInFeed
                             && item.id in feedState.highlightedItemIds
 
                     var indexToInsert = entries.size
@@ -475,7 +474,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             if (!userService.isAuthorized)
                 return EnumSet.of(SFW)
 
-            return settings.contentType
+            return Settings.contentType
         }
 
     override fun onResume() {
@@ -484,7 +483,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         Track.openFeed(currentFilter)
 
         // check if we should show the pin button or not.
-        if (settings.showPinButton) {
+        if (Settings.showPinButton) {
             val bookmarkable = bookmarkService.isBookmarkable(currentFilter)
             onBookmarkableStateChanged(bookmarkable)
         }
@@ -657,7 +656,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         val filter = currentFilter
         val feedType = filter.feedType
 
-        menu.findItem(R.id.action_refresh)?.isVisible = settings.showRefreshButton
+        menu.findItem(R.id.action_refresh)?.isVisible = Settings.showRefreshButton
         menu.findItem(R.id.action_bookmark)?.isVisible = bookmarkable
         menu.findItem(R.id.action_preload)?.isVisible = feedType.preloadable
 
@@ -708,13 +707,13 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
     private fun updateContentTypeItems(menu: Menu) {
         // only one content type selected?
-        val withoutImplicits = settings.contentType.withoutImplicit()
+        val withoutImplicits = Settings.contentType.withoutImplicit()
         val single = withoutImplicits.size == 1
 
         val types = mapOf(
-                R.id.action_content_type_sfw to settings.contentTypeSfw,
-                R.id.action_content_type_nsfw to settings.contentTypeNsfw,
-                R.id.action_content_type_nsfl to settings.contentTypeNsfl)
+                R.id.action_content_type_sfw to Settings.contentTypeSfw,
+                R.id.action_content_type_nsfw to Settings.contentTypeNsfw,
+                R.id.action_content_type_nsfl to Settings.contentTypeNsfl)
 
         for ((key, value) in types) {
             menu.findItem(key)?.let { item ->
@@ -732,7 +731,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         if (contentTypes.containsKey(item.itemId)) {
             val newState = !item.isChecked
-            settings.edit {
+            Settings.edit {
                 putBoolean(contentTypes[item.itemId], newState)
             }
 
@@ -939,8 +938,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         launchUntilDestroy(ignoreErrors = true) {
-            settings.changes().onStart { emit("") }.collect {
-                listener.enableLongClick(settings.enableQuickPeek)
+            Settings.changes().onStart { emit("") }.collect {
+                listener.enableLongClick(Settings.enableQuickPeek)
             }
         }
     }

@@ -29,8 +29,6 @@ import kotlinx.coroutines.withContext
 class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private val settings = Settings.get()
-
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
     private val preloadManager: PreloadManager by instance()
@@ -41,7 +39,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
         if (!userService.isAuthorized) {
             // reset those content types - better be sure!
-            settings.resetContentTypeSettings()
+            Settings.resetContentTypeSettings()
         }
     }
 

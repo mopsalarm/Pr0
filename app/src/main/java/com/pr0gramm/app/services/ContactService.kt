@@ -82,7 +82,7 @@ private object DeviceInfoService {
     }
 
     private fun appendPreferences(result: StringBuilder) {
-        Settings.get().raw().all.toSortedMap().forEach { (name, value) ->
+        Settings.raw().all.toSortedMap().forEach { (name, value) ->
             if (name.startsWith("pref_")) {
                 result.append(name).append(": ").append(value).append("\n")
             }

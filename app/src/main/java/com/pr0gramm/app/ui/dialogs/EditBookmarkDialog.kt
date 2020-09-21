@@ -74,7 +74,7 @@ class EditBookmarkDialog : ViewBindingDialogFragment<BookmarkEditBinding>("EditB
             views.actionShortcut.setOnClickListener { shortcutClicked() }
         }
 
-        val feedStartWithThis = bookmark?.let { it.uri == Settings.get().feedStartWithUri } == true
+        val feedStartWithThis = bookmark?.let { it.uri == Settings.feedStartWithUri } == true
         views.actionBookmarkDefault.isChecked = feedStartWithThis
 
         views.actionBookmarkDefault.setOnCheckedChangeListener { _, isChecked ->
@@ -83,12 +83,11 @@ class EditBookmarkDialog : ViewBindingDialogFragment<BookmarkEditBinding>("EditB
     }
 
     private fun makeBookmarkTheDefaultFeed(default: Boolean) {
-        val settings = Settings.get()
 
         if (default) {
-            settings.feedStartWithUri = bookmark?.uri
+            Settings.feedStartWithUri = bookmark?.uri
         } else {
-            settings.feedStartWithUri = null
+            Settings.feedStartWithUri = null
         }
     }
 

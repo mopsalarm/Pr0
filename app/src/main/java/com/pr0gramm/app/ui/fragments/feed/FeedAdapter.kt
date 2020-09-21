@@ -357,7 +357,7 @@ private object MissingContentTypeEntryAdapter
         }
 
         // enable the content type
-        Settings.get().edit { putBoolean(key, true) }
+        Settings.edit { putBoolean(key, true) }
     }
 
     private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

@@ -63,7 +63,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private val handler = Handler(Looper.getMainLooper())
     private var permissionHelper = PermissionHelperDelegate(this)
-    private val settings = Settings.get()
 
     private val views by bindViews(ActivityMainBinding::inflate)
 
@@ -86,7 +85,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
 
-        if (settings.secureApp) {
+        if (Settings.secureApp) {
             // hide app from recent apps list
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
@@ -117,9 +116,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
 
             // reset to sfw only.
-            if (settings.feedStartAtSfw && startedFromLauncher) {
+            if (Settings.feedStartAtSfw && startedFromLauncher) {
                 logger.info { "Force-switch to sfw only." }
-                settings.edit {
+                Settings.edit {
                     putBoolean("pref_feed_type_sfw", true)
                     putBoolean("pref_feed_type_nsfw", false)
                     putBoolean("pref_feed_type_nsfl", false)
@@ -162,7 +161,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         doInBackground { bookmarkService.update() }
 
         launchUntilDestroy {
-            settings.changes().filter { it === "pref_tag_cloud_view" }.collect {
+            Settings.changes().filter { it === "pref_tag_cloud_view" }.collect {
                 invalidateRecyclerViewPool()
             }
         }
@@ -231,7 +230,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun shouldShowFeedbackReminder(): Boolean {
         val firstTimeToday = singleShotService.firstTimeToday("hint_feedback_reminder")
         val firstInVersion = singleShotService.firstTimeInVersion("hint_feedback_reminder")
-        return settings.useBetaChannel && (firstInVersion || firstTimeToday)
+        return Settings.useBetaChannel && (firstInVersion || firstTimeToday)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -481,7 +480,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun defaultFeedFilter(): FeedFilter {
         if (userService.userIsPremium) {
             // try to parse bookmark filter first
-            settings.feedStartWithUri?.let { uri ->
+            Settings.feedStartWithUri?.let { uri ->
                 val parsed = FilterParser.parse(uri)
                 if (parsed != null)
                     return parsed.filter
@@ -489,7 +488,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
 
         // fall back to NEW or PROMOTED otherwise.
-        val type = if (settings.feedStartAtNew) FeedType.NEW else FeedType.PROMOTED
+        val type = if (Settings.feedStartAtNew) FeedType.NEW else FeedType.PROMOTED
         return FeedFilter().withFeedType(type)
     }
 

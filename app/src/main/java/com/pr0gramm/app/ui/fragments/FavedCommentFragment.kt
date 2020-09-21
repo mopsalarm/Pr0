@@ -14,7 +14,6 @@ import com.pr0gramm.app.util.di.instance
 /**
  */
 class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
-    private val settings = Settings.get()
     private val favedCommentService: FavedCommentService by instance()
     private val userService: UserService by instance()
 
@@ -25,7 +24,7 @@ class FavedCommentFragment : InboxFragment("FavedCommentFragment") {
                 return@apiMessageLoader listOf()
             }
 
-            favedCommentService.list(settings.contentType, username, olderThan).map {
+            favedCommentService.list(Settings.contentType, username, olderThan).map {
                 FavedCommentService.commentToMessage(it)
             }
         }

@@ -63,8 +63,6 @@ object Linkify {
             base.buildUpon().appendEncodedPath(match.group(1)).toString()
         }
 
-        val settings = Settings.get()
-
 
         if (";base64," in originalText) {
             VoiceMessageSpan.addToText(text)
@@ -102,7 +100,7 @@ object Linkify {
                 }
 
             } else {
-                if (settings.useIncognitoBrowser) {
+                if (Settings.useIncognitoBrowser) {
                     PrivateBrowserSpan(url)
                 } else {
                     null

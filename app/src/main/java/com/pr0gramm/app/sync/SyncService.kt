@@ -31,7 +31,6 @@ class SyncService(private val userService: UserService,
 
     private val logger = Logger("SyncService")
 
-    private val settings = Settings.get()
     private val seenSyncLock = AtomicBoolean()
 
 
@@ -111,7 +110,7 @@ class SyncService(private val userService: UserService,
     }
 
     private suspend fun syncSeenService() {
-        val shouldSync = settings.backup && if (settings.markItemsAsSeen) {
+        val shouldSync = Settings.backup && if (Settings.markItemsAsSeen) {
             singleShotService.firstTimeInHour("sync-seen")
         } else {
             singleShotService.firstTimeToday("sync-seen")
@@ -124,7 +123,7 @@ class SyncService(private val userService: UserService,
     }
 
     private suspend fun performSyncSeenService(token: String) {
-        unless(settings.backup && seenSyncLock.compareAndSet(false, true)) {
+        unless(Settings.backup && seenSyncLock.compareAndSet(false, true)) {
             logger.info { "Not starting sync of seen bits." }
             return
         }

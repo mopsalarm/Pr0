@@ -115,7 +115,7 @@ object Storage {
             DocumentsContract.deleteDocument(context.contentResolver, testUri)
 
             logger.info { "Storage looks good, saving new download directory." }
-            Settings.get().edit { putString("pref_download_tree_uri", uri.toString()) }
+            Settings.edit { putString("pref_download_tree_uri", uri.toString()) }
 
             true
 
@@ -135,7 +135,7 @@ object Storage {
     }
 
     private fun defaultTree(context: Context): DocumentFile? {
-        val uri = Settings.get().downloadTreeUri ?: return null
+        val uri = Settings.downloadTreeUri ?: return null
         return DocumentFile.fromTreeUri(context, uri)
     }
 

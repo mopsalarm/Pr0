@@ -24,8 +24,6 @@ class ConfigService(context: Application,
                     private val api: Api,
                     private val preferences: SharedPreferences) {
 
-    private val settings = com.pr0gramm.app.Settings.get()
-
     @Volatile
     private var configState: Config = Config()
 
@@ -52,7 +50,7 @@ class ConfigService(context: Application,
             val context = ConfigEvaluator.Context(
                     version = BuildConfig.VERSION_CODE,
                     hash = deviceHash,
-                    beta = settings.useBetaChannel)
+                    beta = com.pr0gramm.app.Settings.useBetaChannel)
 
             val config = kotlin.runCatching {
                 val bust = Instant.now().millis / (60 * 1000L)
