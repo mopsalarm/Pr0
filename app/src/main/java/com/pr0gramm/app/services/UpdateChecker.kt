@@ -14,6 +14,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.update.UpdateModel
+import com.pr0gramm.app.ui.Screen
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.fragments.ProgressDialogController
@@ -108,12 +109,16 @@ class UpdateChecker {
         private val logger = Logger("UpdateChecker")
 
         fun download(activity: FragmentActivity, update: Update) {
+            // rotating crashes the dialog
+            Screen.lockOrientation(activity)
+
             val downloadService = activity.injector.instance<DownloadService>()
             val notificationService = activity.injector.instance<NotificationService>()
 
             activity as BaseAppCompatActivity
 
             activity.launchUntilDestroy {
+
                 val progress = downloadService.downloadUpdateFile(Uri.parse(update.apk))
 
                 // show the progress dialog.

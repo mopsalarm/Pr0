@@ -178,7 +178,6 @@
             android:name=".ui.UpdateActivity"
             android:label="@string/update"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Orange">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
