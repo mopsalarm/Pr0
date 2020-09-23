@@ -545,7 +545,7 @@
     <string name="bookmark">Lesezeichen</string>
     <string name="uploads_in">Hochlads in %s</string>
     <string name="uploads">Hochlads</string>
-    <string name="pref_upvote_on_collect_title">Upuvote beim Sammeln</string>
+    <string name="pref_upvote_on_collect_title">Upvote beim Sammeln</string>
     <string name="pref_upvote_on_collect_summary">Es wird automatisch ein Blussi vergeben, wenn du einen Post in eine Sammlung hinzufügst. Du kannst das Blussi nachträglich wieder entfernen.</string>
     <string name="hint_upvote_on_collect">Möchtest du beim Sammeln automatisch ein Blussi dalassen? Du kannst es jederzeit nachträglich wieder entfernen.</string>
 
