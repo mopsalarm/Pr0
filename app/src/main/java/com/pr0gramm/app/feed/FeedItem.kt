@@ -74,13 +74,15 @@ data class FeedItem(
     override fun toString(): String = "FeedItem(id=$id)"
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeLong(id)
-        dest.writeLong(promotedId)
-        dest.writeLong(userId)
+        dest.writeInt(id.toInt())
+        dest.writeInt(promotedId.toInt())
+        dest.writeInt(userId.toInt())
 
-        dest.writeString(thumbnail)
+        // deduplicate values for thumb & fullsize if equal to 'image'
         dest.writeString(image)
-        dest.writeString(fullsize)
+        dest.writeString(thumbnail.takeIf { it != image })
+        dest.writeString(fullsize.takeIf { it != image })
+
         dest.writeString(user)
 
         dest.writeInt(up)
@@ -95,29 +97,48 @@ data class FeedItem(
         dest.writeBooleanCompat(deleted)
     }
 
-    constructor(source: Parcel) : this(
-            id = source.readLong(),
-            promotedId = source.readLong(),
-            userId = source.readLong(),
+    companion object CREATOR : ConstructorCreator<FeedItem>({ source ->
+        val id = source.readInt().toLong()
+        val promotedId = source.readInt().toLong()
+        val userId = source.readInt().toLong()
 
-            thumbnail = source.readStringNotNull(),
-            image = source.readStringNotNull(),
-            fullsize = source.readStringNotNull(),
-            user = source.readStringNotNull(),
+        // deduplicate values for thumb & fullsize if equal to image
+        val image = source.readStringNotNull()
+        val thumbnail = source.readString() ?: image
+        val fullsize = source.readString() ?: image
 
-            up = source.readInt(),
-            down = source.readInt(),
-            created = source.read(Instant),
-            width = source.readInt(),
-            height = source.readInt(),
+        val user = source.readStringNotNull()
 
-            mark = source.readByte().toInt(),
-            flags = source.readByte().toInt(),
-            audio = source.readBooleanCompat(),
-            deleted = source.readBooleanCompat(),
-    )
+        val up = source.readInt()
+        val down = source.readInt()
+        val created = source.read(Instant)
+        val width = source.readInt()
+        val height = source.readInt()
 
-    companion object CREATOR : ConstructorCreator<FeedItem>(::FeedItem)
+        val mark = source.readByte().toInt()
+        val flags = source.readByte().toInt()
+        val audio = source.readBooleanCompat()
+        val deleted = source.readBooleanCompat()
+
+        FeedItem(
+                id = id,
+                promotedId = promotedId,
+                userId = userId,
+                image = image,
+                thumbnail = thumbnail,
+                fullsize = fullsize,
+                user = user,
+                up = up,
+                down = down,
+                created = created,
+                width = width,
+                height = height,
+                mark = mark,
+                flags = flags,
+                audio = audio,
+                deleted = deleted,
+        )
+    })
 }
 
 fun isVideoUri(image: String): Boolean {

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments.feed
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pr0gramm.app.Logger
@@ -13,6 +14,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.AdService
+import com.pr0gramm.app.ui.SavedStateAccessor
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
@@ -27,6 +29,7 @@ import kotlin.math.abs
 import kotlin.time.seconds
 
 class FeedViewModel(
+        private val savedState: SavedState,
         filter: FeedFilter, loadAroundItemId: Long?,
 
         private val feedService: FeedService,
@@ -39,12 +42,22 @@ class FeedViewModel(
 
     private val logger = Logger("FeedViewModel")
 
-    private val loader = FeedManager(viewModelScope, feedService, Feed(filter, userService.selectedContentType))
-
     val feedState = MutableStateFlow(FeedState(
             // correctly initialize the state
-            feed = Feed(filter, userService.selectedContentType)
+            feed = Feed(
+                    filter, userService.selectedContentType,
+                    items = savedState.feed?.feed?.items ?: listOf()
+            ),
+
+            // this is not soo nice, but it works a bit. we can not restore all items, as the feed
+            // is really large, so the recyclerview cannot restore its scroll position.
+            // because of that, we're restoring the scroll ourself.
+            autoScrollRef = savedState.lastSavedId.takeIf { itemId -> itemId > 0 }?.let { itemId ->
+                ConsumableValue(ScrollRef(CommentRef(itemId)))
+            },
     ))
+
+    private val loader = FeedManager(viewModelScope, feedService, feedState.value.feed)
 
     init {
         viewModelScope.launch { observeFeedUpdates() }
@@ -294,6 +307,25 @@ class FeedViewModel(
         }
 
         loader.previous()
+    }
+
+    fun updateScrollItemId(itemId: Long) {
+        if (savedState.lastSavedId != itemId) {
+            savedState.feed = feedState.value.feed.parcelAroundId(itemId)
+            savedState.lastSavedId = itemId
+        }
+    }
+
+    class SavedState(handle: SavedStateHandle) : SavedStateAccessor(handle) {
+        private var _lastSavedId by savedStateValue("lastSavedId", 0L)
+
+        var feed: Feed.FeedParcel? by savedStateValue("feed")
+
+        var lastSavedId: Long by observeChangeEx(_lastSavedId) { oldValue, newValue ->
+            if (oldValue != newValue) {
+                _lastSavedId = newValue
+            }
+        }
     }
 
     data class FeedState(

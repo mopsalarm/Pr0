@@ -48,7 +48,7 @@ import kotlin.math.min
  */
 class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), FilterFragment, TitleFragment, BackAwareFragment {
 
-    private val feedStateModel by viewModels {
+    private val feedStateModel by viewModels { handle ->
         val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
         if (start != null) {
             logger.debug { "Requested to open item $start on load" }
@@ -56,6 +56,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         FeedViewModel(
+                savedState = FeedViewModel.SavedState(handle),
                 filter = requireArguments().getParcelableOrThrow(ARG_FEED_FILTER),
                 loadAroundItemId = autoScrollRef?.ref?.itemId,
 
@@ -609,14 +610,14 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
 
         // if we don't have a view, there wont be a visible item either.
-        if (view == null) {
+        if (view == null || feedAdapter.items.isEmpty()) {
             return null
         }
 
-        val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
+        val items = feedAdapter.items
 
         val layoutManager = views.recyclerView.layoutManager as? GridLayoutManager
-        return layoutManager?.let { _ ->
+        return layoutManager?.let {
             // if the first row is visible, skip this stuff.
             val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
             if (firstCompletelyVisible == 0 || firstCompletelyVisible == RecyclerView.NO_POSITION)
@@ -626,7 +627,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             if (lastCompletelyVisible == RecyclerView.NO_POSITION)
                 return null
 
-            val idx = (lastCompletelyVisible).coerceIn(items.indices)
+            val idx = lastCompletelyVisible.coerceIn(items.indices)
             items.take(idx)
                     .mapNotNull { item -> (item as? FeedAdapter.Entry.Item)?.item }
                     .lastOrNull { contentType.contains(it.contentType) }
@@ -1132,25 +1133,40 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        private var lastSavedScrollIndex = -1
 
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             val activity = activity as? ToolbarActivity
             if (scrollToolbar && activity != null) {
                 activity.scrollHideToolbarListener.onScrolled(dy)
+            }
+
+            val layoutManager = views.recyclerView.gridLayoutManager
+            val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
+            val lastCompletellyVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+            val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+            if (lastCompletellyVisibleItem >= 0) {
+                if (lastCompletellyVisibleItem != lastSavedScrollIndex) {
+                    lastSavedScrollIndex = lastCompletellyVisibleItem
+
+                    val feedItem = feedAdapter.findItemNear(lastCompletellyVisibleItem)
+                    if (feedItem != null) {
+                        feedStateModel.updateScrollItemId(feedItem.id)
+                    }
+                }
             }
 
             if (feedStateModel.feedState.value.isLoading || feedAdapter.updating) {
                 return
             }
 
-            val layoutManager = views.recyclerView.gridLayoutManager
             val totalItemCount = layoutManager.itemCount
 
             // start loading the next page pretty early.
             val maxEdgeDistance = 48
 
             if (dy > 0 && !feed.isAtEnd) {
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (lastVisibleItem >= 0 && totalItemCount > maxEdgeDistance && lastVisibleItem >= totalItemCount - maxEdgeDistance) {
                     logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount. Last feed item is ${feed.oldestItem}" }
                     feedStateModel.triggerLoadNext()
@@ -1158,7 +1174,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             }
 
             if (dy < 0 && !feed.isAtStart) {
-                val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
                 if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
                     logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestItem}" }
                     feedStateModel.triggerLoadPrev()

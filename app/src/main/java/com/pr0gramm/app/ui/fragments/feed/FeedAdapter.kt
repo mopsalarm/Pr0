@@ -66,6 +66,15 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         }
     }
 
+    fun findItemNear(index: Int): FeedItem? {
+        if (index !in items.indices) {
+            return null
+        }
+
+        val feedItems = items.listIterator(index).asSequence().filterIsInstance<Entry.Item>()
+        return feedItems.firstOrNull()?.item
+    }
+
     sealed class Entry(val id: Long) {
         data class UserHint(val user: UserAndMark, val action: OnUserClickedListener)
             : Entry(idInCategory(0))

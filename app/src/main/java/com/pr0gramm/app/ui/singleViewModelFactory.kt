@@ -1,25 +1,24 @@
 package com.pr0gramm.app.ui
 
+import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.createViewModelLazy
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.*
 import com.pr0gramm.app.util.di.Injector
 import com.pr0gramm.app.util.di.injector
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
-inline fun <reified T : ViewModel> Fragment.singleViewModelFactory(noinline create: Injector.() -> T): ViewModelProvider.Factory {
-    val expectedModelClass = T::class.java
-
-    return object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+fun <VM : ViewModel> singleViewModelFactory(fragment: Fragment, expectedModelClass: Class<VM>, create: Injector.(SavedStateHandle) -> VM): ViewModelProvider.Factory {
+    return object : AbstractSavedStateViewModelFactory(fragment, Bundle.EMPTY) {
+        override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
             require(modelClass.isAssignableFrom(expectedModelClass)) {
                 "Cannot create instance of $modelClass, this factory only creates $expectedModelClass"
             }
 
-            val injector = requireContext().injector
-            val model = injector.create()
+            val injector = fragment.requireContext().injector
+            val model = injector.create(handle)
             return modelClass.cast(model) as T
         }
     }
@@ -28,9 +27,36 @@ inline fun <reified T : ViewModel> Fragment.singleViewModelFactory(noinline crea
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.viewModels(
         noinline ownerProducer: () -> ViewModelStoreOwner = { this },
-        noinline create: Injector.() -> VM): Lazy<VM> {
+        noinline create: Injector.(SavedStateHandle) -> VM): Lazy<VM> {
 
     return createViewModelLazy(VM::class, { ownerProducer().viewModelStore }) {
-        singleViewModelFactory(create)
+        singleViewModelFactory(this, VM::class.java, create)
+    }
+}
+
+
+open class SavedStateAccessor(private val handle: SavedStateHandle) {
+    protected fun <T : Any> savedStateValue(key: String): ReadWriteProperty<SavedStateAccessor, T?> {
+        return object : ReadWriteProperty<SavedStateAccessor, T?> {
+            override fun getValue(thisRef: SavedStateAccessor, property: KProperty<*>): T? {
+                return handle.get<T>(key)
+            }
+
+            override fun setValue(thisRef: SavedStateAccessor, property: KProperty<*>, value: T?) {
+                handle.set(key, value)
+            }
+        }
+    }
+
+    protected fun <T : Any> savedStateValue(key: String, defaultValue: T): ReadWriteProperty<SavedStateAccessor, T> {
+        return object : ReadWriteProperty<SavedStateAccessor, T> {
+            override fun getValue(thisRef: SavedStateAccessor, property: KProperty<*>): T {
+                return handle.get<T>(key) ?: defaultValue
+            }
+
+            override fun setValue(thisRef: SavedStateAccessor, property: KProperty<*>, value: T) {
+                handle.set(key, value)
+            }
+        }
     }
 }

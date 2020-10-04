@@ -80,13 +80,18 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return "Feed(newest=${newestItem?.id}, oldest=${oldestItem?.id}, size=$size, filter=$filter)"
     }
 
-    fun parcelAround(pivot: Int): FeedParcel {
+    fun parcelAroundId(itemId: Long): FeedParcel {
+        val index = indexById(itemId) ?: 0
+        return parcelAround(index)
+    }
+
+    fun parcelAround(index: Int): FeedParcel {
         // how many items to save to older and newer than the pivot item.
-        val itemCountAround = 16
+        val itemCountAround = 24
 
         // add a subset of the items
-        val start = (pivot - itemCountAround).coerceIn(0, items.size)
-        val stop = (pivot + itemCountAround).coerceIn(0, items.size)
+        val start = (index - itemCountAround).coerceIn(0, items.size)
+        val stop = (index + itemCountAround).coerceIn(0, items.size)
 
         return FeedParcel(this, copy(
                 isAtStart = isAtStart && start == 0,

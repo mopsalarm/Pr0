@@ -38,13 +38,13 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
 
     private val views by bindViews(FragmentPostPagerBinding::bind)
 
-    private val model by viewModels {
+    private val model by viewModels { savedState ->
         // get the feed to show and setup a loader to load more data
         val feed = requireArguments().getParcelableOrThrow<Feed.FeedParcel>(ARG_FEED).feed
         val startItem = requireArguments().getParcelableOrThrow<FeedItem>(ARG_START_ITEM)
 
         PostPagerViewModel(
-                feed = feed, initialItem = startItem,
+                savedState = PostPagerViewModel.SavedState(savedState, feed, startItem),
                 feedService = instance(),
         )
     }
