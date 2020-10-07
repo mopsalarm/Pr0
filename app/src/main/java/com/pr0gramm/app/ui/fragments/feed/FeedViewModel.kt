@@ -44,17 +44,8 @@ class FeedViewModel(
 
     val feedState = MutableStateFlow(FeedState(
             // correctly initialize the state
-            feed = Feed(
-                    filter, userService.selectedContentType,
-                    items = savedState.feed?.feed?.items ?: listOf()
-            ),
-
-            // this is not soo nice, but it works a bit. we can not restore all items, as the feed
-            // is really large, so the recyclerview cannot restore its scroll position.
-            // because of that, we're restoring the scroll ourself.
-            autoScrollRef = savedState.lastSavedId.takeIf { itemId -> itemId > 0 }?.let { itemId ->
-                ConsumableValue(ScrollRef(CommentRef(itemId)))
-            },
+            feed = savedState.feed?.feed ?: Feed(filter, userService.selectedContentType),
+            highlightedItemIds = savedState.highlightedItemIds?.toSet() ?: setOf(),
     ))
 
     private val loader = FeedManager(viewModelScope, feedService, feedState.value.feed)
@@ -311,7 +302,10 @@ class FeedViewModel(
 
     fun updateScrollItemId(itemId: Long) {
         if (savedState.lastSavedId != itemId) {
-            savedState.feed = feedState.value.feed.parcelAroundId(itemId)
+            val feedState = feedState.value
+
+            savedState.feed = feedState.feed.parcelAroundId(itemId)
+            savedState.highlightedItemIds = feedState.highlightedItemIds.toLongArray()
             savedState.lastSavedId = itemId
         }
     }
@@ -320,6 +314,8 @@ class FeedViewModel(
         private var _lastSavedId by savedStateValue("lastSavedId", 0L)
 
         var feed: Feed.FeedParcel? by savedStateValue("feed")
+
+        var highlightedItemIds: LongArray? by savedStateValue("highlightedItemIds")
 
         var lastSavedId: Long by observeChangeEx(_lastSavedId) { oldValue, newValue ->
             if (oldValue != newValue) {

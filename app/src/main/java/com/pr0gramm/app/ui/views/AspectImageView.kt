@@ -19,7 +19,7 @@ class AspectImageView @JvmOverloads constructor(context: Context, attrs: Attribu
      * set its height using the given aspect ratio. If the aspect ratio is negative,
      * this view behaves like a normal image view.
      */
-    var aspect: Float = 0.toFloat()
+    var aspect: Float = 1.toFloat()
         get() {
             if (field > 0) {
                 return field

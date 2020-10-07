@@ -51,6 +51,7 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         delegates += SpacerEntryAdapter
         delegates += ErrorAdapterDelegate(R.layout.feed_error)
         delegates += MissingContentTypeEntryAdapter
+        delegates += staticLayoutAdapterDelegate<Entry.PlaceholderItem>(R.layout.feed_item_view_placeholder)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, Entry.EmptyHint)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_loading, Entry.LoadingHint)
     }
@@ -108,6 +109,9 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
 
         class MissingContentType(val contentType: ContentType)
             : Entry(idInCategory(10))
+
+        data class PlaceholderItem(val itemId: Long)
+            : Entry(idInCategory(11, itemId))
     }
 
     inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {
@@ -116,8 +120,18 @@ class FeedAdapter(adViewAdapter: AdViewAdapter)
         }
 
         override fun getSpanSize(position: Int): Int {
-            val item = getItem(position) as? Entry.Item
-            return if (item == null || item.highlight) spanCount else 1
+            val item = getItem(position)
+
+            if (item is Entry.Item && !item.highlight) {
+                return 1
+            }
+
+            if (item is Entry.PlaceholderItem) {
+                return 1
+            }
+
+            // default is full width
+            return spanCount
         }
     }
 }
@@ -223,10 +237,18 @@ class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.View
             imageView.aspect = 1f
         }
 
-        itemView.context.injector.instance<Picasso>().load(imageUri)
-                .config(Bitmap.Config.RGB_565)
-                .placeholder(ColorDrawable(0xff333333.toInt()))
-                .into(imageView)
+        val picasso = itemView.context.injector.instance<Picasso>()
+        if (!item.placeholder) {
+            picasso.load(imageUri)
+                    .config(Bitmap.Config.RGB_565)
+                    .placeholder(ColorDrawable(0xff333333.toInt()))
+                    .into(imageView)
+        } else {
+            picasso.cancelRequest(imageView)
+
+            // only set some color
+            imageView.setImageDrawable(ColorDrawable(0xff886633.toInt()))
+        }
 
         this.itemView.tag = this
         this.item = item

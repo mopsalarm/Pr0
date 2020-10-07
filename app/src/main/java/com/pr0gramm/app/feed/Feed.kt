@@ -20,8 +20,8 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     val feedType: FeedType get() = filter.feedType
 
-    val oldestItem: FeedItem? get() = items.maxWithOrNull(itemComparator)
-    val newestItem: FeedItem? get() = items.minWithOrNull(itemComparator)
+    val oldestItem: FeedItem? get() = items.filterNot { item -> item.placeholder }.maxWithOrNull(itemComparator)
+    val newestItem: FeedItem? get() = items.filterNot { item -> item.placeholder }.minWithOrNull(itemComparator)
 
     /**
      * Merges this feed with the provided low level feed representation
@@ -59,6 +59,12 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             target.sortWith(itemComparator)
         }
 
+        // set with ids of all real values
+        val realIds = target.filter { item -> !item.placeholder }.mapTo(mutableSetOf()) { item -> item.id }
+
+        // remove all placeholders from the target that also have real ids.
+        target.removeAll { item -> item.placeholder && item.id in realIds }
+
         // and remove any duplicates in the end.
         return target.distinctBy { it.id }
     }
@@ -87,16 +93,14 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     fun parcelAround(index: Int): FeedParcel {
         // how many items to save to older and newer than the pivot item.
-        val itemCountAround = 24
+        val itemCountAround = 16
 
         // add a subset of the items
-        val start = (index - itemCountAround).coerceIn(0, items.size)
-        val stop = (index + itemCountAround).coerceIn(0, items.size)
+        val fromIndex = (index - itemCountAround).coerceIn(items.indices)
+        val toIndexExclusive = (index + itemCountAround).coerceIn(0, items.size)
 
-        return FeedParcel(this, copy(
-                isAtStart = isAtStart && start == 0,
-                isAtEnd = false,
-                items = this.items.subList(start, stop).toList()))
+        // return a parcel with a window to the data
+        return FeedParcel(this, items = copy(items = this.items.subList(fromIndex, toIndexExclusive)))
     }
 
     /**
@@ -110,24 +114,50 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return if (overlap) mergeWith(other) else null
     }
 
-    class FeedParcel(val feed: Feed, private val partial: Feed = feed) : DefaultParcelable {
+    class FeedParcel(val feed: Feed, private val items: List<FeedItem>) : DefaultParcelable {
         override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.write(partial.filter)
-            dest.writeInt(ContentType.combine(partial.contentType))
-            dest.writeBooleanCompat(partial.isAtStart)
-            dest.write(partial.created)
-            dest.writeValues(partial.items)
+            dest.write(feed.filter)
+            dest.writeInt(ContentType.combine(feed.contentType))
+            dest.writeBooleanCompat(feed.isAtStart)
+            dest.write(feed.created)
+
+            // only serialize non placeholder items
+            dest.writeValues(items.filter { item -> !item.placeholder })
+
+            val ids = LongArray(feed.size) { idx ->
+                (feed[idx].id shl 32) or (feed[idx].promotedId)
+            }
+
+            // write id's of all values in the feed
+            dest.writeLongArray(ids)
         }
 
         companion object CREATOR : SimpleCreator<FeedParcel>() {
             override fun createFromParcel(source: Parcel): FeedParcel = with(source) {
-                return FeedParcel(feed = Feed(
+                val base = Feed(
                         filter = read(FeedFilter),
                         contentType = ContentType.decompose(readInt()),
                         isAtStart = readBooleanCompat(),
                         created = read(Instant),
-                        items = readValues(FeedItem),
-                ))
+                        items = listOf(),
+                )
+
+                // read the actual items that are parceled
+                val realItems = readValues(FeedItem)
+                val realItemsById = realItems.associateBy { item -> item.id }
+
+                // read item ids of all items in the feed
+                val idsArray = createLongArray()!!
+
+                // merge items with itemIds and create placeholders if required
+                val items = idsArray.map { mergedItemId ->
+                    val itemId = mergedItemId ushr 32
+                    val itemPromotedId = mergedItemId and 0xffffffff
+
+                    realItemsById[itemId] ?: placeholderFeedItem(itemId, itemPromotedId)
+                }
+
+                return FeedParcel(base.copy(items = items), items)
             }
         }
     }

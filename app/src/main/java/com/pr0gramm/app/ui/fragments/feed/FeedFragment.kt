@@ -148,6 +148,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         // prepare the list of items
         val spanCount = thumbnailColumCount
+
         views.recyclerView.itemAnimator = null
         views.recyclerView.adapter = feedAdapter
         views.recyclerView.layoutManager = InternalGridLayoutManager(activity, spanCount).apply {
@@ -851,6 +852,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun onItemClicked(item: FeedItem, commentRef: CommentRef? = null, preview: ImageView? = null) {
+        if (item.placeholder) {
+            logger.warn { "User clicked on a placeholder: ${item.id}" }
+            return
+        }
+
         val activity = activity ?: return
 
         // reset auto open.
@@ -1143,14 +1149,14 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
             val layoutManager = views.recyclerView.gridLayoutManager
             val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-            val lastCompletellyVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+            val lastCompletelyVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
             val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
-            if (lastCompletellyVisibleItem >= 0) {
-                if (lastCompletellyVisibleItem != lastSavedScrollIndex) {
-                    lastSavedScrollIndex = lastCompletellyVisibleItem
+            if (lastCompletelyVisibleItem >= 0) {
+                if (lastCompletelyVisibleItem != lastSavedScrollIndex) {
+                    lastSavedScrollIndex = lastCompletelyVisibleItem
 
-                    val feedItem = feedAdapter.findItemNear(lastCompletellyVisibleItem)
+                    val feedItem = feedAdapter.findItemNear(lastCompletelyVisibleItem)
                     if (feedItem != null) {
                         feedStateModel.updateScrollItemId(feedItem.id)
                     }
@@ -1177,6 +1183,23 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
                     logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestItem}" }
                     feedStateModel.triggerLoadPrev()
+                }
+            }
+
+            for (idx in 0 until layoutManager.childCount) {
+                val view = layoutManager.getChildAt(idx) ?: continue
+                val holder = extractFeedItemHolder(view) ?: continue
+
+                if (holder.item.placeholder) {
+                    logger.info { "Placeholder ${holder.item.id} hit, trigger load now" }
+
+                    if (dy > 0) {
+                        feedStateModel.triggerLoadNext()
+                    } else {
+                        feedStateModel.triggerLoadPrev()
+                    }
+
+                    break
                 }
             }
         }

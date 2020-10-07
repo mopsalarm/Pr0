@@ -26,6 +26,7 @@ data class FeedItem(
         val flags: Int,
         val audio: Boolean,
         val deleted: Boolean,
+        val placeholder: Boolean,
 ) : DefaultParcelable {
     constructor(item: Api.Feed.Item) : this(
             id = item.id,
@@ -44,6 +45,7 @@ data class FeedItem(
             height = item.height,
             audio = item.audio,
             deleted = item.deleted,
+            placeholder = false,
     )
 
     /**
@@ -91,10 +93,16 @@ data class FeedItem(
         dest.writeInt(width)
         dest.writeInt(height)
 
-        dest.writeByte(mark.toByte())
-        dest.writeByte(flags.toByte())
-        dest.writeBooleanCompat(audio)
-        dest.writeBooleanCompat(deleted)
+        var bits = 0
+
+        bits = bits.or(if (audio) 0b0001 else 0)
+        bits = bits.or(if (deleted) 0b0010 else 0)
+        bits = bits.or(if (placeholder) 0b0100 else 0)
+
+        bits = bits.or((mark and 0xff) shl 8)
+        bits = bits.or((flags and 0xff) shl 16)
+
+        dest.writeInt(bits)
     }
 
     companion object CREATOR : ConstructorCreator<FeedItem>({ source ->
@@ -115,10 +123,14 @@ data class FeedItem(
         val width = source.readInt()
         val height = source.readInt()
 
-        val mark = source.readByte().toInt()
-        val flags = source.readByte().toInt()
-        val audio = source.readBooleanCompat()
-        val deleted = source.readBooleanCompat()
+        val bits = source.readInt()
+
+        val audio = (bits and 0b0001) != 0
+        val deleted = (bits and 0b0010) != 0
+        val placeholder = (bits and 0b0100) != 0
+
+        val mark = (bits ushr 8) and 0xff
+        val flags = (bits ushr 16) and 0xff
 
         FeedItem(
                 id = id,
@@ -137,6 +149,7 @@ data class FeedItem(
                 flags = flags,
                 audio = audio,
                 deleted = deleted,
+                placeholder = placeholder,
         )
     })
 }
@@ -147,4 +160,26 @@ fun isVideoUri(image: String): Boolean {
 
 fun isImageUri(image: String): Boolean {
     return image.endsWith(".jpg") || image.endsWith(".png")
+}
+
+fun placeholderFeedItem(id: Long, promotedId: Long): FeedItem {
+    return FeedItem(
+            id = id,
+            promotedId = promotedId,
+            created = Instant.now(),
+            thumbnail = "",
+            image = "",
+            fullsize = "",
+            user = "",
+            userId = 0L,
+            width = 128,
+            height = 128,
+            up = 0,
+            down = 0,
+            mark = 0,
+            flags = 0,
+            audio = false,
+            deleted = false,
+            placeholder = true,
+    )
 }
