@@ -20,8 +20,8 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     val feedType: FeedType get() = filter.feedType
 
-    val oldestItem: FeedItem? get() = items.filterNot { item -> item.placeholder }.maxWithOrNull(itemComparator)
-    val newestItem: FeedItem? get() = items.filterNot { item -> item.placeholder }.minWithOrNull(itemComparator)
+    val oldestNonPlaceholderItem: FeedItem? get() = items.asSequence().filterNot { item -> item.placeholder }.maxWithOrNull(itemComparator)
+    val newestNonPlaceholderItem: FeedItem? get() = items.asSequence().filterNot { item -> item.placeholder }.minWithOrNull(itemComparator)
 
     /**
      * Merges this feed with the provided low level feed representation
@@ -33,6 +33,10 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
         val newItems = mergeItems(update.items.map { FeedItem(it) })
         return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
+    }
+
+    fun withoutPlaceholderItems(): Feed {
+        return copy(items = items.filterNot { item -> item.placeholder })
     }
 
     private fun mergeWith(other: Feed): Feed {
@@ -83,7 +87,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
     }
 
     override fun toString(): String {
-        return "Feed(newest=${newestItem?.id}, oldest=${oldestItem?.id}, size=$size, filter=$filter)"
+        return "Feed(newest=${newestNonPlaceholderItem?.id}, oldest=${oldestNonPlaceholderItem?.id}, size=$size, filter=$filter)"
     }
 
     fun parcelAroundId(itemId: Long): FeedParcel {

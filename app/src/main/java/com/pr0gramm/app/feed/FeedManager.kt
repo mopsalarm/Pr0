@@ -56,7 +56,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
      * Load the next page of the feed
      */
     fun next() {
-        val oldest = feed.oldestItem
+        val oldest = feed.oldestNonPlaceholderItem
         if (feed.isAtEnd || isLoading || oldest == null)
             return
 
@@ -70,7 +70,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
      * Load the previous page of the feed
      */
     fun previous() {
-        val newest = feed.newestItem
+        val newest = feed.newestNonPlaceholderItem
         if (feed.isAtStart || isLoading || newest == null)
             return
 

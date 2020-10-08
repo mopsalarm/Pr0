@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class PostPagerViewModel(private val savedState: SavedState, feedService: FeedService) : ViewModel() {
-    private val mutableState = MutableStateFlow(State(savedState.fp.feed))
+    private val mutableState = MutableStateFlow(State(savedState.fp.feed.withoutPlaceholderItems()))
     val state: StateFlow<State> = mutableState
 
     var currentItem: FeedItem by observeChangeEx(savedState.currentItem) { _, newValue ->
@@ -26,7 +26,7 @@ class PostPagerViewModel(private val savedState: SavedState, feedService: FeedSe
     }
 
     // initialize loader based on the input feed
-    private val loader = FeedManager(viewModelScope, feedService, savedState.fp.feed)
+    private val loader = FeedManager(viewModelScope, feedService, mutableState.value.feed)
 
     init {
         viewModelScope.launch { observeFeedUpdates() }

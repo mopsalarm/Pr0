@@ -147,7 +147,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         // prepare the list of items
-        val spanCount = thumbnailColumCount
+        val spanCount = thumbnailColumnCount
 
         views.recyclerView.itemAnimator = null
         views.recyclerView.adapter = feedAdapter
@@ -333,18 +333,18 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                     val preloaded = id in feedState.preloadedItemIds
 
                     // show an ad banner every ~50 lines
-                    if (feedState.adsVisible && (itemColumnIndex % (50 * thumbnailColumCount)) == 0) {
+                    if (feedState.adsVisible && (itemColumnIndex % (50 * thumbnailColumnCount)) == 0) {
                         entries += FeedAdapter.Entry.Ad(itemColumnIndex.toLong())
                     }
 
-                    val highlight = thumbnailColumCount <= 3
+                    val highlight = thumbnailColumnCount <= 3
                             && Settings.highlightItemsInFeed
                             && item.id in feedState.highlightedItemIds
 
                     var indexToInsert = entries.size
 
                     if (highlight) {
-                        indexToInsert -= itemColumnIndex % thumbnailColumCount
+                        indexToInsert -= itemColumnIndex % thumbnailColumnCount
                     } else {
                         itemColumnIndex++
                     }
@@ -639,7 +639,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
      * Depending on whether the screen is landscape or portrait, and how large
      * the screen is, we show a different number of items per row.
      */
-    private val thumbnailColumCount: Int by lazy(LazyThreadSafetyMode.NONE) {
+    private val thumbnailColumnCount: Int by lazy(LazyThreadSafetyMode.NONE) {
         val config = resources.configuration
         val portrait = config.screenWidthDp < config.screenHeightDp
 
@@ -852,11 +852,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun onItemClicked(item: FeedItem, commentRef: CommentRef? = null, preview: ImageView? = null) {
-        if (item.placeholder) {
-            logger.warn { "User clicked on a placeholder: ${item.id}" }
-            return
-        }
-
         val activity = activity ?: return
 
         // reset auto open.
@@ -921,6 +916,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         listener.itemClicked = { view ->
             extractFeedItemHolder(view)?.let { holder ->
+                if (holder.item.placeholder) {
+                    logger.warn { "User clicked on a placeholder: ${holder.item.id}" }
+                    return@let
+                }
+
                 interstitialAdler.runWithAd {
                     onItemClicked(holder.item, preview = holder.imageView)
                 }
@@ -930,6 +930,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         listener.itemLongClicked = itemLongClicked@{ view ->
             val holder = extractFeedItemHolder(view) ?: return@itemLongClicked
             val activity = this.activity ?: return@itemLongClicked
+
+            if (holder.item.placeholder) {
+                logger.warn { "User clicked on a placeholder: ${holder.item.id}" }
+                return@itemLongClicked
+            }
 
             if (!this@FeedFragment.isStateSaved) {
                 PopupPlayer.open(activity, holder.item)
@@ -1123,7 +1128,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         } else {
             // over scroll a bit
-            views.recyclerView.scrollToPosition(idx + thumbnailColumCount)
+            views.recyclerView.scrollToPosition(idx + thumbnailColumnCount)
         }
     }
 
@@ -1149,14 +1154,13 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
             val layoutManager = views.recyclerView.gridLayoutManager
             val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
-            val lastCompletelyVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
             val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
-            if (lastCompletelyVisibleItem >= 0) {
-                if (lastCompletelyVisibleItem != lastSavedScrollIndex) {
-                    lastSavedScrollIndex = lastCompletelyVisibleItem
+            if (firstVisibleItem >= 0) {
+                if (firstVisibleItem != lastSavedScrollIndex) {
+                    lastSavedScrollIndex = firstVisibleItem
 
-                    val feedItem = feedAdapter.findItemNear(lastCompletelyVisibleItem)
+                    val feedItem = feedAdapter.findItemNear(firstVisibleItem)
                     if (feedItem != null) {
                         feedStateModel.updateScrollItemId(feedItem.id)
                     }
@@ -1174,14 +1178,14 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
             if (dy > 0 && !feed.isAtEnd) {
                 if (lastVisibleItem >= 0 && totalItemCount > maxEdgeDistance && lastVisibleItem >= totalItemCount - maxEdgeDistance) {
-                    logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount. Last feed item is ${feed.oldestItem}" }
+                    logger.info { "Request next page now (last visible is $lastVisibleItem of $totalItemCount. Last feed item is ${feed.oldestNonPlaceholderItem}" }
                     feedStateModel.triggerLoadNext()
                 }
             }
 
             if (dy < 0 && !feed.isAtStart) {
                 if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
-                    logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestItem}" }
+                    logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestNonPlaceholderItem}" }
                     feedStateModel.triggerLoadPrev()
                 }
             }
