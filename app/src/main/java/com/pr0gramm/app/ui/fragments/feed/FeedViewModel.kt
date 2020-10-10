@@ -184,6 +184,12 @@ class FeedViewModel(
     private fun findHighlightedItemIds(feed: Feed, highlightedItemIds: Set<Long>): Set<Long> {
         val allItemIds = feed.mapTo(HashSet()) { it.id }
 
+        // only build highlighted items if we don't have (a lot of) placeholders
+        val placeholderCount = feed.items.count { it.placeholder }
+        if (placeholderCount > feed.size / 3) {
+            return highlightedItemIds
+        }
+
         // list of items sorted by ascending points
         val topItems = feed.drop(10).dropLast(10)
                 .filter { item -> isTopCandidate(item) }
