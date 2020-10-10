@@ -365,6 +365,13 @@
                 android:key="pref_sync_backup"
                 android:summary="@string/pref_sync_backup_summary"
                 android:title="@string/perf_sync_backup_title" />
+
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="pref_use_doh2"
+                android:summary="@string/pref_use_doh_summary"
+                android:title="@string/pref_use_doh_title" />
+
         </PreferenceScreen>
 
     </PreferenceCategory>

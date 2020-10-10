@@ -568,5 +568,7 @@
     <string name="pref_upvote_on_collect_title"><![CDATA[Collect & Upvote]]></string>
     <string name="pref_upvote_on_collect_summary">Automatically upvote collected items</string>
     <string name="hint_upvote_on_collect">Do you want to automatically upvote a post when you add it to a collection?</string>
+    <string name="pref_use_doh_summary">Use DNS over HTTPS via cloudflare</string>
+    <string name="pref_use_doh_title">Uses encrypted DNS over HTTPS using the Cloudflare server 1.1.1.1. This might help if your company or ISP tries to block access to pr0gramm via dns.</string>
 </resources>
 

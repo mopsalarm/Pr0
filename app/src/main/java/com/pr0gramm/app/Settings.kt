@@ -185,6 +185,9 @@ object Settings {
     val colorfulCommentLines: Boolean
         get() = preferences.getBoolean("pref_colorful_comment_lines", false)
 
+    val useDoH: Boolean
+        get() = preferences.getBoolean("pref_use_doh2", true)
+
     fun resetContentTypeSettings() {
         // reset settings.
         edit {

@@ -392,13 +392,18 @@ private class CustomDNS(appContext: Application) : Dns {
             return listOf(Inet4Address.getByName(hostname))
         }
 
-        val resolvers = listOf(
-                NamedResolver("doh-okhttp", dnsOverHttps),
-                NamedResolver("system", Dns.SYSTEM))
+        val resolvers = when {
+            Settings.useDoH -> listOf(
+                    NamedResolver("doh-okhttp", dnsOverHttps),
+                    NamedResolver("system", Dns.SYSTEM),
+            )
+
+            else -> listOf(NamedResolver("system", Dns.SYSTEM))
+        }
 
         for ((name, resolver) in resolvers) {
             try {
-                logger.debug { "Try resolver $name" }
+                logger.debug { "Try resolver '$name'" }
                 val addresses = resolver.lookup(hostname)
                         .filterNot { it.isAnyLocalAddress }
                         .filterNot { it.isLinkLocalAddress }
