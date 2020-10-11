@@ -2,8 +2,13 @@ package com.pr0gramm.app.feed
 
 import android.os.Parcel
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.*
+import com.pr0gramm.app.util.Serde
+import java.util.zip.Deflater
 
 /**
  * Represents a feed.
@@ -104,7 +109,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         val toIndexExclusive = (index + itemCountAround).coerceIn(0, items.size)
 
         // return a parcel with a window to the data
-        return FeedParcel(this, items = copy(items = this.items.subList(fromIndex, toIndexExclusive)))
+        return FeedParcel(this, subset = copy(items = this.items.subList(fromIndex, toIndexExclusive)))
     }
 
     /**
@@ -118,25 +123,40 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return if (overlap) mergeWith(other) else null
     }
 
-    class FeedParcel(val feed: Feed, private val items: List<FeedItem>) : DefaultParcelable {
+    class FeedParcel(val feed: Feed, private val subset: List<FeedItem>) : DefaultParcelable, List<FeedItem> by feed {
+        private val logger = Logger("FeedParcel")
+
         override fun writeToParcel(dest: Parcel, flags: Int) {
+            val parcelSize = dest.dataSize()
+            val watch = Stopwatch()
+
             dest.write(feed.filter)
             dest.writeInt(ContentType.combine(feed.contentType))
             dest.writeBooleanCompat(feed.isAtStart)
             dest.write(feed.created)
 
             // only serialize non placeholder items
-            dest.writeValues(items.filter { item -> !item.placeholder })
+            dest.writeValues(subset.filter { item -> !item.placeholder })
 
-            val ids = LongArray(feed.size) { idx ->
-                (feed[idx].id shl 32) or (feed[idx].promotedId)
+            // encode the rest of the items in a very space efficient way
+            val ids = Serde.serialize(level = Deflater.BEST_SPEED) { out ->
+                out.writeInt(feed.size)
+
+                for (item in feed) {
+                    out.writeInt(item.id.toInt())
+                    out.writeInt(item.promotedId.toInt())
+                    out.writeShort(((512 * item.height) / item.width).coerceAtLeast(1))
+                }
             }
 
             // write id's of all values in the feed
-            dest.writeLongArray(ids)
+            dest.writeByteArray(ids)
+
+            logger.debug { "parcel size is ${dest.dataSize() - parcelSize}b in $watch" }
         }
 
         companion object CREATOR : SimpleCreator<FeedParcel>() {
+
             override fun createFromParcel(source: Parcel): FeedParcel = with(source) {
                 val base = Feed(
                         filter = read(FeedFilter),
@@ -151,17 +171,45 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 val realItemsById = realItems.associateBy { item -> item.id }
 
                 // read item ids of all items in the feed
-                val idsArray = createLongArray()!!
+                val placeholders = Serde.deserialize(createByteArray()!!) { input ->
+                    listOfSize(input.readInt()) {
+                        SerializedItem(
+                                id = input.readInt().toLong(),
+                                promotedId = input.readInt().toLong(),
+                                aspect = input.readUnsignedShort(),
+                        )
+                    }
+                }
 
                 // merge items with itemIds and create placeholders if required
-                val items = idsArray.map { mergedItemId ->
-                    val itemId = mergedItemId ushr 32
-                    val itemPromotedId = mergedItemId and 0xffffffff
-
-                    realItemsById[itemId] ?: placeholderFeedItem(itemId, itemPromotedId)
+                val items = placeholders.map { item ->
+                    realItemsById[item.id] ?: FeedItem(
+                            id = item.id,
+                            promotedId = item.promotedId,
+                            created = Instant.now(),
+                            thumbnail = "",
+                            image = "",
+                            fullsize = "",
+                            user = "",
+                            userId = 0L,
+                            width = item.width,
+                            height = item.height,
+                            up = 0,
+                            down = 0,
+                            mark = 0,
+                            flags = 0,
+                            audio = false,
+                            deleted = false,
+                            placeholder = true,
+                    )
                 }
 
                 return FeedParcel(base.copy(items = items), items)
+            }
+
+            private class SerializedItem(val id: Long, val promotedId: Long, val aspect: Int) {
+                val width = 512
+                val height = width * aspect / 512
             }
         }
     }

@@ -7,11 +7,16 @@ import java.util.zip.InflaterInputStream
 
 
 object Serde {
-    fun serialize(writer: (out: DataOutput) -> Unit): ByteArray {
+    fun serialize(level: Int = Deflater.DEFAULT_COMPRESSION, writer: (out: DataOutput) -> Unit): ByteArray {
         val bytesOut = ByteArrayOutputStream()
 
-        DeflaterOutputStream(bytesOut, Deflater(Deflater.DEFAULT_COMPRESSION)).use { deflateOut ->
-            DataOutputStream(deflateOut).use(writer)
+        val def = Deflater(level)
+        try {
+            DeflaterOutputStream(bytesOut, def).use { deflateOut ->
+                DataOutputStream(deflateOut).use(writer)
+            }
+        } finally {
+            def.end()
         }
 
         return bytesOut.toByteArray()

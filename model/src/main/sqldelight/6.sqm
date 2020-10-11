@@ -1,0 +1,18 @@
+CREATE TABLE CachedItemInfo (
+    id INTEGER PRIMARY KEY NOT NULL,
+    promotedId INTEGER NOT NULL,
+    image TEXT NOT NULL,
+    fullsize TEXT NOT NULL,
+    thumbnail TEXT NOT NULL,
+    user TEXT NOT NULL,
+    userId INTEGER NOT NULL,
+    created INTEGER NOT NULL,
+    width INTEGER AS Int NOT NULL,
+    height INTEGER AS Int NOT NULL,
+    up INTEGER AS Int NOT NULL,
+    down INTEGER AS Int NOT NULL,
+    mark INTEGER AS Int NOT NULL,
+    flags INTEGER AS Int NOT NULL,
+    audio INTEGER AS Boolean NOT NULL,
+    deleted INTEGER AS Boolean NOT NULL
+);

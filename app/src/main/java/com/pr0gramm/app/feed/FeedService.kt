@@ -1,13 +1,16 @@
 package com.pr0gramm.app.feed
 
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.Stats
-import com.pr0gramm.app.TimeFactory
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.db.FeedItemInfoQueries
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.equalsIgnoreCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runInterruptible
 import java.util.*
 
 /**
@@ -40,7 +43,9 @@ interface FeedService {
 
 }
 
-class FeedServiceImpl(private val api: Api, private val userService: UserService) : FeedService {
+class FeedServiceImpl(private val api: Api, private val userService: UserService, private val itemQueries: FeedItemInfoQueries) : FeedService {
+    private val logger = Logger("FeedService")
+
     override suspend fun load(query: FeedService.FeedQuery): Api.Feed {
         val feedFilter = query.filter
 
@@ -98,9 +103,44 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
                         .takeIf { self -> self }
 
                 // do the normal query as is.
-                api.itemsGet(promoted, following,
+                val result = api.itemsGet(promoted, following,
                         query.older, query.newer, query.around,
                         flags, tags, collection, self, user)
+
+                result.also {
+                    AsyncScope.launchIgnoreErrors {
+                        logger.time("Cache items from result") {
+                            cacheItems(result)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun cacheItems(feed: Api.Feed) {
+        runInterruptible(Dispatchers.IO) {
+            itemQueries.transaction {
+                for (item in feed.items) {
+                    itemQueries.cache(
+                            id = item.id,
+                            promotedId = item.promoted,
+                            userId = item.userId,
+                            image = item.image,
+                            thumbnail = item.thumb,
+                            fullsize = item.fullsize,
+                            user = item.user,
+                            up = item.up,
+                            down = item.down,
+                            mark = item.mark,
+                            flags = item.flags,
+                            width = item.width,
+                            height = item.height,
+                            created = item.created.epochSeconds,
+                            audio = item.audio,
+                            deleted = item.deleted,
+                    )
+                }
             }
         }
     }
@@ -124,8 +164,8 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
 
                 // get the previous (or next) page from the current set of items.
                 query = when {
-                    upwards && !feed.isAtStart -> feed.items.maxBy { it.id }?.let { currentQuery.copy(newer = it.id) }
-                    !upwards && !feed.isAtEnd -> feed.items.minBy { it.id }?.let { currentQuery.copy(older = it.id) }
+                    upwards && !feed.isAtStart -> feed.items.maxByOrNull { it.id }?.let { currentQuery.copy(newer = it.id) }
+                    !upwards && !feed.isAtEnd -> feed.items.minByOrNull { it.id }?.let { currentQuery.copy(older = it.id) }
                     else -> null
                 }
             }

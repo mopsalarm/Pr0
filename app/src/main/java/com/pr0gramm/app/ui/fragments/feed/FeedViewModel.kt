@@ -3,16 +3,15 @@ package com.pr0gramm.app.ui.fragments.feed
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
+import com.pr0gramm.app.db.CachedItemInfo
+import com.pr0gramm.app.db.FeedItemInfoQueries
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.SeenService
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
-import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.SavedStateAccessor
 import com.pr0gramm.app.ui.fragments.CommentRef
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import kotlin.math.abs
@@ -37,12 +37,15 @@ class FeedViewModel(
         private val seenService: SeenService,
         private val inMemoryCacheService: InMemoryCacheService,
         private val preloadManager: PreloadManager,
-        private val adService: AdService
+        private val adService: AdService,
+        private val itemQueries: FeedItemInfoQueries,
 ) : ViewModel() {
 
     private val logger = Logger("FeedViewModel")
 
     val feedState = MutableStateFlow(FeedState(
+            ready = savedState.feed == null,
+
             // correctly initialize the state
             feed = savedState.feed?.feed ?: Feed(filter, userService.selectedContentType),
             highlightedItemIds = savedState.highlightedItemIds?.toSet() ?: setOf(),
@@ -57,8 +60,17 @@ class FeedViewModel(
         viewModelScope.launch { observeSettings() }
         viewModelScope.launch { observePreloadState() }
 
-        // start loading the feed
-        loader.restart(around = loadAroundItemId)
+        val placeholderCount = savedState.feed.orEmpty().count { it.placeholder }
+        if (placeholderCount > 0) {
+            logger.debug { "Schedule restore of $placeholderCount placeholder items." }
+            viewModelScope.launch { restoreFeedItems() }
+
+        } else {
+            logger.debug { "Schedule new load of feed around item $loadAroundItemId" }
+
+            // start loading the feed
+            loader.restart(around = loadAroundItemId)
+        }
     }
 
     private suspend fun observePreloadState() {
@@ -119,10 +131,24 @@ class FeedViewModel(
                     }
 
                     feedState.update { previousState ->
+                        val feed = when {
+                            previousState.cachedItemsById != null -> {
+                                // replace placeholders with loaded items
+                                val items = update.feed.mapNotNull { item ->
+                                    if (item.placeholder) previousState.cachedItemsById[item.id] else item
+                                }
+
+                                update.feed.copy(items = items)
+                            }
+
+                            // show feed as is
+                            else -> update.feed
+                        }
+
                         previousState.copy(
-                                feed = update.feed,
-                                seen = update.feed.filter { item -> seenService.isSeen(item.id) }.mapTo(HashSet()) { it.id },
-                                empty = update.remote && update.feed.isEmpty(),
+                                feed = feed,
+                                seen = feed.filter { item -> seenService.isSeen(item.id) }.mapTo(HashSet()) { it.id },
+                                empty = update.remote && feed.isEmpty(),
                                 highlightedItemIds = highlightedItemIds,
                                 autoScrollRef = autoScrollRef,
                                 error = null,
@@ -244,6 +270,36 @@ class FeedViewModel(
         return item.isImage || item.isVideo
     }
 
+    /**
+     *  Loads cached placeholder items from the database
+     *  */
+    private suspend fun restoreFeedItems() {
+        val placeholders = feedState.value.feed.filter { it.placeholder }
+
+        val cachedItems = runInterruptible(Dispatchers.IO) {
+            logger.time("Loading ${placeholders.size} cached items") {
+                itemQueries.lookup(placeholders.map { item -> item.id }).executeAsList()
+            }
+        }
+
+        val byId = cachedItems.associateBy(
+                keySelector = CachedItemInfo::id,
+                valueTransform = CachedItemInfo::toFeedItem,
+        )
+
+        feedState.update { previousState ->
+            val newItems = feedState.value.feed.mapNotNull { item ->
+                if (item.placeholder) byId[item.id] else item
+            }
+
+            previousState.copy(
+                    ready = true,
+                    cachedItemsById = byId,
+                    feed = previousState.feed.copy(items = newItems),
+            )
+        }
+    }
+
     private suspend fun refreshRepostInfos(old: Feed, new: Feed) {
         trace { "refreshRepostInfos" }
 
@@ -331,6 +387,7 @@ class FeedViewModel(
     }
 
     data class FeedState(
+            val ready: Boolean,
             val feed: Feed,
             val seen: Set<Long> = setOf(),
             val errorStr: String? = null,
@@ -344,10 +401,33 @@ class FeedViewModel(
             val preloadedItemIds: LongSparseArray<PreloadManager.PreloadItem> = LongSparseArray(initialCapacity = 0),
             val autoScrollRef: ConsumableValue<ScrollRef>? = null,
             val highlightedItemIds: Set<Long> = setOf(),
+            val cachedItemsById: Map<Long, FeedItem>? = null,
             val empty: Boolean = false
     ) {
         val isLoading = loading != null
     }
+}
+
+private fun CachedItemInfo.toFeedItem(): FeedItem {
+    return FeedItem(
+            id = id,
+            promotedId = promotedId,
+            image = image,
+            fullsize = fullsize,
+            thumbnail = thumbnail,
+            user = user,
+            userId = userId,
+            created = Instant.ofEpochSeconds(created),
+            width = width,
+            height = height,
+            up = up,
+            down = down,
+            mark = mark,
+            flags = flags,
+            audio = audio,
+            deleted = deleted,
+            placeholder = false,
+    )
 }
 
 inline fun <T> MutableStateFlow<T>.update(block: (previousState: T) -> T) {

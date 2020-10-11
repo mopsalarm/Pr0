@@ -15,10 +15,12 @@ import androidx.lifecycle.whenResumed
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.databinding.FragmentFeedBinding
+import com.pr0gramm.app.db.AppDB
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.SFW
 import com.pr0gramm.app.parcel.getParcelableOrThrow
@@ -65,7 +67,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 seenService = instance(),
                 inMemoryCacheService = instance(),
                 preloadManager = instance(),
-                adService = instance()
+                adService = instance(),
+                itemQueries = instance<AppDB>().feedItemInfoQueries,
         )
     }
 
@@ -136,11 +139,17 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         feedAdapter = FeedAdapter((activity as MainActivity).adViewAdapter)
 
+        if (!feedStateModel.feedState.value.ready) {
+            feedAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT
+        }
+
         launchInViewScope {
             feedAdapter.state.collect {
                 this@FeedFragment.autoScrollRef?.let { autoScrollRef ->
-                    if (autoScrollRef.autoOpen) {
-                        performAutoOpen(autoScrollRef.ref)
+                    if (feedStateModel.feedState.value.ready) {
+                        if (autoScrollRef.autoOpen) {
+                            performAutoOpen(autoScrollRef.ref)
+                        }
                     }
                 }
             }
@@ -381,7 +390,9 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 }
             }
 
-            feedAdapter.submitList(entries)
+            feedAdapter.submitList(entries) {
+                feedAdapter.stateRestorationPolicy = StateRestorationPolicy.ALLOW
+            }
         }
     }
 
@@ -1187,23 +1198,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 if (firstVisibleItem >= 0 && totalItemCount > maxEdgeDistance && firstVisibleItem < maxEdgeDistance) {
                     logger.info { "Request previous page now (first visible is $firstVisibleItem of $totalItemCount. Most recent feed item is ${feed.newestNonPlaceholderItem}" }
                     feedStateModel.triggerLoadPrev()
-                }
-            }
-
-            for (idx in 0 until layoutManager.childCount) {
-                val view = layoutManager.getChildAt(idx) ?: continue
-                val holder = extractFeedItemHolder(view) ?: continue
-
-                if (holder.item.placeholder) {
-                    logger.info { "Placeholder ${holder.item.id} hit, trigger load now" }
-
-                    if (dy > 0) {
-                        feedStateModel.triggerLoadNext()
-                    } else {
-                        feedStateModel.triggerLoadPrev()
-                    }
-
-                    break
                 }
             }
         }

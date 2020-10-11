@@ -161,25 +161,3 @@ fun isVideoUri(image: String): Boolean {
 fun isImageUri(image: String): Boolean {
     return image.endsWith(".jpg") || image.endsWith(".png")
 }
-
-fun placeholderFeedItem(id: Long, promotedId: Long): FeedItem {
-    return FeedItem(
-            id = id,
-            promotedId = promotedId,
-            created = Instant.now(),
-            thumbnail = "",
-            image = "",
-            fullsize = "",
-            user = "",
-            userId = 0L,
-            width = 128,
-            height = 128,
-            up = 0,
-            down = 0,
-            mark = 0,
-            flags = 0,
-            audio = false,
-            deleted = false,
-            placeholder = true,
-    )
-}

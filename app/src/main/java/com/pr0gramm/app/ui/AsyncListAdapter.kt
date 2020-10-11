@@ -50,7 +50,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
      *
      * @param newList The new List.
      */
-    open fun submitList(newList: List<T>, forceSync: Boolean = false) {
+    open fun submitList(newList: List<T>, forceSync: Boolean = false, callback: Callback? = null) {
         checkMainThread()
 
         val oldList = items
@@ -90,6 +90,8 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
                 calculateDiff(oldList, newList).dispatchUpdatesTo(this)
             }
 
+            callback?.invoke()
+
         } else {
             CoroutineScope(Main).launch {
                 val diff = withContext(Dispatchers.Default) {
@@ -100,6 +102,8 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
                     applyNewItems(newList) {
                         diff.dispatchUpdatesTo(this@AsyncListAdapter)
                     }
+
+                    callback?.invoke()
                 }
             }
         }
