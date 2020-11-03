@@ -267,7 +267,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         fun newComment(context: Context, item: FeedItem): Intent {
             return activityIntent<WriteMessageActivity>(context) {
                 putExtra(ARGUMENT_ITEM_ID, item.id)
-                putExtra(ARGUMENT_COMMENT_ID, 0)
+                putExtra(ARGUMENT_COMMENT_ID, 0L)
                 putExtra(ARGUMENT_TITLE, context.getString(R.string.write_comment, item.user))
             }
         }
