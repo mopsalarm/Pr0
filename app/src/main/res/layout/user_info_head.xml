@@ -1,11 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     tools:showIn="@layout/user_info_cell_v2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_weight="1"
+        android:gravity="left"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/user_type_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            tools:text="MODERATOR" />
+
+        <com.pr0gramm.app.ui.views.UsernameView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:ellipsize="end"
+            tools:text="Mopsalarm" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -40,32 +68,7 @@
             tools:visibility="visible" />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginLeft="16dp"
-        android:gravity="left"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/user_type_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            tools:text="MODERATOR" />
-
-        <com.pr0gramm.app.ui.views.UsernameView
-            android:id="@+id/username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            tools:text="Mopsalarm" />
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>
 
 
     
