@@ -278,7 +278,9 @@ class FeedViewModel(
 
         val cachedItems = runInterruptible(Dispatchers.IO) {
             logger.time("Loading ${placeholders.size} cached items") {
-                itemQueries.lookup(placeholders.map { item -> item.id }).executeAsList()
+                placeholders.chunked(256).flatMap { itemsChunk ->
+                    itemQueries.lookup(itemsChunk.map { item -> item.id }).executeAsList()
+                }
             }
         }
 
