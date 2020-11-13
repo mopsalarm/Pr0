@@ -17,7 +17,7 @@ buildscript {
 plugins {
     id "org.jetbrains.kotlin.android" version "1.4.10" apply false
     id "org.jetbrains.kotlin.kapt" version "1.4.10" apply false
-    id "com.github.ben-manes.versions" version "0.29.0"
+    id "com.github.ben-manes.versions" version "0.36.0"
 }
 
 dependencyUpdates.resolutionStrategy {
@@ -39,7 +39,7 @@ allprojects {
         google()
         jcenter()
 
-        maven { url 'https://kotlin.bintray.com/kotlinx' }
+        // maven { url 'https://kotlin.bintray.com/kotlinx' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->

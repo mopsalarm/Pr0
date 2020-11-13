@@ -1163,6 +1163,12 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 activity.scrollHideToolbarListener.onScrolled(dy)
             }
 
+            if (view == null) {
+                // for some reason we got the event after the view was already
+                // unset on the fragment. we'll stop here before crashing in the next line.
+                return
+            }
+
             val layoutManager = views.recyclerView.gridLayoutManager
             val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
             val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
