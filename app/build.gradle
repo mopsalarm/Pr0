@@ -14,7 +14,7 @@ buildscript {
 
     dependencies {
         classpath 'com.google.gms:google-services:4.3.4'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.3.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
     }
 }
 
@@ -169,7 +169,7 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'androidx.concurrent:concurrent-futures:1.1.0'
     // implementation 'com.google.guava:listenablefuture:1.0'
-    implementation 'androidx.paging:paging-runtime:3.0.0-alpha08'
+    implementation 'androidx.paging:paging-runtime:3.0.0-alpha09'
     implementation "androidx.constraintlayout:constraintlayout:2.0.4"
 
     implementation 'androidx.activity:activity-ktx:1.2.0-beta01'
@@ -182,7 +182,7 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-ads-lite:19.5.0"
     implementation 'com.google.firebase:firebase-analytics:18.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
