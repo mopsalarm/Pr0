@@ -16,7 +16,7 @@ class CommentListParceler(val comments: List<Api.Comment>) : DefaultParcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         val bytes = logger.time("Serialize comments to bytes") {
-            Serde.serialize(level = Deflater.BEST_SPEED) { out ->
+            Serde.serialize(level = Deflater.BEST_COMPRESSION) { out ->
                 out.writeInt(comments.size)
 
                 for (comment in comments) {
