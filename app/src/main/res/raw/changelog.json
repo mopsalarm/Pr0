@@ -1,16 +1,24 @@
 [
   {
-    "version": 188,
+    "version": 189,
     "changes": [
       {
-        "type": "Neu",
-        "change": "Option um beim Sammeln eines Posts automatisch ein Blussi zu vergeben."
+        "type": "Fix",
+        "change": "Favorisierte Kommentare wurden nach Login nicht richtig markiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Abstürze und Unschönheiten behoben."
       }
     ]
   },
   {
     "version": 187,
     "changes": [
+      {
+        "type": "Neu",
+        "change": "Option um beim Sammeln eines Posts automatisch ein Blussi zu vergeben."
+      },
       {
         "type": "Fix",
         "change": "GIFs werden wieder richtig angezeigt."
