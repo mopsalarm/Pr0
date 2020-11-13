@@ -31,6 +31,8 @@ class VoteService(private val api: Api,
                   private val seenService: SeenService,
                   private val appDB: AppDB) {
 
+    private val logger = Logger("VoteService")
+
     /**
      * Votes a post. This sends a request to the server, so you need to be signed in
      * to vote posts.
@@ -158,6 +160,12 @@ class VoteService(private val api: Api,
                             pendingCollectOp = null
                         }
                     }
+
+                    ACTION_COMMENT_FAV ->
+                        appDB.favedCommentsQueries.insert(id)
+
+                    ACTION_COMMENT_UNFAV ->
+                        appDB.favedCommentsQueries.remove(id)
                 }
 
             }
@@ -265,8 +273,6 @@ class VoteService(private val api: Api,
     data class Summary(val up: Int, val down: Int)
 
     companion object {
-        private val logger = Logger("VoteService")
-
         private val VOTE_ACTIONS: Map<Int, VoteAction> = hashMapOf(
                 1 to VoteAction(CachedVote.Type.ITEM, Vote.DOWN),
                 2 to VoteAction(CachedVote.Type.ITEM, Vote.NEUTRAL),

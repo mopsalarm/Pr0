@@ -333,7 +333,7 @@ class UserService(private val api: Api,
         }
     }
 
-    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v5:" + config.syncVersion
+    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v6:" + config.syncVersion
 
     /**
      * Retrieves the user data and stores part of the data in the database.
