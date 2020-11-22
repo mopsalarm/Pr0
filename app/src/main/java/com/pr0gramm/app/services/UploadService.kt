@@ -328,7 +328,7 @@ fun isMoreRestrictiveContentTypeTag(tags: List<String>, tag: String): Boolean {
         return false
     }
 
-    val maxExistingTagIndex = tags.map { sorted.indexOf(it.toLowerCase(Locale.ROOT)) }.max()
+    val maxExistingTagIndex = tags.map { sorted.indexOf(it.toLowerCase(Locale.ROOT)) }.maxOrNull()
     return maxExistingTagIndex == null || maxExistingTagIndex < newTagIndex
 }
 

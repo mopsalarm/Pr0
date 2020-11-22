@@ -89,7 +89,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
         if (markAsRead) {
             // mark the most recent item/message as read.
-            converted.maxBy { it.creationTime }?.let { markAsRead(it) }
+            converted.maxByOrNull { it.creationTime }?.let { creationTime -> markAsRead(creationTime) }
         }
 
         return converted
@@ -181,7 +181,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         val result = api.messagesWith(name, olderThan?.epochSeconds)
 
         // mark the latest message in the conversation as read
-        result.messages.maxBy { it.creationTime }?.let { markAsRead(name, it.creationTime) }
+        result.messages.maxOfOrNull { msg -> msg.creationTime }?.let { creationTime -> markAsRead(name, creationTime) }
 
         return result
     }

@@ -23,7 +23,7 @@ class StatisticsService(private val feedService: FeedService) {
 
     private fun streamStats(cache: ConcurrentMap<Long, Stats>, filter: FeedFilter): Flow<Stats> {
 
-        val startAt = cache.keys.max() ?: 0L
+        val startAt = cache.keys.maxOrNull() ?: 0L
         val initialState = cache[startAt] ?: Stats(counts = emptyMap())
 
         return feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = startAt)).scan(initialState) { state, feed ->
@@ -38,8 +38,8 @@ class StatisticsService(private val feedService: FeedService) {
             if (!feed.isAtEnd && !feed.isAtStart) {
                 // this is a complete page, just cache the state at
                 // it's most recent item
-                feed.items.maxBy { it.id }?.let { item ->
-                    cache[item.id] = newState
+                feed.items.maxOfOrNull { it.id }?.let { itemId ->
+                    cache[itemId] = newState
                 }
             }
 

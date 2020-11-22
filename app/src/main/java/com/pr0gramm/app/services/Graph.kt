@@ -19,12 +19,12 @@ data class Graph(val firstX: Double, val lastX: Double, val points: List<Graph.P
 
     val maxValue: Double
         get() {
-            return points.maxBy { it.y }!!.y
+            return points.maxOf { it.y }
         }
 
     val minValue: Double
         get() {
-            return points.minBy { it.y }!!.y
+            return points.minOf { it.y }
         }
 
     operator fun get(idx: Int): Point {

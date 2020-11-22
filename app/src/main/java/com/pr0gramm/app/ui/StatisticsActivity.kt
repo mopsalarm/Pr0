@@ -149,8 +149,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private fun updateTimeRange() {
         if (benisValues.size > 2) {
-            val min = benisValues.minBy { it.time }!!.time
-            val max = benisValues.maxBy { it.time }!!.time
+            val min = benisValues.minOf { v -> v.time }
+            val max = benisValues.maxOf { v -> v.time }
 
             benisGraphTimeSelector.maxRangeInMillis = (max - min)
         }
