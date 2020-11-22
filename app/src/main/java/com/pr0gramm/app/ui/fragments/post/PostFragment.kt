@@ -982,7 +982,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         private val fancyScrollVertical = Settings.fancyScrollVertical
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            if (isVideoFullScreen)
+            if (isVideoFullScreen || view == null)
                 return
 
             val viewer = viewer ?: return
