@@ -196,6 +196,14 @@ interface Api {
             @Field("recipientName") recipient: String
     ): ConversationMessages
 
+    @FormUrlEncoded
+    @POST("/api/inbox/read")
+    suspend fun markAsRead(
+            @Field("_nonce") nonce: Nonce?,
+            @Field("type") text: String,
+            @Field("messageId") messageId: Long,
+    )
+
     @GET("/api/items/ratelimited")
     suspend fun ratelimited()
 

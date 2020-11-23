@@ -511,6 +511,9 @@ class NotificationHelperService(val context: Context) {
         intent.putExtra(MainActivity.EXTRA_MARK_AS_READ, message.unreadId)
         intent.putExtra(MainActivity.EXTRA_MARK_AS_READ_TIMESTAMP, message.creationTime)
 
+        intent.putExtra(MainActivity.EXTRA_MARK_AS_READ_MESSAGE_ID, message.id)
+        intent.putExtra(MainActivity.EXTRA_MARK_AS_READ_MESSAGE_TYPE, MessageType.STALK.name)
+
         return TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(intent)
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!

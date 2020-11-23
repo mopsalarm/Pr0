@@ -115,6 +115,10 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         }
     }
 
+    suspend fun markAsReadOnline(messageType: MessageType, messageId: Long) {
+        api.markAsRead(null, messageType.apiValue, messageId)
+    }
+
     /**
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from [.unreadMessagesCount].

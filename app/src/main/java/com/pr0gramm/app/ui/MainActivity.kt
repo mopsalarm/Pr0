@@ -26,6 +26,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.databinding.ActivityMainBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -45,7 +46,6 @@ import com.pr0gramm.app.ui.fragments.feed.AdViewAdapter
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.*
 import kotlin.properties.Delegates
@@ -169,10 +169,22 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun handleMarkAsRead(intent: Intent?) {
         val extras = intent?.extras ?: return
-        val itemId = extras.getString(EXTRA_MARK_AS_READ) ?: return
-        val timestamp = extras.getParcelable<Instant>(EXTRA_MARK_AS_READ_TIMESTAMP) ?: return
 
-        baseContext.injector.instance<InboxService>().markAsRead(itemId, timestamp)
+        val inboxService by instance<InboxService>()
+
+        val itemId = extras.getString(EXTRA_MARK_AS_READ)
+        val timestamp = extras.getParcelable<Instant>(EXTRA_MARK_AS_READ_TIMESTAMP)
+        if (itemId != null && timestamp != null) {
+            inboxService.markAsRead(itemId, timestamp)
+        }
+
+        val messageId = extras.getLong(EXTRA_MARK_AS_READ_MESSAGE_ID, 0)
+        val messageType = tryEnumValueOf<MessageType>(extras.getString(EXTRA_MARK_AS_READ_MESSAGE_TYPE))
+        if (messageId != 0L && messageType != null) {
+            doInBackground {
+                inboxService.markAsReadOnline(messageType, messageId)
+            }
+        }
     }
 
     private fun shouldShowBuyPremiumHint(): Boolean {
@@ -653,6 +665,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     companion object {
         const val EXTRA_MARK_AS_READ = "MainActivity.EXTRA_MARK_AS_READ"
         const val EXTRA_MARK_AS_READ_TIMESTAMP = "MainActivity.EXTRA_MARK_AS_READ_TIMESTAMP"
+
+        const val EXTRA_MARK_AS_READ_MESSAGE_ID = "MainActivity.EXTRA_MARK_AS_READ_MESSAGE_ID"
+        const val EXTRA_MARK_AS_READ_MESSAGE_TYPE = "MainActivity.EXTRA_MARK_AS_READ_MESSAGE_TYPE"
 
         // we use this to propagate a fake-home event to the fragments.
         const val ID_FAKE_HOME = android.R.id.list
