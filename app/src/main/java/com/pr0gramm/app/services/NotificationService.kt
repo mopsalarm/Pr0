@@ -367,7 +367,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
         else -> "unreachable"
     }
 
-    val contentText: CharSequence? = when (message.type) {
+    val contentText: CharSequence = when (message.type) {
         MessageType.STALK -> context.getString(R.string.notify_hint_tap_to_open_post)
 
         MessageType.COMMENT -> buildSpannedString {

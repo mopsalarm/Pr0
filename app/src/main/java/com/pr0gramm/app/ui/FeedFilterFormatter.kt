@@ -4,6 +4,7 @@ import android.content.Context
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.BookmarkService
 import com.pr0gramm.app.util.di.injector
 
@@ -63,13 +64,11 @@ object FeedFilterFormatter {
     }
 
     fun toTitle(context: Context, filter: FeedFilter): TitleFragment.Title {
-        val bookmarkService: BookmarkService = context.injector.instance()
-
         // format the current filter
         val formatted = format(context, filter)
 
         // get a more specific title from a bookmark if possible
-        val bookmarkTitle = bookmarkService.byFilter(filter)?.title
+        val bookmarkTitle = bookmarkTitleOf(context, filter)
 
         return when {
             bookmarkTitle != null ->
@@ -78,6 +77,26 @@ object FeedFilterFormatter {
             else ->
                 TitleFragment.Title(formatted.title, formatted.subtitle, useSubtitleInTitle = true)
         }
+    }
+
+    private fun bookmarkTitleOf(context: Context, filter: FeedFilter): String? {
+        val bookmarkService: BookmarkService = context.injector.instance()
+
+        val directTitle = bookmarkService.byFilter(filter)?.title
+        if (directTitle != null) {
+            return directTitle
+        }
+
+        // check if the filter might match the inverse of any bookmark
+        val bookmarkInverse = bookmarkService.all.firstOrNull { bookmark ->
+            filter == bookmark.asFeedFilter().invert()
+        }
+
+        if (bookmarkInverse != null) {
+            return context.getString(R.string.bookmark_inverse_title, bookmarkInverse.title)
+        }
+
+        return null
     }
 
     private fun cleanTags(tags: String): String {

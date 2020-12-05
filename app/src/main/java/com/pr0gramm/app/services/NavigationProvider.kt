@@ -207,19 +207,29 @@ class NavigationProvider(
         val items = bookmarks
                 .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.STALK }
                 .mapTo(mutableListOf()) { entry ->
+
+                    val filter = entry.asFeedFilter()
+                    val filterInverse = filter.invert()
+
                     val icon = when {
                         entry.trending -> iconBookmarkTrending.constantState!!.newDrawable()
                         else -> iconBookmark.constantState!!.newDrawable()
                     }
 
+                    val layoutId = when {
+                        entry.trending && filterInverse != null -> R.layout.left_drawer_nav_item_trending
+                        else -> R.layout.left_drawer_nav_item
+                    }
+
                     val title = entry.title
 
-                    val filter = entry.asFeedFilter()
+                    val isSelected = filter == currentSelection || filterInverse == currentSelection
 
                     NavigationItem(
-                            action = ActionType.BOOKMARK,
+                            action = ActionType.BOOKMARK, layout = layoutId,
                             title = title, icon = icon, bookmark = entry,
-                            filter = filter, isSelected = filter == currentSelection)
+                            filter = filter, filterInverse = filterInverse,
+                            isSelected = isSelected)
                 }
 
         val actionKey = "hint:bookmark-hold-to-delete:2"
@@ -351,10 +361,11 @@ class NavigationProvider(
     }
 
     class NavigationItem(val action: ActionType,
-                         val title: String? = null,
+                         val title: CharSequence? = null,
                          val icon: Drawable? = null,
                          val layout: Int = R.layout.left_drawer_nav_item,
                          val filter: FeedFilter? = null,
+                         val filterInverse: FeedFilter? = null,
                          val bookmark: Bookmark? = null,
                          val unreadCount: Api.InboxCounts = Api.InboxCounts(),
                          val customAction: () -> Unit = {},

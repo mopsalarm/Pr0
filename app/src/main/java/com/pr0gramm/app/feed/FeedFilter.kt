@@ -43,6 +43,15 @@ class FeedFilter : DefaultParcelable {
     }
 
     /**
+     * Tries to invert this filter. This is a best-effort and might not work.
+     * If the filter can not be inverted, this method returns null
+     */
+    fun invert(): FeedFilter? {
+        val tags = tags ?: return null
+        return withTagsNoReset(Tags.invert(tags))
+    }
+
+    /**
      * Returns a copy of this filter that filters by the given feed type.
      */
     fun withFeedType(type: FeedType): FeedFilter {
@@ -179,8 +188,8 @@ object Tags {
             return lhs
         }
 
-        val lhsTrimmed = lhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
-        val rhsTrimmed = rhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
+        val lhsTrimmed = trimSignal(lhs)
+        val rhsTrimmed = trimSignal(rhs)
 
         val extendedQuery = isExtendedQuery(lhs) || isExtendedQuery(rhs)
         if (extendedQuery) {
@@ -188,6 +197,14 @@ object Tags {
         } else {
             return "$lhsTrimmed $rhsTrimmed"
         }
+    }
+
+    fun invert(query: String): String {
+        return "! -(${trimSignal(query)})"
+    }
+
+    private fun trimSignal(lhs: String): String {
+        return lhs.trimStart { ch -> ch.isWhitespace() || ch == '!' || ch == '?' }
     }
 
     private fun isExtendedQuery(query: String): Boolean {

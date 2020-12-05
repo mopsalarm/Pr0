@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <TextView xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/title"
+        style="@style/DrawerItem"
+        android:tag="main-action"
+        android:layout_weight="1"
+        tools:text="Wichteln" />
+
+    <ImageButton
+        android:id="@+id/action_secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tooltipText="@string/hint_exclude_tag"
+        android:layout_marginRight="8dp"
+        android:background="?selectableItemBackground"
+        android:padding="8dp"
+        android:src="@drawable/ic_watercan" />
+
+</LinearLayout>

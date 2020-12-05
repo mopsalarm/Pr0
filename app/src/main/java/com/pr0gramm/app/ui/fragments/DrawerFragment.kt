@@ -159,11 +159,12 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
 
     private inner class Adapter(callbacks: Callbacks) : DelegateAdapter<Any>() {
         init {
-            val viewContext = view!!.context
+            val viewContext = requireView().context
 
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item)
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_hint)
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_inbox)
+            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_trending)
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_divider)
             delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_special)
 
@@ -194,9 +195,12 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
 }
 
 private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val action: View = itemView.findViewWithTag("main-action") ?: itemView
+
     val text: TextView? = (itemView as? TextView ?: itemView.findOptional(R.id.title))
     val unread: TextView? = itemView.findOptional(R.id.unread_count)
-    val action: Button? = itemView.findOptional(R.id.action_okay)
+    val actionCustom: Button? = itemView.findOptional(R.id.action_custom)
+    val actionSecondary: View? = itemView.findOptional(R.id.action_secondary)
 }
 
 private class NavigationDelegateAdapter(
@@ -238,31 +242,42 @@ private class NavigationDelegateAdapter(
 
             // set the icon of the image
             holder.text.setCompoundDrawablesWithIntrinsicBounds(value.icon, null, null, null)
+        }
 
-            // update color
-            if (value.action !== NavigationProvider.ActionType.HINT) {
-                val textColor: ColorStateList
-                val iconColor: ColorStateList
+        // update color
+        if (value.action !== NavigationProvider.ActionType.HINT) {
+            val textColor: ColorStateList
+            val iconColor: ColorStateList
 
-                if (value.colorOverride != null) {
-                    textColor = defaultColor
-                    iconColor = ColorStateList.valueOf(value.colorOverride)
-                } else {
-                    textColor = if (value.isSelected) markedColor else defaultColor
-                    iconColor = textColor.withAlpha(127)
-                }
+            if (value.colorOverride != null) {
+                textColor = defaultColor
+                iconColor = ColorStateList.valueOf(value.colorOverride)
+            } else {
+                textColor = if (value.isSelected) markedColor else defaultColor
+                iconColor = textColor.withAlpha(127)
+            }
 
+            if (holder.text != null) {
                 holder.text.setTextColor(textColor)
                 changeCompoundDrawableColor(holder.text, iconColor)
             }
+
+            if (holder.actionSecondary is ImageView) {
+                holder.actionSecondary.imageTintList = iconColor
+            }
         }
+
 
         // handle clicks
-        holder.itemView.setOnClickListener {
-            dispatchItemClick(value)
+        holder.action.setOnClickListener {
+            dispatchItemAction(value)
         }
 
-        holder.itemView.setOnLongClickListener {
+        holder.actionSecondary?.setOnClickListener {
+            dispatchItemSecondaryAction(value)
+        }
+
+        holder.action.setOnLongClickListener {
             if (value.bookmark != null && !value.bookmark.isImmutable) {
                 if (bookmarkService.canEdit) {
                     EditBookmarkDialog.forBookmark(value.bookmark).show(activity.supportFragmentManager, null)
@@ -274,7 +289,7 @@ private class NavigationDelegateAdapter(
             true
         }
 
-        holder.action?.setOnClickListener {
+        holder.actionCustom?.setOnClickListener {
             value.customAction()
         }
 
@@ -286,16 +301,17 @@ private class NavigationDelegateAdapter(
         }
     }
 
-
-    private fun dispatchItemClick(item: NavigationItem) {
+    private fun dispatchItemAction(item: NavigationItem) {
         when (item.action) {
             NavigationProvider.ActionType.HINT,
             NavigationProvider.ActionType.DIVIDER ->
                 Unit
 
             NavigationProvider.ActionType.FILTER,
-            NavigationProvider.ActionType.BOOKMARK ->
-                callback.onFeedFilterSelectedInNavigation(item.filter!!)
+            NavigationProvider.ActionType.BOOKMARK -> {
+                val filter = item.filter ?: return debugCrash(Unit)
+                callback.onFeedFilterSelectedInNavigation(filter)
+            }
 
             NavigationProvider.ActionType.UPLOAD -> {
                 showUploadActivity()
@@ -308,7 +324,7 @@ private class NavigationDelegateAdapter(
             }
 
             NavigationProvider.ActionType.COLLECTIONS -> {
-                val username = item.filter?.username!!
+                val username = item.filter?.username ?: return debugCrash()
                 callback.onNavigateToCollections(username)
             }
 
@@ -343,6 +359,16 @@ private class NavigationDelegateAdapter(
             NavigationProvider.ActionType.LOGOUT ->
                 LogoutDialogFragment().show(activity.supportFragmentManager, null)
 
+        }
+    }
+
+    private fun dispatchItemSecondaryAction(item: NavigationItem) {
+        @Suppress("NON_EXHAUSTIVE_WHEN")
+        when (item.action) {
+            NavigationProvider.ActionType.BOOKMARK -> {
+                val filter = item.filterInverse ?: return debugCrash()
+                callback.onFeedFilterSelectedInNavigation(filter)
+            }
         }
     }
 

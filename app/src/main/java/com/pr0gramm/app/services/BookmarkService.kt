@@ -37,6 +37,9 @@ class BookmarkService(
 
     private val updateQueue = Channel<suspend () -> Unit>(Channel.UNLIMITED)
 
+    val all: List<Bookmark>
+        get() = bookmarks.value
+
     init {
         // restore previous json
         restoreFromSerialized(preferences.getStringOrNull("Bookmarks.json") ?: "[]")

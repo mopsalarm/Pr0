@@ -18,7 +18,7 @@ fun Bookmark.asFeedFilter(): FeedFilter {
         return FilterParser.parse(uri)?.filter ?: FeedFilter()
 
     } else {
-        val feedType = tryEnumValueOf<FeedType>(filterFeedType) ?: FeedType.PROMOTED
+        val feedType = tryEnumValueOf(filterFeedType) ?: FeedType.PROMOTED
         var filter = FeedFilter().withFeedType(feedType)
 
         filterTags?.let { tags ->

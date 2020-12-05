@@ -548,6 +548,10 @@
     <string name="pref_upvote_on_collect_title">Upvote beim Sammeln</string>
     <string name="pref_upvote_on_collect_summary">Es wird automatisch ein Blussi vergeben, wenn du einen Post in eine Sammlung hinzufügst. Du kannst das Blussi nachträglich wieder entfernen.</string>
     <string name="hint_upvote_on_collect">Möchtest du beim Sammeln automatisch ein Blussi dalassen? Du kannst es jederzeit nachträglich wieder entfernen.</string>
+    <string name="pref_use_doh_summary">DNS über HTTPS via Cloudflare</string>
+    <string name="pref_use_doh_title">Verwendet DNS über HTTPS mit Cloudflares 1.1.1.1 Server. Dies kann helfen, wenn deine FIrma oder dein Internetanbieter den Zugang zum pr0gramm sperrt.</string>
+    <string name="bookmark_inverse_title">Ohne %s</string>
+    <string name="hint_exclude_tag">Diesen Tag von den Ergebnissen ausschließen</string>
 
 
 </resources>

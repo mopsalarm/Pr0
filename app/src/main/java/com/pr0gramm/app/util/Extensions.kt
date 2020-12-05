@@ -311,6 +311,18 @@ inline fun debugOnly(block: () -> Unit) {
     }
 }
 
+fun debugCrash(): Unit {
+    debugCrash(Unit)
+}
+
+fun <T> debugCrash(value: T): T {
+    debugOnly {
+        throw AssertionError("Crashing in debug mode only")
+    }
+
+    return value
+}
+
 @Suppress("NOTHING_TO_INLINE")
 @ColorInt
 inline fun Context.getColorCompat(@ColorRes id: Int): Int {
