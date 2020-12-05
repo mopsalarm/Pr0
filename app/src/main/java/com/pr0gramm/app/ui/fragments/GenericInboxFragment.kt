@@ -3,16 +3,21 @@ package com.pr0gramm.app.ui.fragments
 import android.content.Context
 import androidx.lifecycle.lifecycleScope
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
+import com.pr0gramm.app.db.FeedItemInfoQueries
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.MessageAdapter
 import com.pr0gramm.app.ui.Pagination
 import com.pr0gramm.app.ui.PaginationController
+import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.optionalFragmentArgument
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
@@ -70,9 +75,33 @@ open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
 
 fun apiMessageLoader(ctx: Context, syncOnLoad: Boolean = false, loader: suspend (Instant?) -> List<Message>): Pagination.Loader<Message> {
     class MessagePaginationLoader : Pagination.Loader<Message>() {
+        private val itemQueries = ctx.injector.instance<FeedItemInfoQueries>()
+        private val logger = Logger("MessagePaginationLoader")
 
         override suspend fun loadAfter(currentValue: Message?): Pagination.Page<Message> {
-            val messages = loader(currentValue?.creationTime)
+            var messages = loader(currentValue?.creationTime)
+
+            val messagesWithUnknownFlags = messages.filter { m -> m.itemId > 0L && m.flags == 0 }
+            if (messagesWithUnknownFlags.isNotEmpty()) {
+                val ids = messagesWithUnknownFlags.mapTo(HashSet()) { msg -> msg.itemId }
+
+                val cached = withContext(Dispatchers.IO) {
+                    itemQueries.lookup(ids).executeAsList()
+                }
+
+                val byId = cached.associateBy(
+                        keySelector = { item -> item.id },
+                        valueTransform = { item -> item.flags },
+                )
+
+                logger.debug { "Found ${cached.size} of ${ids.size} cached items" }
+
+                // update messages and add missing flags.
+                messages = messages.map { msg ->
+                    msg.copy(flags = byId[msg.itemId] ?: msg.flags)
+                }
+            }
+
 
             if (syncOnLoad) {
                 // inbox numbers might have changed, better update now.

@@ -45,18 +45,23 @@ class SingletonProvider<T : Any>(
     private val recursionChecker = RecursionChecker()
 
     override fun get(injector: Injector): T {
-        if (value === NoValue) {
+        var localValue = this.value
+
+        if (localValue === NoValue) {
             synchronized(this) {
                 // someone already failed
                 previousThrowable?.let { cause ->
                     throw IllegalStateException("Instance construction did already fail", cause)
                 }
 
-                if (value === NoValue) {
+                localValue = this.value
+
+                if (localValue === NoValue) {
                     recursionChecker.check()
 
                     try {
-                        value = factory(injector)
+                        localValue = factory(injector)
+                        this.value = localValue
                     } catch (err: Throwable) {
                         previousThrowable = err
                         throw err
@@ -66,7 +71,7 @@ class SingletonProvider<T : Any>(
         }
 
         @Suppress("UNCHECKED_CAST")
-        return value as T
+        return localValue as T
     }
 }
 

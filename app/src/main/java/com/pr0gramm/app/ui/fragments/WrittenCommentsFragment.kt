@@ -20,8 +20,8 @@ class WrittenCommentsFragment : InboxFragment("WrittenCommentFragment") {
         val loader = apiMessageLoader(requireContext()) { olderThan ->
             val name = userService.name ?: return@apiMessageLoader listOf()
             val userComments = inboxService.getUserComments(name, ContentType.AllSet, olderThan)
-            userComments.comments.map {
-                MessageConverter.of(userComments.user, it)
+            userComments.comments.map { comment ->
+                MessageConverter.of(userComments.user, comment)
             }
         }
 

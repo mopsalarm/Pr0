@@ -8,7 +8,7 @@ import android.os.Build
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
-import com.pr0gramm.app.db.AppDB
+import com.pr0gramm.app.db.*
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
@@ -116,25 +116,33 @@ fun appInjector(app: Application) = Module.build {
     bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
+    bind<CachedVoteQueries>() with provider { instance<AppDB>().cachedVoteQueries }
+    bind<CollectionItemQueries>() with provider { instance<AppDB>().collectionItemQueries }
+    bind<FavedCommentsQueries>() with provider { instance<AppDB>().favedCommentsQueries }
+    bind<FeedItemInfoQueries>() with provider { instance<AppDB>().feedItemInfoQueries }
+    bind<PreloadItemQueries>() with provider { instance<AppDB>().preloadItemQueries }
+    bind<ScoreRecordQueries>() with provider { instance<AppDB>().scoreRecordQueries }
+    bind<UserFollowEntryQueries>() with provider { instance<AppDB>().userFollowEntryQueries }
+
     bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
-    bind<PreloadManager>() with eagerSingleton { PreloadManager(instance<AppDB>().preloadItemQueries) }
-    bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance<AppDB>().favedCommentsQueries) }
+    bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
+    bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }
     bind<AdService>() with singleton { AdService(instance(), instance()) }
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance()) }
-    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance<AppDB>().feedItemInfoQueries) }
+    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance()) }
     bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app.cacheDir, instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
     bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
-    bind<BenisRecordService>() with singleton { BenisRecordService(instance<AppDB>().scoreRecordQueries) }
+    bind<BenisRecordService>() with singleton { BenisRecordService(instance()) }
 
     bind<ShareService>() with singleton { ShareService(instance()) }
 
@@ -162,7 +170,7 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<CollectionItemsService>() with singleton {
-        CollectionItemsService(instance(), instance<AppDB>().collectionItemQueries)
+        CollectionItemsService(instance(), instance())
     }
 
     bind<Config>() with provider { instance<ConfigService>().config() }
