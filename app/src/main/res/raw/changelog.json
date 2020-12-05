@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Verschiedene Abstürze und Unschönheiten behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Der 'Abschicken' Button in der Feedback Ansicht ist nun sauber deaktiviert, wenn nicht alle Felder ausgefüllt sind."
       }
     ]
   },
