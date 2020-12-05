@@ -3,6 +3,7 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService
 import androidx.core.content.ContextCompat
@@ -133,10 +134,14 @@ object BrowserHelper {
         }
 
         val customTabsIntent = CustomTabsIntent.Builder()
-                .enableUrlBarHiding()
-                .addDefaultShareMenuItem()
-                .setToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColor))
-                .setSecondaryToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColorDark))
+                .setUrlBarHidingEnabled(true)
+                .setShareState(CustomTabsIntent.SHARE_STATE_DEFAULT)
+                .setDefaultColorSchemeParams(
+                        CustomTabColorSchemeParams.Builder()
+                                .setToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColor))
+                                .setSecondaryToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColorDark))
+                                .build()
+                )
                 .build()
 
         customTabsIntent.intent.`package` = packageName
