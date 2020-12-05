@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Patterns
 import android.view.MenuItem
@@ -11,8 +10,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.pr0gramm.app.databinding.ActivityFeedbackBinding
 import com.pr0gramm.app.services.ContactService
@@ -58,8 +55,8 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val primary = ContextCompat.getColor(this, ThemeHelper.accentColor)
-        ViewCompat.setBackgroundTintList(views.submit, ColorStateList.valueOf(primary))
+        // val primary = ContextCompat.getColor(this, ThemeHelper.accentColor)
+        // ViewCompat.setBackgroundTintList(views.submit, ColorStateList.valueOf(primary))
 
         // register all the change listeners
         for (textView in groupAllInputViews) {
@@ -118,7 +115,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         // the button is enabled if there is no visible text view that has
         // an empty input.
         var enabled = groupAllInputViews.none { view ->
-            view.isVisible && view.text.toString().trim().isEmpty()
+            view.isVisible && view.text.toString().isBlank()
         }
 
         if (views.feedbackEmail.isVisible && !views.feedbackEmail.text.matches(Patterns.EMAIL_ADDRESS)) {
