@@ -41,11 +41,7 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
 
         val normal = bookmarks.bookmarks.filterNot { isAppSpecialCategory(it) }.map { bookmarkOf(it, trending = false) }
         val trending = bookmarks.trending.sortedByDescending { it.velocity }.take(3).map { bookmarkOf(it, trending = true) }
-        return normal + trending + Bookmark(
-                title = "Foobar",
-                trending = true,
-                _link = "/top/!(test)",
-        )
+        return normal + trending
     }
 
     /**
