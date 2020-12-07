@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import java.util.*
 
 data class PostCollection(
@@ -143,7 +143,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
 
         if (response.error == null) {
             // delete on server side was okay, remove locally
-            withContext(Dispatchers.Default) {
+            runInterruptible(Dispatchers.IO) {
                 db.remove(itemId, collectionId)
             }
         }
@@ -162,7 +162,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
 
         if (result is Result.ItemAdded) {
             // mimic adding to collection locally
-            withContext(Dispatchers.Default) {
+            runInterruptible(Dispatchers.IO) {
                 db.add(itemId, result.collectionId)
             }
         }
@@ -183,7 +183,7 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
     }
 
     suspend fun deleteCollection(collectionId: Long) {
-        withContext(Dispatchers.Default) {
+        runInterruptible(Dispatchers.Default) {
             db.removeCollection(collectionId)
         }
     }

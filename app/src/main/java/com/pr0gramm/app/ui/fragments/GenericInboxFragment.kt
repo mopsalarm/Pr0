@@ -17,7 +17,7 @@ import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.optionalFragmentArgument
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import java.util.concurrent.TimeUnit
 
 open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
@@ -85,7 +85,7 @@ fun apiMessageLoader(ctx: Context, syncOnLoad: Boolean = false, loader: suspend 
             if (messagesWithUnknownFlags.isNotEmpty()) {
                 val ids = messagesWithUnknownFlags.mapTo(HashSet()) { msg -> msg.itemId }
 
-                val cached = withContext(Dispatchers.IO) {
+                val cached = runInterruptible(Dispatchers.IO) {
                     itemQueries.lookup(ids).executeAsList()
                 }
 

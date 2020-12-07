@@ -24,7 +24,7 @@ import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ignoreAllExceptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 
 class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -98,7 +98,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         launchUntilPause {
             preloadManager.items.collect { items ->
 
-                val totalSize = withContext(Dispatchers.IO) {
+                val totalSize = runInterruptible(Dispatchers.IO) {
                     items.values().sumBy { item ->
                         item.media.length().toInt() +
                                 item.thumbnail.length().toInt() +

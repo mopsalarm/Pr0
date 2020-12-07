@@ -17,7 +17,7 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.BrowserHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import proguard.annotation.KeepPublicClassMemberNames
 import java.io.File
 import java.util.*
@@ -76,7 +76,7 @@ class ShareService(private val cache: Cache) {
     suspend fun shareImage(activity: Activity, feedItem: FeedItem) {
         val mimetype = guessMimetype(activity, feedItem)
 
-        val toShare = withContext(Dispatchers.Default) {
+        val toShare = runInterruptible(Dispatchers.Default) {
             cache.get(UriHelper.of(activity).media(feedItem)).use { entry ->
 
                 val temporary = File(File(activity.cacheDir, "share"), DownloadService.filenameOf(feedItem))

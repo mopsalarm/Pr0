@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 
@@ -118,7 +119,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             onAttachedScope {
                 if (hasPreviewView()) {
                     ignoreAllExceptions {
-                        val bitmap = withContext(Dispatchers.IO) {
+                        val bitmap = runInterruptible(Dispatchers.IO) {
                             picasso.load(config.previewInfo.fullThumbUri).noPlaceholder().get()
                         }
 

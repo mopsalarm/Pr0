@@ -21,7 +21,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
@@ -334,7 +334,7 @@ class NavigationProvider(
                 item.requireLogin && !loginState.authorized || item.lower != !upper
             }
 
-            val navItems = withContext(Dispatchers.IO) {
+            val navItems = runInterruptible(Dispatchers.IO) {
                 itemsToLoad.map { item ->
                     logger.debug { "Loading item $item" }
 

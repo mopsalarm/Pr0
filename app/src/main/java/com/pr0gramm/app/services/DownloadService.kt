@@ -14,14 +14,11 @@ import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.CountingInputStream
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.readStream
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -65,7 +62,7 @@ class DownloadService(
     }
 
     suspend fun downloadUpdateFile(uri: Uri): Flow<Status> {
-        val target = withContext(Dispatchers.IO) {
+        val target = runInterruptible(Dispatchers.IO) {
             val directory = File(context.cacheDir, "updates")
             logger.info { "Use download directory at $directory" }
 

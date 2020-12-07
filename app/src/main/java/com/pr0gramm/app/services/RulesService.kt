@@ -5,7 +5,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ignoreAllExceptions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -19,7 +19,7 @@ class RulesService(private val okHttpClient: OkHttpClient) {
 
         // now try to fetch the updated text
         ignoreAllExceptions {
-            val text = withContext(Dispatchers.IO) {
+            val text = runInterruptible(Dispatchers.IO) {
                 val url = "https://pr0gramm.com/media/templates/rules.html"
                 val request = Request.Builder().url(url).build()
                 val response = okHttpClient.newCall(request).execute()

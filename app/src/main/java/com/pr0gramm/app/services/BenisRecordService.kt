@@ -18,7 +18,7 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 
 class BenisRecordService(private val db: ScoreRecordQueries) {
     private val logger = Logger("BenisRecordService")
@@ -31,7 +31,7 @@ class BenisRecordService(private val db: ScoreRecordQueries) {
     }
 
     suspend fun storeValue(ownerId: Int, benis: Int) {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             db.save(System.currentTimeMillis(), benis, ownerId)
         }
     }

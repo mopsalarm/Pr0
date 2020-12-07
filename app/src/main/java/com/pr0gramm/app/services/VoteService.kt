@@ -18,6 +18,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
@@ -200,10 +201,12 @@ class VoteService(private val api: Api,
         return withContext(Dispatchers.IO + NonCancellable) {
             val response = api.addTags(null, itemId, tagString)
 
-            appDB.transaction {
-                // auto-apply up-vote to newly created tags
-                for (tagId in response.tagIds) {
-                    storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
+            runInterruptible {
+                appDB.transaction {
+                    // auto-apply up-vote to newly created tags
+                    for (tagId in response.tagIds) {
+                        storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
+                    }
                 }
             }
 
@@ -244,7 +247,7 @@ class VoteService(private val api: Api,
         return findCachedVotes(CachedVote.Type.TAG, tagIds).distinctUntilChanged()
     }
 
-    suspend fun summary(): Map<CachedVote.Type, Summary> = withContext(Dispatchers.Default) {
+    suspend fun summary(): Map<CachedVote.Type, Summary> = runInterruptible(Dispatchers.Default) {
         val counts = CachedVote.count(appDB.cachedVoteQueries)
 
         counts.mapValues { entry ->
