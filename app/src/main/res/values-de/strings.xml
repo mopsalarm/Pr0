@@ -239,7 +239,7 @@
     <string name="media_type_video">Video</string>
     <string name="upload_error_invalid_type">Diese Art von Datei wird nicht unterstützt. Bitte wähle eine jpeg, png, gif, mp4 oder webm Datei aus.</string>
     <string name="upload_hint_too_large">Die Datei ist zu groß.</string>
-    <string name="hint_similar_image">Wir haben ein ähnliches Bild gefunden. Bitte überprüfe deinen Upload noch einmal um einen Repost zu verhindern.</string>
+    <string name="hint_similar_image">Wir haben einen ähnlichen Hochlad gefunden. Bitte überprüfe deinen Hochlad noch einmal um einen Repost zu verhindern.</string>
     <string name="hint_upload">Upload…</string>
     <string name="error_protocol_exception">Eine Netzwerkverbindung ist unerwartet abgebrochen. Das kann mal passieren.</string>
     <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>

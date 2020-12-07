@@ -9,33 +9,33 @@ class CountingInputStream(private val inputStream: InputStream) : InputStream() 
         private set
 
     override fun read(): Int {
-        val byte = inputStream.read()
-        if (byte != EOF) {
-            count++
+        return inputStream.read().also { byte ->
+            if (byte != EOF) {
+                count++
+            }
         }
-
-        return byte
     }
 
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        val byteCount = inputStream.read(b, off, len)
-        if (byteCount != EOF) {
-            count += byteCount
+        return inputStream.read(b, off, len).also { byteCount ->
+            if (byteCount > 0) {
+                count += byteCount
+            }
         }
-
-        return byteCount
     }
 
     override fun skip(n: Long): Long {
-        val skipped = super.skip(n)
-        count += skipped
-        return skipped
+        return super.skip(n).also { skipped ->
+            count += skipped
+        }
     }
 }
 
 class BoundedInputStream(inputStream: InputStream, private val limit: Long) : InputStream() {
     private val inputStream = CountingInputStream(inputStream)
-    private val remaining: Long = (limit - this.inputStream.count).coerceAtLeast(0)
+
+    private val remaining: Long
+        get() = (limit - this.inputStream.count).coerceAtLeast(0)
 
     override fun read(): Int {
         if (remaining == 0L) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:id="@+id/scroll_view"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -36,9 +36,9 @@
                 android:layout_gravity="center"
                 android:background="@drawable/background_shade_rounded"
                 android:orientation="vertical"
-                android:paddingBottom="8dp"
                 android:paddingLeft="8dp"
-                android:paddingRight="8dp">
+                android:paddingRight="8dp"
+                android:paddingBottom="8dp">
 
                 <com.pr0gramm.app.ui.views.BusyIndicator
                     android:id="@+id/busy_indicator"
@@ -97,8 +97,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="24dp"
+            android:layout_marginRight="16dp"
             android:text="@string/add_tags_hint"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -107,8 +107,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginRight="16dp"
             android:text="@string/add_tags_opinion_hint"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="?colorAccent"
@@ -120,10 +120,10 @@
             style="@style/Widget.AppCompat.AutoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="12dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="4dp"
             android:background="@color/input_background"
             android:hint="@string/upload_tags"
             android:padding="8dp" />
@@ -134,28 +134,59 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="?secondaryBackground"
-            android:paddingBottom="8dp"
             android:paddingLeft="16dp"
-            android:paddingRight="16dp"
             android:paddingTop="8dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
             android:text="@string/hint_similar_image"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="?colorAccent"
             android:visibility="gone" />
 
+        <LinearLayout
+            android:id="@+id/shrink_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?secondaryBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/shrink_text"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="@string/hint_shrink_image" />
+
+            <Button
+                android:id="@+id/action_shrink"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_shrink" />
+
+        </LinearLayout>
+
         <com.pr0gramm.app.ui.upload.SimilarImageView
             android:id="@+id/similar_images"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:background="?secondaryBackground"
-            android:paddingBottom="8dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:paddingBottom="8dp"
             android:visibility="gone" />
 
         <Button
-            android:id="@+id/upload"
+            android:id="@+id/action_upload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -169,8 +200,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginRight="16dp"
             android:text="@string/upload_small_print_header"
             android:textStyle="bold" />
 
@@ -180,20 +211,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="16dp" />
 
         <TextView
             android:id="@+id/small_print_footer"
             style="@style/TextAppearance.AppCompat.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/upload_small_print_footer"
             android:textColor="?colorAccent" />
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

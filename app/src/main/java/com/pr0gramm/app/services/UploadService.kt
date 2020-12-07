@@ -6,13 +6,11 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.ignoreAllExceptions
-import com.pr0gramm.app.util.readStream
-import com.pr0gramm.app.util.toInt
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -52,28 +50,32 @@ class UploadService(private val api: Api,
             return if (userService.loginState.premium) config.maxUploadPixelsPremium else config.maxUploadPixelsNormal
         }
 
-    suspend fun sizeOkay(file: File): Boolean = withContext(Dispatchers.Default) {
-        val fileSizeOk = file.length() < maxUploadSize
+    suspend fun sizeOkay(file: File): Boolean {
+        return runInterruptible(Dispatchers.IO) {
+            val fileSizeOk = file.length() < maxUploadSize
 
-        if (!fileSizeOk)
-            return@withContext false
+            if (!fileSizeOk) {
+                return@runInterruptible false
+            }
 
-        val pixelsOkay = runCatching {
-            // get image size, ignore errors
-            val opts = BitmapFactory.Options()
-            opts.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(file.path, opts)
+            try {
+                // get image size, ignore errors
+                val opts = BitmapFactory.Options()
+                opts.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(file.path, opts)
 
-            // check that image size is okay
-            opts.outWidth * opts.outHeight <= maxUploadPixels
+                // check that image size is okay
+                opts.outWidth * opts.outHeight <= maxUploadPixels
+
+            } catch (err: Exception) {
+                true
+            }
         }
-
-        // and recover here if file is not an image
-        pixelsOkay.getOrDefault(true)
     }
 
-    suspend fun downsize(file: File): File {
-        return withContext(Dispatchers.IO) {
+    suspend fun shrinkImage(file: File): File {
+        return runInterruptible(Dispatchers.IO) {
+
             logger.info {
                 "Try to scale ${file.length() / 1024}kb image down to max of ${maxUploadSize / 1024}kb"
             }
@@ -107,6 +109,10 @@ class UploadService(private val api: Api,
             } while (target.length() >= maxUploadSize && quality > 30)
 
             logger.info { "Finished downsizing with an image size of ${target.length() / 1024}kb" }
+
+            // simulate slow operation
+            debugOnly { Thread.sleep(1_000) }
+
             target
         }
     }
@@ -137,8 +143,8 @@ class UploadService(private val api: Api,
         return states.buffer(16).flowOn(Dispatchers.IO)
     }
 
-    private fun post(key: String, contentType: ContentType, userTags: Set<String>,
-                     checkSimilar: Boolean): Flow<State> {
+    fun post(key: String, contentType: ContentType, userTags: Set<String>,
+             checkSimilar: Boolean): Flow<State> {
 
         val contentTypeTag = contentType.name.toLowerCase(Locale.ROOT)
         val tags = userTags.map { it.trim() }.filter { isValidTag(it) }
@@ -232,10 +238,10 @@ class UploadService(private val api: Api,
         class Error(val error: String, val report: Api.Posted.VideoReport?) : State()
         class Uploading(val progress: Float) : State()
         class Uploaded(val key: String) : State()
+        class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
         class Success(val id: Long) : State()
         class Pending(val queue: Long, val position: Long) : State()
         object Processing : State()
-        class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
     }
 
     fun upload(file: File, sfw: ContentType, tags: Set<String>): Flow<State> {
@@ -246,10 +252,6 @@ class UploadService(private val api: Api,
                 emitAll(post(state.key, sfw, tags, true))
             }
         }
-    }
-
-    fun post(state: State.Uploaded, contentType: ContentType, tags: Set<String>, checkSimilar: Boolean): Flow<State> {
-        return post(state.key, contentType, tags, checkSimilar)
     }
 
     /**

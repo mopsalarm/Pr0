@@ -88,41 +88,40 @@ object AndroidUtility {
         return result
     }
 
-    fun logToCrashlytics(error_: Throwable?) {
-        if (error_ == null)
-            return
-
-        var error = error_
-        val causalChain = error.causalChain
+    fun logToCrashlytics(error: Throwable?, force: Boolean = false) {
+        val causalChain = error?.causalChain ?: return
 
         if (causalChain.containsType<CancellationException>()) {
             return
         }
 
-        if (causalChain.containsType<PermissionHelperDelegate.PermissionNotGranted>()) {
-            return
-        }
+        if (!force) {
+            if (causalChain.containsType<PermissionHelperDelegate.PermissionNotGranted>()) {
+                return
+            }
 
-        if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
-            logger.warn(error) { "Ignoring network exception" }
-            return
-        }
+            if (causalChain.containsType<IOException>() || causalChain.containsType<HttpException>()) {
+                logger.warn(error) { "Ignoring network exception" }
+                return
+            }
 
-        if (causalChain.containsType<SQLiteFullException>()) {
-            logger.warn { "Database is full: $error" }
-            return
+            if (causalChain.containsType<SQLiteFullException>()) {
+                logger.warn { "Database is full: $error" }
+                return
+            }
         }
 
         try {
-            val trace = StringWriter().also { error.printStackTrace(PrintWriter(it)) }.toString()
-            if (EXCEPTION_BLACKLIST.any { it in trace }) {
+            val trace = StringWriter().also { w -> error.printStackTrace(PrintWriter(w)) }.toString()
+            if (EXCEPTION_BLACKLIST.any { word -> word in trace }) {
                 logger.warn("Ignoring exception", error)
                 return
             }
 
             val errorStr = error.toString()
-            if ("connect timed out" in errorStr)
+            if ("connect timed out" in errorStr) {
                 return
+            }
 
             // try to rate limit exceptions.
             val key = System.identityHashCode(error)

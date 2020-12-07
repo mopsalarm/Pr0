@@ -231,7 +231,6 @@
             android:name=".ui.upload.UploadActivity"
             android:label="@string/upload_title"
             android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Orange">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

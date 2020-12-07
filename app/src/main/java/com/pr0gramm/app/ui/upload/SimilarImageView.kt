@@ -1,24 +1,21 @@
 package com.pr0gramm.app.ui.upload
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.widget.ImageView
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
-import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.dialogs.PopupPlayer
+import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.views.InjectorViewMixin
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
 
@@ -58,14 +55,8 @@ class SimilarImageView @JvmOverloads constructor(
     }
 
     private fun handleItemClicked(item: Api.Posted.SimilarItem) {
-        val activity = AndroidUtility.activityFromContext(context) as? FragmentActivity ?: return
-
-        val fakeItem = FeedItem(Api.Feed.Item(
-                id = item.id, image = item.image, thumb = item.thumbnail,
-                promoted = 0L, audio = false, created = Instant.now(),
-                up = 0, down = 0, fullsize = "", width = 0, height = 0, user = "",
-                mark = 0, deleted = false, flags = 0, userId = 0))
-
-        PopupPlayer.open(activity, fakeItem)
+        context.startActivity(MainActivity.openItemIntent(context, item.id).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 }

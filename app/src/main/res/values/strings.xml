@@ -572,5 +572,10 @@
     <string name="pref_use_doh_title">Uses encrypted DNS over HTTPS using the Cloudflare server 1.1.1.1. This might help if your company or ISP tries to block access to pr0gramm via dns.</string>
     <string name="bookmark_inverse_title">No %s</string>
     <string name="hint_exclude_tag">Exclude this tag</string>
+    <string name="hint_shrink_image">The image you\'ve selected is too large. Let the app shrink the image for you.</string>
+    <string name="hint_shrink_video">The video you\'ve selected is too large. Please select a smaller video.</string>
+    <string name="action_shrink">Shrink</string>
+    <string name="similar_tags_loading">loading tags...</string>
+    <string name="similar_no_tags">No tags</string>
 </resources>
 
