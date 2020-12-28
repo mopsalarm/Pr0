@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
 import androidx.viewpager.widget.ViewPager
 import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.ActivityInboxBinding
@@ -18,7 +17,6 @@ import com.pr0gramm.app.ui.fragments.ConversationsFragment
 import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.startActivity
 import kotlinx.coroutines.flow.collect
 
@@ -45,9 +43,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
         }
 
         setContentView(views)
-
-        val toolbar = find<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(views.toolbar)
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)

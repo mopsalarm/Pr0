@@ -6,24 +6,27 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.commit
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.ActivityConversationBinding
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.fragments.conversation.ConversationFragment
 import com.pr0gramm.app.util.activityIntent
-import com.pr0gramm.app.util.find
 
 
 /**
  * The activity that displays the inbox.
  */
 class ConversationActivity : BaseAppCompatActivity("ConversationActivity") {
+    private val views by bindViews(ActivityConversationBinding::inflate)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.noActionBar)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_conversation)
-        setSupportActionBar(find(R.id.toolbar))
+        setContentView(views)
+        setSupportActionBar(views.toolbar)
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)

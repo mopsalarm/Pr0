@@ -2,21 +2,19 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.view.View
-import android.widget.CheckBox
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.AdminTagsDetailsBinding
+import com.pr0gramm.app.databinding.TagsDetailsBinding
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.views.recyclerViewAdapter
+import com.pr0gramm.app.ui.views.SingleTypeViewBindingAdapter
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.removeFromParent
 
@@ -69,30 +67,24 @@ class TagsDetailsDialog : ViewBindingDialogFragment<AdminTagsDetailsBinding>("Ta
     }
 
     private fun updateTagsAdapter(tags: List<Api.TagDetails.TagInfo>) {
-        views.recyclerView.adapter = recyclerViewAdapter(tags) {
-            handle<Api.TagDetails.TagInfo>() with layout(R.layout.tags_details) { holder ->
-                val info: TextView = holder.find(R.id.tag_info)
-                val checkbox: CheckBox = holder.find(R.id.tag_text)
+        views.recyclerView.adapter = SingleTypeViewBindingAdapter(TagsDetailsBinding::inflate, tags) { holder, item ->
+            holder.bindings.tagText.text = item.tag
+            holder.bindings.tagInfo.text = String.format("%s, +%d, -%d", item.user, item.up, item.down)
 
-                bind { item ->
-                    checkbox.text = item.tag
-                    info.text = String.format("%s, +%d, -%d", item.user, item.up, item.down)
+            holder.bindings.tagText.setOnCheckedChangeListener(null)
+            holder.bindings.tagText.isChecked = selected.contains(item.id)
 
-                    checkbox.setOnCheckedChangeListener(null)
-                    checkbox.isChecked = selected.contains(item.id)
+            // register a listener to check/uncheck this tag.
+            holder.bindings.tagText.setOnCheckedChangeListener { buttonView, isChecked ->
+                val changed: Boolean = if (isChecked) {
+                    selected.add(item.id)
+                } else {
+                    selected.remove(item.id)
+                }
 
-                    // register a listener to check/uncheck this tag.
-                    checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
-                        val changed: Boolean = if (isChecked) {
-                            selected.add(item.id)
-                        } else {
-                            selected.remove(item.id)
-                        }
-
-                        if (changed && bindingAdapterPosition != -1) {
-                            views.recyclerView.adapter?.notifyItemChanged(bindingAdapterPosition)
-                        }
-                    }
+                val pos = holder.bindingAdapterPosition
+                if (changed && pos != -1) {
+                    views.recyclerView.adapter?.notifyItemChanged(pos)
                 }
             }
         }

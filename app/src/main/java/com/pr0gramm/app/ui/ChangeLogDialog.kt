@@ -4,19 +4,18 @@ import android.app.Dialog
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.view.View
-import android.widget.TextView
 import androidx.core.text.bold
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.adapter
 import com.pr0gramm.app.databinding.ChangelogBinding
+import com.pr0gramm.app.databinding.ChangelogChangeBinding
+import com.pr0gramm.app.databinding.ChangelogVersionBinding
 import com.pr0gramm.app.model.update.Change
 import com.pr0gramm.app.model.update.ChangeGroup
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
-import com.pr0gramm.app.ui.views.SimpleAdapter
-import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
@@ -42,44 +41,46 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
         views.recyclerView.layoutManager = LinearLayoutManager(context)
     }
 
-    private fun changeAdapter(changeGroups: List<ChangeGroup>): SimpleAdapter<Any> {
-        val items: List<Any> = ArrayList<Any>().apply {
-            changeGroups.forEachIndexed { idx, group ->
-                val current = idx == 0
-                add(Version.of(group.version, current))
-                addAll(group.changes)
+    private fun changeAdapter(changeGroups: List<ChangeGroup>): DelegateAdapter<Any> {
+        val versionAdapter = Adapters.ForViewBindings(ChangelogVersionBinding::inflate) { (views), item: Version ->
+            val textView = views.root
+            textView.text = item.formatted
+            textView.alpha = if (item.current) 1f else 0.5f
+            textView.setTextColor(textView.context.getColorCompat(accentColor))
+        }
+
+        val changeAdapter = Adapters.ForViewBindings(ChangelogChangeBinding::inflate) { (views), change: Change ->
+            val textView = views.root
+
+            val text = SpannableStringBuilder()
+                    .bold { append(change.type) }
+                    .append(" ")
+                    .append(change.change)
+
+            if ("://" in change.change || "@" in change.change) {
+                // might contains links that we want to display?
+                Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
+            } else {
+                textView.setTextFuture(text)
             }
         }
 
-        return recyclerViewAdapter(items) {
-            handle<Version>() with layout(R.layout.changelog_version) { view ->
-                val textView = view as TextView
+        val adapter = delegateAdapterOf(
+                Adapters.adapt(versionAdapter) { item: Any -> item as? Version },
+                Adapters.adapt(changeAdapter) { item: Any -> item as? Change },
+        )
 
-                bind { version ->
-                    textView.text = version.formatted
-                    textView.alpha = if (version.current) 1f else 0.5f
-                    textView.setTextColor(textView.context.getColorCompat(accentColor))
-                }
-            }
-
-            handle<Change>() with layout(R.layout.changelog_change) { view ->
-                val textView = view as TextView
-
-                bind { change ->
-                    val text = SpannableStringBuilder()
-                            .bold { append(change.type) }
-                            .append(" ")
-                            .append(change.change)
-
-                    if ("://" in change.change || "@" in change.change) {
-                        // might contains links that we want to display?
-                        Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
-                    } else {
-                        textView.setTextFuture(text)
+        adapter.submitList(
+                ArrayList<Any>().apply {
+                    changeGroups.forEachIndexed { idx, group ->
+                        val current = idx == 0
+                        add(Version.of(group.version, current))
+                        addAll(group.changes)
                     }
                 }
-            }
-        }
+        )
+
+        return adapter
     }
 
     private class Version(val formatted: String, val current: Boolean) {

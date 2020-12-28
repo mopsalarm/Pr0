@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
-import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.ActivityInviteBinding
+import com.pr0gramm.app.databinding.RowInviteBinding
 import com.pr0gramm.app.services.InviteService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -18,12 +18,9 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenStarted
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.handleOnError
-import com.pr0gramm.app.ui.views.SimpleAdapter
-import com.pr0gramm.app.ui.views.UsernameView
-import com.pr0gramm.app.ui.views.recyclerViewAdapter
+import com.pr0gramm.app.ui.views.SingleTypeViewBindingAdapter
 import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.di.instance
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +48,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
         views.invites.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
-        find<View>(R.id.send_invite).setOnClickListener { onInviteClicked() }
+        views.sendInvite.setOnClickListener { onInviteClicked() }
     }
 
     private fun onInviteClicked() {
@@ -150,35 +147,27 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         }
     }
 
-    private fun inviteAdapter(invites: List<Api.AccountInfo.Invite>): SimpleAdapter<Api.AccountInfo.Invite> {
-        return recyclerViewAdapter(invites) {
-            handle<Api.AccountInfo.Invite>() with layout(R.layout.row_invite) { holder ->
-                val email: TextView = holder.find(R.id.email)
-                val info: TextView = holder.find(R.id.info)
-                val username: UsernameView = holder.find(R.id.username)
+    private fun inviteAdapter(invites: List<Api.AccountInfo.Invite>): SingleTypeViewBindingAdapter<Api.AccountInfo.Invite, RowInviteBinding> {
+        return SingleTypeViewBindingAdapter(RowInviteBinding::inflate, invites) { (views), invite ->
+            val context = views.root.context
 
-                bind { invite ->
-                    val context = itemView.context
+            val date = DurationFormat.timeToPointInTime(context, invite.created, short = false)
+            val name = invite.name
+            if (name != null) {
+                views.email.visibility = View.GONE
+                views.username.visibility = View.VISIBLE
+                views.username.setUsername(name, invite.mark ?: 0)
 
-                    val date = DurationFormat.timeToPointInTime(context, invite.created, short = false)
-                    val name = invite.name
-                    if (name != null) {
-                        email.visibility = View.GONE
-                        username.visibility = View.VISIBLE
-                        username.setUsername(name, invite.mark ?: 0)
+                views.info.text = context.getString(R.string.invite_redeemed, invite.email, date)
+                views.root.setOnClickListener { openUserProfile(name) }
 
-                        info.text = context.getString(R.string.invite_redeemed, invite.email, date)
-                        itemView.setOnClickListener { openUserProfile(name) }
+            } else {
+                views.username.visibility = View.GONE
+                views.email.visibility = View.VISIBLE
+                views.email.text = invite.email
 
-                    } else {
-                        username.visibility = View.GONE
-                        email.visibility = View.VISIBLE
-                        email.text = invite.email
-
-                        info.text = context.getString(R.string.invite_unredeemed, date)
-                        itemView.setOnClickListener(null)
-                    }
-                }
+                views.info.text = context.getString(R.string.invite_unredeemed, date)
+                views.root.setOnClickListener(null)
             }
         }
     }

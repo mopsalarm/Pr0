@@ -5,17 +5,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.asThumbnail
+import com.pr0gramm.app.databinding.ThumbnailBinding
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.views.InjectorViewMixin
-import com.pr0gramm.app.ui.views.SimpleAdapter
+import com.pr0gramm.app.ui.views.SingleTypeViewBindingAdapter
 import com.pr0gramm.app.ui.views.instance
-import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
 
@@ -34,22 +32,16 @@ class SimilarImageView @JvmOverloads constructor(
         adapter = itemAdapter(items)
     }
 
-    private fun itemAdapter(items: List<Api.Posted.SimilarItem>): SimpleAdapter<Api.Posted.SimilarItem> {
-        return recyclerViewAdapter(items) {
-            handle<Api.Posted.SimilarItem>() with layout(R.layout.thumbnail) {
-                val imageView = it as ImageView
+    private fun itemAdapter(items: List<Api.Posted.SimilarItem>): SingleTypeViewBindingAdapter<Api.Posted.SimilarItem, ThumbnailBinding> {
+        return SingleTypeViewBindingAdapter(ThumbnailBinding::inflate, items) { views, item ->
+            val imageUri = UriHelper.of(context).thumbnail(item.asThumbnail())
+            picasso.load(imageUri)
+                    .config(Bitmap.Config.RGB_565)
+                    .placeholder(ColorDrawable(0xff333333.toInt()))
+                    .into(views.bindings.root)
 
-                bind { item ->
-                    val imageUri = UriHelper.of(context).thumbnail(item.asThumbnail())
-                    picasso.load(imageUri)
-                            .config(Bitmap.Config.RGB_565)
-                            .placeholder(ColorDrawable(0xff333333.toInt()))
-                            .into(imageView)
-
-                    imageView.setOnClickListener {
-                        handleItemClicked(item)
-                    }
-                }
+            views.bindings.root.setOnClickListener {
+                handleItemClicked(item)
             }
         }
     }

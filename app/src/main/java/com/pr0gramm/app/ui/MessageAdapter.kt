@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.api.pr0gramm.MessageType
-import com.pr0gramm.app.ui.fragments.conversation.DividerAdapterDelegate
+import com.pr0gramm.app.databinding.ItemDateDividerBinding
 import com.pr0gramm.app.ui.fragments.conversation.StringValue
 import com.pr0gramm.app.util.inflate
 import java.util.*
@@ -25,9 +25,16 @@ class MessageAdapter(
     init {
         delegates += MessageAdapterDelegate()
         delegates += ErrorAdapterDelegate()
-        delegates += DividerAdapterDelegate().adaptTo { value: StringValue -> value.text }
         delegates += staticLayoutAdapterDelegate<Loading>(R.layout.feed_hint_loading)
         delegates += staticLayoutAdapterDelegate(R.layout.feed_hint_empty, EmptyValue)
+
+        delegates += run {
+            val itemAdapter = Adapters.ForViewBindings(ItemDateDividerBinding::inflate) { (views), item: StringValue ->
+                views.text.text = item.text
+            }
+
+            Adapters.adapt(itemAdapter) { value -> value as? StringValue }
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

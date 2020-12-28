@@ -3,14 +3,16 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.value
+import com.pr0gramm.app.ui.views.BindingsViewHolder
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
@@ -49,15 +51,6 @@ abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder>
     abstract fun onBindViewHolder(holder: VH, value: E)
 }
 
-abstract class ListItemValueAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>(private val itemValue: L)
-    : ItemAdapterDelegate<E, L, VH>() {
-
-    final override fun isForViewType(value: L): Boolean {
-        @Suppress("SuspiciousEqualsCombination")
-        return itemValue === value || itemValue == value
-    }
-}
-
 abstract class ListItemTypeAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>
     : ItemAdapterDelegate<E, L, VH>() {
 
@@ -71,7 +64,7 @@ abstract class ListItemTypeAdapterDelegate<E : L, L : Any, VH : RecyclerView.Vie
 }
 
 class AdapterDelegateManager<T : Any>(
-        private val delegates: List<AdapterDelegate<in T, RecyclerView.ViewHolder>>) {
+        private val delegates: List<AdapterDelegate<T, RecyclerView.ViewHolder>>) {
 
     fun getItemViewType(values: List<T>, itemIndex: Int): Int {
         val idx = delegates.indexOfFirst { it.isForViewType(values, itemIndex) }
@@ -116,8 +109,9 @@ abstract class DelegateAdapter<T : Any>(
 
     protected val delegates: MutableList<AdapterDelegate<in T, out RecyclerView.ViewHolder>> = mutableListOf()
 
+    @Suppress("UNCHECKED_CAST")
     private val manager by lazy(LazyThreadSafetyMode.NONE) {
-        AdapterDelegateManager(delegates as List<AdapterDelegate<in T, RecyclerView.ViewHolder>>)
+        AdapterDelegateManager(delegates as List<AdapterDelegate<T, RecyclerView.ViewHolder>>)
     }
 
     final override fun getItemViewType(position: Int): Int {
@@ -158,35 +152,6 @@ fun <T : Any> delegateAdapterOf(
         init {
             this.delegates += delegates
         }
-    }
-}
-
-abstract class DelegatePagingDataAdapter<T : Any>(
-        diffCallback: DiffUtil.ItemCallback<T>) : PagingDataAdapter<T, RecyclerView.ViewHolder>(diffCallback) {
-
-    protected val delegates: MutableList<AdapterDelegate<in T, out RecyclerView.ViewHolder>> = mutableListOf()
-
-    private val manager by lazy(LazyThreadSafetyMode.NONE) {
-        @Suppress("UNCHECKED_CAST")
-        AdapterDelegateManager(delegates as List<AdapterDelegate<T, RecyclerView.ViewHolder>>)
-    }
-
-    protected val items = object : AbstractList<T>() {
-        override val size: Int get() = itemCount
-        override fun get(index: Int): T = getItem(index)
-                ?: throw UnsupportedOperationException("placeholder not supported")
-    }
-
-    final override fun getItemViewType(position: Int): Int {
-        return manager.getItemViewType(items, position)
-    }
-
-    final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return manager.onCreateViewHolder(parent, viewType)
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        manager.onBindViewHolder(holder, items, position)
     }
 }
 
@@ -280,6 +245,51 @@ inline fun <reified AdaptedE : AdaptedT, reified AdaptedT : Any, E : T, T : Any,
 
         override fun onBindViewHolder(holder: VH, value: AdaptedE) {
             return delegate.onBindViewHolder(holder, convert(value))
+        }
+    }
+}
+
+interface SingleItemAdapterDelegate<T : Any, VH : RecyclerView.ViewHolder> {
+    fun onCreateViewHolder(parent: ViewGroup): VH
+    fun onBindViewHolder(holder: VH, item: T)
+}
+
+object Adapters {
+    class ForViewBindings<T : Any, B : ViewBinding>(
+            private val inflate: (LayoutInflater, parent: ViewGroup?, attachToParent: Boolean) -> B,
+            private val bindView: (holder: BindingsViewHolder<B>, value: T) -> Unit,
+    ) : SingleItemAdapterDelegate<T, BindingsViewHolder<B>> {
+        override fun onCreateViewHolder(parent: ViewGroup): BindingsViewHolder<B> {
+            return BindingsViewHolder(inflate(parent.layoutInflater, parent, false))
+        }
+
+        override fun onBindViewHolder(holder: BindingsViewHolder<B>, item: T) {
+            bindView(holder, item)
+        }
+    }
+
+    fun <E : Any, VH : RecyclerView.ViewHolder, A : SingleItemAdapterDelegate<E, VH>> forAll(adapter: A): AdapterDelegate<E, RecyclerView.ViewHolder> {
+        return adapt(adapter) { value -> value }
+    }
+
+    fun <E : Any, T : Any, VH : RecyclerView.ViewHolder, A : SingleItemAdapterDelegate<E, VH>> adapt(adapter: A, convert: (T) -> E?): AdapterDelegate<T, RecyclerView.ViewHolder> {
+        return object : AdapterDelegate<T, RecyclerView.ViewHolder> {
+            override fun isForViewType(values: List<T>, idx: Int): Boolean {
+                return convert(values[idx]) != null
+            }
+
+            override fun onCreateViewHolder(parent: ViewGroup): VH {
+                return adapter.onCreateViewHolder(parent)
+            }
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, values: List<T>, idx: Int) {
+                // onBindViewHolder is only called after isForViewType, so convert
+                // must always return a non-null value here.
+                val item = convert(values[idx])!!
+
+                @Suppress("UNCHECKED_CAST")
+                adapter.onBindViewHolder(holder as VH, item)
+            }
         }
     }
 }

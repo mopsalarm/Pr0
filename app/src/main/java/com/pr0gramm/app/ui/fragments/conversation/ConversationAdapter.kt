@@ -1,18 +1,21 @@
 package com.pr0gramm.app.ui.fragments.conversation
 
-import android.view.ViewGroup
+import android.content.Context
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.recyclerview.widget.DiffUtil
-import com.pr0gramm.app.R
+import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.ui.adapters2.BindableViewHolder
+import com.pr0gramm.app.databinding.ItemDateDividerBinding
+import com.pr0gramm.app.databinding.ItemMessageReceivedBinding
+import com.pr0gramm.app.databinding.ItemMessageSentBinding
+import com.pr0gramm.app.ui.AdapterDelegate
+import com.pr0gramm.app.ui.AdapterDelegateManager
+import com.pr0gramm.app.ui.Adapters
 import com.pr0gramm.app.ui.adapters2.DelegatingPagingDataAdapter
-import com.pr0gramm.app.ui.adapters2.ViewHolders
 import com.pr0gramm.app.util.Linkify
-import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.setTextFuture
 import com.pr0gramm.app.util.sp
 import java.text.SimpleDateFormat
@@ -25,11 +28,12 @@ sealed class ConversationItem {
 }
 
 class ConversationAdapter : DelegatingPagingDataAdapter<ConversationItem>(ItemCallback) {
-    override val delegate = ViewHolders<ConversationItem> {
-        register(ConversationItemMessageViewHolder.Factory(sentValue = true))
-        register(ConversationItemMessageViewHolder.Factory(sentValue = false))
-        register(ConversationItemDividerViewHolder.Factory)
-    }
+
+    override val manager = AdapterDelegateManager(listOf(
+            conversationItemMessageViewHolder(true),
+            conversationItemMessageViewHolder(false),
+            conversationItemDividerAdapter(),
+    ))
 
     val messages: List<Api.ConversationMessage>
         get() = items.mapNotNull { item -> (item as? ConversationItem.Message)?.message }
@@ -54,16 +58,11 @@ class ConversationAdapter : DelegatingPagingDataAdapter<ConversationItem>(ItemCa
     }
 }
 
-private class ConversationItemMessageViewHolder private constructor(parent: ViewGroup, layoutId: Int)
-    : BindableViewHolder<ConversationItem.Message>(parent, layoutId) {
+fun conversationItemMessageViewHolder(forSent: Boolean): AdapterDelegate<ConversationItem, RecyclerView.ViewHolder> {
+    val format = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    private val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-
-    private val messageView = find<AppCompatTextView>(R.id.message)
-    private val timeView = find<TextView>(R.id.time)
-
-    override fun bindTo(value: ConversationItem.Message) {
-        val context = itemView.context
+    fun bindTo(timeView: TextView, messageView: AppCompatTextView, value: ConversationItem.Message) {
+        val context: Context = timeView.context
 
         val text = buildSpannedString {
             append(Linkify.linkify(context, value.message.messageText))
@@ -78,28 +77,29 @@ private class ConversationItemMessageViewHolder private constructor(parent: View
         timeView.text = value.message.creationTime.toString(format)
     }
 
-    class Factory(private val sentValue: Boolean) : BindableViewHolder.Factory<ConversationItem.Message> {
-        override fun convertValue(value: Any): ConversationItem.Message? {
-            return (value as? ConversationItem.Message).takeIf { it?.message?.sent == sentValue }
+    return if (forSent) {
+        val itemAdapter = Adapters.ForViewBindings(ItemMessageSentBinding::inflate) { (views), item: ConversationItem.Message ->
+            bindTo(views.time, views.message, item)
         }
 
-        override fun createViewHolder(parent: ViewGroup): BindableViewHolder<ConversationItem.Message> {
-            val layoutId = if (sentValue) R.layout.item_message_sent else R.layout.item_message_received
-            return ConversationItemMessageViewHolder(parent, layoutId)
+        Adapters.adapt(itemAdapter) { value: ConversationItem ->
+            (value as? ConversationItem.Message)?.takeIf { msg -> msg.message.sent }
+        }
+    } else {
+        val itemAdapter = Adapters.ForViewBindings(ItemMessageReceivedBinding::inflate) { (views), item: ConversationItem.Message ->
+            bindTo(views.time, views.message, item)
+        }
+
+        Adapters.adapt(itemAdapter) { value: ConversationItem ->
+            (value as? ConversationItem.Message)?.takeIf { msg -> !msg.message.sent }
         }
     }
 }
 
-class ConversationItemDividerViewHolder private constructor(parent: ViewGroup)
-    : BindableViewHolder<ConversationItem.Divider>(parent, R.layout.item_date_divider) {
-
-    private val textView = find<TextView>(R.id.text)
-
-    override fun bindTo(value: ConversationItem.Divider) {
-        textView.text = value.text
+fun conversationItemDividerAdapter(): AdapterDelegate<ConversationItem, RecyclerView.ViewHolder> {
+    val itemAdapter = Adapters.ForViewBindings(ItemDateDividerBinding::inflate) { (views), item: ConversationItem.Divider ->
+        views.text.text = item.text
     }
 
-    companion object Factory : BindableViewHolder.DefaultFactory<ConversationItem.Divider>(::ConversationItemDividerViewHolder)
+    return Adapters.adapt(itemAdapter) { value: ConversationItem -> value as? ConversationItem.Divider }
 }
-
-
