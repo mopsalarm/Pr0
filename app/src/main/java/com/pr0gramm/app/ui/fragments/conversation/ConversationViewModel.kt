@@ -2,10 +2,7 @@ package com.pr0gramm.app.ui.fragments.conversation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.cachedIn
+import androidx.paging.*
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -78,5 +75,9 @@ class ConversationSource(
         } catch (err: IOException) {
             return LoadResult.Error(err)
         }
+    }
+
+    override fun getRefreshKey(state: PagingState<Instant, Api.ConversationMessage>): Instant? {
+        return null
     }
 }
