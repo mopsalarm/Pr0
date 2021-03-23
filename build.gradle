@@ -48,6 +48,8 @@ allprojects {
         kotlinOptions {
             jvmTarget = "1.8"
 
+            useIR = true
+
             freeCompilerArgs += [
                     "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
                     "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
