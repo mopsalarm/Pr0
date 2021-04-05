@@ -557,6 +557,7 @@
     <string name="action_shrink">Verkleinern</string>
     <string name="action_scroll_unseen">Erster ungesehener Post</string>
     <string name="error_max_scroll_reached">Maximale Scrollweite erreicht. Probiere es einfach nochmal.</string>
+    <string name="changelog">Changelog</string>
 
 
 </resources>

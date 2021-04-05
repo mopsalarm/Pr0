@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="16dp"
-    android:paddingTop="2dp"
+    android:paddingTop="4dp"
     android:paddingRight="16dp"
-    android:paddingBottom="2dp"
+    android:paddingBottom="8dp"
     tools:text="This is a short dummy text that has about 10 words." />

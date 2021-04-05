@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.SpannableStringBuilder
 import android.view.View
 import androidx.core.text.bold
+import androidx.core.text.color
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
@@ -14,7 +15,6 @@ import com.pr0gramm.app.databinding.ChangelogChangeBinding
 import com.pr0gramm.app.databinding.ChangelogVersionBinding
 import com.pr0gramm.app.model.update.Change
 import com.pr0gramm.app.model.update.ChangeGroup
-import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
@@ -43,17 +43,26 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
 
     private fun changeAdapter(changeGroups: List<ChangeGroup>): DelegateAdapter<Any> {
         val versionAdapter = Adapters.ForViewBindings(ChangelogVersionBinding::inflate) { (views), item: Version ->
-            val textView = views.root
-            textView.text = item.formatted
-            textView.alpha = if (item.current) 1f else 0.5f
-            textView.setTextColor(textView.context.getColorCompat(accentColor))
+            views.root.text = item.formatted
         }
 
         val changeAdapter = Adapters.ForViewBindings(ChangelogChangeBinding::inflate) { (views), change: Change ->
             val textView = views.root
 
             val text = SpannableStringBuilder()
-                    .bold { append(change.type) }
+                    .bold {
+                        val color = when (change.type) {
+                            "Neu" -> R.color.red_700
+                            "Fix" -> R.color.grey_700
+                            else -> null
+                        }
+
+                        if (color != null) {
+                            color(textView.context.getColorCompat(color)) { append(change.type) }
+                        } else {
+                            append(change.type)
+                        }
+                    }
                     .append(" ")
                     .append(change.change)
 

@@ -577,5 +577,6 @@
     <string name="action_shrink">Shrink</string>
     <string name="action_scroll_unseen">Scroll first unseen</string>
     <string name="error_max_scroll_reached">Max scroll distance reached. Please try again.</string>
+    <string name="changelog">Changelog</string>
 </resources>
 

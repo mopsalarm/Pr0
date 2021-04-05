@@ -3,7 +3,7 @@
     "version": 190,
     "changes": [
       {
-        "type": "Feature",
+        "type": "Neu",
         "change": "Im Menü gibt es einen neuen Knopf um zum ersten ungesehenen Post zu scrollen."
       }
     ]
@@ -12,11 +12,11 @@
     "version": 189,
     "changes": [
       {
-        "type": "Feature",
+        "type": "Neu",
         "change": "Wenn bei einem Upload bereits ähnliche Hochlads gefunden werden, können diese nun angeklickt werden."
       },
       {
-        "type": "Feature",
+        "type": "Neu",
         "change": "Trending Lesezeichen können invertiert werden."
       },
       {
