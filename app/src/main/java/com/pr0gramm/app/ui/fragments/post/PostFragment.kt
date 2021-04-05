@@ -572,7 +572,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             R.id.action_search_image -> shareService.searchImage(activity, feedItem)
             R.id.action_share_post -> shareService.sharePost(activity, feedItem)
             R.id.action_share_direct_link -> shareService.shareDirectLink(activity, feedItem)
-            R.id.action_copy_link -> shareService.copyLink(activity, feedItem)
+            R.id.action_copy_link -> shareService.copyLink(views.root, feedItem)
             R.id.action_share_image -> shareImage()
             R.id.action_refresh -> refreshWithIndicator()
             R.id.action_download -> downloadPostMedia()
@@ -1146,7 +1146,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         override fun onCopyCommentLink(comment: Api.Comment) {
-            shareService.copyLink(context ?: return, feedItem, comment)
+            shareService.copyLink(views.root, feedItem, comment)
         }
 
         override fun onDeleteCommentClicked(comment: Api.Comment): Boolean {

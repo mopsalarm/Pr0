@@ -5,9 +5,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
+import android.view.View
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -15,6 +16,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.BrowserHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -107,25 +109,29 @@ class ShareService(private val cache: Cache) {
     }
 
 
-    fun copyLink(context: Context, feedItem: FeedItem) {
-        val helper = UriHelper.of(context)
+    fun copyLink(view: View, feedItem: FeedItem) {
+        val helper = UriHelper.of(view.context)
         val uri = helper.post(FeedType.NEW, feedItem.id).toString()
-        copyToClipboard(context, uri)
+        copyToClipboard(view, uri)
     }
 
 
-    fun copyLink(context: Context, feedItem: FeedItem, comment: Api.Comment) {
-        val helper = UriHelper.of(context)
+    fun copyLink(view: View, feedItem: FeedItem, comment: Api.Comment) {
+        val helper = UriHelper.of(view.context)
         val uri = helper.post(FeedType.NEW, feedItem.id, comment.id).toString()
-        copyToClipboard(context, uri)
+        copyToClipboard(view, uri)
     }
 
 
-    private fun copyToClipboard(context: Context, text: String) {
-        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    private fun copyToClipboard(view: View, text: String) {
+        val clipboardManager = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+
+        Snackbar.make(view, R.string.copied_to_clipboard, Snackbar.LENGTH_SHORT)
+                .setAction(R.string.okay) { /* nothing */ }
+                .configureNewStyle()
+                .show()
     }
 
 

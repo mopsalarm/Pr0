@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -19,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -27,6 +27,7 @@ import com.pr0gramm.app.databinding.PostTagsNormalBinding
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 
 @SuppressLint("ViewConstructor")
@@ -224,7 +225,11 @@ class TagsView(context: Context) : LinearLayout(context) {
 
                     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
-                    Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+
+                    Snackbar.make(itemView, R.string.copied_to_clipboard, Snackbar.LENGTH_SHORT)
+                            .setAction(R.string.okay) { /* do nothing */ }
+                            .configureNewStyle()
+                            .show()
 
                     true
                 }

@@ -9,11 +9,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -21,6 +21,7 @@ import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.PostCollection
 import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.squareup.picasso.Picasso
@@ -239,7 +240,10 @@ class UserInfoView(context: Context) : FrameLayout(context) {
             }
 
             itemView.setOnClickListener {
-                Toast.makeText(itemView.context, badge.description, Toast.LENGTH_SHORT).show()
+                Snackbar.make(itemView.context, itemView, badge.description, Snackbar.LENGTH_SHORT)
+                        .setAction(R.string.okay) { /* do nothing */ }
+                        .configureNewStyle()
+                        .show()
             }
 
             if (!itemView.isInEditMode) {
