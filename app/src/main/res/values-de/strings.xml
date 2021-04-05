@@ -552,6 +552,11 @@
     <string name="pref_use_doh_title">Verwendet DNS über HTTPS mit Cloudflares 1.1.1.1 Server. Dies kann helfen, wenn deine FIrma oder dein Internetanbieter den Zugang zum pr0gramm sperrt.</string>
     <string name="bookmark_inverse_title">Ohne %s</string>
     <string name="hint_exclude_tag">Diesen Tag von den Ergebnissen ausschließen</string>
+    <string name="hint_shrink_image">Das ausgewählte Bild ist zu groß. Die App kann es für dich verkleinern.</string>
+    <string name="hint_shrink_video">Das ausgewählte Video ist zu groß. Wähle bitte ein kleines Video aus.</string>
+    <string name="action_shrink">Verkleinern</string>
+    <string name="action_scroll_unseen">Erster ungesehener Post</string>
+    <string name="error_max_scroll_reached">Maximale Scrollweite erreicht. Probiere es einfach nochmal.</string>
 
 
 </resources>

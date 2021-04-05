@@ -39,6 +39,7 @@ import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -760,8 +761,53 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
             R.id.action_open_in_admin -> openUserInAdmin()
+            R.id.action_scroll_unseen -> scrollToFirstUnseenAsync()
 
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun scrollToFirstUnseenAsync(): Job {
+        return launchUntilViewDestroy(busyIndicator = true) {
+            val targetItemFlow = feedStateModel.feedState.flatMapConcat { feedState ->
+                logger.info { "feedSize=${feedState.feed.size}, seenCount=${feedState.seen.size}" }
+
+                val targetItem = if (feedState.seen.size < feedState.feed.size) {
+                    feedState.feed.firstOrNull { item -> item.id !in feedState.seen }
+                } else {
+                    null
+                }
+
+                when {
+                    feedState.feed.isEmpty() && feedState.feed.isAtEnd -> {
+                        flowOf(feedState.feed.lastOrNull())
+                    }
+
+                    feedState.feed.size > 4000 -> {
+                        // no result within the first few pages
+                        throw StringException("max scroll distance reached", R.string.error_max_scroll_reached)
+                    }
+
+                    targetItem != null -> {
+                        flowOf(targetItem)
+                    }
+
+                    !feedState.isLoading -> {
+                        // load next page!
+                        feedStateModel.triggerLoadNext()
+                        emptyFlow()
+                    }
+
+                    // emit nothing, wait for next update
+                    else -> emptyFlow()
+                }
+            }
+
+            val targetItem = targetItemFlow.firstOrNull() ?: return@launchUntilViewDestroy
+            autoScrollRef = ScrollRef(CommentRef(targetItem), smoothScroll = true)
+
+            // ensure we're starting the scroll even if the view is already layouted.
+            performAutoScroll()
         }
     }
 

@@ -1,5 +1,14 @@
 [
   {
+    "version": 190,
+    "changes": [
+      {
+        "type": "Feature",
+        "change": "Im Menü gibt es einen neuen Knopf um zum ersten ungesehenen Post zu scrollen."
+      }
+    ]
+  },
+  {
     "version": 189,
     "changes": [
       {
