@@ -760,7 +760,7 @@ fun CompoundButton.setOnCheckedChangeListenerWithInitial(checkedState: Boolean, 
     setOnCheckedChangeListener(null)
     isChecked = checkedState
 
-    setOnCheckedChangeListener { buttonView, isChecked -> listener(isChecked) }
+    setOnCheckedChangeListener { _, isChecked -> listener(isChecked) }
 }
 
 fun <T> Flow<T>.toStateFlow(context: CoroutineScope, initialValue: T): StateFlow<T> {

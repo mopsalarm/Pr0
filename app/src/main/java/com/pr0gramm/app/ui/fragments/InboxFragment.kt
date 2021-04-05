@@ -81,7 +81,7 @@ abstract class InboxFragment(name: String) : BaseFragment(name, R.layout.fragmen
 
     private fun handleStateUpdate(state: Pagination.State<Message>, newValues: List<Message>) {
         this.state = this.state.copy(
-                messages = this.state.messages + newValues,
+                messages = (this.state.messages + newValues).distinctBy { msg -> msg.id },
                 tailState = state.tailState)
     }
 

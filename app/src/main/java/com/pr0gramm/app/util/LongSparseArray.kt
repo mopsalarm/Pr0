@@ -307,6 +307,7 @@ class LongSparseArray<E>(initialCapacity: Int = 10) : Cloneable {
             gc()
         }
 
+        @Suppress("UNCHECKED_CAST")
         return mValues[index] as E
     }
 

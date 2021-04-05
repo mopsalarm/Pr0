@@ -473,7 +473,7 @@
     <string name="action_open_in_admin">In Admin öffnen</string>
     <string name="old_android_reminder">Deine Android Version ist sehr alt. Der App Support wird bald eingestellt.</string>
     <string name="pref_colorful_comment_lines_title">Farbige Kommentarlinien</string>
-    <string name="pref_colorful_comment_lines_summary">Färbt die Kommentarlinien unterschiedlich ein um die jewilige Tiefe und den Elternkommentar hervorzuheben.</string>
+    <string name="pref_colorful_comment_lines_summary">Färbt die Kommentarlinien unterschiedlich ein um die jeweilige Tiefe und den Elternkommentar hervorzuheben.</string>
     <string name="action_shortcut">Verknüpfung</string>
     <string name="hint_edit_bookmark">Du kannst einem Lesezeichen einen kurzen Titel geben. Dieser wird auch verwendet, wenn du für das Lesezeichen eine Verknüpfung in deinem Launcher erstellst.</string>
     <string name="hint_bookmark_onload">Dieses Lesezeichen beim Starten der App anstelle von Neu oder Beliebt verwenden.</string>
