@@ -211,7 +211,7 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
             .retryOnConnectionFailure(true)
             .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
             .configureSSLSocketFactoryAndSecurity(app)
-            .addInterceptor(BrotliInterceptor)
+            .addNetworkInterceptor(BrotliInterceptor)
 
     debugOnly {
         builder.addNetworkInterceptor(LoggingInterceptor())
