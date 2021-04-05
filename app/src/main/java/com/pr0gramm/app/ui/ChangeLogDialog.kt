@@ -15,6 +15,7 @@ import com.pr0gramm.app.databinding.ChangelogChangeBinding
 import com.pr0gramm.app.databinding.ChangelogVersionBinding
 import com.pr0gramm.app.model.update.Change
 import com.pr0gramm.app.model.update.ChangeGroup
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
@@ -52,8 +53,7 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
             val text = SpannableStringBuilder()
                     .bold {
                         val color = when (change.type) {
-                            "Neu" -> R.color.red_700
-                            "Fix" -> R.color.grey_700
+                            "Neu" -> ThemeHelper.accentColor
                             else -> null
                         }
 
@@ -63,7 +63,7 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
                             append(change.type)
                         }
                     }
-                    .append(" ")
+                    .append("  ")
                     .append(change.change)
 
             if ("://" in change.change || "@" in change.change) {
