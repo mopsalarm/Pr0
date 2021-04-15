@@ -761,22 +761,27 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
             R.id.action_open_in_admin -> openUserInAdmin()
+            R.id.action_scroll_seen -> scrollToFirstSeenAsync()
             R.id.action_scroll_unseen -> scrollToFirstUnseenAsync()
 
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun scrollToFirstUnseenAsync(): Job {
+    private fun scrollToFirstSeenAsync() {
+        scrollToFirstAsync { state, itemId -> itemId in state.seen }
+    }
+
+    private fun scrollToFirstUnseenAsync() {
+        scrollToFirstAsync { state, itemId -> itemId !in state.seen }
+    }
+
+    private fun scrollToFirstAsync(matcher: (state: FeedViewModel.FeedState, itemId: Long) -> Boolean): Job {
         return launchUntilViewDestroy(busyIndicator = true) {
             val targetItemFlow = feedStateModel.feedState.flatMapConcat { feedState ->
                 logger.info { "feedSize=${feedState.feed.size}, seenCount=${feedState.seen.size}" }
 
-                val targetItem = if (feedState.seen.size < feedState.feed.size) {
-                    feedState.feed.firstOrNull { item -> item.id !in feedState.seen }
-                } else {
-                    null
-                }
+                val targetItem = feedState.feed.firstOrNull { item -> matcher(feedState, item.id) }
 
                 when {
                     feedState.feed.isEmpty() && feedState.feed.isAtEnd -> {

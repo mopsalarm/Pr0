@@ -66,6 +66,13 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_scroll_seen"
+        android:icon="@drawable/ic_white_action_refresh"
+        android:title="@string/action_scroll_seen"
+        app:iconTint="?android:textColorPrimary"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_block_user"
         android:title="@string/action_block_user"
         android:visible="false"

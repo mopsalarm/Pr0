@@ -576,6 +576,7 @@
     <string name="hint_shrink_video">The video you\'ve selected is too large. Please select a smaller video.</string>
     <string name="action_shrink">Shrink</string>
     <string name="action_scroll_unseen">Scroll first unseen</string>
+    <string name="action_scroll_seen">Scroll first seen</string>
     <string name="error_max_scroll_reached">Max scroll distance reached. Please try again.</string>
     <string name="changelog">Changelog</string>
 </resources>
