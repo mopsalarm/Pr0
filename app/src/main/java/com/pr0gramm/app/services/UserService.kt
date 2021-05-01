@@ -458,8 +458,6 @@ class UserService(private val api: Api,
         return api.userCaptcha()
     }
 
-    val canViewCategoryStalk: Boolean get() = config.followIsFreeForAll || userIsPremium
-
     class LoginStateWithScoreGraph(
             val loginState: LoginState, val scoreGraph: Graph?)
 

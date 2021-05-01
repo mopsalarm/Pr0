@@ -22,7 +22,6 @@ data class Config(
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
         val endOfLifeAndroidVersion: Int = Build.VERSION_CODES.LOLLIPOP,
-        val followIsFreeForAll: Boolean = false,
         val reAffiliate: String = "(?:pornhub|redtube|tube8|youporn|xtube|spankwire|keezmovies|extremetube)\\.com",
         val specialMenuItems: List<MenuItem> = listOf()) {
 

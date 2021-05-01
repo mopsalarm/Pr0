@@ -22,8 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runInterruptible
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 /**
  */
@@ -95,7 +95,7 @@ class NavigationProvider(
             val sources = rawSources.map { source ->
                 source.onStart { emit(listOf()) }.retryWhen { err, _ ->
                     logger.warn("Could not get category sub-items, retrying soon: ", err)
-                    delay(5.seconds)
+                    delay(Duration.seconds(5))
                     true
                 }
             }
@@ -171,7 +171,7 @@ class NavigationProvider(
                     filter = FeedFilter().withFeedType(FeedType.RANDOM))
         }
 
-        if (Settings.showCategoryStalk && userService.canViewCategoryStalk) {
+        if (Settings.showCategoryStalk) {
             items += makeItem(
                     title = getString(R.string.action_feed_type_premium),
                     icon = iconFeedTypePremium,

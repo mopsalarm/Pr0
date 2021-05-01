@@ -243,15 +243,6 @@ class InfoLineView(context: Context) : LinearLayout(context), InjectorViewMixin 
                 onDetailClickedListener?.updateFollowUser(state)
             }
         }
-
-        // show a small hint that this is only viewable with pr0mium
-        val userService: UserService = context.injector.instance()
-
-        if (state != FollowState.NONE && !userService.canViewCategoryStalk) {
-            Snackbar.make(this@InfoLineView, R.string.hint_follow_premium_only, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle()
-                    .show()
-        }
     }
 
     fun updateFollowState(followState: FollowState?) {
