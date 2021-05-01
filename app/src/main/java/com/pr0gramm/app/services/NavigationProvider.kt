@@ -22,8 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runInterruptible
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 /**
  */
@@ -95,7 +95,7 @@ class NavigationProvider(
             val sources = rawSources.map { source ->
                 source.onStart { emit(listOf()) }.retryWhen { err, _ ->
                     logger.warn("Could not get category sub-items, retrying soon: ", err)
-                    delay(Duration.seconds(5))
+                    delay(5.seconds)
                     true
                 }
             }

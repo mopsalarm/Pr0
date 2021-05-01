@@ -780,7 +780,9 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             val targetItemFlow = feedStateModel.feedState.flatMapConcat { feedState ->
                 logger.info { "feedSize=${feedState.feed.size}, seenCount=${feedState.seen.size}" }
 
-                val targetItem = feedState.feed.firstOrNull { item -> matcher(feedState, item.id) }
+                val targetItem = feedState.feed.firstOrNull { item ->
+                    matcher(feedState, item.id) && !item.isPinned
+                }
 
                 when {
                     feedState.feed.isEmpty() && feedState.feed.isAtEnd -> {
