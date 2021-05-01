@@ -24,19 +24,52 @@ data class PostCollection(
         val title: String,
         val uniqueTitle: String,
         val isPublic: Boolean,
-        val isDefault: Boolean) {
+        val isDefault: Boolean,
+        val owner: Owner?,
+) {
+
+    val isCuratorCollection: Boolean
+        get() = owner != null
+
+    val titleWithOwner = buildString {
+        append(title)
+        owner?.let {
+            append(" (")
+            append(owner.name)
+            append(")")
+        }
+    }
+
+    class Owner(val name: String, val mark: Int)
 
     companion object {
-        fun fromApi(input: List<Api.Collection>): List<PostCollection> {
-            return input.map { apiCollection ->
-                val titleIsUnique = input.count { it.name == apiCollection.name } == 1
+        private fun Api.Collection.titleWithOwner(): String {
+            return name + ":" + owner.orEmpty()
+        }
+
+        fun fromApi(input: Api.HasCollections): List<PostCollection> {
+            val collections = input.allCollections
+
+            return collections.map { apiCollection ->
+                val titleIsUnique = collections.count { it.titleWithOwner() == apiCollection.titleWithOwner() } == 1
+
+                val collectionOwner = apiCollection.owner
+                val collectionOwnerMark = apiCollection.ownerMark
+
+                val owner = if (collectionOwner != null && collectionOwnerMark != null) {
+                    Owner(collectionOwner, collectionOwnerMark)
+                } else {
+                    null
+                }
+
                 PostCollection(
                         id = apiCollection.id,
                         key = apiCollection.keyword,
                         title = apiCollection.name,
                         uniqueTitle = if (titleIsUnique) apiCollection.name else "${apiCollection.name} (${apiCollection.keyword})",
                         isPublic = apiCollection.isPublic,
-                        isDefault = apiCollection.isDefault
+                        isDefault = apiCollection.isDefault,
+                        owner = owner,
                 )
             }
         }
@@ -74,7 +107,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
     }
 
     suspend fun refresh() {
-        publishCollections(PostCollection.fromApi(api.collectionsGet().collections))
+        publishCollections(PostCollection.fromApi(api.collectionsGet()))
     }
 
     private fun publishCollections(collections: List<PostCollection>) {
@@ -107,7 +140,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
 
     private fun handleCollectionUpdated(response: Result<Api.CollectionCreated>) {
         if (response is Result.Success) {
-            publishCollections(PostCollection.fromApi(response.value.collections))
+            publishCollections(PostCollection.fromApi(response.value))
         }
     }
 

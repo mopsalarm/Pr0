@@ -509,14 +509,15 @@ interface Api {
             val user: User,
             val badges: List<Badge> = listOf(),
             val collectedCount: Int,
-            val collections: List<Collection> = listOf(),
+            override val collections: List<Collection> = listOf(),
+            override val curatorCollections: List<Collection> = listOf(),
             val uploadCount: Int,
             val commentCount: Int,
             val tagCount: Int,
             val likesArePublic: Boolean,
             val following: Boolean,
             val appLinks: List<AppLink>? = null
-    ) {
+    ) : HasCollections {
 
         @JsonClass(generateAdapter = true)
         class Badge(
@@ -823,17 +824,27 @@ interface Api {
             @Json(name = "captcha") val image: String
     )
 
+    interface HasCollections {
+        val collections: List<Collection>
+        val curatorCollections: List<Collection>
+
+        val allCollections: List<Collection>
+            get() = collections + curatorCollections
+    }
+
     @JsonClass(generateAdapter = true)
     class Collections(
-            val collections: List<Collection>
-    )
+            override val collections: List<Collection>,
+            override val curatorCollections: List<Collection>,
+    ) : HasCollections
 
     @JsonClass(generateAdapter = true)
     class CollectionCreated(
             val collectionId: Long = 0,
-            val collections: List<Collection> = listOf(),
+            override val collections: List<Collection> = listOf(),
+            override val curatorCollections: List<Collection> = listOf(),
             override val error: String? = null
-    ) : HasError
+    ) : HasError, HasCollections
 
     @JsonClass(generateAdapter = true)
     class Collection(
@@ -841,7 +852,9 @@ interface Api {
             val name: String,
             val keyword: String,
             val isPublic: Boolean,
-            val isDefault: Boolean
+            val isDefault: Boolean,
+            val owner: String?,
+            val ownerMark: Int?,
             // val items: List<Item>,
     ) {
         @JsonClass(generateAdapter = true)

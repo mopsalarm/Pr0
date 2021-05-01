@@ -128,7 +128,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        interstitialAdler = InterstitialAdler(requireContext())
+        interstitialAdler = InterstitialAdler(requireActivity())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -424,9 +424,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             }
         }
 
-        override fun onUserViewCollectionsClicked(name: String, targetCollection: PostCollection?) {
-            val filter = currentFilter.basic().withCollection(name,
-                    targetCollection?.key ?: "**ANY", targetCollection?.title ?: "**ANY")
+        override fun onUserViewCollectionsClicked(name: String) {
+            val filter = currentFilter.basic().withCollection(name, "**ANY", "**ANY")
 
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)

@@ -41,7 +41,7 @@ import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.DrawerFragment
-import com.pr0gramm.app.ui.fragments.favorites.FavoritesFragment
+import com.pr0gramm.app.ui.fragments.favorites.CollectionsFragment
 import com.pr0gramm.app.ui.fragments.feed.AdViewAdapter
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
@@ -318,7 +318,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         get() = supportFragmentManager.findFragmentById(R.id.content_container)
 
     private val shouldClearOnIntent: Boolean
-        get() = currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
+        get() = currentFragment !is CollectionsFragment && supportFragmentManager.backStackEntryCount == 0
 
     private fun updateToolbarBackButton() {
         drawerToggle.isDrawerIndicatorEnabled = shouldClearOnIntent
@@ -515,7 +515,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override fun onNavigateToCollections(username: String) {
         // move to new fragment
-        moveToFragment(FavoritesFragment.newInstance(username), clear = true)
+        moveToFragment(CollectionsFragment.newInstance(username), clear = true)
         views.drawerLayout.closeDrawers()
     }
 
@@ -560,7 +560,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // show special fragment if we want to see overview of collections of some user.
         newFilter.username?.let { username ->
             if (newFilter.collection == "**ANY") {
-                return moveToFragment(FavoritesFragment.newInstance(username), clear = false)
+                return moveToFragment(CollectionsFragment.newInstance(username), clear = false)
             }
         }
 

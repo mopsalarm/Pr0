@@ -2,6 +2,9 @@ package com.pr0gramm.app.ui
 
 import android.content.Context
 import com.google.android.gms.ads.*
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
@@ -11,7 +14,9 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.ignoreAllExceptions
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.TimeUnit
@@ -42,7 +47,7 @@ class AdService(private val configService: ConfigService, private val userServic
                     }
                 }
 
-                override fun onAdFailedToLoad(p0: Int) {
+                override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
                     if (!isClosedForSend) {
                         offer(AdLoadState.FAILURE)
@@ -110,16 +115,23 @@ class AdService(private val configService: ConfigService, private val userServic
         return view
     }
 
-    fun buildInterstitialAd(context: Context): InterstitialAd? {
+    fun buildInterstitialAd(context: Context): Holder<InterstitialAd?> {
         return if (enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
-            InterstitialAd(context).also { ad ->
-                ad.adUnitId = interstitialUnitId
-                ad.adListener = TrackingAdListener("i")
-                ad.setImmersiveMode(false)
-                ad.loadAd(AdRequest.Builder().build())
-            }
+            val value = CompletableDeferred<InterstitialAd?>()
+
+            InterstitialAd.load(context, interstitialUnitId, AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(p0: InterstitialAd) {
+                    value.complete(p0)
+                }
+
+                override fun onAdFailedToLoad(p0: LoadAdError) {
+                    value.complete(null)
+                }
+            })
+
+            Holder { value.await() }
         } else {
-            null
+            return Holder { null }
         }
     }
 
@@ -137,16 +149,11 @@ class AdService(private val configService: ConfigService, private val userServic
         }
 
         fun initializeMobileAds(context: Context) {
-            val appId = if (BuildConfig.DEBUG) {
-                "ca-app-pub-3940256099942544~3347511713"
-            } else {
-                "ca-app-pub-2308657767126505~4138045673"
-            }
-
             // for some reason an internal getVersionString returns null,
             // and the result is not checked. We ignore the error in that case
             ignoreAllExceptions {
-                MobileAds.initialize(context, appId)
+                val listener = OnInitializationCompleteListener { }
+                MobileAds.initialize(context, listener)
 
                 MobileAds.setAppVolume(0f)
                 MobileAds.setAppMuted(true)
@@ -159,14 +166,6 @@ class AdService(private val configService: ConfigService, private val userServic
     }
 
     open class TrackingAdListener(private val prefix: String) : AdListener() {
-        override fun onAdFailedToLoad(p0: Int) {
-            Track.adEvent("${prefix}_failed_to_load")
-        }
-
-        override fun onAdLeftApplication() {
-            Track.adEvent("${prefix}_left_application")
-        }
-
         override fun onAdImpression() {
             Track.adEvent("${prefix}_impression")
         }

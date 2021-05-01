@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.text.buildSpannedString
 import androidx.core.text.italic
+import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +30,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.views.appendUsernameAndMark
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
@@ -202,7 +204,16 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
             false -> R.drawable.ic_collection_private
         }
 
-        holder.name.text = value.collection.uniqueTitle
+        holder.name.text = buildSpannedString {
+            append(value.collection.uniqueTitle)
+
+            value.collection.owner?.let { owner ->
+                append(" (")
+                appendUsernameAndMark(holder.name, owner.name, owner.mark)
+                append(")")
+            }
+        }
+
         holder.icon.setImageResource(imageId)
 
         for (view in listOf(holder.itemView, holder.checkbox, holder.edit)) {
@@ -221,6 +232,8 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
         holder.itemView.setOnClickListener {
             holder.checkbox.toggle()
         }
+
+        holder.edit.isInvisible = value.collection.isCuratorCollection
 
         holder.edit.setOnClickListener { view ->
             val fragment: Fragment = FragmentManager.findFragment(view)

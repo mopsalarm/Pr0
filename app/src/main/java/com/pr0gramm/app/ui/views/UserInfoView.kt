@@ -96,9 +96,9 @@ class UserInfoView(context: Context) : FrameLayout(context) {
                 parent.isVisible = true
 
                 parent.setOnClickListener {
-                    val publicCollections = PostCollection.fromApi(info.collections).filter { it.isPublic }
+                    val publicCollections = PostCollection.fromApi(info).filter { it.isPublic }
                     if (myself || publicCollections.isNotEmpty()) {
-                        actions.onUserViewCollectionsClicked(user.name, null)
+                        actions.onUserViewCollectionsClicked(user.name)
                     }
                 }
             }
@@ -201,7 +201,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
     interface UserActionListener {
         fun onWriteMessageClicked(name: String)
-        fun onUserViewCollectionsClicked(name: String, targetCollection: PostCollection?)
+        fun onUserViewCollectionsClicked(name: String)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)
         fun shareUserProfile(name: String)

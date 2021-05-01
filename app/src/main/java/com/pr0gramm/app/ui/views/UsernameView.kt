@@ -7,6 +7,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.ImageSpan
 import android.util.AttributeSet
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.toRectF
 import androidx.core.text.inSpans
@@ -25,12 +26,6 @@ import kotlinx.coroutines.flow.emptyFlow
 class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
         AppCompatTextView(context, attrs, defStyleAttr) {
 
-    private val userClassesService: UserClassesService = if (isInEditMode) {
-        UserClassesService(emptyFlow())
-    } else {
-        context.injector.instance()
-    }
-
     init {
         maxLines = 1
 
@@ -41,32 +36,41 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
     @SuppressLint("SetTextI18n")
     fun setUsername(name: String, mark: Int, op: Boolean = false) {
-        val userClass = userClassesService.get(mark)
-
         this.text = SpannableStringBuilder().apply {
-
-            if (op) {
-                val badge = OpDrawable(context, textSize)
-                badge.setBounds(0, 0, badge.intrinsicWidth, badge.intrinsicHeight)
-
-                inSpans(ImageSpan(badge, ImageSpan.ALIGN_BASELINE)) {
-                    append("OP")
-                }
-
-                append("  ")
-            }
-
-            append(name)
-            append("\u2009")
-
-            inSpans(ForegroundColorSpan(userClass.color)) {
-                append(userClass.symbol)
-            }
+            appendUsernameAndMark(this@UsernameView, name, mark, op)
         }
     }
 }
 
-class OpDrawable(private val context: Context, textSize: Float) : BaseDrawable(PixelFormat.TRANSLUCENT) {
+fun SpannableStringBuilder.appendUsernameAndMark(parent: TextView, name: String, mark: Int, op: Boolean = false) {
+    val userClassesService: UserClassesService = if (parent.isInEditMode) {
+        UserClassesService(emptyFlow())
+    } else {
+        parent.context.injector.instance()
+    }
+
+    val userClass = userClassesService.get(mark)
+
+    if (op) {
+        val badge = OpDrawable(parent.context, parent.textSize)
+        badge.setBounds(0, 0, badge.intrinsicWidth, badge.intrinsicHeight)
+
+        inSpans(ImageSpan(badge, ImageSpan.ALIGN_BASELINE)) {
+            append("OP")
+        }
+
+        append("  ")
+    }
+
+    append(name)
+    append("\u2009")
+
+    inSpans(ForegroundColorSpan(userClass.color)) {
+        append(userClass.symbol)
+    }
+}
+
+class OpDrawable(context: Context, textSize: Float) : BaseDrawable(PixelFormat.TRANSLUCENT) {
     private val paint = paint { }
 
     private val outerR = Rect().also {

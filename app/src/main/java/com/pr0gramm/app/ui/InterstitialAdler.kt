@@ -1,27 +1,29 @@
 package com.pr0gramm.app.ui
 
-import android.content.Context
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.di.injector
 
-class InterstitialAdler(context: Context) {
+class InterstitialAdler(private val activity: Activity) {
     private val logger = Logger("InterstitialAdler")
-    private val adService: AdService = context.injector.instance()
+    private val adService: AdService = activity.injector.instance()
     private val handler = Handler(Looper.getMainLooper())
 
-    private val ad: InterstitialAd? = adService.buildInterstitialAd(context)
+    private var holder: Holder<InterstitialAd?> = adService.buildInterstitialAd(activity)
+
+    private val ad: InterstitialAd?
+        get() = holder.valueOrNull
 
     fun runWithAd(block: () -> Unit) {
-        logger.debug { "Ad is loaded: ${ad?.isLoaded}" }
-
         val ad = this.ad ?: return block()
-        if (!ad.isLoaded || !adService.shouldShowInterstitialAd()) {
+        if (!adService.shouldShowInterstitialAd()) {
             logger.debug { "Ad is not loaded or not activated." }
             return block()
         }
@@ -39,31 +41,25 @@ class InterstitialAdler(context: Context) {
         handler.postDelayed(onAdNotShown, 1000)
 
         // show app
-        ad.adListener = object : AdService.TrackingAdListener("i") {
-            override fun onAdOpened() {
-                handler.removeCallbacks(onAdNotShown)
-                ad.adListener = reloadAdListener
-
-                super.onAdOpened()
-                block()
-            }
-        }
+        ad.setImmersiveMode(false)
 
         // again, apply muted, just to be on the sure side
         MobileAds.setAppVolume(0f)
         MobileAds.setAppMuted(true)
 
-        ad.show()
-    }
+        ad.show(activity)
 
-    private fun reload() {
-        ad?.loadAd(AdRequest.Builder().build())
-    }
+        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdShowedFullScreenContent() {
+                handler.removeCallbacks(onAdNotShown)
+                block()
 
-    private val reloadAdListener = object : AdService.TrackingAdListener("i") {
-        override fun onAdClosed() {
-            super.onAdClosed()
-            reload()
+                // load a new ad
+                holder = adService.buildInterstitialAd(activity)
+            }
         }
+
+        // always run block
+        block()
     }
 }

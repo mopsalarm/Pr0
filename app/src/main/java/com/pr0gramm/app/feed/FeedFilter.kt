@@ -4,6 +4,7 @@ import android.os.Parcel
 import com.google.android.gms.common.util.Strings.emptyToNull
 import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.SimpleCreator
+import com.pr0gramm.app.services.PostCollection
 import java.util.*
 
 /**
@@ -87,6 +88,14 @@ class FeedFilter : DefaultParcelable {
         copy.username = normalizeString(owner)
         copy.collection = normalizeString(collectionKey)
         copy.collectionTitle = collectionTitle
+        return normalize(copy)
+    }
+
+    fun withCollection(owner: String, collection: PostCollection): FeedFilter {
+        val copy = basic()
+        copy.username = normalizeString(collection.owner?.name ?: owner)
+        copy.collection = normalizeString(collection.key)
+        copy.collectionTitle = collection.titleWithOwner
         return normalize(copy)
     }
 

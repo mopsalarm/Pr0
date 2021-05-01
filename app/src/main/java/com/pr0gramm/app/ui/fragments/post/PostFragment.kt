@@ -97,7 +97,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val downloadService: DownloadService by instance()
     private val configService: ConfigService by instance()
     private val shareService: ShareService by instance()
-    private val interstitialAdler by lazy { InterstitialAdler(requireContext()) }
+    private val interstitialAdler by lazy { InterstitialAdler(requireActivity()) }
 
     private val views by bindViews(FragmentPostBinding::bind)
 

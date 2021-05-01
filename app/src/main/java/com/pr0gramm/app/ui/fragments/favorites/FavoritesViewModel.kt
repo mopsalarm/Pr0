@@ -32,7 +32,7 @@ class FavoritesViewModel(
             else -> flow {
                 // fetch collections once
                 val info = userService.info(user)
-                emit(PostCollection.fromApi(info.collections))
+                emit(PostCollection.fromApi(info))
             }
         }
 

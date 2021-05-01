@@ -5,7 +5,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.pr0gramm.app.R
-import com.pr0gramm.app.databinding.FragmentFavoritesBinding
+import com.pr0gramm.app.databinding.FragmentCollectionsBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.ui.*
@@ -21,8 +21,8 @@ import kotlinx.coroutines.flow.collect
 
 /**
  */
-class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_favorites), FilterFragment, TitleFragment {
-    private val views by bindViews(FragmentFavoritesBinding::bind)
+class CollectionsFragment : BaseFragment("CollectionsFragment", R.layout.fragment_collections), FilterFragment, TitleFragment {
+    private val views by bindViews(FragmentCollectionsBinding::bind)
 
     private val model by viewModels {
         FavoritesViewModel(
@@ -57,11 +57,11 @@ class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_fa
                 val tabs = collections.mapTo(ArrayList()) { collection ->
                     val filter = FeedFilter()
                             .withFeedType(FeedType.NEW)
-                            .withCollection(model.user, collection.key, collection.title)
+                            .withCollection(model.user, collection)
 
                     TabsStateAdapter.TabInfo(
                             id = collection.id,
-                            title = collection.title,
+                            title = collection.titleWithOwner,
                             fragmentConstructor = ::FeedFragment,
                             args = FeedFragment.newEmbedArguments(filter),
                     )
@@ -107,8 +107,8 @@ class FavoritesFragment : BaseFragment("FavoritesFragment", R.layout.fragment_fa
     companion object {
         const val ARG_USERNAME = "FavoritesFragment.username"
 
-        fun newInstance(username: String): FavoritesFragment {
-            return FavoritesFragment().arguments {
+        fun newInstance(username: String): CollectionsFragment {
+            return CollectionsFragment().arguments {
                 putString(ARG_USERNAME, username)
             }
         }
