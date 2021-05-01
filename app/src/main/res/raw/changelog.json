@@ -1,5 +1,14 @@
 [
   {
+    "version": 191,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "In der App werden nun die kuratierten Sammlungen angezeigt."
+      }
+    ]
+  },
+  {
     "version": 190,
     "changes": [
       {
