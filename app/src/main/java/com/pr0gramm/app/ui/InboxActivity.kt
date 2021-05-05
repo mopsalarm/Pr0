@@ -54,11 +54,6 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
         val types = InboxType.values().toMutableList()
 
-        if (!userService.userIsPremium) {
-            types -= InboxType.STALK
-        }
-
-
         types.forEach { type ->
             when (type) {
                 InboxType.PRIVATE -> tabsAdapter.addTab(getString(R.string.inbox_type_private), id = InboxType.PRIVATE) {

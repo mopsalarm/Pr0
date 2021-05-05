@@ -204,33 +204,31 @@ class NavigationProvider(
     }
 
     private fun bookmarksToNavItem(currentSelection: FeedFilter?, bookmarks: List<Bookmark>): List<NavigationItem> {
-        val items = bookmarks
-                .filter { userService.userIsPremium || it.asFeedFilter().feedType !== FeedType.STALK }
-                .mapTo(mutableListOf()) { entry ->
+        val items = bookmarks.mapTo(mutableListOf()) { entry ->
 
-                    val filter = entry.asFeedFilter()
-                    val filterInverse = filter.invert()
+            val filter = entry.asFeedFilter()
+            val filterInverse = filter.invert()
 
-                    val icon = when {
-                        entry.trending -> iconBookmarkTrending.constantState!!.newDrawable()
-                        else -> iconBookmark.constantState!!.newDrawable()
-                    }
+            val icon = when {
+                entry.trending -> iconBookmarkTrending.constantState!!.newDrawable()
+                else -> iconBookmark.constantState!!.newDrawable()
+            }
 
-                    val layoutId = when {
-                        entry.trending && filterInverse != null -> R.layout.left_drawer_nav_item_trending
-                        else -> R.layout.left_drawer_nav_item
-                    }
+            val layoutId = when {
+                entry.trending && filterInverse != null -> R.layout.left_drawer_nav_item_trending
+                else -> R.layout.left_drawer_nav_item
+            }
 
-                    val title = entry.title
+            val title = entry.title
 
-                    val isSelected = filter == currentSelection || filterInverse == currentSelection
+            val isSelected = filter == currentSelection || filterInverse == currentSelection
 
-                    NavigationItem(
-                            action = ActionType.BOOKMARK, layout = layoutId,
-                            title = title, icon = icon, bookmark = entry,
-                            filter = filter, filterInverse = filterInverse,
-                            isSelected = isSelected)
-                }
+            NavigationItem(
+                    action = ActionType.BOOKMARK, layout = layoutId,
+                    title = title, icon = icon, bookmark = entry,
+                    filter = filter, filterInverse = filterInverse,
+                    isSelected = isSelected)
+        }
 
         val actionKey = "hint:bookmark-hold-to-delete:2"
 
