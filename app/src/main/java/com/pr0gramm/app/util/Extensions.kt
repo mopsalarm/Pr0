@@ -275,7 +275,7 @@ inline fun <F : Fragment> F.arguments(builder: Bundle.() -> Unit): F {
     return this
 }
 
-inline fun <K, V> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V): V {
+inline fun <K : Any, V : Any> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V): V {
     return get(key) ?: run {
         val value = creator(key)
         put(key, value)

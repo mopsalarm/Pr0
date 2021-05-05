@@ -155,7 +155,7 @@ object BrowserHelper {
         val activity = AndroidUtility.activityFromContext(context)
 
         // we only want to do handover for pr0gramm urls
-        val externalUri = uri.host?.toLowerCase() != "pr0gramm.com"
+        val externalUri = uri.host?.lowercase() != "pr0gramm.com"
 
         // the user needs to be signed in for handover to make sense
         val userService = context.injector.instance<UserService>()

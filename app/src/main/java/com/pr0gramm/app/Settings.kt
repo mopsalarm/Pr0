@@ -23,7 +23,7 @@ import java.util.*
 /**
  */
 object Settings {
-    private lateinit var context: Context
+    private lateinit var context: Application
     private lateinit var preferences: SharedPreferences
 
     private val preferenceChanged = BroadcastChannel<String>(16)
@@ -175,7 +175,7 @@ object Settings {
     val imageSearchEngine: ShareService.ImageSearchEngine
         get() {
             val pref = preferences.getString("pref_image_search_engine", null) ?: ""
-            val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.toUpperCase(Locale.ROOT))
+            val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.lowercase())
             return value ?: ShareService.ImageSearchEngine.IMGOPS
         }
 
@@ -241,7 +241,7 @@ object Settings {
 
         // react to changes
         preferences.registerOnSharedPreferenceChangeListener { _, key ->
-            preferenceChanged.offer(key)
+            preferenceChanged.trySend(key).isSuccess
         }
     }
 }

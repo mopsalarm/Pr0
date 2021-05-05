@@ -8,7 +8,7 @@ import java.io.IOException
 import java.util.*
 
 class ExceptionHandler private constructor(
-        private val delegate: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
+        private val delegate: Thread.UncaughtExceptionHandler?) : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, err: Throwable) {
         if (err.causalChain.containsType<CancellationException>()) {
@@ -31,7 +31,7 @@ class ExceptionHandler private constructor(
 
         writeStacktraceToFile(thread, err)
 
-        delegate.uncaughtException(thread, err)
+        delegate?.uncaughtException(thread, err)
     }
 
     private fun writeStacktraceToFile(thread: Thread, err: Throwable) {
