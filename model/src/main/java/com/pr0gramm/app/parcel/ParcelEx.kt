@@ -3,7 +3,6 @@ package com.pr0gramm.app.parcel
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.listOfSize
-import java.lang.reflect.ParameterizedType
 
 inline fun <reified T : Parcelable> creator(crossinline createFromParcel: (Parcel) -> T): Parcelable.Creator<T> {
     return object : Parcelable.Creator<T> {
@@ -61,10 +60,7 @@ fun Parcel.readBooleanCompat(): Boolean {
 }
 
 
-abstract class SimpleCreator<T : Parcelable> : Parcelable.Creator<T> {
-    @Suppress("UNCHECKED_CAST")
-    private val type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<T>
-
+abstract class SimpleCreator<T : Parcelable>(private val type: Class<T>) : Parcelable.Creator<T> {
     override fun newArray(size: Int): Array<T> {
         @Suppress("UNCHECKED_CAST")
         return java.lang.reflect.Array.newInstance(type, size) as Array<T>
@@ -73,9 +69,12 @@ abstract class SimpleCreator<T : Parcelable> : Parcelable.Creator<T> {
     abstract override fun createFromParcel(source: Parcel): T
 }
 
-open class ConstructorCreator<T : Parcelable>(private val constructor: (Parcel) -> T) : SimpleCreator<T>() {
+
+open class ConstructorCreator<T : Parcelable>(private val type: Class<T>, private val constructor: (Parcel) -> T) : SimpleCreator<T>(type) {
     override fun createFromParcel(source: Parcel): T {
         return constructor(source)
     }
 }
 
+
+inline fun <reified T : Any> javaClassOf(): Class<T> = T::class.java

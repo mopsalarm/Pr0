@@ -4,6 +4,7 @@ import android.os.Parcel
 import com.google.android.gms.common.util.Strings.emptyToNull
 import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.SimpleCreator
+import com.pr0gramm.app.parcel.javaClassOf
 import com.pr0gramm.app.services.PostCollection
 import java.util.*
 
@@ -160,7 +161,7 @@ class FeedFilter : DefaultParcelable {
         dest.writeString(collectionTitle)
     }
 
-    companion object CREATOR : SimpleCreator<FeedFilter>() {
+    companion object CREATOR : SimpleCreator<FeedFilter>(javaClassOf()) {
         private val values: Array<FeedType> = FeedType.values()
 
         override fun createFromParcel(source: Parcel): FeedFilter {

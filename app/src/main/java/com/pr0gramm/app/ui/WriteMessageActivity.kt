@@ -372,7 +372,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             }
         }
 
-        companion object CREATOR : SimpleCreator<ParentComments>() {
+        companion object CREATOR : SimpleCreator<ParentComments>(javaClassOf()) {
             override fun createFromParcel(source: Parcel): ParentComments {
                 val comments = source.readValues {
                     ParentComment(

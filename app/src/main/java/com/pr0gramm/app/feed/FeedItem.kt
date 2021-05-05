@@ -105,7 +105,7 @@ data class FeedItem(
         dest.writeInt(bits)
     }
 
-    companion object CREATOR : ConstructorCreator<FeedItem>({ source ->
+    companion object CREATOR : ConstructorCreator<FeedItem>(javaClassOf(), { source ->
         val id = source.readInt().toLong()
         val promotedId = source.readInt().toLong()
         val userId = source.readInt().toLong()

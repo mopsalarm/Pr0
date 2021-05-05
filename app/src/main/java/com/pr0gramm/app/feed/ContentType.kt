@@ -28,11 +28,11 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
         private val values: Array<ContentType> = values()
 
         fun combine(flags: Iterable<ContentType>): Int {
-            return flags.sumBy { it.flag }
+            return flags.sumOf { it.flag }
         }
 
         fun combine(vararg flags: ContentType): Int {
-            return flags.sumBy { it.flag }
+            return flags.sumOf { it.flag }
         }
 
         /**

@@ -79,7 +79,7 @@ object Logging {
             remoteLoggingHandler(level, tag, message)
         }
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG || level >= 4) {
             // log to stdout
             Log.println(level, tag, message)
         }

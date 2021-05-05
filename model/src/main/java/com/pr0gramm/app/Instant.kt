@@ -3,6 +3,7 @@ package com.pr0gramm.app
 import android.os.Parcel
 import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.SimpleCreator
+import com.pr0gramm.app.parcel.javaClassOf
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -61,7 +62,7 @@ class Instant(val millis: Long) : Comparable<Instant>, DefaultParcelable {
         return format.format(Date(millis))
     }
 
-    companion object CREATOR : SimpleCreator<Instant>() {
+    companion object CREATOR : SimpleCreator<Instant>(javaClassOf()) {
         fun now(): Instant = Instant(TimeFactory.currentTimeMillis())
 
         fun ofEpochSeconds(epochSeconds: Long): Instant {

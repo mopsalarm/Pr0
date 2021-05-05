@@ -155,7 +155,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             logger.debug { "parcel size is ${dest.dataSize() - parcelSize}b in $watch" }
         }
 
-        companion object CREATOR : SimpleCreator<FeedParcel>() {
+        companion object CREATOR : SimpleCreator<FeedParcel>(javaClassOf()) {
 
             override fun createFromParcel(source: Parcel): FeedParcel = with(source) {
                 val base = Feed(

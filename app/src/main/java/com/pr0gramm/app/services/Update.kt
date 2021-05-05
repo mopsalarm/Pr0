@@ -4,6 +4,7 @@ import android.os.Parcel
 import com.pr0gramm.app.model.update.UpdateModel
 import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.SimpleCreator
+import com.pr0gramm.app.parcel.javaClassOf
 import com.pr0gramm.app.parcel.readStringNotNull
 
 /**
@@ -20,7 +21,7 @@ data class Update(val version: Int, val apk: String, val changelog: String) : De
         dest.writeString(changelog)
     }
 
-    companion object CREATOR : SimpleCreator<Update>() {
+    companion object CREATOR : SimpleCreator<Update>(javaClassOf()) {
         override fun createFromParcel(source: Parcel): Update {
             return Update(
                     version = source.readInt(),

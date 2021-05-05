@@ -11,7 +11,7 @@ class NewCommentParceler(val value: Api.NewComment) : DefaultParcelable {
         dest.write(CommentListParceler(value.comments))
     }
 
-    companion object CREATOR : SimpleCreator<NewCommentParceler>() {
+    companion object CREATOR : SimpleCreator<NewCommentParceler>(javaClassOf()) {
         override fun createFromParcel(source: Parcel): NewCommentParceler {
             return with(source) {
                 val id = readLong().takeIf { it > 0 }

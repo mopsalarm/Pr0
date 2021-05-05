@@ -20,7 +20,7 @@ class PrivateBrowserSpan(url: String) : URLSpan(url) {
         // check if youtube-links should be opened in normal app
         if (useIncognitoBrowser && Settings.overrideYouTubeLinks) {
             val host = Uri.parse(url).host
-            if (host != null && BLACKLIST.contains(host.toLowerCase(Locale.ROOT)))
+            if (host != null && BLACKLIST.contains(host.lowercase(Locale.ROOT)))
                 useIncognitoBrowser = false
         }
 

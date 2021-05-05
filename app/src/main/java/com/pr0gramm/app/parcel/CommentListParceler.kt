@@ -39,7 +39,7 @@ class CommentListParceler(val comments: List<Api.Comment>) : DefaultParcelable {
         dest.writeByteArray(bytes)
     }
 
-    companion object CREATOR : SimpleCreator<CommentListParceler>() {
+    companion object CREATOR : SimpleCreator<CommentListParceler>(javaClassOf()) {
         override fun createFromParcel(source: Parcel): CommentListParceler {
             val bytes = source.createByteArray() ?: return CommentListParceler(listOf())
 

@@ -23,7 +23,7 @@ class MessageSerializer(val message: Message) : DefaultParcelable {
         dest.writeString(message.image ?: "")
     }
 
-    companion object CREATOR : SimpleCreator<MessageSerializer>() {
+    companion object CREATOR : SimpleCreator<MessageSerializer>(javaClassOf()) {
         override fun createFromParcel(source: Parcel): MessageSerializer = with(source) {
             MessageSerializer(Message(
                     read = true,
