@@ -5,7 +5,7 @@ import java.text.DecimalFormatSymbols
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-inline class Duration(private val nanos: Long) {
+class Duration(private val nanos: Long) {
     fun convertTo(unit: TimeUnit): Long {
         return unit.convert(nanos, TimeUnit.NANOSECONDS)
     }

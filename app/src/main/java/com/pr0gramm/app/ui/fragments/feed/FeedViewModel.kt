@@ -26,7 +26,6 @@ import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import kotlin.math.abs
-import kotlin.time.seconds
 
 class FeedViewModel(
         private val savedState: SavedState,
@@ -74,7 +73,7 @@ class FeedViewModel(
     }
 
     private suspend fun observePreloadState() {
-        preloadManager.items.sample(1.seconds).collect { items ->
+        preloadManager.items.sample(1_000).collect { items ->
             feedState.update { previousState -> previousState.copy(preloadedItemIds = items) }
         }
     }

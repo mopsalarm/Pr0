@@ -1,6 +1,6 @@
 package com.pr0gramm.app
 
-inline class Stopwatch(private val startTime: Long = System.nanoTime()) {
+class Stopwatch(private val startTime: Long = System.nanoTime()) {
 
     private val nanos get() = System.nanoTime() - startTime
 

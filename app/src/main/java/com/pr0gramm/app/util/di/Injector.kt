@@ -25,7 +25,7 @@ class InstanceProvider<T : Any>(private val value: T) : Provider<T> {
     }
 }
 
-private inline class RecursionChecker(private val flag: AtomicBoolean) {
+private class RecursionChecker(private val flag: AtomicBoolean) {
     constructor() : this(AtomicBoolean())
 
     fun check() {

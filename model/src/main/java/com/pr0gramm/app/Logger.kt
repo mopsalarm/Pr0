@@ -5,7 +5,7 @@ import android.util.Log
 import com.pr0gramm.app.model.BuildConfig
 import java.util.concurrent.atomic.AtomicInteger
 
-inline class Logger(val name: String) {
+class Logger(val name: String) {
     inline fun debug(block: () -> String) {
         if (BuildConfig.DEBUG) {
             Logging.log(Log.DEBUG, name, block())

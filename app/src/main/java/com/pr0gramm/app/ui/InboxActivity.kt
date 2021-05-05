@@ -52,9 +52,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
         tabsAdapter = TabsStateAdapter(this)
 
-        val types = InboxType.values().toMutableList()
-
-        types.forEach { type ->
+        InboxType.values().forEach { type ->
             when (type) {
                 InboxType.PRIVATE -> tabsAdapter.addTab(getString(R.string.inbox_type_private), id = InboxType.PRIVATE) {
                     ConversationsFragment()

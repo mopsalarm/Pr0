@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.squareup.sqldelight:gradle-plugin:1.4.4'
+        classpath 'com.squareup.sqldelight:gradle-plugin:1.5.0'
     }
 }
 
@@ -55,16 +55,16 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.32"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-RC"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0-RC"
 
     implementation "com.squareup.moshi:moshi:1.12.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.okhttp3:okhttp:4.9.1"
 
-    api "com.squareup.sqldelight:android-driver:1.4.4"
-    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.4.4"
+    api "com.squareup.sqldelight:android-driver:1.5.0"
+    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.0"
 
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.12.0'
 }

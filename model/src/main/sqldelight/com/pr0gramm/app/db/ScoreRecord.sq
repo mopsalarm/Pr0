@@ -1,9 +1,9 @@
 
 CREATE TABLE scoreRecord (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    score INTEGER as Int NOT NULL,
+    score INTEGER AS Int NOT NULL,
     time INTEGER NOT NULL,
-    owner_id INTEGER as Int NOT NULL
+    owner_id INTEGER AS Int NOT NULL
 );
 
 CREATE INDEX scoreRecord_time ON scoreRecord(time);
