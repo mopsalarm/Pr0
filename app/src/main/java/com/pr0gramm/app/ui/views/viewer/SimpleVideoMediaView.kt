@@ -14,6 +14,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
@@ -21,7 +22,6 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.video.VideoListener
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -137,9 +137,13 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             arrayOf(FragmentedMp4Extractor(), Mp4Extractor())
         }
 
+        val mediaItem = MediaItem.Builder()
+                .setUri(effectiveUri)
+                .build()
+
         val mediaSource = ProgressiveMediaSource
                 .Factory(dataSourceFactory, extractorsFactory)
-                .createMediaSource(effectiveUri)
+                .createMediaSource(mediaItem)
 
         exo = ExoPlayerRecycler.get(context).apply {
             setVideoTextureView(find(R.id.texture_view))
@@ -150,9 +154,9 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
             // don't forget to remove listeners in stop()
             addListener(playerListener)
-            addVideoListener(videoListener)
 
-            prepare(mediaSource, false, false)
+            setMediaSource(mediaSource, false)
+            prepare()
 
             SeekController.restore(config.mediaUri.id, this)
         }
@@ -179,10 +183,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             this.exo = null
 
             if (Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
-                exo.stop(true)
+                exo.stop()
+                exo.clearMediaItems()
 
                 exo.removeListener(playerListener)
-                exo.removeVideoListener(videoListener)
                 exo.setVideoTextureView(null)
 
                 ExoPlayerRecycler.release(exo)
@@ -281,7 +285,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         }
     }
 
-    private val playerListener = object : Player.EventListener {
+    private val playerListener = object : Player.Listener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             showBusyIndicator(playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING)
         }
@@ -289,9 +293,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             updatePauseViewIcon()
         }
-    }
 
-    private val videoListener = object : VideoListener {
         override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
             if (viewAspect < 0) {
                 viewAspect = width.toFloat() / height.toFloat() * pixelWidthHeightRatio
