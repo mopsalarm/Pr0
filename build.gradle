@@ -2,20 +2,19 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "1.5.0" apply false
-    id "org.jetbrains.kotlin.kapt" version "1.5.0" apply false
+    id "org.jetbrains.kotlin.android" version "1.5.21" apply false
+    id "org.jetbrains.kotlin.kapt" version "1.5.21" apply false
     id "com.github.ben-manes.versions" version "0.38.0"
 }
 
@@ -36,9 +35,7 @@ dependencyUpdates.resolutionStrategy {
 allprojects {
     repositories {
         google()
-        jcenter()
-
-        // maven { url 'https://kotlin.bintray.com/kotlinx' }
+        mavenCentral()
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
