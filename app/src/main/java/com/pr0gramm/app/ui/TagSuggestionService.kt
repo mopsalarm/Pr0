@@ -4,11 +4,13 @@ import android.widget.ArrayAdapter
 import android.widget.MultiAutoCompleteTextView
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.delay
+import com.pr0gramm.app.seconds
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.retryUpTo
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.ByteString.Companion.encode
+import java.util.*
 
 /**
  */
@@ -24,7 +26,7 @@ class TagSuggestionService(api: Api) {
         logger.info { "Query for tag top- and blacklist" }
 
         AsyncScope.launch {
-            retryUpTo(5, { delay(60 * 1000) }) {
+            retryUpTo(5, { delay(60.seconds) }) {
                 val result = api.topTags()
 
                 tags = result.tags
@@ -50,7 +52,7 @@ class TagSuggestionService(api: Api) {
     }
 
     private fun isQuestionableTag(tag: CharSequence): Boolean {
-        val lower = tag.toString().toLowerCase()
+        val lower = tag.toString().lowercase(Locale.getDefault())
 
         val hash = lower.encode(Charsets.UTF_8)
                 .md5().hex().substring(0, 8)

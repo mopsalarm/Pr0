@@ -1,14 +1,10 @@
 package com.pr0gramm.app.sync
 
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.Settings
-import com.pr0gramm.app.Stats
+import com.pr0gramm.app.*
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.unless
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
@@ -17,7 +13,6 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 
 /**

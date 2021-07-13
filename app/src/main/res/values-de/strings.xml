@@ -558,8 +558,8 @@
     <string name="hint_shrink_image">Das ausgewählte Bild ist zu groß. Die App kann es für dich verkleinern.</string>
     <string name="hint_shrink_video">Das ausgewählte Video ist zu groß. Wähle bitte ein kleines Video aus.</string>
     <string name="action_shrink">Verkleinern</string>
-    <string name="action_scroll_unseen">Erster ungesehener Hochlad</string>
-    <string name="action_scroll_seen">Erster gesehener Hochlad</string>
+    <string name="action_scroll_unseen">Nächster ungesehener Hochlad</string>
+    <string name="action_scroll_seen">Nächster gesehener Hochlad</string>
     <string name="error_max_scroll_reached">Maximale Scrollweite erreicht. Probiere es einfach nochmal.</string>
     <string name="changelog">Changelog</string>
 

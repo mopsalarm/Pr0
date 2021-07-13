@@ -18,9 +18,7 @@ import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
@@ -371,6 +369,40 @@ class FeedViewModel(
             savedState.highlightedItemIds = feedState.highlightedItemIds.toLongArray()
             savedState.lastSavedId = itemId
         }
+    }
+
+    suspend fun findNextWith(matcher: (state: FeedState, itemId: Long) -> Boolean): FeedItem? {
+        return feedState
+                .flatMapConcat { feedState ->
+                    val targetItem = feedState.feed.firstOrNull { item ->
+                        matcher(feedState, item.id) && !item.isPinned
+                    }
+
+                    when {
+                        feedState.feed.isEmpty() && feedState.feed.isAtEnd -> {
+                            flowOf(feedState.feed.lastOrNull())
+                        }
+
+                        feedState.feed.size > 4000 -> {
+                            // no result within the first few pages
+                            throw StringException("max scroll distance reached", R.string.error_max_scroll_reached)
+                        }
+
+                        targetItem != null -> {
+                            flowOf(targetItem)
+                        }
+
+                        !feedState.isLoading -> {
+                            // load next page!
+                            triggerLoadNext()
+                            emptyFlow()
+                        }
+
+                        // emit nothing, wait for next update
+                        else -> emptyFlow()
+                    }
+                }
+                .firstOrNull()
     }
 
     class SavedState(handle: SavedStateHandle) : SavedStateAccessor(handle) {

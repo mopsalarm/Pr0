@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
@@ -21,7 +22,6 @@ import retrofit2.HttpException
 import java.io.*
 import java.util.*
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 
 /**
@@ -123,9 +123,9 @@ class UploadService(private val api: Api,
                 throw FileNotFoundException("Can not read file to upload")
 
             // prepare the upload
-            offer(State.Uploading(progress = 0f))
+            this.trySend(State.Uploading(progress = 0f)).isSuccess
 
-            val image = RequestBodyWithProgress(file) { state -> offer(state) }
+            val image = RequestBodyWithProgress(file) { state -> this.trySend(state).isSuccess }
 
             val body = MultipartBody.Builder()
                     .setType("multipart/form-data".toMediaTypeOrNull()!!)
@@ -146,7 +146,7 @@ class UploadService(private val api: Api,
     fun post(key: String, contentType: ContentType, userTags: Set<String>,
              checkSimilar: Boolean): Flow<State> {
 
-        val contentTypeTag = contentType.name.toLowerCase(Locale.ROOT)
+        val contentTypeTag = contentType.name.lowercase(Locale.ROOT)
         val tags = userTags.map { it.trim() }.filter { isValidTag(it) }
 
         // we can only post 4 extra tags with an upload, so lets add the rest later
@@ -209,7 +209,7 @@ class UploadService(private val api: Api,
     private fun waitOnQueue(queue: Long): Flow<State> {
         return flow {
             while (true) {
-                kotlinx.coroutines.delay(2.seconds)
+                kotlinx.coroutines.delay(2.seconds.inMillis)
 
                 // get the current state from the queue - on error just try again.
                 val info = try {
@@ -318,19 +318,19 @@ class UploadService(private val api: Api,
 
 fun isValidTag(tag: String): Boolean {
     val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound", "text")
-    val invalid = tag.toLowerCase(Locale.ROOT) in invalidTags || tag.length < 2 || tag.length > 32
+    val invalid = tag.lowercase(Locale.ROOT) in invalidTags || tag.length < 2 || tag.length > 32
     return !invalid
 }
 
 fun isMoreRestrictiveContentTypeTag(tags: List<String>, tag: String): Boolean {
     val sorted = listOf("sfw", "nsfp", "nsfw", "nsfl")
 
-    val newTagIndex = sorted.indexOf(tag.toLowerCase(Locale.ROOT))
+    val newTagIndex = sorted.indexOf(tag.lowercase(Locale.ROOT))
     if (newTagIndex < 0) {
         return false
     }
 
-    val maxExistingTagIndex = tags.map { sorted.indexOf(it.toLowerCase(Locale.ROOT)) }.maxOrNull()
+    val maxExistingTagIndex = tags.map { sorted.indexOf(it.lowercase(Locale.ROOT)) }.maxOrNull()
     return maxExistingTagIndex == null || maxExistingTagIndex < newTagIndex
 }
 

@@ -7,7 +7,7 @@ class OnceEvery(val interval: Duration) {
 
     fun isTime(): Boolean {
         val now = System.currentTimeMillis()
-        if (now - last > interval.millis) {
+        if (now - last > interval.inMillis) {
             last = now
             return true
         }

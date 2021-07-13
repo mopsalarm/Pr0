@@ -117,7 +117,7 @@ open class ApplicationClass : Application(), InjectorAware {
 
         logger.info { "App booted in $bootupWatch" }
 
-        Stats().histogram("app.boot.time", bootupWatch.elapsed().millis)
+        Stats().histogram("app.boot.time", bootupWatch.elapsed().inMillis)
     }
 
     private fun initializeFirebase() {

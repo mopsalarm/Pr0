@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.milliseconds
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
@@ -24,13 +25,12 @@ import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.observeChange
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withTimeout
 import kotterknife.bindView
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.minutes
 
 @OptIn(ExperimentalTime::class)
 class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
@@ -93,7 +93,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         launchWhenCreated(ignoreErrors = true) {
             // delay querying the data for a moment
-            delay(200)
+            com.pr0gramm.app.util.delay(200.milliseconds)
 
             // and get the values now.
             benisValues = userService.loadBenisRecords().records
@@ -107,7 +107,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private suspend fun showContentTypes(view: CircleChartView, username: String) {
-        withTimeout(1.minutes) {
+        withTimeout(Duration.minutes(1)) {
             statsService.statsForUploads(username).collect { state ->
                 showContentTypes(view, state)
             }
@@ -131,8 +131,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     @SuppressLint("SetTextI18n")
     private fun handleVoteCounts(votes: Map<CachedVote.Type, VoteService.Summary>) {
-        voteCountUp.text = "UP " + votes.values.sumBy { it.up }
-        voteCountDown.text = "DOWN " + votes.values.sumBy { it.down }
+        voteCountUp.text = "UP " + votes.values.sumOf<T>({ it.up })
+        voteCountDown.text = "DOWN " + votes.values.sumOf<T>({ it.down })
 
         votesByTags.chartValues = toChartValues(votes[CachedVote.Type.TAG])
         votesByItems.chartValues = toChartValues(votes[CachedVote.Type.ITEM])

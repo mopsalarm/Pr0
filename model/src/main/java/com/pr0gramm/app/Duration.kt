@@ -11,7 +11,7 @@ class Duration(private val nanos: Long) {
     }
 
     // value in milliseconds
-    val millis: Long get() = convertTo(TimeUnit.MILLISECONDS)
+    val inMillis: Long get() = convertTo(TimeUnit.MILLISECONDS)
 
     override fun toString(): String {
         val unit = chooseUnit(nanos)
@@ -77,4 +77,11 @@ class Duration(private val nanos: Long) {
             }
         }
     }
+}
+
+val Number.milliseconds: Duration get() = Duration.millis(toLong())
+val Number.seconds: Duration get() = Duration.seconds(toLong())
+
+suspend fun delay(amount: Duration) {
+    kotlinx.coroutines.delay(amount.inMillis)
 }

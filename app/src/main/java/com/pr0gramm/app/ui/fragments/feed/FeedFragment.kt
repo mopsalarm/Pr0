@@ -760,56 +760,26 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_block_user -> onBlockUserClicked()
             R.id.action_search -> resetAndShowSearchContainer()
             R.id.action_open_in_admin -> openUserInAdmin()
-            R.id.action_scroll_seen -> scrollToFirstSeenAsync()
-            R.id.action_scroll_unseen -> scrollToFirstUnseenAsync()
+            R.id.action_scroll_seen -> scrollToNextSeenAsync()
+            R.id.action_scroll_unseen -> scrollToNextUnseenAsync()
 
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun scrollToFirstSeenAsync() {
-        scrollToFirstAsync { state, itemId -> itemId in state.seen }
+    private fun scrollToNextSeenAsync() {
+        val maxId = findLastVisibleFeedItem()?.id
+        scrollToNextAsync { state, itemId -> itemId in state.seen && (maxId == null || itemId < maxId) }
     }
 
-    private fun scrollToFirstUnseenAsync() {
-        scrollToFirstAsync { state, itemId -> itemId !in state.seen }
+    private fun scrollToNextUnseenAsync() {
+        val maxId = findLastVisibleFeedItem()?.id
+        scrollToNextAsync { state, itemId -> itemId !in state.seen && (maxId == null || itemId < maxId) }
     }
 
-    private fun scrollToFirstAsync(matcher: (state: FeedViewModel.FeedState, itemId: Long) -> Boolean): Job {
+    private fun scrollToNextAsync(matcher: (state: FeedViewModel.FeedState, itemId: Long) -> Boolean): Job {
         return launchUntilViewDestroy(busyIndicator = true) {
-            val targetItemFlow = feedStateModel.feedState.flatMapConcat { feedState ->
-                logger.info { "feedSize=${feedState.feed.size}, seenCount=${feedState.seen.size}" }
-
-                val targetItem = feedState.feed.firstOrNull { item ->
-                    matcher(feedState, item.id) && !item.isPinned
-                }
-
-                when {
-                    feedState.feed.isEmpty() && feedState.feed.isAtEnd -> {
-                        flowOf(feedState.feed.lastOrNull())
-                    }
-
-                    feedState.feed.size > 4000 -> {
-                        // no result within the first few pages
-                        throw StringException("max scroll distance reached", R.string.error_max_scroll_reached)
-                    }
-
-                    targetItem != null -> {
-                        flowOf(targetItem)
-                    }
-
-                    !feedState.isLoading -> {
-                        // load next page!
-                        feedStateModel.triggerLoadNext()
-                        emptyFlow()
-                    }
-
-                    // emit nothing, wait for next update
-                    else -> emptyFlow()
-                }
-            }
-
-            val targetItem = targetItemFlow.firstOrNull() ?: return@launchUntilViewDestroy
+            val targetItem = feedStateModel.findNextWith(matcher) ?: return@launchUntilViewDestroy
             autoScrollRef = ScrollRef(CommentRef(targetItem), smoothScroll = true)
 
             // ensure we're starting the scroll even if the view is already layouted.

@@ -18,15 +18,13 @@ import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
+import java.util.*
 
 /**
  */
-@OptIn(ExperimentalTime::class)
 class BookmarkService(
         private val preferences: SharedPreferences,
         private val userService: UserService,
@@ -48,13 +46,13 @@ class BookmarkService(
             // serialize updates back to the preferences
             bookmarks.drop(1)
                     .distinctUntilChanged()
-                    .debounce(100.milliseconds)
+                    .debounce(100)
                     .collect { persist(it) }
         }
 
         AsyncScope.launch {
             userService.loginStates
-                    .debounce(100.milliseconds)
+                    .debounce(100)
                     .collect { updateQueue.send { update() } }
         }
 
@@ -102,7 +100,7 @@ class BookmarkService(
      * Observes change to the bookmarks
      */
     fun observe(): Flow<List<Bookmark>> {
-        val comparator = compareBy<Bookmark> { !it.trending }.thenBy { it.title.toLowerCase() }
+        val comparator = compareBy<Bookmark> { !it.trending }.thenBy { it.title.lowercase(Locale.getDefault()) }
         return bookmarks.map { it.sortedWith(comparator) }.distinctUntilChanged()
     }
 
@@ -125,7 +123,7 @@ class BookmarkService(
     }
 
     private fun mergeWithAsync(block: suspend () -> List<Bookmark>) {
-        updateQueue.sendBlocking { mergeWith(block) }
+        updateQueue.trySendBlocking { mergeWith(block) }
     }
 
     private suspend fun mergeWith(block: suspend () -> List<Bookmark>) {
@@ -146,7 +144,7 @@ class BookmarkService(
             val local = bookmarks.value.filter { it._link == null || it.notSyncable }
 
             // and merge them together, with the local ones winning.
-            val merged = (local + update).distinctBy { it.title.toLowerCase() }
+            val merged = (local + update).distinctBy { it.title.lowercase(Locale.getDefault()) }
 
             bookmarks.value = merged
         }

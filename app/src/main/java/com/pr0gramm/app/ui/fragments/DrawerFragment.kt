@@ -49,13 +49,11 @@ import com.pr0gramm.app.util.di.instance
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
 
 /**
  *
  */
-@OptIn(ExperimentalStdlibApi::class, ExperimentalTime::class)
+@OptIn(ExperimentalStdlibApi::class)
 class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
@@ -115,7 +113,7 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
         }
 
         launchWhenStarted {
-            elements.distinctUntilChanged().debounce(100.milliseconds).collect { items ->
+            elements.distinctUntilChanged().debounce(100).collect { items ->
                 logger.debug { "Submitting ${items.size} navigation items" }
                 navigationAdapter.submitList(items)
             }

@@ -44,9 +44,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.WorkRequest
 import com.pr0gramm.app.*
+import com.pr0gramm.app.delay
 import com.pr0gramm.app.ui.views.CompatibleTextView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.Closeable
@@ -636,7 +636,7 @@ fun View.addOnDetachListener(listener: () -> Unit): View.OnAttachStateChangeList
 }
 
 suspend fun runEvery(period: Duration, initial: Duration = Duration.Zero, task: suspend () -> Unit) {
-    if (initial.millis > 0) {
+    if (initial.inMillis > 0) {
         delay(initial)
     }
 
@@ -647,12 +647,12 @@ suspend fun runEvery(period: Duration, initial: Duration = Duration.Zero, task: 
             AndroidUtility.logToCrashlytics(err)
         }
 
-        delay(period.millis)
+        delay(period)
     }
 }
 
 suspend fun delay(duration: Duration) {
-    delay(duration.millis)
+    kotlinx.coroutines.delay(duration.inMillis)
 }
 
 fun File.updateTimestamp(): Boolean {

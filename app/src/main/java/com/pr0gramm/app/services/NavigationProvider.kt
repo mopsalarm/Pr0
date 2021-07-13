@@ -6,9 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
-import com.pr0gramm.app.Logger
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -19,15 +17,11 @@ import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runInterruptible
-import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 /**
  */
-@OptIn(ExperimentalTime::class)
 class NavigationProvider(
         private val context: Activity,
         private val userService: UserService,

@@ -23,11 +23,11 @@ class Instant(val millis: Long) : Comparable<Instant>, DefaultParcelable {
     }
 
     operator fun plus(d: Duration): Instant {
-        return Instant(millis + d.millis)
+        return Instant(millis + d.inMillis)
     }
 
     operator fun minus(d: Duration): Instant {
-        return Instant(millis - d.millis)
+        return Instant(millis - d.inMillis)
     }
 
     fun isBefore(other: Instant): Boolean {

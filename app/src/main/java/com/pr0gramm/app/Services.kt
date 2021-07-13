@@ -351,7 +351,7 @@ private class LoggingInterceptor : Interceptor {
 
 private class CustomDNS(appContext: Application) : Dns {
     private class CachedValue(val addresses: List<InetAddress>) {
-        private val expiresAt: Long = System.currentTimeMillis() + Duration.hours(1L).millis
+        private val expiresAt: Long = System.currentTimeMillis() + Duration.hours(1L).inMillis
         val isExpired: Boolean
             get() = expiresAt < System.currentTimeMillis()
     }

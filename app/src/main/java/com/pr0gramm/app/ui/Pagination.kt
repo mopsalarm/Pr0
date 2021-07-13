@@ -5,12 +5,12 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.seconds
 import com.pr0gramm.app.util.directName
 import com.pr0gramm.app.util.postOrSetValue
 import kotlinx.coroutines.*
 import kotlin.reflect.KMutableProperty0
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 class PaginationController(
         private val pagination: Pagination<*>,
@@ -92,7 +92,7 @@ class Pagination<E : Any>(private val baseScope: CoroutineScope, private val loa
             try {
                 if (previousStateWasError) {
                     logger.debug { "Was in error state, delay loading" }
-                    delay(1.seconds)
+                    delay(1.seconds.inMillis)
                 }
 
                 logger.debug { "Start loading" }

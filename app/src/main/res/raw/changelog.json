@@ -1,5 +1,14 @@
 [
   {
+    "version": 192,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Scrolle zum nächsten (un)gesehenen Beitrag"
+      }
+    ]
+  },
+  {
     "version": 191,
     "changes": [
       {
