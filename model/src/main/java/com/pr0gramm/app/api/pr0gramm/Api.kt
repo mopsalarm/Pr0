@@ -516,6 +516,8 @@ interface Api {
             val tagCount: Int,
             val likesArePublic: Boolean,
             val following: Boolean,
+            @Json(name = "pr0mium") val premiumTime: Int,
+            @Json(name = "pr0miumGift") val premiumGift: Int,
             val appLinks: List<AppLink>? = null
     ) : HasCollections {
 

@@ -141,6 +141,24 @@ class UserInfoView(context: Context) : FrameLayout(context) {
                     text = years.toString(), textColor = Color.WHITE)
         }
 
+        // add badge for "has X month of promium"
+        val premiumMonths = info.premiumTime / 30
+        if (premiumMonths > 0) {
+            badges += BadgeInfo(
+                    "pr0miumTime.png",
+                    context.getString(R.string.badge_premium, premiumMonths),
+                    text = premiumMonths.toString(), textColor = Color.WHITE)
+        }
+
+        // add badge for "has X month of promium"
+        val premiumGift = info.premiumGift
+        if (premiumGift > 0) {
+            badges += BadgeInfo(
+                    "pr0miumGift.png",
+                    context.getString(R.string.badge_premium_gift, premiumGift),
+                    text = premiumGift.toString(), textColor = Color.WHITE)
+        }
+
         info.badges.mapTo(badges) { badge ->
             BadgeInfo(badge.image, badge.description ?: "")
         }

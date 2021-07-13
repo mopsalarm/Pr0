@@ -359,6 +359,8 @@
     <string name="badge_deleted_items">Requested deletion of %d of his own items</string>
     <string name="badge_deleted_comments">Requested deletion of %d of his own comments</string>
     <string name="badge_time">More than %s years on pr0gramm</string>
+    <string name="badge_premium">Supported us with more than %d month of pr0mium</string>
+    <string name="badge_premium_gift">Gave pr0mium %d times to other users</string>
 
     <string name="dt_for_few_second">a few seconds</string>
     <string name="dt_for_n_seconds">$d seconds</string>

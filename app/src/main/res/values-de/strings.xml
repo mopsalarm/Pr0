@@ -389,6 +389,9 @@
     <string name="invite_redeemed">%1$s, vor %2$s</string>
     <string name="badge_comments">Mehr als %sk Kommentare</string>
     <string name="badge_time">Mehr als %s Jahre auf dem pr0gramm</string>
+    <string name="badge_premium">Hat das pr0gramm mit %d Monaten pr0mium unterstützt</string>
+    <string name="badge_premium_gift">Hat %d mal pr0mium verschenkt</string>
+
     <string name="add_tags_opinion_hint">Bedenke: Tags sind nicht als Ort für deine Meinung, sondern zur Beschreibung des Bildes gedacht.</string>
     <string name="action_actions">AKTIONEN</string>
     <string name="delete_comment_soft">Durch <i>[gelöscht]</i> ersetzen</string>
