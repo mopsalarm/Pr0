@@ -47,6 +47,10 @@ class ConversationViewModel(private val inboxService: InboxService, private val 
             pendingMessages.value = pendingMessages.value.filterNot { it === messageText }
         }
     }
+
+    suspend fun delete(name: String) {
+        inboxService.deleteConversation(name)
+    }
 }
 
 class ConversationSource(
