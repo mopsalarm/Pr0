@@ -15,11 +15,9 @@ import com.pr0gramm.app.databinding.FragmentConversationBinding
 import com.pr0gramm.app.delay
 import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.NotificationService
-import com.pr0gramm.app.ui.MainActivity
-import com.pr0gramm.app.ui.SimpleTextWatcher
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.fragments.EndOfViewSmoothScroller
-import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.collect
@@ -174,6 +172,8 @@ class ConversationFragment : BaseFragment("ConversationFragment", R.layout.fragm
 
             R.id.action_profile -> openUserProfile()
 
+            R.id.action_delete_conversation -> deleteConversation()
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -182,6 +182,13 @@ class ConversationFragment : BaseFragment("ConversationFragment", R.layout.fragm
         requireContext().startActivity<MainActivity> { intent ->
             intent.action = Intent.ACTION_VIEW
             intent.data = Uri.parse("https://pr0gramm.com/user/$conversationName")
+        }
+    }
+
+    private fun deleteConversation() {
+        launchWhenCreated(busyIndicator = true) {
+            model.delete(conversationName)
+            requireActivity().finish()
         }
     }
 

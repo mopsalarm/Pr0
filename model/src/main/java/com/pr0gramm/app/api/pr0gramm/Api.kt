@@ -138,6 +138,13 @@ interface Api {
             @Query("older") older: Long?
     ): Conversations
 
+    @FormUrlEncoded
+    @POST("/api/inbox/deleteConversation")
+    suspend fun deleteConversation(
+        @Field("_nonce") nonce: Nonce?,
+        @Field("recipientName") name: String
+    ): ConversationMessages
+
     @GET("/api/inbox/messages")
     suspend fun messagesWith(
             @Query("with") name: String,
@@ -375,12 +382,12 @@ interface Api {
     suspend fun collectionsGet(): Collections
 
     @FormUrlEncoded
-    @POST("api/collections/create")
-    suspend fun collectionsCreate(
-            @Field("_nonce") nonce: Nonce?,
-            @Field("name") name: String,
-            @Field("isPublic") isPublic: Int,
-            @Field("isDefault") isDefault: Int): CollectionCreated
+            @POST("api/collections/create")
+            suspend fun collectionsCreate(
+                    @Field("_nonce") nonce: Nonce?,
+                    @Field("name") name: String,
+                    @Field("isPublic") isPublic: Int,
+                    @Field("isDefault") isDefault: Int): CollectionCreated
 
     @FormUrlEncoded
     @POST("api/collections/edit")

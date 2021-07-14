@@ -189,6 +189,10 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
 
         return result
     }
+
+    suspend fun deleteConversation(name: String): Api.ConversationMessages {
+        return api.deleteConversation(null, name)
+    }
 }
 
 val Message.unreadId: String get() = if (isComment) "item:$itemId" else "${type}:${name}"
