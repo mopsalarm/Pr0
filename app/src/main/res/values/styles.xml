@@ -26,7 +26,7 @@
         <item name="imageButtonStyle">@style/BorderlessImageButtonStyle</item>
 
         <item name="colorControlNormal">?android:textColorPrimary</item>
-
+        <item name="colorOnSecondary">?android:textColorPrimary</item>
     </style>
 
     <style name="AppTheme.Orange">
