@@ -73,6 +73,7 @@ private val DefaultReportReasons = listOf(
 private val DefaultAdminReasons = listOf(
         "DMCA (Copyright) Anfrage",
         "Rechtswidriger Inhalt",
+        "Auf Anfrage",
         "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
         "Regel #2.1 - Suggestive oder nackte Darstellung von Minderjährigen",
         "Regel #2.2 - Rohe Gewalt an Minderjährigen",
@@ -98,7 +99,8 @@ private val DefaultAdminReasons = listOf(
         "Regel #14 - Screamer/Sound-getrolle",
         "Regel #15.1 - reiner Musikupload",
         "Regel #15.2 - Musikvideo",
-        "Regel #16.1 - unnötiges Markieren")
+        "Regel #16.1 - unnötiges Markieren",
+        "Regel #16.2 - Missbrauch der Melden-Funktion")
 
 private val DefaultUserClasses = listOf(
         Config.UserClass("#FFFFFF", "Schwuchtel"),
