@@ -44,7 +44,7 @@ data class Config(
 
 private val DefaultReportReasons = listOf(
         "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben",
-        "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+        "Regel #1 - Bild unzureichend getagged (nsfp/nsfw/nsfl)",
         "Regel #2.1 - Suggestive oder nackte Darstellung von Minderjährigen",
         "Regel #2.2 - Rohe Gewalt an Minderjährigen",
         "Regel #3.1 - Tierquälerei",
@@ -74,7 +74,7 @@ private val DefaultAdminReasons = listOf(
         "DMCA (Copyright) Anfrage",
         "Rechtswidriger Inhalt",
         "Auf Anfrage",
-        "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+        "Regel #1 - Bild unzureichend getagged (nsfp/nsfw/nsfl)",
         "Regel #2.1 - Suggestive oder nackte Darstellung von Minderjährigen",
         "Regel #2.2 - Rohe Gewalt an Minderjährigen",
         "Regel #3.1 - Tierquälerei",
