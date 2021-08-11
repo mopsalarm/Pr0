@@ -205,7 +205,7 @@ class PostViewModel(
     }
 
     suspend fun addTagsByUser(tags: List<String>) {
-        val previousTags = state.value.tags.map { tag -> tag.text.toLowerCase(Locale.GERMAN) }
+        val previousTags = state.value.tags.map { tag -> tag.text.lowercase(Locale.GERMAN) }
 
         // allow op to tag a more restrictive content type.
         val op = item.user.equals(userService.name, true) || userService.userIsAdmin

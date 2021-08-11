@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import com.pr0gramm.app.services.RecentSearchesServices
+import java.util.*
 
 /**
  * Auto complete adapter and filter for previous searches.
@@ -24,8 +25,8 @@ class RecentSearchesAutoCompleteAdapter(
             if (constraint == null || constraint.isBlank())
                 return filterResults(emptyList())
 
-            val term = constraint.toString().toLowerCase()
-            val filtered = suggestionService.searches().filter { term in it.toLowerCase() }
+            val term = constraint.toString().lowercase(Locale.getDefault())
+            val filtered = suggestionService.searches().filter { term in it.lowercase(Locale.getDefault()) }
             return filterResults(filtered)
         }
 

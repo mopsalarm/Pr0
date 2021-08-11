@@ -27,7 +27,7 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
     private val uniqueToken: String by lazy {
         val input = ConfigService.makeUniqueIdentifier(context, preferences)
-        input.encode(Charsets.UTF_8).md5().hex().toLowerCase(Locale.ROOT)
+        input.encode(Charsets.UTF_8).md5().hex().lowercase(Locale.ROOT)
     }
 
     private var httpCookie: okhttp3.Cookie? = null

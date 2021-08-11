@@ -38,7 +38,7 @@ class UserClassesService(configObservable: Flow<Config>) {
             Color.WHITE
         }
 
-        return UserClass(inputValue.name.toUpperCase(Locale.GERMANY), inputValue.symbol, color)
+        return UserClass(inputValue.name.uppercase(Locale.GERMANY), inputValue.symbol, color)
     }
 
     fun get(mark: Int): UserClass {

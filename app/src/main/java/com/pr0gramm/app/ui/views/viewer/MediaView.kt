@@ -360,7 +360,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     }
 
     protected fun publishControllerView(view: View) {
-        controllerViews.offer(view)
+        controllerViews.trySend(view).isSuccess
     }
 
     fun controllerViews(): Flow<View> {

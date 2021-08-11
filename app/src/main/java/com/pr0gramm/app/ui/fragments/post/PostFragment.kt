@@ -289,7 +289,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // take the best rated tag that is not excluded
         val title = tags.sortedByDescending { it.confidence }.firstOrNull {
-            val tag = it.text.toLowerCase(Locale.GERMANY)
+            val tag = it.text.lowercase(Locale.GERMANY)
             tag !in exclude && "loop" !in tag
         } ?: return
 
@@ -907,7 +907,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun isLoopTag(tag: Api.Tag): Boolean {
-        val lower = tag.text.toLowerCase(Locale.GERMANY)
+        val lower = tag.text.lowercase(Locale.GERMANY)
         return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
     }
 

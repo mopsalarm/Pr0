@@ -27,7 +27,7 @@ class ContentTypeDrawable(context: Context, types: Collection<ContentType>) : Dr
         } else {
             text = types
                     .filter { it !== ContentType.NSFP }
-                    .joinToString("\n") { it.name.toLowerCase(Locale.ROOT) }
+                    .joinToString("\n") { it.name.lowercase(Locale.ROOT) }
         }
     }
 

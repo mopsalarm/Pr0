@@ -289,7 +289,7 @@ private fun Any.debugVerifyLifecycle(lifecycleOwner: LifecycleOwner, expectedSta
 fun Lifecycle.asEventFlow(): Flow<Lifecycle.Event> = channelFlow {
     val observer = withContext(Dispatchers.Main.immediate) {
         val observer = LifecycleEventObserver { _, event ->
-            offer(event)
+            this@channelFlow.trySend(event).isSuccess
         }
 
         addObserver(observer)

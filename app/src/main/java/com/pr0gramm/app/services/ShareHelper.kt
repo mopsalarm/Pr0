@@ -156,7 +156,7 @@ class ShareService(private val cache: Cache) {
                 ".mp4" to "video/mp4",
                 ".gif" to "image/gif")
 
-        val extension = url.substring(url.length - 4).toLowerCase(Locale.ROOT)
+        val extension = url.substring(url.length - 4).lowercase(Locale.ROOT)
         return types[extension] ?: "application/binary"
     }
 

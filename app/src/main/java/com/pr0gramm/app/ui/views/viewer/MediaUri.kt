@@ -6,6 +6,7 @@ import android.net.Uri
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.isLocalFile
+import java.util.*
 
 /**
  */
@@ -35,10 +36,10 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
                     ?: throw IllegalArgumentException("uri must have a file component")
 
             var type = MediaType.IMAGE
-            if (name.toLowerCase().endsWith(".gif"))
+            if (name.lowercase(Locale.getDefault()).endsWith(".gif"))
                 type = MediaType.GIF
 
-            if (name.toLowerCase().matches(".*\\.(webm|mpe?g|mp4)".toRegex()))
+            if (name.lowercase(Locale.getDefault()).matches(".*\\.(webm|mpe?g|mp4)".toRegex()))
                 type = MediaType.VIDEO
 
             return MediaUri(id, uri, type)

@@ -102,7 +102,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
     }
 
     fun isValidNameForNewCollection(name: String): Boolean {
-        val existing = _collections.value.orEmpty().map { it.title.toLowerCase(Locale.getDefault()) }
+        val existing = _collections.value.orEmpty().map { it.title.lowercase(Locale.getDefault()) }
         return name.length in 2..20 && name !in existing
     }
 

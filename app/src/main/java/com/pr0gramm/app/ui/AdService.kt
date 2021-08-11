@@ -43,21 +43,21 @@ class AdService(private val configService: ConfigService, private val userServic
                 override fun onAdLoaded() {
                     super.onAdLoaded()
                     if (!isClosedForSend) {
-                        offer(AdLoadState.SUCCESS)
+                        this@channelFlow.trySend(AdLoadState.SUCCESS).isSuccess
                     }
                 }
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
                     if (!isClosedForSend) {
-                        offer(AdLoadState.FAILURE)
+                        this@channelFlow.trySend(AdLoadState.FAILURE).isSuccess
                     }
                 }
 
                 override fun onAdClosed() {
                     super.onAdClosed()
                     if (!isClosedForSend) {
-                        offer(AdLoadState.CLOSED)
+                        this@channelFlow.trySend(AdLoadState.CLOSED).isSuccess
                     }
                 }
             }

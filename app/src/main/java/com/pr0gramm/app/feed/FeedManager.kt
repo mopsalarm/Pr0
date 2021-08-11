@@ -138,11 +138,11 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
     }
 
     private fun publishError(err: Throwable) {
-        subject.offer(Update.Error(err))
+        subject.trySend(Update.Error(err)).isSuccess
     }
 
     private fun publish(update: Update) {
-        subject.offer(update)
+        subject.trySend(update).isSuccess
     }
 
     private fun feedQuery(): FeedService.FeedQuery {

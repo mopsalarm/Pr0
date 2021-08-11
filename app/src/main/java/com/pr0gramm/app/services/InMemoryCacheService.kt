@@ -83,7 +83,7 @@ class InMemoryCacheService {
      * Stores the given entry for a few minutes in the cache
      */
     fun cacheUserInfo(contentTypes: Set<ContentType>, info: UserInfo) {
-        val name = info.info.user.name.trim().toLowerCase()
+        val name = info.info.user.name.trim().lowercase(Locale.getDefault())
         val key = name + ContentType.combine(contentTypes)
         userInfoCache.put(key, ExpiringValue(info, 1, TimeUnit.MINUTES))
     }
@@ -92,7 +92,7 @@ class InMemoryCacheService {
      * Gets a cached instance, if there is one.
      */
     fun getUserInfo(contentTypes: Set<ContentType>, name: String): UserInfo? {
-        val key = name.trim().toLowerCase() + ContentType.combine(contentTypes)
+        val key = name.trim().lowercase(Locale.getDefault()) + ContentType.combine(contentTypes)
         return userInfoCache[key]?.value
     }
 

@@ -6,6 +6,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.ui.fragments.CommentRef
+import java.util.*
 
 object FilterParser {
     fun parse(uri: Uri, notificationTime: Instant? = null): FeedFilterWithStart? {
@@ -40,7 +41,7 @@ object FilterParser {
                 filter = if ("uploads" == subcategory || subcategory == null) {
                     filter.withFeedType(FeedType.NEW).withUser(user)
                 } else {
-                    filter.withFeedType(FeedType.NEW).withCollection(user, subcategory, subcategory.capitalize())
+                    filter.withFeedType(FeedType.NEW).withCollection(user, subcategory, subcategory.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
                 }
             }
 

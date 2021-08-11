@@ -112,7 +112,7 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
             views.pager.setPageTransformer(false) { page: View, position: Float ->
                 val viewer = page.findViewWithTag<View>(PostFragment.ViewerTag)
                 if (viewer != null) {
-                    viewer.translationX = -(position * page.width / 4.0f)
+                    viewer.translationX = -(position * page.width / 5.0f)
                 }
             }
         }

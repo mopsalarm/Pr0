@@ -4,6 +4,7 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.getOrPut
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import java.util.Collections.emptyList
 
 /**
@@ -13,7 +14,7 @@ class UserSuggestionService(private val api: Api) {
     private val suggestionCache = androidx.collection.LruCache<String, List<String>>(128)
 
     fun suggestUsers(prefix: String): List<String> {
-        return suggestionCache.getOrPut(prefix.toLowerCase()) {
+        return suggestionCache.getOrPut(prefix.lowercase(Locale.getDefault())) {
             internalSuggestUsers(it)
         }
     }

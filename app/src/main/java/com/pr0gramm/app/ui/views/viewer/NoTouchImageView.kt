@@ -10,6 +10,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 class NoTouchImageView(context: Context, attr: AttributeSet) : SubsamplingScaleImageView(context, attr) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return false;
+        return false
     }
 }

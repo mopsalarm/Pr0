@@ -24,7 +24,7 @@ class CircleChartView @JvmOverloads constructor(context: Context, attrs: Attribu
     private val chart = CircleChartDrawable()
 
     var chartValues: List<Value> by observeChange(listOf()) {
-        val score = chartValues.sumBy { it.amount }
+        val score = chartValues.sumOf { it.amount }
         views.value.text = formatScore(score)
         chart.invalidateSelf()
     }
@@ -33,7 +33,7 @@ class CircleChartView @JvmOverloads constructor(context: Context, attrs: Attribu
         override fun draw(canvas: Canvas) {
             val bounds = bounds
 
-            val totalValue = chartValues.sumBy { Math.abs(it.amount) }
+            val totalValue = chartValues.sumOf { Math.abs(it.amount) }
             if (totalValue == 0 || bounds.width() < 5 || bounds.height() < 5)
                 return
 

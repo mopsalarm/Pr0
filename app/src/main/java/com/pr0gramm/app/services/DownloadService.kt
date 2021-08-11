@@ -146,7 +146,7 @@ class DownloadService(
 
         fun filenameOf(feedItem: FeedItem): String {
             val format = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
-            val fileType = feedItem.image.takeLastWhile { it != '.' }.toLowerCase(Locale.ROOT)
+            val fileType = feedItem.image.takeLastWhile { it != '.' }.lowercase(Locale.ROOT)
             val prefix = listOf(
                     feedItem.created.toString(format),
                     feedItem.user,

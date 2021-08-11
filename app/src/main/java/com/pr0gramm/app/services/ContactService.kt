@@ -11,6 +11,7 @@ import com.pr0gramm.app.util.ExceptionHandler
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.Modifier
+import java.util.*
 
 /**
  * A simple service that allows sending a message to the pr0gramm support.
@@ -101,7 +102,7 @@ private object DeviceInfoService {
         for (field in Build::class.java.fields) {
             if (Modifier.isStatic(field.modifiers)) {
                 try {
-                    val name = field.name.toLowerCase().replace('_', ' ')
+                    val name = field.name.lowercase(Locale.getDefault()).replace('_', ' ')
                     val value = formatValue(field.get(null))
                     result.append(name).append(" = ").append(value).append("\n")
                 } catch (ignored: Exception) {
