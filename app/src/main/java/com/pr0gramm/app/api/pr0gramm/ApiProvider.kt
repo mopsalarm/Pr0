@@ -2,6 +2,7 @@ package com.pr0gramm.app.api.pr0gramm
 
 import com.pr0gramm.app.*
 import com.pr0gramm.app.util.catchAll
+import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient

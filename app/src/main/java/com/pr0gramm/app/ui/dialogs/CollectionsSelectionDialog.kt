@@ -192,7 +192,7 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
 }
 
 private class CollectionAdapterDelegate(private val collectionClicked: (collection: PostCollection, isSelected: Boolean) -> Unit)
-    : ListItemTypeAdapterDelegate<CollectionAdapterDelegate.Item, CollectionAdapterDelegate.Item, CollectionAdapterDelegate.CollectionViewHolder>() {
+    : ListItemTypeAdapterDelegate<CollectionAdapterDelegate.Item, CollectionAdapterDelegate.Item, CollectionAdapterDelegate.CollectionViewHolder>(CollectionAdapterDelegate.Item::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): CollectionViewHolder {
         return CollectionViewHolder(parent)

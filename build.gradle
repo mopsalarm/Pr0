@@ -48,6 +48,7 @@ allprojects {
             useIR = false
 
             freeCompilerArgs += [
+                    "-Xuse-experimental=kotlin.ExperimentalStdlibApi",
                     "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
                     "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "-Xuse-experimental=kotlinx.coroutines.FlowPreview",

@@ -46,6 +46,7 @@ import androidx.work.WorkRequest
 import com.pr0gramm.app.*
 import com.pr0gramm.app.delay
 import com.pr0gramm.app.ui.views.CompatibleTextView
+import com.squareup.moshi.adapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

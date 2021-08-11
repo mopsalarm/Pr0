@@ -7,9 +7,9 @@ import androidx.core.content.edit
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.getStringOrNull
+import com.squareup.moshi.adapter
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap

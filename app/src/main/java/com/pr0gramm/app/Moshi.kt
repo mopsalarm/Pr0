@@ -17,10 +17,6 @@ inline fun <reified T : Any> Moshi.Builder.adapter(adapter: JsonAdapter<T>): Mos
     return add(T::class.java, adapter)
 }
 
-inline fun <reified T : Any> Moshi.adapter(): JsonAdapter<T> {
-    return adapter((object : TypeToken<T>() {}).type)
-}
-
 private object InstantAdapter : JsonAdapter<Instant>() {
     override fun fromJson(reader: JsonReader): Instant {
         return Instant.ofEpochSeconds(reader.nextLong())

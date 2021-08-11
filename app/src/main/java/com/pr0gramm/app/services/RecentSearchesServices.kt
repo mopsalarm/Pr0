@@ -4,9 +4,10 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.TypeToken
 import com.pr0gramm.app.util.getStringOrNull
 import java.util.*
+import kotlin.reflect.javaType
+import kotlin.reflect.typeOf
 
 
 /**
@@ -78,7 +79,8 @@ class RecentSearchesServices(
     companion object {
         private const val KEY = "RecentSearchesServices.terms"
 
+        @OptIn(ExperimentalStdlibApi::class)
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-        private val LIST_OF_STRINGS = object : TypeToken<java.util.List<String>>() {}.type
+        private val LIST_OF_STRINGS = typeOf<java.util.List<String>>().javaType
     }
 }

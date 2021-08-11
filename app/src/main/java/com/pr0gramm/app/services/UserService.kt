@@ -15,6 +15,7 @@ import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ticker
+import com.squareup.moshi.adapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.*

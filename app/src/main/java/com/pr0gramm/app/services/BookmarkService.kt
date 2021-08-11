@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
@@ -17,6 +16,7 @@ import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
+import com.squareup.moshi.adapter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*

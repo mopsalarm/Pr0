@@ -5,12 +5,12 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.debugConfig
 import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.LazyStateFlow
 import com.pr0gramm.app.util.lazyStateFlow
+import com.squareup.moshi.adapter
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okio.ByteString.Companion.encode

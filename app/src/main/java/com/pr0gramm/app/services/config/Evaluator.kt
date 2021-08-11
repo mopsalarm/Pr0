@@ -2,10 +2,10 @@ package com.pr0gramm.app.services.config
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.config.Range
 import com.pr0gramm.app.model.config.Rule
+import com.squareup.moshi.adapter
 import kotlin.math.absoluteValue
 
 object ConfigEvaluator {

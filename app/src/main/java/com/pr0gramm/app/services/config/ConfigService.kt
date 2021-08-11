@@ -13,6 +13,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.adapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 

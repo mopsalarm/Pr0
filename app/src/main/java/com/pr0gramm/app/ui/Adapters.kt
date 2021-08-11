@@ -17,7 +17,7 @@ import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.trace
-import java.lang.reflect.ParameterizedType
+import kotlin.reflect.KClass
 
 interface AdapterDelegate<E : Any, VH : RecyclerView.ViewHolder> {
     fun isForViewType(values: List<E>, idx: Int): Boolean
@@ -51,12 +51,10 @@ abstract class ItemAdapterDelegate<E : T, T : Any, VH : RecyclerView.ViewHolder>
     abstract fun onBindViewHolder(holder: VH, value: E)
 }
 
-abstract class ListItemTypeAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>
+abstract class ListItemTypeAdapterDelegate<E : L, L : Any, VH : RecyclerView.ViewHolder>(private val type: Class<E>)
     : ItemAdapterDelegate<E, L, VH>() {
 
-    // Get the actual type for E.
-    @Suppress("UNCHECKED_CAST")
-    private val type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<E>
+    constructor(type: KClass<E>) : this(type.javaObjectType)
 
     final override fun isForViewType(value: L): Boolean {
         return type.isInstance(value)
@@ -195,7 +193,7 @@ fun staticLayoutAdapterDelegate(layout: Int, itemValue: Any)
 
 
 class ErrorAdapterDelegate(private val layout: Int = R.layout.feed_error)
-    : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, Any, ErrorAdapterDelegate.ViewHolder>() {
+    : ListItemTypeAdapterDelegate<ErrorAdapterDelegate.Value, Any, ErrorAdapterDelegate.ViewHolder>(Value::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(parent.layoutInflater.inflate(layout, parent, false))

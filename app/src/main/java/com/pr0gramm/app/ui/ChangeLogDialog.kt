@@ -9,7 +9,6 @@ import androidx.core.text.color
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
-import com.pr0gramm.app.adapter
 import com.pr0gramm.app.databinding.ChangelogBinding
 import com.pr0gramm.app.databinding.ChangelogChangeBinding
 import com.pr0gramm.app.databinding.ChangelogVersionBinding
@@ -21,6 +20,7 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.setTextFuture
+import com.squareup.moshi.adapter
 import okio.buffer
 import okio.source
 import java.io.IOException
