@@ -7,6 +7,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
@@ -38,11 +39,14 @@ class UploadService(private val api: Api,
     /**
      * Maximum upload size for the currently signed in user.
      */
-    private val maxUploadSize: Long
-        get() {
-            val config = configService.config()
-            return if (userService.loginState.premium) config.maxUploadSizePremium else config.maxUploadSizeNormal
+    private fun maxUploadSize(type: MediaUri.MediaType): Long {
+        val config = configService.config()
+
+        return when (type) {
+            MediaUri.MediaType.VIDEO -> config.maxUploadSizeVideo
+            else -> config.maxUploadSizeImage
         }
+    }
 
     private val maxUploadPixels: Long
         get() {
@@ -52,7 +56,7 @@ class UploadService(private val api: Api,
 
     suspend fun sizeOkay(file: File): Boolean {
         return runInterruptible(Dispatchers.IO) {
-            val fileSizeOk = file.length() < maxUploadSize
+            val fileSizeOk = file.length() < maxUploadSize(MediaUri.MediaType.IMAGE)
 
             if (!fileSizeOk) {
                 return@runInterruptible false
@@ -75,6 +79,7 @@ class UploadService(private val api: Api,
 
     suspend fun shrinkImage(file: File): File {
         return runInterruptible(Dispatchers.IO) {
+            val maxUploadSize = maxUploadSize(MediaUri.MediaType.IMAGE)
 
             logger.info {
                 "Try to scale ${file.length() / 1024}kb image down to max of ${maxUploadSize / 1024}kb"

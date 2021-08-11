@@ -44,7 +44,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
     private val views by bindViews(FragmentWriteMessageBinding::inflate)
 
-    private val receiverName: String by lazy { intent.getStringExtra(ARGUMENT_RECEIVER_NAME) }
+    private val receiverName: String by lazy { intent.getStringExtra(ARGUMENT_RECEIVER_NAME)!! }
     private val receiverId: Long by lazy { intent.getLongExtra(ARGUMENT_RECEIVER_ID, 0) }
     private val isCommentAnswer: Boolean by lazy { intent.hasExtra(ARGUMENT_COMMENT_ID) }
     private val parentCommentId: Long by lazy { intent.getLongExtra(ARGUMENT_COMMENT_ID, 0) }

@@ -23,7 +23,7 @@ import java.util.*
  * A cache we can use for linear caching of http requests.
  */
 class Cache(private val context: Application, private val httpClient: OkHttpClient) {
-    private val MEGA = (1024 * 1024).toLong()
+    private val Long.mega: Long get() = this * 1024L * 1024L
 
     private val logger = Logger("Cache")
     private val root: File = File(context.cacheDir, "mediacache")
@@ -43,7 +43,7 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
      * Returns a cached or caching entry. You need to close your reference
      * once you are finish with it.
      */
-    fun get(uri: Uri): Cache.Entry {
+    fun get(uri: Uri): Entry {
         val key = cacheKeyOf(uri)
 
         synchronized(lock) {
@@ -114,14 +114,14 @@ class Cache(private val context: Application, private val httpClient: OkHttpClie
         val usedCacheSpace = files.fold(0L) { acc, file -> acc + file.length() }
 
         // The amount that can be used by apps
-        val usableSpace = root.usableSpace - 1024 * MEGA
+        val usableSpace = root.usableSpace - 1024L.mega
 
         // Ignoring what the cache already uses, this is the amount of space that
         // is available to us.
         val availableSpace = usedCacheSpace + usableSpace
 
         // Now put it in sane limits.
-        val maxCacheSize = availableSpace.coerceIn(256 * MEGA, 1024 * MEGA)
+        val maxCacheSize = availableSpace.coerceIn(256L.mega, 512L.mega)
 
         logger.debug { "Doing cache cleanup, maxCacheSize=${formatSpace(maxCacheSize)}, found ${files.size} files using ${formatSpace(usedCacheSpace)}" }
 

@@ -19,13 +19,13 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     // ndkVersion "21.0.6011959-rc2"
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         applicationId "com.pr0gramm.app"
 
         versionCode appVersion
@@ -212,7 +212,7 @@ dependencies {
 
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.14.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.0'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 

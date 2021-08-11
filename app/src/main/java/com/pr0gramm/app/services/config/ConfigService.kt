@@ -118,7 +118,7 @@ class ConfigService(context: Application,
 
     companion object {
         private val logger = Logger("ConfigService")
-        private const val PREF_DATA_KEY = "ConfigService.data"
+        private const val PREF_DATA_KEY = "ConfigService.data_" + BuildConfig.VERSION_NAME
         private const val PREF_ID_KEY = "ConfigService.id"
 
         fun makeUniqueIdentifier(context: Context, preferences: SharedPreferences): String {
@@ -158,7 +158,6 @@ class ConfigService(context: Application,
                 logger.warn("Could not decode state", err)
                 Config()
             }
-
         }
 
         private fun invalidUniqueIdentifier(cached: String?): Boolean {

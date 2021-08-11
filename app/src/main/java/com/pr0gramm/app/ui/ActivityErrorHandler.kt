@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import androidx.fragment.app.FragmentActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.util.ErrorFormatting
 import java.io.PrintWriter
@@ -12,7 +13,9 @@ import java.lang.ref.WeakReference
 /**
  */
 class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErrorDialogHandler, Application.ActivityLifecycleCallbacks {
-    private var current = NULL
+    private val nullValue = WeakReference<FragmentActivity>(null)
+
+    private var current = nullValue
 
     private var pendingError: Throwable? = null
     private var pendingFormatter: ErrorFormatting.Formatter? = null
@@ -43,7 +46,7 @@ class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErr
     }
 
     override fun onActivityResumed(activity: Activity) {
-        if (activity is androidx.fragment.app.FragmentActivity) {
+        if (activity is FragmentActivity) {
             current = WeakReference(activity)
 
             if (pendingError != null && pendingFormatter != null) {
@@ -54,19 +57,19 @@ class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErr
 
     override fun onActivityPaused(activity: Activity) {
         if (current.get() === activity) {
-            current = NULL
+            current = nullValue
         }
     }
 
     override fun onActivityStopped(activity: Activity) {
         if (current.get() === activity) {
-            current = NULL
+            current = nullValue
         }
     }
 
     override fun onActivityDestroyed(activity: Activity) {
         if (current.get() === activity) {
-            current = NULL
+            current = nullValue
         }
     }
 
@@ -74,10 +77,6 @@ class ActivityErrorHandler(application: Application) : ErrorDialogFragment.OnErr
 
     override fun onActivityStarted(activity: Activity) {}
 
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle?) {}
-
-    companion object {
-        private val NULL = WeakReference<androidx.fragment.app.FragmentActivity>(null)
-    }
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
 }

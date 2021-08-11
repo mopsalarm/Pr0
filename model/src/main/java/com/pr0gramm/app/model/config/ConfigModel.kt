@@ -5,8 +5,8 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Config(
-        val maxUploadSizeNormal: Long = 10 * 1024 * 1024,
-        val maxUploadSizePremium: Long = 20 * 1024 * 1024,
+        val maxUploadSizeVideo: Long = 200 * 1024 * 1024,
+        val maxUploadSizeImage: Long = 20 * 1024 * 1024,
 
         val maxUploadPixelsNormal: Long = 20_250_000,
         val maxUploadPixelsPremium: Long = 20_250_000,
@@ -22,7 +22,10 @@ data class Config(
         val syncVersion: Int = 3,
         val userClasses: List<UserClass> = DefaultUserClasses,
         val endOfLifeAndroidVersion: Int = Build.VERSION_CODES.LOLLIPOP,
-        val reAffiliate: String = "(?:pornhub|redtube|tube8|youporn|xtube|spankwire|keezmovies|extremetube)\\.com",
+
+        // currently not working as they closed their affiliate program.
+        val reAffiliate: String = "X-IGNORE",
+
         val specialMenuItems: List<MenuItem> = listOf()) {
 
     enum class AdType {
