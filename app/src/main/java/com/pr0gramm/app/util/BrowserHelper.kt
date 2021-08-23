@@ -36,7 +36,7 @@ object BrowserHelper {
 
     private val chromeTabPackageName by memorize<Context, String?> { context ->
         try {
-            val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+            val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
 
             val pm = context.packageManager
             val packagesSupportingCustomTabs = ArrayList<String>()
