@@ -11,10 +11,12 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.toRectF
 import androidx.core.text.inSpans
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.UserClassesService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.BaseDrawable
 import com.pr0gramm.app.ui.paint
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.getColorCompat
@@ -29,8 +31,10 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
     init {
         maxLines = 1
 
-        if (isInEditMode) {
-            setUsername("Mopsalarm", 1)
+        debugOnly {
+            if (isInEditMode) {
+                setUsername("Mopsalarm", 1)
+            }
         }
     }
 
@@ -43,7 +47,7 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
 }
 
 fun SpannableStringBuilder.appendUsernameAndMark(parent: TextView, name: String, mark: Int, op: Boolean = false) {
-    val userClassesService: UserClassesService = if (parent.isInEditMode) {
+    val userClassesService: UserClassesService = if (BuildConfig.DEBUG && parent.isInEditMode) {
         UserClassesService(emptyFlow())
     } else {
         parent.context.injector.instance()
