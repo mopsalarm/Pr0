@@ -602,14 +602,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (!Storage.hasTreeUri(requireContext())) {
             val intent = Storage.openTreeIntent(requireContext())
 
-            ignoreAllExceptions {
-                val noActivityAvailable = requireContext().packageManager.queryIntentActivities(intent, 0).isEmpty()
-                if (noActivityAvailable) {
-                    showNoFileManagerAvailable()
-                    return
-                }
-            }
-
             showDialog(this) {
                 content(R.string.hint_select_download_directory)
                 positive {
