@@ -105,7 +105,7 @@ private val DefaultAdminReasons = listOf(
         "Regel #16.1 - unnötiges Markieren",
         "Regel #16.2 - Missbrauch der Melden-Funktion")
 
-private val DefaultUserClasses = listOf(
+val DefaultUserClasses = listOf(
         Config.UserClass("#FFFFFF", "Schwuchtel"),
         Config.UserClass("#E108E9", "Neuschwuchtel"),
         Config.UserClass("#5BB91C", "Altschwuchtel"),
