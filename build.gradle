@@ -6,15 +6,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:7.0.2'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "1.5.21" apply false
-    id "org.jetbrains.kotlin.kapt" version "1.5.21" apply false
+    id "org.jetbrains.kotlin.android" version "1.5.30" apply false
+    id "org.jetbrains.kotlin.kapt" version "1.5.30" apply false
     id "com.github.ben-manes.versions" version "0.39.0"
 }
 
