@@ -21,7 +21,6 @@ import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.ignoreAllExceptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runInterruptible
@@ -181,17 +180,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
             "pref_pseudo_download_target" -> {
                 val intent = Storage.openTreeIntent(requireContext())
-
-                ignoreAllExceptions {
-                    val noActivityAvailable = requireContext().packageManager.queryIntentActivities(intent, 0).isEmpty()
-                    if (noActivityAvailable) {
-                        showNoFileManagerAvailable()
-                        return true
-                    }
-                }
-
                 startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
-
                 return true
             }
 
