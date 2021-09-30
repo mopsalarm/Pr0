@@ -562,6 +562,7 @@
     <string name="action_scroll_seen">Nächster gesehener Hochlad</string>
     <string name="error_max_scroll_reached">Maximale Scrollweite erreicht. Probiere es einfach nochmal.</string>
     <string name="changelog">Changelog</string>
+    <string name="user_is_not_verified">Deine Altersverifikation ist noch nicht abgeschlossen.</string>
 
 
 </resources>

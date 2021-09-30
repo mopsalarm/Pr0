@@ -105,8 +105,10 @@ class LoginCookieJar(context: Context, private val preferences: SharedPreference
 
             // do nothing if the cookie value has not changed.
             val notChanged = previousCookie?.value == cookie.value
-            if (notChanged)
+            if (notChanged) {
+                logger.debug { "Cookie has not changed" }
                 return true
+            }
 
             val parsedCookie = parseCookie(cookie)
 

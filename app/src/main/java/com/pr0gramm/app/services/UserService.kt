@@ -11,6 +11,7 @@ import com.pr0gramm.app.model.user.LoginCookie
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
+import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.doInBackground
@@ -44,7 +45,9 @@ class UserService(private val api: Api,
     @Suppress("PrivatePropertyName")
     private val NotAuthorized = LoginState(
             id = -1, score = 0, mark = 0, admin = false,
-            premium = false, authorized = false, name = null, uniqueToken = null)
+            premium = false, authorized = false, name = null,
+            uniqueToken = null, verified = false,
+    )
 
     private val fullSyncInProgress = AtomicBoolean()
 
@@ -145,6 +148,12 @@ class UserService(private val api: Api,
         if (cookie == null) {
             logger.info { "LoginCookie was removed, performing logout now." }
             AsyncScope.launch { logout() }
+
+        } else {
+            // cookie has changed, re-build cached user info
+            AsyncScope.launchIgnoreErrors {
+                updateCachedUserInfo()
+            }
         }
     }
 
@@ -375,7 +384,7 @@ class UserService(private val api: Api,
     private fun persistLatestLoginState(state: LoginState) {
         try {
             if (state.authorized) {
-                logger.debug { "Persisting login state now." }
+                logger.debug { "Persisting login state now: $loginState" }
 
                 preferences.edit {
                     val encoded = MoshiInstance.adapter<LoginState>().toJson(state)
@@ -397,10 +406,13 @@ class UserService(private val api: Api,
         get() = loginState.authorized && cookieJar.parsedCookie?.id?.isNotBlank() == true
 
     val userIsPremium: Boolean
-        get() = loginState.authorized && cookieJar.parsedCookie?.paid == true
+        get() = isAuthorized && loginState.premium
 
     val userIsAdmin: Boolean
-        get() = loginState.authorized && cookieJar.parsedCookie?.admin == true
+        get() = isAuthorized && loginState.admin
+
+    val userIsVerified: Boolean
+        get() = isAuthorized && loginState.verified
 
     val loginStateWithBenisGraph = run {
         val graphs = loginStates.mapLatest { loginState ->
@@ -486,5 +498,6 @@ private fun createLoginStateFromInfo(user: Api.Info.User, cookie: LoginCookie?, 
             score = user.score,
             premium = cookie?.paid == true,
             admin = cookie?.admin == true,
+            verified = cookie?.verified == true,
             uniqueToken = token)
 }

@@ -12,6 +12,7 @@ data class LoginState(
         val uniqueToken: String?,
         val admin: Boolean,
         val premium: Boolean,
+        val verified: Boolean = false,
         val authorized: Boolean)
 
 
@@ -20,4 +21,6 @@ data class LoginCookie(
         val id: String,
         @Json(name = "n") val name: String,
         @Json(name = "paid") val paid: Boolean = false,
-        @Json(name = "a") val admin: Boolean = false)
+        @Json(name = "a") val admin: Boolean = false,
+        @Json(name = "verified") val verified: Boolean = false,
+)

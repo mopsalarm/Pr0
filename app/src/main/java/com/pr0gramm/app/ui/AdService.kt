@@ -106,7 +106,7 @@ class AdService(private val configService: ConfigService, private val userServic
     }
 
     fun newAdView(context: Context): AdView {
-        val view = AdView(context.applicationContext)
+        val view = AdView(context)
         view.adUnitId = bannerUnitId
 
         val backgroundColor = AndroidUtility.resolveColorAttribute(context, android.R.attr.windowBackground)

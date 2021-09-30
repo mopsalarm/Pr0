@@ -27,6 +27,7 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
@@ -47,6 +48,7 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
     private val rulesService: RulesService by instance()
 
     private val tagSuggestions: TagSuggestionService by instance()
+    private val userService: UserService by instance()
 
     private val views by bindViews(FragmentUploadBinding::bind)
 
@@ -113,6 +115,12 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
 
         for (viewId in types) {
             view.findOptional<CompoundButton>(viewId)?.setOnCheckedChangeListener { _, _ ->
+                updateFormState(vm.state.value)
+            }
+        }
+
+        launchInViewScope {
+            userService.loginStates.drop(1).collect {
                 updateFormState(vm.state.value)
             }
         }
@@ -234,8 +242,14 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
 
         views.tags.isEnabled = enabled
 
+        val loginState = userService.loginState
+
         for (childView in views.contentTypeGroup.children) {
             childView.isEnabled = enabled
+
+            if (!loginState.verified && childView.id != R.id.upload_type_sfw) {
+                childView.isEnabled = false
+            }
         }
 
         val hasTagSelected = views.contentTypeGroup.children.any { childView ->
@@ -243,8 +257,9 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         }
 
         val imageSizeOkay = state.fileSizeOkay
+        val isVerifiedOrUploadTypeIsSFW = selectedContentType() == ContentType.SFW || loginState.verified
 
-        views.actionUpload.isEnabled = enabled && hasTagSelected && imageSizeOkay
+        views.actionUpload.isEnabled = enabled && hasTagSelected && imageSizeOkay && isVerifiedOrUploadTypeIsSFW
     }
 
     private fun onUploadComplete(postId: Long) {

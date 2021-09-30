@@ -12,7 +12,6 @@
 
     <item
         android:id="@+id/action_change_content_type"
-        android:icon="@drawable/ic_white_action_refresh"
         android:title="@string/action_change_content_type"
         app:iconTint="?android:textColorPrimary"
         app:showAsAction="always">
@@ -25,21 +24,27 @@
 
                 <item
                     android:id="@+id/action_content_type_nsfw"
-                    android:title="@string/type_nsfw"/>
+                    android:title="@string/type_nsfw" />
 
                 <item
                     android:id="@+id/action_content_type_nsfl"
-                    android:title="@string/type_nsfl"/>
+                    android:title="@string/type_nsfl" />
             </group>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/action_change_content_type__not_verified"
+        android:title="@string/action_change_content_type"
+        app:iconTint="?android:textColorPrimary"
+        app:showAsAction="always"></item>
 
     <item
         android:id="@+id/action_bookmark"
         android:icon="@drawable/ic_white_action_pin"
         android:title="@string/action_pin"
         app:iconTint="?android:textColorPrimary"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_feedtype"

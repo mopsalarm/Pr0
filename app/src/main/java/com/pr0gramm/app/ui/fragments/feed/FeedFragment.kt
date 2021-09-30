@@ -247,6 +247,12 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 activity.invalidateOptionsMenu()
             }
         }
+
+        launchInViewScope {
+            userService.loginStates.drop(1).collect {
+                activity.invalidateOptionsMenu()
+            }
+        }
     }
 
     private fun updateAdapterState(feedState: FeedViewModel.FeedState, userState: UserStateModel.UserState) {
@@ -691,8 +697,16 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 R.string.action_switch_to_top else R.string.action_switch_to_new)
         }
 
+        menu.findItem(R.id.action_change_content_type__not_verified)?.let { item ->
+            item.isVisible = !userService.userIsVerified
+            item.icon = ContentTypeDrawable(activity, listOf(ContentType.SFW)).also { icon ->
+                icon.textSize = resources.getDimensionPixelSize(
+                        R.dimen.feed_content_type_action_icon_text_size).toFloat()
+            }
+        }
+
         menu.findItem(R.id.action_change_content_type)?.let { item ->
-            if (userService.isAuthorized) {
+            if (userService.userIsVerified) {
                 val icon = ContentTypeDrawable(activity, selectedContentType)
                 icon.textSize = resources.getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size).toFloat()
@@ -762,6 +776,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_open_in_admin -> openUserInAdmin()
             R.id.action_scroll_seen -> scrollToNextSeenAsync()
             R.id.action_scroll_unseen -> scrollToNextUnseenAsync()
+            R.id.action_change_content_type__not_verified -> hintUserIsNotVerified()
 
             else -> super.onOptionsItemSelected(item)
         }
@@ -814,6 +829,13 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         val filter = currentFilter
         val title = FeedFilterFormatter.format(requireContext(), filter).singleline
         (activity as MainActionHandler).bookmarkFilter(filter, title)
+    }
+
+    private fun hintUserIsNotVerified() {
+        showDialog(this) {
+            content(R.string.user_is_not_verified)
+            positive()
+        }
     }
 
     private fun preloadCurrentFeed() {
