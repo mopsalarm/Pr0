@@ -15,6 +15,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.asFeedFilter
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.util.getColorCompat
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -44,6 +45,7 @@ class NavigationProvider(
     private val iconFeedTypeRandom by drawable(R.drawable.ic_action_random)
     private val iconInbox by drawable(R.drawable.ic_action_email)
     private val iconUpload by drawable(R.drawable.ic_action_upload)
+    private val iconAgeVerify by drawable(R.drawable.ic_action_verify)
 
     private val iconSettings by drawable(R.drawable.ic_action_settings)
     private val iconContact by drawable(R.drawable.ic_action_feedback)
@@ -57,7 +59,7 @@ class NavigationProvider(
     private val refreshAfterNavItemWasDeletedStateFlow = MutableStateFlow(false)
 
     private fun drawable(@DrawableRes id: Int): Lazy<Drawable> {
-        return lazy {
+        return lazy(LazyThreadSafetyMode.PUBLICATION) {
             AppCompatResources.getDrawable(context, id)!!
         }
     }
@@ -68,6 +70,8 @@ class NavigationProvider(
         val items = loginStates.flatMapLatest { loginState ->
             val rawSources = listOf(
                     remoteConfigItems(loginState, upper = true),
+
+                    ageVerificationItem(loginState),
 
                     currentSelection.map { selection ->
                         categoryNavigationItems(selection, loginState.name)
@@ -99,6 +103,16 @@ class NavigationProvider(
         }
 
         return refreshAfterNavItemWasDeletedStateFlow.flatMapLatest { items }.distinctUntilChanged()
+    }
+
+    private fun ageVerificationItem(loginState: LoginState): Flow<List<NavigationItem>> {
+        val items = if (loginState.authorized && !loginState.verified) {
+            listOf(staticItemAgeVerification)
+        } else {
+            listOf()
+        }
+
+        return flowOf(items)
     }
 
     private fun footerItems(loginState: LoginState): List<NavigationItem> {
@@ -251,7 +265,7 @@ class NavigationProvider(
     /**
      * Returns the menu item that takes the user to the upload activity.
      */
-    private val uploadNavigationItem: NavigationItem by lazy {
+    private val uploadNavigationItem: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         NavigationItem(
                 action = ActionType.UPLOAD,
                 title = getString(R.string.action_upload),
@@ -261,40 +275,50 @@ class NavigationProvider(
     /**
      * Divider to divide item groups
      */
-    private val staticItemDivider: NavigationItem by lazy {
+    private val staticItemDivider: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         NavigationItem(ActionType.DIVIDER,
                 layout = R.layout.left_drawer_nav_item_divider)
     }
 
-    private fun staticItem(action: ActionType, icon: Drawable, title: String): NavigationItem {
-        return NavigationItem(action, title = title, icon = icon, colorOverride = 0x80808080.toInt())
+    private fun staticItem(action: ActionType, icon: Drawable, title: String, colorOverride: Int = 0x80808080.toInt()): NavigationItem {
+        return NavigationItem(action, title = title, icon = icon, colorOverride = colorOverride)
     }
 
-    private val staticItemFAQ: NavigationItem by lazy {
+    private val staticItemFAQ: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
     }
 
-    private val staticItemSettings: NavigationItem by lazy {
+    private val staticItemSettings: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
     }
 
-    private val staticItemInvites: NavigationItem by lazy {
+    private val staticItemInvites: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.INVITES, iconInvite, getString(R.string.action_invite))
     }
 
-    private val staticItemContact: NavigationItem by lazy {
+    private val staticItemContact: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.CONTACT, iconContact, getString(R.string.action_contact))
     }
 
-    private val staticItemPremium: NavigationItem by lazy {
+    private val staticItemPremium: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
     }
 
-    private val staticItemLogin: NavigationItem by lazy {
+    private val staticItemAgeVerification: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        // we want some alarm color
+        val color = context.getColorCompat(R.color.red_700)
+        staticItem(
+                ActionType.AGE_VERIFICATION, iconAgeVerify,
+                getString(R.string.action_age_verification),
+                colorOverride = color,
+        )
+    }
+
+    private val staticItemLogin: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.LOGIN, iconLogin, getString(R.string.action_login))
     }
 
-    private val staticItemLogout: NavigationItem by lazy {
+    private val staticItemLogout: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.LOGOUT, iconLogout, getString(R.string.action_logout))
     }
 
@@ -365,7 +389,7 @@ class NavigationProvider(
                          val isSelected: Boolean = false,
                          val colorOverride: Int? = null) {
 
-        private val hashCode by lazy {
+        private val hashCode by lazy(LazyThreadSafetyMode.PUBLICATION) {
             listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode()
         }
 
@@ -387,6 +411,7 @@ class NavigationProvider(
     enum class ActionType {
         HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, COLLECTIONS, URI,
         DIVIDER,
-        SETTINGS, CONTACT, INVITES, FAQ, PREMIUM, LOGIN, LOGOUT
+        SETTINGS, CONTACT, INVITES, FAQ, PREMIUM, LOGIN, LOGOUT,
+        AGE_VERIFICATION,
     }
 }

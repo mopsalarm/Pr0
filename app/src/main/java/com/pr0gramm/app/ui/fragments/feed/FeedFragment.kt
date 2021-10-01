@@ -834,7 +834,13 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     private fun hintUserIsNotVerified() {
         showDialog(this) {
             content(R.string.user_is_not_verified)
-            positive()
+
+            positive(R.string.action_verify) {
+                val uri = Uri.parse("https://pr0gramm.com/verify")
+                BrowserHelper.openCustomTab(requireContext(), uri, handover = true)
+            }
+
+            negative(R.string.action_not_now)
         }
     }
 

@@ -351,6 +351,12 @@ private class NavigationDelegateAdapter(
                 BrowserHelper.openCustomTab(activity, uri)
             }
 
+            NavigationProvider.ActionType.AGE_VERIFICATION -> {
+                val uri = Uri.parse("https://pr0gramm.com/verify")
+                BrowserHelper.openCustomTab(activity, uri, handover = true)
+            }
+
+
             NavigationProvider.ActionType.LOGIN ->
                 activity.startActivity<LoginActivity>()
 

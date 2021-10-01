@@ -562,7 +562,8 @@
     <string name="action_scroll_seen">Nächster gesehener Hochlad</string>
     <string name="error_max_scroll_reached">Maximale Scrollweite erreicht. Probiere es einfach nochmal.</string>
     <string name="changelog">Changelog</string>
-    <string name="user_is_not_verified">Deine Altersverifikation ist noch nicht abgeschlossen.</string>
-
-
+    <string name="user_is_not_verified">Dein Altersnachweis ist noch nicht abgeschlossen. Um nicht jugendfreie Inhalte anzusehen, musst Du dein Alter bestätigen.</string>
+    <string name="action_age_verification">Altersnachweis</string>
+    <string name="action_verify">Verifizieren</string>
+    <string name="action_not_now">Nicht jetzt</string>
 </resources>
