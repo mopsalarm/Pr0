@@ -698,7 +698,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         menu.findItem(R.id.action_change_content_type__not_verified)?.let { item ->
-            item.isVisible = !userService.userIsVerified
+            item.isVisible = userService.isAuthorized && !userService.userIsVerified
             item.icon = ContentTypeDrawable(activity, listOf(ContentType.SFW)).also { icon ->
                 icon.textSize = resources.getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size).toFloat()
