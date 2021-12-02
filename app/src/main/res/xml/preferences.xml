@@ -151,8 +151,8 @@
                     android:key="pref_private_input"
                     android:summary="@string/pref_private_input_summary"
                     android:title="@string/pref_private_input_title" />
-					
-				<Preference
+
+                <Preference
                     android:key="pref_pseudo_clear_tag_suggestions"
                     android:persistent="false"
                     android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
