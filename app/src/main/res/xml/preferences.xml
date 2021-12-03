@@ -152,6 +152,12 @@
                     android:summary="@string/pref_private_input_summary"
                     android:title="@string/pref_private_input_title" />
 
+                <Preference
+                    android:key="pref_pseudo_clear_tag_suggestions"
+                    android:persistent="false"
+                    android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
+                    android:title="@string/pref_pseudo_clear_tag_suggestions_title" />
+
             </PreferenceCategory>
 
         </PreferenceScreen>
@@ -250,12 +256,6 @@
                     android:key="pref_show_content_type_flag_2"
                     android:summary="@string/pref_show_content_type_flag_summary"
                     android:title="@string/pref_show_content_type_flag_title" />
-
-                <Preference
-                    android:key="pref_pseudo_clear_tag_suggestions"
-                    android:persistent="false"
-                    android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
-                    android:title="@string/pref_pseudo_clear_tag_suggestions_title" />
 
                 <SwitchPreferenceCompat
                     android:defaultValue="false"
