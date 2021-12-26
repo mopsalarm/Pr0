@@ -242,8 +242,8 @@ private class CollectionAdapterDelegate(private val collectionClicked: (collecti
         }
     }
 
-    private class CollectionViewHolder(parent: ViewGroup)
-        : RecyclerView.ViewHolder(parent.inflateDetachedChild(R.layout.row_collection)) {
+    class CollectionViewHolder(parent: ViewGroup) :
+        RecyclerView.ViewHolder(parent.inflateDetachedChild(R.layout.row_collection)) {
 
         val name: TextView = find(R.id.name)
         val icon: ImageView = find(R.id.icon)

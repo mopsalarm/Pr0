@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.video.VideoSize
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -294,9 +295,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             updatePauseViewIcon()
         }
 
-        override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
+        override fun onVideoSizeChanged(videoSize: VideoSize) {
             if (viewAspect < 0) {
-                viewAspect = width.toFloat() / height.toFloat() * pixelWidthHeightRatio
+                viewAspect =
+                    videoSize.width.toFloat() / videoSize.height.toFloat() * videoSize.pixelWidthHeightRatio
             }
         }
 

@@ -6,15 +6,15 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:7.0.4'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "1.5.31" apply false
-    id "org.jetbrains.kotlin.kapt" version "1.5.31" apply false
+    id "org.jetbrains.kotlin.android" version "1.6.10" apply false
+    id "org.jetbrains.kotlin.kapt" version "1.6.10" apply false
     id "com.github.ben-manes.versions" version "0.39.0"
 }
 
@@ -39,7 +39,7 @@ allprojects {
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all { task ->
-        sourceCompatibility = JavaVersion.VERSION_1_6
+        sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
 
         kotlinOptions {

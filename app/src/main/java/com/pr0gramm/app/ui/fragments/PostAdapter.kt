@@ -138,7 +138,8 @@ private class TagsViewHolderAdapterDelegate
         viewStates = inState.getParcelable("TagsViewHolder.state") ?: ViewHolderState()
     }
 
-    private class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView), ViewHolderState.Aware, RecycleAware {
+    class ViewHolder(val tagsView: TagsView) : RecyclerView.ViewHolder(tagsView),
+        ViewHolderState.Aware, RecycleAware {
         var doSaveViewState: () -> Unit = {}
 
         override var viewStateId: Long = 0
@@ -171,11 +172,12 @@ private object InfoLineItemAdapterDelegate
         holder.infoView.updateFollowState(value.followState.takeUnless { value.isOurPost })
     }
 
-    private class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
+    class ViewHolder(val infoView: InfoLineView) : RecyclerView.ViewHolder(infoView) {
         init {
             infoView.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
     }
 }
@@ -191,7 +193,7 @@ private object PlaceholderItemAdapterDelegate
         holder.set(value)
     }
 
-    private class ViewHolder(val pv: PlaceholderView) : RecyclerView.ViewHolder(pv) {
+    class ViewHolder(val pv: PlaceholderView) : RecyclerView.ViewHolder(pv) {
         fun set(item: PostAdapter.Item.PlaceholderItem) {
             pv.viewer = item.viewer
             pv.fixedHeight = item.height

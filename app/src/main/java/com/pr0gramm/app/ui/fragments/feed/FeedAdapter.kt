@@ -278,7 +278,7 @@ private object UserHintEntryAdapter
         holder.hintView.update(value.user.name, value.user.mark, value.action)
     }
 
-    private class ViewHolder(val hintView: UserHintView) : RecyclerView.ViewHolder(hintView)
+    class ViewHolder(val hintView: UserHintView) : RecyclerView.ViewHolder(hintView)
 }
 
 private object UserLoadingEntryAdapter
@@ -292,7 +292,7 @@ private object UserLoadingEntryAdapter
         holder.hintView.update(value.user.name, value.user.mark)
     }
 
-    private class ViewHolder(val hintView: UserInfoLoadingView) : RecyclerView.ViewHolder(hintView)
+    class ViewHolder(val hintView: UserInfoLoadingView) : RecyclerView.ViewHolder(hintView)
 }
 
 
@@ -307,7 +307,7 @@ private object SpacerEntryAdapter
         holder.bindTo(value)
     }
 
-    private class SpacerViewHolder(context: Context) : RecyclerView.ViewHolder(FrameLayout(context)) {
+    class SpacerViewHolder(context: Context) : RecyclerView.ViewHolder(FrameLayout(context)) {
         private val view = itemView as FrameLayout
 
         @LayoutRes
@@ -315,8 +315,9 @@ private object SpacerEntryAdapter
 
         fun bindTo(spacer: FeedAdapter.Entry.Spacer) {
             itemView.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    spacer.height)
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                spacer.height
+            )
 
             if (spacer.layout != null && layoutId != spacer.layout) {
                 view.removeAllViews()
@@ -339,7 +340,7 @@ private object CommentEntryAdapter
         holder.bindTo(value)
     }
 
-    private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewHolder(view) {
+    class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewHolder(view) {
         fun bindTo(entry: FeedAdapter.Entry.Comment) {
             val message = entry.message
 
@@ -349,7 +350,13 @@ private object CommentEntryAdapter
                 val context = itemView.context
 
                 // open the post in "new"
-                context.startActivity(MainActivity.openItemIntent(context, message.itemId, message.commentId))
+                context.startActivity(
+                    MainActivity.openItemIntent(
+                        context,
+                        message.itemId,
+                        message.commentId
+                    )
+                )
             }
         }
     }
@@ -391,7 +398,7 @@ private object MissingContentTypeEntryAdapter
         Settings.edit { putBoolean(key, true) }
     }
 
-    private class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val desc = find<TextView>(R.id.error)
         val button = find<Button>(R.id.confirm_button)
     }
@@ -409,6 +416,6 @@ private object UserEntryAdapter
         holder.view.updateUserInfo(value.user.info, value.user.comments, value.myself, value.actions)
     }
 
-    private class UserInfoViewHolder(val view: UserInfoView) : RecyclerView.ViewHolder(view)
+    class UserInfoViewHolder(val view: UserInfoView) : RecyclerView.ViewHolder(view)
 }
 
