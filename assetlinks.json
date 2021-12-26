@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.pr0gramm.app",
+      "sha256_cert_fingerprints": [
+        "71:D9:AB:B4:40:54:57:12:20:05:85:23:FB:A8:76:ED:C7:87:C3:7C:0F:FE:96:E5:30:05:1C:A0:BF:F8:4E:32"
+      ]
+    }
+  }
+]
+
