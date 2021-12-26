@@ -136,7 +136,7 @@ fun appInjector(app: Application) = Module.build {
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance()) }
     bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance()) }
-    bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app.cacheDir, instance()) }
+    bind<GifDrawableLoader>() with singleton { GifDrawableLoader(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance()) }

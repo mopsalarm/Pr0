@@ -194,8 +194,7 @@ dependencies {
 
     implementation "com.squareup.moshi:moshi:1.13.0"
 
-    // still issues with version > 1.2.12
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.23"
 
     implementation "com.github.tony19:named-regexp:0.2.6"
     implementation "com.pnikosis:materialish-progress:1.7"

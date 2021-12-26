@@ -1,6 +1,10 @@
 package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Animatable
+import android.graphics.drawable.AnimatedImageDrawable
+import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.core.view.isVisible
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.R
@@ -11,7 +15,6 @@ import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
-import kotlinx.coroutines.flow.collect
 import pl.droidsonroids.gif.GifDrawable
 
 /**
@@ -23,7 +26,7 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
     private val views = PlayerGifBinding.bind(this)
 
     // the gif that is shown
-    private var gif: GifDrawable? = null
+    private var gif: Drawable? = null
 
     init {
         views.image.alpha = 0f
@@ -38,7 +41,9 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
         addOnDetachListener {
             views.image.setImageDrawable(null)
 
-            gif?.recycle()
+            // recycle if possible
+            (gif as? GifDrawable)?.recycle()
+
             gif = null
         }
     }
@@ -68,13 +73,17 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
             viewAspect = state.drawable.intrinsicWidth.toFloat() / state.drawable.intrinsicHeight
 
             if (isPlaying) {
+                gifStart()
+
                 views.image.animate().alpha(1f)
-                        .withEndAction { onMediaShown() }
-                        .setDuration(MediaView.ANIMATION_DURATION)
-                        .start()
+                    .withEndAction { onMediaShown() }
+                    .setDuration(MediaView.ANIMATION_DURATION)
+                    .start()
             } else {
                 views.image.alpha = 1f
-                state.drawable.stop()
+
+                val animatable = state.drawable as? Animatable
+                animatable?.stop()
             }
         }
     }
@@ -89,13 +98,16 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
     }
 
     override fun currentVideoProgress(): ProgressInfo? {
-        gif?.takeIf { isPlaying }?.let { gif ->
+        val gif = gif as? GifDrawable
+        if (isPlaying && gif != null) {
             val position = gif.currentFrameIndex
             val duration = gif.numberOfFrames
 
             if (position >= 0 && duration > 0) {
-                return ProgressInfo(position / duration.toFloat(), 1f,
-                        duration = Duration.millis(gif.duration.toLong()))
+                return ProgressInfo(
+                    position / duration.toFloat(), 1f,
+                    duration = Duration.millis(gif.duration.toLong())
+                )
             }
         }
 
@@ -106,17 +118,42 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
         super.playMedia()
 
         gif.takeIf { isPlaying }?.let { gif ->
-            gif.start()
+            gifStart()
             onMediaShown()
         }
     }
 
     override fun stopMedia() {
         super.stopMedia()
-        gif?.stop()
+        gifStop()
     }
 
     override fun rewind() {
+        val gif = gif as? GifDrawable
         gif?.seekTo(0)
     }
+
+    private fun gifStart() {
+        val gif = this.gif
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (gif is AnimatedImageDrawable) {
+                gif.repeatCount = AnimatedImageDrawable.REPEAT_INFINITE
+            }
+        }
+
+        if (gif is Animatable) {
+            gif.start()
+        }
+    }
+
+    private fun gifStop() {
+        val gif = this.gif
+
+        if (gif is Animatable) {
+            gif.stop()
+        }
+    }
 }
+
+
