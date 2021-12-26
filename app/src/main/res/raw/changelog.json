@@ -1,5 +1,14 @@
 [
   {
+    "version": 193,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "In Android 12 hat sich die App beim Schließen nicht richtig zurückgesetzt."
+      }
+    ]
+  },
+  {
     "version": 192,
     "changes": [
       {

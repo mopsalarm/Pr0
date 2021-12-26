@@ -21,11 +21,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
+import com.pr0gramm.app.*
 import com.pr0gramm.app.Duration.Companion.seconds
-import com.pr0gramm.app.Instant
-import com.pr0gramm.app.R
-import com.pr0gramm.app.RequestCodes
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.databinding.ActivityMainBinding
 import com.pr0gramm.app.feed.FeedFilter
@@ -46,6 +43,7 @@ import com.pr0gramm.app.ui.fragments.feed.AdViewAdapter
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.delay
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.*
 import kotlin.properties.Delegates
@@ -377,6 +375,15 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             if (filter != null && !isDefaultFilter(filter)) {
                 gotoFeedFragment(defaultFeedFilter(), true)
                 return
+            }
+        }
+
+        // if the back stack is actually empty, we need to finish manually since android 12.
+        // if not, android will just keep the activity as is and present it again once you
+        // open the app again.
+        if (Build.VERSION.SDK_INT >= 31) {
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                return finish()
             }
         }
 
