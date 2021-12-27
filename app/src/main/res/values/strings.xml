@@ -356,6 +356,7 @@
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
     <string name="badge_comments">More than %sk comments</string>
+    <string name="badge_tags">More than %sk tags</string>
     <string name="badge_deleted_items">Requested deletion of %d of his own items</string>
     <string name="badge_deleted_comments">Requested deletion of %d of his own comments</string>
     <string name="badge_time">More than %s years on pr0gramm</string>

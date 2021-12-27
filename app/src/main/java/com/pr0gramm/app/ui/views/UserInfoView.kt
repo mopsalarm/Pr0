@@ -52,7 +52,12 @@ class UserInfoView(context: Context) : FrameLayout(context) {
     private val picasso = context.injector.instance<Picasso>()
     private val userClassesService = context.injector.instance<UserClassesService>()
 
-    fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean, actions: UserInfoView.UserActionListener) {
+    fun updateUserInfo(
+        info: Api.Info,
+        comments: List<Api.UserComments.UserComment>,
+        myself: Boolean,
+        actions: UserInfoView.UserActionListener
+    ) {
         // user info
         val user = info.user
         username.setUsername(user.name, user.mark)
@@ -111,52 +116,67 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         // add badge for "x comments"
         (info.commentCount / 1000).takeIf { it > 0 }?.let {
             badges += BadgeInfo(
-                    "comments.png",
-                    context.getString(R.string.badge_comments, it.toString()),
-                    text = "${it}k", textColor = Color.BLACK)
+                "comments.png",
+                context.getString(R.string.badge_comments, it.toString()),
+                text = "${it}k", textColor = Color.BLACK
+            )
+        }
+
+        // add badge for "x tags"
+        (info.tagCount / 1000).takeIf { it > 0 }?.let {
+            badges += BadgeInfo(
+                "tags.png",
+                context.getString(R.string.badge_tags, it.toString()),
+                text = "${it}k", textColor = Color.WHITE
+            )
         }
 
         if (info.user.itemDeleteCount > 0) {
             val count = info.user.itemDeleteCount
             badges += BadgeInfo(
-                    "itemdelete.png",
-                    context.getString(R.string.badge_deleted_items, count),
-                    text = "$count", textColor = Color.WHITE)
+                "itemdelete.png",
+                context.getString(R.string.badge_deleted_items, count),
+                text = "$count", textColor = Color.WHITE
+            )
         }
 
         if (info.user.commentDeleteCount > 0) {
             val count = info.user.commentDeleteCount
             badges += BadgeInfo(
-                    "commentdelete.png",
-                    context.getString(R.string.badge_deleted_comments, count),
-                    text = "$count", textColor = Color.WHITE)
+                "commentdelete.png",
+                context.getString(R.string.badge_deleted_comments, count),
+                text = "$count", textColor = Color.WHITE
+            )
         }
 
         // add badge for "x years on pr0gramm"
         val years = Duration.between(Instant.now(), info.user.registered).convertTo(TimeUnit.DAYS) / 365
         if (years > 0) {
             badges += BadgeInfo(
-                    "years.png",
-                    context.getString(R.string.badge_time, years.toString()),
-                    text = years.toString(), textColor = Color.WHITE)
+                "years.png",
+                context.getString(R.string.badge_time, years.toString()),
+                text = years.toString(), textColor = Color.WHITE
+            )
         }
 
         // add badge for "has X month of promium"
         val premiumMonths = info.premiumTime / 30
         if (premiumMonths > 0) {
             badges += BadgeInfo(
-                    "pr0miumTime.png",
-                    context.getString(R.string.badge_premium, premiumMonths),
-                    text = premiumMonths.toString(), textColor = Color.WHITE)
+                "pr0miumTime.png",
+                context.getString(R.string.badge_premium, premiumMonths),
+                text = premiumMonths.toString(), textColor = Color.WHITE
+            )
         }
 
         // add badge for "has X month of promium"
         val premiumGift = info.premiumGift
         if (premiumGift > 0) {
             badges += BadgeInfo(
-                    "pr0miumGift.png",
-                    context.getString(R.string.badge_premium_gift, premiumGift),
-                    text = premiumGift.toString(), textColor = Color.WHITE)
+                "pr0miumGift.png",
+                context.getString(R.string.badge_premium_gift, premiumGift),
+                text = premiumGift.toString(), textColor = Color.WHITE
+            )
         }
 
         info.badges.mapTo(badges) { badge ->
@@ -225,9 +245,11 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         fun shareUserProfile(name: String)
     }
 
-    private data class BadgeInfo(val image: String, val description: String,
-                                 val text: String? = null,
-                                 val textColor: Int = Color.WHITE)
+    private data class BadgeInfo(
+        val image: String, val description: String,
+        val text: String? = null,
+        val textColor: Int = Color.WHITE
+    )
 
     private class BadgeAdapter(val badges: List<BadgeInfo>) : RecyclerView.Adapter<BadgeViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, idx: Int): BadgeViewHolder {
@@ -259,9 +281,9 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
             itemView.setOnClickListener {
                 Snackbar.make(itemView.context, itemView, badge.description, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.okay) { /* do nothing */ }
-                        .configureNewStyle()
-                        .show()
+                    .setAction(R.string.okay) { /* do nothing */ }
+                    .configureNewStyle()
+                    .show()
             }
 
             if (!itemView.isInEditMode) {
@@ -284,19 +306,20 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
         companion object {
             private val knownImages = mapOf(
-                    "years.png" to R.drawable.badge_years,
-                    "comments.png" to R.drawable.badge_comments,
-                    "social-share.png" to R.drawable.badge_social,
-                    "secret-santa-2014.png" to R.drawable.badge_secret_santa,
-                    "benitrat0r-lose.png" to R.drawable.badge_benitrator_lose,
-                    "benitrat0r-win.png" to R.drawable.badge_benitrator_win,
-                    "contract.png" to R.drawable.badge_contract,
-                    "connect4-red.png" to R.drawable.badge_connect4_red,
-                    "connect4-blue.png" to R.drawable.badge_connect4_blue,
-                    "krebs-donation.png" to R.drawable.badge_krebs,
-                    "itemdelete.png" to R.drawable.deleted_item,
-                    "commentdelete.png" to R.drawable.deleted_comment,
-                    "art13.png" to R.drawable.badge_art13
+                "art13.png" to R.drawable.badge_art13,
+                "benitrat0r-lose.png" to R.drawable.badge_benitrator_lose,
+                "benitrat0r-win.png" to R.drawable.badge_benitrator_win,
+                "commentdelete.png" to R.drawable.deleted_comment,
+                "comments.png" to R.drawable.badge_comments,
+                "connect4-blue.png" to R.drawable.badge_connect4_blue,
+                "connect4-red.png" to R.drawable.badge_connect4_red,
+                "contract.png" to R.drawable.badge_contract,
+                "itemdelete.png" to R.drawable.deleted_item,
+                "krebs-donation.png" to R.drawable.badge_krebs,
+                "secret-santa-2014.png" to R.drawable.badge_secret_santa,
+                "social-share.png" to R.drawable.badge_social,
+                "tags.png" to R.drawable.badge_tags,
+                "years.png" to R.drawable.badge_years,
             )
         }
     }
