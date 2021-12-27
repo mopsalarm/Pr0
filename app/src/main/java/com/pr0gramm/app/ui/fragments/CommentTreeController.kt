@@ -29,7 +29,6 @@ import com.pr0gramm.app.ui.views.VoteViewController
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentViewLayout(parent)) {
@@ -64,6 +63,7 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
         private val minimalScrollSpace = itemView.context.dp(16f)
 
+        @SuppressLint("StaticFieldLeak")
         private val toolbar = (AndroidUtility.activityFromContext(itemView.context)
                 as? ScrollHideToolbarListener.ToolbarActivity)?.scrollHideToolbarListener
 
