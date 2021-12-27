@@ -31,7 +31,6 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.flow.collect
 import java.io.IOException
 import java.util.Collections.synchronizedSet
 import java.util.concurrent.atomic.AtomicInteger
@@ -40,8 +39,10 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  */
 
-class NotificationService(private val context: Application,
-                          private val inboxService: InboxService) {
+class NotificationService(
+    private val context: Application,
+    private val inboxService: InboxService
+) {
 
     private val logger = Logger("NotificationService")
 
@@ -93,8 +94,10 @@ class NotificationService(private val context: Application,
         nm.createNotificationChannel(ch)
     }
 
-    private fun notify(type: NotificationType, id: Int? = null,
-                       configure: NotificationCompat.Builder.() -> Unit) {
+    private fun notify(
+        type: NotificationType, id: Int? = null,
+        configure: NotificationCompat.Builder.() -> Unit
+    ) {
 
         val n = NotificationCompat.Builder(context, type.channel).apply(configure).build()
         nm.notify(type.channel, id ?: type.id, n)
@@ -168,9 +171,9 @@ class NotificationService(private val context: Application,
         }
 
         val messageGroups = messages
-                .filter { it.isUnread }
-                .groupBy { Pair(it.type, it.groupId) }
-                .values
+            .filter { it.isUnread }
+            .groupBy { Pair(it.type, it.groupId) }
+            .values
 
         // convert to notifications
         val notificationConfigs = messageGroups.map { messages ->
@@ -236,16 +239,21 @@ class NotificationService(private val context: Application,
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)
-                .addParentStack(UpdateActivity::class.java)
-                .addNextIntent(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
+            .addParentStack(UpdateActivity::class.java)
+            .addNextIntent(intent)
+            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)!!
     }
 
     private fun viewFileIntent(uri: Uri): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(uri.toString()))
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     fun cancelForUnreadConversation(conversationName: String) {
@@ -324,7 +332,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
 
     // select the most recent message
     private val message = messages.maxByOrNull { it.creationTime }
-            ?: throw IllegalArgumentException("Must contain at least one message.")
+        ?: throw IllegalArgumentException("Must contain at least one message.")
 
     // the type of all messages, if they all have the same type, null otherwise.
     val messageType: MessageType = message.type
@@ -461,13 +469,16 @@ class NotificationHelperService(val context: Context) {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
         return TaskStackBuilder.create(context)
-                .addNextIntentWithParentStack(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
+            .addNextIntentWithParentStack(intent)
+            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)!!
     }
 
     fun markAsReadIntent(message: Message): PendingIntent {
         val intent = InboxNotificationCanceledReceiver.makeIntent(context, message)
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     /**
@@ -475,20 +486,26 @@ class NotificationHelperService(val context: Context) {
      */
     fun buildReplyAction(notificationId: Int, message: Message): NotificationCompat.Action {
         // build the intent to fire on reply
-        val pendingIntent = PendingIntent.getBroadcast(context, 0,
-                MessageReplyReceiver.makeIntent(context, notificationId, message),
-                PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0,
+            MessageReplyReceiver.makeIntent(context, notificationId, message),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
 
         // the input field
         val remoteInput = RemoteInput.Builder("msg")
-                .setLabel(context.getString(R.string.notify_reply_to_x, message.name))
-                .build()
+            .setLabel(context.getString(R.string.notify_reply_to_x, message.name))
+            .build()
 
         // add everything as an action
-        return NotificationCompat.Action.Builder(R.drawable.ic_reply, context.getString(R.string.notify_reply), pendingIntent)
-                .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
-                .addRemoteInput(remoteInput)
-                .build()
+        return NotificationCompat.Action.Builder(
+            R.drawable.ic_reply,
+            context.getString(R.string.notify_reply),
+            pendingIntent
+        )
+            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
+            .addRemoteInput(remoteInput)
+            .build()
     }
 
     /**
@@ -498,9 +515,13 @@ class NotificationHelperService(val context: Context) {
         val pendingIntent = inboxActivityIntent(inboxType, conversationName)
 
         // add everything as an action
-        return NotificationCompat.Action.Builder(R.drawable.ic_action_email, context.getString(R.string.notify_to_inbox), pendingIntent)
-                .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
-                .build()
+        return NotificationCompat.Action.Builder(
+            R.drawable.ic_action_email,
+            context.getString(R.string.notify_to_inbox),
+            pendingIntent
+        )
+            .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
+            .build()
     }
 
     fun openItemIntent(message: Message): PendingIntent {
@@ -515,8 +536,8 @@ class NotificationHelperService(val context: Context) {
         intent.putExtra(MainActivity.EXTRA_MARK_AS_READ_MESSAGE_TYPE, MessageType.STALK.name)
 
         return TaskStackBuilder.create(context)
-                .addNextIntentWithParentStack(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
+            .addNextIntentWithParentStack(intent)
+            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)!!
     }
 
     /**

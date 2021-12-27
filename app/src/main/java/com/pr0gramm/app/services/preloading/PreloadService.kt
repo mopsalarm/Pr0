@@ -89,9 +89,11 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
         jobId = System.currentTimeMillis()
         canceled = false
 
-        val cancelIntent = PendingIntent.getService(this, 0,
-                Intent(this, PreloadService::class.java).putExtra(EXTRA_CANCEL, jobId),
-                PendingIntent.FLAG_UPDATE_CURRENT)
+        val cancelIntent = PendingIntent.getService(
+            this, 0,
+            Intent(this, PreloadService::class.java).putExtra(EXTRA_CANCEL, jobId),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         // update notification
         show {
@@ -99,7 +101,6 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
             addAction(icon, getString(R.string.cancel), cancelIntent)
 
             setProgress(100 * items.size, 0, false)
-            setContentIntent(cancelIntent)
         }
 
         // create a wake lock
