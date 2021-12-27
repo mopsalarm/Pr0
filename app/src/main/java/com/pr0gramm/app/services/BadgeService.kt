@@ -1,8 +1,9 @@
 package com.pr0gramm.app.services
 
 import android.content.Context
-import android.os.AsyncTask
 import com.pr0gramm.app.util.AndroidUtility
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.leolin.shortcutbadger.ShortcutBadger
 
 /**
@@ -10,12 +11,12 @@ import me.leolin.shortcutbadger.ShortcutBadger
  * access because of threading issues with the api :/
  */
 class BadgeService {
-    private val executor = AsyncTask.SERIAL_EXECUTOR
+    private val executor = Dispatchers.Default.limitedParallelism(1)
 
-    fun update(context: Context, badgeCount: Int) {
+    suspend fun update(context: Context, badgeCount: Int) {
         val appContext = context.applicationContext
 
-        executor.execute {
+        withContext(executor) {
             updateInternal(appContext, badgeCount)
         }
     }
