@@ -49,7 +49,8 @@ import java.io.StringWriter
 object AndroidUtility {
     private val logger = Logger("AndroidUtility")
 
-    private val EXCEPTION_BLACKLIST = listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
+    private val EXCEPTION_BLACKLIST =
+        listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
 
     private val cache = LruCache<Int, Unit>(6)
 
@@ -67,9 +68,9 @@ object AndroidUtility {
     /**
      * Gets the height of the actionbar.
      */
-    fun getActionBarHeight(context: Context): Int {
-        context.obtainStyledAttributes(intArrayOf(R.attr.actionBarSize)).use {
-            return it.getDimensionPixelSize(it.getIndex(0), -1)
+    private fun getActionBarHeight(context: Context): Int {
+        context.obtainStyledAttributes(intArrayOf(R.attr.actionBarSize)).use { ta ->
+            return ta.getDimensionPixelSize(ta.getIndex(0), -1)
         }
     }
 
@@ -144,7 +145,8 @@ object AndroidUtility {
         context ?: return false
 
         val cm = context.getSystemService(
-                Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
 
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm)
     }
@@ -219,8 +221,8 @@ object AndroidUtility {
         val intent = Intent(activity.intent)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         TaskStackBuilder.create(activity)
-                .addNextIntentWithParentStack(intent)
-                .startActivities()
+            .addNextIntentWithParentStack(intent)
+            .startActivities()
     }
 
     fun applyWindowFullscreen(activity: Activity, fullscreen: Boolean) {
@@ -316,8 +318,8 @@ class BackgroundThreadException(cause: Throwable) : RuntimeException(cause)
 fun Throwable.getMessageWithCauses(): String {
     val error = this
     val type = javaClass.name
-            .replaceFirst(".+\\.".toRegex(), "")
-            .replace('$', '.')
+        .replaceFirst(".+\\.".toRegex(), "")
+        .replace('$', '.')
 
     val cause = error.cause
 
