@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "In Android 12 hat sich die App beim Schließen nicht richtig zurückgesetzt."
+      },
+      {
+        "type": "Fix",
+        "change": "Downloads & Notification funktionieren wieder in Android 12."
       }
     ]
   },
