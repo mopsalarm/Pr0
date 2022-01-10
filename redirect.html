@@ -4,13 +4,20 @@
   const base64urlSafe = /u=(.*)/.exec(location.search)[1];
 
   // decode original url
-  const url = atob(base64urlSafe.replace(/-/g, "+").replace(/_/g, "/"));
+  const url = new URL(atob(base64urlSafe.replace(/-/g, "+").replace(/_/g, "/")));
   
-  // add hubtraffic data
-  const sep = url.indexOf("?") === -1 ? "?" : "&";
+  if (/amazon/.test(url)) {
+    url.searchParams.set("tag", "mopsi-21");
+    
+  } else {
+    url.searchParams.set("utm_source", "paid");
+    url.searchParams.set("utm_medium", "hubtraffic");
+    url.searchParams.set("utm_campaign", "hubtraffic_pr0grammapp");
+  }
   
-  // and redirect to hub traffic.
-  location.href = url + sep + "utm_source=paid&utm_medium=hubtraffic&utm_campaign=hubtraffic_pr0grammapp";
+  // and redirect to the target URL
+  location.href = url.toString();
+  
 </script>
 
 <<noscript>
