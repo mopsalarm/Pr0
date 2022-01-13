@@ -48,7 +48,10 @@ import com.pr0gramm.app.delay
 import com.pr0gramm.app.ui.views.CompatibleTextView
 import com.squareup.moshi.adapter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.io.File
@@ -188,7 +191,10 @@ inline fun <T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWrit
     return Delegates.observable(def) { _, _, _ -> onChange() }
 }
 
-inline fun <T> observeChangeEx(def: T, crossinline onChange: (oldValue: T, newValue: T) -> Unit): ReadWriteProperty<Any?, T> {
+inline fun <T> observeChangeEx(
+    def: T,
+    crossinline onChange: (oldValue: T, newValue: T) -> Unit
+): ReadWriteProperty<Any?, T> {
     return Delegates.observable(def) { _, old, new -> onChange(old, new) }
 }
 
@@ -229,17 +235,20 @@ fun <T> cached(fn: () -> T): CachedValue<T> = object : CachedValue<T> {
 
 inline fun <reified T : View> Activity.find(id: Int): T {
     return findViewById(id) ?: throw Resources.NotFoundException(
-            "View ${resources.getResourceName(id)} not found")
+        "View ${resources.getResourceName(id)} not found"
+    )
 }
 
 inline fun <reified T : View> View.find(id: Int): T {
     return findViewById(id) ?: throw Resources.NotFoundException(
-            "View ${resources.getResourceName(id)} not found")
+        "View ${resources.getResourceName(id)} not found"
+    )
 }
 
 inline fun <reified T : View> Dialog.find(id: Int): T {
     return findViewById(id) ?: throw Resources.NotFoundException(
-            "View ${this.context.resources.getResourceName(id)} not found")
+        "View ${this.context.resources.getResourceName(id)} not found"
+    )
 }
 
 inline fun <reified T : View> View.findOptional(id: Int): T? {
@@ -248,7 +257,8 @@ inline fun <reified T : View> View.findOptional(id: Int): T? {
 
 inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
     return itemView.findViewById(id) ?: throw Resources.NotFoundException(
-            "View ${itemView.resources.getResourceName(id)} not found")
+        "View ${itemView.resources.getResourceName(id)} not found"
+    )
 }
 
 inline fun Canvas.save(block: () -> Unit) {
@@ -488,7 +498,7 @@ fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {
     return object : ThreadLocal<T>(), ReadOnlyProperty<Any, T> {
         override fun initialValue(): T = supplier()
         override fun getValue(thisRef: Any, property: KProperty<*>): T = get()
-                ?: throw IllegalStateException("No value in thread local.")
+            ?: throw IllegalStateException("No value in thread local.")
     }
 }
 
@@ -549,7 +559,8 @@ fun Bundle.getStringOrThrow(name: String): String {
 }
 
 inline fun <reified T : Activity> activityIntent(
-        context: Context, uri: Uri? = null, configure: Intent.() -> Unit = {}): Intent {
+    context: Context, uri: Uri? = null, configure: Intent.() -> Unit = {}
+): Intent {
 
     return Intent(context, T::class.java).apply { this.data = uri }.apply(configure)
 }
@@ -558,7 +569,10 @@ inline fun <reified T : Activity> Context.startActivity(configureIntent: (Intent
     startActivity(Intent(this, T::class.java).also(configureIntent))
 }
 
-inline fun <reified T : Activity> Activity.startActivity(requestCode: Int = -1, configureIntent: (Intent) -> Unit = {}) {
+inline fun <reified T : Activity> Activity.startActivity(
+    requestCode: Int = -1,
+    configureIntent: (Intent) -> Unit = {}
+) {
     val intent = Intent(this, T::class.java).also(configureIntent)
     startActivityForResult(intent, requestCode)
 }
@@ -567,7 +581,10 @@ inline fun <reified T : Activity> Fragment.startActivity(configureIntent: (Inten
     startActivity(Intent(requireContext(), T::class.java).also(configureIntent))
 }
 
-inline fun <reified T : Activity> Fragment.startActivity(requestCode: Int = -1, configureIntent: (Intent) -> Unit = {}) {
+inline fun <reified T : Activity> Fragment.startActivity(
+    requestCode: Int = -1,
+    configureIntent: (Intent) -> Unit = {}
+) {
     val intent = Intent(requireContext(), T::class.java).also(configureIntent)
     startActivityForResult(intent, requestCode)
 }
@@ -663,7 +680,20 @@ fun File.updateTimestamp(): Boolean {
 val Uri.isLocalFile get(): Boolean = scheme == "file"
 
 fun AppCompatTextView.setTextFuture(text: CharSequence) {
-    setTextFuture(PrecomputedTextCompat.getTextFuture(text, textMetricsParamsCompat, null))
+    // according to https://www.wikiwand.com/en/Emoji#/Unicode_blocks
+    // most of the unicode characters start around 0x2030. We classify everything without unicode
+    // characters as simple text.
+    val isSimpleText = text.all { ch -> ch < Char(0x2030) }
+
+    if (isSimpleText) {
+        // use a text future for simple text
+        setTextFuture(PrecomputedTextCompat.getTextFuture(text, textMetricsParamsCompat, null))
+        return
+    }
+
+    Logger("AppCompatTextView.setTextFuture").debug { "Non simple text found: $text" }
+    setTextFuture(null)
+    setText(text)
 }
 
 fun TextView.setTextFuture(text: CharSequence) {
@@ -757,7 +787,10 @@ val View.parentView: ViewGroup?
 
 fun View.requireParentView(): ViewGroup = parent as ViewGroup
 
-fun CompoundButton.setOnCheckedChangeListenerWithInitial(checkedState: Boolean, listener: (isChecked: Boolean) -> Unit) {
+fun CompoundButton.setOnCheckedChangeListenerWithInitial(
+    checkedState: Boolean,
+    listener: (isChecked: Boolean) -> Unit
+) {
     setOnCheckedChangeListener(null)
     isChecked = checkedState
 
