@@ -8,8 +8,13 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.*
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import java.io.File
 
 
@@ -52,16 +57,18 @@ class PreloadManager(private val db: PreloadItemQueries) {
         )
     }
 
-    private fun validateItems(items: List<PreloadItem>): LongSparseArray<PreloadItem> {
+    private suspend fun validateItems(items: List<PreloadItem>): LongSparseArray<PreloadItem> {
         val missing = mutableListOf<PreloadItem>()
         val available = mutableListOf<PreloadItem>()
 
-        // check if all files still exist
-        for (item in items) {
-            if (!item.thumbnail.exists() || !item.media.exists()) {
-                missing += item
-            } else {
-                available += item
+        runInterruptible(Dispatchers.IO) {
+            // check if all files still exist
+            for (item in items) {
+                if (!item.thumbnail.exists() || !item.media.exists()) {
+                    missing += item
+                } else {
+                    available += item
+                }
             }
         }
 

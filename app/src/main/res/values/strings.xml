@@ -465,7 +465,7 @@
     <string name="hint_new_items_some">%d new posts</string>
     <string name="hint_new_items_one">One new post</string>
     <string name="hint_refresh_load">Refresh</string>
-    <string name="perf_sync_backup_title">Sync</string>
+    <string name="perf_sync_backup_title">Backup "Seen"</string>
     <string name="pref_sync_backup_summary">Automatically sync and backup seen images</string>
     <string name="error_could_not_load_comments">Could not load comments.\nSwipe down to try again.</string>
     <string name="loading_comments">Loading comments…</string>
@@ -586,5 +586,10 @@
     <string name="action_verify">Verify</string>
     <string name="action_not_now">Not now</string>
     <string name="action_age_verification">Age verification</string>
+    <string name="prefcat_behaviour__sync_title">Sync Settings</string>
+    <string name="pref_sync_site_settings_title">Sync site settings</string>
+    <string name="pref_sync_site_settings_summary">Enable to sync some settings between the website and the app.</string>
+    <string name="pref_use_secondary_servers_title">Secondary Server</string>
+    <string name="pref_use_secondary_servers_summary">Uses a second set of servers to access pr0gramm. This might help if you encounter a very slow connection using the default servers - might help for Telekom Customers.</string>
 </resources>
 

@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.GenericSettings
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.model.config.Config
@@ -12,10 +13,7 @@ import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
-import com.pr0gramm.app.util.catchAll
-import com.pr0gramm.app.util.debugOnly
-import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.ticker
+import com.pr0gramm.app.util.*
 import com.squareup.moshi.adapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -29,24 +27,27 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 
-class UserService(private val api: Api,
-                  private val voteService: VoteService,
-                  private val seenService: SeenService,
-                  private val inboxService: InboxService,
-                  private val cookieJar: LoginCookieJar,
-                  private val preferences: SharedPreferences,
-                  private val benisService: BenisRecordService,
-                  private val collectionsItemsService: CollectionItemsService,
-                  private val favedCommentService: FavedCommentService,
-                  private val config: Config) {
+class UserService(
+    private val api: Api,
+    private val voteService: VoteService,
+    private val seenService: SeenService,
+    private val inboxService: InboxService,
+    private val cookieJar: LoginCookieJar,
+    private val preferences: SharedPreferences,
+    private val benisService: BenisRecordService,
+    private val collectionsItemsService: CollectionItemsService,
+    private val favedCommentService: FavedCommentService,
+    private val settingsService: SiteSettingsService,
+    private val config: Config,
+) {
 
     private val logger = Logger("UserService")
 
     @Suppress("PrivatePropertyName")
     private val NotAuthorized = LoginState(
-            id = -1, score = 0, mark = 0, admin = false,
-            premium = false, authorized = false, name = null,
-            uniqueToken = null, verified = false,
+        id = -1, score = 0, mark = 0, admin = false,
+        premium = false, authorized = false, name = null,
+        uniqueToken = null, verified = false,
     )
 
     private val fullSyncInProgress = AtomicBoolean()
@@ -130,7 +131,7 @@ class UserService(private val api: Api,
         doInBackground {
             try {
                 val loginState = MoshiInstance.adapter<LoginState>()
-                        .fromJson(encodedLoginState) ?: return@doInBackground
+                    .fromJson(encodedLoginState) ?: return@doInBackground
 
                 logger.debug { "Restoring login state: $loginState" }
                 updateLoginState(loginState)
@@ -190,8 +191,8 @@ class UserService(private val api: Api,
 
         // extract login cookie from response
         val loginCookie = Cookie
-                .parseAll(response.raw().request.url, response.raw().headers)
-                .firstOrNull { cookie -> cookie.name == "me" }
+            .parseAll(response.raw().request.url, response.raw().headers)
+            .firstOrNull { cookie -> cookie.name == "me" }
 
         if (loginCookie == null) {
             logger.debug { "No login cookie found" }
@@ -202,6 +203,11 @@ class UserService(private val api: Api,
         if (!cookieJar.updateLoginCookie(loginCookie)) {
             logger.debug { "CookieJar did not accept cookie $loginCookie" }
             return LoginResult.FailureError
+        }
+
+        // update app settings
+        login.settings?.let { settings ->
+            settingsService.updateLocalSettings(settings)
         }
 
         val userInfo = updateCachedUserInfo(login.identifier)
@@ -228,8 +234,8 @@ class UserService(private val api: Api,
         // remove sync id
         preferences.edit {
             preferences.all.keys
-                    .filter { it.startsWith(KEY_LAST_LOF_OFFSET) }
-                    .forEach { remove(it) }
+                .filter { it.startsWith(KEY_LAST_LOF_OFFSET) }
+                .forEach { remove(it) }
 
             remove(KEY_LAST_USER_INFO)
             remove(KEY_LAST_LOGIN_STATE)
@@ -272,8 +278,8 @@ class UserService(private val api: Api,
         val types = loginStates.flatMapLatest { loginState ->
             if (loginState.authorized) {
                 Settings.changes()
-                        .map { Settings.contentType }
-                        .onStart { emit(Settings.contentType) }
+                    .map { Settings.contentType }
+                    .onStart { emit(Settings.contentType) }
             } else {
                 flowOf(EnumSet.of(ContentType.SFW))
             }
@@ -287,8 +293,9 @@ class UserService(private val api: Api,
      * where performed since the last call to sync.
      */
     suspend fun sync(): Api.Sync? {
-        if (!cookieJar.hasCookie())
+        if (!cookieJar.hasCookie()) {
             return null
+        }
 
         // tell the sync request where to start
         val lastLogOffset = preferences.getLong(syncOffsetKey(), 0L)
@@ -301,6 +308,11 @@ class UserService(private val api: Api,
 
         try {
             val response = api.sync(lastLogOffset)
+
+            // update app settings if changed
+            response.settings?.let { settings ->
+                settingsService.updateLocalSettings(settings)
+            }
 
             inboxService.publishUnreadMessagesCount(response.inbox)
 
@@ -343,7 +355,18 @@ class UserService(private val api: Api,
         }
     }
 
-    private fun syncOffsetKey() = KEY_LAST_LOF_OFFSET + ":v6:" + config.syncVersion
+    private suspend fun querySyncOnly(): Api.Sync? {
+        if (!cookieJar.hasCookie()) {
+            return null
+        }
+
+        val lastLogOffset = preferences.getLong(syncOffsetKey(), 0L)
+        return api.sync(lastLogOffset)
+    }
+
+    private fun syncOffsetKey(): String {
+        return KEY_LAST_LOF_OFFSET + ":v6:" + config.syncVersion
+    }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
@@ -360,6 +383,30 @@ class UserService(private val api: Api,
     }
 
     /**
+     * Store the given settings
+     */
+    suspend fun storeSiteSettings(update: Map<String, Any?>) {
+        val sync = runCatching { querySyncOnly() }.getOrNull() ?: return
+
+        val settings = HashMap(sync.settings.orEmpty() + update)
+
+        // FIXME someone uses themeId to get the value, but theme to store it.
+        // FIXME Use this as a workaround until it is fixed.
+        settings["theme"] = settings["themeId"]
+
+        logger.info { "Storing remote settings: $settings" }
+
+        val fields = settings.mapValues { (_, value) ->
+            when (value) {
+                is Boolean -> value.toInt()
+                else -> value
+            }
+        }
+
+        return api.storeSettings(null, fields as GenericSettings)
+    }
+
+    /**
      * Update the cached user info in the background. Will throw an exception if
      * the user info can not be updated.
      */
@@ -367,8 +414,10 @@ class UserService(private val api: Api,
         val name = name.takeUnless { it.isNullOrEmpty() } ?: return null
 
         return info(name).also { userInfo ->
-            val updatedLoginState = createLoginStateFromInfo(userInfo.user,
-                    cookieJar.parsedCookie, token ?: loginState.uniqueToken)
+            val updatedLoginState = createLoginStateFromInfo(
+                userInfo.user,
+                cookieJar.parsedCookie, token ?: loginState.uniqueToken
+            )
 
             loginStateLock.withLock {
                 if (cookieJar.parsedCookie != null) {
@@ -472,7 +521,8 @@ class UserService(private val api: Api,
     }
 
     class LoginStateWithScoreGraph(
-            val loginState: LoginState, val scoreGraph: Graph?)
+        val loginState: LoginState, val scoreGraph: Graph?
+    )
 
     sealed class LoginResult {
         object Success : LoginResult()
@@ -491,13 +541,14 @@ private const val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
 
 private fun createLoginStateFromInfo(user: Api.Info.User, cookie: LoginCookie?, token: String?): LoginState {
     return LoginState(
-            authorized = true,
-            id = user.id,
-            name = user.name,
-            mark = user.mark,
-            score = user.score,
-            premium = cookie?.paid == true,
-            admin = cookie?.admin == true,
-            verified = cookie?.verified == true,
-            uniqueToken = token)
+        authorized = true,
+        id = user.id,
+        name = user.name,
+        mark = user.mark,
+        score = user.score,
+        premium = cookie?.paid == true,
+        admin = cookie?.admin == true,
+        verified = cookie?.verified == true,
+        uniqueToken = token
+    )
 }

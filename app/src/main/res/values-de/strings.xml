@@ -440,7 +440,7 @@
     <string name="hint_new_items_some">%d neue Hochlads gefunden</string>
     <string name="hint_new_items_one">Einen neuen Hochlad gefunden</string>
     <string name="hint_refresh_load">Laden</string>
-    <string name="perf_sync_backup_title">Synchronisieren</string>
+    <string name="perf_sync_backup_title">Backup "Gesehen"</string>
     <string name="pref_sync_backup_summary">Automatisch als gesehen markierte Bilder mit anderen Geräten synchronisieren und backupen</string>
     <string name="error_could_not_load_comments">Kommentare konnten nicht geladen werden.</string>
     <string name="loading_comments">Kommentare werden geladen…</string>
@@ -566,4 +566,10 @@
     <string name="action_age_verification">Altersnachweis</string>
     <string name="action_verify">Verifizieren</string>
     <string name="action_not_now">Nicht jetzt</string>
+    <string name="badge_tags">Mehr als %sk Tags</string>
+    <string name="prefcat_behaviour__sync_title">Synchronisation</string>
+    <string name="pref_sync_site_settings_title">Einstellungen synchronisieren</string>
+    <string name="pref_sync_site_settings_summary">Wenn ausgewählt werden bestimmte Einstellungen zwischen App und und Website synchronisiert.</string>
+    <string name="pref_use_secondary_servers_title">Ausweich Server</string>
+    <string name="pref_use_secondary_servers_summary">Verwendet den Ausweichserver um auf das pr0gramm zuzugreifen. Dies kann helfen, wenn die Verbindung oft unerklärlich langsam ist. Telekom Kunden sind davon aktuell stärker betroffen.</string>
 </resources>

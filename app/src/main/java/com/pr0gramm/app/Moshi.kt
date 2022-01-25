@@ -50,7 +50,7 @@ private object Base64ByteArrayAdapter : JsonAdapter<ByteArray>() {
 }
 
 private object BooleanAdapter : JsonAdapter<Boolean>() {
-    override fun fromJson(reader: JsonReader): Boolean? {
+    override fun fromJson(reader: JsonReader): Boolean {
         return when (reader.peek()) {
             JsonReader.Token.NULL -> false
             JsonReader.Token.BOOLEAN -> reader.nextBoolean()

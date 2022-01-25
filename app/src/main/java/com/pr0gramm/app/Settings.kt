@@ -136,11 +136,13 @@ object Settings {
     val overrideYouTubeLinks: Boolean
         get() = preferences.getBoolean("pref_override_youtube_links", false)
 
-    val themeName: String
+    var themeName: String
         get() = preferences.getString("pref_theme", Themes.ORANGE.name)!!
+        set(value) = edit { putString("pref_theme", value) }
 
-    val upvoteOnCollect: Boolean
+    var upvoteOnCollect: Boolean
         get() = preferences.getBoolean("pref_upvote_on_collect", false)
+        set(value) = edit { putBoolean("pref_upvote_on_collect", value) }
 
     val enableQuickPeek: Boolean
         get() = preferences.getBoolean("pref_enable_quick_peek", true)
@@ -148,8 +150,9 @@ object Settings {
     val showContentTypeFlag: Boolean
         get() = preferences.getBoolean("pref_show_content_type_flag_2", false)
 
-    val alwaysShowAds: Boolean
+    var alwaysShowAds: Boolean
         get() = preferences.getBoolean("pref_always_show_ads", false)
+        set(value) = edit { putBoolean("pref_always_show_ads", value) }
 
     val rotateInFullscreen: Boolean
         get() = preferences.getBoolean("pref_rotate_in_fullscreen", true)
@@ -187,6 +190,13 @@ object Settings {
 
     val useDoH: Boolean
         get() = preferences.getBoolean("pref_use_doh2", true)
+
+    val syncSiteSettings: Boolean
+        get() = preferences.getBoolean("pref_sync_site_settings", false)
+
+    var useSecondaryServers: Boolean
+        get() = preferences.getBoolean("pref_use_secondary_servers", false)
+        set(value) = edit { putBoolean("pref_use_secondary_servers", value) }
 
     fun resetContentTypeSettings() {
         // reset settings.

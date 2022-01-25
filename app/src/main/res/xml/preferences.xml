@@ -24,6 +24,17 @@
             android:title="@string/prefcat_behaviour">
 
             <PreferenceCategory
+                android:key="prefcat_behaviour__sync"
+                android:title="@string/prefcat_behaviour__sync_title">
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_sync_site_settings"
+                    android:summary="@string/pref_sync_site_settings_summary"
+                    android:title="@string/pref_sync_site_settings_title" />
+            </PreferenceCategory>
+
+            <PreferenceCategory
                 android:key="prefcat_behaviour__datausage"
                 android:title="@string/prefcat_behaviour__datausage_title">
 
@@ -296,6 +307,28 @@
                 android:title="@string/pref_use_beta_channel" />
 
         </PreferenceScreen>
+
+
+        <PreferenceScreen
+            android:icon="@drawable/ic_settings_privacy"
+            android:key="prefcat_privacy_screen"
+            android:summary="@string/prefcat_privacy_screen_summary"
+            android:title="@string/prefcat_privacy_screen_title">
+
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="pref_sync_backup"
+                android:summary="@string/pref_sync_backup_summary"
+                android:title="@string/perf_sync_backup_title" />
+
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="pref_use_doh2"
+                android:summary="@string/pref_use_doh_summary"
+                android:title="@string/pref_use_doh_title" />
+
+        </PreferenceScreen>
+
     </PreferenceCategory>
 
     <!-- This screen is hidden on non debug builds -->
@@ -328,7 +361,6 @@
             android:summary="@string/pseudo_clean_preloaded_summary"
             android:title="@string/pref_pseudo_clean_preloaded_title" />
 
-
         <Preference
             android:icon="@drawable/ic_settings_welcome"
             android:key="pref_pseudo_onboarding"
@@ -348,31 +380,11 @@
             android:summary="@string/pref_website_summary"
             android:title="@string/pref_website_title" />
 
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="pref_privacy"
-        android:title="@string/pref_privacy">
-
-        <PreferenceScreen
-            android:icon="@drawable/ic_settings_privacy"
-            android:key="prefcat_privacy_screen"
-            android:summary="@string/prefcat_privacy_screen_summary"
-            android:title="@string/prefcat_privacy_screen_title">
-
-            <SwitchPreferenceCompat
-                android:defaultValue="true"
-                android:key="pref_sync_backup"
-                android:summary="@string/pref_sync_backup_summary"
-                android:title="@string/perf_sync_backup_title" />
-
-            <SwitchPreferenceCompat
-                android:defaultValue="true"
-                android:key="pref_use_doh2"
-                android:summary="@string/pref_use_doh_summary"
-                android:title="@string/pref_use_doh_title" />
-
-        </PreferenceScreen>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="pref_use_secondary_servers"
+            android:summary="@string/pref_use_secondary_servers_summary"
+            android:title="@string/pref_use_secondary_servers_title" />
 
     </PreferenceCategory>
 

@@ -1,8 +1,10 @@
 package com.pr0gramm.app.services
 
 import androidx.annotation.ColorRes
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.Themes
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.tryEnumValueOf
 
 /**
@@ -21,11 +23,19 @@ object ThemeHelper {
     val primaryColorDark: Int
         @ColorRes get() = theme.primaryColorDark
 
+    init {
+        doInBackground {
+            // update theme every time the value changes.
+            Settings.changes { themeName }.collect { updateTheme() }
+        }
+    }
+
     /**
      * Updates the current theme from settings.
      */
     fun updateTheme() {
         val name = Settings.themeName
+        Logger("ThemeHelper").debug { "Current Theme is $name" }
         theme = tryEnumValueOf<Themes>(name) ?: Themes.ORANGE
     }
 
@@ -36,7 +46,5 @@ object ThemeHelper {
         Settings.edit {
             putString("pref_theme", theme.name)
         }
-
-        updateTheme()
     }
 }

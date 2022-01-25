@@ -4,15 +4,15 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private val actualDebugConfig = DebugConfig(
-        // ignoreUnreadState = true,
-        // delayApiRequests = true,
-        // pendingNotifications = Api.Inbox(listOf(
-        //         PendingNotifications.Comment("UserA", 571121),
-        //         PendingNotifications.Comment("UserB", 571121),
-        //         PendingNotifications.Comment("UserA", 571122, flags = 2)
-        // )),
-        // mockApiUrl = "https://7535e5af0502.eu.ngrok.io",
-        // versionOverride = 1860,
+    // ignoreUnreadState = true,
+    // delayApiRequests = true,
+    // pendingNotifications = Api.Inbox(listOf(
+    //         PendingNotifications.Comment("UserA", 571121),
+    //         PendingNotifications.Comment("UserB", 571121),
+    //         PendingNotifications.Comment("UserA", 571122, flags = 2)
+    // )),
+    mockApiUrl = "https://b4ab-31-18-104-229.ngrok.io",
+    // versionOverride = 1860,
 )
 
 var debugConfig = if (BuildConfig.DEBUG) actualDebugConfig else DebugConfig()

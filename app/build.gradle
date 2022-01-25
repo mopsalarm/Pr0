@@ -31,8 +31,8 @@ android {
         versionCode appVersion
 
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
+        resConfigs 'en', 'de'
 
-        resConfigs "en", "de"
 
         vectorDrawables.useSupportLibrary = true
 
@@ -90,9 +90,6 @@ android {
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-    }
 
     packagingOptions {
         exclude 'META-INF/NOTICE'
@@ -104,6 +101,9 @@ android {
         exclude 'META-INF/*.kotlin_module'
         exclude '**/*.kotlin_builtins'
         exclude '**/*.kotlin_metadata'
+    }
+    lint {
+        checkReleaseBuilds false
     }
 }
 

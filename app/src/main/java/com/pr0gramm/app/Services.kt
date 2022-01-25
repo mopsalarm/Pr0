@@ -61,27 +61,27 @@ fun appInjector(app: Application) = Module.build {
         val cacheDir = File(app.cacheDir, "imgCache")
 
         okHttpClientBuilder(app)
-                .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
-                .socketFactory(SmallBufferSocketFactory())
+            .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
+            .socketFactory(SmallBufferSocketFactory())
 
-                .cookieJar(cookieJar)
-                .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
-                .dns(CustomDNS(app))
+            .cookieJar(cookieJar)
+            .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
+            .dns(CustomDNS(app))
 
-                .apply {
-                    debugOnly {
-                        skipInTesting {
-                            addInterceptor(DebugInterceptor)
-                        }
-
-                        addInterceptor(MockUrlInterceptor)
+            .apply {
+                debugOnly {
+                    skipInTesting {
+                        addInterceptor(DebugInterceptor)
                     }
-                }
 
-                .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
-                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${buildVersionCode()} android${Build.VERSION.SDK_INT}"))
-                .addNetworkInterceptor(UpdateServerTimeInterceptor())
-                .build()
+                    addInterceptor(MockUrlInterceptor)
+                }
+            }
+
+            .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
+            .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${buildVersionCode()} android${Build.VERSION.SDK_INT}"))
+            .addNetworkInterceptor(UpdateServerTimeInterceptor())
+            .build()
     }
 
     bind<Downloader>() with singleton {
@@ -94,10 +94,10 @@ fun appInjector(app: Application) = Module.build {
 
     bind<Picasso>() with singleton {
         Picasso.Builder(app)
-                .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
-                .memoryCache(LruPicassoCache.defaultSizedCache())
-                .downloader(instance<Downloader>())
-                .build()
+            .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
+            .memoryCache(LruPicassoCache.defaultSizedCache())
+            .downloader(instance<Downloader>())
+            .build()
     }
 
     bind<Api>() with singleton {
@@ -124,12 +124,29 @@ fun appInjector(app: Application) = Module.build {
     bind<ScoreRecordQueries>() with provider { instance<AppDB>().scoreRecordQueries }
     bind<UserFollowEntryQueries>() with provider { instance<AppDB>().userFollowEntryQueries }
 
-    bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bind<UserService>() with eagerSingleton {
+        UserService(
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+        )
+    }
+
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with eagerSingleton { PreloadManager(instance()) }
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
+    bind<SiteSettingsService>() with singleton { SiteSettingsService() }
+    bind<SyncSiteSettingsService>() with eagerSingleton { SyncSiteSettingsService(instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }
     bind<AdService>() with singleton { AdService(instance(), instance()) }
@@ -182,36 +199,44 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
         tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2, TlsVersion.TLS_1_1, TlsVersion.TLS_1_0)
 
         cipherSuites(
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-                CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-                CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 
-                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-                CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-                CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
-                CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
-                CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
-                CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
-                CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
+            CipherSuite.TLS_RSA_WITH_3DES_EDE_CBC_SHA,
 
-                // and more from https://github.com/square/okhttp/issues/3894
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA)
+            // and more from https://github.com/square/okhttp/issues/3894
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+        )
 
         build()
     }
 
     val builder = OkHttpClient.Builder()
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(true)
-            .connectionSpecs(listOf(connectionSpecs, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
-            .configureSSLSocketFactoryAndSecurity(app)
-            .addNetworkInterceptor(BrotliInterceptor)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
+        .connectionSpecs(
+            listOf(
+                connectionSpecs,
+                ConnectionSpec.COMPATIBLE_TLS,
+                ConnectionSpec.MODERN_TLS,
+                ConnectionSpec.CLEARTEXT
+            )
+        )
+        .configureSSLSocketFactoryAndSecurity(app)
+        .addNetworkInterceptor(BrotliInterceptor)
 
     debugOnly {
         builder.addNetworkInterceptor(LoggingInterceptor())
@@ -267,10 +292,10 @@ object MockUrlInterceptor : Interceptor {
             logger.info { "Call mock for ${request.url}" }
 
             val url = request.url.newBuilder()
-                    .scheme(mockUrl.scheme)
-                    .host(mockUrl.host)
-                    .port(mockUrl.port)
-                    .build()
+                .scheme(mockUrl.scheme)
+                .host(mockUrl.host)
+                .port(mockUrl.port)
+                .build()
 
             return chain.proceed(request.newBuilder().url(url).build())
         }
@@ -304,8 +329,8 @@ object DebugInterceptor : Interceptor {
 private class UserAgentInterceptor(val userAgent: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-                .header("User-Agent", userAgent)
-                .build()
+            .header("User-Agent", userAgent)
+            .build()
 
         return chain.proceed(request)
     }
@@ -366,13 +391,13 @@ private class CustomDNS(appContext: Application) : Dns {
 
     private val dnsOverHttps by lazy {
         DnsOverHttps.Builder()
-                .client(okHttpClient)
-                .post(false)
-                .resolvePrivateAddresses(false)
-                .resolvePublicAddresses(true)
-                .includeIPv6(false)
-                .url("https://1.1.1.1/dns-query".toHttpUrl())
-                .build()
+            .client(okHttpClient)
+            .post(false)
+            .resolvePrivateAddresses(false)
+            .resolvePublicAddresses(true)
+            .includeIPv6(false)
+            .url("https://1.1.1.1/dns-query".toHttpUrl())
+            .build()
     }
 
     override fun lookup(hostname: String): List<InetAddress> {
@@ -402,8 +427,8 @@ private class CustomDNS(appContext: Application) : Dns {
 
         val resolvers = when {
             Settings.useDoH -> listOf(
-                    NamedResolver("doh-okhttp", dnsOverHttps),
-                    NamedResolver("system", Dns.SYSTEM),
+                NamedResolver("doh-okhttp", dnsOverHttps),
+                NamedResolver("system", Dns.SYSTEM),
             )
 
             else -> listOf(NamedResolver("system", Dns.SYSTEM))
@@ -413,16 +438,16 @@ private class CustomDNS(appContext: Application) : Dns {
             try {
                 logger.debug { "Try resolver '$name'" }
                 val addresses = resolver.lookup(hostname)
-                        .filterNot { it.isAnyLocalAddress }
-                        .filterNot { it.isLinkLocalAddress }
-                        .filterNot { it.isLoopbackAddress }
-                        .filterNot { it.isMulticastAddress }
-                        .filterNot { it.isSiteLocalAddress }
-                        .filterNot { it.isMCSiteLocal }
-                        .filterNot { it.isMCGlobal }
-                        .filterNot { it.isMCLinkLocal }
-                        .filterNot { it.isMCNodeLocal }
-                        .filterNot { it.isMCOrgLocal }
+                    .filterNot { it.isAnyLocalAddress }
+                    .filterNot { it.isLinkLocalAddress }
+                    .filterNot { it.isLoopbackAddress }
+                    .filterNot { it.isMulticastAddress }
+                    .filterNot { it.isSiteLocalAddress }
+                    .filterNot { it.isMCSiteLocal }
+                    .filterNot { it.isMCGlobal }
+                    .filterNot { it.isMCLinkLocal }
+                    .filterNot { it.isMCNodeLocal }
+                    .filterNot { it.isMCOrgLocal }
 
                 if (addresses.isNotEmpty()) {
                     Stats().increment("dns.okay", "resolver:$name")
