@@ -78,7 +78,14 @@ fun appInjector(app: Application) = Module.build {
                 }
             }
 
-            .addNetworkInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
+            .addInterceptor(UseSecondaryServerInterceptor())
+
+            .addNetworkInterceptor(
+                DoNotCacheInterceptor(
+                    "vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com",
+                    "videos.pr0gramm.com", "images.pr0gramm.com", "fullsize.pr0gramm.com",
+                )
+            )
             .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v${buildVersionCode()} android${Build.VERSION.SDK_INT}"))
             .addNetworkInterceptor(UpdateServerTimeInterceptor())
             .build()
