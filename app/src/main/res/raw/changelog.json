@@ -1,5 +1,18 @@
 [
   {
+    "version": 194,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Zwei neue Einstellungen. Es können einige Einstellungen (Theme) nun mit der Website synchronisiert werden."
+      },
+      {
+        "type": "Neu",
+        "change": "Für Nutzer deren Internetprovider Probleme mit Cloudflare hat (z.B. Telekom) gibt es eine neue Option, um temporär auf andere Server auszuweichen."
+      }
+    ]
+  },
+  {
     "version": 193,
     "changes": [
       {
