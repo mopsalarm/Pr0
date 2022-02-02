@@ -38,9 +38,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity"), PreferenceFr
         }
     }
 
-    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat?, pref: PreferenceScreen?): Boolean {
-        pref ?: return false
-
+    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat, pref: PreferenceScreen): Boolean {
         startActivity(Intent(this, SettingsActivity::class.java).apply {
             putExtra("rootKey", pref.key)
         })

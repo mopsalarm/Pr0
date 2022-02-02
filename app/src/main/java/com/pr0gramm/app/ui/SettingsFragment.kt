@@ -22,11 +22,10 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runInterruptible
 
 class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
-        SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
@@ -92,7 +91,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
     private fun updatePreloadInfo() {
         val preference: Preference = preferenceManager.findPreference("pref_pseudo_clean_preloaded")
-                ?: return
+            ?: return
 
         launchUntilPause {
             preloadManager.items.collect { items ->
@@ -107,8 +106,9 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
                 }
 
                 preference.summary = getString(
-                        R.string.pseudo_clean_preloaded_summary_with_size,
-                        totalSize / (1024f * 1024f))
+                    R.string.pseudo_clean_preloaded_summary_with_size,
+                    totalSize / (1024f * 1024f)
+                )
             }
         }
     }
@@ -117,20 +117,20 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         super.onResume()
 
         preferenceScreen.sharedPreferences
-                .registerOnSharedPreferenceChangeListener(this)
+            ?.registerOnSharedPreferenceChangeListener(this)
 
         updatePreloadInfo()
     }
 
     override fun onPause() {
         preferenceScreen.sharedPreferences
-                .unregisterOnSharedPreferenceChangeListener(this)
+            ?.unregisterOnSharedPreferenceChangeListener(this)
 
         super.onPause()
     }
 
-    override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-        when (preference?.key) {
+    override fun onPreferenceTreeClick(preference: Preference): Boolean {
+        when (preference.key) {
             "pref_pseudo_update" -> {
                 val activity = activity as BaseAppCompatActivity
                 UpdateDialogFragment.checkForUpdatesInteractive(activity)
@@ -197,8 +197,11 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultIntent: Intent?) {
         if (requestCode == RequestCodes.SELECT_DOWNLOAD_PATH && resultCode == Activity.RESULT_OK) {
-            if (!Storage.persistTreeUri(requireContext(), resultIntent
-                            ?: return)) {
+            if (!Storage.persistTreeUri(
+                    requireContext(), resultIntent
+                        ?: return
+                )
+            ) {
                 showInvalidDownloadDirectorySelected()
             }
         } else {

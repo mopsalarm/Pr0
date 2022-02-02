@@ -1,9 +1,6 @@
 package com.pr0gramm.app.services
 
-import android.graphics.ImageDecoder
-import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.millis
@@ -15,8 +12,12 @@ import com.pr0gramm.app.util.readStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import pl.droidsonroids.gif.GifAnimationMetaData
+import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifDrawableBuilder
 import pl.droidsonroids.gif.GifOptions
 import java.io.File
@@ -52,21 +53,19 @@ class GifDrawableLoader(private val cache: Cache) {
      */
     private fun loadGifUsingCache(uri: Uri): Flow<State> {
         return flow {
-            logger.info { "storing data into temporary file" }
+            logger.info { "Getting file reference from cached file" }
 
-            cache.get(uri).let { entry ->
-                entry.file?.let { file ->
-                    // we have a cached file, use that one.
-                    return@flow emit(State(createGifDrawable(file)))
+            cache.get(uri).use { entry ->
+                if (entry.fractionCached < 1.0) {
+                    // read the gif once so it is in the cache.
+                    emitAll(readToCache(entry))
                 }
 
-                // read the gif once so it is in the cache.
-                emitAll(readToCache(entry))
-            }
-
-            cache.get(uri).file?.let { file ->
-                // we should now have a file there.
-                return@flow emit(State(createGifDrawable(file)))
+                // the file should now be fully cached, we should be able to read it now.
+                entry.file?.let { file ->
+                    // we should now have a file there.
+                    return@flow emit(State(createGifDrawable(file)))
+                }
             }
 
             // crap, no file in cache, we cant do much now.
@@ -100,13 +99,7 @@ class GifDrawableLoader(private val cache: Cache) {
         }
     }
 
-    private fun createGifDrawable(file: File): Drawable {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return ImageDecoder.decodeDrawable(ImageDecoder.createSource(file))
-        }
-
-        // use the android-gif-drawable library to decode the image
-
+    private fun createGifDrawable(file: File): GifDrawable {
         RandomAccessFile(file, "r").use { storage ->
             val meta = ParcelFileDescriptor.dup(storage.fd).use {
                 GifAnimationMetaData(it.fileDescriptor)
@@ -127,7 +120,7 @@ class GifDrawableLoader(private val cache: Cache) {
     }
 
     class State(
-        val drawable: Drawable? = null,
+        val drawable: GifDrawable? = null,
         val progress: Float = 1.0f
     )
 }
