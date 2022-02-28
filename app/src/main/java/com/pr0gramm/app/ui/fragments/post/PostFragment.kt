@@ -54,7 +54,8 @@ import kotlin.math.min
 /**
  * This fragment shows the content of one post.
  */
-class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, TitleFragment, BackAwareFragment {
+class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, TitleFragment,
+    BackAwareFragment {
     /**
      * The item that is displayed
      */
@@ -71,12 +72,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         PostViewModel(
-                feedItem, requiresCacheBust,
-                userService = instance(),
-                feedService = instance(),
-                voteService = instance(),
-                followService = instance(),
-                inMemoryCacheService = instance(),
+            feedItem, requiresCacheBust,
+            userService = instance(),
+            feedService = instance(),
+            voteService = instance(),
+            followService = instance(),
+            inMemoryCacheService = instance(),
         )
     }
 
@@ -210,8 +211,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         launchInViewScope {
             val isActive = lifecycle.asStateFlow()
-                    .map { state -> state.isAtLeast(Lifecycle.State.RESUMED) }
-                    .distinctUntilChanged()
+                .map { state -> state.isAtLeast(Lifecycle.State.RESUMED) }
+                .distinctUntilChanged()
 
             isActive.collect { active ->
                 trace { "${feedItem.id}.activeState($active): Switching viewer state" }
@@ -284,8 +285,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun updateTitle(tags: List<Api.Tag>) {
         val exclude = setOf(
-                "sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound",
-                "text", "porn", "richtiges grau", "achtung laut", "repost", "loop")
+            "sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound",
+            "text", "porn", "richtiges grau", "achtung laut", "repost", "loop"
+        )
 
         // take the best rated tag that is not excluded
         val title = tags.sortedByDescending { it.confidence }.firstOrNull {
@@ -308,7 +310,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         logger.debug {
             "Applying post fragment state: h=${viewerBaseHeight}, refreshing=${state.refreshing}, " +
                     "itemVote=${state.itemVote}, " +
-                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size}/${state.tagVotes.hashCode().toHexString()}, " +
+                    "tags=${state.tags.size}, tagVotes=${state.tagVotes.size}/${
+                        state.tagVotes.hashCode().toHexString()
+                    }, " +
                     "comments=${state.comments.size}/${state.comments.hashCode()}, " +
                     "loading=${state.commentsLoading}, commentsVisible=${state.commentsVisible}, " +
                     "followState=${state.followState}, " +
@@ -319,8 +323,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         viewer?.let { viewer ->
             if (viewerBaseHeight > 0) {
-                items += PostAdapter.Item.PlaceholderItem(viewerBaseHeight,
-                        viewer, mediaControlsContainer)
+                items += PostAdapter.Item.PlaceholderItem(
+                    viewerBaseHeight,
+                    viewer, mediaControlsContainer
+                )
             }
         }
 
@@ -413,25 +419,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val alive = !feedItem.deleted
 
         menu.findItem(R.id.action_refresh)
-                ?.isVisible = Settings.showRefreshButton && !isVideoFullScreen
+            ?.isVisible = Settings.showRefreshButton && !isVideoFullScreen
 
         menu.findItem(R.id.action_zoom)
-                ?.isVisible = !isVideoFullScreen && alive
+            ?.isVisible = !isVideoFullScreen && alive
 
         menu.findItem(R.id.action_share_image)
-                ?.isVisible = alive
+            ?.isVisible = alive
 
         menu.findItem(R.id.action_search_image)
-                ?.isVisible = isImage && Settings.imageSearchEngine != ShareService.ImageSearchEngine.NONE && alive
+            ?.isVisible = isImage && Settings.imageSearchEngine != ShareService.ImageSearchEngine.NONE && alive
 
         menu.findItem(R.id.action_delete_item)
-                ?.isVisible = adminMode && alive
+            ?.isVisible = adminMode && alive
 
         menu.findItem(R.id.action_tags_details)
-                ?.isVisible = adminMode && alive
+            ?.isVisible = adminMode && alive
 
         menu.findItem(R.id.action_report)
-                ?.isVisible = config.reportReasons.isNotEmpty() && userService.isAuthorized && alive
+            ?.isVisible = config.reportReasons.isNotEmpty() && userService.isAuthorized && alive
     }
 
     private fun enterFullscreen() {
@@ -449,11 +455,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             viewer.pivotX = params.pivot.x
             viewer.pivotY = params.pivot.y
 
-            fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(viewer,
-                    ofFloat(View.ROTATION, params.rotation),
-                    ofFloat(View.TRANSLATION_Y, params.trY),
-                    ofFloat(View.SCALE_X, params.scale),
-                    ofFloat(View.SCALE_Y, params.scale)).apply {
+            fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                viewer,
+                ofFloat(View.ROTATION, params.rotation),
+                ofFloat(View.TRANSLATION_Y, params.trY),
+                ofFloat(View.SCALE_X, params.scale),
+                ofFloat(View.SCALE_Y, params.scale)
+            ).apply {
 
                 duration = 500
                 start()
@@ -664,21 +672,25 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val voteAnimationIndicator = views.voteAnimationIndicator
 
-        voteAnimationIndicator.setImageResource(when (vote) {
-            Vote.UP -> R.drawable.ic_vote_up
-            Vote.DOWN -> R.drawable.ic_vote_down
-            else -> R.drawable.ic_vote_fav
-        })
+        voteAnimationIndicator.setImageResource(
+            when (vote) {
+                Vote.UP -> R.drawable.ic_vote_up
+                Vote.DOWN -> R.drawable.ic_vote_down
+                else -> R.drawable.ic_vote_fav
+            }
+        )
 
         voteAnimationIndicator.visibility = View.VISIBLE
         voteAnimationIndicator.alpha = 0f
         voteAnimationIndicator.scaleX = 0.7f
         voteAnimationIndicator.scaleY = 0.7f
 
-        ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
-                ofFloat(View.ALPHA, 0f, 0.6f, 0.7f, 0.6f, 0f),
-                ofFloat(View.SCALE_X, 0.7f, 1.3f),
-                ofFloat(View.SCALE_Y, 0.7f, 1.3f)).apply {
+        ObjectAnimator.ofPropertyValuesHolder(
+            voteAnimationIndicator,
+            ofFloat(View.ALPHA, 0f, 0.6f, 0.7f, 0.6f, 0f),
+            ofFloat(View.SCALE_X, 0.7f, 1.3f),
+            ofFloat(View.SCALE_Y, 0.7f, 1.3f)
+        ).apply {
 
             doOnEnd { voteAnimationIndicator.isVisible = false }
             start()
@@ -712,12 +724,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // Add a container for the children
         val mediaControlsContainer = FrameLayout(requireContext())
         mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM
+        )
 
         // initialize the view state
-        val mediaViewState = MutableStateFlow(MediaViewState(
+        val mediaViewState = MutableStateFlow(
+            MediaViewState(
                 controlsContainer = mediaControlsContainer,
-        ))
+            )
+        )
 
         // add space to the top of the viewer or to the screen to compensate
         // for the action bar.
@@ -921,9 +936,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         view?.let { fragmentView ->
             Snackbar.make(fragmentView, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
-                    .configureNewStyle()
-                    .setAction(R.string.okay) {}
-                    .show()
+                .configureNewStyle()
+                .setAction(R.string.okay) {}
+                .show()
         }
     }
 
@@ -964,6 +979,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onBackButton(): Boolean {
         if (isVideoFullScreen) {
             exitFullscreen()
+            return true
+        }
+
+        if (views.fab.isOpen) {
+            views.fab.close()
             return true
         }
 
@@ -1016,8 +1036,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val remaining = (viewerHeight - scrollY).toFloat()
             val tbVisibleHeight = toolbar.visibleHeight
             val voteIndicatorY = tbVisibleHeight + min(
-                    (remaining - tbVisibleHeight) / 2,
-                    ((recyclerHeight - tbVisibleHeight) / 2).toFloat())
+                (remaining - tbVisibleHeight) / 2,
+                ((recyclerHeight - tbVisibleHeight) / 2).toFloat()
+            )
 
             views.voteAnimationIndicator.translationY = voteIndicatorY
 
@@ -1036,7 +1057,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(views.recyclerView)
-                        ?: Integer.MAX_VALUE
+                    ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
         }
@@ -1128,8 +1149,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             doIfAuthorizedHelper.runAuthWithRetry {
                 val context = context ?: return@runAuthWithRetry
                 startActivityForResult(
-                        WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
-                        RequestCodes.WRITE_COMMENT)
+                    WriteMessageActivity.answerToComment(context, feedItem, comment, parentComments),
+                    RequestCodes.WRITE_COMMENT
+                )
             }
         }
 
@@ -1190,9 +1212,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 } else {
                     val rootView = view ?: return false
                     Snackbar.make(rootView, R.string.hint_comment_not_found, Snackbar.LENGTH_SHORT)
-                            .configureNewStyle()
-                            .setAction(R.string.doh) { }
-                            .show()
+                        .configureNewStyle()
+                        .setAction(R.string.doh) { }
+                        .show()
                 }
 
                 return true
@@ -1262,8 +1284,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private data class MediaViewState(
-            val height: Int = 0,
-            val controlsContainer: ViewGroup? = null,
+        val height: Int = 0,
+        val controlsContainer: ViewGroup? = null,
     )
 
     companion object {
