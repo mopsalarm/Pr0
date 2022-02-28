@@ -15,6 +15,8 @@
         <attr name="fabColor" format="color|reference" />
         <attr name="fabColorOpen" format="color|reference" />
 
+        <attr name="colorPrimaryFade" format="color|reference" />
+
         <attr name="secondaryBackground" format="color" />
     </declare-styleable>
 

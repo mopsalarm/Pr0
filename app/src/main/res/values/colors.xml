@@ -19,31 +19,37 @@
     <!-- Colors for the app -->
     <color name="orange_primary">#ee4d2e</color>
     <color name="orange_primary_dark">#b33924</color>
+    <color name="orange_primary_fade">#1AEE4D2E</color>
     <color name="orange_accent">@color/orange_primary</color>
 
     <!-- Colors for the app -->
     <color name="green_primary">#1db992</color>
     <color name="green_primary_dark">#137e64</color>
+    <color name="green_primary_fade">#1A1DB992</color>
     <color name="green_accent">@color/green_primary</color>
 
     <!-- Colors for the app -->
     <color name="olive_primary">#b0ad05</color>
     <color name="olive_primary_dark">#797703</color>
+    <color name="olive_primary_fade">#1AB0AD05</color>
     <color name="olive_accent">@color/olive_primary</color>
 
     <!-- Colors for the app -->
     <color name="pink_primary">#ff0082</color>
     <color name="pink_primary_dark">#b7005d</color>
+    <color name="pink_primary_fade">#1AB7005D</color>
     <color name="pink_accent">@color/pink_primary</color>
 
     <!-- Colors for the app -->
     <color name="blue_primary">#008fff</color>
     <color name="blue_primary_dark">#0067b6</color>
+    <color name="blue_primary_fade">#1A0067B6</color>
     <color name="blue_accent">@color/blue_primary</color>
 
     <!-- Colors for the app -->
     <color name="black_primary">#303030</color>
     <color name="black_primary_dark">#202020</color>
+    <color name="black_primary_fade">#404040</color>
     <color name="black_accent">@color/orange_primary</color>
     <color name="black_secondary_background">#282828</color>
 

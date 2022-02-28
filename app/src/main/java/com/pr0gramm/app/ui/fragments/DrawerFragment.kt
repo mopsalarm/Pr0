@@ -252,12 +252,13 @@ private class NavigationDelegateAdapter(
                 iconColor = ColorStateList.valueOf(value.colorOverride)
             } else {
                 textColor = if (value.isSelected) markedColor else defaultColor
-                iconColor = textColor.withAlpha(127)
+                iconColor = if (value.isSelected) markedColor else defaultColor.withAlpha(128)
             }
 
             if (holder.text != null) {
                 holder.text.setTextColor(textColor)
                 changeCompoundDrawableColor(holder.text, iconColor)
+                holder.text.isSelected = value.isSelected
             }
 
             if (holder.actionSecondary is ImageView) {

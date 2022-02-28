@@ -32,6 +32,7 @@
     <style name="AppTheme.Orange">
         <item name="colorPrimary">@color/orange_primary</item>
         <item name="colorPrimaryDark">@color/orange_primary_dark</item>
+        <item name="colorPrimaryFade">@color/orange_primary_fade</item>
         <item name="colorAccent">@color/orange_accent</item>
         <item name="loginBackground">@drawable/login_background_orange</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
@@ -44,6 +45,7 @@
     <style name="AppTheme.Green">
         <item name="colorPrimary">@color/green_primary</item>
         <item name="colorPrimaryDark">@color/green_primary_dark</item>
+        <item name="colorPrimaryFade">@color/green_primary_fade</item>
         <item name="colorAccent">@color/green_accent</item>
         <item name="loginBackground">@drawable/login_background_green</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
@@ -56,6 +58,7 @@
     <style name="AppTheme.Olive">
         <item name="colorPrimary">@color/olive_primary</item>
         <item name="colorPrimaryDark">@color/olive_primary_dark</item>
+        <item name="colorPrimaryFade">@color/olive_primary_fade</item>
         <item name="colorAccent">@color/olive_accent</item>
         <item name="loginBackground">@drawable/login_background_olive</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_olive</item>
@@ -68,6 +71,7 @@
     <style name="AppTheme.Pink">
         <item name="colorPrimary">@color/pink_primary</item>
         <item name="colorPrimaryDark">@color/pink_primary_dark</item>
+        <item name="colorPrimaryFade">@color/pink_primary_fade</item>
         <item name="colorAccent">@color/pink_accent</item>
         <item name="loginBackground">@drawable/login_background_pink</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_pink</item>
@@ -80,6 +84,7 @@
     <style name="AppTheme.Blue">
         <item name="colorPrimary">@color/blue_primary</item>
         <item name="colorPrimaryDark">@color/blue_primary_dark</item>
+        <item name="colorPrimaryFade">@color/blue_primary_fade</item>
         <item name="colorAccent">@color/blue_accent</item>
         <item name="loginBackground">@drawable/login_background_blue</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_blue</item>
@@ -92,6 +97,7 @@
     <style name="AppTheme.Black">
         <item name="colorPrimary">@color/black_primary</item>
         <item name="colorPrimaryDark">@color/black_primary_dark</item>
+        <item name="colorPrimaryFade">@color/black_primary_fade</item>
         <item name="colorAccent">@color/black_accent</item>
         <item name="loginBackground">@drawable/login_background_black</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_black</item>
@@ -298,14 +304,26 @@
     <style name="DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingLeft">8dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="android:background">@drawable/ripple</item>
         <item name="android:clickable">true</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:drawablePadding">16dp</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="DrawerItemText" parent="Base.TextAppearance.AppCompat.Button">
+        <item name="android:minHeight">36dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:drawablePadding">24dp</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAllCaps">false</item>
