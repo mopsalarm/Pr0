@@ -1,5 +1,14 @@
 [
   {
+    "version": 195,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Fehler bei der Wiedergabe von GIFs behoben."
+      }
+    ]
+  },
+  {
     "version": 194,
     "changes": [
       {
