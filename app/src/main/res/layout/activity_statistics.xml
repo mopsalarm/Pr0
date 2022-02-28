@@ -269,16 +269,6 @@
                             app:lineBottom="N/SFW/L"
                             app:lineTop="VERTEILUNG" />
 
-                        <com.pr0gramm.app.ui.views.CircleChartView
-                            android:id="@+id/types_favorites"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="48dp"
-                            android:layout_weight="1"
-                            app:chartType="FAVORITEN"
-                            app:lineBottom="N/SFW/L"
-                            app:lineTop="VERTEILUNG" />
-
                     </LinearLayout>
 
                     <LinearLayout

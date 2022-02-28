@@ -21,15 +21,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runInterruptible
 
+const val BLACK: Int = 0x80000000.toInt()
+
 /**
  */
 class NavigationProvider(
-        private val context: Activity,
-        private val userService: UserService,
-        private val inboxService: InboxService,
-        private val bookmarkService: BookmarkService,
-        private val configService: ConfigService,
-        private val singleShotService: SingleShotService,
+    private val context: Activity,
+    private val userService: UserService,
+    private val inboxService: InboxService,
+    private val bookmarkService: BookmarkService,
+    private val configService: ConfigService,
+    private val singleShotService: SingleShotService,
         private val picasso: Picasso) {
 
     private val logger = Logger("NavigationProvider")
@@ -276,11 +278,19 @@ class NavigationProvider(
      * Divider to divide item groups
      */
     private val staticItemDivider: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        NavigationItem(ActionType.DIVIDER,
-                layout = R.layout.left_drawer_nav_item_divider)
+        NavigationItem(
+            ActionType.DIVIDER,
+            layout = R.layout.left_drawer_nav_item_divider
+        )
     }
 
-    private fun staticItem(action: ActionType, icon: Drawable, title: String, colorOverride: Int = 0x80808080.toInt()): NavigationItem {
+
+    private fun staticItem(
+        action: ActionType,
+        icon: Drawable,
+        title: String,
+        colorOverride: Int = BLACK
+    ): NavigationItem {
         return NavigationItem(action, title = title, icon = icon, colorOverride = colorOverride)
     }
 
@@ -301,7 +311,12 @@ class NavigationProvider(
     }
 
     private val staticItemPremium: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        staticItem(ActionType.PREMIUM, iconPremium, getString(R.string.action_premium))
+        staticItem(
+            ActionType.PREMIUM,
+            iconPremium,
+            getString(R.string.action_premium),
+            colorOverride = 0xfffcce2a.toInt()
+        )
     }
 
     private val staticItemAgeVerification: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {

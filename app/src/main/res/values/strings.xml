@@ -354,7 +354,7 @@
     <string name="hint_block_mode__branch" translatable="false">Invite-Ast (Dieser Benutzer und alle von ihm eingeladenen)</string>
     <string name="action_block_user">Ban user</string>
     <string name="download_complete">Download complete</string>
-    <string name="action_premium">PR0MIUM</string>
+    <string name="action_premium">pr0mium</string>
     <string name="badge_comments">More than %sk comments</string>
     <string name="badge_tags">More than %sk tags</string>
     <string name="badge_deleted_items">Requested deletion of %d of his own items</string>

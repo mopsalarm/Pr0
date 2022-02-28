@@ -25,11 +25,10 @@ import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.observeChange
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withTimeout
 import kotterknife.bindView
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -56,7 +55,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     private val votesByComments: CircleChartView by bindView(R.id.votes_by_comments)
 
     private val typesOfUpload: CircleChartView by bindView(R.id.types_uploads)
-    private val typesByFavorites: CircleChartView by bindView(R.id.types_favorites)
 
     private var benisValues: List<BenisRecord> by observeChange(listOf()) {
         redrawBenisGraph()
@@ -107,7 +105,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private suspend fun showContentTypes(view: CircleChartView, username: String) {
-        withTimeout(Duration.minutes(1)) {
+        withTimeout(1.minutes) {
             statsService.statsForUploads(username).collect { state ->
                 showContentTypes(view, state)
             }
