@@ -8,12 +8,14 @@ import android.database.sqlite.SQLiteFullException
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Looper
 import android.text.SpannableStringBuilder
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.util.LruCache
 import android.view.View
+import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.ColorInt
@@ -78,6 +80,25 @@ object AndroidUtility {
      * Gets the height of the statusbar.
      */
     fun getStatusBarHeight(context: Context): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val window = activityFromContext(context)?.window
+            val rootWindowInsets = window?.decorView?.rootWindowInsets
+            if (rootWindowInsets != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    // this seems to be always correct on android 11 and better.
+                    return rootWindowInsets
+                        .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars())
+                        .top
+                }
+
+                // this works for android 6 and above
+                return rootWindowInsets.stableInsetTop
+            }
+        }
+
+        // use the old code as fallback in case we have a really old android
+        // or if we don't have a window or decorView
+
         var result = 0
 
         val resources = context.resources

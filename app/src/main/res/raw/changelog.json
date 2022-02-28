@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Fehler bei der Wiedergabe von GIFs behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Bei einigen Nutzern sind Bilder teilweise an der Oberkante abgeschnitten. Ich konnte das nicht reproduzieren, aber mit etwas Glück ist das Problem jetzt behoben. Bitte Rückmeldung geben."
       }
     ]
   },
