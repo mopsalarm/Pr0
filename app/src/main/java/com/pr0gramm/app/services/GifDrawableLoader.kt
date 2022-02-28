@@ -105,7 +105,7 @@ class GifDrawableLoader(private val cache: Cache) {
                 GifAnimationMetaData(it.fileDescriptor)
             }
 
-            val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it < 768 } ?: 6
+            val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it <= 1024 } ?: 6
             logger.info { "Loading gif ${meta.width}x${meta.height} with sampleSize $sampleSize" }
 
             return GifDrawableBuilder()
@@ -114,7 +114,7 @@ class GifDrawableLoader(private val cache: Cache) {
                     setInSampleSize(sampleSize)
                     setInIsOpaque(true)
                 })
-                .setRenderingTriggeredOnDraw(true)
+                .renderingTriggeredOnDraw(true)
                 .build()
         }
     }
