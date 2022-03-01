@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.millis
 import com.pr0gramm.app.Logger
@@ -16,12 +15,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import okio.IOException
 import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifDrawableBuilder
 import pl.droidsonroids.gif.GifOptions
 import java.io.File
-import java.io.RandomAccessFile
 
 /**
  */
@@ -69,7 +68,7 @@ class GifDrawableLoader(private val cache: Cache) {
             }
 
             // crap, no file in cache, we cant do much now.
-            logger.error { "No file in cache after reading the full file." }
+            throw IOException("No file in cache after reading the full file.")
         }
     }
 
@@ -100,23 +99,19 @@ class GifDrawableLoader(private val cache: Cache) {
     }
 
     private fun createGifDrawable(file: File): GifDrawable {
-        RandomAccessFile(file, "r").use { storage ->
-            val meta = ParcelFileDescriptor.dup(storage.fd).use {
-                GifAnimationMetaData(it.fileDescriptor)
-            }
+        val meta = GifAnimationMetaData(file)
 
-            val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it <= 1024 } ?: 6
-            logger.info { "Loading gif ${meta.width}x${meta.height} with sampleSize $sampleSize" }
+        val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it <= 1024 } ?: 6
+        logger.info { "Loading gif ${meta.width}x${meta.height} with sampleSize $sampleSize" }
 
-            return GifDrawableBuilder()
-                .from(storage.fd)
-                .options(GifOptions().apply {
-                    setInSampleSize(sampleSize)
-                    setInIsOpaque(true)
-                })
-                .renderingTriggeredOnDraw(true)
-                .build()
-        }
+        return GifDrawableBuilder()
+            .from(file)
+            .options(GifOptions().apply {
+                setInSampleSize(sampleSize)
+                setInIsOpaque(true)
+            })
+            .renderingTriggeredOnDraw(true)
+            .build()
     }
 
     class State(
