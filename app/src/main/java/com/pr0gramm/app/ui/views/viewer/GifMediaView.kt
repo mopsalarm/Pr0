@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import androidx.core.view.isVisible
 import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.PlayerGifBinding
 import com.pr0gramm.app.services.GifDrawableLoader
@@ -12,11 +13,13 @@ import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.checkMainThread
 import pl.droidsonroids.gif.GifDrawable
+import java.io.IOException
 
 /**
  */
 @SuppressLint("ViewConstructor")
 class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.player_gif) {
+    private val logger = Logger("GifMediaView")
     private val gifDrawableLoader: GifDrawableLoader by instance()
 
     private val views = PlayerGifBinding.bind(this)
@@ -50,9 +53,16 @@ class GifMediaView(config: Config) : AbstractProgressMediaView(config, R.layout.
             gifDrawableLoader.load(effectiveUri).collect { state ->
                 onDownloadStatus(state)
             }
+        } catch (err: IOException) {
+            showLoadError(err)
         } finally {
             hideBusyIndicator()
         }
+    }
+
+    private fun showLoadError(err: IOException) {
+        logger.warn(err) { "Failed to load gif image" }
+        views.error.isVisible = true
     }
 
     private fun onDownloadStatus(state: GifDrawableLoader.State) {
