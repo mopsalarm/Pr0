@@ -7,18 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.fragments.feed.ConsumableValue
 import com.pr0gramm.app.ui.fragments.feed.update
 import com.pr0gramm.app.ui.views.viewer.MediaUri
-import com.pr0gramm.app.util.BoundedInputStream
 import com.pr0gramm.app.util.checkMainThread
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 class UploadViewModel(
         private val context: Context,
@@ -203,45 +200,7 @@ class UploadViewModel(
     }
 
     private suspend fun copyToTemp(source: Uri): File {
-        return runInterruptible(Dispatchers.IO) {
-            context.contentResolver.openInputStream(source).use { input ->
-                requireNotNull(input) { "Could not open input stream" }
-
-                // read the first few bytes as "header"
-                val bytes = BoundedInputStream(input, 512).readBytes()
-
-                // and guess the type, also fail if we couldn't get
-                // an extension (and thereby a type)
-                val ext = MimeTypeHelper.guess(bytes)
-                        ?.let { MimeTypeHelper.extension(it) }
-                        ?: throw MediaNotSupportedException()
-
-
-                logger.info { "Creating temporary file with extension '$ext'" }
-                val target = makeTempUploadFile(context, ext)
-
-                FileOutputStream(target).use { output ->
-                    output.write(bytes)
-
-                    val maxSize = 1024 * 1024 * 48L
-                    val copied = BoundedInputStream(input, maxSize).copyTo(output)
-                    logger.info { "Copied ${copied / 1024}kb" }
-
-                    if (copied == maxSize) {
-                        throw IOException("File too large.")
-                    }
-                }
-
-                return@runInterruptible target
-            }
-        }
-    }
-
-    private fun makeTempUploadFile(context: Context, ext: String): File {
-        return File(context.cacheDir, "upload.${System.currentTimeMillis()}.$ext").also { file ->
-            // cleanup if the application exits
-            file.deleteOnExit()
-        }
+        return uploadService.copyToTemp(source)
     }
 
     data class State(

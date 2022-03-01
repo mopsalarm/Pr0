@@ -1,12 +1,15 @@
 package com.pr0gramm.app.services
 
+import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.upload.UploadViewModel
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
@@ -27,12 +30,14 @@ import kotlin.time.ExperimentalTime
 
 /**
  */
-class UploadService(private val api: Api,
-                    private val userService: UserService,
-                    private val picasso: Picasso,
-                    private val configService: ConfigService,
-                    private val voteService: VoteService,
-                    private val cacheService: InMemoryCacheService) {
+class UploadService(
+    private val api: Api,
+    private val userService: UserService,
+    private val picasso: Picasso,
+    private val configService: ConfigService,
+    private val voteService: VoteService,
+    private val applicationContext: Application
+) {
 
     private val logger = Logger("UploadService")
 
@@ -277,11 +282,54 @@ class UploadService(private val api: Api,
         }
     }
 
+    suspend fun copyToTemp(source: Uri): File {
+        fun makeTempUploadFile(ext: String): File {
+            return File(applicationContext.cacheDir, "upload.${System.currentTimeMillis()}.$ext").also { file ->
+                // cleanup if the application exits
+                file.deleteOnExit()
+            }
+        }
+
+        return runInterruptible(Dispatchers.IO) {
+            applicationContext.contentResolver.openInputStream(source).use { input ->
+                requireNotNull(input) { "Could not open input stream" }
+
+                // read the first few bytes as "header"
+                val bytes = BoundedInputStream(input, 512).readBytes()
+
+                // and guess the type, also fail if we couldn't get
+                // an extension (and thereby a type)
+                val ext = MimeTypeHelper.guess(bytes)
+                    ?.let { MimeTypeHelper.extension(it) }
+                    ?: throw UploadViewModel.MediaNotSupportedException()
+
+
+                logger.info { "Creating temporary file with extension '$ext'" }
+                val target = makeTempUploadFile(ext)
+
+                FileOutputStream(target).use { output ->
+                    output.write(bytes)
+
+                    val maxSize = configService.config().maxUploadSizeVideo
+                    val copied = BoundedInputStream(input, maxSize).copyTo(output)
+                    logger.info { "Copied ${copied / 1024}kb" }
+
+                    if (copied == maxSize) {
+                        throw IOException("File too large.")
+                    }
+                }
+
+                return@runInterruptible target
+            }
+        }
+    }
+
     class UploadFailedException(message: String, val report: Api.Posted.VideoReport?) : Exception(message) {
         val errorCode: String get() = message!!
     }
 
-    private class RequestBodyWithProgress(private val file: File, private val publishState: (State) -> Unit) : RequestBody() {
+    private class RequestBodyWithProgress(private val file: File, private val publishState: (State) -> Unit) :
+        RequestBody() {
         override fun contentType(): MediaType {
             val guessed = runCatching { MimeTypeHelper.guess(file)?.toMediaTypeOrNull() }
             return guessed.getOrNull() ?: "image/jpeg".toMediaType()
