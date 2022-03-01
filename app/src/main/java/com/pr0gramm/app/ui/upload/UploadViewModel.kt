@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui.upload
 
-import android.content.Context
+import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
 class UploadViewModel(
-        private val context: Context,
-        private val uploadService: UploadService,
+    private val context: Application,
+    private val uploadService: UploadService,
 ) : ViewModel() {
 
     private val logger = Logger("UploadViewModel")
@@ -87,9 +87,9 @@ class UploadViewModel(
         }
 
         val tags = tagsString.split('#', ',')
-                .map { tag -> tag.trim() }
-                .filter { tag -> tag.isNotEmpty() }
-                .toSet()
+            .map { tag -> tag.trim() }
+            .filter { tag -> tag.isNotEmpty() }
+            .toSet()
 
         viewModelScope.launch {
             logger.info { "Start upload of type $contentType with tags $tags" }
@@ -149,16 +149,16 @@ class UploadViewModel(
 
             is UploadService.State.Error -> {
                 previousState.copy(
-                        busy = false, uploading = false,
-                        error = ConsumableValue(UploadService.UploadFailedException(state.error, state.report)),
+                    busy = false, uploading = false,
+                    error = ConsumableValue(UploadService.UploadFailedException(state.error, state.report)),
                 )
             }
 
             is UploadService.State.Success -> {
                 logger.info { "Finished! item id is ${state.id}" }
                 previousState.copy(
-                        busy = false, uploading = false,
-                        postId = state.id,
+                    busy = false, uploading = false,
+                    postId = state.id,
                 )
             }
 
@@ -173,8 +173,8 @@ class UploadViewModel(
         }
 
         mutableState.value = newValue.copy(
-                busyText = toBusyText(state),
-                uploadState = state,
+            busyText = toBusyText(state),
+            uploadState = state,
         )
     }
 
@@ -204,23 +204,23 @@ class UploadViewModel(
     }
 
     data class State(
-            val busy: Boolean = true,
-            val busyText: String? = null,
+        val busy: Boolean = true,
+        val busyText: String? = null,
 
-            val uploading: Boolean = false,
-            val uploadKey: String? = null,
-            val uploadState: UploadService.State? = null,
+        val uploading: Boolean = false,
+        val uploadKey: String? = null,
+        val uploadState: UploadService.State? = null,
 
-            // already has a source uri set
-            val hasSource: Boolean = false,
+        // already has a source uri set
+        val hasSource: Boolean = false,
 
-            val file: File? = null,
-            val fileSizeOkay: Boolean = true,
-            val imageWasShrunken: ConsumableValue<Boolean>? = null,
+        val file: File? = null,
+        val fileSizeOkay: Boolean = true,
+        val imageWasShrunken: ConsumableValue<Boolean>? = null,
 
-            val error: ConsumableValue<Exception>? = null,
+        val error: ConsumableValue<Exception>? = null,
 
-            val postId: Long? = null,
+        val postId: Long? = null,
     ) {
         // parse a media uri from the file
         val mediaUri: MediaUri? = file?.let { file -> MediaUri.of(-1, Uri.fromFile(file)) }

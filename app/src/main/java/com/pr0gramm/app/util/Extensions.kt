@@ -2,7 +2,6 @@ package com.pr0gramm.app.util
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.ContentProvider
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -587,10 +586,6 @@ inline fun <reified T : Activity> Fragment.startActivity(
 ) {
     val intent = Intent(requireContext(), T::class.java).also(configureIntent)
     startActivityForResult(intent, requestCode)
-}
-
-fun ContentProvider.requireContext(): Context {
-    return context ?: throw IllegalStateException("context not set on ContentProvider")
 }
 
 val Class<*>.directName: String

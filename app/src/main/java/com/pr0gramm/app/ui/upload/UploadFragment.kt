@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.upload
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -61,8 +62,8 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
 
     private val vm by viewModels {
         UploadViewModel(
-                context = requireContext().applicationContext,
-                uploadService = instance(),
+            context = requireContext().applicationContext as Application,
+            uploadService = instance(),
         )
     }
 
