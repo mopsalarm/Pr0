@@ -310,7 +310,7 @@ class UploadService(
                 FileOutputStream(target).use { output ->
                     output.write(bytes)
 
-                    val maxSize = configService.config().maxUploadSizeVideo
+                    val maxSize = configService.config().maxUploadSizeVideo + 1
                     val copied = BoundedInputStream(input, maxSize).copyTo(output)
                     logger.info { "Copied ${copied / 1024}kb" }
 
