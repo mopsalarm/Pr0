@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services
 
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.core.net.toFile
 import com.pr0gramm.app.Duration.Companion.millis
 import com.pr0gramm.app.Logger
@@ -9,31 +10,38 @@ import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.readStream
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import okio.IOException
 import pl.droidsonroids.gif.GifAnimationMetaData
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifDrawableBuilder
 import pl.droidsonroids.gif.GifOptions
 import java.io.File
+import java.io.RandomAccessFile
+import kotlin.coroutines.coroutineContext
 
 /**
  */
-class GifDrawableLoader(private val cache: Cache) {
+class GifDrawableLoader(private val fileCache: File, private val cache: Cache) {
     private val logger = Logger("GifLoader")
 
     fun load(uri: Uri): Flow<State> {
         val result = flow {
             try {
                 if (uri.isLocalFile) {
-                    emit(State(createGifDrawable(uri.toFile())))
+                    val drawable = RandomAccessFile(uri.toFile(), "r").use {
+                        createGifDrawable(it)
+                    }
+
+                    emit(State(drawable))
+
                 } else {
-                    emitAll(loadGifUsingCache(uri))
+                    cache.get(uri).use { entry ->
+                        emitAll(loadGifUsingTempFile(entry))
+                    }
                 }
 
             } catch (error: Throwable) {
@@ -50,67 +58,64 @@ class GifDrawableLoader(private val cache: Cache) {
      * loads the gif from this temporary file. The temporary file is removed
      * after loading the gif (or on failure).
      */
-    private fun loadGifUsingCache(uri: Uri): Flow<State> {
+    private fun loadGifUsingTempFile(entry: Cache.Entry): Flow<State> {
         return flow {
-            logger.info { "Getting file reference from cached file" }
+            val temporary = File.createTempFile("tmp", ".gif", fileCache)
 
-            cache.get(uri).use { entry ->
-                if (entry.fractionCached < 1.0) {
-                    // read the gif once so it is in the cache.
-                    emitAll(readToCache(entry))
-                }
+            logger.info { "storing data into temporary file" }
 
-                // the file should now be fully cached, we should be able to read it now.
-                entry.file?.let { file ->
-                    // we should now have a file there.
-                    return@flow emit(State(createGifDrawable(file)))
-                }
-            }
+            RandomAccessFile(temporary, "rw").use { storage ->
+                // remove entry from filesystem now - the system will remove the data
+                // when the stream closes.
 
-            // crap, no file in cache, we cant do much now.
-            throw IOException("No file in cache after reading the full file.")
-        }
-    }
+                temporary.delete()
 
-    private fun readToCache(entry: Cache.Entry): Flow<State> {
-        return flow {
-            // read file once so we have it in the cache
-            val publishState = OnceEvery(millis(100))
-            val contentLength = entry.totalSize.toFloat()
-            entry.inputStreamAt(0).use { stream ->
-                var count = 0
+                val publishState = OnceEvery(millis(100))
 
-                readStream(stream) { _, length ->
-                    currentCoroutineContext().ensureActive()
+                // copy data to the file.
+                val contentLength = entry.totalSize.toFloat()
 
-                    debugOnly {
-                        // simulate slow network connection in debug mode
-                        Thread.sleep(if (Math.random() < 0.1) 100 else 0)
-                    }
+                entry.inputStreamAt(0).use { stream ->
+                    var count = 0
 
-                    count += length
+                    readStream(stream) { buffer, length ->
+                        coroutineContext.ensureActive()
 
-                    publishState {
-                        emit(State(progress = count / contentLength))
+                        debugOnly {
+                            // simulate slow network connection in debug mode
+                            Thread.sleep(if (Math.random() < 0.1) 100 else 0)
+                        }
+
+                        storage.write(buffer, 0, length)
+                        count += length
+
+                        publishState {
+                            emit(State(progress = count / contentLength))
+                        }
                     }
                 }
+
+                emit(State(createGifDrawable(storage)))
             }
         }
     }
 
-    private fun createGifDrawable(file: File): GifDrawable {
-        val meta = GifAnimationMetaData(file)
+    private fun createGifDrawable(storage: RandomAccessFile): GifDrawable? {
+        val meta = ParcelFileDescriptor.dup(storage.fd).use {
+            GifAnimationMetaData(it.fileDescriptor)
+        }
 
         val sampleSize = intArrayOf(1, 2, 3, 4, 5).firstOrNull { meta.width / it <= 1024 } ?: 6
+
         logger.info { "Loading gif ${meta.width}x${meta.height} with sampleSize $sampleSize" }
 
         return GifDrawableBuilder()
-            .from(file)
+            .from(storage.fd)
             .options(GifOptions().apply {
                 setInSampleSize(sampleSize)
                 setInIsOpaque(true)
             })
-            .renderingTriggeredOnDraw(true)
+            .setRenderingTriggeredOnDraw(true)
             .build()
     }
 
