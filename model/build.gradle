@@ -6,7 +6,7 @@ buildscript {
 
     dependencies {
         classpath 'com.squareup.sqldelight:gradle-plugin:1.5.3'
-        classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.6.10-1.0.2'
+        classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.6.10-1.0.4'
     }
 }
 

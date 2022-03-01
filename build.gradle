@@ -6,21 +6,21 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0'
+        classpath 'com.android.tools.build:gradle:7.1.2'
     }
 }
 
 plugins {
     id "org.jetbrains.kotlin.android" version "1.6.10" apply false
     id "org.jetbrains.kotlin.kapt" version "1.6.10" apply false
-    id "com.github.ben-manes.versions" version "0.41.0"
+    id "com.github.ben-manes.versions" version "0.42.0"
 }
 
 dependencyUpdates.resolutionStrategy {
     componentSelection { rules ->
         rules.all { ComponentSelection selection ->
-            boolean rejected = ['alpha', 'beta', 'rc', 'cr'].any { qualifier ->
-                selection.candidate.version.contains(qualifier)
+            boolean rejected = ['alpha', 'beta', 'rc', 'cr', '-m'].any { qualifier ->
+                selection.candidate.version.toLowerCase().contains(qualifier)
             }
 
             if (rejected) {
