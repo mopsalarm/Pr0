@@ -289,7 +289,7 @@ class NavigationProvider(
         action: ActionType,
         icon: Drawable,
         title: String,
-        colorOverride: Int = BLACK
+        colorOverride: Int? = null
     ): NavigationItem {
         return NavigationItem(action, title = title, icon = icon, colorOverride = colorOverride)
     }
