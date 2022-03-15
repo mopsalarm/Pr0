@@ -1,5 +1,22 @@
 [
   {
+    "version": 196,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Best of fängt jetzt schon bei 700+ für nsfw Hochlads an."
+      },
+      {
+        "type": "Fix",
+        "change": "Zusammenklappen langer Kommentarketten führt manchmal zu einem abgeschnittenen Post."
+      },
+      {
+        "type": "Fix",
+        "change": "Menu Icons im 'Verdammtes Schwarz' Theme sind nun richtig eingefärbt."
+      }
+    ]
+  },
+  {
     "version": 195,
     "changes": [
       {
