@@ -214,6 +214,14 @@ class CommentView(parent: ViewGroup) : RecyclerView.ViewHolder(inflateCommentVie
             expandView.text = "+" + item.hiddenCount
         }
 
+        contentView.setOnClickListener {
+            if (item.isCollapsed) {
+                actionListener.expandComment(comment)
+            } else {
+                actionListener.collapseComment(comment)
+            }
+        }
+
         Linkify.linkifyClean(this.contentView, comment.content, actionListener)
     }
 

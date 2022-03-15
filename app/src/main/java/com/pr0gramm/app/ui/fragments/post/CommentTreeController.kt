@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 
 /**
  * Handles updates to comments ands performs tree calculation in the background.
@@ -77,7 +77,7 @@ class CommentTreeController(op: String) {
         }
     }
 
-    private suspend fun calculateVisibleComments(inputState: CommentTree.Input): List<CommentTree.Item> {
+    private suspend fun calculateVisibleComments(inputState: CommentTree.Input): LinearizedComments {
         logger.debug {
             "Will run an update for current state ${System.identityHashCode(inputState)} " +
                     "(${inputState.allComments.size} comments, " +
@@ -86,12 +86,21 @@ class CommentTreeController(op: String) {
 
         if (inputState.allComments.isEmpty()) {
             // quickly return if there are no comments to display
-            return listOf()
+            return LinearizedComments(comments = listOf())
         }
 
-        return withContext(Dispatchers.Default) {
+        return runInterruptible(Dispatchers.Default) {
             logger.debug { "Running update in thread ${Thread.currentThread().name}" }
-            CommentTree(inputState).visibleComments
+
+            LinearizedComments(
+                comments = CommentTree(inputState).visibleComments,
+                hasCollapsedComments = inputState.collapsed.isNotEmpty(),
+            )
         }
     }
+
+    class LinearizedComments(
+        val comments: List<CommentTree.Item>,
+        val hasCollapsedComments: Boolean = false,
+    )
 }

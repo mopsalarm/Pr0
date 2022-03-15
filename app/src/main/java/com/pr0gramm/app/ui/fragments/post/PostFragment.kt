@@ -232,13 +232,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
             }
         }
-
-        // this prevents the viewer from getting bad clipping.
-        launchInViewScope {
-            postAdapter.state.drop(1).collect {
-                simulateScroll()
-            }
-        }
     }
 
     private fun initializeFloatingActionButton() {
@@ -354,7 +347,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        postAdapter.submitList(items)
+        postAdapter.submitList(items) {
+            if (state.hasCollapsedComments) {
+                // if the user collapses a comment it can happen that the recyclerview truncates
+                // the scroll position without triggering scroll events.
+                view?.post { simulateScroll() }
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -994,8 +993,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         private val fancyScrollVertical = Settings.fancyScrollVertical
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            if (isVideoFullScreen || view == null)
+            if (isVideoFullScreen || view == null) {
                 return
+            }
 
             val viewer = viewer ?: return
 

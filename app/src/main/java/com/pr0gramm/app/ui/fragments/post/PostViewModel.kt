@@ -22,13 +22,13 @@ import java.io.IOException
 import java.util.*
 
 class PostViewModel(
-        item: FeedItem,
-        private val requiresCacheBust: Boolean,
-        private val userService: UserService,
-        private val feedService: FeedService,
-        private val voteService: VoteService,
-        private val followService: FollowService,
-        private val inMemoryCacheService: InMemoryCacheService,
+    item: FeedItem,
+    private val requiresCacheBust: Boolean,
+    private val userService: UserService,
+    private val feedService: FeedService,
+    private val voteService: VoteService,
+    private val followService: FollowService,
+    private val inMemoryCacheService: InMemoryCacheService,
 ) : ViewModel() {
     private val logger = Logger("PostViewModel")
 
@@ -63,30 +63,30 @@ class PostViewModel(
 
     private suspend fun observeVotesForTags() {
         mutableState.drop(1)
-                // wait for tag ids to change
-                .map { state -> state.tags.map { tag -> tag.id } }
-                .distinctUntilChanged()
+            // wait for tag ids to change
+            .map { state -> state.tags.map { tag -> tag.id } }
+            .distinctUntilChanged()
 
-                // fetch em
-                .flatMapLatest { tagIds -> voteService.getTagVotes(tagIds) }
-                .collect { votes ->
-                    logger.debug { "Got votes for tags: $votes" }
-                    mutableState.update { it.copy(tagVotes = votes) }
-                }
+            // fetch em
+            .flatMapLatest { tagIds -> voteService.getTagVotes(tagIds) }
+            .collect { votes ->
+                logger.debug { "Got votes for tags: $votes" }
+                mutableState.update { it.copy(tagVotes = votes) }
+            }
     }
 
     private suspend fun observeVotesForComments() {
         commentTreeController.comments
-                // wait for change in comment ids
-                .map { comments -> comments.map { it.commentId } }
-                .distinctUntilChanged()
+            // wait for change in comment ids
+            .map { result -> result.comments.map { it.commentId } }
+            .distinctUntilChanged()
 
-                // and fetch votes for those comments
-                .flatMapLatest { commentIds -> voteService.getCommentVotes(commentIds) }
-                .collect { votes ->
-                    logger.debug { "Got votes for comments: $votes" }
-                    commentTreeController.updateVotes(votes)
-                }
+            // and fetch votes for those comments
+            .flatMapLatest { commentIds -> voteService.getCommentVotes(commentIds) }
+            .collect { votes ->
+                logger.debug { "Got votes for comments: $votes" }
+                commentTreeController.updateVotes(votes)
+            }
     }
 
     private suspend fun observeFollowState() {
@@ -99,12 +99,13 @@ class PostViewModel(
 
 
     private suspend fun observeComments() {
-        commentTreeController.comments.collect { comments ->
-            logger.debug { "Got new comment tree of ${comments.size} items" }
+        commentTreeController.comments.collect { result ->
+            logger.debug { "Got new comment tree of ${result.comments.size} items" }
             mutableState.update { previousState ->
                 previousState.copy(
-                        comments = comments,
-                        commentsLoading = false,
+                    comments = result.comments,
+                    hasCollapsedComments = result.hasCollapsedComments,
+                    commentsLoading = false,
                 )
             }
         }
@@ -131,13 +132,13 @@ class PostViewModel(
 
         mutableState.update { previousState ->
             previousState.copy(
-                    refreshing = !initial,
+                refreshing = !initial,
 
-                    commentsLoadError = false,
+                commentsLoadError = false,
 
-                    commentsLoading = initial
-                            || previousState.commentsLoadError
-                            || previousState.comments.isEmpty(),
+                commentsLoading = initial
+                        || previousState.commentsLoadError
+                        || previousState.comments.isEmpty(),
             )
         }
 
@@ -165,10 +166,10 @@ class PostViewModel(
 
             mutableState.update { previousState ->
                 previousState.copy(
-                        item = item,
-                        refreshing = false,
-                        tags = sortTags(post.tags),
-                        tagVotes = tagVotes,
+                    item = item,
+                    refreshing = false,
+                    tags = sortTags(post.tags),
+                    tagVotes = tagVotes,
                 )
             }
         } catch (err: Exception) {
@@ -181,9 +182,9 @@ class PostViewModel(
 
             mutableState.update { previousState ->
                 previousState.copy(
-                        refreshing = false,
-                        commentsLoading = false,
-                        commentsLoadError = true,
+                    refreshing = false,
+                    commentsLoading = false,
+                    commentsLoadError = true,
                 )
             }
         }
@@ -211,8 +212,8 @@ class PostViewModel(
         val op = item.user.equals(userService.name, true) || userService.userIsAdmin
 
         val newTags = tags
-                .filterNot { tag -> previousTags.containsIgnoreCase(tag) }
-                .filter { tag -> isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(previousTags, tag)) }
+            .filterNot { tag -> previousTags.containsIgnoreCase(tag) }
+            .filter { tag -> isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(previousTags, tag)) }
 
         if (newTags.isNotEmpty()) {
             logger.info { "Adding new tags $newTags to post" }
@@ -245,9 +246,9 @@ class PostViewModel(
         if (comments.isEmpty()) {
             mutableState.update { previousState ->
                 previousState.copy(
-                        comments = listOf(),
-                        commentsLoading = false,
-                        commentsLoadError = false,
+                    comments = listOf(),
+                    commentsLoading = false,
+                    commentsLoadError = false,
                 )
             }
         }
@@ -267,14 +268,16 @@ class PostViewModel(
     }
 
     data class State(
-            val item: FeedItem,
-            val refreshing: Boolean = false,
-            val itemVote: Vote = Vote.NEUTRAL,
-            val tags: List<Api.Tag> = emptyList(),
-            val tagVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
-            val comments: List<CommentTree.Item> = emptyList(),
-            val commentsVisible: Boolean = true,
-            val commentsLoading: Boolean = true,
-            val commentsLoadError: Boolean = false,
-            val followState: FollowState = FollowState.NONE)
+        val item: FeedItem,
+        val refreshing: Boolean = false,
+        val itemVote: Vote = Vote.NEUTRAL,
+        val tags: List<Api.Tag> = emptyList(),
+        val tagVotes: LongSparseArray<Vote> = LongSparseArray(initialCapacity = 0),
+        val comments: List<CommentTree.Item> = emptyList(),
+        val hasCollapsedComments: Boolean = false,
+        val commentsVisible: Boolean = true,
+        val commentsLoading: Boolean = true,
+        val commentsLoadError: Boolean = false,
+        val followState: FollowState = FollowState.NONE
+    )
 }
