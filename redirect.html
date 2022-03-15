@@ -6,8 +6,8 @@
   // decode original url
   const url = new URL(atob(base64urlSafe.replace(/-/g, "+").replace(/_/g, "/")));
   
-  if (/amazon/.test(url)) {
-    url.searchParams.set("tag", "mopsi-21");
+  if (/amazon|amzn/.test(url)) {
+    url.searchParams.set("tag", "mopsi0d-21");
     
   } else {
     url.searchParams.set("utm_source", "paid");
