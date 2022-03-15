@@ -192,7 +192,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         }
 
         var searchTerm = if (specialTerms.isNotEmpty()) {
-            Tags.join(specialTerms.joinToString("&", prefix = "!"), baseTerm)
+            Tags.joinAnd(specialTerms.joinToString("&", prefix = "!"), baseTerm)
         } else {
             baseTerm
         }

@@ -193,7 +193,7 @@ class FeedFilter : DefaultParcelable {
 }
 
 object Tags {
-    fun join(lhs: String, rhs: String?): String {
+    fun joinAnd(lhs: String, rhs: String?): String {
         if (rhs.isNullOrBlank()) {
             return lhs
         }
@@ -207,6 +207,17 @@ object Tags {
         } else {
             return "$lhsTrimmed $rhsTrimmed"
         }
+    }
+
+    fun joinOr(lhs: String, rhs: String?): String {
+        if (rhs.isNullOrBlank()) {
+            return lhs
+        }
+
+        val lhsTrimmed = trimSignal(lhs)
+        val rhsTrimmed = trimSignal(rhs)
+
+        return "! ($rhsTrimmed) | ($lhsTrimmed)"
     }
 
     fun invert(query: String): String {

@@ -316,7 +316,7 @@ class FeedViewModel(
                 ?: return
 
         // add 'repost' to query
-        val queryTerm = Tags.join("! 'repost'", filter.tags)
+        val queryTerm = Tags.joinAnd("! 'repost'", filter.tags)
 
         // load repost info for the new items, starting at the most recent one
         val query = FeedService.FeedQuery(

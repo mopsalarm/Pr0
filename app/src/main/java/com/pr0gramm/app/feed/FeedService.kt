@@ -68,7 +68,7 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
             FeedType.RANDOM -> {
                 // convert to a query including the x:random flag.
                 val bust = Instant.now().millis / 1000L
-                val tagsQuery = Tags.join("!-(x:random | x:$bust)", feedFilter.tags)
+                val tagsQuery = Tags.joinAnd("!-(x:random | x:$bust)", feedFilter.tags)
 
                 // and load it directly on 'new'
                 val feed = load(query.copy(
@@ -80,14 +80,20 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
             }
 
             FeedType.BESTOF -> {
-                // add a s:2000 tag to the query.
-                val tagsQuery = Tags.join("!s:2000", feedFilter.tags)
+                // add add s:2000 tag to the query.
+                // and add s:700 to nsfw posts.
+
+                val tagsQuery = Tags.joinOr(
+                    Tags.joinAnd("s:2000", feedFilter.tags),
+                    Tags.joinAnd("s:700 f:nsfw", feedFilter.tags),
+                )
+
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
             FeedType.CONTROVERSIAL -> {
                 // just add the f:controversial flag to the query
-                val tagsQuery = Tags.join("!f:controversial", feedFilter.tags)
+                val tagsQuery = Tags.joinAnd("!f:controversial", feedFilter.tags)
                 load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
             }
 
