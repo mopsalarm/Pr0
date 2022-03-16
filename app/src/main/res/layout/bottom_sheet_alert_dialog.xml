@@ -1,102 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?bottomSheetBackground"
-    android:orientation="vertical"
     android:theme="?popupTheme"
     tools:context=".ui.MainActivity">
-
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="8dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="2dp"
-        android:src="?bottomSheetHandle" />
-
-    <TextView
-        android:id="@+id/title"
-        style="?android:attr/dialogTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="24dp"
-        android:visibility="gone"
-        tools:text="Some dialog title"
-        tools:visibility="visible" />
-
-    <android.widget.Space
-        android:id="@+id/titleSpacerNoTitle"
-        android:layout_width="match_parent"
-        android:layout_height="12dp" />
-
-    <FrameLayout
-        android:id="@+id/custom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="12dp">
-
-        <android.widget.Space
-            android:layout_width="match_parent"
-            android:layout_height="18dp" />
-
-        <TextView
-            android:id="@+id/textContent"
-            style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Lorem ipsumn dolot sit amet, consectetur adipisicing elit, ..." />
-
-    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="4dp"
-        android:gravity="end"
-        android:orientation="horizontal">
+        android:background="?bottomSheetBackground"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
 
-        <Button
-            android:id="@android:id/button3"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="8dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="2dp"
+            android:src="?bottomSheetHandle" />
+
+        <TextView
+            android:id="@+id/title"
+            style="?android:attr/dialogTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="0dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="24dp"
             android:visibility="gone"
-            tools:text="Neutral" />
+            tools:text="Some dialog title"
+            tools:visibility="visible" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="invisible" />
+        <android.widget.Space
+            android:id="@+id/titleSpacerNoTitle"
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
 
-        <Button
-            android:id="@android:id/button2"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/custom"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="0dp"
-            android:visibility="gone"
-            tools:text="Cancel" />
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginBottom="12dp">
 
-        <Button
-            android:id="@android:id/button1"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
+            <android.widget.Space
+                android:layout_width="match_parent"
+                android:layout_height="18dp" />
+
+            <TextView
+                android:id="@+id/textContent"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Lorem ipsumn dolot sit amet, consectetur adipisicing elit, ..." />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="0dp"
-            android:visibility="gone"
-            tools:text="Okay" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@android:id/button3"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:visibility="gone"
+                tools:text="Neutral" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@android:id/button2"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:visibility="gone"
+                tools:text="Cancel" />
+
+            <Button
+                android:id="@android:id/button1"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:visibility="gone"
+                tools:text="Okay" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
-
-
-</LinearLayout>
+</FrameLayout>

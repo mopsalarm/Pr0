@@ -1,85 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?bottomSheetBackground"
-    android:elevation="6dp"
-    android:orientation="vertical"
+    android:layout_height="wrap_content"
     android:theme="?popupTheme">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="36dp">
+        android:background="?bottomSheetBackground"
+        android:orientation="vertical"
+        android:layout_margin="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:theme="?popupTheme">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="-4dp"
-            android:text="@string/collections_save_to"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:minHeight="36dp">
 
-        <Button
-            android:id="@+id/action_new"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="-4dp"
+                android:text="@string/collections_save_to"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+            <Button
+                android:id="@+id/action_new"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/collections_new" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_200" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/collections"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginTop="-4dp"
-            android:layout_marginEnd="4dp"
-            android:text="@string/collections_new" />
-    </FrameLayout>
+            tools:itemCount="3"
+            tools:listitem="@layout/row_collection" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_200" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_200" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/collections"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:itemCount="3"
-        tools:listitem="@layout/row_collection" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_200" />
-
-    <FrameLayout
-        android:id="@+id/done"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
-        android:clickable="true"
-        android:minHeight="48dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_check"
-            android:tint="?android:textColorSecondary" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/done"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="32dp"
-            android:text="@string/collections_done"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
-    </FrameLayout>
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_200" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_check"
+                android:tint="?android:textColorSecondary" />
 
-
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="32dp"
+                android:text="@string/collections_done"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>
