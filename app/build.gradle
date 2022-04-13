@@ -155,9 +155,9 @@ dependencies {
 
     implementation project(":model")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.10"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.20"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
 
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
@@ -184,7 +184,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.4.1'
 
     implementation "com.google.android.gms:play-services-ads-lite:20.6.0"
-    implementation 'com.google.firebase:firebase-analytics:20.1.0'
+    implementation 'com.google.firebase:firebase-analytics:20.1.2'
     implementation 'com.google.firebase:firebase-crashlytics:18.2.9'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
