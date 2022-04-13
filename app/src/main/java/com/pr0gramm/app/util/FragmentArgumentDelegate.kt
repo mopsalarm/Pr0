@@ -92,3 +92,18 @@ inline fun <reified T : Enum<T>> enumFragmentArgument(): ReadWriteProperty<Fragm
         }
     }
 }
+
+inline fun <reified T : Enum<T>> optionalEnumFragmentArgument(): ReadWriteProperty<Fragment, T?> {
+    val delegate = optionalFragmentArgument<Int>()
+    val values = EnumSet.allOf(T::class.java).sortedBy { it.ordinal }.toTypedArray()
+
+    return object : ReadWriteProperty<Fragment, T?> {
+        override fun getValue(thisRef: Fragment, property: KProperty<*>): T? {
+            return delegate.getValue(thisRef, property)?.let { idx -> values.getOrNull(idx) }
+        }
+
+        override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T?) {
+            delegate.setValue(thisRef, property, value?.ordinal)
+        }
+    }
+}

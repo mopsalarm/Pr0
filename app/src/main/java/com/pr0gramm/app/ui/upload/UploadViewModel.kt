@@ -27,8 +27,8 @@ class UploadViewModel(
     private val mutableState = MutableStateFlow(State())
     val state: StateFlow<State> = mutableState
 
-    fun onImageSelected(image: Uri) {
-        logger.info { "copy image to private memory" }
+    fun onMediaSelected(mediaUri: Uri, mediaType: UploadMediaType?) {
+        logger.info { "Copy media to private memory" }
 
         viewModelScope.launch {
             // prevent races, do not do anything if we already have a source image
@@ -40,7 +40,7 @@ class UploadViewModel(
                 previousState.copy(hasSource = true, busy = true)
             }
 
-            copyUriToStaging(image)
+            copyUriToStaging(mediaUri)
         }
     }
 
@@ -178,11 +178,11 @@ class UploadViewModel(
         )
     }
 
-    private suspend fun copyUriToStaging(image: Uri) {
+    private suspend fun copyUriToStaging(mediaUri: Uri) {
         try {
-            val copied = copyToTemp(image)
+            val (copied, mediaType) = copyToStaging(mediaUri)
 
-            val sizeOkay = uploadService.sizeOkay(copied)
+            val sizeOkay = uploadService.sizeOkay(copied, mediaType)
 
             mutableState.update { previousState ->
                 previousState.copy(busy = false, file = copied, fileSizeOkay = sizeOkay)
@@ -199,8 +199,8 @@ class UploadViewModel(
         }
     }
 
-    private suspend fun copyToTemp(source: Uri): File {
-        return uploadService.copyToTemp(source)
+    private suspend fun copyToStaging(source: Uri): Pair<File, UploadMediaType> {
+        return uploadService.copyToStaging(source)
     }
 
     data class State(

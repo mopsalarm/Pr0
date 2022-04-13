@@ -15,11 +15,11 @@ class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment", R.layout
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        views.mediaTypeImage.setOnClickListener { openWithType("image/*") }
-        views.mediaTypeVideo.setOnClickListener { openWithType("video/*") }
+        views.mediaTypeImage.setOnClickListener { openWithType(UploadMediaType.IMAGE) }
+        views.mediaTypeVideo.setOnClickListener { openWithType(UploadMediaType.VIDEO) }
     }
 
-    private fun openWithType(type: String) {
+    private fun openWithType(type: UploadMediaType) {
         val parent = activity
         if (parent is Listener) {
             parent.onMediaTypeChosen(type)
@@ -27,7 +27,7 @@ class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment", R.layout
     }
 
     interface Listener {
-        fun onMediaTypeChosen(type: String)
+        fun onMediaTypeChosen(type: UploadMediaType)
     }
 }
 

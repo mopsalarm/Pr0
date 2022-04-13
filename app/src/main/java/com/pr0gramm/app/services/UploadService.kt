@@ -9,6 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.upload.UploadMediaType
 import com.pr0gramm.app.ui.upload.UploadViewModel
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.util.*
@@ -59,12 +60,15 @@ class UploadService(
             return if (userService.loginState.premium) config.maxUploadPixelsPremium else config.maxUploadPixelsNormal
         }
 
-    suspend fun sizeOkay(file: File): Boolean {
+    suspend fun sizeOkay(file: File, mediaType: UploadMediaType): Boolean {
         return runInterruptible(Dispatchers.IO) {
-            val fileSizeOk = file.length() < maxUploadSize(MediaUri.MediaType.IMAGE)
-
+            val fileSizeOk = file.length() < maxUploadSize(mediaType.mediaUriType)
             if (!fileSizeOk) {
                 return@runInterruptible false
+            }
+
+            if (mediaType === UploadMediaType.VIDEO) {
+                return@runInterruptible true
             }
 
             try {
@@ -91,11 +95,11 @@ class UploadService(
             }
 
             val bitmap = picasso.load(file)
-                    .config(Bitmap.Config.ARGB_8888)
-                    .centerInside()
-                    .resize(4096, 4096)
-                    .onlyScaleDown()
-                    .get()
+                .config(Bitmap.Config.ARGB_8888)
+                .centerInside()
+                .resize(4096, 4096)
+                .onlyScaleDown()
+                .get()
 
             logger.info { "Image loaded at ${bitmap.width}x${bitmap.height}px" }
 
@@ -129,8 +133,9 @@ class UploadService(
 
     private fun upload(file: File): Flow<State> {
         val states = channelFlow {
-            if (!file.exists() || !file.isFile || !file.canRead())
+            if (!file.exists() || !file.isFile || !file.canRead()) {
                 throw FileNotFoundException("Can not read file to upload")
+            }
 
             // prepare the upload
             this.trySend(State.Uploading(progress = 0f)).isSuccess
@@ -138,9 +143,9 @@ class UploadService(
             val image = RequestBodyWithProgress(file) { state -> this.trySend(state).isSuccess }
 
             val body = MultipartBody.Builder()
-                    .setType("multipart/form-data".toMediaTypeOrNull()!!)
-                    .addFormDataPart("image", file.name, image)
-                    .build()
+                .setType("multipart/form-data".toMediaTypeOrNull()!!)
+                .addFormDataPart("image", file.name, image)
+                .build()
 
             // upload the actual file
             val response = api.upload(body)
@@ -153,8 +158,10 @@ class UploadService(
         return states.buffer(16).flowOn(Dispatchers.IO)
     }
 
-    fun post(key: String, contentType: ContentType, userTags: Set<String>,
-             checkSimilar: Boolean): Flow<State> {
+    fun post(
+        key: String, contentType: ContentType, userTags: Set<String>,
+        checkSimilar: Boolean
+    ): Flow<State> {
 
         val contentTypeTag = contentType.name.lowercase(Locale.ROOT)
         val tags = userTags.map { it.trim() }.filter { isValidTag(it) }
@@ -282,7 +289,7 @@ class UploadService(
         }
     }
 
-    suspend fun copyToTemp(source: Uri): File {
+    suspend fun copyToStaging(source: Uri): Pair<File, UploadMediaType> {
         fun makeTempUploadFile(ext: String): File {
             return File(applicationContext.cacheDir, "upload.${System.currentTimeMillis()}.$ext").also { file ->
                 // cleanup if the application exits
@@ -299,10 +306,10 @@ class UploadService(
 
                 // and guess the type, also fail if we couldn't get
                 // an extension (and thereby a type)
-                val ext = MimeTypeHelper.guess(bytes)
+                val mimeType = MimeTypeHelper.guess(bytes)
+                val ext = mimeType
                     ?.let { MimeTypeHelper.extension(it) }
                     ?: throw UploadViewModel.MediaNotSupportedException()
-
 
                 logger.info { "Creating temporary file with extension '$ext'" }
                 val target = makeTempUploadFile(ext)
@@ -312,14 +319,19 @@ class UploadService(
 
                     val maxSize = configService.config().maxUploadSizeVideo + 1
                     val copied = BoundedInputStream(input, maxSize).copyTo(output)
-                    logger.info { "Copied ${copied / 1024}kb" }
+                    logger.info { "Copied ${copied / 1024}kb (max is ${maxSize / 1024}kb" }
 
                     if (copied == maxSize) {
                         throw IOException("File too large.")
                     }
                 }
 
-                return@runInterruptible target
+                val uploadMediaType = when {
+                    mimeType.startsWith("video/") -> UploadMediaType.VIDEO
+                    else -> UploadMediaType.IMAGE
+                }
+
+                Pair(target, uploadMediaType)
             }
         }
     }

@@ -30,8 +30,8 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         if (savedInstanceState == null) {
             val fragment = CheckUploadAllowedFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .commit()
+                .replace(R.id.fragment_container, fragment)
+                .commit()
 
             launchUntilDestroy {
                 try {
@@ -49,7 +49,9 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
 
     private fun limitCheckPassed() {
         val action: String? = intent?.action
-        val mediaType: String? = intent?.getStringExtra(EXTRA_MEDIA_TYPE)
+        val mediaType: UploadMediaType? = intent
+            ?.getIntExtra(EXTRA_MEDIA_TYPE, -1)
+            ?.let { idx -> UploadMediaType.values().getOrNull(idx) }
 
         when {
             action == Intent.ACTION_SEND -> showUploadFragment(null, addToBackstack = false)
@@ -70,12 +72,16 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         show(UploadLimitReachedFragment(), addToBackstack = false)
     }
 
-    private fun showUploadFragment(type: String?, addToBackstack: Boolean) {
-        val fragment = if (intent?.action == Intent.ACTION_SEND) {
-            val url = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-            UploadFragment.forLocalUri(url)
-        } else {
-            UploadFragment.forMediaType(type)
+    private fun showUploadFragment(type: UploadMediaType?, addToBackstack: Boolean) {
+        val fragment = when {
+            intent?.action == Intent.ACTION_SEND -> {
+                val url = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                UploadFragment.forLocalUri(url)
+            }
+
+            else -> {
+                UploadFragment.forMediaType(type ?: UploadMediaType.IMAGE)
+            }
         }
 
         show(fragment, addToBackstack)
@@ -84,8 +90,8 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
     private fun show(fragment: Fragment, addToBackstack: Boolean) {
         @SuppressLint("CommitTransaction")
         val transaction = supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragment)
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
 
         if (addToBackstack) {
             transaction.addToBackStack(null)
@@ -103,7 +109,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onMediaTypeChosen(type: String) {
+    override fun onMediaTypeChosen(type: UploadMediaType) {
         showUploadFragment(type, addToBackstack = true)
     }
 
@@ -118,10 +124,11 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         const val EXTRA_MEDIA_TYPE = "UploadActivity.mediaType"
 
 
-        fun openForType(context: Context, mediaType: String) {
+        fun openForType(context: Context, mediaType: UploadMediaType) {
             val intent = Intent(context, UploadActivity::class.java)
-            intent.putExtra(EXTRA_MEDIA_TYPE, mediaType)
+            intent.putExtra(EXTRA_MEDIA_TYPE, mediaType.ordinal)
             context.startActivity(intent)
         }
     }
+
 }

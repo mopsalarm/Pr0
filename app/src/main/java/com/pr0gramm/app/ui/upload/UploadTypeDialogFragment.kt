@@ -22,11 +22,11 @@ class UploadTypeDialogFragment : BottomSheetDialogFragment() {
             dialog?.dismiss()
 
             if (item.itemId == R.id.action_upload_image) {
-                UploadActivity.openForType(context, UploadActivity.MEDIA_TYPE_IMAGE)
+                UploadActivity.openForType(context, UploadMediaType.IMAGE)
             }
 
             if (item.itemId == R.id.action_upload_video) {
-                UploadActivity.openForType(context, UploadActivity.MEDIA_TYPE_VIDEO)
+                UploadActivity.openForType(context, UploadMediaType.VIDEO)
             }
         }
 

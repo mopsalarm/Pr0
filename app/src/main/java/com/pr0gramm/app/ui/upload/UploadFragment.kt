@@ -53,12 +53,8 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
 
     private val views by bindViews(FragmentUploadBinding::bind)
 
-    // private var file: File? = null
-    // private var fileMediaType: MediaUri.MediaType? = null
-    // private var uploadInfo: UploadService.State.Uploaded? = null
-
     private var urlArgument: Uri? by optionalFragmentArgument()
-    private var mediaTypeArgument: String? by optionalFragmentArgument(default = "image/*")
+    private var mediaTypeArgument: UploadMediaType? by optionalEnumFragmentArgument()
 
     private val vm by viewModels {
         UploadViewModel(
@@ -76,9 +72,9 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
             val uri = urlArgument
 
             if (uri != null) {
-                handleImageUri(uri)
+                handleMediaUri(uri)
             } else {
-                handleImagePickRequest()
+                handleMediaPickRequest()
             }
         }
 
@@ -213,9 +209,9 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         }
     }
 
-    private fun handleImagePickRequest() {
+    private fun handleMediaPickRequest() {
         val intent = Intent(Intent.ACTION_PICK)
-        intent.type = mediaTypeArgument
+        intent.type = mediaTypeArgument?.mimeType
 
         // check if someone can handle this intent
         if (context?.canStartIntent(intent) == false) {
@@ -283,15 +279,15 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         if (requestCode == RequestCodes.SELECT_MEDIA) {
             if (resultCode == Activity.RESULT_OK && intent != null) {
                 val image = intent.data ?: run { activity?.finish(); return }
-                handleImageUri(image)
+                handleMediaUri(image)
             } else {
                 activity?.finish()
             }
         }
     }
 
-    private fun handleImageUri(image: Uri) {
-        vm.onImageSelected(image)
+    private fun handleMediaUri(image: Uri) {
+        vm.onMediaSelected(image, mediaTypeArgument)
     }
 
     private fun handleStateError(err: Exception) {
@@ -443,6 +439,6 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
     companion object {
         fun forLocalUri(url: Uri?) = UploadFragment().apply { urlArgument = url }
 
-        fun forMediaType(type: String?) = UploadFragment().apply { mediaTypeArgument = type }
+        fun forMediaType(type: UploadMediaType) = UploadFragment().apply { mediaTypeArgument = type }
     }
 }
