@@ -1,5 +1,18 @@
 [
   {
+    "version": 197,
+    "changes": [
+      {
+        "type": "pr0mium",
+        "change": "Das Blussi dreht sich wieder. Du kannst das alte, sich drehende Blussi in den Optionen unter 'Visuell' aktivieren."
+      },
+      {
+        "type": "Fix",
+        "change": "Upload von Videos über 40mb funktioniert nun fehlerfrei."
+      }
+    ]
+  },
+  {
     "version": 196,
     "changes": [
       {
