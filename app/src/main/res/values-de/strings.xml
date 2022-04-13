@@ -34,8 +34,8 @@
     <string name="new_update_available">Neues Update verfügbar: %s</string>
     <string name="okay">Okay</string>
     <string name="please_wait">Bitte warten</string>
-    <string name="points_one">%d Punkt</string>
-    <string name="points_more">%d Punkte</string>
+    <string name="points_one">%d Benis</string>
+    <string name="points_more">%d Benis</string>
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_privacy">Privatsphäre</string>
     <string name="settings">Einstellungen</string>
@@ -190,7 +190,7 @@
     <string name="action_feed_type_random">Zufall</string>
     <string name="filter_format_random">Zufall</string>
     <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
-    <string name="pref_show_category_controversial_summary">Aktiviere die Kontrovers-Kategorie, die Bilder mit einer ähnlichen Zahl Up- und Downvotes zeigt!</string>
+    <string name="pref_show_category_controversial_summary">Aktiviere die Kontrovers-Kategorie, die Bilder mit einer ähnlichen Anzahl an Blussis und Minus zeigt!</string>
     <string name="pref_show_category_premium_summary">Aktiviere die Stelz-Kategorie.</string>
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
@@ -493,8 +493,8 @@
     <string name="tags_show_all">Alle anzeigen</string>
 
     <string name="pref_tap_action_none">Keine Aktion</string>
-    <string name="pref_tap_action_upvote">Upvote</string>
-    <string name="pref_tap_action_downvote">Downvote</string>
+    <string name="pref_tap_action_upvote">Blussi</string>
+    <string name="pref_tap_action_downvote">Minus</string>
     <string name="pref_tap_action_collect">Sammeln</string>
     <string name="pref_tap_action_fullscreen">Vollbild</string>
 
@@ -548,7 +548,7 @@
     <string name="bookmark">Lesezeichen</string>
     <string name="uploads_in">Hochlads in %s</string>
     <string name="uploads">Hochlads</string>
-    <string name="pref_upvote_on_collect_title">Upvote beim Sammeln</string>
+    <string name="pref_upvote_on_collect_title">Blussi beim Sammeln</string>
     <string name="pref_upvote_on_collect_summary">Es wird automatisch ein Blussi vergeben, wenn du einen Post in eine Sammlung hinzufügst. Du kannst das Blussi nachträglich wieder entfernen.</string>
     <string name="hint_upvote_on_collect">Möchtest du beim Sammeln automatisch ein Blussi dalassen? Du kannst es jederzeit nachträglich wieder entfernen.</string>
     <string name="pref_use_doh_summary">DNS über HTTPS via Cloudflare</string>
@@ -569,7 +569,7 @@
     <string name="badge_tags">Mehr als %sk Tags</string>
     <string name="prefcat_behaviour__sync_title">Synchronisation</string>
     <string name="pref_sync_site_settings_title">Einstellungen synchronisieren</string>
-    <string name="pref_sync_site_settings_summary">Wenn ausgewählt werden bestimmte Einstellungen zwischen App und und Website synchronisiert.</string>
-    <string name="pref_use_secondary_servers_title">Ausweich Server</string>
+    <string name="pref_sync_site_settings_summary">Wenn ausgewählt werden bestimmte Einstellungen zwischen App und der Website synchronisiert.</string>
+    <string name="pref_use_secondary_servers_title">Ausweichserver</string>
     <string name="pref_use_secondary_servers_summary">Verwendet den Ausweichserver um auf das pr0gramm zuzugreifen. Dies kann helfen, wenn die Verbindung oft unerklärlich langsam ist. Telekom Kunden sind davon aktuell stärker betroffen.</string>
 </resources>
