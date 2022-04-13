@@ -591,5 +591,7 @@
     <string name="pref_sync_site_settings_summary">Enable to sync some settings between the website and the app.</string>
     <string name="pref_use_secondary_servers_title">Secondary Server</string>
     <string name="pref_use_secondary_servers_summary">Uses a second set of servers to access pr0gramm. This might help if you encounter a very slow connection using the default servers - might help for Telekom Customers.</string>
+    <string name="pref_rotate_vote_view_title">Rotate blussi/minus buttons</string>
+    <string name="pref_rotate_vote_view_summary">pr0mium only: This option brings the rotation of the blussi and minus buttons back.</string>
 </resources>
 

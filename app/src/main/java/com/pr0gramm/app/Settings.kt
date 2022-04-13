@@ -191,6 +191,9 @@ object Settings {
     val useDoH: Boolean
         get() = preferences.getBoolean("pref_use_doh2", true)
 
+    val rotateVoteView: Boolean
+        get() = preferences.getBoolean("pref_rotate_vote_view", false)
+
     val syncSiteSettings: Boolean
         get() = preferences.getBoolean("pref_sync_site_settings", false)
 
