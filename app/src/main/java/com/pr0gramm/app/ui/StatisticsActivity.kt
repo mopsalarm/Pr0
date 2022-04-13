@@ -129,8 +129,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     @SuppressLint("SetTextI18n")
     private fun handleVoteCounts(votes: Map<CachedVote.Type, VoteService.Summary>) {
-        voteCountUp.text = "UP " + votes.values.sumOf { it.up }
-        voteCountDown.text = "DOWN " + votes.values.sumOf { it.down }
+        voteCountUp.text = "BLUSSI " + votes.values.sumOf { it.up }
+        voteCountDown.text = "MINUS " + votes.values.sumOf { it.down }
 
         votesByTags.chartValues = toChartValues(votes[CachedVote.Type.TAG])
         votesByItems.chartValues = toChartValues(votes[CachedVote.Type.ITEM])
