@@ -40,6 +40,13 @@ class AspectImageView @JvmOverloads constructor(context: Context, attrs: Attribu
             }
         }
 
+    /**
+     * Prevent s/w images from being color inverted
+     */
+    override fun isForceDarkAllowed(): Boolean {
+        return false
+    }
+
     init {
         // apply attributes
         aspect = context.theme.obtainStyledAttributes(attrs, R.styleable.AspectView, 0, 0).use {
