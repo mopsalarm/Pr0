@@ -89,19 +89,13 @@ android {
             signingConfig signingConfigs.release
         }
     }
-
-
     packagingOptions {
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-
-        exclude 'META-INF/*.kotlin_module'
-        exclude '**/*.kotlin_builtins'
-        exclude '**/*.kotlin_metadata'
+        resources {
+            excludes += ['META-INF/NOTICE', 'META-INF/LICENSE', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE.txt', 'META-INF/NOTICE.txt', 'META-INF/*.kotlin_module', '**/*.kotlin_builtins', '**/*.kotlin_metadata']
+        }
     }
+
+
     lint {
         checkReleaseBuilds false
     }
