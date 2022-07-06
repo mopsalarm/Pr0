@@ -21,7 +21,6 @@ import com.pr0gramm.app.util.delay
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.trace
-import kotlinx.coroutines.flow.collect
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
@@ -61,7 +60,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             trace { "newAdView()" }
             val adView = adService.newAdView(context).apply {
-                adSize = AdSize(AdSize.FULL_WIDTH, 70)
+                setAdSize(AdSize(AdSize.FULL_WIDTH, 70))
             }
 
             container.onAttachedScope {

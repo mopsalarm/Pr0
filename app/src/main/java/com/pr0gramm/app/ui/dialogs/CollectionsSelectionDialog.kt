@@ -185,6 +185,8 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
 
                         snackbar.show()
                     }
+
+                    else -> {}
                 }
             }
         }

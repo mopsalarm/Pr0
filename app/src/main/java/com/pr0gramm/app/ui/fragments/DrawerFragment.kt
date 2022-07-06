@@ -374,6 +374,8 @@ private class NavigationDelegateAdapter(
                 val filter = item.filterInverse ?: return debugCrash()
                 callback.onFeedFilterSelectedInNavigation(filter)
             }
+
+            else -> {}
         }
     }
 
