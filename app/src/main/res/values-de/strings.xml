@@ -179,6 +179,7 @@
     <string name="write_message_placeholder">Nachricht</string>
     <string name="write_message_send">ABSCHICKEN</string>
     <string name="write_message_title">An %s</string>
+    <string name="write_message_cannot_receive_messages">%s kann keine Nachrichten empfangen.</string>
     <string name="message_must_not_be_empty">Nachricht darf nicht leer sein</string>
     <string name="pref_confirm_play_on_mobile_human__all">Alles bestätigen</string>
     <string name="pref_confirm_play_on_mobile_human__play_direct">Direkt abspielen</string>

@@ -125,6 +125,15 @@ class ConversationFragment : BaseFragment("ConversationFragment", R.layout.fragm
         views.actionSend.setOnClickListener {
             sendInboxMessage()
         }
+
+        model.partner.observe(viewLifecycleOwner) {
+            if(!it.canReceiveMessages) {
+                views.messageInput.isEnabled = false
+                views.messageInput.setText("")
+                views.messageInput.hint = resources.getString(R.string.write_message_cannot_receive_messages, conversationName)
+                views.actionSend.isEnabled = false
+            }
+        }
     }
 
     private suspend fun updateConversation(pg: PagingData<Api.ConversationMessage>) {

@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.fragments.conversation
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.*
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
@@ -22,6 +21,11 @@ class ConversationViewModel(private val inboxService: InboxService, private val 
             firstPageConversationMessages = null
             currentPagingSource = it
         }
+    }
+
+    val partner: LiveData<Api.ConversationMessages.ConversationMessagePartner> = liveData {
+        val partner = inboxService.messagesInConversation(recipient)
+        emit(partner.with)
     }
 
     val paging by lazy { pager.flow.cachedIn(viewModelScope) }
