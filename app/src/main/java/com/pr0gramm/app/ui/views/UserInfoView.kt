@@ -74,7 +74,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
 
         showCommentsContainer.isVisible = comments.isNotEmpty()
 
-        writeNewMessage.isVisible = !myself
+        writeNewMessage.isVisible = !myself && user.canReceiveMessages
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
