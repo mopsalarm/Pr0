@@ -559,7 +559,8 @@ interface Api {
             val bannedUntil: Instant?,
             val inactive: Boolean = false,
             @Json(name = "commentDelete") val commentDeleteCount: Int,
-            @Json(name = "itemDelete") val itemDeleteCount: Int
+            @Json(name = "itemDelete") val itemDeleteCount: Int,
+            val canReceiveMessages: Boolean = true
         )
 
         @JsonClass(generateAdapter = true)
@@ -808,15 +809,25 @@ interface Api {
         val lastMessage: Instant,
         val mark: Int,
         val name: String,
-        val unreadCount: Int
+        val unreadCount: Int,
+        val canReceiveMessages: Boolean = true
     )
 
     @JsonClass(generateAdapter = true)
     class ConversationMessages(
         val atEnd: Boolean = true,
         val error: String? = null,
-        val messages: List<ConversationMessage> = listOf()
-    )
+        val messages: List<ConversationMessage> = listOf(),
+        val with: ConversationMessagePartner
+    ) {
+        @JsonClass(generateAdapter = true)
+        class ConversationMessagePartner(
+            val name: String,
+            val blocked: Boolean = false,
+            val canReceiveMessages: Boolean = true,
+            val mark: Int
+        )
+    }
 
     @JsonClass(generateAdapter = true)
     class ConversationMessage(
