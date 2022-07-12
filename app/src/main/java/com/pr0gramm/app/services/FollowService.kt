@@ -19,11 +19,15 @@ class FollowService(private val api: Api, private val db: AppDB) {
     suspend fun update(state: FollowState, userId: Long, name: String) {
         withContext(NonCancellable + Dispatchers.Default) {
             when (state) {
-                FollowState.NONE ->
+                FollowState.NONE -> {
                     api.profileUnfollow(null, name)
+                    api.profileUnsubscribe(null, name)
+                }
 
-                FollowState.FOLLOW ->
+                FollowState.FOLLOW -> {
                     api.profileFollow(null, name)
+                    api.profileUnsubscribe(null, name)
+                }
 
                 FollowState.SUBSCRIBED -> {
                     api.profileFollow(null, name)
@@ -37,9 +41,9 @@ class FollowService(private val api: Api, private val db: AppDB) {
 
     fun getState(userId: Long): Flow<FollowState> {
         return db.userFollowEntryQueries.forUser(userId)
-                .asFlow()
-                .mapToOneOrNull()
-                .map { value -> mapToState(value?.state) }
+            .asFlow()
+            .mapToOneOrNull()
+            .map { value -> mapToState(value?.state) }
     }
 
     private fun mapToState(value: Int?): FollowState {
