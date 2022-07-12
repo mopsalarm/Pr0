@@ -1,5 +1,14 @@
 [
   {
+    "version": 198,
+    "changes": [
+      {
+        "type": "Feature",
+        "change": "App zeigt nun in der Nachrichtenansicht an, wenn ein Nutzer (z.B. ein Bot) keine Nachrichten empfangen kann."
+      }
+    ]
+  },
+  {
     "version": 197,
     "changes": [
       {
