@@ -77,7 +77,11 @@ class ConversationSource(
                 return LoadResult.Error(StringException("load", R.string.conversation_load_error))
             }
 
-            partner.send(response.with)
+            // It should never be the case that 'response.with' is null as we are only fetching
+            // messages
+            response.with?.let {
+                partner.send(it)
+            }
 
             pending = null
 

@@ -818,7 +818,8 @@ interface Api {
         val atEnd: Boolean = true,
         val error: String? = null,
         val messages: List<ConversationMessage> = listOf(),
-        val with: ConversationMessagePartner
+        // Only available in GET /api/inbox/messages
+        val with: ConversationMessagePartner?
     ) {
         @JsonClass(generateAdapter = true)
         class ConversationMessagePartner(
