@@ -533,8 +533,8 @@ interface Api {
         val uploadCount: Int,
         val commentCount: Int,
         val tagCount: Int,
-        val likesArePublic: Boolean,
-        val following: Boolean,
+//        val likesArePublic: Boolean,
+//        val following: Boolean,
         @Json(name = "pr0mium") val premiumTime: Int,
         @Json(name = "pr0miumGift") val premiumGift: Int,
         val appLinks: List<AppLink>? = null
@@ -760,7 +760,7 @@ interface Api {
         val down: Int,
         val mark: Int,
         val content: String,
-        @Json(name = "ccreated") val commentCreated: Instant
+        // @Json(name = "ccreated") val commentCreated: Instant
     )
 
     @JsonClass(generateAdapter = true)

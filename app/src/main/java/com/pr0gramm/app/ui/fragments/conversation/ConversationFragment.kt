@@ -15,12 +15,13 @@ import com.pr0gramm.app.databinding.FragmentConversationBinding
 import com.pr0gramm.app.delay
 import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.NotificationService
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.SimpleTextWatcher
 import com.pr0gramm.app.ui.base.*
 import com.pr0gramm.app.ui.fragments.EndOfViewSmoothScroller
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -126,12 +127,16 @@ class ConversationFragment : BaseFragment("ConversationFragment", R.layout.fragm
             sendInboxMessage()
         }
 
-        model.partner.observe(viewLifecycleOwner) {
-            if(!it.canReceiveMessages) {
-                views.messageInput.isEnabled = false
-                views.messageInput.setText("")
-                views.messageInput.hint = resources.getString(R.string.write_message_cannot_receive_messages, conversationName)
-                views.actionSend.isEnabled = false
+        launchInViewScope {
+            model.partner.collect { partner ->
+                if (!partner.canReceiveMessages) {
+                    views.actionSend.isEnabled = false
+                    views.messageInput.isEnabled = false
+                    views.messageInput.setText("")
+                    views.messageInput.hint = resources.getString(
+                        R.string.write_message_cannot_receive_messages, partner.name,
+                    )
+                }
             }
         }
     }

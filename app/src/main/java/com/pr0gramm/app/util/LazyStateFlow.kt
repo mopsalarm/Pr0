@@ -8,18 +8,26 @@ interface LazyStateFlow<T : Any?> : Flow<T> {
     fun send(newValue: T)
 }
 
-fun <T : Any> lazyStateFlow(initialValue: T): LazyStateFlow<T> {
-    val delegate = MutableStateFlow(initialValue)
+fun <T : Any> lazyStateFlow(initialValue: T?): LazyStateFlow<T> {
+    val delegate: MutableStateFlow<T?> = MutableStateFlow(initialValue)
 
-    return object : LazyStateFlow<T>, Flow<T> by delegate {
+    return object : LazyStateFlow<T>, Flow<T> {
         override val value: T
-            get() = delegate.value
+            get() = valueOrNull!!
 
         override val valueOrNull: T?
-            get() = value
+            get() = delegate.value
 
         override fun send(newValue: T) {
             delegate.value = newValue
+        }
+
+        override suspend fun collect(collector: FlowCollector<T>) {
+            delegate.collect { value ->
+                if (value != null) {
+                    collector.emit(value)
+                }
+            }
         }
     }
 }

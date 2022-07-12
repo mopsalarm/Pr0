@@ -1,32 +1,32 @@
 package com.pr0gramm.app.ui.fragments.conversation
 
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.util.StringException
+import com.pr0gramm.app.util.lazyStateFlow
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class ConversationViewModel(private val inboxService: InboxService, private val recipient: String) : ViewModel() {
-    private var currentPagingSource: ConversationSource? = null
+    private var currentPagingSource = lazyStateFlow<ConversationSource>()
     private var firstPageConversationMessages: Api.ConversationMessages? = null
 
     private val pager = Pager(PagingConfig(pageSize = 75, enablePlaceholders = false)) {
-        ConversationSource(inboxService, recipient, firstPageConversationMessages).also {
+        ConversationSource(inboxService, recipient, firstPageConversationMessages).also { source ->
+            currentPagingSource.send(source)
             firstPageConversationMessages = null
-            currentPagingSource = it
         }
     }
 
-    val partner: LiveData<Api.ConversationMessages.ConversationMessagePartner> = liveData {
-        val partner = inboxService.messagesInConversation(recipient)
-        emit(partner.with)
-    }
+    val partner = currentPagingSource.flatMapLatest { source -> source.partner }
 
     val paging by lazy { pager.flow.cachedIn(viewModelScope) }
 
@@ -45,7 +45,7 @@ class ConversationViewModel(private val inboxService: InboxService, private val 
 
         } finally {
             // invalidate even in case of errors
-            currentPagingSource?.invalidate()
+            currentPagingSource.valueOrNull?.invalidate()
 
             // remove the pending message "by instance"
             pendingMessages.value = pendingMessages.value.filterNot { it === messageText }
@@ -61,6 +61,8 @@ class ConversationSource(
         private val inboxService: InboxService, private val name: String,
         private var pending: Api.ConversationMessages?) : PagingSource<Instant, Api.ConversationMessage>() {
 
+    val partner = lazyStateFlow<Api.ConversationMessages.ConversationMessagePartner>()
+
     override suspend fun load(params: LoadParams<Instant>): LoadResult<Instant, Api.ConversationMessage> {
         val olderThan = params.key
 
@@ -74,6 +76,8 @@ class ConversationSource(
             if (response.error != null) {
                 return LoadResult.Error(StringException("load", R.string.conversation_load_error))
             }
+
+            partner.send(response.with)
 
             pending = null
 
