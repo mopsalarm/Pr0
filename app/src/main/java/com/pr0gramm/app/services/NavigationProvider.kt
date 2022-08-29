@@ -53,6 +53,8 @@ class NavigationProvider(
     private val iconContact by drawable(R.drawable.ic_action_feedback)
     private val iconInvite by drawable(R.drawable.ic_action_invite)
     private val iconFAQ by drawable(R.drawable.ic_action_faq)
+    private val iconPrivacy by drawable(R.drawable.ic_action_faq)
+    private val iconImprint by drawable(R.drawable.ic_action_faq)
     private val iconPremium by drawable(R.drawable.ic_action_premium)
     private val iconLogin by drawable(R.drawable.ic_action_login)
     private val iconLogout by drawable(R.drawable.ic_action_logout)
@@ -129,6 +131,8 @@ class NavigationProvider(
         }
 
         items += staticItemFAQ
+        items += staticItemPrivacy
+        items += staticItemImprint
 
         if (!loginState.authorized || !loginState.premium) {
             items += staticItemPremium
@@ -298,6 +302,14 @@ class NavigationProvider(
         staticItem(ActionType.FAQ, iconFAQ, getString(R.string.action_faq))
     }
 
+    private val staticItemImprint: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.IMPRINT, iconImprint, getString(R.string.action_imprint))
+    }
+
+    private val staticItemPrivacy: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        staticItem(ActionType.PRIVACY, iconPrivacy, getString(R.string.action_privacy))
+    }
+
     private val staticItemSettings: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         staticItem(ActionType.SETTINGS, iconSettings, getString(R.string.action_settings))
     }
@@ -426,7 +438,7 @@ class NavigationProvider(
     enum class ActionType {
         HINT, FILTER, BOOKMARK, MESSAGES, UPLOAD, COLLECTIONS, URI,
         DIVIDER,
-        SETTINGS, CONTACT, INVITES, FAQ, PREMIUM, LOGIN, LOGOUT,
+        SETTINGS, CONTACT, INVITES, FAQ, PRIVACY, IMPRINT, PREMIUM, LOGIN, LOGOUT,
         AGE_VERIFICATION,
     }
 }

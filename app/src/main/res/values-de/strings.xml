@@ -219,6 +219,8 @@
     <string name="pref_pseudo_clear_tag_suggestions_title">Suchverlauf löschen</string>
     <string name="pref_pseudo_clear_tag_suggestions_notification">Suchverlauf gelöscht</string>
     <string name="action_faq">FAQ</string>
+    <string name="action_privacy">Datenschutz</string>
+    <string name="action_imprint">Impressum</string>
     <string name="action_switch_to_new">In \'neu\' öffnen</string>
     <string name="action_switch_to_top">In \'top\' öffnen</string>
     <string name="action_delete_item">Löschen</string>

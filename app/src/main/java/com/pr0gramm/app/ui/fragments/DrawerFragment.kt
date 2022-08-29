@@ -346,6 +346,20 @@ private class NavigationDelegateAdapter(
                         handover = false)
             }
 
+            NavigationProvider.ActionType.PRIVACY -> {
+                Track.registerFAQClicked()
+                BrowserHelper.openCustomTab(activity,
+                        Uri.parse("https://pr0gramm.com/datasafety?iap=true"),
+                        handover = false)
+            }
+
+            NavigationProvider.ActionType.IMPRINT -> {
+                Track.registerFAQClicked()
+                BrowserHelper.openCustomTab(activity,
+                        Uri.parse("https://pr0gramm.com/imprint?iap=true"),
+                        handover = false)
+            }
+
             NavigationProvider.ActionType.PREMIUM -> {
                 Track.registerLinkClicked()
                 val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
