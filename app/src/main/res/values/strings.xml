@@ -235,6 +235,8 @@
     <string name="pref_pseudo_clear_tag_suggestions_summary">Clear your search history.</string>
     <string name="pref_pseudo_clear_tag_suggestions_notification">Search history cleared</string>
     <string name="action_faq">FAQ</string>
+    <string name="action_privacy">Privacy</string>
+    <string name="action_imprint">Imprint</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
     <string name="hint_block_user_for">Ban user for (days)</string>
