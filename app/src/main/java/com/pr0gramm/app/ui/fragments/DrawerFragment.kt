@@ -340,24 +340,30 @@ private class NavigationDelegateAdapter(
                 activity.startActivity<ContactActivity>(RequestCodes.FEEDBACK)
 
             NavigationProvider.ActionType.FAQ -> {
-                Track.registerFAQClicked()
-                BrowserHelper.openCustomTab(activity,
-                        Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
-                        handover = false)
+                Track.faqClicked()
+                BrowserHelper.openCustomTab(
+                    activity,
+                    Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
+                    handover = false
+                )
             }
 
             NavigationProvider.ActionType.PRIVACY -> {
-                Track.registerFAQClicked()
-                BrowserHelper.openCustomTab(activity,
-                        Uri.parse("https://pr0gramm.com/datasafety?iap=true"),
-                        handover = false)
+                Track.privacyClicked()
+                BrowserHelper.openCustomTab(
+                    activity,
+                    Uri.parse("https://pr0gramm.com/datasafety?iap=true"),
+                    handover = false
+                )
             }
 
             NavigationProvider.ActionType.IMPRINT -> {
-                Track.registerFAQClicked()
-                BrowserHelper.openCustomTab(activity,
-                        Uri.parse("https://pr0gramm.com/imprint?iap=true"),
-                        handover = false)
+                Track.imprintClicked()
+                BrowserHelper.openCustomTab(
+                    activity,
+                    Uri.parse("https://pr0gramm.com/imprint?iap=true"),
+                    handover = false
+                )
             }
 
             NavigationProvider.ActionType.PREMIUM -> {

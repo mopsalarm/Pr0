@@ -131,8 +131,6 @@ class NavigationProvider(
         }
 
         items += staticItemFAQ
-        items += staticItemPrivacy
-        items += staticItemImprint
 
         if (!loginState.authorized || !loginState.premium) {
             items += staticItemPremium
@@ -143,6 +141,10 @@ class NavigationProvider(
         } else {
             items += staticItemLogin
         }
+
+        items += staticItemDivider
+        items += staticItemPrivacy
+        items += staticItemImprint
 
         return items
     }

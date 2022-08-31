@@ -143,8 +143,16 @@ object Track : InjectorAware {
         send("aff_register_clicked")
     }
 
-    fun registerFAQClicked() {
+    fun faqClicked() {
         send("aff_faq_clicked")
+    }
+
+    fun privacyClicked() {
+        send("aff_privacy_clicked")
+    }
+
+    fun imprintClicked() {
+        send("aff_imprint_clicked")
     }
 
     fun passwordChanged() {
