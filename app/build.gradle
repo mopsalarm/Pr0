@@ -115,23 +115,34 @@ android.applicationVariants.all { variant ->
     tasks."package${variant.name.capitalize()}".doLast {
         println("Checking for important files in the apk...")
 
-        def output = new ByteArrayOutputStream()
-        exec {
-            def pathToApk = variant.name == "release"
-                    ? "$buildDir/outputs/apk/release/app-release.apk"
-                    : "$buildDir/intermediates/apk/${variant.name}/app-${variant.name}.apk"
 
-            commandLine("unzip", "-t", pathToApk)
-            standardOutput output
+        def pathsToApk = [
+                "$buildDir/outputs/apk/${variant.name}/app-${variant.name}.apk",
+                "$buildDir/intermediates/apk/${variant.name}/app-${variant.name}.apk"
+        ]
+
+        if (!pathsToApk.any { pathToApk -> file(pathToApk).exists() }) {
+            throw new RuntimeException("No .apk file found.")
         }
 
-        if (!output.toString("UTF-8").contains("okhttp3/internal/publicsuffix/publicsuffixes.gz")) {
-            throw new RuntimeException("publicsuffixes.gz not found in build")
-        }
+        pathsToApk.forEach { pathToApk ->
+            if (file(pathToApk).exists()) {
+                def output = new ByteArrayOutputStream()
 
-        if (variant.name.toLowerCase() == "release") {
-            if (output.toString("UTF-8").contains("classes2.dex")) {
-                throw new RuntimeException("classes2.dex should not exist.")
+                exec {
+                    commandLine("unzip", "-t", pathToApk)
+                    standardOutput output
+                }
+
+                if (!output.toString("UTF-8").contains("okhttp3/internal/publicsuffix/publicsuffixes.gz")) {
+                    throw new RuntimeException("publicsuffixes.gz not found in build")
+                }
+
+                if (variant.name.toLowerCase() == "release") {
+                    if (output.toString("UTF-8").contains("classes2.dex")) {
+                        throw new RuntimeException("classes2.dex should not exist.")
+                    }
+                }
             }
         }
     }
