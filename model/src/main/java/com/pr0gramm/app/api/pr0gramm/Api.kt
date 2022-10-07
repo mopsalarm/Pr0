@@ -430,6 +430,9 @@ interface Api {
         @Field("itemId") itemId: Long
     ): CollectionResponse
 
+    @GET("api/user/me")
+    suspend fun me(): MeInfo
+
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
@@ -521,7 +524,6 @@ interface Api {
             val deleted: Boolean = false
         )
     }
-
 
     @JsonClass(generateAdapter = true)
     class Info(
@@ -615,13 +617,11 @@ interface Api {
         )
     }
 
-
     @JsonClass(generateAdapter = true)
     class NewComment(
         val commentId: Long? = null,
         val comments: List<Comment> = listOf()
     )
-
 
     @JsonClass(generateAdapter = true)
     class NewTag(
@@ -897,6 +897,16 @@ interface Api {
             val thumb: String
         )
     }
+
+    @JsonClass(generateAdapter = true)
+    data class MeInfo (
+        val name: String,
+        val registered: Instant,
+        val identifier: String,
+        val mark: Int,
+        val score: Int,
+        // "banInfo" omitted because it is irrelevant to the app
+    )
 
 
     enum class BanMode {
