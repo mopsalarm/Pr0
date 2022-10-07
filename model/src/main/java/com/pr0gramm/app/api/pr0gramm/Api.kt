@@ -436,6 +436,13 @@ interface Api {
     @GET("api/seen/bits")
     suspend fun seenBitsGet(): SeenBits
 
+    @GET("api/seen/update")
+    suspend fun seenBitsUpdate(
+        @Field("_nonce") nonce: Nonce?,
+        @Header("X-pr0gramm-Bits-Version") version: Int,
+        @Body body: RequestBody,
+    ): UpdateSeenBitsResponse
+
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
@@ -920,6 +927,17 @@ interface Api {
     data class SeenBits (
         val userIdentifier: String,
         val value: String,
+        val version: Int,
+    )
+
+    /**
+     * @property userIdentifier Same user ID as returned by /api/user/me.
+     * @property value base64 encoded value of compressed seen bits.
+     * @property version Current version of seen bits.
+     */
+    @JsonClass(generateAdapter = true)
+    data class UpdateSeenBitsResponse (
+        val success: Boolean,
         val version: Int,
     )
 
