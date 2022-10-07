@@ -931,9 +931,7 @@ interface Api {
     )
 
     /**
-     * @property userIdentifier Same user ID as returned by /api/user/me.
-     * @property value base64 encoded value of compressed seen bits.
-     * @property version Current version of seen bits.
+     * @property version New version of seen bits.
      */
     @JsonClass(generateAdapter = true)
     data class UpdateSeenBitsResponse (
