@@ -433,6 +433,9 @@ interface Api {
     @GET("api/user/me")
     suspend fun me(): MeInfo
 
+    @GET("api/seen/bits")
+    suspend fun seenBitsGet(): SeenBits
+
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
@@ -908,6 +911,17 @@ interface Api {
         // "banInfo" omitted because it is irrelevant to the app
     )
 
+    /**
+     * @property userIdentifier Same user ID as returned by /api/user/me.
+     * @property value base64 encoded value of compressed seen bits.
+     * @property version Current version of seen bits.
+     */
+    @JsonClass(generateAdapter = true)
+    data class SeenBits (
+        val userIdentifier: String,
+        val value: String,
+        val version: Int,
+    )
 
     enum class BanMode {
         Default, Single, Branch;
