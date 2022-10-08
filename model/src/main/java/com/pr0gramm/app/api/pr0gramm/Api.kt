@@ -436,9 +436,9 @@ interface Api {
     @GET("api/seen/bits")
     suspend fun seenBitsGet(): SeenBits
 
-    @GET("api/seen/update")
+    @POST("api/seen/update")
     suspend fun seenBitsUpdate(
-        @Field("_nonce") nonce: Nonce?,
+        @Header("_nonce") nonce: Nonce?,
         @Header("X-pr0gramm-Bits-Version") version: Int,
         @Body body: RequestBody,
     ): UpdateSeenBitsResponse
@@ -926,7 +926,7 @@ interface Api {
     @JsonClass(generateAdapter = true)
     data class SeenBits (
         val userIdentifier: String,
-        val value: String,
+        val value: ByteArray,
         val version: Int,
     )
 
