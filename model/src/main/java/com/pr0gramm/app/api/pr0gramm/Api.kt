@@ -253,7 +253,7 @@ interface Api {
     @FormUrlEncoded
     @POST("api/items/delete")
     suspend fun deleteItem(
-        @Field("_nonce") none: Nonce?,
+        @Field("_nonce") nonce: Nonce?,
         @Field("id") id: Long,
         @Field("reason") reason: String,
         @Field("customReason") customReason: String,
