@@ -1,10 +1,9 @@
-name: Build & Deploy
+name: Build
 
 on:
   push:
     branches:
       - master
-      - feature/ci
   pull_request:
 
 jobs:

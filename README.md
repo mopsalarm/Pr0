@@ -1,4 +1,4 @@
-# Offizielle pr0gramm App für Android
+# Offizielle pr0gramm App für Android [![Build & Deploy](https://github.com/mopsalarm/Pr0/actions/workflows/CI.yml/badge.svg)](https://github.com/mopsalarm/Pr0/actions/workflows/CI.yml)
 
 Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0gramm.com
 
