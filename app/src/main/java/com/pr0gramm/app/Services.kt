@@ -176,6 +176,8 @@ fun appInjector(app: Application) = Module.build {
         SyncService(instance(), instance(), instance(), instance(), instance())
     }
 
+    bind<SeenApiService>() with singleton { SeenApiService(instance()) }
+
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance()) }
 
     bind<NotificationService>() with singleton { NotificationService(instance(), instance()) }
