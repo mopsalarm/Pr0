@@ -438,7 +438,7 @@ interface Api {
 
     @POST("api/seen/update")
     suspend fun seenBitsUpdate(
-        @Header("_nonce") nonce: Nonce?,
+        @Header("X-pr0gramm-Nonce") nonce: Nonce?,
         @Header("X-pr0gramm-Bits-Version") version: Int,
         @Body body: RequestBody,
     ): UpdateSeenBitsResponse
@@ -937,6 +937,7 @@ interface Api {
     data class UpdateSeenBitsResponse (
         val success: Boolean,
         val version: Int,
+        val data: ByteArray,
     )
 
     enum class BanMode {
