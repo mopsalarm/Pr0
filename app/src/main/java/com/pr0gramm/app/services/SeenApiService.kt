@@ -18,8 +18,7 @@ class SeenApiService(private val api: Api) {
                     ?.let { value ->  put(previous?.version ?: 0, value)  }
 
             if (response == PutResult.Conflict) {
-                return null
-                // throw VersionConflictException()
+                throw VersionConflictException()
             }
 
             response as? PutResult.Version
@@ -40,22 +39,15 @@ class SeenApiService(private val api: Api) {
 
     suspend fun put(version: Int, value: ByteArray): PutResult {
         val body = value.toRequestBody("application/octet".toMediaTypeOrNull())
-        return PutResult.Version(version)
-        // return PutResult.Conflict
-        /*
         return try {
             val result = api.seenBitsUpdate(null, version, body)
-            if (result.success) {
-                return PutResult.Version(result.version)
-            }
-            return PutResult.Conflict
+            if (result.success) PutResult.Version(result.version) else  PutResult.Conflict
         } catch (err: HttpException) {
             if (err.code() != 409)
                 throw err
 
             PutResult.Conflict
         }
-        */
     }
 
     class VersionConflictException : RuntimeException("version conflict during update")
