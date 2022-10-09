@@ -15,7 +15,7 @@ class SeenApiService(private val api: Api) {
             val previous = get() as? GetResult.Value
 
             val response = fn(previous?.value)
-                    ?.let { value ->  put(previous?.version ?: 0, value)  }
+                    ?.let { value -> put(previous?.version ?: 0, value) }
 
             if (response == PutResult.Conflict) {
                 throw VersionConflictException()
@@ -41,7 +41,7 @@ class SeenApiService(private val api: Api) {
         val body = value.toRequestBody("application/octet".toMediaTypeOrNull())
         return try {
             val result = api.seenBitsUpdate(null, version, body)
-            if (result.success) PutResult.Version(result.version) else  PutResult.Conflict
+            if (result.success) PutResult.Version(result.version) else PutResult.Conflict
         } catch (err: HttpException) {
             if (err.code() != 409)
                 throw err
