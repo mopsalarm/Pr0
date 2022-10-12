@@ -41,12 +41,18 @@ class SeenApiService(private val api: Api) {
         val body = value.toRequestBody("application/octet".toMediaTypeOrNull())
         return try {
             val result = api.seenBitsUpdate(null, version, body)
-            if (result.success) PutResult.Version(result.version) else PutResult.Conflict
-        } catch (err: HttpException) {
-            if (err.code() != 409)
-                throw err
 
-            PutResult.Conflict
+            if (result.success) {
+                PutResult.Version(result.version)
+            } else {
+                PutResult.Conflict
+            }
+        } catch (err: HttpException) {
+            if (err.code() != 409) {
+                throw err
+            } else {
+                PutResult.Conflict
+            }
         }
     }
 
