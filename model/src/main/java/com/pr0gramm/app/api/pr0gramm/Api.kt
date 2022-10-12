@@ -918,24 +918,24 @@ interface Api {
         // "banInfo" omitted because it is irrelevant to the app
     )
 
-    /**
-     * @property userIdentifier Same user ID as returned by /api/user/me.
-     * @property value base64 encoded value of compressed seen bits.
-     * @property version Current version of seen bits.
-     */
+
     @JsonClass(generateAdapter = true)
     data class SeenBits (
+        /** Same user ID as returned by /api/user/me. */
         val userIdentifier: String,
+        /** Server sends the base64 encoded value of compressed seen bits. Automatically decoded by Retrofit. */
         val value: ByteArray,
+        /** Current version of seen bits. */
         val version: Int,
     )
 
     /**
-     * @property version New version of seen bits.
+     * @property version
      */
     @JsonClass(generateAdapter = true)
     data class UpdateSeenBitsResponse (
         val success: Boolean,
+        /** New version of seen bits. */
         val version: Int,
         val data: ByteArray,
     )
