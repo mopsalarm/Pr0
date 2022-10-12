@@ -170,8 +170,6 @@ fun appInjector(app: Application) = Module.build {
 
     bind<ShareService>() with singleton { ShareService(instance()) }
 
-    bind<KVService>() with singleton { KVService(instance()) }
-
     bind<SyncService>() with eagerSingleton {
         SyncService(instance(), instance(), instance(), instance(), instance())
     }
