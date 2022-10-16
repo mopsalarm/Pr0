@@ -320,9 +320,9 @@ class FeedViewModel(
 
         // load repost info for the new items, starting at the most recent one
         val query = FeedService.FeedQuery(
-                filter = filter.withTags(queryTerm),
-                contentTypes = new.contentType,
-                older = new.feedTypeId(newestItem)
+            filter = filter.basicWithTags(queryTerm),
+            contentTypes = new.contentType,
+            older = new.feedTypeId(newestItem)
         )
 
         if (inMemoryCacheService.refreshRepostsCache(feedService, query)) {

@@ -16,9 +16,11 @@ class StatisticsService(private val feedService: FeedService) {
     private val uploadsCountCache = ConcurrentHashMap<Long, Stats>()
 
     fun statsForUploads(username: String): Flow<Stats> {
-        return streamStats(uploadsCountCache, FeedFilter()
+        return streamStats(
+            uploadsCountCache, FeedFilter()
                 .withFeedType(FeedType.NEW)
-                .withUser(username))
+                .basicWithUser(username)
+        )
     }
 
     private fun streamStats(cache: ConcurrentMap<Long, Stats>, filter: FeedFilter): Flow<Stats> {

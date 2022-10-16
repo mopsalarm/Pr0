@@ -288,6 +288,8 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
                 // if we found this user using a normal 'search', we will show a hint
                 // that the user exists
                 if (filter.tags != null) {
+                    // val isAlreadyOnTargetUser = filter.username.equalsIgnoreCase(userInfo.info.user.name)
+
                     if (!isSelfInfo) {
                         val userAndMark = userInfo.info.user.run { UserAndMark(name, mark) }
                         entries += FeedAdapter.Entry.UserHint(userAndMark, this::openUserUploads)
@@ -431,7 +433,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         override fun onUserViewCollectionsClicked(name: String) {
-            val filter = currentFilter.basic().withCollection(name, "**ANY", "**ANY")
+            val filter = currentFilter.basic().basicWithCollection(name, "**ANY", "**ANY")
 
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
@@ -441,7 +443,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
         }
 
         override fun onShowUploadsClicked(name: String) {
-            val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
+            val filter = currentFilter.basic().withFeedType(FeedType.NEW).basicWithUser(name)
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
@@ -460,9 +462,11 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
     private fun openUserUploads(name: String) {
         val handler = requireActivity() as MainActionHandler
-        handler.onFeedFilterSelected(currentFilter.basic()
+        handler.onFeedFilterSelected(
+            currentFilter.basic()
                 .withFeedType(FeedType.NEW)
-                .withUser(name))
+                .basicWithUser(name)
+        )
     }
 
     private fun resetToolbar() {
@@ -899,7 +903,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         var startAt: CommentRef? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
-            filter = filter.withTags("")
+            filter = filter.basicWithTags("")
             startAt = CommentRef(query.combined.filter { it in '0'..'9' }.toLong())
         }
 

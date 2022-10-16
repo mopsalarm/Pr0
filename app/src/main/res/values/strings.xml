@@ -598,5 +598,7 @@
     <string name="pref_rotate_vote_view_summary">pr0mium only: This option brings the rotation of the blussi and minus buttons back.</string>
     <string name="user_validate_success">You are now age verified</string>
     <string name="user_validate_failed">Validation failed, token is invalid.</string>
+    <string name="uploads_of">Uploads of %s</string>
+    <string name="collection_x_of_user">%s of %s</string>
 </resources>
 

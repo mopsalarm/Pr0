@@ -196,12 +196,13 @@ class NavigationProvider(
 
         if (username != null) {
             items += makeItem(
-                    action = ActionType.COLLECTIONS,
-                    title = getString(R.string.action_collections),
-                    icon = iconCollections,
-                    filter = FeedFilter()
-                            .withFeedType(FeedType.NEW)
-                            .withCollection(username, "**ANY", "**ANY"))
+                action = ActionType.COLLECTIONS,
+                title = getString(R.string.action_collections),
+                icon = iconCollections,
+                filter = FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .basicWithCollection(username, "**ANY", "**ANY")
+            )
         }
 
         return items

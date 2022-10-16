@@ -17,7 +17,6 @@ import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.getStringOrThrow
-import kotlinx.coroutines.flow.collect
 
 /**
  */
@@ -48,7 +47,7 @@ class CollectionsFragment : BaseFragment("CollectionsFragment", R.layout.fragmen
                 subtitle = model.user,
         )
 
-        currentFilter = currentFilter.withCollection(model.user, "**ANY", "**ANY")
+        currentFilter = currentFilter.basicWithCollection(model.user, "**ANY", "**ANY")
 
         val tabsAdapter = TabsStateAdapter(requireContext(), this)
 
@@ -56,8 +55,8 @@ class CollectionsFragment : BaseFragment("CollectionsFragment", R.layout.fragmen
             model.collectionsState.collect { collections ->
                 val tabs = collections.mapTo(ArrayList()) { collection ->
                     val filter = FeedFilter()
-                            .withFeedType(FeedType.NEW)
-                            .withCollection(model.user, collection)
+                        .withFeedType(FeedType.NEW)
+                        .basicWithCollection(model.user, collection)
 
                     TabsStateAdapter.TabInfo(
                             id = collection.id,

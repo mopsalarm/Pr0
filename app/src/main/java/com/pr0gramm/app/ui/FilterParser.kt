@@ -19,41 +19,48 @@ object FilterParser {
 
         for (pattern in patterns) {
             val matcher = pattern.matcher(path)
-            if (!matcher.matches())
+            if (!matcher.matches()) {
                 continue
+            }
 
             val encodedGroups = matcher.namedGroups().firstOrNull()?.toMap() ?: continue
             val values = encodedGroups.mapValues { decodeUrlComponent(it.value) }
 
             var filter = FeedFilter().withFeedType(FeedType.NEW)
 
-            if ("top" == values["type"])
+            if (values["type"] == "top") {
                 filter = filter.withFeedType(FeedType.PROMOTED)
+            }
 
-            if ("stalk" == values["type"])
+            if (values["type"] == "stalk") {
                 filter = filter.withFeedType(FeedType.STALK)
+            }
 
-            // filter by user
+            val tag = values["tag"]
             val user = values["user"]
-            if (user != null && user.isNotBlank()) {
-                val subcategory = values["subcategory"]
 
-                filter = if ("uploads" == subcategory || subcategory == null) {
-                    filter.withFeedType(FeedType.NEW).withUser(user)
-                } else {
-                    filter.withFeedType(FeedType.NEW).withCollection(user, subcategory, subcategory.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
+            if (!user.isNullOrBlank()) {
+                when (val subcategory = values["subcategory"]) {
+                    null, "uploads" -> {
+                        filter = filter
+                            .withFeedType(FeedType.NEW)
+                            .basicWithUser(user)
+                            .withTagsNoReset(tag)
+                    }
+                    else -> {
+                        val collectionTitle = subcategory.replaceFirstChar { ch ->
+                            if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
+                        }
+
+                        filter = filter
+                            .withFeedType(FeedType.NEW)
+                            .basicWithCollection(user, subcategory, collectionTitle)
+                    }
                 }
             }
 
-            // filter by tag
-            val tag = values["tag"]
-            if (tag != null && tag.isNotBlank()) {
-                filter = filter.withTags(tag)
-
-                // special case, handle uploads of users.
-                if (user != null && user.isNotBlank()) {
-                    filter = filter.withTags("!u:$user $tag")
-                }
+            if (filter.tags == null && !tag.isNullOrBlank()) {
+                filter = filter.withTagsNoReset(tag)
             }
 
             val itemId = values["id"]?.toLongOrNull()
@@ -84,16 +91,28 @@ object FilterParser {
     private val pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/?$")
     private val pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/(?<id>[0-9]+)$")
     private val pUserUploadsWithTag = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads)/(?<tag>[^/]+)$")
-    private val pUserUploadsWithTagId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads||[^/]+)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
+    private val pUserUploadsWithTagId =
+        Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
     private val pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$")
     private val pTagId = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
 
-    private val patterns = listOf(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pUserUploadsWithTag, pUserUploadsWithTagId, pTag, pTagId)
+    private val patterns = listOf(
+        pFeed,
+        pFeedId,
+        pUser,
+        pUserUploads,
+        pUserUploadsId,
+        pUserUploadsWithTag,
+        pUserUploadsWithTagId,
+        pTag,
+        pTagId,
+    )
 }
 
 class FeedFilterWithStart(
-        val filter: FeedFilter, start: Long?, commentId: Long?,
-        notificationTime: Instant?) {
+    val filter: FeedFilter, start: Long?, commentId: Long?,
+    notificationTime: Instant?
+) {
 
     val start: CommentRef? = if (start != null) CommentRef(start, commentId, notificationTime) else null
 }

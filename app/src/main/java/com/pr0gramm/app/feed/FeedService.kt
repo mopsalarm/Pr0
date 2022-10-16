@@ -71,30 +71,33 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
                 val tagsQuery = Tags.joinAnd("!-(x:random | x:$bust)", feedFilter.tags)
 
                 // and load it directly on 'new'
-                val feed = load(query.copy(
+                val feed = load(
+                    query.copy(
                         newer = null, older = null, around = null,
-                        filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
+                        filter = feedFilter.withFeedType(FeedType.NEW).basicWithTags(tagsQuery)
+                    )
+                )
 
                 // then shuffle the result
                 feed.copy(_items = feed._items?.shuffled())
             }
 
             FeedType.BESTOF -> {
-                // add add s:2000 tag to the query.
+                // add add s:1000 tag to the query.
                 // and add s:700 to nsfw posts.
 
                 val tagsQuery = Tags.joinOr(
-                    Tags.joinAnd("s:2000", feedFilter.tags),
+                    Tags.joinAnd("s:1000", feedFilter.tags),
                     Tags.joinAnd("s:700 f:nsfw", feedFilter.tags),
                 )
 
-                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
+                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).basicWithTags(tagsQuery)))
             }
 
             FeedType.CONTROVERSIAL -> {
                 // just add the f:controversial flag to the query
                 val tagsQuery = Tags.joinAnd("!f:controversial", feedFilter.tags)
-                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).withTags(tagsQuery)))
+                load(query.copy(filter = feedFilter.withFeedType(FeedType.NEW).basicWithTags(tagsQuery)))
             }
 
             else -> {

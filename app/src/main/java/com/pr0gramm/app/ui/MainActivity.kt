@@ -538,7 +538,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     override fun onUsernameClicked() {
         val name = userService.name
         if (name != null) {
-            val filter = FeedFilter().withFeedType(FeedType.NEW).withUser(name)
+            val filter = FeedFilter().withFeedType(FeedType.NEW).basicWithUser(name)
             gotoFeedFragment(filter, false)
         }
 
@@ -576,6 +576,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         newFilter: FeedFilter, clear: Boolean = false,
         start: CommentRef? = null, queryState: Bundle? = null
     ) {
+        logger.debug { "Opening feed at $newFilter" }
 
         // show special fragment if we want to see overview of collections of some user.
         newFilter.username?.let { username ->
