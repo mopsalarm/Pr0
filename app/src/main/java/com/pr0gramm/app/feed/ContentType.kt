@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.R
+import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.parcel.creator
 import java.util.*
 
@@ -19,6 +20,18 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
 
     override fun writeToParcel(dest: Parcel, f: Int) {
         dest.writeInt(ordinal)
+    }
+
+    fun isAvailable(loginState: LoginState): Boolean {
+        if (!loginState.authorized) {
+            return this == SFW
+        }
+
+        if (!loginState.verified) {
+            return this == SFW || this == NSFP
+        }
+
+        return true
     }
 
     companion object {
