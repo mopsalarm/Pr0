@@ -427,9 +427,10 @@
     <string name="error_feed_not_public__item">This collection of %s is not public. Do you want to open the post in /new?</string>
     <string name="error_feed_not_public__general">This collection of %s is not public.</string>
     <string name="type_sfw_upper" translatable="false">SFW</string>
+    <string name="type_nsfp_upper" translatable="false">NSFP</string>
     <string name="type_nsfw_upper" translatable="false">NSFW</string>
     <string name="type_nsfl_upper" translatable="false">NSFL</string>
-    <string name="stats_title_uploads_favs">Uploads and favorites</string>
+    <string name="stats_title_uploads_favs">Uploads</string>
     <string name="stats_title_votes">Your voting behaviour</string>
     <string name="monat">MONTH</string>
     <string name="stats_week">WEEK</string>

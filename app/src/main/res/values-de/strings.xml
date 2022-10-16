@@ -404,7 +404,7 @@
     <string name="could_not_load_feed_content_type__signin">Um Beiträge in %s zu sehen, musst du dich anmelden.</string>
     <string name="error_feed_not_public__item">Diese Sammlung von %s ist nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
     <string name="error_feed_not_public__general">Diese Sammlungn von %s ist nicht öffentlich.</string>
-    <string name="stats_title_uploads_favs">Uploads und Favoriten</string>
+    <string name="stats_title_uploads_favs">Uploads</string>
     <string name="stats_title_votes">Voteverhalten</string>
     <string name="stats_day">TAG</string>
     <string name="stats_title_benis_change">Änderungen deines Benis</string>
