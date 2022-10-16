@@ -1,5 +1,14 @@
 [
   {
+    "version": 199,
+    "changes": [
+      {
+        "type": "Feature",
+        "change": "Die Menü-Taste oben links zeigt nun einen farbigen Punkt an, wenn du ungelesene Nachrichten hast. (Issue #237)"
+      }
+    ]
+  },
+  {
     "version": 198,
     "changes": [
       {

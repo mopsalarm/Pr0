@@ -15,6 +15,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.view.menu.ActionMenuItem
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.DialogFragment
@@ -30,6 +31,7 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.info.InfoMessage
 import com.pr0gramm.app.orm.bookmarkOf
+import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.sync.SyncWorker
@@ -44,6 +46,7 @@ import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.delay
+import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
 import kotlinx.coroutines.flow.*
 import kotlin.properties.Delegates
@@ -104,6 +107,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerToggle = ActionBarDrawerToggle(this, views.drawerLayout, R.string.app_name, R.string.app_name)
         views.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         views.drawerLayout.addDrawerListener(drawerToggle)
+
+        drawerToggle.drawerArrowDrawable = buildDrawerArrowDrawable()
 
         // listen to fragment changes
         supportFragmentManager.addOnBackStackChangedListener(this)
@@ -167,13 +172,28 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
+    private fun buildDrawerArrowDrawable(): DrawerArrowDrawable {
+        val drawable = NotificationDrawerArrowDrawable(this)
+
+        launchWhenResumed {
+            val inboxService = applicationContext.injector.instance<InboxService>()
+
+            inboxService.unreadMessagesCount()
+                .map { it.total > 0 }
+                .distinctUntilChanged()
+                .collect { hasNotification -> drawable.hasNotification = hasNotification }
+        }
+
+        return drawable
+    }
+
     private fun handleMarkAsRead(intent: Intent?) {
         val extras = intent?.extras ?: return
 
         val inboxService by instance<InboxService>()
 
         val itemId = extras.getString(EXTRA_MARK_AS_READ)
-        val timestamp = extras.getParcelable<Instant>(EXTRA_MARK_AS_READ_TIMESTAMP)
+        val timestamp = extras.getParcelableOrNull<Instant>(EXTRA_MARK_AS_READ_TIMESTAMP)
         if (itemId != null && timestamp != null) {
             inboxService.markAsRead(itemId, timestamp)
         }
