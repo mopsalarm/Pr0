@@ -28,9 +28,13 @@ object Linkify {
     private val MALICIOUS_COMMENT_CHARS = Pattern.compile("""([\p{Mn}\p{Mc}\p{Me}])[\p{Mn}\p{Mc}\p{Me}]+""")
 
     private val RE_USERNAME = Pattern.compile("""(?<=^|\s)@[A-Za-z0-9]+""")
-    private val RE_GENERIC_LINK = Pattern.compile("""(?:https?://)?(?:www\.)?pr0gramm\.com(/(?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9])""")
-    private val RE_GENERIC_SHORT_LINK = Pattern.compile("""(?<!reddit.com)/((?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9'"])""")
+    private val RE_GENERIC_LINK =
+        Pattern.compile("""(?:https?://)?(?:www\.)?pr0gramm\.com(/(?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9])""")
+    private val RE_GENERIC_SHORT_LINK =
+        Pattern.compile("""(?<!reddit.com)/((?:new|top|user)/[^\p{javaWhitespace}]*[a-z0-9'"])""")
     private val RE_WEB_LINK = Pattern.compile("""\bhttps?://(?:[^<>\s]+\([^<>\s]+[^<>!,.:\s]|[^(<>\s]+[^<>)!,.:\s])""")
+
+    private val RE_NEW_LINES = Regex("\r?\n\\s*\n")
 
     fun linkifyClean(view: TextView, content: String, callback: Callback? = null) {
         var cleanedContent = content.take(1024 * 64).replace(Regex("\n(\\s*?\n){2,}"), "\n\n").trim()
@@ -40,7 +44,11 @@ object Linkify {
         linkify(view, SpannableStringBuilder.valueOf(cleanedContent), callback)
     }
 
-    fun linkify(view: TextView, text: SpannableStringBuilder = SpannableStringBuilder(view.text), callback: Callback? = null) {
+    fun linkify(
+        view: TextView,
+        text: SpannableStringBuilder = SpannableStringBuilder(view.text),
+        callback: Callback? = null
+    ) {
         view.movementMethod = NonCrashingLinkMovementMethod
         view.setTextFuture(linkify(view.context, text, callback))
     }
@@ -114,9 +122,9 @@ object Linkify {
             }
         }
 
-        Regex("\r?\n\\s*\n").findAll(text).forEach { match ->
-            val start = match.range.start
-            val end = match.range.endInclusive + 1
+        RE_NEW_LINES.findAll(text).forEach { match ->
+            val start = match.range.first
+            val end = match.range.last + 1
 
             text.setSpan(RelativeSizeSpan(0.5f), start, end, 0)
         }
