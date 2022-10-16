@@ -548,7 +548,7 @@ private fun createLoginStateFromInfo(user: Api.Info.User, cookie: LoginCookie?, 
         score = user.score,
         premium = cookie?.paid == true,
         admin = cookie?.admin == true,
-        verified = cookie?.verified == true,
+        verified = cookie?.verified == true && false,
         uniqueToken = token
     )
 }

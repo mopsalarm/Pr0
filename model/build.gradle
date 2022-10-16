@@ -5,8 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.squareup.sqldelight:gradle-plugin:1.5.3'
-        classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.10-1.0.6'
+        classpath 'com.squareup.sqldelight:gradle-plugin:1.5.4'
+        classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.20-1.0.7'
     }
 }
 
@@ -18,7 +18,7 @@ apply plugin: 'com.squareup.sqldelight'
 
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
 
     defaultConfig {
@@ -56,16 +56,16 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.20"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
-    implementation "com.squareup.moshi:moshi:1.13.0"
+    implementation "com.squareup.moshi:moshi:1.14.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.okhttp3:okhttp:4.10.0"
 
-    api "com.squareup.sqldelight:android-driver:1.5.3"
-    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.3"
+    api "com.squareup.sqldelight:android-driver:1.5.4"
+    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.4"
 
-    ksp "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:1.14.0"
 }

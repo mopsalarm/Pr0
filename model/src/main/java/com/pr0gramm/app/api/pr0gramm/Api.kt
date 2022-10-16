@@ -910,4 +910,5 @@ interface Api {
     }
 }
 
-typealias GenericSettings = java.util.Map<String, java.lang.Object?>
+// To work around some quirks in moshis serialization we use java.util.Map here.
+typealias GenericSettings = java.util.Map<String, Object?>

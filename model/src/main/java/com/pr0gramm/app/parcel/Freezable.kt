@@ -9,6 +9,7 @@ inline fun <reified T : Parcelable> Bundle.getParcelableOrNull(key: String): T? 
 }
 
 inline fun <reified T : Parcelable?> Bundle.getParcelableOrThrow(key: String): T {
+    @Suppress("DEPRECATION")
     val value = getParcelable<Parcelable?>(key)
 
     require(value is T) {
@@ -26,8 +27,3 @@ inline fun <reified T : Parcelable> Intent.getExtraParcelableOrThrow(key: String
     val extras = this.extras ?: throw IllegalArgumentException("no extras set on intent")
     return extras.getParcelableOrThrow<T>(key)
 }
-
-private val Class<*>.directName: String
-    get() {
-        return name.takeLastWhile { it != '.' }.replace('$', '.')
-    }
