@@ -304,8 +304,9 @@
     <string name="action_done">FERTIG</string>
     <string name="error_blocked">Dein Internetanbieter blockt das pr0gramm. Benutzt du gerade ein freies WLAN?</string>
     <string name="search_advanced">ERWEITERT</string>
-    <string name="search_score">Minimaler Benis: %s</string>
-    <string name="search_score_ignored">egal</string>
+    <string name="search_score_min">Minimaler Benis: %s</string>
+    <string name="search_score_max">Maximaler Benis: %s</string>
+    <string name="search_score_0">Minimaler Benis: egal</string>
     <string name="search_search">SUCHEN</string>
     <string name="search_without_custom_tags">Eigene Tags ausschließen:</string>
     <string name="search_without_tags">Von den Ergebnissen ausschließen:</string>

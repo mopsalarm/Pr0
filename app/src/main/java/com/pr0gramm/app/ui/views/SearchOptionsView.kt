@@ -18,16 +18,20 @@ import androidx.core.view.isVisible
 import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.ViewSearchBinding
 import com.pr0gramm.app.feed.Tags
+import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.di.injector
 import java.util.*
+import kotlin.math.pow
+import kotlin.math.sign
 
 /**
  * View for more search options.
  */
-class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
+class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    FrameLayout(context, attrs) {
     var searchQuery: Listener<SearchQuery>? = null
     var searchCanceled: Listener<Unit>? = null
 
@@ -38,15 +42,16 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private var pendingState: Bundle? = null
 
     val initView = Once {
-        views.minimumScoreSlider.max = 1000
+        views.minimumScoreSlider.max = 250 + 1000
         views.minimumScoreSlider.keyProgressIncrement = 5
+        filterScoreValue = 0
 
         if (!isInEditMode) {
-            views.minimumScoreLabel.text = formatMinimumScoreValue(0)
+            views.minimumScoreLabel.text = formatScoreValue(filterScoreValue)
 
             // update the value field with the slider
-            views.minimumScoreSlider.setOnProgressChanged { value, _ ->
-                views.minimumScoreLabel.text = formatMinimumScoreValue(roundScoreValue(value))
+            views.minimumScoreSlider.setOnProgressChanged { _, _ ->
+                views.minimumScoreLabel.text = formatScoreValue(roundScoreValue(filterScoreValue))
             }
 
             val editorListener = TextView.OnEditorActionListener { v, actionId, _ ->
@@ -84,10 +89,19 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         find<View>(R.id.search_advanced).isVisible = false
     }
 
+    private var filterScoreValue: Int
+        get() = views.minimumScoreSlider.progress - 250
+        set(value) {
+            views.minimumScoreSlider.progress = value + 250
+        }
+
     private fun initAutoCompleteView(recentSearchesServices: RecentSearchesServices) {
         views.searchTerm.setAdapter(
-                RecentSearchesAutoCompleteAdapter(recentSearchesServices,
-                        context, android.R.layout.simple_dropdown_item_1line))
+            RecentSearchesAutoCompleteAdapter(
+                recentSearchesServices,
+                context, android.R.layout.simple_dropdown_item_1line
+            )
+        )
     }
 
     fun setQueryHint(hint: String) {
@@ -104,7 +118,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private fun reset() {
         views.searchTerm.setText("")
         views.customExcludes.setText("")
-        views.minimumScoreSlider.progress = 0
+
+        filterScoreValue = 0
 
         excludedTags.clear()
         updateTagsCheckboxes()
@@ -121,13 +136,14 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
     override fun onSaveInstanceState(): Parcelable? {
         return bundleOf(
-                "viewState" to super.onSaveInstanceState(),
-                "customState" to currentState())
+            "viewState" to super.onSaveInstanceState(),
+            "customState" to currentState()
+        )
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
         if (state is Bundle) {
-            val viewState = state.getParcelable<Parcelable>("viewState")
+            val viewState = state.getParcelableOrNull<Parcelable>("viewState")
             if (viewState != null)
                 super.onRestoreInstanceState(viewState)
 
@@ -140,7 +156,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             return null
 
         return Bundle().apply {
-            putInt("minScore", views.minimumScoreSlider.progress)
+            putInt("minScore", filterScoreValue)
             putCharSequence("queryTerm", views.searchTerm.text)
             putCharSequence("customWithoutTerm", views.customExcludes.text)
             putStringArray("selectedWithoutTags", excludedTags.toTypedArray())
@@ -157,7 +173,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
             return
         }
 
-        views.minimumScoreSlider.progress = state.getInt("minScore", 0)
+        filterScoreValue = state.getInt("minScore", 0)
         views.searchTerm.setText(state.getCharSequence("queryTerm", ""))
         views.customExcludes.setText(state.getCharSequence("customWithoutTerm", ""))
 
@@ -179,8 +195,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         val specialTerms = mutableListOf<String>()
 
         // add minimum benis score selector
-        val score = roundScoreValue(views.minimumScoreSlider.progress)
-        if (score > 0) {
+        val score = roundScoreValue(filterScoreValue)
+        if (score != 0) {
             specialTerms.add("s:$score")
         }
 
@@ -204,18 +220,16 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun roundScoreValue(score: Int): Int {
-        val result = (Math.pow(score / 100.0, 2.0) * 90).toInt()
-        return (0.5 + result / 100.0).toInt() * 100
+        val result = ((score / 100.0).pow(2.0) * 90).toInt()
+        return (0.5 + result / 100.0).toInt() * 100 * score.sign
     }
 
-    private fun formatMinimumScoreValue(score: Int): String {
-        val formatted = if (score == 0) {
-            context.getString(R.string.search_score_ignored)
-        } else {
-            score.toString()
+    private fun formatScoreValue(score: Int): String {
+        return when (score.sign) {
+            1 -> context.getString(R.string.search_score_min, score.toString())
+            -1 -> context.getString(R.string.search_score_max, score.toString())
+            else -> context.getString(R.string.search_score_0)
         }
-
-        return context.getString(R.string.search_score, formatted)
     }
 
     private fun buildCurrentExcludedTags(): Set<String> {
@@ -224,8 +238,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
         // add custom tags
         views.customExcludes.text.toString().lowercase(Locale.getDefault())
-                .split("\\s+".toPattern())
-                .filterTo(withoutTags) { it != "" }
+            .split("\\s+".toPattern())
+            .filterTo(withoutTags) { it != "" }
 
         return withoutTags
     }
@@ -272,8 +286,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     fun requestSearchFocus() {
         post {
             val landscape = AndroidUtility.activityFromContext(context)
-                    ?.let { AndroidUtility.screenIsLandscape(it) }
-                    ?: false
+                ?.let { AndroidUtility.screenIsLandscape(it) }
+                ?: false
 
             if (landscape) {
                 views.searchTerm.requestFocus()

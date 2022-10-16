@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.os.Parcelable
 
 inline fun <reified T : Parcelable> Bundle.getParcelableOrNull(key: String): T? {
-    return getParcelableOrThrow(key)
+    val parcelable = getParcelable<Parcelable?>(key)
+    return parcelable as? T
 }
 
 inline fun <reified T : Parcelable?> Bundle.getParcelableOrThrow(key: String): T {

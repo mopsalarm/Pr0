@@ -324,8 +324,9 @@
     <string name="pref_pseudo_onboarding_title">Run Welcome again</string>
     <string name="pref_pseudo_onboarding_summary">Shows the welcome message and settings wizard again.</string>
     <string name="action_done">DONE</string>
-    <string name="search_score">Minimum benis: %s</string>
-    <string name="search_score_ignored">no minimum</string>
+    <string name="search_score_min">Minimum benis: %s</string>
+    <string name="search_score_max">Maximum benis: %s</string>
+    <string name="search_score_0">Minimum benis: no minimum</string>
     <string name="search_without_custom_tags">Exclude custom tags:</string>
     <string name="search_without_tags">Exclude:</string>
     <string name="search_advanced">ADVANCED</string>
