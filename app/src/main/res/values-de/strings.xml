@@ -577,4 +577,7 @@
     <string name="pref_use_secondary_servers_summary">Verwendet den Ausweichserver um auf das pr0gramm zuzugreifen. Dies kann helfen, wenn die Verbindung oft unerklärlich langsam ist. Telekom Kunden sind davon aktuell stärker betroffen.</string>
     <string name="pref_rotate_vote_view_title">Blussi drehen</string>
     <string name="pref_rotate_vote_view_summary">Nur pr0mium: Diese Option bringt das Drehen des Blussi und des Minus Buttons zurück.</string>
+
+    <string name="user_validate_success">Dein Alter wurde verifiziert</string>
+    <string name="user_validate_failed">Ungültiges Token.</string>
 </resources>

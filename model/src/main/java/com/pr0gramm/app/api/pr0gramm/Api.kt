@@ -430,6 +430,12 @@ interface Api {
         @Field("itemId") itemId: Long
     ): CollectionResponse
 
+    @FormUrlEncoded
+    @POST("api/user/validate")
+    suspend fun userValidate(
+        @Field("token") uriToken: String,
+    ): UserValidateResponse
+
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
@@ -439,6 +445,11 @@ interface Api {
         val error: String,
         val code: Int,
         val msg: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    class UserValidateResponse(
+        val success: Boolean = false,
     )
 
     @JsonClass(generateAdapter = true)

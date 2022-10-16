@@ -52,12 +52,12 @@ import kotlin.properties.Delegates
  * This is the main class of our pr0gramm app.
  */
 class MainActivity : BaseAppCompatActivity("MainActivity"),
-        DrawerFragment.Callbacks,
-        FragmentManager.OnBackStackChangedListener,
-        ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler,
-        PermissionHelperActivity,
-        RecyclerViewPoolProvider by RecyclerViewPoolMap() {
+    DrawerFragment.Callbacks,
+    FragmentManager.OnBackStackChangedListener,
+    ScrollHideToolbarListener.ToolbarActivity,
+    MainActionHandler,
+    PermissionHelperActivity,
+    RecyclerViewPoolProvider by RecyclerViewPoolMap() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var permissionHelper = PermissionHelperDelegate(this)
@@ -70,6 +70,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val singleShotService: SingleShotService by instance()
     private val infoMessageService: InfoMessageService by instance()
     private val adService: AdService by instance()
+    private val validationService: ValidationService by instance()
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
@@ -111,7 +112,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (savedInstanceState == null) {
             val intent: Intent? = intent
-            val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
+            val startedFromLauncher =
+                intent == null || intent.action == Intent.ACTION_MAIN || intent.action == Intent.ACTION_SEARCH
 
             // reset to sfw only.
             if (Settings.feedStartAtSfw && startedFromLauncher) {
@@ -192,15 +194,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private fun showBuyPremiumHint() {
         launchWhenStarted {
             val adsEnabledFlow = merge(
-                    adService.enabledForType(Config.AdType.FEED).take(1),
-                    adService.enabledForType(Config.AdType.FEED_TO_POST_INTERSTITIAL).take(1))
+                adService.enabledForType(Config.AdType.FEED).take(1),
+                adService.enabledForType(Config.AdType.FEED_TO_POST_INTERSTITIAL).take(1)
+            )
 
             val showAnyAds = adsEnabledFlow
-                    .onEach { logger.info { "should show ads: $it" } }
-                    .firstOrNull { it } ?: false
+                .onEach { logger.info { "should show ads: $it" } }
+                .firstOrNull { it } ?: false
 
             if (!userService.userIsPremium && showAnyAds) {
-                Snackbar.make(views.contentContainer, R.string.hint_dont_like_ads, 10000).apply {
+                Snackbar.make(views.contentContainer, R.string.hint_dont_like_ads, 5_000).apply {
                     configureNewStyle()
 
                     setAction("pr0mium") {
@@ -262,9 +265,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (requestCode == RequestCodes.FEEDBACK && resultCode == Activity.RESULT_OK) {
             Snackbar.make(views.drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle()
-                    .setAction(R.string.okay, { })
-                    .show()
+                .configureNewStyle()
+                .setAction(R.string.okay, { })
+                .show()
         }
     }
 
@@ -296,7 +299,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     fun updateActionbarTitle() {
         supportActionBar?.let { bar ->
             val title = (currentFragment as? TitleFragment)?.title
-                    ?: TitleFragment.Title(getString(R.string.pr0gramm))
+                ?: TitleFragment.Title(getString(R.string.pr0gramm))
 
             bar.title = title.title ?: getString(R.string.pr0gramm)
             bar.subtitle = title.subtitle
@@ -325,8 +328,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun createDrawerFragment() {
         supportFragmentManager.beginTransaction()
-                .replace(R.id.left_drawer, DrawerFragment())
-                .commit()
+            .replace(R.id.left_drawer, DrawerFragment())
+            .commit()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -354,8 +357,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     @SuppressLint("RestrictedApi")
     private fun dispatchFakeHomeEvent(item: MenuItem): Boolean {
-        return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
-                this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title))
+        return onMenuItemSelected(
+            Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
+                this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title
+            )
+        )
     }
 
     override fun onBackPressed() {
@@ -446,9 +452,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             shouldShowFeedbackReminder() -> {
                 Snackbar.make(views.contentContainer, R.string.feedback_reminder, 10000)
-                        .configureNewStyle()
-                        .setAction(R.string.okay) { }
-                        .show()
+                    .configureNewStyle()
+                    .setAction(R.string.okay) { }
+                    .show()
 
                 updateCheckDelay = true
             }
@@ -457,11 +463,13 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 showBuyPremiumHint()
             }
 
-            Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday("endOfLifeAndroidVersionHint") -> {
+            Build.VERSION.SDK_INT <= configService.config().endOfLifeAndroidVersion && singleShotService.firstTimeToday(
+                "endOfLifeAndroidVersionHint"
+            ) -> {
                 Snackbar.make(views.contentContainer, R.string.old_android_reminder, 10000)
-                        .configureNewStyle()
-                        .setAction(R.string.okay) { }
-                        .show()
+                    .configureNewStyle()
+                    .setAction(R.string.okay) { }
+                    .show()
             }
         }
 
@@ -472,7 +480,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 }
 
                 UpdateDialogFragment.checkForUpdatesInBackground(
-                        this@MainActivity, supportFragmentManager)
+                    this@MainActivity, supportFragmentManager
+                )
             }
         }
     }
@@ -487,9 +496,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             // show a short information.
             Snackbar.make(views.contentContainer, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
-                    .configureNewStyle()
-                    .setAction(R.string.okay) { }
-                    .show()
+                .configureNewStyle()
+                .setAction(R.string.okay) { }
+                .show()
 
             // reset everything!
             gotoFeedFragment(defaultFeedFilter(), true)
@@ -498,7 +507,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun defaultFeedFilter(): FeedFilter {
         if (userService.userIsPremium) {
-            // try to parse bookmark filter first
+            // try to parse bookmark filter firsta
             Settings.feedStartWithUri?.let { uri ->
                 val parsed = FilterParser.parse(uri)
                 if (parsed != null)
@@ -544,8 +553,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         gotoFeedFragment(filter, queryState = searchQueryState)
     }
 
-    override fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?,
-                                      startAt: CommentRef?, popBackstack: Boolean) {
+    override fun onFeedFilterSelected(
+        filter: FeedFilter, queryState: Bundle?,
+        startAt: CommentRef?, popBackstack: Boolean
+    ) {
 
         if (popBackstack) {
             supportFragmentManager.popBackStackImmediate()
@@ -561,8 +572,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         drawerFragment?.scrollTo(filter)
     }
 
-    private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,
-                                 start: CommentRef? = null, queryState: Bundle? = null) {
+    private fun gotoFeedFragment(
+        newFilter: FeedFilter, clear: Boolean = false,
+        start: CommentRef? = null, queryState: Bundle? = null
+    ) {
 
         // show special fragment if we want to see overview of collections of some user.
         newFilter.username?.let { username ->
@@ -584,8 +597,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         // and show the fragment
         val transaction = supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.content_container, fragment)
+            .beginTransaction()
+            .replace(R.id.content_container, fragment)
 
         if (!clear) {
             logger.debug { "Adding fragment ${fragment.javaClass.name} to backstack" }
@@ -606,8 +619,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         try {
             supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         } catch (err: Exception) {
-            AndroidUtility.logToCrashlytics(RuntimeException(
-                    "Ignoring exception from popBackStackImmediate:", err))
+            AndroidUtility.logToCrashlytics(
+                RuntimeException(
+                    "Ignoring exception from popBackStackImmediate:", err
+                )
+            )
         }
     }
 
@@ -624,6 +640,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             openIntent.putExtra("url", uriString)
             startActivity(openIntent)
             return
+        }
+
+        ".*/user/[^/]+/validate/([^/]+)".toRegex().find(uriString)?.let { match ->
+            val uriToken = match.groupValues[1]
+            launchWhenResumed { doUserValidate(uriToken) }
         }
 
         if (uriString.endsWith("/inbox/messages")) {
@@ -655,9 +676,23 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
+    private suspend fun doUserValidate(uriToken: String) {
+        val validated = validationService.validateUser(uriToken)
+        val text = if (validated) R.string.user_validate_success else R.string.user_validate_failed
 
+        Snackbar.make(views.contentContainer, text, 2500).apply {
+            configureNewStyle()
+            setAction("okay") { dismiss() }
+            show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
@@ -679,7 +714,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // we use this to propagate a fake-home event to the fragments.
         const val ID_FAKE_HOME = android.R.id.list
 
-        fun openItemIntent(context: Context, itemId: Long, atComment: Long? = null, feedType: FeedType = FeedType.NEW): Intent {
+        fun openItemIntent(
+            context: Context,
+            itemId: Long,
+            atComment: Long? = null,
+            feedType: FeedType = FeedType.NEW
+        ): Intent {
             val uri = if (atComment == null) {
                 UriHelper.of(context).post(feedType, itemId)
             } else {
