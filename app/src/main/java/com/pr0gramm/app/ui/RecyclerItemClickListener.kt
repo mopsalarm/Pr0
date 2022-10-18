@@ -3,68 +3,92 @@ package com.pr0gramm.app.ui
 
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.OnClickListener
 import com.pr0gramm.app.util.OnViewClickListener
 import com.pr0gramm.app.util.invoke
 
 class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
-    private val mGestureDetector: GestureDetector
+    private val logger = Logger("RecyclerItemClickListener")
 
-    private val touchListener = Listener()
+    private var touchListener: Listener? = null
     private val scrollListener = ScrollListener()
 
     private var longClickEnabled: Boolean = false
-    private var longPressTriggered: Boolean = false
+    private var longPressJustTriggered: Boolean = false
+
+    private var ignoreLongTap: Boolean = false
 
     var itemClicked: OnViewClickListener? = null
     var itemLongClicked: OnViewClickListener? = null
     var itemLongClickEnded: OnClickListener? = null
 
     init {
-        mGestureDetector = GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                return true
-            }
-
-            override fun onLongPress(e: MotionEvent) {
-                if (longClickEnabled) {
-                    val childView = recyclerView.findChildViewUnder(e.x, e.y)
-                    if (childView != null) {
-                        longPressTriggered = true
-                        itemLongClicked(childView)
-                    }
-                }
-            }
-        })
-
-        recyclerView.addOnItemTouchListener(touchListener)
         recyclerView.addOnScrollListener(scrollListener)
+
+        touchListener = Listener().also { listener ->
+            recyclerView.addOnItemTouchListener(listener)
+        }
     }
 
     fun enableLongClick(enabled: Boolean) {
         longClickEnabled = enabled
-        longPressTriggered = longPressTriggered and enabled
+        longPressJustTriggered = longPressJustTriggered and enabled
     }
 
-    private inner class Listener : RecyclerView.SimpleOnItemTouchListener() {
-        override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
-            val childView = view.findChildViewUnder(e.x, e.y)
+    private var lastChildView: View? = null
 
-            if (childView != null && mGestureDetector.onTouchEvent(e)) {
-                itemClicked(childView)
+    private inner class Listener : RecyclerView.SimpleOnItemTouchListener() {
+        private val mGestureDetector =
+            GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                    lastChildView?.let { childView ->
+                        itemClicked?.invoke(childView)
+                    }
+
+                    return true
+                }
+
+                override fun onLongPress(e: MotionEvent) {
+                    if (touchListener !== this@Listener) {
+                        return
+                    }
+
+                    logger.debug { "LongPress event detected: $e" }
+                    if (longClickEnabled) {
+                        val childView = recyclerView.findChildViewUnder(e.x, e.y)
+                        if (childView != null) {
+                            longPressJustTriggered = true
+                            itemLongClicked(childView)
+                        }
+                    }
+                }
+            })
+
+        override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
+            if (touchListener !== this) {
+                return false
             }
 
-            // a long press might have been triggered between the last touch event
-            // and the current. we use this info to start tracking the current touch
-            // if that happened.
-            val intercept = longClickEnabled && longPressTriggered
-                    && e.action != MotionEvent.ACTION_DOWN
+            lastChildView = view.findChildViewUnder(e.x, e.y)
+            if (mGestureDetector.onTouchEvent(e)) {
+                logger.debug { "TouchEvent intercepted: $e" }
+                return true
+            }
 
-            longPressTriggered = false
+            logger.debug { "Touch event was not intercepted: $e" }
+
+            // a long press might have been triggered between the last touch event
+            // and the current. we use this info to start tracking the current long touch
+            // if that happened.
+            val intercept = longClickEnabled && longPressJustTriggered && e.action != MotionEvent.ACTION_DOWN
+
+            longPressJustTriggered = false
 
             if (intercept) {
-                // actually this click right now might have triggered the long press
+                // actually this click right now might be the end of the long press, so push it to onTouchEvent too
                 onTouchEvent(view, e)
             }
 
@@ -72,6 +96,8 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
         }
 
         override fun onTouchEvent(view: RecyclerView, motionEvent: MotionEvent) {
+            logger.debug { "onTouchEvent($motionEvent)" }
+
             when (motionEvent.action) {
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL,
@@ -85,13 +111,24 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private inner class ScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             when (newState) {
-                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
-                    recyclerView.removeOnItemTouchListener(touchListener)
+                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING -> {
+                    touchListener?.let { listener ->
+                        recyclerView.removeOnItemTouchListener(listener)
+                    }
+
+                    touchListener = null
+
+                    ignoreLongTap = true
+                }
 
                 RecyclerView.SCROLL_STATE_IDLE -> {
-                    // ensure that the listener is only added once
-                    recyclerView.removeOnItemTouchListener(touchListener)
-                    recyclerView.addOnItemTouchListener(touchListener)
+                    touchListener?.let { listener ->
+                        recyclerView.removeOnItemTouchListener(listener)
+                    }
+
+                    touchListener = Listener().also { listener ->
+                        recyclerView.addOnItemTouchListener(listener)
+                    }
                 }
             }
         }

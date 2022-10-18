@@ -25,6 +25,10 @@
       {
         "type": "Fix",
         "change": "Wenn man auf einen Link zu einem NSFW Post klickt während nur SFW aktiviert ist, funktioniert der Hinweis zum Aktivieren von NSFW wieder."
+      },
+      {
+        "type": "Fix",
+        "change": "Workaround für fehlerhaft erkannte Longtaps im Feed auf Pixel Geräten."
       }
     ]
   },
