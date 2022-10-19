@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.ui.fragments.feed.FeedItemViewHolder
 import com.pr0gramm.app.util.OnClickListener
 import com.pr0gramm.app.util.OnViewClickListener
 import com.pr0gramm.app.util.invoke
@@ -72,7 +73,17 @@ class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
                 return false
             }
 
-            lastChildView = view.findChildViewUnder(e.x, e.y)
+            if (e.action == MotionEvent.ACTION_DOWN) {
+                // if we do not start on an item view, we dont want to do anything,
+                // we do not want to intercept it or direct it to the feed holder
+                val childView = view.findChildViewUnder(e.x, e.y)
+                if (childView?.tag !is FeedItemViewHolder) {
+                    return false
+                }
+
+                lastChildView = childView
+            }
+
             if (mGestureDetector.onTouchEvent(e)) {
                 logger.debug { "TouchEvent intercepted: $e" }
                 return true
