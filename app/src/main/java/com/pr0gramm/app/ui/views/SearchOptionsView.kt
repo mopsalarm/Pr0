@@ -42,7 +42,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private var pendingState: Bundle? = null
 
     val initView = Once {
-        views.minimumScoreSlider.max = 250 + 1000
+        views.minimumScoreSlider.max = 250 + 800
         views.minimumScoreSlider.keyProgressIncrement = 5
         filterScoreValue = 0
 
@@ -134,7 +134,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         context.startActivity(intent)
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         return bundleOf(
             "viewState" to super.onSaveInstanceState(),
             "customState" to currentState()
