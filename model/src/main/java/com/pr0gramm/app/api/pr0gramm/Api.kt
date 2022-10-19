@@ -294,24 +294,18 @@ interface Api {
     )
 
     @FormUrlEncoded
-    @POST("api/profile/unfollow")
-    suspend fun profileUnfollow(
-        @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
-    )
-
-    @FormUrlEncoded
     @POST("api/profile/subscribe")
     suspend fun profileSubscribe(
         @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
+        @Field("name") username: String,
     )
 
     @FormUrlEncoded
     @POST("api/profile/unsubscribe")
     suspend fun profileUnsubscribe(
         @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
+        @Field("name") username: String,
+        @Field("keepFollow") keepFollow: Boolean? = null,
     )
 
     @GET("api/profile/suggest")
