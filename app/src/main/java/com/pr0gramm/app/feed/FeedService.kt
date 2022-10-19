@@ -87,7 +87,7 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
                 // and add s:700 to nsfw posts.
 
                 val tagsQuery = Tags.joinOr(
-                    Tags.joinAnd("s:1000", feedFilter.tags),
+                    Tags.joinAnd("s:2000", feedFilter.tags),
                     Tags.joinAnd("s:700 f:nsfw", feedFilter.tags),
                 )
 
