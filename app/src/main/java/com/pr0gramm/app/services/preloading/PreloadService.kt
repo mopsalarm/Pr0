@@ -185,7 +185,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                         if (fullThumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
 
                     try {
-                        if (!item.fullThumbUri.isLocalFile) {
+                        if (!fullThumbUri.isLocalFile) {
                             download(3 * idx + 2, 3 * items.size, fullThumbUri, fullThumbFileTemp)
                         }
 
