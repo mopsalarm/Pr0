@@ -29,6 +29,10 @@
       {
         "type": "Fix",
         "change": "Workaround für fehlerhaft erkannte Longtaps im Feed auf Pixel Geräten."
+      },
+      {
+        "type": "Fix",
+        "change": "Stelzen ohne Benachrichtungen funktioniert wieder."
       }
     ]
   },

@@ -55,10 +55,10 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     private val notification by lazy {
         NotificationCompat.Builder(this, Types.Preload.channel)
-                .setContentTitle(getString(R.string.preload_ongoing))
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setOngoing(true)
-                .setTicker("")
+            .setContentTitle(getString(R.string.preload_ongoing))
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setOngoing(true)
+            .setTicker("")
     }
 
     override fun onCreate() {
@@ -105,13 +105,15 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
         // create a wake lock
         val wakeLock = getSystemService<PowerManager>()!!.newWakeLock(
-                PowerManager.PARTIAL_WAKE_LOCK, "pr0:preloadService")
+            PowerManager.PARTIAL_WAKE_LOCK, "pr0:preloadService"
+        )
 
         try {
             logger.info { "Acquire wake lock for at most 10 minutes" }
             wakeLock.use(10, TimeUnit.MINUTES) {
                 val allowOnlyOnMobile = !intent.getBooleanExtra(
-                        EXTRA_ALLOW_ON_MOBILE, false)
+                    EXTRA_ALLOW_ON_MOBILE, false
+                )
 
                 preloadItemsLocked(items, allowOnlyOnMobile)
             }
@@ -139,10 +141,10 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     }
 
     class Item(
-            val id: Long,
-            val mediaUri: Uri,
-            val thumbUri: Uri,
-            val fullThumbUri: Uri?,
+        val id: Long,
+        val mediaUri: Uri,
+        val thumbUri: Uri,
+        val fullThumbUri: Uri?,
     )
 
     private fun preloadItemsLocked(items: List<Item>, allowOnlyOnMobile: Boolean) {
@@ -169,20 +171,24 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                 }
 
                 if (!mediaUri.isLocalFile) {
-                    download(2 * idx, 2 * items.size, mediaUri, mediaFile)
+                    download(3 * idx, 3 * items.size, mediaUri, mediaFile)
                 }
 
                 if (!thumbUri.isLocalFile) {
-                    download(2 * idx + 1, 2 * items.size, thumbUri, thumbFile)
+                    download(3 * idx + 1, 3 * items.size, thumbUri, thumbFile)
                 }
 
                 var fullThumbFile: File? = null
                 if (item.fullThumbUri != null) {
                     val fullThumbUri = item.fullThumbUri
-                    val fullThumbFileTemp = if (fullThumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
+                    val fullThumbFileTemp =
+                        if (fullThumbUri.isLocalFile) thumbUri.toFile() else cacheFileForUri(thumbUri)
 
                     try {
-                        download(2 * idx + 1, 2 * items.size, thumbUri, thumbFile)
+                        if (!item.fullThumbUri.isLocalFile) {
+                            download(3 * idx + 2, 3 * items.size, fullThumbUri, fullThumbFileTemp)
+                        }
+
                         fullThumbFile = fullThumbFileTemp
 
                     } catch (err: IOException) {
@@ -192,8 +198,11 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
                 }
 
                 // store entry in the database
-                preloadManager.store(PreloadManager.PreloadItem(
-                        item.id, startTime, mediaFile, thumbFile, fullThumbFile))
+                preloadManager.store(
+                    PreloadManager.PreloadItem(
+                        item.id, startTime, mediaFile, thumbFile, fullThumbFile
+                    )
+                )
 
                 statsDownloaded += 1
 
@@ -219,7 +228,7 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
 
     private fun parseFeedItemsFromIntent(intent: Intent?): List<Item> {
         val serialized = intent?.extras?.getByteArray(SERIALIZED_EXTRA_LIST_OF_ITEMS)
-                ?: return listOf()
+            ?: return listOf()
         return deserializeItems(serialized)
     }
 
@@ -299,8 +308,8 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
     private inline fun show(config: NotificationCompat.Builder.() -> Unit) {
         notification.config()
         NotificationManagerCompat
-                .from(this)
-                .notify(Types.Preload.id, notification.build())
+            .from(this)
+            .notify(Types.Preload.id, notification.build())
     }
 
     private inline fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {
@@ -335,8 +344,9 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
      * The progress is written to the given observable.
      */
     private fun copyWithProgress(
-            progress: (Float) -> Unit, contentLength: Long,
-            inputStream: InputStream, outputStream: OutputStream) {
+        progress: (Float) -> Unit, contentLength: Long,
+        inputStream: InputStream, outputStream: OutputStream
+    ) {
 
         var totalCount: Long = 0
         readStream(inputStream) { buffer, count ->
@@ -351,9 +361,11 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
      * Name of the cache file for the given [Uri].
      */
     private fun cacheFileForUri(uri: Uri): File {
-        return File(preloadCache, uri.toString()
+        return File(
+            preloadCache, uri.toString()
                 .replaceFirst("https?://".toRegex(), "")
-                .replace("[^0-9a-zA-Z.]+".toRegex(), "_"))
+                .replace("[^0-9a-zA-Z.]+".toRegex(), "_")
+        )
     }
 
     companion object {
@@ -374,10 +386,10 @@ class PreloadService : IntentService("PreloadService"), LazyInjectorAware {
             return Serde.deserialize(bytes) { input ->
                 listOfSize(input.readInt()) {
                     Item(
-                            id = input.readLong(),
-                            mediaUri = input.readUTF().toUri(),
-                            thumbUri = input.readUTF().toUri(),
-                            fullThumbUri = input.readUTF().ifEmpty { null }?.toUri(),
+                        id = input.readLong(),
+                        mediaUri = input.readUTF().toUri(),
+                        thumbUri = input.readUTF().toUri(),
+                        fullThumbUri = input.readUTF().ifEmpty { null }?.toUri(),
                     )
                 }
             }
