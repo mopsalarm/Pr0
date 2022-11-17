@@ -27,7 +27,7 @@ class SyncService(private val userService: UserService,
     init {
         AsyncScope.launch {
             userService.loginStates
-                    .filter { state -> state.authorized }
+                    .map { state -> state.id }
                     .distinctUntilChanged()
                     .onStart { delay(1.seconds) }
                     .collect { launch { performSyncSeenService() } }
