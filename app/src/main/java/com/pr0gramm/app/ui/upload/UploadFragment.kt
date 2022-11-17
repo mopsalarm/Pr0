@@ -56,6 +56,13 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
     private var urlArgument: Uri? by optionalFragmentArgument()
     private var mediaTypeArgument: UploadMediaType? by optionalEnumFragmentArgument()
 
+    private val viewToContentType = mapOf(
+        R.id.upload_type_sfw to ContentType.SFW,
+        R.id.upload_type_nsfp to ContentType.NSFP,
+        R.id.upload_type_nsfw to ContentType.NSFW,
+        R.id.upload_type_nsfl to ContentType.NSFL,
+    )
+
     private val vm by viewModels {
         UploadViewModel(
             context = requireContext().applicationContext as Application,
@@ -242,11 +249,8 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         val loginState = userService.loginState
 
         for (childView in views.contentTypeGroup.children) {
-            childView.isEnabled = enabled
-
-            if (!loginState.verified && childView.id != R.id.upload_type_sfw) {
-                childView.isEnabled = false
-            }
+            val contentType = viewToContentType[childView.id] ?: continue
+            childView.isEnabled = contentType.isAvailable(loginState)
         }
 
         val hasTagSelected = views.contentTypeGroup.children.any { childView ->
@@ -254,7 +258,7 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         }
 
         val imageSizeOkay = state.fileSizeOkay
-        val isVerifiedOrUploadTypeIsSFW = selectedContentType() == ContentType.SFW || loginState.verified
+        val isVerifiedOrUploadTypeIsSFW = selectedContentType()?.isAvailable(loginState) == true
 
         views.actionUpload.isEnabled = enabled && hasTagSelected && imageSizeOkay && isVerifiedOrUploadTypeIsSFW
     }
@@ -363,15 +367,10 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
     }
 
     private fun selectedContentType(): ContentType? {
-        val types = mapOf(
-                R.id.upload_type_sfw to ContentType.SFW,
-                R.id.upload_type_nsfp to ContentType.NSFP,
-                R.id.upload_type_nsfw to ContentType.NSFW,
-                R.id.upload_type_nsfl to ContentType.NSFL)
-
         val view = view
+
         if (view != null) {
-            for ((key, value) in types) {
+            for ((key, value) in viewToContentType) {
                 val button = view.findOptional<RadioButton>(key)
                 if (button?.isChecked == true)
                     return value

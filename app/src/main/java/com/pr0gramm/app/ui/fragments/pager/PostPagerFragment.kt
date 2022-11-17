@@ -30,7 +30,6 @@ import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.fragments.post.PostFragment
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.observeChangeEx
-import kotlinx.coroutines.flow.collect
 
 /**
  */
@@ -211,14 +210,14 @@ class PostPagerFragment : BaseFragment("PostPagerFragment", R.layout.fragment_po
 
     fun onTagClicked(tag: Api.Tag) {
         val handler = activity as MainActionHandler
-        handler.onFeedFilterSelected(currentFilter.withTags(tag.text))
+        handler.onFeedFilterSelected(currentFilter.basicWithTags(tag.text))
     }
 
     fun onUsernameClicked(username: String) {
         // always show all uploads of a user.
         val newFilter = currentFilter
-                .withFeedType(FeedType.NEW)
-                .withUser(username)
+            .withFeedType(FeedType.NEW)
+            .basicWithUser(username)
 
         (activity as MainActionHandler).onFeedFilterSelected(newFilter)
     }

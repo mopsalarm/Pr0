@@ -40,6 +40,7 @@
         <item name="searchTheme">@style/AppTheme.Orange.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_orange_dark</item>
         <item name="appIcon">@drawable/ic_app_orange</item>
+        <item name="badgeColor">@color/blue_accent</item>
     </style>
 
     <style name="AppTheme.Green">
@@ -53,6 +54,7 @@
         <item name="searchTheme">@style/AppTheme.Green.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_green_dark</item>
         <item name="appIcon">@drawable/ic_app_green</item>
+        <item name="badgeColor">@color/orange_accent</item>
     </style>
 
     <style name="AppTheme.Olive">
@@ -66,6 +68,7 @@
         <item name="searchTheme">@style/AppTheme.Olive.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_olive_dark</item>
         <item name="appIcon">@drawable/ic_app_olive</item>
+        <item name="badgeColor">@color/orange_accent</item>
     </style>
 
     <style name="AppTheme.Pink">
@@ -79,6 +82,7 @@
         <item name="searchTheme">@style/AppTheme.Pink.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_pink_dark</item>
         <item name="appIcon">@drawable/ic_app_pink</item>
+        <item name="badgeColor">@color/blue_primary</item>
     </style>
 
     <style name="AppTheme.Blue">
@@ -92,6 +96,7 @@
         <item name="searchTheme">@style/AppTheme.Blue.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_blue_dark</item>
         <item name="appIcon">@drawable/ic_app_blue</item>
+        <item name="badgeColor">@color/orange_accent</item>
     </style>
 
     <style name="AppTheme.Black">
@@ -104,6 +109,7 @@
         <item name="searchTheme">@style/AppTheme.Black.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_black_dark</item>
         <item name="appIcon">@drawable/ic_app_black</item>
+        <item name="badgeColor">@color/orange_accent</item>
 
         <item name="chipBackgroundColor">#212125</item>
 

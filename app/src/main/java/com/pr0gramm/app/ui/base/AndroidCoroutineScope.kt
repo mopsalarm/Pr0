@@ -101,12 +101,12 @@ fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
     CoroutineScope(job + Main.immediate + DefaultCoroutineExceptionHandler).launch(block = block)
 
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-        override fun onViewDetachedFromWindow(v: View?) {
+        override fun onViewDetachedFromWindow(v: View) {
             removeOnAttachStateChangeListener(this)
             job.cancel()
         }
 
-        override fun onViewAttachedToWindow(v: View?) {
+        override fun onViewAttachedToWindow(v: View) {
         }
     })
 

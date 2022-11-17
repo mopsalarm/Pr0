@@ -108,7 +108,7 @@ class MenuSheetView(context: Context, @StringRes titleRes: Int, listener: OnMenu
                 if (item.hasSubMenu()) {
                     // Flatten the submenu
                     val subMenu = item.subMenu
-                    if (subMenu.hasVisibleItems()) {
+                    if (subMenu?.hasVisibleItems() == true) {
                         items.add(SheetMenuItem.SEPARATOR)
 
                         // Add a header item if it has text

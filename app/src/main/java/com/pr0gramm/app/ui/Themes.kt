@@ -10,25 +10,28 @@ import com.pr0gramm.app.R
 /**
  * App themes.
  */
-enum class Themes(@StringRes val title: Int,
-                  @ColorRes val accentColor: Int,
-                  @ColorRes val primaryColor: Int,
-                  @ColorRes val primaryColorDark: Int,
-                  @StyleRes val basic: Int,
-                  @StyleRes val noActionBar: Int,
-                  @StyleRes val fullscreen: Int,
-                  @StyleRes val translucentStatus: Int,
-                  @StyleRes val whiteAccent: Int) {
+enum class Themes(
+    @StringRes val title: Int,
+    @ColorRes val accentColor: Int,
+    @ColorRes val primaryColor: Int,
+    @ColorRes val primaryColorDark: Int,
+    @StyleRes val basic: Int,
+    @StyleRes val noActionBar: Int,
+    @StyleRes val fullscreen: Int,
+    @StyleRes val translucentStatus: Int,
+    @StyleRes val whiteAccent: Int,
+) {
 
-    ORANGE(R.string.theme_orange,
-            R.color.orange_accent,
-            R.color.orange_primary,
-            R.color.orange_primary_dark,
-            R.style.AppTheme_Orange,
-            R.style.AppTheme_Orange_NoActionBar,
-            R.style.AppTheme_Orange_NoActionBar_Fullscreen,
-            R.style.AppTheme_Orange_NoActionBar_TranslucentStatus,
-            R.style.AppTheme_Orange_NoActionBar_WhiteAccent
+    ORANGE(
+        R.string.theme_orange,
+        R.color.orange_accent,
+        R.color.orange_primary,
+        R.color.orange_primary_dark,
+        R.style.AppTheme_Orange,
+        R.style.AppTheme_Orange_NoActionBar,
+        R.style.AppTheme_Orange_NoActionBar_Fullscreen,
+        R.style.AppTheme_Orange_NoActionBar_TranslucentStatus,
+        R.style.AppTheme_Orange_NoActionBar_WhiteAccent
     ),
 
     GREEN(R.string.theme_green,

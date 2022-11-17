@@ -17,13 +17,14 @@ import com.pr0gramm.app.model.update.ChangeGroup
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.NonCrashingLinkMovementMethod
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.setTextFuture
 import com.squareup.moshi.adapter
 import okio.buffer
 import okio.source
 import java.io.IOException
+import java.util.regex.Pattern
 
 
 /**
@@ -47,31 +48,38 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
             views.root.text = item.formatted
         }
 
+        val githubIssue = Pattern.compile("#\\d+\\b")
+
         val changeAdapter = Adapters.ForViewBindings(ChangelogChangeBinding::inflate) { (views), change: Change ->
             val textView = views.root
 
             val text = SpannableStringBuilder()
-                    .bold {
-                        val color = when (change.type) {
-                            "Neu" -> ThemeHelper.accentColor
-                            else -> null
-                        }
-
-                        if (color != null) {
-                            color(textView.context.getColorCompat(color)) { append(change.type) }
-                        } else {
-                            append(change.type)
-                        }
+                .bold {
+                    val color = when (change.type) {
+                        "Neu" -> ThemeHelper.accentColor
+                        else -> null
                     }
-                    .append("  ")
-                    .append(change.change)
 
-            if ("://" in change.change || "@" in change.change) {
-                // might contains links that we want to display?
-                Linkify.linkify(textView, SpannableStringBuilder.valueOf(text))
-            } else {
-                textView.setTextFuture(text)
+                    if (color != null) {
+                        color(textView.context.getColorCompat(color)) { append(change.type) }
+                    } else {
+                        append(change.type)
+                    }
+                }
+                .append("  ")
+                .append(change.change)
+
+
+            if ("#" in change.change) {
+                // add links to github issues
+                android.text.util.Linkify.addLinks(text, githubIssue, null, null) { match, _ ->
+                    val issue = match.group().substring(1)
+                    "https://github.com/mopsalarm/Pr0/issues/$issue"
+                }
             }
+
+            textView.movementMethod = NonCrashingLinkMovementMethod
+            textView.setTextFuture(text)
         }
 
         val adapter = delegateAdapterOf(

@@ -11,13 +11,9 @@ import com.pr0gramm.app.util.di.injector
 object FeedFilterFormatter {
     /**
      * Simple utility function to format a [com.pr0gramm.app.feed.FeedFilter] to some
-     * string. The string can not be parsed back or anything interesting.
-
-     * @param context The current context
-     * *
-     * @param filter  The filter that is to be converted into a string
+     * string. The resulting value can not be parsed back or anything interesting, it is just for
+     * display purposes
      */
-
     fun format(context: Context, filter: FeedFilter): FeedTitle {
         val category = feedTypeToString(context, filter)
 
@@ -30,7 +26,8 @@ object FeedFilterFormatter {
             }
 
             filter.collectionTitle?.let { collectionTitle ->
-                val titleCollectionOf = context.getString(R.string.filter_format_collection_of, collectionTitle, filter.username)
+                val titleCollectionOf =
+                    context.getString(R.string.filter_format_collection_of, collectionTitle, filter.username)
                 return FeedTitle(titleCollectionOf, subtitle = "", singleline = titleCollectionOf)
             }
 
@@ -49,8 +46,12 @@ object FeedFilterFormatter {
     }
 
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
-        if (filter.collection != null) {
-            return context.getString(R.string.collections_of, filter.username)
+        if (filter.collectionTitle != null && filter.username != null) {
+            return context.getString(R.string.collection_x_of_user, filter.collectionTitle, filter.username)
+        }
+
+        if (filter.username != null) {
+            return context.getString(R.string.uploads_of, filter.username)
         }
 
         return when (filter.feedType) {

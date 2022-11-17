@@ -22,11 +22,11 @@ fun Bookmark.asFeedFilter(): FeedFilter {
         var filter = FeedFilter().withFeedType(feedType)
 
         filterTags?.let { tags ->
-            filter = filter.withTags(tags)
+            filter = filter.basicWithTags(tags)
         }
 
         filterUsername?.let { username ->
-            filter = filter.withUser(username)
+            filter = filter.basicWithUser(username)
         }
 
         return filter

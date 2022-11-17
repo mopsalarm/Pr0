@@ -133,17 +133,17 @@ fun appInjector(app: Application) = Module.build {
 
     bind<UserService>() with eagerSingleton {
         UserService(
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
-            instance(),
+            api = instance(),
+            voteService = instance(),
+            seenService = instance(),
+            inboxService = instance(),
+            cookieJar = instance(),
+            preferences = instance(),
+            benisService = instance(),
+            collectionsItemsService = instance(),
+            favedCommentService = instance(),
+            settingsService = instance(),
+            config = instance(),
         )
     }
 
@@ -167,6 +167,7 @@ fun appInjector(app: Application) = Module.build {
     bind<TagSuggestionService>() with eagerSingleton { TagSuggestionService(instance()) }
     bind<UserClassesService>() with singleton { UserClassesService(instance<ConfigService>()) }
     bind<BenisRecordService>() with singleton { BenisRecordService(instance()) }
+    bind<ValidationService>() with singleton { ValidationService(instance()) }
 
     bind<ShareService>() with singleton { ShareService(instance()) }
 

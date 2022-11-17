@@ -20,17 +20,15 @@ class FollowService(private val api: Api, private val db: AppDB) {
         withContext(NonCancellable + Dispatchers.Default) {
             when (state) {
                 FollowState.NONE -> {
-                    api.profileUnfollow(null, name)
                     api.profileUnsubscribe(null, name)
                 }
 
                 FollowState.FOLLOW -> {
                     api.profileFollow(null, name)
-                    api.profileUnsubscribe(null, name)
+                    api.profileUnsubscribe(null, name, keepFollow = true)
                 }
 
                 FollowState.SUBSCRIBED -> {
-                    api.profileFollow(null, name)
                     api.profileSubscribe(null, name)
                 }
             }

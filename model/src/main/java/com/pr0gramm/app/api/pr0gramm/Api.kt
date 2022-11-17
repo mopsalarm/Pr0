@@ -294,24 +294,18 @@ interface Api {
     )
 
     @FormUrlEncoded
-    @POST("api/profile/unfollow")
-    suspend fun profileUnfollow(
-        @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
-    )
-
-    @FormUrlEncoded
     @POST("api/profile/subscribe")
     suspend fun profileSubscribe(
         @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
+        @Field("name") username: String,
     )
 
     @FormUrlEncoded
     @POST("api/profile/unsubscribe")
     suspend fun profileUnsubscribe(
         @Field("_nonce") nonce: Nonce?,
-        @Field("name") username: String
+        @Field("name") username: String,
+        @Field("keepFollow") keepFollow: Boolean? = null,
     )
 
     @GET("api/profile/suggest")
@@ -443,6 +437,12 @@ interface Api {
         @Body body: RequestBody,
     ): UpdateSeenBitsResponse
 
+    @FormUrlEncoded
+    @POST("api/user/validate")
+    suspend fun userValidate(
+        @Field("token") uriToken: String,
+    ): UserValidateResponse
+
     class Nonce(val value: String) {
         override fun toString(): String = value.take(16)
     }
@@ -452,6 +452,11 @@ interface Api {
         val error: String,
         val code: Int,
         val msg: String
+    )
+
+    @JsonClass(generateAdapter = true)
+    class UserValidateResponse(
+        val success: Boolean = false,
     )
 
     @JsonClass(generateAdapter = true)
@@ -951,4 +956,5 @@ interface Api {
     }
 }
 
-typealias GenericSettings = java.util.Map<String, java.lang.Object?>
+// To work around some quirks in moshis serialization we use java.util.Map here.
+typealias GenericSettings = java.util.Map<String, Object?>

@@ -69,6 +69,7 @@
     <color name="stats_down">#ff9b84</color>
 
     <color name="type_sfw">#2f9b16</color>
+    <color name="type_nsfp">#789B16</color>
     <color name="type_nsfw">#c9cc28</color>
     <color name="type_nsfl">#843924</color>
 

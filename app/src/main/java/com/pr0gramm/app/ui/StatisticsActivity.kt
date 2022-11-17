@@ -114,15 +114,18 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private fun showContentTypes(view: CircleChartView, stats: StatisticsService.Stats) {
         val counts = stats.counts
+
         val sfw = counts[ContentType.SFW] ?: 0
-        val nsfw = (counts[ContentType.NSFW] ?: 0) + (counts[ContentType.NSFP] ?: 0)
+        val nsfp = counts[ContentType.NSFP] ?: 0
+        val nsfw = counts[ContentType.NSFW] ?: 0
         val nsfl = counts[ContentType.NSFL] ?: 0
 
         val values = listOf(
-                CircleChartView.Value(sfw, getColorCompat(R.color.type_sfw)),
-                CircleChartView.Value(nsfw, getColorCompat(R.color.type_nsfw)),
-                CircleChartView.Value(nsfl, getColorCompat(R.color.type_nsfl)))
-
+            CircleChartView.Value(sfw, getColorCompat(R.color.type_sfw)),
+            CircleChartView.Value(nsfp, getColorCompat(R.color.type_nsfp)),
+            CircleChartView.Value(nsfw, getColorCompat(R.color.type_nsfw)),
+            CircleChartView.Value(nsfl, getColorCompat(R.color.type_nsfl)),
+        )
 
         view.chartValues = values
     }
@@ -141,8 +144,9 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         summary ?: return listOf()
 
         return listOf(
-                CircleChartView.Value(summary.up, getColorCompat(R.color.stats_up)),
-                CircleChartView.Value(-summary.down, getColorCompat(R.color.stats_down)))
+            CircleChartView.Value(summary.up, getColorCompat(R.color.stats_up)),
+            CircleChartView.Value(-summary.down, getColorCompat(R.color.stats_down))
+        )
     }
 
     private fun updateTimeRange() {
@@ -163,8 +167,9 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         // don't show if not enough data available
         if (records.size < 2 ||
-                records.all { it.benis == records[0].benis } ||
-                System.currentTimeMillis() - records[0].time < 60 * 1000) {
+            records.all { it.benis == records[0].benis } ||
+            System.currentTimeMillis() - records[0].time < 60 * 1000
+        ) {
 
             benisGraphEmpty.isVisible = true
             benisGraphTimeSelector.isVisible = false

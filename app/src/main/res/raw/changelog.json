@@ -1,5 +1,42 @@
 [
   {
+    "version": 199,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Die Menü-Taste oben links zeigt nun einen farbigen Punkt an, wenn du ungelesene Nachrichten hast. (Issue #237)"
+      },
+      {
+        "type": "Neu",
+        "change": "Die Suchmaske erlaubt es nun nach Posts mit Microbenis zu suchen (Issue #260)"
+      },
+      {
+        "type": "Fix",
+        "change": "NSFP wird in der Statistik mit aufgeführt (Issue #252)"
+      },
+      {
+        "type": "Fix",
+        "change": "Nicht verifizierte Nutzer können jetzt auch NSFP taggen (Issue #269)"
+      },
+      {
+        "type": "Fix",
+        "change": "Verifikationslinks funktionieren nun auch in der App (Issue #261)"
+      },
+      {
+        "type": "Fix",
+        "change": "Wenn man auf einen Link zu einem NSFW Post klickt während nur SFW aktiviert ist, funktioniert der Hinweis zum Aktivieren von NSFW wieder."
+      },
+      {
+        "type": "Fix",
+        "change": "Workaround für fehlerhaft erkannte Longtaps im Feed auf Pixel Geräten."
+      },
+      {
+        "type": "Fix",
+        "change": "Stelzen ohne Benachrichtungen funktioniert wieder."
+      }
+    ]
+  },
+  {
     "version": 198,
     "changes": [
       {

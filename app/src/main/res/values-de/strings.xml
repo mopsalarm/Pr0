@@ -304,8 +304,9 @@
     <string name="action_done">FERTIG</string>
     <string name="error_blocked">Dein Internetanbieter blockt das pr0gramm. Benutzt du gerade ein freies WLAN?</string>
     <string name="search_advanced">ERWEITERT</string>
-    <string name="search_score">Minimaler Benis: %s</string>
-    <string name="search_score_ignored">egal</string>
+    <string name="search_score_min">Minimaler Benis: %s</string>
+    <string name="search_score_max">Maximaler Benis: %s</string>
+    <string name="search_score_0">Minimaler Benis: egal</string>
     <string name="search_search">SUCHEN</string>
     <string name="search_without_custom_tags">Eigene Tags ausschließen:</string>
     <string name="search_without_tags">Von den Ergebnissen ausschließen:</string>
@@ -403,7 +404,7 @@
     <string name="could_not_load_feed_content_type__signin">Um Beiträge in %s zu sehen, musst du dich anmelden.</string>
     <string name="error_feed_not_public__item">Diese Sammlung von %s ist nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
     <string name="error_feed_not_public__general">Diese Sammlungn von %s ist nicht öffentlich.</string>
-    <string name="stats_title_uploads_favs">Uploads und Favoriten</string>
+    <string name="stats_title_uploads_favs">Uploads</string>
     <string name="stats_title_votes">Voteverhalten</string>
     <string name="stats_day">TAG</string>
     <string name="stats_title_benis_change">Änderungen deines Benis</string>
@@ -550,7 +551,9 @@
     <string name="action_add_tags">Tags hinzufügen</string>
     <string name="bookmark">Lesezeichen</string>
     <string name="uploads_in">Hochlads in %s</string>
+    <string name="uploads_of">Hochlads von %s</string>
     <string name="uploads">Hochlads</string>
+    <string name="collection_x_of_user">%s von %s</string>
     <string name="pref_upvote_on_collect_title">Blussi beim Sammeln</string>
     <string name="pref_upvote_on_collect_summary">Es wird automatisch ein Blussi vergeben, wenn du einen Post in eine Sammlung hinzufügst. Du kannst das Blussi nachträglich wieder entfernen.</string>
     <string name="hint_upvote_on_collect">Möchtest du beim Sammeln automatisch ein Blussi dalassen? Du kannst es jederzeit nachträglich wieder entfernen.</string>
@@ -577,4 +580,7 @@
     <string name="pref_use_secondary_servers_summary">Verwendet den Ausweichserver um auf das pr0gramm zuzugreifen. Dies kann helfen, wenn die Verbindung oft unerklärlich langsam ist. Telekom Kunden sind davon aktuell stärker betroffen.</string>
     <string name="pref_rotate_vote_view_title">Blussi drehen</string>
     <string name="pref_rotate_vote_view_summary">Nur pr0mium: Diese Option bringt das Drehen des Blussi und des Minus Buttons zurück.</string>
+
+    <string name="user_validate_success">Dein Alter wurde verifiziert</string>
+    <string name="user_validate_failed">Ungültiges Token.</string>
 </resources>

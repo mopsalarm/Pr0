@@ -13,20 +13,20 @@ import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.util.getEnumValue
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 import java.util.*
 
 /**
  */
-object Settings {
+object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var context: Application
     private lateinit var preferences: SharedPreferences
 
-    private val preferenceChanged = BroadcastChannel<String>(16)
+    private val preferenceChanged = MutableSharedFlow<String>(
+        extraBufferCapacity = 16,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     val contentTypeSfw: Boolean
         get() = preferences.getBoolean("pref_feed_type_sfw", true)
@@ -223,7 +223,7 @@ object Settings {
      * All actions are happening on the main thread.
      */
     fun changes(): Flow<String> {
-        return preferenceChanged.asFlow()
+        return preferenceChanged
     }
 
     enum class ConfirmOnMobile(val value: Int) {
@@ -253,9 +253,15 @@ object Settings {
         migrate(preferences)
 
         // react to changes
-        preferences.registerOnSharedPreferenceChangeListener { _, key ->
-            preferenceChanged.trySend(key).isSuccess
-        }
+        // Caution: The preference manager does not currently store a strong reference to the listener.
+        // You must store a strong reference to the listener, or it will be susceptible to garbage collection.
+        //   ... nice
+        preferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        Logger("Settings").debug { "Key was updated: $key" }
+        preferenceChanged.tryEmit(key)
     }
 }
 

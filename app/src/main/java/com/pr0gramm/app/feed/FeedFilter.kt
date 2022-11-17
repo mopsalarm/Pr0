@@ -63,9 +63,9 @@ class FeedFilter : DefaultParcelable {
     }
 
     /**
-     * Returns a copy of this filter that will filter by the given tag
+     * Returns a basic copy of this filter that will filter by the given tag
      */
-    fun withTags(tags: String): FeedFilter {
+    fun basicWithTags(tags: String): FeedFilter {
         val copy = basic()
         copy.tags = normalizeString(tags)
         return normalize(copy)
@@ -74,17 +74,17 @@ class FeedFilter : DefaultParcelable {
     /**
      * Returns a copy of this filter that filters by the given username
      */
-    fun withUser(username: String): FeedFilter {
+    fun basicWithUser(username: String): FeedFilter {
         val copy = basic()
         copy.username = normalizeString(username)
         return normalize(copy)
     }
 
     fun withAnyCollection(owner: String): FeedFilter {
-        return withCollection(owner, "**ANY", "**ANY")
+        return basicWithCollection(owner, "**ANY", "**ANY")
     }
 
-    fun withCollection(owner: String, collectionKey: String, collectionTitle: String): FeedFilter {
+    fun basicWithCollection(owner: String, collectionKey: String, collectionTitle: String): FeedFilter {
         val copy = basic()
         copy.username = normalizeString(owner)
         copy.collection = normalizeString(collectionKey)
@@ -92,7 +92,7 @@ class FeedFilter : DefaultParcelable {
         return normalize(copy)
     }
 
-    fun withCollection(owner: String, collection: PostCollection): FeedFilter {
+    fun basicWithCollection(owner: String, collection: PostCollection): FeedFilter {
         val copy = basic()
         copy.username = normalizeString(collection.owner?.name ?: owner)
         copy.collection = normalizeString(collection.key)
@@ -100,16 +100,18 @@ class FeedFilter : DefaultParcelable {
         return normalize(copy)
     }
 
-    fun withTagsNoReset(tags: String): FeedFilter {
+    fun withTagsNoReset(tags: String?): FeedFilter {
         val copy = basic()
 
+        // keep the username
+        copy.username = username
+
         if (collection != null) {
-            copy.username = username
             copy.collection = collection
             copy.collectionTitle = collectionTitle
         }
 
-        copy.tags = normalizeString(tags)
+        copy.tags = tags?.let { normalizeString(tags) }
         return normalize(copy)
     }
 
