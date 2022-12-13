@@ -262,7 +262,7 @@ interface Api {
     )
 
     @FormUrlEncoded
-    @POST("backend/admin/?view=users&action=ban")
+    @POST("admin/?view=users&action=ban")
     suspend fun userBan(
         @Field("name") name: String,
         @Field("reason") reason: String,

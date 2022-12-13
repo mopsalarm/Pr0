@@ -807,7 +807,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
     }
 
     private fun openUserInAdmin() {
-        val uri = "https://pr0gramm.com/backend/admin/?view=users&action=show&id=${userStateModel.userInfo?.info?.user?.id}"
+        val uri = "https://pr0gramm.com/admin/?view=users&action=show&id=${userStateModel.userInfo?.info?.user?.id}"
         BrowserHelper.openCustomTab(requireContext(), Uri.parse(uri), handover = true)
     }
 
