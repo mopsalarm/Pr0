@@ -253,7 +253,7 @@ interface Api {
     @FormUrlEncoded
     @POST("api/items/delete")
     suspend fun deleteItem(
-        @Field("_nonce") none: Nonce?,
+        @Field("_nonce") nonce: Nonce?,
         @Field("id") id: Long,
         @Field("reason") reason: String,
         @Field("customReason") customReason: String,
@@ -424,6 +424,19 @@ interface Api {
         @Field("itemId") itemId: Long
     ): CollectionResponse
 
+    @GET("api/user/me")
+    suspend fun me(): MeInfo
+
+    @GET("api/seen/bits")
+    suspend fun seenBitsGet(): SeenBits
+
+    @POST("api/seen/update")
+    suspend fun seenBitsUpdate(
+        @Header("X-pr0gramm-Nonce") nonce: Nonce?,
+        @Header("X-pr0gramm-Bits-Version") version: Int,
+        @Body body: RequestBody,
+    ): UpdateSeenBitsResponse
+
     @FormUrlEncoded
     @POST("api/user/validate")
     suspend fun userValidate(
@@ -527,7 +540,6 @@ interface Api {
         )
     }
 
-
     @JsonClass(generateAdapter = true)
     class Info(
         val user: User,
@@ -620,13 +632,11 @@ interface Api {
         )
     }
 
-
     @JsonClass(generateAdapter = true)
     class NewComment(
         val commentId: Long? = null,
         val comments: List<Comment> = listOf()
     )
-
 
     @JsonClass(generateAdapter = true)
     class NewTag(
@@ -903,6 +913,37 @@ interface Api {
         )
     }
 
+    @JsonClass(generateAdapter = true)
+    data class MeInfo (
+        val name: String,
+        val registered: Instant,
+        val identifier: String,
+        val mark: Int,
+        val score: Int,
+        // "banInfo" omitted because it is irrelevant to the app
+    )
+
+
+    @JsonClass(generateAdapter = true)
+    data class SeenBits (
+        /** Same user ID as returned by /api/user/me. */
+        val userIdentifier: String,
+        /** Server sends the base64 encoded value of compressed seen bits. Automatically decoded by Retrofit. */
+        val value: ByteArray,
+        /** Current version of seen bits. */
+        val version: Int,
+    )
+
+    /**
+     * @property version
+     */
+    @JsonClass(generateAdapter = true)
+    data class UpdateSeenBitsResponse (
+        val success: Boolean,
+        /** New version of seen bits. */
+        val version: Int,
+        val data: ByteArray,
+    )
 
     enum class BanMode {
         Default, Single, Branch;

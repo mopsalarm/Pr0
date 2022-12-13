@@ -5,24 +5,19 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.unless
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 import kotlin.time.ExperimentalTime
 
 
-/**
- */
 @OptIn(ExperimentalTime::class)
 class SyncService(private val userService: UserService,
                   private val notificationService: NotificationService,
                   private val singleShotService: SingleShotService,
                   private val seenService: SeenService,
-                  private val kvService: KVService) {
+                  private val seenApiService: SeenApiService) {
 
     private val logger = Logger("SyncService")
 
@@ -32,10 +27,10 @@ class SyncService(private val userService: UserService,
     init {
         AsyncScope.launch {
             userService.loginStates
-                    .mapNotNull { state -> state.uniqueToken }
+                    .map { state -> state.id }
                     .distinctUntilChanged()
                     .onStart { delay(1.seconds) }
-                    .collect { token -> launch { performSyncSeenService(token) } }
+                    .collect { launch { performSyncSeenService() } }
         }
     }
 
@@ -111,22 +106,21 @@ class SyncService(private val userService: UserService,
             singleShotService.firstTimeToday("sync-seen")
         }
 
-        val token = userService.loginState.uniqueToken
-        if (shouldSync && token != null) {
-            performSyncSeenService(token)
+        if (shouldSync) {
+            performSyncSeenService()
         }
     }
 
-    private suspend fun performSyncSeenService(token: String) {
+    private suspend fun performSyncSeenService() {
         unless(Settings.backup && seenSyncLock.compareAndSet(false, true)) {
             logger.info { "Not starting sync of seen bits." }
             return
         }
 
-        logger.info { "Syncing of seen bits with token '$token'" }
+        logger.info { "Syncing of seen bits" }
 
         try {
-            kvService.update(token, "seen-bits") { previous ->
+            seenApiService.update { previous ->
                 // merge the previous state into the current seen service
                 val noChanges = previous != null && seenService.checkEqualAndMerge(previous)
 
@@ -139,7 +133,7 @@ class SyncService(private val userService: UserService,
                 }
             }
 
-        } catch (err: KVService.VersionConflictException) {
+        } catch (err: SeenApiService.VersionConflictException) {
             // we should just retry.
             logger.warn(err) { "Version conflict during update." }
 
