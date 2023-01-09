@@ -390,10 +390,6 @@ class UserService(
 
         val settings = HashMap(sync.settings.orEmpty() + update)
 
-        // FIXME someone uses themeId to get the value, but theme to store it.
-        // FIXME Use this as a workaround until it is fixed.
-        settings["theme"] = settings["themeId"]
-
         logger.info { "Storing remote settings: $settings" }
 
         val fields = settings.mapValues { (_, value) ->
