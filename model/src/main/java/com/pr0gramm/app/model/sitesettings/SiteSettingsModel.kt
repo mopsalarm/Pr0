@@ -11,4 +11,6 @@ data class SiteSettings(
 
     @Json(name = "legacyPath")
     val secondaryServers: Boolean,
+
+    val enableItemHistory: Boolean,
 )

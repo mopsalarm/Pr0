@@ -166,8 +166,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     val secureApp: Boolean
         get() = preferences.getBoolean("pref_secure_app", false)
 
-    val backup: Boolean
+    var backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
+        set(value) = edit { putBoolean("pref_sync_backup", value) }
 
     val singleTapAction: TapAction
         get() = preferences.getEnumValue("pref_single_tap_action", TapAction.NONE)

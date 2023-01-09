@@ -102,6 +102,7 @@ class SiteSettingsService {
         Settings.upvoteOnCollect = settings.favUpvote
         Settings.useSecondaryServers = settings.secondaryServers
         Settings.themeName = themeIdToThemeName(settings.themeId)
+        Settings.backup = settings.enableItemHistory
     }
 }
 
@@ -114,6 +115,7 @@ private fun localSiteSettings(): SiteSettings {
         showAds = Settings.alwaysShowAds,
         favUpvote = Settings.upvoteOnCollect,
         secondaryServers = Settings.useSecondaryServers,
+        enableItemHistory = Settings.backup,
     )
 }
 
