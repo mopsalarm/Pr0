@@ -11,4 +11,8 @@ data class SiteSettings(
 
     @Json(name = "legacyPath")
     val secondaryServers: Boolean,
+
+    // Unused in the app, but present
+    val showVideoPreview: Boolean,
+    val enableVoteToggle: Boolean,
 )
