@@ -13,4 +13,5 @@ data class SiteSettings(
     val secondaryServers: Boolean,
 
     val enableItemHistory: Boolean,
+    var markSeenItems: Boolean,
 )

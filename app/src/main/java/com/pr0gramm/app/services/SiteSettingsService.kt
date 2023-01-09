@@ -103,6 +103,7 @@ class SiteSettingsService {
         Settings.useSecondaryServers = settings.secondaryServers
         Settings.themeName = themeIdToThemeName(settings.themeId)
         Settings.backup = settings.enableItemHistory
+        Settings.markItemsAsSeen = settings.markSeenItems
     }
 }
 
@@ -116,6 +117,7 @@ private fun localSiteSettings(): SiteSettings {
         favUpvote = Settings.upvoteOnCollect,
         secondaryServers = Settings.useSecondaryServers,
         enableItemHistory = Settings.backup,
+        markSeenItems = Settings.markItemsAsSeen,
     )
 }
 
