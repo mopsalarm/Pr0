@@ -942,7 +942,6 @@ interface Api {
         val success: Boolean,
         /** New version of seen bits. */
         val version: Int,
-        val data: ByteArray,
     )
 
     enum class BanMode {
