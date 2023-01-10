@@ -1,5 +1,14 @@
 [
   {
+    "version": 200,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Abstürze beim Starten der App behoben."
+      }
+    ]
+  },
+  {
     "version": 199,
     "changes": [
       {
