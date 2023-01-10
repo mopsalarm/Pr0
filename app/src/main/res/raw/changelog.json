@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Spacing fürs WICHTELN Icon angespasst. Besser spät als nie!"
+      },
+      {
+        "type": "Fix",
         "change": "Abstürze beim Starten der App behoben."
       }
     ]
