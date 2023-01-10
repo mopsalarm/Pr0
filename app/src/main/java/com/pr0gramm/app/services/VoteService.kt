@@ -7,7 +7,6 @@ import com.pr0gramm.app.db.AppDB
 import com.pr0gramm.app.decodeBase64
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.CachedVote
-import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.checkNotMainThread
@@ -67,11 +66,11 @@ class VoteService(private val api: Api,
 
     /**
      * Observes the votes for an item.
-     * @param item The item to get the vote for.
+     * @param itemId The item to get the vote for.
      */
     fun getItemVote(itemId: Long): Flow<Vote> {
         return CachedVote
-                .find(appDB.cachedVoteQueries, ITEM, itemId)
+            .find(appDB.cachedVoteQueries, CachedVote.Type.ITEM, itemId)
                 .map { vote -> vote.vote }
                 .distinctUntilChanged()
     }
@@ -138,7 +137,7 @@ class VoteService(private val api: Api,
                 val voteAction = VOTE_ACTIONS[action]
                 if (voteAction != null) {
                     storeVoteValue(voteAction.type, id, voteAction.vote)
-                    if (voteAction.type == ITEM) {
+                    if (voteAction.type === CachedVote.Type.ITEM) {
                         seenService.markAsSeen(id)
                     }
                 }
@@ -167,6 +166,9 @@ class VoteService(private val api: Api,
 
                     ACTION_COMMENT_UNFAV ->
                         appDB.favedCommentsQueries.remove(id)
+
+                    ACTION_CLEAR_SYNC_LOG ->
+                        seenService.clear()
                 }
 
             }
@@ -289,9 +291,10 @@ class VoteService(private val api: Api,
 
         private val FOLLOW_ACTION: Map<Int, FollowState> = hashMapOf(
                 12 to FollowState.FOLLOW,
-                13 to FollowState.NONE,
-                14 to FollowState.SUBSCRIBED,
-                15 to FollowState.FOLLOW)
+            13 to FollowState.NONE,
+            14 to FollowState.SUBSCRIBED,
+            15 to FollowState.FOLLOW
+        )
 
         private const val ACTION_COMMENT_FAV = 16
         private const val ACTION_COMMENT_UNFAV = 17
@@ -299,6 +302,8 @@ class VoteService(private val api: Api,
         private const val ACTION_ITEM_UNCOLLECT = 18
         private const val ACTION_ITEM_COLLECT = 19
         private const val ACTION_COLLECTION_ID = 20
+
+        private const val ACTION_CLEAR_SYNC_LOG = 21
 
     }
 }
