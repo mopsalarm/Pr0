@@ -167,7 +167,7 @@ class VoteService(private val api: Api,
                     ACTION_COMMENT_UNFAV ->
                         appDB.favedCommentsQueries.remove(id)
 
-                    ACTION_CLEAR_SYNC_LOG ->
+                    ACTION_CLEAR_SEEN ->
                         seenService.clear()
                 }
 
@@ -303,7 +303,7 @@ class VoteService(private val api: Api,
         private const val ACTION_ITEM_COLLECT = 19
         private const val ACTION_COLLECTION_ID = 20
 
-        private const val ACTION_CLEAR_SYNC_LOG = 21
+        private const val ACTION_CLEAR_SEEN = 23
 
     }
 }
