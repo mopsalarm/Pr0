@@ -1,5 +1,14 @@
 [
   {
+    "version": 201,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Häufige Abstürzte in der App behoben. Danke an @KokaLutz für die Hilfe."
+      }
+    ]
+  },
+  {
     "version": 200,
     "changes": [
       {
