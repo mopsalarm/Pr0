@@ -2,6 +2,7 @@ package com.pr0gramm.app.io
 
 import android.net.Uri
 import androidx.concurrent.futures.ResolvableFuture
+import com.google.common.io.Closer
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
@@ -18,15 +19,18 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A entry that is hold by the [Cache].
  */
 internal class CacheEntry(
-        private val httpClient: OkHttpClient,
-        private val partialCached: File,
-        private val fullyCached: File,
-        private val uri: Uri) : Cache.Entry {
+    private val httpClient: OkHttpClient,
+    private val partialCached: File,
+    private val fullyCached: File,
+    private val uri: Uri
+) : Cache.Entry {
 
     private val logger = if (BuildConfig.DEBUG) Logger("CacheEntry(${uri.lastPathSegment})") else Logger("CacheEntry")
 
@@ -63,7 +67,7 @@ internal class CacheEntry(
             }
 
             // check how much we can actually read at most!
-            val amountToRead = Math.min(pos + amount, totalSizeValue) - pos
+            val amountToRead = min(pos + amount, totalSizeValue) - pos
 
             // wait for the data to be there
             expectCached(pos + amountToRead)
@@ -74,8 +78,11 @@ internal class CacheEntry(
 
             // check if we got as many bytes as we wanted to.
             if (byteCount != amountToRead) {
-                logToCrashlytics(EOFException(
-                        "Expected to read $amountToRead bytes at $pos, but got only $byteCount. Cache entry: $this"))
+                logToCrashlytics(
+                    EOFException(
+                        "Expected to read $amountToRead bytes at $pos, but got only $byteCount. Cache entry: $this"
+                    )
+                )
             }
 
             return byteCount
@@ -122,8 +129,12 @@ internal class CacheEntry(
      * Will be called if we need to initialize the file.
      * If this is called, we can expect the entry to hold its own lock.
      */
-    private fun open(): RandomAccessFile {
+    private fun open(retryCount: Int = 4): RandomAccessFile {
         lock.requireLocked()
+
+        if (retryCount <= 0) {
+            throw IOException("Retries are up, failed to open: $uri")
+        }
 
         // ensure that the parent directory exists.
         partialCached.parentFile?.let { parentFile ->
@@ -179,7 +190,7 @@ internal class CacheEntry(
                 this.fp = null
 
                 logger.debug { "Opening file again." }
-                return open()
+                return open(retryCount = retryCount - 1)
             }
 
             return fp
@@ -247,7 +258,8 @@ internal class CacheEntry(
          * This method is called from the caching thread once caching stops.
          */
         private fun cachingStopped() {
-            logger.debug { "Caching stopped on entry $this" }
+            // logger.debug { "Caching stopped on entry $this" }
+
             lock.withLock {
                 if (!canceled) {
                     close()
@@ -260,6 +272,7 @@ internal class CacheEntry(
             }
         }
 
+        @Suppress("UnstableApiUsage")
         fun resumeCaching(offset: Int) {
             incrementRefCount()
 
@@ -267,53 +280,55 @@ internal class CacheEntry(
                 logger.debug { "Resume caching for $this starting at $offset" }
 
                 val request = Request.Builder()
-                        .url(uri.toString())
-                        .cacheControl(CacheControl.FORCE_NETWORK)
-                        .apply {
-                            if (offset > 0) {
-                                header("Range", "bytes=$offset-")
-                            }
+                    .url(uri.toString())
+                    .cacheControl(CacheControl.FORCE_NETWORK)
+                    .apply {
+                        if (offset > 0) {
+                            header("Range", "bytes=$offset-")
                         }
-                        .build()
+                    }
+                    .build()
 
                 // do the call synchronously
                 val response = httpClient.newCall(request).execute()
 
-                val totalSize = try {
+                var (totalSize, body, readAll) = try {
                     logger.debug { "Response is $response" }
                     val body = response.body
-                            ?: throw IllegalStateException("no body in media response")
+                        ?: throw IllegalStateException("no body in media response")
 
-                    when {
-                        response.code == 200 -> {
+                    val (totalSize, readAll) = when (response.code) {
+                        200 -> {
                             written = 0
-                            body.contentLength().toInt()
+                            Pair(body.contentLength().toInt(), true)
                         }
 
-                        response.code == 206 -> {
+                        206 -> {
                             val range = response.header("Content-Range")
-                                    ?: throw IOException("Expected Content-Range header")
+                                ?: throw IOException("Expected Content-Range header")
 
                             logger.debug { "Got Content-Range header with $range" }
-                            parseRangeHeaderTotalSize(range)
+                            Pair(parseRangeHeaderTotalSize(range), false)
                         }
 
-                        response.code == 403 ->
+                        403 -> {
                             throw IOException("Not allowed to read file, are you on a public wifi?")
+                        }
 
-                        response.code == 404 ->
+                        404 -> {
                             throw FileNotFoundException("File not found at " + response.request.url)
+                        }
 
-                        response.code == 416 -> {
+                        416 -> {
                             val range = response.header("Content-Range")
-                                    ?: throw IOException("Request for ${request.url} failed with status ${response.code}")
+                                ?: throw IOException("Request for ${request.url} failed with status ${response.code}")
 
                             logger.debug { "Got Content-Range header with $range" }
                             val totalSize = parseRangeHeaderTotalSize(range)
                             if (offset < totalSize) {
                                 throw IOException("Request for ${request.url} failed with status ${response.code}")
                             } else {
-                                totalSize
+                                Pair(totalSize, false)
                             }
                         }
 
@@ -321,7 +336,7 @@ internal class CacheEntry(
                     }
 
                     // we now know the size of the full file
-
+                    Triple(totalSize.takeIf { totalSize > 0 }, body, readAll)
 
                 } catch (err: Exception) {
                     logger.debug { "Closing the response because of an error." }
@@ -330,18 +345,62 @@ internal class CacheEntry(
                     throw err
                 }
 
-                response.use {
-                    response.body?.use { body ->
-                        // we now know the size, publish it to waiting consumers
-                        this.totalSize.set(totalSize)
+                if (totalSize == null) {
+                    logger.warn { "No total size for uri: $uri" }
+                }
 
-                        if (offset < totalSize) {
-                            logger.debug { "Writing response to cache file" }
-                            body.byteStream().use { stream ->
-                                writeResponseToEntry(stream)
-                            }
+                // closer to handle all close operations in the end.
+                Closer.create().use { closer ->
+                    closer.register(response)
+
+                    var bodyStream = body.byteStream()
+                    closer.register(bodyStream)
+
+                    if (totalSize == null) {
+                        if (!readAll) {
+                            throw IOException("We don't have the full size of the response")
                         }
 
+                        // we do not know the size of the response, so we will just copy the full response
+                        // to an unnamed temporary file and count the bytes we put into that file
+                        val buf = File(partialCached.path + ".buf")
+                        try {
+                            logger.debug { "Writing response of unknown length to temp file" }
+
+                            // copy everything to temp file
+                            val countStream = CountingInputStream(bodyStream)
+                            FileOutputStream(buf).use { out -> countStream.copyTo(out) }
+
+                            // replace the original stream with the new stream to the saved body
+                            bodyStream = FileInputStream(buf)
+                            closer.register(bodyStream)
+
+                            // update the total size to the amount of data we've written to the
+                            // temporary file
+                            totalSize = countStream.count.toInt()
+                            logger.debug { "File was written to temp, we now know totalSize=$totalSize" }
+
+                        } finally {
+                            // unlink file from the disk so it gets deleted automatically once closed
+                            buf.delete()
+                        }
+                    }
+
+                    @Suppress("NAME_SHADOWING")
+                    val totalSize = totalSize!!
+
+                    // we now know the size, publish it to waiting consumers
+                    this.totalSize.set(totalSize)
+
+                    var fullyWritten = false
+                    if (offset < totalSize) {
+                        logger.debug { "Writing response to cache file" }
+                        fullyWritten = bodyStream.use { writeResponseToEntry(bodyStream) }
+                    }
+
+                    logger.debug { "Body was fully written to cache file: $fullyWritten" }
+
+                    if (fullyWritten) {
                         // check if we need can now promote the cached file to the target file
                         promoteFullyCached(totalSize)
                     }
@@ -360,24 +419,24 @@ internal class CacheEntry(
          * Writes the response to the file. If [fp] disappears, we log a warning
          * and then we just return.
          */
-        private fun writeResponseToEntry(stream: InputStream) {
+        private fun writeResponseToEntry(stream: InputStream): Boolean {
             val lockExpireTime = Instant.now().plus(1, TimeUnit.SECONDS)
 
             readStream(stream, bufferSize = 64 * 1024) { buffer, byteCount ->
                 lock.withLock {
-                    logger.debug { "Got $byteCount new bytes from cache." }
+                    // logger.debug { "Got $byteCount new bytes from cache." }
 
                     val fp = fp
                     if (fp == null) {
                         logger.warn { "Error during caching, the file-handle went away: $this" }
-                        return
+                        return false
                     }
 
-                    write(fp, buffer, 0, byteCount)
+                    write(fp, buffer, byteCount)
 
                     if (canceled) {
                         logger.debug { "Caching canceled, stopping now." }
-                        return
+                        return false
                     }
 
                     if (refCount.toInt() == 1 && lockExpireTime.isBefore(Instant.now())) {
@@ -385,17 +444,19 @@ internal class CacheEntry(
                     }
                 }
             }
+
+            return true
         }
 
-        private fun write(fp: RandomAccessFile, data: ByteArray, offset: Int, byteCount: Int) {
+        private fun write(fp: RandomAccessFile, data: ByteArray, byteCount: Int) {
             lock.requireLocked()
 
             if (byteCount > 0) {
-                logger.debug { "Writing $byteCount of data at byte index $written" }
+                // logger.debug { "Writing $byteCount of data at byte index $written" }
 
                 // write the data to the right place
                 fp.seek(written.toLong())
-                fp.write(data, offset, byteCount)
+                fp.write(data, 0, byteCount)
 
                 // and increase the write pointer
                 written += byteCount
@@ -501,7 +562,7 @@ internal class CacheEntry(
      */
     private fun availableStartingAt(position: Int): Int {
         lock.withLock {
-            return Math.max(0, written - position)
+            return max(0, written - position)
         }
     }
 
@@ -535,7 +596,7 @@ internal class CacheEntry(
                 return 0
             }
 
-            val skipped = Math.min(entry.totalSize.toLong(), position + amount) - position
+            val skipped = min(entry.totalSize.toLong(), position + amount) - position
             position += skipped.toInt()
             return skipped
         }
