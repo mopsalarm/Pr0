@@ -149,7 +149,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         }, detectMoves)
     }
 
-    class InstanceDiffCallback<T> : DiffUtil.ItemCallback<T>() {
+    class InstanceDiffCallback<T : Any> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem === newItem
         }
@@ -160,7 +160,7 @@ abstract class AsyncListAdapter<T : Any, V : RecyclerView.ViewHolder>(
         }
     }
 
-    class KeyDiffCallback<T>(private val keyOf: (T) -> Any?) : DiffUtil.ItemCallback<T>() {
+    class KeyDiffCallback<T : Any>(private val keyOf: (T) -> Any?) : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return keyOf(oldItem) == keyOf(newItem)
         }

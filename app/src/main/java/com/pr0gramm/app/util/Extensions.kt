@@ -293,9 +293,9 @@ inline fun <K : Any, V : Any> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V)
     }
 }
 
-fun <K, V> lruCache(maxSize: Int, creator: (K) -> V?): LruCache<K, V> {
+fun <K : Any, V> lruCache(maxSize: Int, creator: (K) -> V?): LruCache<K, V> {
     return object : LruCache<K, V>(maxSize) {
-        override fun create(key: K): V? = creator(key)
+        override fun create(key: K) = creator(key)
     }
 }
 
