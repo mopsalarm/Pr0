@@ -4,10 +4,16 @@ import android.widget.TextView
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.ui.base.MainScope
+import com.pr0gramm.app.ui.base.onAttachedScope
 import com.pr0gramm.app.util.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -17,27 +23,26 @@ object ViewUpdater {
     private val tickerSeconds = sharedTickerFlow(Duration.seconds(1))
     private val tickerMinute = sharedTickerFlow(Duration.minutes(1))
 
-    private fun ofInstant(instant: Instant): Flow<Unit> {
+    private fun ofInstant(instant: Instant): Flow<Unit>? {
         val delta = Duration.between(Instant.now(), instant)
-                .convertTo(TimeUnit.SECONDS)
-                .absoluteValue
+            .convertTo(TimeUnit.SECONDS)
+            .absoluteValue
 
         return when {
-            delta > 3600 -> emptyFlow()
+            delta > 3600 -> null
             delta > 60 -> tickerMinute
             else -> tickerSeconds
         }
     }
 
     fun replaceText(view: TextView, instant: Instant, text: () -> CharSequence) {
-        // TODO do this correctly.
         view.text = text()
 
-//        val previousSubscription = view.getTag(R.id.date) as? Subscription
-//        previousSubscription?.unsubscribe()
-//
-//        val subscription = ofInstant(view, instant).map { text() }.subscribe(updateTextView(view))
-//        view.setTag(R.id.date, subscription)
+        ofInstant(instant)?.let { ticker ->
+            view.onAttachedScope {
+                ticker.collect { view.text = text() }
+            }
+        }
     }
 }
 
@@ -60,7 +65,7 @@ fun sharedTickerFlow(interval: Duration): Flow<Unit> {
         subscriptionCount++
 
         try {
-            emitAll(flow.drop(1).map { Unit })
+            emitAll(flow.drop(1).map { })
 
         } finally {
             withContext(NonCancellable) {

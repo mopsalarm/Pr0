@@ -1,7 +1,11 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import com.google.android.gms.ads.*
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -18,7 +22,11 @@ import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.ignoreAllExceptions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
 
@@ -42,23 +50,17 @@ class AdService(private val configService: ConfigService, private val userServic
             view.adListener = object : TrackingAdListener("b") {
                 override fun onAdLoaded() {
                     super.onAdLoaded()
-                    if (!isClosedForSend) {
-                        this@channelFlow.trySend(AdLoadState.SUCCESS).isSuccess
-                    }
+                    this@channelFlow.trySend(AdLoadState.SUCCESS)
                 }
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
-                    if (!isClosedForSend) {
-                        this@channelFlow.trySend(AdLoadState.FAILURE).isSuccess
-                    }
+                    this@channelFlow.trySend(AdLoadState.FAILURE)
                 }
 
                 override fun onAdClosed() {
                     super.onAdClosed()
-                    if (!isClosedForSend) {
-                        this@channelFlow.trySend(AdLoadState.CLOSED).isSuccess
-                    }
+                    this@channelFlow.trySend(AdLoadState.CLOSED)
                 }
             }
 

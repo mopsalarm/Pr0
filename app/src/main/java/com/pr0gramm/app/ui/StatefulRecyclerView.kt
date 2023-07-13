@@ -11,7 +11,7 @@ import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.observeChangeEx
 
 class StatefulRecyclerView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : RecyclerView(context, attrs, defStyleAttr) {
 
     private var savedAdapterState: Parcelable? = null
@@ -33,11 +33,12 @@ class StatefulRecyclerView @JvmOverloads constructor(
         savedHierarchyState = container
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         return bundleOf(
-                "viewState" to superState,
-                "adapterState" to (adapter as? InstanceStateAware)?.onSaveInstanceState())
+            "viewState" to superState,
+            "adapterState" to (adapter as? InstanceStateAware)?.onSaveInstanceState(),
+        )
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

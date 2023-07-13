@@ -34,9 +34,13 @@ import com.pr0gramm.app.ui.base.withViewDisabled
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.BusyIndicator
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.addTextChangedListener
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.use
 import kotterknife.bindView
 
 typealias Callback = () -> Unit
@@ -163,8 +167,8 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     }
 
     private fun createBackgroundDrawable(drawableId: Int, fallbackColor: Int): Drawable {
-        return WrapCrashingDrawable(fallbackColor,
-                ResourcesCompat.getDrawable(resources, drawableId, theme)!!)
+        val drawable = ResourcesCompat.getDrawable(resources, drawableId, theme)!!
+        return WrapCrashingDrawable(fallbackColor, drawable)
     }
 
     private fun onLoginClicked() {

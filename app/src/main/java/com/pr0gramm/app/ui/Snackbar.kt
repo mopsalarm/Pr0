@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.core.view.isEmpty
 import com.google.android.material.snackbar.Snackbar
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.dp
 
 fun Snackbar.configureNewStyle(): Snackbar {
@@ -28,8 +27,6 @@ fun Snackbar.configureNewStyle(): Snackbar {
 
     // add some spacing to the bottom
     params.bottomMargin += context.dp(12)
-
-    val activity = AndroidUtility.activityFromContext(context)
 
     snackbarView.layoutParams = params
 

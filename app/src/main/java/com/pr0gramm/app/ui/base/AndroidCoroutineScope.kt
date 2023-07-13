@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.base
 
 import android.content.Context
 import android.view.View
+import android.view.View.OnAttachStateChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -12,14 +13,28 @@ import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.causalChain
+import com.pr0gramm.app.util.checkMainThread
+import com.pr0gramm.app.util.containsType
+import com.pr0gramm.app.util.debugOnly
+import com.pr0gramm.app.util.directName
 import com.pr0gramm.app.warnWithStack
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
@@ -39,9 +54,10 @@ inline fun withErrorDialog(block: () -> Unit): Unit {
 
 
 fun CoroutineScope.launchIgnoreErrors(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return launch(context, start) {
         catchAll { block() }
@@ -100,7 +116,7 @@ fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
 
     CoroutineScope(job + Main.immediate + DefaultCoroutineExceptionHandler).launch(block = block)
 
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View) {
             removeOnAttachStateChangeListener(this)
             job.cancel()
@@ -117,11 +133,11 @@ fun View.whileIsAttachedScope(block: suspend CoroutineScope.() -> Unit): Job {
  * Executes the given code block everytime the view is attached.
  * It will cancel the scope once the view is detached.
  */
-fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit) {
+fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit): () -> Unit {
     var job: Job? = null
 
-    val listener: (Boolean) -> Unit = { isAttached ->
-        if (isAttached) {
+    val listener = object : OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
             // someone did not cancel the previous job?
             job?.cancel()
 
@@ -131,7 +147,9 @@ fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit) {
 
             // and launch the new coroutine
             CoroutineScope(newJob + Main + DefaultCoroutineExceptionHandler).launch(block = block)
-        } else {
+        }
+
+        override fun onViewDetachedFromWindow(v: View) {
             job?.cancel()
             job = null
         }
@@ -141,7 +159,12 @@ fun View.onAttachedScope(block: suspend CoroutineScope.() -> Unit) {
 
     // initial event if already attached
     if (isAttachedToWindow) {
-        listener(true)
+        listener.onViewAttachedToWindow(this)
+    }
+
+    return {
+        removeOnAttachStateChangeListener(listener)
+        listener.onViewDetachedFromWindow(this)
     }
 }
 
@@ -161,34 +184,38 @@ inline fun <T> retryUpTo(tryCount: Int, delay: () -> Unit = {}, block: () -> T):
 }
 
 fun AppCompatActivity.launchWhenCreated(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenCreated(decorate(this, ignoreErrors, busyIndicator, block))
 }
 
 fun AppCompatActivity.launchWhenStarted(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenStarted(decorate(this, ignoreErrors, busyIndicator, block))
 }
 
 fun AppCompatActivity.launchWhenResumed(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenResumed(decorate(this, ignoreErrors, busyIndicator, block))
 }
 
 
 fun Fragment.launchWhenCreated(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenCreated {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
@@ -196,9 +223,10 @@ fun Fragment.launchWhenCreated(
 }
 
 fun Fragment.launchWhenViewCreated(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return viewLifecycleOwner.lifecycleScope.launchWhenCreated {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
@@ -206,9 +234,10 @@ fun Fragment.launchWhenViewCreated(
 }
 
 fun Fragment.launchWhenStarted(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenStarted {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
@@ -216,9 +245,10 @@ fun Fragment.launchWhenStarted(
 }
 
 fun Fragment.launchWhenResumed(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return lifecycleScope.launchWhenResumed {
         decorate(requireActivity(), ignoreErrors, busyIndicator, block)()
@@ -227,9 +257,10 @@ fun Fragment.launchWhenResumed(
 
 
 fun View.launchWhenCreated(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     return CoroutineScope(Job() + Main.immediate + DefaultCoroutineExceptionHandler).launch {
         decorate(context, ignoreErrors, busyIndicator, block)()
@@ -237,9 +268,10 @@ fun View.launchWhenCreated(
 }
 
 fun View.launchWhenStarted(
-        ignoreErrors: Boolean = false,
-        busyIndicator: Boolean = false,
-        block: suspend CoroutineScope.() -> Unit): Job {
+    ignoreErrors: Boolean = false,
+    busyIndicator: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+): Job {
 
     debugOnly {
         if (!isAttachedToWindow) {
@@ -252,8 +284,10 @@ fun View.launchWhenStarted(
     return whileIsAttachedScope(decorate(context, ignoreErrors, busyIndicator, block))
 }
 
-fun decorate(context: Context, ignoreErrors: Boolean, busyIndicator: Boolean,
-             block: suspend CoroutineScope.() -> Unit): suspend CoroutineScope.() -> Unit {
+fun decorate(
+    context: Context, ignoreErrors: Boolean, busyIndicator: Boolean,
+    block: suspend CoroutineScope.() -> Unit
+): suspend CoroutineScope.() -> Unit {
 
     return {
         try {

@@ -6,16 +6,15 @@ import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 class FeedManager(private val scope: CoroutineScope, private val feedService: FeedService, private var feed: Feed) {
     private val logger = Logger("FeedService")
 
-    private val subject = BroadcastChannel<Update>(8)
+    private val subject = MutableSharedFlow<Update>(extraBufferCapacity = 8)
     private var job: Job? = null
 
     /**
@@ -26,7 +25,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
     private val feedType: FeedType get() = feed.feedType
 
     val updates: Flow<Update>
-        get() = subject.asFlow().onStart { emit(Update.NewFeed(feed)) }
+        get() = subject.onStart { emit(Update.NewFeed(feed)) }
 
     init {
         trace { "<init>(${feed.filter}" }
@@ -138,11 +137,11 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
     }
 
     private fun publishError(err: Throwable) {
-        subject.trySend(Update.Error(err)).isSuccess
+        subject.tryEmit(Update.Error(err))
     }
 
     private fun publish(update: Update) {
-        subject.trySend(update).isSuccess
+        subject.tryEmit(update)
     }
 
     private fun feedQuery(): FeedService.FeedQuery {

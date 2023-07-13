@@ -421,7 +421,7 @@ private class MessageNotificationConfig(context: Context, messages: List<Message
             val bigPicture = nh.loadImage(message, bigSize = true)
             NotificationCompat.BigPictureStyle().also { style ->
                 style.bigPicture(bigPicture)
-                style.bigLargeIcon(null)
+                style.bigLargeIcon(null as Bitmap?)
             }
         }
 
