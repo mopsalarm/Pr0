@@ -221,7 +221,7 @@ dependencies {
     // migration to 6+ takes some effort
     implementation 'com.github.paolorotolo:appintro:5.1.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.0'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
 
