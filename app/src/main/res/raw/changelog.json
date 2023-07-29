@@ -1,5 +1,14 @@
 [
   {
+    "version": 202,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Kein wiederholtes Absenden von Kommentaren, wenn ein Netzwerkfehler aufgetreten ist. Kommentare sollten nicht mehr versehentlich zweimal gepostet werden."
+      }
+    ]
+  },
+  {
     "version": 201,
     "changes": [
       {
