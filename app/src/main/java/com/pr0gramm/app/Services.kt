@@ -8,11 +8,48 @@ import android.os.Build
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
-import com.pr0gramm.app.db.*
+import com.pr0gramm.app.db.AppDB
+import com.pr0gramm.app.db.CachedVoteQueries
+import com.pr0gramm.app.db.CollectionItemQueries
+import com.pr0gramm.app.db.FavedCommentsQueries
+import com.pr0gramm.app.db.FeedItemInfoQueries
+import com.pr0gramm.app.db.PreloadItemQueries
+import com.pr0gramm.app.db.ScoreRecordQueries
+import com.pr0gramm.app.db.UserFollowEntryQueries
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.model.config.Config
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.AdminService
+import com.pr0gramm.app.services.BenisRecordService
+import com.pr0gramm.app.services.BookmarkService
+import com.pr0gramm.app.services.BookmarkSyncService
+import com.pr0gramm.app.services.CollectionItemsService
+import com.pr0gramm.app.services.CollectionsService
+import com.pr0gramm.app.services.ContactService
+import com.pr0gramm.app.services.DownloadService
+import com.pr0gramm.app.services.FavedCommentService
+import com.pr0gramm.app.services.FollowService
+import com.pr0gramm.app.services.GifDrawableLoader
+import com.pr0gramm.app.services.InMemoryCacheService
+import com.pr0gramm.app.services.InboxService
+import com.pr0gramm.app.services.InfoMessageService
+import com.pr0gramm.app.services.InviteService
+import com.pr0gramm.app.services.NotificationService
+import com.pr0gramm.app.services.RecentSearchesServices
+import com.pr0gramm.app.services.RulesService
+import com.pr0gramm.app.services.SeenApiService
+import com.pr0gramm.app.services.SeenService
+import com.pr0gramm.app.services.SettingsTrackerService
+import com.pr0gramm.app.services.ShareService
+import com.pr0gramm.app.services.SingleShotService
+import com.pr0gramm.app.services.SiteSettingsService
+import com.pr0gramm.app.services.StatisticsService
+import com.pr0gramm.app.services.SyncSiteSettingsService
+import com.pr0gramm.app.services.UploadService
+import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.UserSuggestionService
+import com.pr0gramm.app.services.ValidationService
+import com.pr0gramm.app.services.VoteService
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
@@ -25,16 +62,25 @@ import com.pr0gramm.app.util.di.Module
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
 import com.squareup.sqldelight.android.AndroidSqliteDriver
-import okhttp3.*
+import okhttp3.Cache
+import okhttp3.CipherSuite
+import okhttp3.ConnectionPool
+import okhttp3.ConnectionSpec
+import okhttp3.Dns
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.TlsVersion
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.dnsoverhttps.DnsOverHttps
 import java.io.File
+import java.io.IOException
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
@@ -234,7 +280,8 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
         .readTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)
         .connectTimeout(10, TimeUnit.SECONDS)
-        .retryOnConnectionFailure(true)
+        // we use our own interceptor to do retries on GET requests.
+        .retryOnConnectionFailure(false)
         .connectionSpecs(
             listOf(
                 connectionSpecs,
@@ -245,12 +292,47 @@ fun okHttpClientBuilder(app: Application): OkHttpClient.Builder {
         )
         .configureSSLSocketFactoryAndSecurity(app)
         .addNetworkInterceptor(BrotliInterceptor)
+        .addInterceptor(RetryInterceptor)
 
     debugOnly {
         builder.addNetworkInterceptor(LoggingInterceptor())
     }
 
     return builder
+}
+
+private object RetryInterceptor : Interceptor {
+    private val logger = Logger("RetryInterceptor")
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+
+        if (request.method.uppercase() != "GET" && request.method.uppercase() != "OPTIONS") {
+            // no retry, simply forward to the chain
+            return chain.proceed(request)
+        }
+
+        val numberOfTries = 3
+
+        for (tryNumber in 1..numberOfTries) {
+            val lastTry = tryNumber == numberOfTries
+
+            try {
+                return chain.proceed(request)
+            } catch (err: IOException) {
+                if (lastTry) {
+                    // forward error to caller
+                    throw err
+                }
+
+                logger.warn(err) {
+                    "Request ${request.method} ${request.url} failed with $err, will retry now."
+                }
+            }
+        }
+
+        throw AssertionError("unreachable")
+    }
 }
 
 private class UpdateServerTimeInterceptor : Interceptor {

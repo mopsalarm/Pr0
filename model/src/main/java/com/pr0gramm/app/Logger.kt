@@ -5,7 +5,8 @@ import android.util.Log
 import com.pr0gramm.app.model.BuildConfig
 import java.util.concurrent.atomic.AtomicInteger
 
-class Logger(val name: String) {
+@JvmInline
+value class Logger(val name: String) {
     inline fun debug(block: () -> String) {
         if (BuildConfig.DEBUG) {
             Logging.log(Log.DEBUG, name, block())
@@ -58,7 +59,7 @@ object Logging {
     private val entries = Array(ENTRY_BUFFER_SIZE) { Entry() }
     private val entriesIndex = AtomicInteger()
 
-    private var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> Unit }
+    private var remoteLoggingHandler: RemoteLoggingHandler = { _, _, _ -> }
 
     fun configureLoggingOutput(handler: RemoteLoggingHandler) {
         for (idx in 0..entriesIndex.get()) {
@@ -79,7 +80,7 @@ object Logging {
             remoteLoggingHandler(level, tag, message)
         }
 
-        if (BuildConfig.DEBUG || level >= 4 || true) {
+        if (BuildConfig.DEBUG || level >= 4) {
             // log to stdout
             Log.println(level, tag, message)
         }
