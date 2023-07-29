@@ -24,6 +24,7 @@ object Track : InjectorAware {
     override val injector by lazy { context.injector }
 
     private val settingsTracker by lazy { instance<SettingsTrackerService>() }
+    private var installerTracked = false
 
     fun initialize(context: Context) {
         this.context = context.applicationContext
@@ -207,6 +208,16 @@ object Track : InjectorAware {
 
     fun adEvent(type: String) {
         send("ad_$type")
+    }
+
+    fun installer(name: String?) {
+        if (!installerTracked) {
+            installerTracked = true
+
+            send("installer") {
+                putString("package", name.toString())
+            }
+        }
     }
 
     data class AuthState(val authorized: Boolean, val premium: Boolean)

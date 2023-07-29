@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
@@ -53,6 +54,9 @@ class AdService(
         if (view == null) {
             return emptyFlow()
         }
+
+        // we do not show ads currently
+        return flowOf(AdLoadState.FAILURE)
 
         return channelFlow {
             view.adListener = object : TrackingAdListener("b") {
@@ -150,20 +154,22 @@ class AdService(
     }
 
     fun isSideloaded(): Boolean {
-        try {
+        return try {
             val name = appContext
                 .packageManager
                 .getInstallerPackageName(BuildConfig.APPLICATION_ID)
 
             logger.info { "Installer package is '$name'" }
 
-            return name.isNullOrBlank() || name == "com.android.packageinstaller"
+            Track.installer(name)
+
+            name.isNullOrBlank() || name == "com.android.packageinstaller"
 
         } catch (err: Exception) {
             logger.warn(err) { "Failed to query for installer package" }
 
             // hm. better be safe and assume not sideloaded
-            return false
+            false
         }
     }
 
