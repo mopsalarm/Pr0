@@ -163,7 +163,10 @@ class AdService(
 
             Track.installer(name)
 
-            name.isNullOrBlank() || name == "com.android.packageinstaller"
+            name.isNullOrBlank() || name in listOf(
+                "com.android.packageinstaller",
+                "com.google.android.packageinstaller",
+            )
 
         } catch (err: Exception) {
             logger.warn(err) { "Failed to query for installer package" }
