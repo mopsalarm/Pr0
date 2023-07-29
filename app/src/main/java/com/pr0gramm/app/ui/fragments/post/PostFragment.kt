@@ -8,7 +8,14 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.core.animation.doOnEnd
@@ -19,36 +26,102 @@ import androidx.lifecycle.whenResumed
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.pr0gramm.app.*
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
+import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.FragmentPostBinding
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.parcel.getParcelableOrThrow
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.DownloadService
+import com.pr0gramm.app.services.FavedCommentService
+import com.pr0gramm.app.services.FollowService
+import com.pr0gramm.app.services.FollowState
+import com.pr0gramm.app.services.InMemoryCacheService
+import com.pr0gramm.app.services.SeenService
+import com.pr0gramm.app.services.ShareService
+import com.pr0gramm.app.services.Storage
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.VoteService
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.time
+import com.pr0gramm.app.ui.InterstitialAdler
+import com.pr0gramm.app.ui.LoginActivity
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.PreviewInfo
+import com.pr0gramm.app.ui.RecyclerViewPoolProvider
+import com.pr0gramm.app.ui.Screen
+import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
+import com.pr0gramm.app.ui.TitleFragment
+import com.pr0gramm.app.ui.TriangleDrawable
+import com.pr0gramm.app.ui.WriteMessageActivity
+import com.pr0gramm.app.ui.ZoomViewActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
-import com.pr0gramm.app.ui.base.*
+import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.MainScope
+import com.pr0gramm.app.ui.base.asEventFlow
+import com.pr0gramm.app.ui.base.asStateFlow
+import com.pr0gramm.app.ui.base.bindViews
+import com.pr0gramm.app.ui.base.launchInViewScope
+import com.pr0gramm.app.ui.base.launchWhenStarted
+import com.pr0gramm.app.ui.configureNewStyle
+import com.pr0gramm.app.ui.configureRecyclerView
 import com.pr0gramm.app.ui.dialogs.CollectionsSelectionDialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
-import com.pr0gramm.app.ui.fragments.*
+import com.pr0gramm.app.ui.fragments.CenterLinearSmoothScroller
+import com.pr0gramm.app.ui.fragments.CommentRef
+import com.pr0gramm.app.ui.fragments.CommentView
+import com.pr0gramm.app.ui.fragments.ItemUserAdminDialog
+import com.pr0gramm.app.ui.fragments.PostAdapter
+import com.pr0gramm.app.ui.fragments.PreviewInfoSource
+import com.pr0gramm.app.ui.fragments.ReportDialog
+import com.pr0gramm.app.ui.fragments.TagsDetailsDialog
+import com.pr0gramm.app.ui.fragments.ViewerFullscreenParameters
 import com.pr0gramm.app.ui.fragments.feed.update
 import com.pr0gramm.app.ui.fragments.pager.PostPagerFragment
+import com.pr0gramm.app.ui.showDialog
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.ui.views.PostActions
-import com.pr0gramm.app.ui.views.viewer.*
+import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView
+import com.pr0gramm.app.ui.views.viewer.MediaUri
+import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaView.Config
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.ui.views.viewer.MediaViews
+import com.pr0gramm.app.ui.views.viewer.VolumeController
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.identityHashCode
+import com.pr0gramm.app.util.maybeShow
+import com.pr0gramm.app.util.optionalFragmentArgument
+import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.trace
+import com.pr0gramm.app.util.uiTestOnly
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.toHexString
-import java.util.*
+import java.util.Locale
 import kotlin.math.min
 
 /**
@@ -128,7 +201,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = FragmentPostBinding.inflate(inflater).root as ViewGroup
         addWarnOverlayIfNecessary(inflater, view)
         return view
@@ -826,7 +899,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun simulateScroll() {
-        views.recyclerView.primaryScrollListener?.onScrolled(views.recyclerView, 0, 0)
+        if (view != null) {
+            views.recyclerView.primaryScrollListener?.onScrolled(views.recyclerView, 0, 0)
+        }
     }
 
     /**
