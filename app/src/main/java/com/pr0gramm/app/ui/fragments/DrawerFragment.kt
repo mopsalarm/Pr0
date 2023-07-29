@@ -86,18 +86,26 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
             val inboxService = instance<InboxService>()
             val configService = instance<ConfigService>()
             val singleShotService = instance<SingleShotService>()
+            val adService = instance<AdService>()
 
             logger.time("Create navigation provider") {
-                NavigationProvider(requireActivity(), userService, inboxService,
-                        bookmarkService, configService, singleShotService, picasso)
+                NavigationProvider(
+                    requireActivity(), userService, inboxService,
+                    bookmarkService, configService, singleShotService, adService,
+                    picasso,
+                )
             }
         }
 
         val rxNavItems = provider.navigationItems(currentSelection)
-                .flowOn(Dispatchers.Default)
-                .onStart { emit(listOf()) }
+            .flowOn(Dispatchers.Default)
+            .onStart { emit(listOf()) }
 
-        val elements = combine(userService.loginStateWithBenisGraph, rxNavItems, userClassesService.onChange) { state, navItems, _ ->
+        val elements = combine(
+            userService.loginStateWithBenisGraph,
+            rxNavItems,
+            userClassesService.onChange
+        ) { state, navItems, _ ->
             buildList {
                 val userClass = userClassesService.get(state.loginState.mark)
                 add(TitleInfo(state.loginState.name, userClass))
@@ -159,12 +167,48 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
         init {
             val viewContext = requireView().context
 
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item)
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_hint)
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_inbox)
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_trending)
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_divider)
-            delegates += NavigationDelegateAdapter(viewContext, requireActivity(), doIfAuthorizedHelper, callbacks, R.layout.left_drawer_nav_item_special)
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item
+            )
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item_hint
+            )
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item_inbox
+            )
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item_trending
+            )
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item_divider
+            )
+            delegates += NavigationDelegateAdapter(
+                viewContext,
+                requireActivity(),
+                doIfAuthorizedHelper,
+                callbacks,
+                R.layout.left_drawer_nav_item_special
+            )
 
             delegates += TitleDelegateAdapter(callbacks)
             delegates += BenisGraphDelegateAdapter(callbacks)
@@ -182,12 +226,16 @@ class DrawerFragment : BaseFragment("DrawerFragment", R.layout.left_drawer) {
                 return@postDelayed
 
             val lm = views.drawerNavList.layoutManager as? LinearLayoutManager
-                    ?: return@postDelayed
+                ?: return@postDelayed
 
-            lm.startSmoothScroll(OverscrollLinearSmoothScroller(context, idx,
+            lm.startSmoothScroll(
+                OverscrollLinearSmoothScroller(
+                    context, idx,
                     dontScrollIfVisible = true,
                     offsetTop = AndroidUtility.getActionBarContentOffset(context) + context.dp(32),
-                    offsetBottom = context.dp(32)))
+                    offsetBottom = context.dp(32)
+                )
+            )
         }
     }
 }
@@ -202,11 +250,12 @@ private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder
 }
 
 private class NavigationDelegateAdapter(
-        viewContext: Context,
-        private val activity: FragmentActivity,
-        private val doIfAuthorizedHelper: LoginActivity.DoIfAuthorizedHelper,
-        private val callback: DrawerFragment.Callbacks,
-        @LayoutRes private val layoutId: Int)
+    viewContext: Context,
+    private val activity: FragmentActivity,
+    private val doIfAuthorizedHelper: LoginActivity.DoIfAuthorizedHelper,
+    private val callback: DrawerFragment.Callbacks,
+    @LayoutRes private val layoutId: Int
+)
 
     : ItemAdapterDelegate<NavigationItem, Any, NavigationItemViewHolder>(), InjectorAware {
 
@@ -218,10 +267,11 @@ private class NavigationDelegateAdapter(
     private val markedColor: ColorStateList
 
     init {
-        viewContext.obtainStyledAttributes(intArrayOf(R.attr.colorAccent, android.R.attr.textColorPrimary)).use { result ->
-            markedColor = ColorStateList.valueOf(result.getColor(result.getIndex(0), 0))
-            defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0))
-        }
+        viewContext.obtainStyledAttributes(intArrayOf(R.attr.colorAccent, android.R.attr.textColorPrimary))
+            .use { result ->
+                markedColor = ColorStateList.valueOf(result.getColor(result.getIndex(0), 0))
+                defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0))
+            }
     }
 
     override fun isForViewType(value: Any): Boolean {
@@ -455,8 +505,8 @@ private class NavigationDelegateAdapter(
 
 data class TitleInfo(val name: String?, val userClass: UserClassesService.UserClass)
 
-private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
-    : ListItemTypeAdapterDelegate<TitleInfo, Any, TitleViewHolder>(TitleInfo::class) {
+private class TitleDelegateAdapter(private val callbacks: DrawerFragment.Callbacks) :
+    ListItemTypeAdapterDelegate<TitleInfo, Any, TitleViewHolder>(TitleInfo::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): TitleViewHolder {
         return TitleViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_title))
@@ -491,8 +541,8 @@ private class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
 
 data class BenisInfo(val score: Int, val graph: Graph?)
 
-private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Callbacks)
-    : ListItemTypeAdapterDelegate<BenisInfo, Any, BenisGraphViewHolder>(BenisInfo::class) {
+private class BenisGraphDelegateAdapter(private val callbacks: DrawerFragment.Callbacks) :
+    ListItemTypeAdapterDelegate<BenisInfo, Any, BenisGraphViewHolder>(BenisInfo::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): BenisGraphViewHolder {
         return BenisGraphViewHolder(parent.inflateDetachedChild(R.layout.left_drawer_nav_benis))
@@ -538,10 +588,12 @@ private class BenisGraphViewHolder(itemView: View) : RecyclerView.ViewHolder(ite
 
 private object Spacer
 
-private object SpacerAdapterDelegate : ListItemTypeAdapterDelegate<Spacer, Any, RecyclerView.ViewHolder>(Spacer::class) {
+private object SpacerAdapterDelegate :
+    ListItemTypeAdapterDelegate<Spacer, Any, RecyclerView.ViewHolder>(Spacer::class) {
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         return object : RecyclerView.ViewHolder(
-                parent.inflateDetachedChild(R.layout.left_drawer_nav_spacer)) {}
+            parent.inflateDetachedChild(R.layout.left_drawer_nav_spacer)
+        ) {}
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, value: Spacer) {

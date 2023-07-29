@@ -24,7 +24,7 @@ import com.pr0gramm.app.util.trace
 import kotlin.math.roundToInt
 
 class AdViewHolder private constructor(val adView: AdView, itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
+    RecyclerView.ViewHolder(itemView) {
 
     companion object {
         private val logger = Logger("AdViewHolder")
@@ -34,20 +34,27 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             val container = FrameLayout(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
             }
 
             trace { "newPlaceholderView" }
             val placeholder = ImageView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        context.dp(70f).roundToInt())
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    context.dp(70f).roundToInt()
+                )
 
                 scaleType = ImageView.ScaleType.CENTER_CROP
 
-                setImageDrawable(VectorDrawableCompat.create(
-                        resources, R.drawable.pr0mium_ad, null))
+                if (context.injector.instance<AdService>().isSideloaded()) {
+                    setImageDrawable(
+                        VectorDrawableCompat.create(
+                            resources, R.drawable.pr0mium_ad, null
+                        )
+                    )
+                }
 
                 setOnClickListener {
                     BrowserHelper.openCustomTab(context, Uri.parse("https://pr0gramm.com/pr0mium"))

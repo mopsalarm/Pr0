@@ -6,19 +6,35 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
-import com.pr0gramm.app.*
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.delay
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.orm.asFeedFilter
+import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.getColorCompat
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.runInterruptible
 
 const val BLACK: Int = 0x80000000.toInt()
@@ -32,7 +48,9 @@ class NavigationProvider(
     private val bookmarkService: BookmarkService,
     private val configService: ConfigService,
     private val singleShotService: SingleShotService,
-        private val picasso: Picasso) {
+    private val adService: AdService,
+    private val picasso: Picasso
+) {
 
     private val logger = Logger("NavigationProvider")
 
@@ -73,26 +91,27 @@ class NavigationProvider(
 
         val items = loginStates.flatMapLatest { loginState ->
             val rawSources = listOf(
-                    remoteConfigItems(loginState, upper = true),
+                remoteConfigItems(loginState, upper = true),
 
-                    ageVerificationItem(loginState),
+                ageVerificationItem(loginState),
 
-                    currentSelection.map { selection ->
-                        categoryNavigationItems(selection, loginState.name)
-                    },
+                currentSelection.map { selection ->
+                    categoryNavigationItems(selection, loginState.name)
+                },
 
-                    remoteConfigItems(loginState, upper = false),
+                remoteConfigItems(loginState, upper = false),
 
-                    inboxService.unreadMessagesCount()
-                            .map { listOf(inboxNavigationItem(it)) },
+                inboxService.unreadMessagesCount()
+                    .map { listOf(inboxNavigationItem(it)) },
 
-                    flowOf(listOf(uploadNavigationItem)),
+                flowOf(listOf(uploadNavigationItem)),
 
-                    bookmarkService.observe().combine(currentSelection) { bookmarks, selection ->
-                        bookmarksToNavItem(selection, bookmarks)
-                    },
+                bookmarkService.observe().combine(currentSelection) { bookmarks, selection ->
+                    bookmarksToNavItem(selection, bookmarks)
+                },
 
-                    flowOf(footerItems(loginState)))
+                flowOf(footerItems(loginState))
+            )
 
             val sources = rawSources.map { source ->
                 source.onStart { emit(listOf()) }.retryWhen { err, _ ->
@@ -133,7 +152,9 @@ class NavigationProvider(
         items += staticItemFAQ
 
         if (!loginState.authorized || !loginState.premium) {
-            items += staticItemPremium
+            if (adService.isSideloaded()) {
+                items += staticItemPremium
+            }
         }
 
         if (loginState.authorized) {
@@ -153,45 +174,53 @@ class NavigationProvider(
      * Adds the default "fixed" items to the menu
      */
     private fun categoryNavigationItems(selection: FeedFilter?, username: String?): List<NavigationItem> {
-        fun makeItem(title: String, icon: Drawable, filter: FeedFilter, action: ActionType = ActionType.FILTER) = NavigationItem(
-                action = action, title = title, icon = icon, filter = filter, isSelected = filter == selection)
+        fun makeItem(title: String, icon: Drawable, filter: FeedFilter, action: ActionType = ActionType.FILTER) =
+            NavigationItem(
+                action = action, title = title, icon = icon, filter = filter, isSelected = filter == selection
+            )
 
         val items = mutableListOf<NavigationItem>()
 
         items += makeItem(
-                title = getString(R.string.action_feed_type_promoted),
-                icon = iconFeedTypePromoted,
-                filter = FeedFilter().withFeedType(FeedType.PROMOTED))
+            title = getString(R.string.action_feed_type_promoted),
+            icon = iconFeedTypePromoted,
+            filter = FeedFilter().withFeedType(FeedType.PROMOTED)
+        )
 
         items += makeItem(
-                title = getString(R.string.action_feed_type_new),
-                icon = iconFeedTypeNew,
-                filter = FeedFilter().withFeedType(FeedType.NEW))
+            title = getString(R.string.action_feed_type_new),
+            icon = iconFeedTypeNew,
+            filter = FeedFilter().withFeedType(FeedType.NEW)
+        )
 
         items += makeItem(
-                title = getString(R.string.action_feed_type_bestof),
-                icon = iconFeedTypeBestOf,
-                filter = FeedFilter().withFeedType(FeedType.BESTOF))
+            title = getString(R.string.action_feed_type_bestof),
+            icon = iconFeedTypeBestOf,
+            filter = FeedFilter().withFeedType(FeedType.BESTOF)
+        )
 
         if (Settings.showCategoryControversial) {
             items += makeItem(
-                    title = getString(R.string.action_feed_type_controversial),
-                    icon = iconFeedTypeControversial,
-                    filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
+                title = getString(R.string.action_feed_type_controversial),
+                icon = iconFeedTypeControversial,
+                filter = FeedFilter().withFeedType(FeedType.CONTROVERSIAL)
+            )
         }
 
         if (Settings.showCategoryRandom) {
             items += makeItem(
-                    title = getString(R.string.action_feed_type_random),
-                    icon = iconFeedTypeRandom,
-                    filter = FeedFilter().withFeedType(FeedType.RANDOM))
+                title = getString(R.string.action_feed_type_random),
+                icon = iconFeedTypeRandom,
+                filter = FeedFilter().withFeedType(FeedType.RANDOM)
+            )
         }
 
         if (Settings.showCategoryStalk) {
             items += makeItem(
-                    title = getString(R.string.action_feed_type_premium),
-                    icon = iconFeedTypePremium,
-                    filter = FeedFilter().withFeedType(FeedType.STALK))
+                title = getString(R.string.action_feed_type_premium),
+                icon = iconFeedTypePremium,
+                filter = FeedFilter().withFeedType(FeedType.STALK)
+            )
         }
 
         if (username != null) {
@@ -213,11 +242,12 @@ class NavigationProvider(
      */
     private fun inboxNavigationItem(unreadCounts: Api.InboxCounts): NavigationItem {
         return NavigationItem(
-                action = ActionType.MESSAGES,
-                title = getString(R.string.action_inbox),
-                icon = iconInbox,
-                layout = R.layout.left_drawer_nav_item_inbox,
-                unreadCount = unreadCounts)
+            action = ActionType.MESSAGES,
+            title = getString(R.string.action_inbox),
+            icon = iconInbox,
+            layout = R.layout.left_drawer_nav_item_inbox,
+            unreadCount = unreadCounts
+        )
     }
 
     private fun bookmarksToNavItem(currentSelection: FeedFilter?, bookmarks: List<Bookmark>): List<NavigationItem> {
@@ -241,10 +271,11 @@ class NavigationProvider(
             val isSelected = filter == currentSelection || filterInverse == currentSelection
 
             NavigationItem(
-                    action = ActionType.BOOKMARK, layout = layoutId,
-                    title = title, icon = icon, bookmark = entry,
-                    filter = filter, filterInverse = filterInverse,
-                    isSelected = isSelected)
+                action = ActionType.BOOKMARK, layout = layoutId,
+                title = title, icon = icon, bookmark = entry,
+                filter = filter, filterInverse = filterInverse,
+                isSelected = isSelected
+            )
         }
 
         val actionKey = "hint:bookmark-hold-to-delete:2"
@@ -252,14 +283,14 @@ class NavigationProvider(
         val hintNotYetShown = singleShotService.isFirstTime(actionKey)
         if (items.isNotEmpty() && bookmarkService.canEdit && hintNotYetShown) {
             val hint = NavigationItem(
-                    action = ActionType.HINT,
-                    title = getString(R.string.bookmark_hint_delete),
-                    icon = null,
-                    layout = R.layout.left_drawer_nav_item_hint,
-                    customAction = {
-                        singleShotService.markAsDoneOnce(actionKey)
-                        refreshAfterNavItemWasDeletedStateFlow.value = true
-                    })
+                action = ActionType.HINT,
+                title = getString(R.string.bookmark_hint_delete),
+                icon = null,
+                layout = R.layout.left_drawer_nav_item_hint,
+                customAction = {
+                    singleShotService.markAsDoneOnce(actionKey)
+                    refreshAfterNavItemWasDeletedStateFlow.value = true
+                })
 
             items.add(0, hint)
         }
@@ -276,9 +307,10 @@ class NavigationProvider(
      */
     private val uploadNavigationItem: NavigationItem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         NavigationItem(
-                action = ActionType.UPLOAD,
-                title = getString(R.string.action_upload),
-                icon = iconUpload)
+            action = ActionType.UPLOAD,
+            title = getString(R.string.action_upload),
+            icon = iconUpload
+        )
     }
 
     /**
@@ -338,9 +370,9 @@ class NavigationProvider(
         // we want some alarm color
         val color = context.getColorCompat(R.color.red_700)
         staticItem(
-                ActionType.AGE_VERIFICATION, iconAgeVerify,
-                getString(R.string.action_age_verification),
-                colorOverride = color,
+            ActionType.AGE_VERIFICATION, iconAgeVerify,
+            getString(R.string.action_age_verification),
+            colorOverride = color,
         )
     }
 
@@ -361,9 +393,9 @@ class NavigationProvider(
 
     private fun remoteConfigItems(loginState: LoginState, upper: Boolean): Flow<List<NavigationItem>> {
         return configService.observeConfig()
-                .map { config -> config.specialMenuItems }
-                .distinctUntilChanged()
-                .flatMapLatest { item -> resolveRemoteConfigItems(loginState, upper, item) }
+            .map { config -> config.specialMenuItems }
+            .distinctUntilChanged()
+            .flatMapLatest { item -> resolveRemoteConfigItems(loginState, upper, item) }
 
     }
 
@@ -372,8 +404,9 @@ class NavigationProvider(
      * if there is one.
      */
     private fun resolveRemoteConfigItems(
-            loginState: LoginState, upper: Boolean,
-            items: List<Config.MenuItem>): Flow<List<NavigationItem>> {
+        loginState: LoginState, upper: Boolean,
+        items: List<Config.MenuItem>
+    ): Flow<List<NavigationItem>> {
 
         val images = flow {
             val itemsToLoad = items.filterNot { item ->
@@ -385,15 +418,16 @@ class NavigationProvider(
                     logger.debug { "Loading item $item" }
 
                     val bitmap = picasso.load(Uri.parse(item.icon))
-                            .noPlaceholder()
-                            .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight)
-                            .get()
+                        .noPlaceholder()
+                        .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight)
+                        .get()
 
                     logger.info { "Loaded image for $item" }
                     val icon = BitmapDrawable(context.resources, bitmap)
                     val uri = Uri.parse(item.link)
 
-                    val layout = if (item.noHighlight) R.layout.left_drawer_nav_item else R.layout.left_drawer_nav_item_special
+                    val layout =
+                        if (item.noHighlight) R.layout.left_drawer_nav_item else R.layout.left_drawer_nav_item_special
                     NavigationItem(ActionType.URI, item.name, icon, uri = uri, layout = layout)
                 }
             }
@@ -406,18 +440,20 @@ class NavigationProvider(
         }
     }
 
-    class NavigationItem(val action: ActionType,
-                         val title: CharSequence? = null,
-                         val icon: Drawable? = null,
-                         val layout: Int = R.layout.left_drawer_nav_item,
-                         val filter: FeedFilter? = null,
-                         val filterInverse: FeedFilter? = null,
-                         val bookmark: Bookmark? = null,
-                         val unreadCount: Api.InboxCounts = Api.InboxCounts(),
-                         val customAction: () -> Unit = {},
-                         val uri: Uri? = null,
-                         val isSelected: Boolean = false,
-                         val colorOverride: Int? = null) {
+    class NavigationItem(
+        val action: ActionType,
+        val title: CharSequence? = null,
+        val icon: Drawable? = null,
+        val layout: Int = R.layout.left_drawer_nav_item,
+        val filter: FeedFilter? = null,
+        val filterInverse: FeedFilter? = null,
+        val bookmark: Bookmark? = null,
+        val unreadCount: Api.InboxCounts = Api.InboxCounts(),
+        val customAction: () -> Unit = {},
+        val uri: Uri? = null,
+        val isSelected: Boolean = false,
+        val colorOverride: Int? = null
+    ) {
 
         private val hashCode by lazy(LazyThreadSafetyMode.PUBLICATION) {
             listOf(action, title, layout, filter, bookmark, unreadCount, uri, isSelected).hashCode()

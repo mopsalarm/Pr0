@@ -202,7 +202,7 @@ fun appInjector(app: Application) = Module.build {
     bind<SyncSiteSettingsService>() with eagerSingleton { SyncSiteSettingsService(instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }
-    bind<AdService>() with singleton { AdService(instance(), instance()) }
+    bind<AdService>() with singleton { AdService(instance(), instance(), instance()) }
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance()) }
     bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance()) }

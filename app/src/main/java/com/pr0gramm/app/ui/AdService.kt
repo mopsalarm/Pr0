@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.app.Application
 import android.content.Context
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -12,6 +13,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.Track
@@ -34,7 +36,13 @@ import java.util.concurrent.TimeUnit
  * Utility methods for ads.
  */
 
-class AdService(private val configService: ConfigService, private val userService: UserService) {
+class AdService(
+    private val appContext: Application,
+    private val configService: ConfigService,
+    private val userService: UserService,
+) {
+
+    private val logger = Logger("AdService")
     private var lastInterstitialAdShown: Instant? = null
 
     /**
@@ -70,7 +78,7 @@ class AdService(private val configService: ConfigService, private val userServic
         }
     }
 
-    fun enabledForTypeNow(type: Config.AdType): Boolean {
+    private fun enabledForTypeNow(type: Config.AdType): Boolean {
         if (Settings.alwaysShowAds) {
             // If the user opted in to ads, we always show the feed ad.
             return type == Config.AdType.FEED
@@ -89,8 +97,8 @@ class AdService(private val configService: ConfigService, private val userServic
 
     fun enabledForType(type: Config.AdType): Flow<Boolean> {
         return userService.loginStates
-                .map { enabledForTypeNow(type) }
-                .distinctUntilChanged()
+            .map { enabledForTypeNow(type) }
+            .distinctUntilChanged()
     }
 
     fun shouldShowInterstitialAd(): Boolean {
@@ -121,19 +129,41 @@ class AdService(private val configService: ConfigService, private val userServic
         return if (enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
             val value = CompletableDeferred<InterstitialAd?>()
 
-            InterstitialAd.load(context, interstitialUnitId, AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(p0: InterstitialAd) {
-                    value.complete(p0)
-                }
+            InterstitialAd.load(
+                context,
+                interstitialUnitId,
+                AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(p0: InterstitialAd) {
+                        value.complete(p0)
+                    }
 
-                override fun onAdFailedToLoad(p0: LoadAdError) {
-                    value.complete(null)
-                }
-            })
+                    override fun onAdFailedToLoad(p0: LoadAdError) {
+                        value.complete(null)
+                    }
+                })
 
             Holder { value.await() }
         } else {
             return Holder { null }
+        }
+    }
+
+    fun isSideloaded(): Boolean {
+        try {
+            val name = appContext
+                .packageManager
+                .getInstallerPackageName(BuildConfig.APPLICATION_ID)
+
+            logger.info { "Installer package is '$name'" }
+
+            return name.isNullOrBlank() || name == "com.android.packageinstaller"
+
+        } catch (err: Exception) {
+            logger.warn(err) { "Failed to query for installer package" }
+
+            // hm. better be safe and assume not sideloaded
+            return false
         }
     }
 
