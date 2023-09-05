@@ -9,21 +9,21 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.pr0gramm.app.Duration
+import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.ui.AdService
-import com.pr0gramm.app.ui.base.onAttachedScope
+import com.pr0gramm.app.ui.base.whileIsAttachedScope
 import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.delay
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.trace
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
-class AdViewHolder private constructor(val adView: AdView, itemView: View) :
+class AdViewHolder private constructor(val adView: AdManagerAdView, itemView: View) :
     RecyclerView.ViewHolder(itemView) {
 
     companion object {
@@ -35,7 +35,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val container = FrameLayout(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    context.dp(70f).roundToInt(),
                 )
             }
 
@@ -43,7 +43,7 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
             val placeholder = ImageView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    context.dp(70f).roundToInt()
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
 
                 scaleType = ImageView.ScaleType.CENTER_CROP
@@ -65,34 +65,48 @@ class AdViewHolder private constructor(val adView: AdView, itemView: View) :
 
             val adService = context.injector.instance<AdService>()
 
+            // create a new ad view with the right size
             trace { "newAdView()" }
-            val adView = adService.newAdView(context).apply {
-                setAdSize(AdSize(AdSize.FULL_WIDTH, 70))
-            }
+            val adView = adService.newAdView(context)
 
-            container.onAttachedScope {
-                trace { "AdContainer was attached." }
+            var previousWidth = 0
+            var currentJob = Job()
 
-                delay(Duration.seconds(1))
+            container.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                trace { "AdContainer was layouted, width is ${container.width}" }
+                if (previousWidth == container.width) {
+                    return@addOnLayoutChangeListener
+                }
 
-                trace { "Loading ad now." }
+                previousWidth = container.width
 
-                adService.load(adView, Config.AdType.FEED).collect { state ->
-                    this@Companion.trace { "adStateChanged($state)" }
+                // cancel previous job and create a new one for the new load request
+                currentJob.cancel()
+                currentJob = Job()
 
-                    if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
-                        if (adView.parent !== placeholder) {
-                            logger.info { "Ad was loaded, showing ad now." }
-                            container.removeView(placeholder)
-                            container.addView(adView)
-                        }
-                    }
+                container.whileIsAttachedScope {
+                    withContext(currentJob) {
+                        trace { "Loading ad now." }
+                        adView.setAdSize(AdSize.BANNER)
 
-                    if (state == AdService.AdLoadState.CLOSED || state == AdService.AdLoadState.FAILURE) {
-                        if (placeholder.parent !== container) {
-                            logger.info { "Ad not loaded: $state" }
-                            container.removeView(adView)
-                            container.addView(placeholder)
+                        adService.load(adView, Config.AdType.FEED).collect { state ->
+                            this@Companion.trace { "adStateChanged($state)" }
+
+                            if (state == AdService.AdLoadState.SUCCESS && adView.parent == null) {
+                                if (adView.parent !== placeholder) {
+                                    logger.info { "Ad was loaded, showing ad now." }
+                                    container.removeView(placeholder)
+                                    container.addView(adView)
+                                }
+                            }
+
+                            if (state == AdService.AdLoadState.CLOSED || state == AdService.AdLoadState.FAILURE) {
+                                if (placeholder.parent !== container) {
+                                    logger.info { "Ad not loaded: $state" }
+                                    container.removeView(adView)
+                                    container.addView(placeholder)
+                                }
+                            }
                         }
                     }
                 }

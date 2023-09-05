@@ -4,9 +4,10 @@ import android.app.Application
 import android.content.Context
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -28,7 +29,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
@@ -50,16 +50,13 @@ class AdService(
      * Loads an ad into this view. This method also registers a listener to track the view.
      * The resulting completable completes once the ad finishes loading.
      */
-    fun load(view: AdView?, type: Config.AdType): Flow<AdLoadState> {
+    fun load(view: AdManagerAdView?, type: Config.AdType): Flow<AdLoadState> {
         if (view == null) {
             return emptyFlow()
         }
 
-        // we do not show ads currently
-        return flowOf(AdLoadState.FAILURE)
-
         return channelFlow {
-            view.adListener = object : TrackingAdListener("b") {
+            view.adListener = object : TrackingAdListener("AdListener") {
                 override fun onAdLoaded() {
                     super.onAdLoaded()
                     this@channelFlow.trySend(AdLoadState.SUCCESS)
@@ -67,6 +64,7 @@ class AdService(
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
+                    logger.warn { "Failure to load ad: $p0" }
                     this@channelFlow.trySend(AdLoadState.FAILURE)
                 }
 
@@ -119,8 +117,8 @@ class AdService(
         this.lastInterstitialAdShown = Instant.now()
     }
 
-    fun newAdView(context: Context): AdView {
-        val view = AdView(context)
+    fun newAdView(context: Context): AdManagerAdView {
+        val view = AdManagerAdView(context)
         view.adUnitId = bannerUnitId
 
         val backgroundColor = AndroidUtility.resolveColorAttribute(context, android.R.attr.windowBackground)
@@ -130,6 +128,9 @@ class AdService(
     }
 
     fun buildInterstitialAd(context: Context): Holder<InterstitialAd?> {
+        return Holder { null }
+        // currently not available
+
         return if (enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
             val value = CompletableDeferred<InterstitialAd?>()
 
@@ -184,9 +185,9 @@ class AdService(
         }
 
         private val bannerUnitId: String = if (BuildConfig.DEBUG) {
-            "ca-app-pub-3940256099942544/6300978111"
+            "/6499/example/banner"
         } else {
-            "ca-app-pub-2308657767126505/5614778874"
+            "/61585078/pr0gramm.com_a_sticky-top"
         }
 
         fun initializeMobileAds(context: Context) {
@@ -198,6 +199,12 @@ class AdService(
 
                 MobileAds.setAppVolume(0f)
                 MobileAds.setAppMuted(true)
+
+                MobileAds.setRequestConfiguration(
+                    RequestConfiguration.Builder()
+                        .setTestDeviceIds(listOf("D5DDF82D7F630F71AB2E7699408B1429"))
+                        .build()
+                )
             }
         }
     }

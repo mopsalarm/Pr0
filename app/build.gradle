@@ -188,7 +188,7 @@ dependencies {
 
     implementation 'androidx.fragment:fragment-ktx:1.6.0'
 
-    implementation "com.google.android.gms:play-services-ads-lite:22.2.0"
+    implementation "com.google.android.gms:play-services-ads:22.3.0"
     implementation 'com.google.firebase:firebase-analytics:21.3.0'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.7'
 

@@ -17,7 +17,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Message
@@ -142,7 +142,7 @@ data class UserAndMark(val name: String, val mark: Int)
 class AdViewAdapter
     : ListItemTypeAdapterDelegate<FeedAdapter.Entry.Ad, FeedAdapter.Entry, AdViewHolder>(FeedAdapter.Entry.Ad::class) {
 
-    private var lastSeenAdview: AdView? = null
+    private var lastSeenAdview: AdManagerAdView? = null
 
     override fun onCreateViewHolder(parent: ViewGroup): AdViewHolder {
         val view = AdViewHolder.new(parent.context)
