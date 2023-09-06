@@ -16,7 +16,6 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncStatsWorker
 import com.pr0gramm.app.sync.SyncWorker
 import com.pr0gramm.app.ui.ActivityErrorHandler
-import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.GlobalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
@@ -25,7 +24,7 @@ import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.InjectorAware
 import com.pr0gramm.app.util.doInBackground
 import kotlinx.coroutines.runBlocking
-import java.util.*
+import java.util.WeakHashMap
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -104,10 +103,6 @@ open class ApplicationClass : Application(), InjectorAware {
             // disable verbose logging
             val log = LogManager.getLogManager().getLogger("")
             log?.handlers?.forEach { it.level = Level.INFO }
-        }
-
-        logger.time("Initializing MobileAds") {
-            AdService.initializeMobileAds(this)
         }
 
         // wait for firebase setup to finish

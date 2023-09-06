@@ -20,6 +20,7 @@ import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.time
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.ignoreAllExceptions
@@ -43,7 +44,6 @@ class AdService(
     private val userService: UserService,
 ) {
 
-    private val logger = Logger("AdService")
     private var lastInterstitialAdShown: Instant? = null
 
     /**
@@ -128,9 +128,6 @@ class AdService(
     }
 
     fun buildInterstitialAd(context: Context): Holder<InterstitialAd?> {
-        return Holder { null }
-        // currently not available
-
         return if (enabledForTypeNow(Config.AdType.FEED_TO_POST_INTERSTITIAL)) {
             val value = CompletableDeferred<InterstitialAd?>()
 
@@ -178,6 +175,8 @@ class AdService(
     }
 
     companion object {
+        private val logger = Logger("AdService")
+
         private val interstitialUnitId: String = if (BuildConfig.DEBUG) {
             "ca-app-pub-3940256099942544/1033173712"
         } else {
@@ -190,21 +189,32 @@ class AdService(
             "/61585078/pr0gramm.com_a_sticky-top"
         }
 
+        private var initialized: Boolean = false
+
         fun initializeMobileAds(context: Context) {
-            // for some reason an internal getVersionString returns null,
-            // and the result is not checked. We ignore the error in that case
-            ignoreAllExceptions {
-                val listener = OnInitializationCompleteListener { }
-                MobileAds.initialize(context, listener)
+            if (initialized) {
+                return
+            }
 
-                MobileAds.setAppVolume(0f)
-                MobileAds.setAppMuted(true)
+            // run initialization code only once
+            initialized = true
 
-                MobileAds.setRequestConfiguration(
-                    RequestConfiguration.Builder()
-                        .setTestDeviceIds(listOf("D5DDF82D7F630F71AB2E7699408B1429"))
-                        .build()
-                )
+            logger.time("Initializing MobileAds") {
+                // for some reason an internal getVersionString returns null,
+                // and the result is not checked. We ignore the error in that case
+                ignoreAllExceptions {
+                    val listener = OnInitializationCompleteListener { }
+                    MobileAds.initialize(context, listener)
+
+                    MobileAds.setAppVolume(0f)
+                    MobileAds.setAppMuted(true)
+
+                    MobileAds.setRequestConfiguration(
+                        RequestConfiguration.Builder()
+                            .setTestDeviceIds(listOf("D5DDF82D7F630F71AB2E7699408B1429"))
+                            .build()
+                    )
+                }
             }
         }
     }

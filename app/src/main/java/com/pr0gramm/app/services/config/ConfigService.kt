@@ -6,12 +6,19 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
 import androidx.core.content.edit
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Duration.Companion.minutes
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.config.Config
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.getStringOrNull
+import com.pr0gramm.app.util.runEvery
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.adapter
 import kotlinx.coroutines.flow.Flow
@@ -104,14 +111,17 @@ class ConfigService(context: Application,
         debugOnly {
             // update config for development.
             return configState.copy(
-                    adTypesLoggedIn = listOf(Config.AdType.FEED),
-                    adTypesLoggedOut = listOf(Config.AdType.FEED, Config.AdType.FEED_TO_POST_INTERSTITIAL),
-                    interstitialAdIntervalInSeconds = 10,
-                    specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
-                            ?: listOf(Config.MenuItem(
-                                    name = "Wichteln",
-                                    icon = "https://materialdesignicons.com/api/download/22D0C782-CD05-4FEB-845F-BBA7126C7326/000000/1/FFFFFF/0/48",
-                                    link = "https://pr0gramm.com/new/wichteln")))
+                adTypesLoggedIn = listOf(Config.AdType.FEED),
+                adTypesLoggedOut = listOf(Config.AdType.FEED, Config.AdType.FEED_TO_POST_INTERSTITIAL),
+                interstitialAdIntervalInSeconds = 600,
+                specialMenuItems = configState.specialMenuItems.takeIf { it.isNotEmpty() }
+                    ?: listOf(
+                        Config.MenuItem(
+                            name = "Wichteln",
+                            icon = "https://materialdesignicons.com/api/download/22D0C782-CD05-4FEB-845F-BBA7126C7326/000000/1/FFFFFF/0/48",
+                            link = "https://pr0gramm.com/new/wichteln"
+                        )
+                    ))
         }
 
         return configState

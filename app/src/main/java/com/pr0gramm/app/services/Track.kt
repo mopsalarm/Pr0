@@ -44,7 +44,7 @@ object Track : InjectorAware {
 
     fun loginSuccessful() {
         send("login") {
-            putBoolean("success", true)
+            putBoolean(FirebaseAnalytics.Param.SUCCESS, true)
         }
 
         Stats().increment("login.succeeded")
@@ -52,8 +52,8 @@ object Track : InjectorAware {
 
     fun loginFailed(type: String) {
         send("login") {
-            putBoolean("success", false)
-            putString("type", type)
+            putBoolean(FirebaseAnalytics.Param.SUCCESS, false)
+            putString(FirebaseAnalytics.Param.VALUE, type)
         }
 
         Stats().increment("login.failed", "reason:$type")
@@ -65,7 +65,7 @@ object Track : InjectorAware {
 
     fun writeComment(root: Boolean) {
         send("write_comment") {
-            putBoolean("root", root)
+            putBoolean(FirebaseAnalytics.Param.VALUE, root)
         }
     }
 
@@ -79,22 +79,22 @@ object Track : InjectorAware {
 
     fun votePost(vote: Vote) {
         send("vote") {
-            putString("vote_type", vote.name)
-            putString("content_type", "post")
+            putString(FirebaseAnalytics.Param.VALUE, vote.name)
+            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "post")
         }
     }
 
     fun voteTag(vote: Vote) {
         send("vote") {
-            putString("vote_type", vote.name)
-            putString("content_type", "tag")
+            putString(FirebaseAnalytics.Param.VALUE, vote.name)
+            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "tag")
         }
     }
 
     fun voteComment(vote: Vote) {
         send("vote") {
-            putString("vote_type", vote.name)
-            putString("content_type", "comment")
+            putString(FirebaseAnalytics.Param.VALUE, vote.name)
+            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "comment")
         }
     }
 
@@ -104,7 +104,7 @@ object Track : InjectorAware {
 
     fun openBrowser(type: String) {
         send("open_browser") {
-            putString("type", type)
+            putString(FirebaseAnalytics.Param.VALUE, type)
         }
     }
 
@@ -115,8 +115,8 @@ object Track : InjectorAware {
         val sizeCategory = "%d-%d kb".format(categoryStart, categoryStart + 512)
 
         send("upload") {
-            putLong("size", size)
-            putString("size_category", sizeCategory)
+            putLong(FirebaseAnalytics.Param.VALUE, size)
+            putString(FirebaseAnalytics.Param.ITEM_CATEGORY, sizeCategory)
         }
     }
 
@@ -126,13 +126,13 @@ object Track : InjectorAware {
 
     fun inboxNotificationClosed(method: String) {
         send("inbox_notification_close") {
-            putString("method", method)
+            putString(FirebaseAnalytics.Param.METHOD, method)
         }
     }
 
     fun preloadCurrentFeed(size: Int) {
         send("preload_feed") {
-            putInt("item_count", size)
+            putInt(FirebaseAnalytics.Param.VALUE, size)
         }
     }
 
@@ -162,7 +162,7 @@ object Track : InjectorAware {
 
     fun specialMenuActionClicked(uri: Uri) {
         send("special_menu_item") {
-            putString("uri", uri.toString())
+            putString(FirebaseAnalytics.Param.VALUE, uri.toString())
         }
     }
 
@@ -178,15 +178,15 @@ object Track : InjectorAware {
 
     fun openFeed(filter: FeedFilter) {
         send("view_feed") {
-            filter.tags?.let { putBoolean("tags", true) }
-            filter.collection?.let { putBoolean("collection", true) }
-            filter.username?.let { putBoolean("username", true) }
+            filter.tags?.let { putBoolean(FirebaseAnalytics.Param.TERM, true) }
+            filter.collection?.let { putBoolean(FirebaseAnalytics.Param.GROUP_ID, true) }
+            filter.username?.let { putBoolean(FirebaseAnalytics.Param.AFFILIATION, true) }
         }
     }
 
     fun viewItem(itemId: Long) {
         send("view_item") {
-            putLong("id", itemId)
+            putLong(FirebaseAnalytics.Param.ITEM_ID, itemId)
         }
     }
 
@@ -202,7 +202,7 @@ object Track : InjectorAware {
 
     fun openZoomView(itemId: Long) {
         send("zoom_view") {
-            putLong("id", itemId)
+            putLong(FirebaseAnalytics.Param.ITEM_ID, itemId)
         }
     }
 
@@ -215,7 +215,7 @@ object Track : InjectorAware {
             installerTracked = true
 
             send("installer") {
-                putString("package", name.toString())
+                putString(FirebaseAnalytics.Param.VALUE, name.toString())
             }
         }
     }
