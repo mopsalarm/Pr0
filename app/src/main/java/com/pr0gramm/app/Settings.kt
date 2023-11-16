@@ -68,8 +68,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     val highlightItemsInFeed: Boolean
         get() = preferences.getBoolean("pref_highlight_items_in_feed", true)
 
-    val markItemsAsSeen: Boolean
+    var markItemsAsSeen: Boolean
         get() = preferences.getBoolean("pref_mark_items_as_seen", false)
+        set(value) = edit { putBoolean("pref_mark_items_as_seen", value) }
 
     val fancyScrollVertical: Boolean
         get() = preferences.getBoolean("pref_fancy_scroll_vertical", true)
@@ -166,8 +167,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     val secureApp: Boolean
         get() = preferences.getBoolean("pref_secure_app", false)
 
-    val backup: Boolean
+    var backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
+        set(value) = edit { putBoolean("pref_sync_backup", value) }
 
     val singleTapAction: TapAction
         get() = preferences.getEnumValue("pref_single_tap_action", TapAction.NONE)
