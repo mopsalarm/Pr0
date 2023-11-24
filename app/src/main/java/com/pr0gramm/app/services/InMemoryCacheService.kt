@@ -120,7 +120,8 @@ class InMemoryCacheService {
 
         val expired: Boolean get() = System.currentTimeMillis() > deadline
 
-        val value: T = value
+        @Suppress("RedundantNullableReturnType")
+        val value: T? = value
             get() = field.takeIf { !expired }
     }
 }
