@@ -13,7 +13,14 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.ConversationActivity
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.MarginDividerItemDecoration
+import com.pr0gramm.app.ui.MessageActionListener
+import com.pr0gramm.app.ui.MessageAdapter
+import com.pr0gramm.app.ui.Pagination
+import com.pr0gramm.app.ui.WriteMessageActivity
+import com.pr0gramm.app.ui.addEndStateToValues
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.fragments.conversation.StringValue

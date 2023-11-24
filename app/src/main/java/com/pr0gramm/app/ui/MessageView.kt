@@ -17,8 +17,12 @@ import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.UserDrawables
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.findOptional
+import com.pr0gramm.app.util.use
 import com.squareup.picasso.Picasso
 
 /**

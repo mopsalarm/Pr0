@@ -9,7 +9,10 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.equalsIgnoreCase
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 
 class FavoritesViewModel(
         val user: String,

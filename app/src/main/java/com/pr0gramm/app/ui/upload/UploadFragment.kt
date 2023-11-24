@@ -29,18 +29,35 @@ import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.TagSuggestionService
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchInViewScope
 import com.pr0gramm.app.ui.base.launchUntilViewDestroy
+import com.pr0gramm.app.ui.configureNewStyle
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
+import com.pr0gramm.app.ui.showDialog
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.addOnAttachListener
+import com.pr0gramm.app.util.addTextChangedListener
+import com.pr0gramm.app.util.canStartIntent
 import com.pr0gramm.app.util.di.instance
-import kotlinx.coroutines.flow.*
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.findOptional
+import com.pr0gramm.app.util.optionalEnumFragmentArgument
+import com.pr0gramm.app.util.optionalFragmentArgument
+import com.pr0gramm.app.util.rootCause
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * This activity performs the actual upload.

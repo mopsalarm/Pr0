@@ -1,9 +1,13 @@
 package com.pr0gramm.app.feed
 
-import com.pr0gramm.app.*
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.Stats
+import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.FeedItemInfoQueries
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.equalsIgnoreCase
@@ -11,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runInterruptible
-import java.util.*
+import java.util.Locale
 
 /**
  * Performs the actual request to get the items for a feed.
@@ -24,9 +28,9 @@ interface FeedService {
 
     suspend fun item(itemId: Long): Api.Feed.Item {
         val query = FeedQuery(
-                filter = FeedFilter().withFeedType(FeedType.NEW),
-                contentTypes = ContentType.AllSet,
-                around = itemId,
+            filter = FeedFilter().withFeedType(FeedType.NEW),
+            contentTypes = ContentType.AllSet,
+            around = itemId,
         )
 
         return load(query).items.single { item -> item.id == itemId }
@@ -38,12 +42,18 @@ interface FeedService {
      */
     fun stream(startQuery: FeedQuery): Flow<Api.Feed>
 
-    data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
-                         val newer: Long? = null, val older: Long? = null, val around: Long? = null)
+    data class FeedQuery(
+        val filter: FeedFilter, val contentTypes: Set<ContentType>,
+        val newer: Long? = null, val older: Long? = null, val around: Long? = null
+    )
 
 }
 
-class FeedServiceImpl(private val api: Api, private val userService: UserService, private val itemQueries: FeedItemInfoQueries) : FeedService {
+class FeedServiceImpl(
+    private val api: Api,
+    private val userService: UserService,
+    private val itemQueries: FeedItemInfoQueries
+) : FeedService {
     private val logger = Logger("FeedService")
 
     override suspend fun load(query: FeedService.FeedQuery): Api.Feed {
@@ -59,8 +69,9 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
 
         // statistics
         Stats().incrementCounter(
-                "feed.loaded",
-                "type:" + feedType.name.lowercase(Locale.ROOT))
+            "feed.loaded",
+            "type:" + feedType.name.lowercase(Locale.ROOT)
+        )
 
         val tags = feedFilter.tags?.replaceFirst("^\\s*\\?\\s*".toRegex(), "!")
 
@@ -105,16 +116,18 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
                 val user = feedFilter.username
 
                 val self = userService.loginState
-                        .let { loginState ->
-                            // we have a user and it is the same as in the query.
-                            loginState.name != null && loginState.name.equalsIgnoreCase(user)
-                        }
-                        .takeIf { self -> self }
+                    .let { loginState ->
+                        // we have a user and it is the same as in the query.
+                        loginState.name != null && loginState.name.equalsIgnoreCase(user)
+                    }
+                    .takeIf { self -> self }
 
                 // do the normal query as is.
-                val result = api.itemsGet(promoted, following,
-                        query.older, query.newer, query.around,
-                        flags, tags, collection, self, user)
+                val result = api.itemsGet(
+                    promoted, following,
+                    query.older, query.newer, query.around,
+                    flags, tags, collection, self, user
+                )
 
                 result.also {
                     AsyncScope.launchIgnoreErrors {
@@ -132,23 +145,31 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
             itemQueries.transaction {
                 for (item in feed.items) {
                     itemQueries.cache(
-                            id = item.id,
-                            promotedId = item.promoted,
-                            userId = item.userId,
-                            image = item.image,
-                            thumbnail = item.thumb,
-                            fullsize = item.fullsize,
-                            user = item.user,
-                            up = item.up,
-                            down = item.down,
-                            mark = item.mark,
-                            flags = item.flags,
-                            width = item.width,
-                            height = item.height,
-                            created = item.created.epochSeconds,
-                            audio = item.audio,
-                            deleted = item.deleted,
+                        id = item.id,
+                        promotedId = item.promoted,
+                        userId = item.userId,
+                        image = item.image,
+                        thumbnail = item.thumb,
+                        fullsize = item.fullsize,
+                        user = item.user,
+                        up = item.up,
+                        down = item.down,
+                        mark = item.mark,
+                        flags = item.flags,
+                        width = item.width,
+                        height = item.height,
+                        created = item.created.epochSeconds,
+                        audio = item.audio,
+                        deleted = item.deleted,
                     )
+
+                    for (variant in item.variants) {
+                        itemQueries.cacheVariant(
+                            itemId = item.id,
+                            name = variant.name,
+                            path = variant.path,
+                        )
+                    }
                 }
             }
         }
@@ -173,8 +194,12 @@ class FeedServiceImpl(private val api: Api, private val userService: UserService
 
                 // get the previous (or next) page from the current set of items.
                 query = when {
-                    upwards && !feed.isAtStart -> feed.items.maxByOrNull { it.id }?.let { currentQuery.copy(newer = it.id) }
-                    !upwards && !feed.isAtEnd -> feed.items.minByOrNull { it.id }?.let { currentQuery.copy(older = it.id) }
+                    upwards && !feed.isAtStart -> feed.items.maxByOrNull { it.id }
+                        ?.let { currentQuery.copy(newer = it.id) }
+
+                    !upwards && !feed.isAtEnd -> feed.items.minByOrNull { it.id }
+                        ?.let { currentQuery.copy(older = it.id) }
+
                     else -> null
                 }
             }

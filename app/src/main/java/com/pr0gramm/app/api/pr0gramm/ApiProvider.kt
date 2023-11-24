@@ -1,6 +1,9 @@
 package com.pr0gramm.app.api.pr0gramm
 
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.catchAll
 import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl

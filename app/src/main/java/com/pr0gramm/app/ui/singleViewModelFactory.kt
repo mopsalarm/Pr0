@@ -4,7 +4,11 @@ import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.createViewModelLazy
-import androidx.lifecycle.*
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.pr0gramm.app.util.di.Injector
 import com.pr0gramm.app.util.di.injector
 import kotlin.properties.ReadWriteProperty

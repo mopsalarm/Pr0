@@ -7,7 +7,7 @@ import android.view.View
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.parcel.creator
 import com.pr0gramm.app.util.BrowserHelper
-import java.util.*
+import java.util.Locale
 
 /**
  */

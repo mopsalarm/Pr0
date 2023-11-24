@@ -1,7 +1,11 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.Layout
 import android.text.StaticLayout
@@ -10,7 +14,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.save
-import java.util.*
+import java.util.Locale
 
 /**
  */

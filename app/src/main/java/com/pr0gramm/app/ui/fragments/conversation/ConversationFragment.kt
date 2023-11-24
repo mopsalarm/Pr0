@@ -3,9 +3,17 @@ package com.pr0gramm.app.ui.fragments.conversation
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
-import androidx.paging.*
+import androidx.paging.LoadState
+import androidx.paging.LoadStateAdapter
+import androidx.paging.PagingData
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,14 +25,24 @@ import com.pr0gramm.app.seconds
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.SimpleTextWatcher
-import com.pr0gramm.app.ui.base.*
+import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.bindViews
+import com.pr0gramm.app.ui.base.launchInViewScope
+import com.pr0gramm.app.ui.base.launchUntilViewDestroy
+import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.base.launchWhenResumed
 import com.pr0gramm.app.ui.fragments.EndOfViewSmoothScroller
 import com.pr0gramm.app.ui.viewModels
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.TextViewCache
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.fragmentArgument
+import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.util.startActivity
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 /**
  */

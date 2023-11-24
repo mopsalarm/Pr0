@@ -8,12 +8,16 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.FragmentCollectionsBinding
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.FilterFragment
+import com.pr0gramm.app.ui.ScrollHideToolbarListener
+import com.pr0gramm.app.ui.TabsStateAdapter
+import com.pr0gramm.app.ui.TitleFragment
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchInViewScope
 import com.pr0gramm.app.ui.fragments.FavedCommentFragment
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.getStringOrThrow

@@ -12,7 +12,6 @@ import com.pr0gramm.app.util.getStringOrNull
 import com.squareup.moshi.adapter
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 class SingleShotService(private val preferences: SharedPreferences) {
     private val timeOffset = Duration.millis((Math.random() * 3600.0 * 1000.0).toLong())

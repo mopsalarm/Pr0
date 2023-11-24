@@ -195,6 +195,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultIntent: Intent?) {
         if (requestCode == RequestCodes.SELECT_DOWNLOAD_PATH && resultCode == Activity.RESULT_OK) {
             if (!Storage.persistTreeUri(
@@ -216,7 +217,7 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
         }
     }
 
-    override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(preferences: SharedPreferences?, key: String?) {
         // get the correct theme for the app!
         when (key) {
             "pref_theme" -> {

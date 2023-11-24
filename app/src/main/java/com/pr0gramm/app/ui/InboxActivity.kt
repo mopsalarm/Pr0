@@ -18,7 +18,6 @@ import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
 import com.pr0gramm.app.util.startActivity
-import kotlinx.coroutines.flow.collect
 
 
 /**

@@ -6,7 +6,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.model.bookmark.Bookmark
 import com.pr0gramm.app.orm.link
 import com.pr0gramm.app.util.StringException
-import java.util.*
+import java.util.Locale
 
 class BookmarkSyncService(private val api: Api, private val userService: UserService) {
     private val logger = Logger("BookmarkSyncService")

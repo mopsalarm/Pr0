@@ -11,7 +11,7 @@ import com.pr0gramm.app.util.ExceptionHandler
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.Locale
 
 /**
  * A simple service that allows sending a message to the pr0gramm support.

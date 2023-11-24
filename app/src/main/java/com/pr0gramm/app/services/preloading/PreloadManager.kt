@@ -1,13 +1,17 @@
 package com.pr0gramm.app.services.preloading
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.db.PreloadItemQueries
 import com.pr0gramm.app.ui.base.AsyncScope
-import com.pr0gramm.app.util.*
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.pr0gramm.app.util.LongSparseArray
+import com.pr0gramm.app.util.checkNotMainThread
+import com.pr0gramm.app.util.delay
+import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.longSparseArrayOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -37,7 +41,7 @@ class PreloadManager(private val db: PreloadItemQueries) {
     private var preloadCache = LongSparseArray<PreloadItem>()
 
     private val observeAllItems = intervalFlow()
-            .flatMapLatest { db.all(this::mapper).asFlow().mapToList() }
+        .flatMapLatest { db.all(this::mapper).asFlow().mapToList(Dispatchers.IO) }
             .map { items -> validateItems(items) }
 
     init {

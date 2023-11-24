@@ -4,8 +4,8 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.getOrPut
 import kotlinx.coroutines.runBlocking
-import java.util.*
 import java.util.Collections.emptyList
+import java.util.Locale
 
 /**
  */

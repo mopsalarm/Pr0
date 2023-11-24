@@ -27,15 +27,24 @@ import com.pr0gramm.app.services.CollectionItemsService
 import com.pr0gramm.app.services.CollectionsService
 import com.pr0gramm.app.services.PostCollection
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.AsyncListAdapter
+import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.base.launchWhenCreated
+import com.pr0gramm.app.ui.configureNewStyle
+import com.pr0gramm.app.ui.delegateAdapterOf
+import com.pr0gramm.app.ui.resolveDialogTheme
 import com.pr0gramm.app.ui.views.appendUsernameAndMark
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.arguments
+import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.di.LazyInjectorAware
 import com.pr0gramm.app.util.di.PropertyInjector
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.fragmentArgument
+import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.util.setOnCheckedChangeListenerWithInitial
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
@@ -52,7 +61,7 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
 
     override fun getTheme(): Int = R.style.MyBottomSheetDialog
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val themedInflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = themedInflater.inflate(R.layout.dialog_collections, container, false)
 
@@ -194,7 +203,8 @@ class CollectionsSelectionDialog : BottomSheetDialogFragment(), LazyInjectorAwar
 }
 
 private class CollectionAdapterDelegate(private val collectionClicked: (collection: PostCollection, isSelected: Boolean) -> Unit)
-    : ListItemTypeAdapterDelegate<CollectionAdapterDelegate.Item, CollectionAdapterDelegate.Item, CollectionAdapterDelegate.CollectionViewHolder>(CollectionAdapterDelegate.Item::class) {
+    : ListItemTypeAdapterDelegate<CollectionAdapterDelegate.Item, CollectionAdapterDelegate.Item, CollectionAdapterDelegate.CollectionViewHolder>(
+    Item::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): CollectionViewHolder {
         return CollectionViewHolder(parent)

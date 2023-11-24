@@ -6,7 +6,7 @@ import android.os.Parcelable
 import com.pr0gramm.app.R
 import com.pr0gramm.app.model.user.LoginState
 import com.pr0gramm.app.parcel.creator
-import java.util.*
+import java.util.EnumSet
 
 /**
  * Content type to load.

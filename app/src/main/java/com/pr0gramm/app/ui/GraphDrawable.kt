@@ -1,6 +1,13 @@
 package com.pr0gramm.app.ui
 
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.Shader
 import com.pr0gramm.app.services.Graph
 import com.pr0gramm.app.util.save
 

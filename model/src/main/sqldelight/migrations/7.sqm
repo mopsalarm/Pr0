@@ -1,0 +1,7 @@
+CREATE TABLE CachedMediaVariant (
+    itemId INTEGER NOT NULL REFERENCES CachedItemInfo(id),
+    name TEXT NOT NULL,
+    path TEXT NOT NULL,
+
+    PRIMARY KEY (itemId, name)
+);

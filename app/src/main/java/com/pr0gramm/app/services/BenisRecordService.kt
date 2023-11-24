@@ -5,6 +5,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.pr0gramm.app.ApplicationClass
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
@@ -14,8 +16,6 @@ import com.pr0gramm.app.time
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.di.injector
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runInterruptible
@@ -25,8 +25,8 @@ class BenisRecordService(private val db: ScoreRecordQueries) {
 
     suspend fun findValuesLaterThan(ownerId: Int, minTime: Instant): List<BenisRecord> {
         return db.list(minTime.millis, ownerId) { time, score -> BenisRecord(time, score) }
-                .asFlow()
-                .mapToList()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
                 .first()
     }
 

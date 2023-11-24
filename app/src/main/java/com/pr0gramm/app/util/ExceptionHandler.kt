@@ -5,7 +5,7 @@ import com.pr0gramm.app.Logger
 import kotlinx.coroutines.CancellationException
 import java.io.File
 import java.io.IOException
-import java.util.*
+import java.util.Date
 
 class ExceptionHandler private constructor(
         private val delegate: Thread.UncaughtExceptionHandler?) : Thread.UncaughtExceptionHandler {

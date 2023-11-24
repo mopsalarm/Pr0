@@ -7,7 +7,13 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.FollowService
+import com.pr0gramm.app.services.FollowState
+import com.pr0gramm.app.services.InMemoryCacheService
+import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.VoteService
+import com.pr0gramm.app.services.isMoreRestrictiveContentTypeTag
+import com.pr0gramm.app.services.isValidTag
 import com.pr0gramm.app.ui.fragments.feed.update
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.LongSparseArray
@@ -16,10 +22,16 @@ import com.pr0gramm.app.util.rootCause
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.util.*
+import java.util.Locale
 
 class PostViewModel(
     item: FeedItem,

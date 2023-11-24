@@ -1,9 +1,9 @@
 package com.pr0gramm.app.services
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.AppDB
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +40,7 @@ class FollowService(private val api: Api, private val db: AppDB) {
     fun getState(userId: Long): Flow<FollowState> {
         return db.userFollowEntryQueries.forUser(userId)
             .asFlow()
-            .mapToOneOrNull()
+            .mapToOneOrNull(Dispatchers.IO)
             .map { value -> mapToState(value?.state) }
     }
 

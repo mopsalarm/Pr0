@@ -8,7 +8,11 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.content.edit
 import androidx.fragment.app.FragmentManager
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Logger
+import com.pr0gramm.app.R
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker

@@ -25,7 +25,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.NonCrashingLinkMovementMethod
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.inflate
+import com.pr0gramm.app.util.layoutInflater
 import java.util.concurrent.atomic.AtomicBoolean
 
 typealias DialogClickListener = (Dialog) -> Unit

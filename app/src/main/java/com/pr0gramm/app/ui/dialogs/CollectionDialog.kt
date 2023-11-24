@@ -10,13 +10,21 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.DialogCollectionCreateBinding
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.CollectionItemsService
+import com.pr0gramm.app.services.CollectionsService
+import com.pr0gramm.app.services.PostCollection
+import com.pr0gramm.app.services.Result
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.ViewBindingDialogFragment
 import com.pr0gramm.app.ui.base.launchUntilDestroy
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.showDialog
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.util.optionalFragmentArgument
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 

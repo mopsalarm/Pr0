@@ -261,9 +261,11 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
         preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        Logger("Settings").debug { "Key was updated: $key" }
-        preferenceChanged.tryEmit(key)
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key != null) {
+            Logger("Settings").debug { "Key was updated: $key" }
+            preferenceChanged.tryEmit(key)
+        }
     }
 }
 

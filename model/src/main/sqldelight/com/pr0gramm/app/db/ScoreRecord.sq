@@ -1,3 +1,5 @@
+import kotlin.Int;
+
 
 CREATE TABLE scoreRecord (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -536,7 +536,14 @@ interface Api {
             val height: Int = 0,
             val created: Instant,
             val audio: Boolean = false,
-            val deleted: Boolean = false
+            val deleted: Boolean = false,
+            val variants: List<Variant>,
+        )
+
+        @JsonClass(generateAdapter = true)
+        class Variant(
+            val name: String,
+            val path: String,
         )
     }
 

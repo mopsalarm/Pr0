@@ -1,16 +1,16 @@
 package com.pr0gramm.app.orm
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOneOrDefault
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.db.CachedVoteQueries
 import com.pr0gramm.app.time
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
-import com.squareup.sqldelight.runtime.coroutines.mapToOneOrDefault
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
-import java.util.*
-import kotlin.collections.HashMap
+import java.util.EnumMap
 
 /**
  * A cached vote.
@@ -34,8 +34,8 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
 
         fun find(cv: CachedVoteQueries, type: Type, itemId: Long): Flow<CachedVote> {
             return cv.findOne(voteId(type, itemId), this::toCachedVote)
-                    .asFlow()
-                    .mapToOneOrDefault(CachedVote(itemId, type, Vote.NEUTRAL))
+                .asFlow()
+                .mapToOneOrDefault(CachedVote(itemId, type, Vote.NEUTRAL), Dispatchers.IO)
         }
 
         fun find(cv: CachedVoteQueries, type: Type, ids: List<Long>): Flow<List<CachedVote>> {
@@ -45,9 +45,9 @@ data class CachedVote(val itemId: Long, val type: Type, val vote: Vote) {
 
             // lookup votes in chunks, as sqlite can check at most 1000 parameters at once.
             val flows: List<Flow<List<CachedVote>>> = ids.chunked(512)
-                    .map { chunk -> chunk.map { voteId(type, it) } }
-                    .map { chunk -> cv.findSome(chunk, this::toCachedVote) }
-                    .map { it.asFlow().mapToList() }
+                .map { chunk -> chunk.map { voteId(type, it) } }
+                .map { chunk -> cv.findSome(chunk, this::toCachedVote) }
+                .map { it.asFlow().mapToList(Dispatchers.IO) }
 
             return combine(flows) { votes -> votes.asList().flatten() }
         }

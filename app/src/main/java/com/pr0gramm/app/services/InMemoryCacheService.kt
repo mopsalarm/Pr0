@@ -9,7 +9,7 @@ import com.pr0gramm.app.util.LongSparseArray
 import com.pr0gramm.app.util.catchAll
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -120,7 +120,7 @@ class InMemoryCacheService {
 
         val expired: Boolean get() = System.currentTimeMillis() > deadline
 
-        val value: T? = value
+        val value: T = value
             get() = field.takeIf { !expired }
     }
 }

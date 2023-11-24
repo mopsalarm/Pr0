@@ -1,6 +1,11 @@
 package com.pr0gramm.app
 
-import com.squareup.moshi.*
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.removeClassJsonAdapter
 
 val MoshiInstance: Moshi = run {
     removeClassJsonAdapter()

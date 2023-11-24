@@ -13,13 +13,13 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.gms:google-services:4.4.0'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
     }
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
 
     // ndkVersion "21.0.6011959-rc2"
 
@@ -31,7 +31,7 @@ android {
         versionCode appVersion
 
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
-        resConfigs 'en', 'de'
+        resourceConfigurations += ['en', 'de']
 
 
         vectorDrawables.useSupportLibrary = true
@@ -160,14 +160,14 @@ dependencies {
 
     implementation project(":model")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.20"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
-    implementation 'androidx.browser:browser:1.5.0'
-    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'androidx.browser:browser:1.7.0'
+    implementation 'androidx.annotation:annotation:1.7.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.3.6'
     implementation 'androidx.preference:preference-ktx:1.2.1'
@@ -177,21 +177,21 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'androidx.concurrent:concurrent-futures:1.1.0'
     // implementation 'com.google.guava:listenablefuture:1.0'
-    implementation 'androidx.paging:paging-runtime:3.2.0'
+    implementation 'androidx.paging:paging-runtime:3.2.1'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation 'com.google.android.ump:user-messaging-platform:2.1.0'
 
-    implementation 'androidx.activity:activity-ktx:1.7.2'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.activity:activity-ktx:1.8.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
 
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
 
-    implementation 'androidx.fragment:fragment-ktx:1.6.1'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
 
-    implementation "com.google.android.gms:play-services-ads:22.3.0"
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.4.1'
+    implementation "com.google.android.gms:play-services-ads:22.5.0"
+    implementation 'com.google.firebase:firebase-analytics:21.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.6.0'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")

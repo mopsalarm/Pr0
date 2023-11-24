@@ -1,7 +1,13 @@
 package com.pr0gramm.app.sync
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.injector

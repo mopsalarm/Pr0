@@ -6,7 +6,7 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.ui.fragments.CommentRef
-import java.util.*
+import java.util.Locale
 
 object FilterParser {
     fun parse(uri: Uri, notificationTime: Instant? = null): FeedFilterWithStart? {

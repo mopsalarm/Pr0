@@ -10,7 +10,7 @@ import com.pr0gramm.app.api.pr0gramm.MessageType
 import com.pr0gramm.app.databinding.ItemDateDividerBinding
 import com.pr0gramm.app.ui.fragments.conversation.StringValue
 import com.pr0gramm.app.util.inflate
-import java.util.*
+import java.util.Objects
 
 /**
  */
@@ -56,8 +56,8 @@ class MessageAdapter(
         }
     }
 
-    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Message, Any, MessageAdapter.MessageViewHolder>(Message::class) {
-        override fun onCreateViewHolder(parent: ViewGroup): MessageAdapter.MessageViewHolder {
+    inner class MessageAdapterDelegate : ListItemTypeAdapterDelegate<Message, Any, MessageViewHolder>(Message::class) {
+        override fun onCreateViewHolder(parent: ViewGroup): MessageViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(itemLayout) as MessageView
             return MessageViewHolder(view)
         }

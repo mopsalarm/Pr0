@@ -103,7 +103,7 @@ class UriHelper private constructor(context: Context) {
             return if (highQuality && !item.isVideo)
                 absoluteJoin(start("full"), item.fullsize)
             else
-                absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.image)
+                absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.path)
         }
 
         fun image(image: String): Uri {

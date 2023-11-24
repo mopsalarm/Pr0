@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.MotionEvent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.whileIsAttachedScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -85,7 +84,7 @@ abstract class ProxyMediaView internal constructor(config: Config) : MediaView(c
         return super.onTouchEvent(event)
     }
 
-    private inner class ForwardingTapListener : MediaView.TapListener {
+    private inner class ForwardingTapListener : TapListener {
         override fun onSingleTap(event: MotionEvent): Boolean {
             return tapListener?.onSingleTap(event) ?: false
         }

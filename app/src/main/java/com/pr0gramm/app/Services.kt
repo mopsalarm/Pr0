@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.os.Build
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieJar
@@ -61,7 +62,6 @@ import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.di.Module
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import okhttp3.Cache
 import okhttp3.CipherSuite
 import okhttp3.ConnectionPool
@@ -96,7 +96,8 @@ fun appInjector(app: Application) = Module.build {
     }
 
     bind<AppDB>() with singleton {
-        AppDB(AndroidSqliteDriver(AppDB.Schema, app, "pr0gramm-app.db"))
+        val driver = AndroidSqliteDriver(AppDB.Schema, app, "pr0gramm-app.db")
+        buildAppDB(driver)
     }
 
     bind<LoginCookieJar>() with singleton { LoginCookieJar(app, instance()) }

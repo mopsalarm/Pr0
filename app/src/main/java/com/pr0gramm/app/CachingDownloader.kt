@@ -4,8 +4,12 @@ import android.net.Uri
 import androidx.collection.LruCache
 import com.pr0gramm.app.io.Cache
 import com.squareup.picasso.Downloader
-import okhttp3.*
+import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 
 class CachingDownloader(private val cache: Cache, private val httpClient: OkHttpClient) : Downloader {

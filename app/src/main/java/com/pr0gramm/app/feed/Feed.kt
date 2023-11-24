@@ -6,7 +6,15 @@ import com.pr0gramm.app.Logger
 import com.pr0gramm.app.Stopwatch
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.listOfSize
-import com.pr0gramm.app.parcel.*
+import com.pr0gramm.app.parcel.DefaultParcelable
+import com.pr0gramm.app.parcel.SimpleCreator
+import com.pr0gramm.app.parcel.javaClassOf
+import com.pr0gramm.app.parcel.read
+import com.pr0gramm.app.parcel.readBooleanCompat
+import com.pr0gramm.app.parcel.readValues
+import com.pr0gramm.app.parcel.write
+import com.pr0gramm.app.parcel.writeBooleanCompat
+import com.pr0gramm.app.parcel.writeValues
 import com.pr0gramm.app.util.Serde
 import java.util.zip.Deflater
 
@@ -184,21 +192,21 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 // merge items with itemIds and create placeholders if required
                 val items = placeholders.map { item ->
                     realItemsById[item.id] ?: FeedItem(
-                            id = item.id,
-                            promotedId = item.promotedId,
-                            created = Instant.now(),
-                            thumbnail = "",
-                            image = "",
-                            fullsize = "",
-                            user = "",
-                            userId = 0L,
-                            width = item.width,
-                            height = item.height,
-                            up = 0,
-                            down = 0,
-                            mark = 0,
-                            flags = 0,
-                            audio = false,
+                        id = item.id,
+                        promotedId = item.promotedId,
+                        created = Instant.now(),
+                        thumbnail = "",
+                        path = "",
+                        fullsize = "",
+                        user = "",
+                        userId = 0L,
+                        width = item.width,
+                        height = item.height,
+                        up = 0,
+                        down = 0,
+                        mark = 0,
+                        flags = 0,
+                        audio = false,
                             deleted = false,
                             placeholder = true,
                     )

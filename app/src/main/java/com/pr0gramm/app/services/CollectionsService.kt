@@ -1,6 +1,8 @@
 package com.pr0gramm.app.services
 
 import androidx.lifecycle.MutableLiveData
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.CollectionItemQueries
@@ -9,14 +11,11 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.readOnly
 import com.pr0gramm.app.util.toInt
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
-import java.util.*
+import java.util.Locale
 
 data class PostCollection(
         val id: Long,
@@ -123,7 +122,7 @@ class CollectionsService(private val api: Api, private val userService: UserServ
     suspend fun delete(collectionId: Long): Result<Unit> {
         val response = Result.ofValue(api.collectionsDelete(null, collectionId))
         handleCollectionUpdated(response)
-        return response.map { Unit }
+        return response.map { }
     }
 
     suspend fun create(name: String, isPublic: Boolean, isDefault: Boolean): Result<Long> {
@@ -222,12 +221,12 @@ class CollectionItemsService(private val api: Api, private val db: CollectionIte
     }
 
     private suspend fun observeDatabaseUpdates() {
-        db.all().asFlow().mapToList().collect { collectionItems ->
+        db.all().asFlow().mapToList(Dispatchers.IO).collect { collectionItems ->
             synchronized(lock) {
                 logger.time("Updating memory cache with ${collectionItems.size} entries") {
                     cache = collectionItems
-                            .groupBy(keySelector = { it.collectionId }, valueTransform = { it.itemId })
-                            .mapValuesTo(mutableMapOf()) { (_, itemIds) -> itemIds.toHashSet() }
+                        .groupBy(keySelector = { it.collectionId }, valueTransform = { it.itemId })
+                        .mapValuesTo(mutableMapOf()) { (_, itemIds) -> itemIds.toHashSet() }
                 }
             }
 

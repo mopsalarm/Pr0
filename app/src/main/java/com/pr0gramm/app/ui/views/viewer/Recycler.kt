@@ -11,7 +11,6 @@ import com.google.android.exoplayer2.metadata.MetadataOutput
 import com.google.android.exoplayer2.text.TextOutput
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
-import java.util.*
 
 object ExoPlayerRecycler {
     private val logger = Logger("ExoPlayerRecycler")

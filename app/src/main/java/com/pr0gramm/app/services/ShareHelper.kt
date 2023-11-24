@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import proguard.annotation.KeepPublicClassMemberNames
 import java.io.File
-import java.util.*
+import java.util.Locale
 
 /**
  * This class helps starting "Share with"-chooser for a [FeedItem].

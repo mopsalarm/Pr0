@@ -3,22 +3,17 @@ buildscript {
         google()
         mavenCentral()
     }
-
-    dependencies {
-        classpath 'com.squareup.sqldelight:gradle-plugin:1.5.5'
-        classpath 'com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.10-1.0.13'
-    }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.google.devtools.ksp'
-
-apply plugin: 'com.squareup.sqldelight'
-
+plugins {
+    id("com.android.library")
+    id("kotlin-android")
+    id("app.cash.sqldelight") version "2.0.0"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+}
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
 
 
     defaultConfig {
@@ -38,14 +33,16 @@ android {
 }
 
 sqldelight {
-    AppDB {
-        //package name used for the generated MyDatabase.kt
-        packageName = "com.pr0gramm.app.db"
+    databases {
+        AppDB {
+            //package name used for the generated MyDatabase.kt
+            packageName = "com.pr0gramm.app.db"
 
-        // The directory where to store '.db' schema files relative to the root of the project.
-        // These files are used to verify that migrations yield a database with the latest schema.
-        // Defaults to null so the verification tasks will not be created.
-        schemaOutputDirectory = file("src/main/sqldelight/databases")
+            // The directory where to store '.db' schema files relative to the root of the project.
+            // These files are used to verify that migrations yield a database with the latest schema.
+            // Defaults to null so the verification tasks will not be created.
+            schemaOutputDirectory = file("src/main/sqldelight/databases")
+        }
     }
 }
 
@@ -56,16 +53,17 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.20"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
     implementation "com.squareup.moshi:moshi:1.15.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.squareup.okhttp3:okhttp:4.11.0"
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
-    api "com.squareup.sqldelight:android-driver:1.5.5"
-    api "com.squareup.sqldelight:coroutines-extensions-jvm:1.5.5"
+    api "app.cash.sqldelight:primitive-adapters:2.0.0"
+    api "app.cash.sqldelight:android-driver:2.0.0"
+    api "app.cash.sqldelight:coroutines-extensions-jvm:2.0.0"
 
     ksp "com.squareup.moshi:moshi-kotlin-codegen:1.15.0"
 }

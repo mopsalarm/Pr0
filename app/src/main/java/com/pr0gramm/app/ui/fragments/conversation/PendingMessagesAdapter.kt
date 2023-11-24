@@ -10,7 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.Linkify
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.util.setTextFuture
 
 class PendingMessagesAdapter : ListAdapter<String, PendingMessagesAdapter.ViewHolder>(ItemCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

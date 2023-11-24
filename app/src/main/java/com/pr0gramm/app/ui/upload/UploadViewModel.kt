@@ -12,9 +12,13 @@ import com.pr0gramm.app.ui.fragments.feed.ConsumableValue
 import com.pr0gramm.app.ui.fragments.feed.update
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.util.checkMainThread
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import java.io.File
 
 class UploadViewModel(

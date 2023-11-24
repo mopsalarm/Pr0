@@ -14,7 +14,6 @@ import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.getStyledColor
 import com.pr0gramm.app.util.observeChange
-import kotlinx.coroutines.flow.collect
 
 class CollectView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : AppCompatImageButton(context, attrs, defStyleAttr) {

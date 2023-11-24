@@ -1,7 +1,11 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.ColorInt
 import androidx.core.view.ViewCompat

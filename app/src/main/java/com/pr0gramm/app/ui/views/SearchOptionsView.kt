@@ -21,9 +21,15 @@ import com.pr0gramm.app.feed.Tags
 import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.Listener
 import com.pr0gramm.app.util.di.injector
-import java.util.*
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.invoke
+import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.setOnProgressChanged
+import java.util.Locale
 import kotlin.math.pow
 import kotlin.math.sign
 
@@ -249,7 +255,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
         container.removeAllViews()
 
-        val params = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        val params = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         params.rightMargin = context.dp(8)
 
         val names = listOf("sound", "video", "repost", "ftb")

@@ -13,7 +13,6 @@ import com.pr0gramm.app.util.observeChangeEx
 import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class PostPagerViewModel(private val savedState: SavedState, feedService: FeedService) : ViewModel() {

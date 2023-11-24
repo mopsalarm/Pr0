@@ -16,15 +16,29 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.FragmentConversationsBinding
 import com.pr0gramm.app.services.InboxService
 import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.ConversationActivity
+import com.pr0gramm.app.ui.DelegateAdapter
+import com.pr0gramm.app.ui.ErrorAdapterDelegate
+import com.pr0gramm.app.ui.ListItemTypeAdapterDelegate
+import com.pr0gramm.app.ui.Loading
+import com.pr0gramm.app.ui.MarginDividerItemDecoration
+import com.pr0gramm.app.ui.Pagination
+import com.pr0gramm.app.ui.PaginationController
+import com.pr0gramm.app.ui.SpacingItemDecoration
+import com.pr0gramm.app.ui.addEndStateToValues
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchUntilPause
+import com.pr0gramm.app.ui.staticLayoutAdapterDelegate
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.ViewUpdater
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.UserDrawables
 import com.pr0gramm.app.util.di.instance
-import java.util.*
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.inflateDetachedChild
+import com.pr0gramm.app.util.observeChange
+import java.util.Objects
 
 /**
  */

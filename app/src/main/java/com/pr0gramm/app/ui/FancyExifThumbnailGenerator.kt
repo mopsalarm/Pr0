@@ -2,7 +2,12 @@ package com.pr0gramm.app.ui
 
 
 import android.app.Application
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.net.Uri
 import androidx.core.graphics.applyCanvas
 import androidx.core.net.toFile

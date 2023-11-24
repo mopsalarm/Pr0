@@ -9,14 +9,17 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.runEvery
-import okhttp3.*
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.ResponseBody.Companion.asResponseBody
 import okio.buffer
 import okio.source
 import java.io.Closeable
 import java.io.File
 import java.io.InputStream
-import java.util.*
 
 
 /**

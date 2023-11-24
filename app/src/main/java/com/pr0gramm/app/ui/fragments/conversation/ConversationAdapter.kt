@@ -19,7 +19,7 @@ import com.pr0gramm.app.util.Linkify
 import com.pr0gramm.app.util.setTextFuture
 import com.pr0gramm.app.util.sp
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 
 sealed class ConversationItem {

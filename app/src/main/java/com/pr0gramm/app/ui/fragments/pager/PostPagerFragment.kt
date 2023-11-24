@@ -18,8 +18,13 @@ import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.parcel.getParcelableOrNull
 import com.pr0gramm.app.parcel.getParcelableOrThrow
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.ui.FeedFilterFormatter
+import com.pr0gramm.app.ui.FilterFragment
+import com.pr0gramm.app.ui.MainActionHandler
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
+import com.pr0gramm.app.ui.TitleFragment
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchInViewScope
@@ -28,6 +33,7 @@ import com.pr0gramm.app.ui.fragments.IdFragmentStatePagerAdapter
 import com.pr0gramm.app.ui.fragments.PreviewInfoSource
 import com.pr0gramm.app.ui.fragments.feed.FeedFragment
 import com.pr0gramm.app.ui.fragments.post.PostFragment
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.observeChangeEx
 

@@ -1,3 +1,6 @@
+import kotlin.Boolean;
+import kotlin.Int;
+
 CREATE TABLE CachedItemInfo (
     id INTEGER PRIMARY KEY NOT NULL,
     promotedId INTEGER NOT NULL,
@@ -17,9 +20,24 @@ CREATE TABLE CachedItemInfo (
     deleted INTEGER AS Boolean NOT NULL
 );
 
+CREATE TABLE CachedMediaVariant (
+    itemId INTEGER NOT NULL REFERENCES CachedItemInfo(id),
+    name TEXT NOT NULL,
+    path TEXT NOT NULL,
+
+    PRIMARY KEY (itemId, name)
+);
+
 cache:
 INSERT OR REPLACE INTO CachedItemInfo (id, promotedId, image, fullsize, thumbnail, user, userId, created, width, height, up, down, mark, flags, audio, deleted)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
+cacheVariant:
+INSERT OR REPLACE INTO CachedMediaVariant (itemId, name, path)
+VALUES (?, ?, ?);
+
 lookup:
 SELECT * FROM CachedItemInfo WHERE id IN ?;
+
+lookupVariants:
+SELECT * FROM CachedMediaVariant WHERE itemId IN ?;

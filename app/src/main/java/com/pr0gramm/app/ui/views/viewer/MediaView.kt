@@ -31,7 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
@@ -39,7 +38,7 @@ import kotlin.math.max
 
 /**
  */
-abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?)
+abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?)
     : FrameLayout(config.activity), InjectorViewMixin {
 
     private val logger = if (BuildConfig.DEBUG) {
@@ -198,11 +197,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         } else {
-            val heightUnspecified = View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.UNSPECIFIED
+            val heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED
 
             // we shouldn't get larger than this.
-            val maxWidth = View.MeasureSpec.getSize(widthMeasureSpec)
-            val maxHeight = View.MeasureSpec.getSize(heightMeasureSpec)
+            val maxWidth = MeasureSpec.getSize(widthMeasureSpec)
+            val maxHeight = MeasureSpec.getSize(heightMeasureSpec)
 
             val width: Int
             val height: Int
@@ -217,8 +216,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             // use the calculated sizes!
             setMeasuredDimension(width, height)
             measureChildren(
-                    View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
         }
     }
 
@@ -337,9 +336,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         super.setLayoutParams(params)
 
         // forward the gravity to the preview if possible
-        if (params is FrameLayout.LayoutParams) {
+        if (params is LayoutParams) {
             previewView?.apply {
-                (layoutParams as FrameLayout.LayoutParams).gravity = params.gravity
+                (layoutParams as LayoutParams).gravity = params.gravity
             }
         }
     }
@@ -392,7 +391,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         internal const val ANIMATION_DURATION = 500L
 
-        private val DEFAULT_PARAMS = FrameLayout.LayoutParams(
+        private val DEFAULT_PARAMS = LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER_HORIZONTAL)

@@ -3,49 +3,54 @@ package com.pr0gramm.app.feed
 import android.os.Parcel
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.parcel.*
+import com.pr0gramm.app.parcel.ConstructorCreator
+import com.pr0gramm.app.parcel.DefaultParcelable
+import com.pr0gramm.app.parcel.javaClassOf
+import com.pr0gramm.app.parcel.read
+import com.pr0gramm.app.parcel.readStringNotNull
+import com.pr0gramm.app.parcel.write
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by the data of an [Api.Feed.Item].
  */
 data class FeedItem(
-        val created: Instant,
-        val thumbnail: String,
-        val image: String,
-        val fullsize: String,
-        val user: String,
-        val userId: Long,
-        val id: Long,
-        val promotedId: Long,
-        val width: Int,
-        val height: Int,
-        val up: Int,
-        val down: Int,
-        val mark: Int,
-        val flags: Int,
-        val audio: Boolean,
-        val deleted: Boolean,
-        val placeholder: Boolean,
+    val created: Instant,
+    val thumbnail: String,
+    val path: String,
+    val fullsize: String,
+    val user: String,
+    val userId: Long,
+    val id: Long,
+    val promotedId: Long,
+    val width: Int,
+    val height: Int,
+    val up: Int,
+    val down: Int,
+    val mark: Int,
+    val flags: Int,
+    val audio: Boolean,
+    val deleted: Boolean,
+    val placeholder: Boolean,
 ) : DefaultParcelable {
     constructor(item: Api.Feed.Item) : this(
-            id = item.id,
-            promotedId = item.promoted,
-            userId = item.userId,
-            thumbnail = item.thumb,
-            image = item.image,
-            fullsize = item.fullsize,
-            user = item.user,
-            up = item.up,
-            down = item.down,
-            mark = item.mark,
-            created = item.created,
-            flags = item.flags,
-            width = item.width,
-            height = item.height,
-            audio = item.audio,
-            deleted = item.deleted,
-            placeholder = false,
+        id = item.id,
+        promotedId = item.promoted,
+        userId = item.userId,
+        thumbnail = item.thumb,
+        path = pickImageVariant(item.image, item.variants),
+        fullsize = item.fullsize,
+        user = item.user,
+        up = item.up,
+        down = item.down,
+        mark = item.mark,
+        created = item.created,
+        flags = item.flags,
+        width = item.width,
+        height = item.height,
+        audio = item.audio,
+        deleted = item.deleted,
+        placeholder = false,
     )
 
     /**
@@ -56,10 +61,10 @@ data class FeedItem(
         get() = ContentType.valueOf(flags) ?: ContentType.SFW
 
     val isVideo: Boolean
-        get() = isVideoUri(image)
+        get() = isVideoUri(path)
 
     val isImage: Boolean
-        get() = isImageUri(image)
+        get() = isImageUri(path)
 
     val isPinned: Boolean
         get() = promotedId > 1_000_000_000
@@ -81,9 +86,9 @@ data class FeedItem(
         dest.writeInt(userId.toInt())
 
         // deduplicate values for thumb & fullsize if equal to 'image'
-        dest.writeString(image)
-        dest.writeString(thumbnail.takeIf { it != image })
-        dest.writeString(fullsize.takeIf { it != image })
+        dest.writeString(path)
+        dest.writeString(thumbnail.takeIf { it != path })
+        dest.writeString(fullsize.takeIf { it != path })
 
         dest.writeString(user)
 
@@ -133,23 +138,23 @@ data class FeedItem(
         val flags = (bits ushr 16) and 0xff
 
         FeedItem(
-                id = id,
-                promotedId = promotedId,
-                userId = userId,
-                image = image,
-                thumbnail = thumbnail,
-                fullsize = fullsize,
-                user = user,
-                up = up,
-                down = down,
-                created = created,
-                width = width,
-                height = height,
-                mark = mark,
-                flags = flags,
-                audio = audio,
-                deleted = deleted,
-                placeholder = placeholder,
+            id = id,
+            promotedId = promotedId,
+            userId = userId,
+            path = image,
+            thumbnail = thumbnail,
+            fullsize = fullsize,
+            user = user,
+            up = up,
+            down = down,
+            created = created,
+            width = width,
+            height = height,
+            mark = mark,
+            flags = flags,
+            audio = audio,
+            deleted = deleted,
+            placeholder = placeholder,
         )
     })
 }
@@ -160,4 +165,11 @@ fun isVideoUri(image: String): Boolean {
 
 fun isImageUri(image: String): Boolean {
     return image.endsWith(".jpg") || image.endsWith(".png")
+}
+
+fun pickImageVariant(fallback: String, variants: List<Api.Feed.Variant>): String {
+    return variants.firstOrNull { v -> v.name == "vp9m" }?.path
+        ?: variants.firstOrNull { v -> v.name == "vp9" }?.path
+        ?: variants.firstOrNull { v -> v.name == "h264" }?.path
+        ?: fallback
 }

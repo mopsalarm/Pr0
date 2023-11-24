@@ -1,7 +1,11 @@
 package com.pr0gramm.app.util.decoders
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.BitmapRegionDecoder
+import android.graphics.Point
+import android.graphics.Rect
 import android.net.Uri
 import androidx.core.net.toFile
 import com.pr0gramm.app.util.isLocalFile

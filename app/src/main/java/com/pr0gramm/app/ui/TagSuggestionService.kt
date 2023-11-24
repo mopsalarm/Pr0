@@ -10,7 +10,7 @@ import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.retryUpTo
 import kotlinx.coroutines.launch
 import okio.ByteString.Companion.encode
-import java.util.*
+import java.util.Locale
 
 /**
  */

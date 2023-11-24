@@ -2,15 +2,14 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.content.Context
 import android.net.Uri
-
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.isLocalFile
-import java.util.*
+import java.util.Locale
 
 /**
  */
-data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.MediaType, val delay: Boolean = false) {
+data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaType, val delay: Boolean = false) {
     fun withDelay(value: Boolean): MediaUri {
         return copy(delay = value)
     }

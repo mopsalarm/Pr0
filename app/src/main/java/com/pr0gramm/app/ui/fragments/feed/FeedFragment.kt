@@ -17,33 +17,93 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
 import com.google.android.material.snackbar.Snackbar
-import com.pr0gramm.app.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.databinding.FragmentFeedBinding
 import com.pr0gramm.app.db.AppDB
-import com.pr0gramm.app.feed.*
+import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.ContentType.SFW
+import com.pr0gramm.app.feed.Feed
+import com.pr0gramm.app.feed.FeedException
+import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.feed.FeedManager
+import com.pr0gramm.app.feed.FeedService
+import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.feed.withoutImplicit
 import com.pr0gramm.app.parcel.getParcelableOrThrow
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.BookmarkService
+import com.pr0gramm.app.services.FollowService
+import com.pr0gramm.app.services.InMemoryCacheService
+import com.pr0gramm.app.services.RecentSearchesServices
+import com.pr0gramm.app.services.ShareService
+import com.pr0gramm.app.services.SingleShotService
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadService
-import com.pr0gramm.app.ui.*
+import com.pr0gramm.app.time
+import com.pr0gramm.app.ui.ContentTypeDrawable
+import com.pr0gramm.app.ui.ConversationActivity
+import com.pr0gramm.app.ui.DetectTapTouchListener
+import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
+import com.pr0gramm.app.ui.FeedFilterFormatter
+import com.pr0gramm.app.ui.FilterFragment
+import com.pr0gramm.app.ui.InterstitialAdler
+import com.pr0gramm.app.ui.LoginActivity
+import com.pr0gramm.app.ui.MainActionHandler
+import com.pr0gramm.app.ui.MainActivity
+import com.pr0gramm.app.ui.PreviewInfo
+import com.pr0gramm.app.ui.RecyclerItemClickListener
+import com.pr0gramm.app.ui.ScrollHideToolbarListener
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
+import com.pr0gramm.app.ui.TitleFragment
 import com.pr0gramm.app.ui.back.BackAwareFragment
-import com.pr0gramm.app.ui.base.*
+import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.ui.base.MainScope
+import com.pr0gramm.app.ui.base.asEventFlow
+import com.pr0gramm.app.ui.base.bindViews
+import com.pr0gramm.app.ui.base.launchInViewScope
+import com.pr0gramm.app.ui.base.launchUntilDestroy
+import com.pr0gramm.app.ui.base.launchUntilPause
+import com.pr0gramm.app.ui.base.launchUntilViewDestroy
+import com.pr0gramm.app.ui.configureNewStyle
+import com.pr0gramm.app.ui.configureRecyclerView
 import com.pr0gramm.app.ui.dialogs.PopupPlayer
 import com.pr0gramm.app.ui.fragments.CommentRef
 import com.pr0gramm.app.ui.fragments.ItemUserAdminDialog
 import com.pr0gramm.app.ui.fragments.OverscrollLinearSmoothScroller
 import com.pr0gramm.app.ui.fragments.pager.PostPagerFragment
+import com.pr0gramm.app.ui.showDialog
+import com.pr0gramm.app.ui.viewModels
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.bundle
+import com.pr0gramm.app.util.catchAll
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.dp
+import com.pr0gramm.app.util.equalsIgnoreCase
+import com.pr0gramm.app.util.fragmentArgumentWithDefault
+import com.pr0gramm.app.util.hideSoftKeyboard
+import com.pr0gramm.app.util.maybeShow
+import com.pr0gramm.app.util.trace
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.EnumSet
 import kotlin.math.min
 
 
@@ -703,7 +763,7 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
 
         menu.findItem(R.id.action_change_content_type__not_verified)?.let { item ->
             item.isVisible = userService.isAuthorized && !userService.userIsVerified
-            item.icon = ContentTypeDrawable(activity, listOf(ContentType.SFW)).also { icon ->
+            item.icon = ContentTypeDrawable(activity, listOf(SFW)).also { icon ->
                 icon.textSize = resources.getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size).toFloat()
             }

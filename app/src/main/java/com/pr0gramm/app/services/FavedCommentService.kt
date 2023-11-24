@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.Message
@@ -8,12 +10,11 @@ import com.pr0gramm.app.db.FavedCommentsQueries
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.util.toStateFlow
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import java.util.*
+import java.util.EnumSet
 import java.util.concurrent.TimeUnit
 
 
@@ -23,9 +24,9 @@ import java.util.concurrent.TimeUnit
 class FavedCommentService(private val api: Api, private val db: FavedCommentsQueries) {
 
     // observe all entries in the database and push updates to the state flow.
-    private val latest: StateFlow<Set<Long>> = db.all().asFlow().mapToList()
-            .map { HashSet(it) }
-            .toStateFlow(AsyncScope, initialValue = setOf())
+    private val latest: StateFlow<Set<Long>> = db.all().asFlow().mapToList(Dispatchers.IO)
+        .map { HashSet(it) }
+        .toStateFlow(AsyncScope, initialValue = setOf())
 
 
     suspend fun list(contentType: EnumSet<ContentType>, username: String, olderThan: Instant? = null): List<Api.FavedUserComment> {

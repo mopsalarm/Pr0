@@ -1168,7 +1168,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      */
     private fun isStaticImage(image: FeedItem): Boolean {
         return listOf(".jpg", ".jpeg", ".png").any {
-            image.image.endsWith(it, ignoreCase = true)
+            image.path.endsWith(it, ignoreCase = true)
         }
     }
 

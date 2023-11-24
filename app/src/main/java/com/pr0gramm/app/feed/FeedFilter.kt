@@ -6,7 +6,7 @@ import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.SimpleCreator
 import com.pr0gramm.app.parcel.javaClassOf
 import com.pr0gramm.app.services.PostCollection
-import java.util.*
+import java.util.Objects
 
 /**
  */
