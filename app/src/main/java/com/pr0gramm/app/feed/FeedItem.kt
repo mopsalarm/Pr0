@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed
 import android.os.Parcel
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.listOfSize
 import com.pr0gramm.app.parcel.ConstructorCreator
 import com.pr0gramm.app.parcel.DefaultParcelable
 import com.pr0gramm.app.parcel.javaClassOf
@@ -31,6 +32,7 @@ data class FeedItem(
     val flags: Int,
     val audio: Boolean,
     val deleted: Boolean,
+    val variants: List<Api.Feed.Variant>,
     val placeholder: Boolean,
 ) : DefaultParcelable {
     constructor(item: Api.Feed.Item) : this(
@@ -38,7 +40,7 @@ data class FeedItem(
         promotedId = item.promoted,
         userId = item.userId,
         thumbnail = item.thumb,
-        path = pickImageVariant(item.image, item.variants),
+        path = item.image,
         fullsize = item.fullsize,
         user = item.user,
         up = item.up,
@@ -50,6 +52,7 @@ data class FeedItem(
         height = item.height,
         audio = item.audio,
         deleted = item.deleted,
+        variants = item.variants,
         placeholder = false,
     )
 
@@ -76,6 +79,20 @@ data class FeedItem(
      */
     fun id(type: FeedType): Long {
         return (if (type === FeedType.PROMOTED) promotedId else id)
+    }
+
+    fun pickVariant(mobile: Boolean): Api.Feed.Variant {
+        if (mobile) {
+            val variant = variants.firstOrNull { v -> v.name == "vp9s" }
+            if (variant != null) {
+                return variant
+            }
+        }
+
+        return variants.firstOrNull { v -> v.name == "vp9m" }
+            ?: variants.firstOrNull { v -> v.name == "vp9" }
+            ?: variants.firstOrNull { v -> v.name == "h264" }
+            ?: Api.Feed.Variant(name = "base", path = path)
     }
 
     override fun toString(): String = "FeedItem(id=$id)"
@@ -108,6 +125,13 @@ data class FeedItem(
         bits = bits.or((flags and 0xff) shl 16)
 
         dest.writeInt(bits)
+
+        dest.writeByte(variants.size.toByte())
+        for (variant in variants) {
+            dest.writeString(variant.name)
+            dest.writeString(variant.path)
+        }
+
     }
 
     companion object CREATOR : ConstructorCreator<FeedItem>(javaClassOf(), { source ->
@@ -137,6 +161,15 @@ data class FeedItem(
         val mark = (bits ushr 8) and 0xff
         val flags = (bits ushr 16) and 0xff
 
+        val variantCount = source.readByte().toInt()
+
+        val variants = listOfSize(variantCount) {
+            Api.Feed.Variant(
+                name = source.readStringNotNull(),
+                path = source.readStringNotNull(),
+            )
+        }
+
         FeedItem(
             id = id,
             promotedId = promotedId,
@@ -155,6 +188,7 @@ data class FeedItem(
             audio = audio,
             deleted = deleted,
             placeholder = placeholder,
+            variants = variants,
         )
     })
 }
@@ -165,11 +199,4 @@ fun isVideoUri(image: String): Boolean {
 
 fun isImageUri(image: String): Boolean {
     return image.endsWith(".jpg") || image.endsWith(".png")
-}
-
-fun pickImageVariant(fallback: String, variants: List<Api.Feed.Variant>): String {
-    return variants.firstOrNull { v -> v.name == "vp9m" }?.path
-        ?: variants.firstOrNull { v -> v.name == "vp9" }?.path
-        ?: variants.firstOrNull { v -> v.name == "h264" }?.path
-        ?: fallback
 }

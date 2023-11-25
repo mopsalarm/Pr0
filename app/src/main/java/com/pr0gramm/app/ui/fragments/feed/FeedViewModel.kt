@@ -20,7 +20,6 @@ import com.pr0gramm.app.feed.FeedManager
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.feed.Tags
-import com.pr0gramm.app.feed.pickImageVariant
 import com.pr0gramm.app.model.config.Config
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.SeenService
@@ -490,7 +489,7 @@ private fun CachedItemInfo.toFeedItem(variants: List<CachedMediaVariant>): FeedI
     return FeedItem(
         id = id,
         promotedId = promotedId,
-        path = pickImageVariant(image, mappedVariants),
+        path = image,
         fullsize = fullsize,
         thumbnail = thumbnail,
         user = user,
@@ -504,6 +503,7 @@ private fun CachedItemInfo.toFeedItem(variants: List<CachedMediaVariant>): FeedI
         flags = flags,
         audio = audio,
         deleted = deleted,
+        variants = mappedVariants,
         placeholder = false,
     )
 }

@@ -7,14 +7,15 @@ import com.pr0gramm.app.api.pr0gramm.Thumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.di.injector
 
 
 /**
  * A little helper class to work with URLs
  */
-class UriHelper private constructor(context: Context) {
-    private val preloadManager: PreloadManager by lazy { context.injector.instance<PreloadManager>() }
+class UriHelper private constructor(private val context: Context) {
+    private val preloadManager: PreloadManager by lazy { context.injector.instance() }
 
     fun thumbnail(item: Thumbnail): Uri {
         val preloaded = preloadManager[item.id]
@@ -33,14 +34,17 @@ class UriHelper private constructor(context: Context) {
     }
 
     fun media(item: FeedItem, hq: Boolean = false): Uri {
-        if (hq && item.fullsize.isNotEmpty())
+        if (hq && item.fullsize.isNotEmpty()) {
             return NoPreload.media(item, true)
+        }
 
         val preloaded = preloadManager[item.id]
-        if (preloaded != null)
+        if (preloaded != null) {
             return preloaded.media.toUri()
+        }
 
-        return NoPreload.media(item, highQuality = false)
+        val mobile = AndroidUtility.isOnMobile(context)
+        return NoPreload.media(item, highQuality = false, mobile = mobile)
     }
 
     fun image(id: Long, image: String): Uri {
@@ -61,14 +65,14 @@ class UriHelper private constructor(context: Context) {
 
     fun post(type: FeedType, itemId: Long): Uri {
         return start().path(FEED_TYPES[type])
-                .appendPath(itemId.toString())
-                .build()
+            .appendPath(itemId.toString())
+            .build()
     }
 
     fun post(type: FeedType, itemId: Long, commentId: Long): Uri {
         return start().path(FEED_TYPES[type])
-                .appendEncodedPath("$itemId:comment$commentId")
-                .build()
+            .appendEncodedPath("$itemId:comment$commentId")
+            .build()
     }
 
     fun uploads(user: String): Uri {
@@ -94,16 +98,18 @@ class UriHelper private constructor(context: Context) {
 
     private fun start(): Uri.Builder {
         return Uri.Builder()
-                .scheme("https")
-                .authority("pr0gramm.com")
+            .scheme("https")
+            .authority("pr0gramm.com")
     }
 
     object NoPreload {
-        fun media(item: FeedItem, highQuality: Boolean = false): Uri {
-            return if (highQuality && !item.isVideo)
+        fun media(item: FeedItem, highQuality: Boolean = false, mobile: Boolean = false): Uri {
+            return if (highQuality && !item.isVideo) {
                 absoluteJoin(start("full"), item.fullsize)
-            else
-                absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.path)
+            } else {
+                val path = item.pickVariant(mobile).path
+                absoluteJoin(start(if (item.isVideo) "vid" else "img"), path)
+            }
         }
 
         fun image(image: String): Uri {
@@ -134,8 +140,8 @@ class UriHelper private constructor(context: Context) {
 
         private fun start(subdomain: String): Uri.Builder {
             return Uri.Builder()
-                    .scheme("https")
-                    .authority("$subdomain.pr0gramm.com")
+                .scheme("https")
+                .authority("$subdomain.pr0gramm.com")
         }
     }
 
@@ -145,9 +151,10 @@ class UriHelper private constructor(context: Context) {
         }
 
         private val FEED_TYPES = mapOf(
-                FeedType.NEW to "new",
-                FeedType.PROMOTED to "top",
-                FeedType.STALK to "stalk")
+            FeedType.NEW to "new",
+            FeedType.PROMOTED to "top",
+            FeedType.STALK to "stalk"
+        )
 
     }
 }

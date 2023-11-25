@@ -45,7 +45,7 @@ class ShareService(private val cache: Cache) {
         else
             UriHelper.of(activity).post(FeedType.NEW, feedItem.id).toString()
 
-        ShareCompat.IntentBuilder.from(activity)
+        ShareCompat.IntentBuilder(activity)
                 .setType("text/plain")
                 .setText(text)
                 .setChooserTitle(R.string.share_with)
@@ -56,7 +56,7 @@ class ShareService(private val cache: Cache) {
     fun shareDirectLink(activity: Activity, feedItem: FeedItem) {
         val uri = UriHelper.NoPreload.media(feedItem).toString()
 
-        ShareCompat.IntentBuilder.from(activity)
+        ShareCompat.IntentBuilder(activity)
                 .setType("text/plain")
                 .setText(uri)
                 .setChooserTitle(R.string.share_with)
@@ -67,7 +67,7 @@ class ShareService(private val cache: Cache) {
     fun shareUserProfile(activity: Activity, user: String) {
         val uri = UriHelper.of(activity).user(user).toString()
 
-        ShareCompat.IntentBuilder.from(activity)
+        ShareCompat.IntentBuilder(activity)
                 .setType("text/plain")
                 .setText(uri)
                 .setChooserTitle(R.string.share_with)
@@ -101,7 +101,7 @@ class ShareService(private val cache: Cache) {
         // delete the file on vm exit
         toShare.deleteOnExit()
 
-        ShareCompat.IntentBuilder.from(activity)
+        ShareCompat.IntentBuilder(activity)
                 .setType(mimetype)
                 .addStream(shareUri)
                 .setChooserTitle(R.string.share_with)
