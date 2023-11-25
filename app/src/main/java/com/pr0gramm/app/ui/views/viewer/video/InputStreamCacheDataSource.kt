@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui.views.viewer.video
 
 import android.net.Uri
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.upstream.BaseDataSource
-import com.google.android.exoplayer2.upstream.DataSpec
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.BaseDataSource
+import androidx.media3.datasource.DataSpec
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.BoundedInputStream
 import com.pr0gramm.app.util.closeQuietly
@@ -14,6 +16,7 @@ import java.io.InputStream
 /**
  * A data source that uses a Cache as a data source.
  */
+@OptIn(UnstableApi::class)
 internal class InputStreamCacheDataSource(private val cache: Cache) : BaseDataSource(true) {
     private var opened: Boolean = false
     private var _uri: Uri? = null

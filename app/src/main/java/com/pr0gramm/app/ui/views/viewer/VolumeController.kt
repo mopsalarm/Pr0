@@ -7,7 +7,7 @@ import android.media.AudioManager
 import android.widget.ImageView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.edit
-import com.google.android.exoplayer2.SimpleExoPlayer
+import androidx.media3.exoplayer.ExoPlayer
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -20,7 +20,7 @@ import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.delay
 import com.pr0gramm.app.util.di.injector
 
-class VolumeController(val view: ImageView, private val exo: () -> SimpleExoPlayer?) {
+class VolumeController(val view: ImageView, private val exo: () -> ExoPlayer?) {
     private val logger = Logger("VolumeController")
     private val preferences = view.context.injector.instance<SharedPreferences>()
 

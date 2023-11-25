@@ -3,15 +3,17 @@ package com.pr0gramm.app.ui.views.viewer
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.Renderer
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
-import com.google.android.exoplayer2.metadata.MetadataOutput
-import com.google.android.exoplayer2.text.TextOutput
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.metadata.MetadataOutput
+import androidx.media3.exoplayer.text.TextOutput
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 
+@OptIn(UnstableApi::class)
 object ExoPlayerRecycler {
     private val logger = Logger("ExoPlayerRecycler")
 
@@ -19,7 +21,7 @@ object ExoPlayerRecycler {
         Handler(Looper.getMainLooper())
     }
 
-    private var cached: SimpleExoPlayer? = null
+    private var cached: ExoPlayer? = null
 
     private val releaseCached = Runnable {
         if (this.cached != null) {
@@ -31,7 +33,7 @@ object ExoPlayerRecycler {
         }
     }
 
-    fun release(exo: SimpleExoPlayer) {
+    fun release(exo: ExoPlayer) {
         // release previously cached exo player
         this.cached?.let { cached ->
             logger.time("Released previously cached player") {
@@ -47,7 +49,7 @@ object ExoPlayerRecycler {
         handler.postDelayed(releaseCached, 2500)
     }
 
-    fun get(context: Context): SimpleExoPlayer {
+    fun get(context: Context): ExoPlayer {
         val exo = cached ?: return newExoPlayer(context).also { exo ->
             // keeps limited resources after calling .stop()
             exo.setForegroundMode(true)
@@ -59,26 +61,47 @@ object ExoPlayerRecycler {
         return exo
     }
 
-    private fun newExoPlayer(context: Context): SimpleExoPlayer {
+    private fun newExoPlayer(context: Context): ExoPlayer {
         val ctx = context.applicationContext
 
         logger.debug { "Create new exo player" }
-        return SimpleExoPlayer
-                .Builder(ctx, RenderersFactory(ctx), Mp4Extractor.FACTORY)
-                .build()
+        return ExoPlayer
+            .Builder(ctx, RenderersFactory(ctx))
+            .build()
     }
 
     private class RenderersFactory(ctx: Context) : DefaultRenderersFactory(ctx) {
-        override fun buildCameraMotionRenderers(context: Context, extensionRendererMode: Int, out: ArrayList<Renderer>) {
+        override fun buildCameraMotionRenderers(
+            context: Context,
+            extensionRendererMode: Int,
+            out: ArrayList<Renderer>
+        ) {
         }
 
-        override fun buildMetadataRenderers(context: Context, output: MetadataOutput, outputLooper: Looper, extensionRendererMode: Int, out: ArrayList<Renderer>) {
+        override fun buildMetadataRenderers(
+            context: Context,
+            output: MetadataOutput,
+            outputLooper: Looper,
+            extensionRendererMode: Int,
+            out: ArrayList<Renderer>
+        ) {
         }
 
-        override fun buildMiscellaneousRenderers(context: Context, eventHandler: Handler, extensionRendererMode: Int, out: ArrayList<Renderer>) {
+        override fun buildMiscellaneousRenderers(
+            context: Context,
+            eventHandler: Handler,
+            extensionRendererMode: Int,
+            out: ArrayList<Renderer>
+        ) {
         }
 
-        override fun buildTextRenderers(context: Context, output: TextOutput, outputLooper: Looper, extensionRendererMode: Int, out: ArrayList<Renderer>) {
+        override fun buildTextRenderers(
+            context: Context,
+            output: TextOutput,
+            outputLooper: Looper,
+            extensionRendererMode: Int,
+            out: ArrayList<Renderer>
+        ) {
         }
     }
 }

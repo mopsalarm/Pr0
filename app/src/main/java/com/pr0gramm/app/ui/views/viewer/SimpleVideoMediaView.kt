@@ -12,18 +12,20 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import androidx.annotation.OptIn
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.video.VideoSize
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.mkv.MatroskaExtractor
+import androidx.media3.extractor.mp4.FragmentedMp4Extractor
+import androidx.media3.extractor.mp4.Mp4Extractor
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -45,7 +47,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
     // the current player.
     // Will be released on detach and re-created on attach.
-    private var exo: SimpleExoPlayer? = null
+    private var exo: ExoPlayer? = null
 
     private val controlsView = LayoutInflater
             .from(context)
@@ -119,6 +121,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
                 duration = Duration.millis(duration))
     }
 
+    @OptIn(UnstableApi::class)
     private fun play() {
         logger.info { "$effectiveUri, ${exo == null}, $isPlaying" }
         if (exo != null || !isPlaying) {
@@ -140,12 +143,12 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         }
 
         val mediaItem = MediaItem.Builder()
-                .setUri(effectiveUri)
-                .build()
+            .setUri(effectiveUri)
+            .build()
 
         val mediaSource = ProgressiveMediaSource
-                .Factory(dataSourceFactory, extractorsFactory)
-                .createMediaSource(mediaItem)
+            .Factory(dataSourceFactory, extractorsFactory)
+            .createMediaSource(mediaItem)
 
         exo = ExoPlayerRecycler.get(context).apply {
             setVideoTextureView(find(R.id.texture_view))
@@ -287,6 +290,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         }
     }
 
+    @OptIn(UnstableApi::class)
     private val playerListener = object : Player.Listener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             showBusyIndicator(playbackState == Player.STATE_IDLE || playbackState == Player.STATE_BUFFERING)

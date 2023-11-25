@@ -537,8 +537,8 @@ interface Api {
             val created: Instant,
             val audio: Boolean = false,
             val deleted: Boolean = false,
-            val subtitles: List<Subtitle>,
-            val variants: List<Variant>,
+            val subtitles: List<Subtitle> = listOf(),
+            val variants: List<Variant> = listOf(),
         )
 
         @JsonClass(generateAdapter = true)
