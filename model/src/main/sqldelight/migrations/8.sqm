@@ -1,0 +1,7 @@
+CREATE TABLE CachedSubtitle (
+    itemId INTEGER NOT NULL REFERENCES CachedItemInfo(id),
+    language TEXT NOT NULL,
+    path TEXT NOT NULL,
+
+    PRIMARY KEY (itemId, language)
+);

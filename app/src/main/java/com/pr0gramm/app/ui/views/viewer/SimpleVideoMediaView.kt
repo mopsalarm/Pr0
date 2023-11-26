@@ -15,17 +15,23 @@ import android.widget.ImageView
 import androidx.annotation.OptIn
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
+import androidx.media3.common.text.CueGroup
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.FileDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor
 import androidx.media3.extractor.mp4.Mp4Extractor
+import androidx.media3.extractor.text.SubtitleExtractor
+import androidx.media3.extractor.text.webvtt.WebvttParser
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
@@ -37,6 +43,7 @@ import com.pr0gramm.app.util.addOnAttachListener
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.isLocalFile
 
 
 @SuppressLint("ViewConstructor")
@@ -50,8 +57,8 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     private var exo: ExoPlayer? = null
 
     private val controlsView = LayoutInflater
-            .from(context)
-            .inflate(R.layout.player_video_controls, this, false) as ViewGroup
+        .from(context)
+        .inflate(R.layout.player_video_controls, this, false) as ViewGroup
 
     init {
         if (config.audio) {
@@ -117,8 +124,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         val position = exo?.currentPosition?.takeIf { it >= 0 } ?: return null
         val buffered = exo?.contentBufferedPosition?.takeIf { it >= 0 } ?: return null
 
-        return ProgressInfo(position.toFloat() / duration, buffered.toFloat() / duration,
-                duration = Duration.millis(duration))
+        return ProgressInfo(
+            position.toFloat() / duration, buffered.toFloat() / duration,
+            duration = Duration.millis(duration)
+        )
     }
 
     @OptIn(UnstableApi::class)
@@ -133,22 +142,48 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         logger.info { "Starting exo for $effectiveUri" }
 
 
-        val dataSourceFactory = DataSource.Factory {
-            val cache = context.injector.instance<Cache>()
-            InputStreamCacheDataSource(cache)
+        val mediaSource: MediaSource = run {
+            val dataSourceFactory = when {
+                effectiveUri.isLocalFile -> FileDataSource.Factory()
+                else -> DataSource.Factory {
+                    val cache = context.injector.instance<Cache>()
+                    InputStreamCacheDataSource(cache)
+                }
+            }
+
+            val extractorsFactory = ExtractorsFactory {
+                val format = Format.Builder().build()
+                val subtitleExtractor = SubtitleExtractor(WebvttParser(), format)
+                arrayOf(FragmentedMp4Extractor(), Mp4Extractor(), MatroskaExtractor(), subtitleExtractor)
+            }
+
+            val mediaItem = MediaItem.Builder()
+                .setUri(effectiveUri)
+
+            /*
+            val subtitle = config.subtitles.firstOrNull()
+            if (subtitle != null) {
+                logger.info { "Initialize subtitle from ${subtitle.path}" }
+                val subtitleConfig = SubtitleConfiguration.Builder(UriHelper.NoPreload.subtitle(subtitle.path))
+                    .setLanguage(subtitle.language)
+                    .setMimeType(MimeTypes.TEXT_VTT)
+                    .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                    .setRoleFlags(C.ROLE_FLAG_SUBTITLE)
+                    .build()
+
+                mediaItem.setSubtitleConfigurations(listOf(subtitleConfig))
+
+                //val subtitleSource = SingleSampleMediaSource.Factory(DefaultHttpDataSource.Factory())
+                //    .createMediaSource(subtitleConfig, 1_000_000 * 60)
+
+                //mediaSource = MergingMediaSource(mediaSource, subtitleSource)
+            }
+            */
+
+            ProgressiveMediaSource
+                .Factory(dataSourceFactory, extractorsFactory)
+                .createMediaSource(mediaItem.build())
         }
-
-        val extractorsFactory = ExtractorsFactory {
-            arrayOf(FragmentedMp4Extractor(), Mp4Extractor(), MatroskaExtractor())
-        }
-
-        val mediaItem = MediaItem.Builder()
-            .setUri(effectiveUri)
-            .build()
-
-        val mediaSource = ProgressiveMediaSource
-            .Factory(dataSourceFactory, extractorsFactory)
-            .createMediaSource(mediaItem)
 
         exo = ExoPlayerRecycler.get(context).apply {
             setVideoTextureView(find(R.id.texture_view))
@@ -232,21 +267,21 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
         if (show) {
             controlsView.animate()
-                    .alpha(0f)
-                    .translationY(controlsView.height.toFloat())
-                    .withEndAction { controlsView.isVisible = false }
-                    .setInterpolator(AccelerateInterpolator())
-                    .start()
+                .alpha(0f)
+                .translationY(controlsView.height.toFloat())
+                .withEndAction { controlsView.isVisible = false }
+                .setInterpolator(AccelerateInterpolator())
+                .start()
 
         } else {
             controlsView.alpha = 0f
             controlsView.visibility = View.VISIBLE
             controlsView.animate()
-                    .alpha(0.5f)
-                    .translationY(0f)
-                    .setListener(null)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
+                .alpha(0.5f)
+                .translationY(0f)
+                .setListener(null)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
         }
     }
 
@@ -277,9 +312,11 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         imageView.isVisible = true
 
         val xTrans = imageView.width * 0.25f * direction
-        ObjectAnimator.ofPropertyValuesHolder(imageView,
-                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 0.7f, 0f),
-                PropertyValuesHolder.ofFloat(View.TRANSLATION_X, -xTrans, xTrans)).apply {
+        ObjectAnimator.ofPropertyValuesHolder(
+            imageView,
+            PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 0.7f, 0f),
+            PropertyValuesHolder.ofFloat(View.TRANSLATION_X, -xTrans, xTrans)
+        ).apply {
 
             duration = 300
             interpolator = AccelerateDecelerateInterpolator()
@@ -314,5 +351,6 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
                 onMediaShown()
             }
         }
+
     }
 }

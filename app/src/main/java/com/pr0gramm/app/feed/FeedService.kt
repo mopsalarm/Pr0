@@ -170,6 +170,14 @@ class FeedServiceImpl(
                             path = variant.path,
                         )
                     }
+
+                    for (subtitle in item.subtitles) {
+                        itemQueries.cacheSubtitle(
+                            itemId = item.id,
+                            language = subtitle.language,
+                            path = subtitle.path,
+                        )
+                    }
                 }
             }
         }

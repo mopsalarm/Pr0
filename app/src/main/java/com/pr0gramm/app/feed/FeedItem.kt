@@ -33,6 +33,7 @@ data class FeedItem(
     val audio: Boolean,
     val deleted: Boolean,
     val variants: List<Api.Feed.Variant>,
+    val subtitles: List<Api.Feed.Subtitle>,
     val placeholder: Boolean,
 ) : DefaultParcelable {
     constructor(item: Api.Feed.Item) : this(
@@ -53,6 +54,7 @@ data class FeedItem(
         audio = item.audio,
         deleted = item.deleted,
         variants = item.variants,
+        subtitles = item.subtitles,
         placeholder = false,
     )
 
@@ -81,7 +83,13 @@ data class FeedItem(
         return (if (type === FeedType.PROMOTED) promotedId else id)
     }
 
-    fun pickVariant(mobile: Boolean): Api.Feed.Variant {
+    fun pickVariant(mobile: Boolean, compatible: Boolean): Api.Feed.Variant {
+        if (compatible) {
+            // fallback to the "h264" or the default path
+            return variants.firstOrNull { v -> v.name == "h264" }
+                ?: Api.Feed.Variant(name = "base", path = path)
+        }
+
         if (mobile) {
             val variant = variants.firstOrNull { v -> v.name == "vp9s" }
             if (variant != null) {
@@ -126,12 +134,17 @@ data class FeedItem(
 
         dest.writeInt(bits)
 
-        dest.writeByte(variants.size.toByte())
-        for (variant in variants) {
+        dest.writeByte(variants.size.coerceAtMost(16).toByte())
+        for (variant in variants.take(16)) {
             dest.writeString(variant.name)
             dest.writeString(variant.path)
         }
 
+        dest.writeByte(subtitles.size.coerceAtMost(16).toByte())
+        for (variant in subtitles.take(16)) {
+            dest.writeString(variant.language)
+            dest.writeString(variant.path)
+        }
     }
 
     companion object CREATOR : ConstructorCreator<FeedItem>(javaClassOf(), { source ->
@@ -170,6 +183,14 @@ data class FeedItem(
             )
         }
 
+        val subtitleCount = source.readByte().toInt()
+        val subtitles = listOfSize(subtitleCount) {
+            Api.Feed.Subtitle(
+                language = source.readStringNotNull(),
+                path = source.readStringNotNull(),
+            )
+        }
+
         FeedItem(
             id = id,
             promotedId = promotedId,
@@ -188,6 +209,7 @@ data class FeedItem(
             audio = audio,
             deleted = deleted,
             placeholder = placeholder,
+            subtitles = subtitles,
             variants = variants,
         )
     })

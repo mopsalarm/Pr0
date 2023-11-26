@@ -103,17 +103,26 @@ class UriHelper private constructor(private val context: Context) {
     }
 
     object NoPreload {
-        fun media(item: FeedItem, highQuality: Boolean = false, mobile: Boolean = false): Uri {
+        fun media(
+            item: FeedItem,
+            highQuality: Boolean = false,
+            mobile: Boolean = false,
+            compatible: Boolean = false
+        ): Uri {
             return if (highQuality && !item.isVideo) {
                 absoluteJoin(start("full"), item.fullsize)
             } else {
-                val path = item.pickVariant(mobile).path
+                val path = item.pickVariant(mobile, compatible).path
                 absoluteJoin(start(if (item.isVideo) "vid" else "img"), path)
             }
         }
 
         fun image(image: String): Uri {
             return absoluteJoin(start("img"), image)
+        }
+
+        fun subtitle(subtitle: String): Uri {
+            return absoluteJoin(start("img"), subtitle)
         }
 
         fun thumbnail(item: Thumbnail, full: Boolean = false): Uri {
@@ -123,19 +132,6 @@ class UriHelper private constructor(private val context: Context) {
             }
 
             return absoluteJoin(start("thumb"), path)
-        }
-
-        private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {
-            if (path.startsWith("http://") || path.startsWith("https://")) {
-                return Uri.parse(path)
-            }
-
-            if (path.startsWith("//")) {
-                return Uri.parse("https:$path")
-            }
-
-            val normalized = if (path.startsWith("/")) path else "/$path"
-            return builder.path(normalized).build()
         }
 
         private fun start(subdomain: String): Uri.Builder {
@@ -157,4 +153,17 @@ class UriHelper private constructor(private val context: Context) {
         )
 
     }
+}
+
+private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+        return Uri.parse(path)
+    }
+
+    if (path.startsWith("//")) {
+        return Uri.parse("https:$path")
+    }
+
+    val normalized = if (path.startsWith("/")) path else "/$path"
+    return builder.path(normalized).build()
 }

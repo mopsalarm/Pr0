@@ -32,9 +32,10 @@ import kotlin.coroutines.coroutineContext
 /**
  */
 class DownloadService(
-        private val context: Application,
-        private val notificationService: NotificationService,
-        private val cache: Cache) {
+    private val context: Application,
+    private val notificationService: NotificationService,
+    private val cache: Cache
+) {
 
     /**
      * Enqueues an object for download. If an error occurs this method returns
@@ -43,12 +44,12 @@ class DownloadService(
     suspend fun downloadWithNotification(feedItem: FeedItem, preview: Bitmap?) {
         withContext(Dispatchers.IO + NonCancellable) {
             // download over proxy to use caching
-            val uri = UriHelper.of(context).media(feedItem, true)
+            val uri = UriHelper.NoPreload.media(feedItem, highQuality = true, compatible = true)
 
             val name = filenameOf(feedItem)
 
             val targetFile = Storage.create(context, name)
-                    ?: throw CouldNotCreateDownloadDirectoryException()
+                ?: throw CouldNotCreateDownloadDirectoryException()
 
             try {
                 downloadToFile(uri, targetFile).collect { status ->

@@ -29,9 +29,8 @@ import java.util.Locale
  */
 class ShareService(private val cache: Cache) {
     fun searchImage(context: Context, feedItem: FeedItem) {
-        val imageUri = UriHelper
-                .of(context).media(feedItem).toString()
-                .replace("http://", "https://")
+        val imageUri = UriHelper.NoPreload.media(feedItem, compatible = true).toString()
+            .replace("http://", "https://")
 
         val uri = Settings.imageSearchEngine.searchUri(imageUri) ?: return
         Track.searchImage()
@@ -40,27 +39,28 @@ class ShareService(private val cache: Cache) {
 
 
     fun sharePost(activity: Activity, feedItem: FeedItem) {
-        val text = if (feedItem.promotedId > 0)
+        val text = if (feedItem.promotedId > 0) {
             UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.id).toString()
-        else
+        } else {
             UriHelper.of(activity).post(FeedType.NEW, feedItem.id).toString()
+        }
 
         ShareCompat.IntentBuilder(activity)
-                .setType("text/plain")
-                .setText(text)
-                .setChooserTitle(R.string.share_with)
-                .startChooser()
+            .setType("text/plain")
+            .setText(text)
+            .setChooserTitle(R.string.share_with)
+            .startChooser()
     }
 
 
     fun shareDirectLink(activity: Activity, feedItem: FeedItem) {
-        val uri = UriHelper.NoPreload.media(feedItem).toString()
+        val uri = UriHelper.NoPreload.media(feedItem, compatible = true).toString()
 
         ShareCompat.IntentBuilder(activity)
-                .setType("text/plain")
-                .setText(uri)
-                .setChooserTitle(R.string.share_with)
-                .startChooser()
+            .setType("text/plain")
+            .setText(uri)
+            .setChooserTitle(R.string.share_with)
+            .startChooser()
     }
 
 
@@ -68,20 +68,22 @@ class ShareService(private val cache: Cache) {
         val uri = UriHelper.of(activity).user(user).toString()
 
         ShareCompat.IntentBuilder(activity)
-                .setType("text/plain")
-                .setText(uri)
-                .setChooserTitle(R.string.share_with)
-                .startChooser()
+            .setType("text/plain")
+            .setText(uri)
+            .setChooserTitle(R.string.share_with)
+            .startChooser()
     }
 
 
     suspend fun shareImage(activity: Activity, feedItem: FeedItem) {
         val mimetype = guessMimetype(activity, feedItem)
 
-        val toShare = runInterruptible(Dispatchers.Default) {
-            cache.get(UriHelper.of(activity).media(feedItem)).use { entry ->
-
-                val temporary = File(File(activity.cacheDir, "share"), DownloadService.filenameOf(feedItem))
+        val toShare = runInterruptible(Dispatchers.IO) {
+            cache.get(UriHelper.NoPreload.media(feedItem, compatible = true)).use { entry ->
+                val temporary = File(
+                    File(activity.cacheDir, "share"),
+                    DownloadService.filenameOf(feedItem),
+                )
 
                 temporary.parentFile?.mkdirs()
 
@@ -95,17 +97,17 @@ class ShareService(private val cache: Cache) {
             }
         }
 
-        val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
-        val shareUri = FileProvider.getUriForFile(activity, provider, toShare)
-
         // delete the file on vm exit
         toShare.deleteOnExit()
 
+        val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
+        val shareUri = FileProvider.getUriForFile(activity, provider, toShare)
+
         ShareCompat.IntentBuilder(activity)
-                .setType(mimetype)
-                .addStream(shareUri)
-                .setChooserTitle(R.string.share_with)
-                .startChooser()
+            .setType(mimetype)
+            .addStream(shareUri)
+            .setChooserTitle(R.string.share_with)
+            .startChooser()
     }
 
 
@@ -129,18 +131,14 @@ class ShareService(private val cache: Cache) {
         clipboardManager.setPrimaryClip(ClipData.newPlainText(text, text))
 
         Snackbar.make(view, R.string.copied_to_clipboard, Snackbar.LENGTH_SHORT)
-                .setAction(R.string.okay) { /* nothing */ }
-                .configureNewStyle()
-                .show()
+            .setAction(R.string.okay) { /* nothing */ }
+            .configureNewStyle()
+            .show()
     }
 
 
     private fun guessMimetype(context: Context, item: FeedItem): String {
-        return guessMimetype(getMediaUri(context, item))
-    }
-
-    private fun getMediaUri(context: Context, item: FeedItem): Uri {
-        return UriHelper.of(context).media(item)
+        return guessMimetype(UriHelper.of(context).media(item))
     }
 
     private fun guessMimetype(uri: Uri): String {
@@ -149,12 +147,13 @@ class ShareService(private val cache: Cache) {
             return "application/binary"
 
         val types = mapOf(
-                ".png" to "image/png",
-                ".jpg" to "image/jpeg",
-                "jpeg" to "image/jpeg",
-                "webm" to "video/webm",
-                ".mp4" to "video/mp4",
-                ".gif" to "image/gif")
+            ".png" to "image/png",
+            ".jpg" to "image/jpeg",
+            "jpeg" to "image/jpeg",
+            "webm" to "video/webm",
+            ".mp4" to "video/mp4",
+            ".gif" to "image/gif"
+        )
 
         val extension = url.substring(url.length - 4).lowercase(Locale.ROOT)
         return types[extension] ?: "application/binary"
@@ -172,8 +171,8 @@ class ShareService(private val cache: Cache) {
         IMGOPS {
             override fun searchUri(url: String): Uri? {
                 return Uri.parse("https://imgops.com").buildUpon()
-                        .appendEncodedPath(url)
-                        .build()
+                    .appendEncodedPath(url)
+                    .build()
             }
         };
 

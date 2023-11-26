@@ -773,7 +773,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val activity = requireActivity()
         val uri = buildMediaUri()
 
-        val viewerConfig = Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo)
+        val viewerConfig =
+            Config(activity, uri, audio = feedItem.audio, previewInfo = previewInfo, subtitles = feedItem.subtitles)
         val viewer = logger.time("MediaView.newInstance(${uri.baseUri})") {
             MediaViews.newInstance(viewerConfig)
         }

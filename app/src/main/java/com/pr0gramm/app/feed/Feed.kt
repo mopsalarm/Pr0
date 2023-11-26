@@ -213,6 +213,7 @@ data class Feed(
                         audio = false,
                         deleted = false,
                         variants = listOf(),
+                        subtitles = listOf(),
                         placeholder = true,
                     )
                 }

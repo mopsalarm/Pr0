@@ -10,6 +10,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.db.CachedItemInfo
 import com.pr0gramm.app.db.CachedMediaVariant
+import com.pr0gramm.app.db.CachedSubtitle
 import com.pr0gramm.app.db.FeedItemInfoQueries
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.Feed
@@ -305,7 +306,7 @@ class FeedViewModel(
     private suspend fun restoreFeedItems() {
         val placeholders = feedState.value.feed.filter { it.placeholder }
 
-        val (cachedItems, cachedVariants) = runInterruptible(Dispatchers.IO) {
+        val (cachedItems, cachedVariants, cachedSubtitles) = runInterruptible(Dispatchers.IO) {
             logger.time("Loading ${placeholders.size} cached items") {
                 val items = placeholders.chunked(256).flatMap { itemsChunk ->
                     val ids = itemsChunk.map { item -> item.id }
@@ -317,15 +318,26 @@ class FeedViewModel(
                     itemQueries.lookupVariants(ids).executeAsList()
                 }
 
-                val grouped = variants.groupBy { v -> v.itemId }
+                val subtitles = placeholders.chunked(256).flatMap { itemsChunk ->
+                    val ids = itemsChunk.map { item -> item.id }
+                    itemQueries.lookupSubtitles(ids).executeAsList()
+                }
 
-                Pair(items, grouped)
+                val groupedVariants = variants.groupBy { v -> v.itemId }
+                val groupedSubtitles = subtitles.groupBy { v -> v.itemId }
+
+                Triple(items, groupedVariants, groupedSubtitles)
             }
         }
 
         val byId = cachedItems.associateBy(
             keySelector = CachedItemInfo::id,
-            valueTransform = { ci -> ci.toFeedItem(cachedVariants.get(ci.id) ?: listOf()) },
+            valueTransform = { ci ->
+                ci.toFeedItem(
+                    variants = cachedVariants[ci.id] ?: listOf(),
+                    subtitles = cachedSubtitles[ci.id] ?: listOf(),
+                )
+            },
         )
 
         feedState.update { previousState ->
@@ -483,8 +495,9 @@ class FeedViewModel(
     }
 }
 
-private fun CachedItemInfo.toFeedItem(variants: List<CachedMediaVariant>): FeedItem {
+private fun CachedItemInfo.toFeedItem(variants: List<CachedMediaVariant>, subtitles: List<CachedSubtitle>): FeedItem {
     val mappedVariants = variants.map { v -> Api.Feed.Variant(name = v.name, path = v.path) }
+    val mappedSubtitles = subtitles.map { s -> Api.Feed.Subtitle(language = s.language, path = s.path) }
 
     return FeedItem(
         id = id,
@@ -504,6 +517,7 @@ private fun CachedItemInfo.toFeedItem(variants: List<CachedMediaVariant>): FeedI
         audio = audio,
         deleted = deleted,
         variants = mappedVariants,
+        subtitles = mappedSubtitles,
         placeholder = false,
     )
 }

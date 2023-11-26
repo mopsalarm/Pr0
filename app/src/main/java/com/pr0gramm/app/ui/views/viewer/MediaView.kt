@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
@@ -38,8 +39,8 @@ import kotlin.math.max
 
 /**
  */
-abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?)
-    : FrameLayout(config.activity), InjectorViewMixin {
+abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity),
+    InjectorViewMixin {
 
     private val logger = if (BuildConfig.DEBUG) {
         Logger("MediaView[${config.mediaUri.id}]")
@@ -216,8 +217,9 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
             // use the calculated sizes!
             setMeasuredDimension(width, height)
             measureChildren(
-                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+            )
         }
     }
 
@@ -372,16 +374,22 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
         fun onDoubleTap(event: MotionEvent): Boolean
     }
 
-    data class Config(val activity: Activity, val mediaUri: MediaUri,
-                      val previewInfo: PreviewInfo? = null,
-                      val audio: Boolean = false) {
+    data class Config(
+        val activity: Activity, val mediaUri: MediaUri,
+        val previewInfo: PreviewInfo? = null,
+        val audio: Boolean = false,
+        val subtitles: List<Api.Feed.Subtitle> = listOf()
+    ) {
 
         companion object {
             fun ofFeedItem(activity: Activity, item: FeedItem): Config {
-                return Config(activity,
-                        mediaUri = MediaUri.of(activity, item),
-                        audio = item.audio,
-                        previewInfo = PreviewInfo.of(activity, item))
+                return Config(
+                    activity,
+                    mediaUri = MediaUri.of(activity, item),
+                    audio = item.audio,
+                    previewInfo = PreviewInfo.of(activity, item),
+                    subtitles = item.subtitles,
+                )
             }
         }
     }
@@ -392,9 +400,10 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
         internal const val ANIMATION_DURATION = 500L
 
         private val DEFAULT_PARAMS = LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER_HORIZONTAL)
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER_HORIZONTAL
+        )
     }
 }
 

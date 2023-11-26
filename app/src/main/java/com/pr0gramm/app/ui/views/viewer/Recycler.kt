@@ -4,12 +4,12 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.Renderer
-import androidx.media3.exoplayer.metadata.MetadataOutput
-import androidx.media3.exoplayer.text.TextOutput
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
 
@@ -66,43 +66,16 @@ object ExoPlayerRecycler {
 
         logger.debug { "Create new exo player" }
         return ExoPlayer
-            .Builder(ctx, RenderersFactory(ctx))
+            .Builder(ctx, DefaultRenderersFactory(ctx))
+            .setTrackSelector(DefaultTrackSelector(context))
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                    .build(),
+                false
+            )
             .build()
-    }
-
-    private class RenderersFactory(ctx: Context) : DefaultRenderersFactory(ctx) {
-        override fun buildCameraMotionRenderers(
-            context: Context,
-            extensionRendererMode: Int,
-            out: ArrayList<Renderer>
-        ) {
-        }
-
-        override fun buildMetadataRenderers(
-            context: Context,
-            output: MetadataOutput,
-            outputLooper: Looper,
-            extensionRendererMode: Int,
-            out: ArrayList<Renderer>
-        ) {
-        }
-
-        override fun buildMiscellaneousRenderers(
-            context: Context,
-            eventHandler: Handler,
-            extensionRendererMode: Int,
-            out: ArrayList<Renderer>
-        ) {
-        }
-
-        override fun buildTextRenderers(
-            context: Context,
-            output: TextOutput,
-            outputLooper: Looper,
-            extensionRendererMode: Int,
-            out: ArrayList<Renderer>
-        ) {
-        }
     }
 }
 
