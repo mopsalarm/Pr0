@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -14,18 +15,25 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.annotation.OptIn
 import androidx.core.animation.doOnEnd
+import androidx.core.content.edit
 import androidx.core.view.isVisible
+import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.SubtitleConfiguration
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.common.text.CueGroup
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.FileDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.source.SingleSampleMediaSource
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor
@@ -35,8 +43,12 @@ import androidx.media3.extractor.text.webvtt.WebvttParser
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.databinding.PlayerSubtitleContainerBinding
+import com.pr0gramm.app.databinding.SubtitleBinding
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.viewer.video.InputStreamCacheDataSource
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.addOnAttachListener
@@ -44,6 +56,7 @@ import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.isLocalFile
+import com.pr0gramm.app.util.layoutInflater
 
 
 @SuppressLint("ViewConstructor")
@@ -52,6 +65,8 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
     private val volumeController: VolumeController?
 
+    private val preferences: SharedPreferences by instance()
+
     // the current player.
     // Will be released on detach and re-created on attach.
     private var exo: ExoPlayer? = null
@@ -59,6 +74,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     private val controlsView = LayoutInflater
         .from(context)
         .inflate(R.layout.player_video_controls, this, false) as ViewGroup
+
+    private val subtitleContainer: ViewGroup = PlayerSubtitleContainerBinding
+        .inflate(layoutInflater, this, false)
+        .root
 
     init {
         if (config.audio) {
@@ -74,7 +93,18 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             volumeController = null
         }
 
+        if (config.subtitles.isNotEmpty()) {
+            val subtitlesView: ImageView = controlsView.find(R.id.subtitles)
+            subtitlesView.isVisible = true
+            subtitlesView.setOnClickListener { toggleSubtitles(subtitlesView) }
+
+            if (preferences.getBoolean("subtitles", false)) {
+                toggleSubtitles(subtitlesView, forceOn = true)
+            }
+        }
+
         publishControllerView(controlsView)
+        publishControllerView(subtitleContainer)
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
             addOnAttachListener {
@@ -102,6 +132,18 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             videoPauseState.value = !exo.playWhenReady
 
             updatePauseViewIcon()
+        }
+    }
+
+    private fun toggleSubtitles(toggleView: ImageView, forceOn: Boolean = false) {
+        if (forceOn || !subtitleContainer.isVisible) {
+            subtitleContainer.isVisible = true
+            toggleView.setImageResource(R.drawable.ic_subtitles_on)
+            preferences.edit { putBoolean("subtitles", true) }
+        } else {
+            subtitleContainer.isVisible = false
+            toggleView.setImageResource(R.drawable.ic_subtitles_off)
+            preferences.edit { putBoolean("subtitles", false) }
         }
     }
 
@@ -142,7 +184,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         logger.info { "Starting exo for $effectiveUri" }
 
 
-        val mediaSource: MediaSource = run {
+        var mediaSource: MediaSource = run {
             val dataSourceFactory = when {
                 effectiveUri.isLocalFile -> FileDataSource.Factory()
                 else -> DataSource.Factory {
@@ -160,29 +202,25 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             val mediaItem = MediaItem.Builder()
                 .setUri(effectiveUri)
 
-            /*
-            val subtitle = config.subtitles.firstOrNull()
-            if (subtitle != null) {
-                logger.info { "Initialize subtitle from ${subtitle.path}" }
-                val subtitleConfig = SubtitleConfiguration.Builder(UriHelper.NoPreload.subtitle(subtitle.path))
-                    .setLanguage(subtitle.language)
-                    .setMimeType(MimeTypes.TEXT_VTT)
-                    .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-                    .setRoleFlags(C.ROLE_FLAG_SUBTITLE)
-                    .build()
-
-                mediaItem.setSubtitleConfigurations(listOf(subtitleConfig))
-
-                //val subtitleSource = SingleSampleMediaSource.Factory(DefaultHttpDataSource.Factory())
-                //    .createMediaSource(subtitleConfig, 1_000_000 * 60)
-
-                //mediaSource = MergingMediaSource(mediaSource, subtitleSource)
-            }
-            */
-
             ProgressiveMediaSource
                 .Factory(dataSourceFactory, extractorsFactory)
                 .createMediaSource(mediaItem.build())
+        }
+
+        val subtitle = config.subtitles.firstOrNull()
+        if (subtitle != null) {
+            logger.info { "Initialize subtitle from ${subtitle.path}" }
+            val subtitleConfig = SubtitleConfiguration.Builder(UriHelper.NoPreload.subtitle(subtitle.path))
+                .setLanguage(subtitle.language)
+                .setMimeType(MimeTypes.TEXT_VTT)
+                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                .setRoleFlags(C.ROLE_FLAG_SUBTITLE)
+                .build()
+
+            val subtitleSource = SingleSampleMediaSource.Factory(DefaultHttpDataSource.Factory())
+                .createMediaSource(subtitleConfig, 0)
+
+            mediaSource = MergingMediaSource(mediaSource, subtitleSource)
         }
 
         exo = ExoPlayerRecycler.get(context).apply {
@@ -352,5 +390,18 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             }
         }
 
+        override fun onCues(cueGroup: CueGroup) {
+            subtitleContainer.removeAllViews()
+
+            for (cue in cueGroup.cues) {
+                val text = cue.text ?: continue
+
+                val textView = SubtitleBinding
+                    .inflate(layoutInflater, subtitleContainer, true)
+                    .root
+
+                textView.text = text
+            }
+        }
     }
 }

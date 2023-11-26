@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Untertitel!"
+      },
+      {
+        "type": "Neu",
         "change": "Videos werden im Mobilfunk mit geringerer Qualität wiedergegeben um Daten zu sparen."
       }
     ]

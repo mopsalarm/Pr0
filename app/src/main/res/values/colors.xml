@@ -75,4 +75,5 @@
 
     <color name="icon_color">#d23b22</color>
 
+    <color name="subtitle_background">@color/transparent_black</color>
 </resources>

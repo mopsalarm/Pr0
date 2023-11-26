@@ -10,8 +10,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.util.EventLogger
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.time
+import com.pr0gramm.app.util.debugOnly
 
 @OptIn(UnstableApi::class)
 object ExoPlayerRecycler {
@@ -64,10 +66,19 @@ object ExoPlayerRecycler {
     private fun newExoPlayer(context: Context): ExoPlayer {
         val ctx = context.applicationContext
 
+        val params = DefaultTrackSelector.Parameters.Builder(context)
+            .setPreferredTextLanguage("en")
+            .setPreferredTextRoleFlags(C.ROLE_FLAG_SUBTITLE)
+            .setSelectUndeterminedTextLanguage(true)
+            .setRendererDisabled(C.TRACK_TYPE_TEXT, false)
+            .build()
+
+        val selector = DefaultTrackSelector(context, params)
+
         logger.debug { "Create new exo player" }
-        return ExoPlayer
+        val player = ExoPlayer
             .Builder(ctx, DefaultRenderersFactory(ctx))
-            .setTrackSelector(DefaultTrackSelector(context))
+            .setTrackSelector(selector)
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -76,6 +87,12 @@ object ExoPlayerRecycler {
                 false
             )
             .build()
+
+        debugOnly {
+            player.addAnalyticsListener(EventLogger())
+        }
+
+        return player
     }
 }
 

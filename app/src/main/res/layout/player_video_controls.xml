@@ -4,24 +4,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
+    android:paddingBottom="4dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
     android:alpha="0.5">
 
     <ImageView
         android:id="@+id/pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="left|bottom"
         android:background="?selectableItemBackgroundBorderless"
-        android:padding="16dp"
+        android:padding="8dp"
         app:srcCompat="@drawable/ic_video_pause" />
 
-    <ImageView
-        android:id="@+id/mute"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:background="?selectableItemBackgroundBorderless"
-        android:padding="16dp"
-        android:visibility="gone"
-        app:srcCompat="@drawable/ic_video_mute_on" />
+        android:layout_gravity="right|bottom">
+
+        <ImageView
+            android:id="@+id/subtitles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_subtitles_off" />
+
+        <ImageView
+            android:id="@+id/mute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_video_mute_on" />
+
+    </LinearLayout>
+
 </FrameLayout>
