@@ -43,6 +43,7 @@ import androidx.media3.extractor.text.webvtt.WebvttParser
 import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.databinding.PlayerSubtitleContainerBinding
 import com.pr0gramm.app.databinding.SubtitleBinding
 import com.pr0gramm.app.io.Cache
@@ -55,6 +56,7 @@ import com.pr0gramm.app.util.di.injector
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.layoutInflater
+import com.pr0gramm.app.util.priority
 
 
 @SuppressLint("ViewConstructor")
@@ -204,7 +206,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
                 .createMediaSource(mediaItem.build())
         }
 
-        val subtitle = config.subtitles.firstOrNull()
+        val subtitle = config.subtitles.sortedBy(Api.Feed.Subtitle::priority).firstOrNull()
         if (subtitle != null) {
             logger.info { "Initialize subtitle from ${subtitle.path}" }
             val subtitleConfig = SubtitleConfiguration.Builder(UriHelper.NoPreload.subtitle(subtitle.path))
