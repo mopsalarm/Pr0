@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
     android:background="@drawable/background_subtitles_rounded"
-    android:gravity="center"
+    android:gravity="start"
     android:padding="8dp"
     android:textColor="@color/white"
     tools:text="foobar center center center center c enter" />

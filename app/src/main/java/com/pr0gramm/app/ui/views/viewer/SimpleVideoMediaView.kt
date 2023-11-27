@@ -46,11 +46,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.databinding.PlayerSubtitleContainerBinding
 import com.pr0gramm.app.databinding.SubtitleBinding
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.viewer.video.InputStreamCacheDataSource
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.addOnAttachListener
 import com.pr0gramm.app.util.addOnDetachListener
 import com.pr0gramm.app.util.di.injector
@@ -154,8 +152,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
         val pauseView = controlsView.find<ImageView>(R.id.pause)
         if (!exo.playWhenReady) {
-            val dr = AndroidUtility.getTintedDrawable(context, R.drawable.ic_video_play, ThemeHelper.accentColor)
-            pauseView.setImageDrawable(dr)
+            pauseView.setImageResource(icon)
         } else {
             pauseView.setImageResource(icon)
         }
