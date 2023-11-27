@@ -581,6 +581,12 @@
     <string name="pref_rotate_vote_view_title">Blussi drehen</string>
     <string name="pref_rotate_vote_view_summary">Nur pr0mium: Diese Option bringt das Drehen des Blussi und des Minus Buttons zurück.</string>
 
+    <string name="pref_video_quality_human__adaptive">Adaptiv</string>
+    <string name="pref_video_quality_human__high">Hohe Qualität</string>
+    <string name="pref_video_quality_human__extrahigh">Extra hohe Qualität (nur wenige Videos)</string>
+    <string name="pref_video_quality_values_summary">Adaptiv verringt das Datenvolumen im Mobilfunk, sonst equivalent zu "Hohe Qualität"</string>
+    <string name="pref_video_quality_values_title">Video Qualität</string>
+
     <string name="user_validate_success">Dein Alter wurde verifiziert</string>
     <string name="user_validate_failed">Ungültiges Token.</string>
 </resources>

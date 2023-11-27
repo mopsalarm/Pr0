@@ -29,7 +29,7 @@ import java.util.Locale
  */
 class ShareService(private val cache: Cache) {
     fun searchImage(context: Context, feedItem: FeedItem) {
-        val imageUri = UriHelper.NoPreload.media(feedItem, compatible = true).toString()
+        val imageUri = UriHelper.NoPreload.mediaCompatible(feedItem).toString()
             .replace("http://", "https://")
 
         val uri = Settings.imageSearchEngine.searchUri(imageUri) ?: return
@@ -79,7 +79,7 @@ class ShareService(private val cache: Cache) {
         val mimetype = guessMimetype(activity, feedItem)
 
         val toShare = runInterruptible(Dispatchers.IO) {
-            cache.get(UriHelper.NoPreload.media(feedItem, compatible = true)).use { entry ->
+            cache.get(UriHelper.NoPreload.mediaCompatible(feedItem)).use { entry ->
                 val temporary = File(
                     File(activity.cacheDir, "share"),
                     DownloadService.filenameOf(feedItem),

@@ -483,14 +483,11 @@ val Byte.unsigned: Int get() = this.toInt() and 0xff
 
 
 inline fun <reified T : Enum<T>> tryEnumValueOf(key: String?): T? {
-    if (key == null)
+    if (key == null) {
         return null
-
-    return try {
-        enumValueOf<T>(key)
-    } catch (err: IllegalArgumentException) {
-        null
     }
+
+    return enumValues<T>().firstOrNull { v -> v.name.equalsIgnoreCase(key) }
 }
 
 fun <T> threadLocal(supplier: () -> T): ReadOnlyProperty<Any, T> {

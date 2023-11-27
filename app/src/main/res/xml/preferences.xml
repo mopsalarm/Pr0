@@ -46,6 +46,14 @@
                     android:summary="@string/pref_confirm_play_on_mobile_summary"
                     android:title="@string/pref_confirm_play_on_mobile_title" />
 
+                <ListPreference
+                    android:defaultValue="@string/pref_video_quality_default"
+                    android:entries="@array/pref_video_quality_human"
+                    android:entryValues="@array/pref_video_quality_values"
+                    android:key="pref_video_quality_list"
+                    android:summary="@string/pref_video_quality_values_summary"
+                    android:title="@string/pref_video_quality_values_title" />
+
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_load_hq_image_in_zoomview"

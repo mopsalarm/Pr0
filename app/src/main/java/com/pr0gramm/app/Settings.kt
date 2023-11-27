@@ -10,6 +10,7 @@ import androidx.preference.PreferenceManager
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.ShareService
 import com.pr0gramm.app.ui.Themes
+import com.pr0gramm.app.util.VideoQuality
 import com.pr0gramm.app.util.getEnumValue
 import com.pr0gramm.app.util.getStringOrNull
 import com.pr0gramm.app.util.tryEnumValueOf
@@ -183,6 +184,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
             val value = tryEnumValueOf<ShareService.ImageSearchEngine>(pref.lowercase())
             return value ?: ShareService.ImageSearchEngine.IMGOPS
         }
+
+    val videoQuality: VideoQuality
+        get() = preferences.getEnumValue("pref_video_quality_list", VideoQuality.Adaptive)
 
     val privateInput: Boolean
         get() = preferences.getBoolean("pref_private_input", false)

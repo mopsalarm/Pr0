@@ -3,11 +3,13 @@ package com.pr0gramm.app.services
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Thumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.VideoQuality
 import com.pr0gramm.app.util.di.injector
 
 
@@ -35,7 +37,7 @@ class UriHelper private constructor(private val context: Context) {
 
     fun media(item: FeedItem, hq: Boolean = false): Uri {
         if (hq && item.fullsize.isNotEmpty()) {
-            return NoPreload.media(item, true)
+            return NoPreload.media(item, highQuality = true)
         }
 
         val preloaded = preloadManager[item.id]
@@ -43,8 +45,13 @@ class UriHelper private constructor(private val context: Context) {
             return preloaded.media.toUri()
         }
 
-        val mobile = AndroidUtility.isOnMobile(context)
-        return NoPreload.media(item, highQuality = false, mobile = mobile)
+        return NoPreload.media(
+            item,
+            mobile = AndroidUtility.isOnMobile(context),
+            compatible = false,
+            highQuality = hq,
+            quality = Settings.videoQuality,
+        )
     }
 
     fun image(id: Long, image: String): Uri {
@@ -103,16 +110,21 @@ class UriHelper private constructor(private val context: Context) {
     }
 
     object NoPreload {
+        fun mediaCompatible(item: FeedItem, highQuality: Boolean = false): Uri {
+            return media(item, highQuality = highQuality, compatible = true)
+        }
+
         fun media(
             item: FeedItem,
             highQuality: Boolean = false,
             mobile: Boolean = false,
-            compatible: Boolean = false
+            compatible: Boolean = false,
+            quality: VideoQuality = VideoQuality.Adaptive,
         ): Uri {
             return if (highQuality && !item.isVideo) {
                 absoluteJoin(start("full"), item.fullsize)
             } else {
-                val path = item.pickVariant(mobile, compatible).path
+                val path = item.pickVariant(quality, mobile, compatible).path
                 absoluteJoin(start(if (item.isVideo) "vid" else "img"), path)
             }
         }

@@ -218,6 +218,10 @@
     <string name="filter_format_bestof">Best of</string>
     <string name="action_feed_type_bestof">Best of</string>
 
+    <string name="pref_video_quality_human__adaptive">Adaptive</string>
+    <string name="pref_video_quality_human__high">High</string>
+    <string name="pref_video_quality_human__extrahigh">Extra high</string>
+
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
 
     <string name="user_banned">Banned for %s</string>
@@ -602,5 +606,7 @@
     <string name="user_validate_failed">Validation failed, token is invalid.</string>
     <string name="uploads_of">Uploads of %s</string>
     <string name="collection_x_of_user">%s of %s</string>
+    <string name="pref_video_quality_values_summary">Adaptive reduces the data usage on mobile networks.</string>
+    <string name="pref_video_quality_values_title">Video quality</string>
 </resources>
 

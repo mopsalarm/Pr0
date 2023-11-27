@@ -10,6 +10,7 @@ import com.pr0gramm.app.parcel.javaClassOf
 import com.pr0gramm.app.parcel.read
 import com.pr0gramm.app.parcel.readStringNotNull
 import com.pr0gramm.app.parcel.write
+import com.pr0gramm.app.util.VideoQuality
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
@@ -83,22 +84,28 @@ data class FeedItem(
         return (if (type === FeedType.PROMOTED) promotedId else id)
     }
 
-    fun pickVariant(mobile: Boolean, compatible: Boolean): Api.Feed.Variant {
+    fun pickVariant(quality: VideoQuality, mobile: Boolean, compatible: Boolean): Api.Feed.Variant {
         if (compatible) {
             // fallback to the "h264" or the default path
             return variants.firstOrNull { v -> v.name == "h264" }
                 ?: Api.Feed.Variant(name = "base", path = path)
         }
 
-        if (mobile) {
+        if (mobile && quality == VideoQuality.Adaptive) {
             val variant = variants.firstOrNull { v -> v.name == "vp9s" }
             if (variant != null) {
                 return variant
             }
         }
 
-        return variants.firstOrNull { v -> v.name == "vp9m" }
-            ?: variants.firstOrNull { v -> v.name == "vp9" }
+        if (quality == VideoQuality.Adaptive || quality == VideoQuality.High) {
+            val variant = variants.firstOrNull { v -> v.name == "vp9m" }
+            if (variant != null) {
+                return variant
+            }
+        }
+
+        return variants.firstOrNull { v -> v.name == "vp9" }
             ?: variants.firstOrNull { v -> v.name == "h264" }
             ?: Api.Feed.Variant(name = "base", path = path)
     }

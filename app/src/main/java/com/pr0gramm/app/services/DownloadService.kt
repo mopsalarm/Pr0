@@ -44,7 +44,7 @@ class DownloadService(
     suspend fun downloadWithNotification(feedItem: FeedItem, preview: Bitmap?) {
         withContext(Dispatchers.IO + NonCancellable) {
             // download over proxy to use caching
-            val uri = UriHelper.NoPreload.media(feedItem, highQuality = true, compatible = true)
+            val uri = UriHelper.NoPreload.mediaCompatible(feedItem, highQuality = true)
 
             val name = filenameOf(feedItem)
 

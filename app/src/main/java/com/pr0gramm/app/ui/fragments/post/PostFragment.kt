@@ -527,17 +527,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             viewer.pivotX = params.pivot.x
             viewer.pivotY = params.pivot.y
 
-            fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                viewer,
-                ofFloat(View.ROTATION, params.rotation),
-                ofFloat(View.TRANSLATION_Y, params.trY),
-                ofFloat(View.SCALE_X, params.scale),
-                ofFloat(View.SCALE_Y, params.scale)
-            ).apply {
-
-                duration = 500
-                start()
-            }
+            fullscreenAnimator = ObjectAnimator
+                .ofPropertyValuesHolder(
+                    viewer,
+                    ofFloat(View.ROTATION, params.rotation),
+                    ofFloat(View.TRANSLATION_Y, params.trY),
+                    ofFloat(View.SCALE_X, params.scale),
+                    ofFloat(View.SCALE_Y, params.scale)
+                ).also { animator ->
+                    animator.duration = 500
+                    animator.start()
+                }
 
             views.repostHint.isVisible = false
 
