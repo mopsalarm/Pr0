@@ -121,7 +121,7 @@ class UriHelper private constructor(private val context: Context) {
             compatible: Boolean = false,
             quality: VideoQuality = VideoQuality.Adaptive,
         ): Uri {
-            return if (highQuality && !item.isVideo) {
+            return if (highQuality && !item.isVideo && item.fullsize.isNotEmpty()) {
                 absoluteJoin(start("full"), item.fullsize)
             } else {
                 val path = item.pickVariant(quality, mobile, compatible).path
