@@ -152,11 +152,10 @@ android.applicationVariants.all { variant ->
 repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://maven.google.com" }
-    // maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 
     implementation project(":model")
 
@@ -201,7 +200,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-dnsoverhttps"
     implementation "com.squareup.okhttp3:okhttp-brotli"
 
-    implementation "com.squareup.picasso:picasso:2.71828"
+    implementation "com.squareup.picasso:picasso:2.8"
 
     implementation "com.squareup.moshi:moshi:1.15.0"
 
@@ -214,7 +213,8 @@ dependencies {
     implementation "com.github.mopsalarm:subsampling-scale-image-view:3.10.0-1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.22@aar"
-    implementation 'com.github.AlexKorRnd:ChipsLayoutManager:v0.3.8.4'
+    // implementation 'com.github.AlexKorRnd:ChipsLayoutManager:v0.3.8.4'
+    // implementation "ir.mahdiparastesh:chipslayoutmanager:0.5.0@aar"
     implementation "com.leinardi.android:speed-dial:3.3.0"
 
     implementation "androidx.work:work-runtime-ktx:2.8.1"
@@ -225,15 +225,6 @@ dependencies {
     implementation 'androidx.media3:media3-exoplayer:1.2.0'
 
     debugImplementation 'androidx.multidex:multidex:2.0.1'
-
-    androidTestImplementation "androidx.test.ext:junit:1.1.5"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-
-    androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
 }
 
 configurations {
