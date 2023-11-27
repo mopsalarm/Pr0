@@ -564,6 +564,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             currentMediaViewState().controlsContainer?.let { mcc ->
                 mcc.removeFromParent()
                 viewer.addView(mcc)
+                applyControlContainerScaling(mcc, viewer, params)
             }
 
             views.fab.hide()
@@ -584,6 +585,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         viewer.translationY = params.trY
         viewer.scaleX = params.scale
         viewer.scaleY = params.scale
+
+        currentMediaViewState().controlsContainer?.let { mcc ->
+            applyControlContainerScaling(mcc, viewer, params)
+        }
     }
 
     fun exitFullscreen() {
@@ -623,7 +628,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         Screen.unlockOrientation(activity)
 
         // gets attached to different parent somewhere else
-        currentMediaViewState().controlsContainer?.removeFromParent()
+        currentMediaViewState().controlsContainer?.let { mcc ->
+            mcc.removeFromParent()
+            mcc.scaleX = 1.0f
+            mcc.scaleY = 1.0f
+        }
 
         // and tell the adapter to bind it back to the view.
         views.recyclerView.postAdapter?.let { adapter ->
@@ -632,6 +641,22 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 adapter.notifyItemChanged(idx)
             }
         }
+    }
+
+    private fun applyControlContainerScaling(
+        mcc: ViewGroup,
+        viewer: MediaView,
+        params: ViewerFullscreenParameters
+    ) {
+        mcc.layoutParams = FrameLayout.LayoutParams(
+            (viewer.width * params.scale).toInt(),
+            ((viewer.height - viewer.paddingTop) * params.scale).toInt(),
+        )
+
+        mcc.scaleX = 1.0f / params.scale
+        mcc.scaleY = 1.0f / params.scale
+        mcc.pivotY = 0.0f
+        mcc.pivotX = 0.0f
     }
 
     internal val isVideoFullScreen: Boolean get() = fullscreenAnimator != null

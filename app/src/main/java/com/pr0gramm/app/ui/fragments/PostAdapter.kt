@@ -53,18 +53,27 @@ class PostAdapter
     }
 
     sealed class Item(val id: Long) {
-        class PlaceholderItem(val height: Int, val viewer: View, val mediaControlsContainer: View?)
-            : Item(idInCategory(0)) {
+        class PlaceholderItem(val height: Int, val viewer: View, val mediaControlsContainer: View?) :
+            Item(idInCategory(0)) {
 
             override fun hashCode(): Int = height
             override fun equals(other: Any?): Boolean = other is PlaceholderItem && other.height == height
         }
 
-        data class InfoItem(val item: FeedItem, val vote: Vote, val isOurPost: Boolean, val followState: FollowState, val actions: PostActions)
-            : Item(idInCategory(1))
+        data class InfoItem(
+            val item: FeedItem,
+            val vote: Vote,
+            val isOurPost: Boolean,
+            val followState: FollowState,
+            val actions: PostActions
+        ) : Item(idInCategory(1))
 
-        data class TagsItem(val itemId: Long, val tags: List<Api.Tag>, val votes: LongSparseArray<Vote>, val actions: PostActions)
-            : Item(idInCategory(2))
+        data class TagsItem(
+            val itemId: Long,
+            val tags: List<Api.Tag>,
+            val votes: LongSparseArray<Vote>,
+            val actions: PostActions
+        ) : Item(idInCategory(2))
 
         object CommentsLoadingItem
             : Item(idInCategory(4))
@@ -78,8 +87,8 @@ class PostAdapter
         object NoCommentsWithoutAccount
             : Item(idInCategory(7))
 
-        data class CommentItem(val commentTreeItem: CommentTree.Item, val listener: CommentView.Listener)
-            : Item(idInCategory(8, commentTreeItem.comment.id))
+        data class CommentItem(val commentTreeItem: CommentTree.Item, val listener: CommentView.Listener) :
+            Item(idInCategory(8, commentTreeItem.comment.id))
     }
 
     private class ItemCallback : DiffUtil.ItemCallback<Item>() {
@@ -95,7 +104,8 @@ class PostAdapter
 }
 
 private object CommentItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, PostAdapter.Item, CommentView>(PostAdapter.Item.CommentItem::class) {
+    :
+    ListItemTypeAdapterDelegate<PostAdapter.Item.CommentItem, PostAdapter.Item, CommentView>(PostAdapter.Item.CommentItem::class) {
 
     override fun onCreateViewHolder(parent: ViewGroup): CommentView {
         return CommentView(parent)
@@ -107,7 +117,10 @@ private object CommentItemAdapterDelegate
 }
 
 private class TagsViewHolderAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, PostAdapter.Item, TagsViewHolderAdapterDelegate.ViewHolder>(PostAdapter.Item.TagsItem::class) {
+    :
+    ListItemTypeAdapterDelegate<PostAdapter.Item.TagsItem, PostAdapter.Item, TagsViewHolderAdapterDelegate.ViewHolder>(
+        PostAdapter.Item.TagsItem::class
+    ) {
 
     private var viewStates = ViewHolderState()
 
@@ -158,7 +171,9 @@ private class TagsViewHolderAdapterDelegate
 
 
 private object InfoLineItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, PostAdapter.Item, InfoLineItemAdapterDelegate.ViewHolder>(PostAdapter.Item.InfoItem::class) {
+    : ListItemTypeAdapterDelegate<PostAdapter.Item.InfoItem, PostAdapter.Item, InfoLineItemAdapterDelegate.ViewHolder>(
+    PostAdapter.Item.InfoItem::class
+) {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(InfoLineView(parent.context))
@@ -183,7 +198,10 @@ private object InfoLineItemAdapterDelegate
 }
 
 private object PlaceholderItemAdapterDelegate
-    : ListItemTypeAdapterDelegate<PostAdapter.Item.PlaceholderItem, PostAdapter.Item, PlaceholderItemAdapterDelegate.ViewHolder>(PostAdapter.Item.PlaceholderItem::class) {
+    :
+    ListItemTypeAdapterDelegate<PostAdapter.Item.PlaceholderItem, PostAdapter.Item, PlaceholderItemAdapterDelegate.ViewHolder>(
+        PostAdapter.Item.PlaceholderItem::class
+    ) {
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         return ViewHolder(PlaceholderView(parent.context))
@@ -213,6 +231,14 @@ private object PlaceholderItemAdapterDelegate
                 // controls were attached to a player in fullscreen.
                 if (pv.parent !== pv && (pv.parent == null || pv.parent is PlaceholderView)) {
                     item.mediaControlsContainer.removeFromParent()
+
+                    // align to bottom
+                    item.mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        Gravity.BOTTOM,
+                    )
+
                     pv.addView(item.mediaControlsContainer)
                 }
 
@@ -234,7 +260,7 @@ private class PlaceholderView(context: Context) : FrameLayout(context) {
         val v = View(context)
         v.setBackgroundResource(R.drawable.dropshadow_reverse)
 
-        val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(8))
+        val lp = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(8))
         lp.gravity = Gravity.BOTTOM
         v.layoutParams = lp
 
@@ -246,8 +272,9 @@ private class PlaceholderView(context: Context) : FrameLayout(context) {
         setMeasuredDimension(width, fixedHeight)
 
         measureChildren(
-                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(fixedHeight, MeasureSpec.EXACTLY))
+            MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(fixedHeight, MeasureSpec.EXACTLY)
+        )
     }
 
     @SuppressLint("ClickableViewAccessibility")
