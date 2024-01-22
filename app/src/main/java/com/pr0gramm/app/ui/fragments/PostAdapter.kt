@@ -24,6 +24,7 @@ import com.pr0gramm.app.ui.views.InfoLineView
 import com.pr0gramm.app.ui.views.PostActions
 import com.pr0gramm.app.ui.views.TagsView
 import com.pr0gramm.app.util.LongSparseArray
+import com.pr0gramm.app.util.debugOnly
 import com.pr0gramm.app.util.dp
 import com.pr0gramm.app.util.removeFromParent
 import com.pr0gramm.app.util.weakref
@@ -282,25 +283,23 @@ private class PlaceholderView(context: Context) : FrameLayout(context) {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val viewer = viewer ?: return false
 
-        val posInViewer = viewer.translationY + event.y + y
-
         val offsetY = y - viewer.y
-        val touchY = event.y + offsetY
 
-        val log = Logger("Touch")
-        log.info { "Viewer height: ${viewer.height}" }
-        log.info { "Viewer y: ${viewer.y}" }
-        log.info { "Container height: ${height}" }
-        log.info { "Container y: ${y}" }
-        log.info { "TouchY: ${event.y}" }
-        log.info { "Translated touch: $touchY" }
+        debugOnly {
+            val log = Logger("Touch")
+            log.info { "Viewer height: ${viewer.height}" }
+            log.info { "Viewer y: ${viewer.y}" }
+            log.info { "Container height: ${height}" }
+            log.info { "Container y: ${y}" }
+            log.info { "TouchY: ${event.y}" }
+        }
 
-        val originalY = event.y
-        event.setLocation(event.x, touchY)
+        val eventCopy = MotionEvent.obtainNoHistory(event)
+        eventCopy.offsetLocation(0.0f, offsetY)
         try {
-            return viewer.dispatchTouchEvent(event)
+            return viewer.dispatchTouchEvent(eventCopy)
         } finally {
-            event.setLocation(event.x, originalY)
+            eventCopy.recycle()
         }
     }
 }
