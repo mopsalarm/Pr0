@@ -127,11 +127,12 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
             // reset to sfw only.
             if (Settings.feedStartAtSfw && startedFromLauncher) {
-                logger.info { "Force-switch to sfw only." }
+                logger.info { "Force-switch to sfw/pol only." }
                 Settings.edit {
                     putBoolean("pref_feed_type_sfw", true)
                     putBoolean("pref_feed_type_nsfw", false)
                     putBoolean("pref_feed_type_nsfl", false)
+                    putBoolean("pref_feed_type_pol", Settings.feedStartAtSfwIncludesPOL)
                 }
             }
 

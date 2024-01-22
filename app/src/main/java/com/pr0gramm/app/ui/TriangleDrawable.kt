@@ -1,19 +1,22 @@
 package com.pr0gramm.app.ui
 
+import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
 import androidx.annotation.ColorInt
+import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.util.getColorCompat
 
 /**
  * A simple triangle drawable
  */
-class TriangleDrawable(contentType: ContentType, private val size: Int) : BaseDrawable(PixelFormat.TRANSPARENT) {
+class TriangleDrawable(context: Context, contentType: ContentType, private val size: Int) :
+    BaseDrawable(PixelFormat.TRANSPARENT) {
     private val paint: Paint = paint {
-        color = colorForContentType(contentType)
+        color = colorForContentType(context, contentType)
         style = Paint.Style.FILL
     }
 
@@ -42,13 +45,13 @@ class TriangleDrawable(contentType: ContentType, private val size: Int) : BaseDr
          * Gets a color for the given content type
          */
         @ColorInt
-        private fun colorForContentType(contentType: ContentType): Int {
-            when (contentType) {
-                ContentType.SFW -> return Color.parseColor("#a7d713")
-                ContentType.NSFW -> return Color.parseColor("#f6ab09")
-                ContentType.NSFL -> return Color.parseColor("#d9534f")
-                ContentType.NSFP -> return Color.parseColor("#69ccca")
-                else -> return Color.GRAY
+        private fun colorForContentType(context: Context, contentType: ContentType): Int {
+            return when (contentType) {
+                ContentType.SFW -> context.getColorCompat(R.color.type_sfw)
+                ContentType.NSFW -> context.getColorCompat(R.color.type_nsfw)
+                ContentType.NSFL -> context.getColorCompat(R.color.type_nsfl)
+                ContentType.NSFP -> context.getColorCompat(R.color.type_nsfp)
+                ContentType.POL -> context.getColorCompat(R.color.type_pol)
             }
         }
     }

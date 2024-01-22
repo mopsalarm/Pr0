@@ -23,7 +23,7 @@ object FilterParser {
                 continue
             }
 
-            val encodedGroups = matcher.namedGroups().firstOrNull()?.toMap() ?: continue
+            val encodedGroups = matcher.namedGroupsList().firstOrNull()?.toMap() ?: continue
             val values = encodedGroups.mapValues { decodeUrlComponent(it.value) }
 
             var filter = FeedFilter().withFeedType(FeedType.NEW)

@@ -12,11 +12,6 @@ object MediaViews {
      * @return A new [MediaView] instance.
      */
     fun newInstance(config: MediaView.Config): MediaView {
-        // handle delay urls first.
-        if (config.mediaUri.delay) {
-            return DelayedMediaView(config.copy(mediaUri = config.mediaUri.copy(delay = false)))
-        }
-
         val uri = config.mediaUri
 
         return if (uri.mediaType == MediaUri.MediaType.VIDEO) {

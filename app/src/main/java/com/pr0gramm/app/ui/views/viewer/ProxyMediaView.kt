@@ -26,7 +26,7 @@ abstract class ProxyMediaView internal constructor(config: Config) : MediaView(c
             idx = indexOfChild(previewView) + 1
         }
 
-        child.layoutParams = layoutParams
+        child.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         child.viewAspect = viewAspect
 
         addView(child, idx)
@@ -48,7 +48,6 @@ abstract class ProxyMediaView internal constructor(config: Config) : MediaView(c
             }
         }
     }
-
     override fun playMedia() {
         super.playMedia()
         delegate?.playMedia()
@@ -75,8 +74,9 @@ abstract class ProxyMediaView internal constructor(config: Config) : MediaView(c
     override fun onTouchEvent(event: MotionEvent): Boolean {
         delegate?.let { child ->
             event.offsetLocation(
-                    (child.paddingLeft - paddingLeft).toFloat(),
-                    (child.paddingTop - paddingTop).toFloat())
+                (child.paddingLeft - paddingLeft).toFloat(),
+                (child.paddingTop - paddingTop).toFloat()
+            )
 
             return child.onTouchEvent(event)
         }

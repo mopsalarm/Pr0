@@ -391,6 +391,7 @@ private object MissingContentTypeEntryAdapter
         val key = when (contentType) {
             ContentType.NSFW -> "pref_feed_type_nsfw"
             ContentType.NSFL -> "pref_feed_type_nsfl"
+            ContentType.POL -> "pref_feed_type_pol"
             else -> "pref_feed_type_sfw"
         }
 

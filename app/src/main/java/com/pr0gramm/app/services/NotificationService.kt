@@ -571,7 +571,7 @@ class NotificationHelperService(val context: Context) {
         val uriHelper: UriHelper = UriHelper.of(context)
 
         val activeContentTypes = if (Settings.feedStartAtSfw) {
-            setOf(ContentType.SFW)
+            setOfNotNull(ContentType.SFW, ContentType.POL.takeIf { Settings.feedStartAtSfwIncludesPOL })
         } else {
             Settings.contentType
         }

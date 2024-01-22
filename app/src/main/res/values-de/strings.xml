@@ -43,6 +43,7 @@
     <string name="type_nsfp">sfw/nsfp</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
+    <string name="type_pol">pol</string>
     <string name="indicator_icon">Icon</string>
     <string name="indicator_none">Keine Anzeige</string>
     <string name="pref_seen_indicator_style">Bilder als gesehen markieren</string>
@@ -249,6 +250,8 @@
     <string name="share_to_clipboard">Zwischenablage</string>
     <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
+    <string name="pref_feed_start_at_sfwpol_title">Zeige \'sfw\' impliziert auch \'pol\'</string>
+    <string name="pref_feed_start_at_sfwpol_summary">Wenn beim Start automatisch \'sfw\' ausgewählt wird, wird auch \'pol\' aktiviert.</string>
     <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
     <string name="pref_use_incognito_browser_summary">Öffnet Links immer im Firefox Klar Browser. Dieser muss installiert sein.</string>
     <string name="action_invite">Einladungen</string>

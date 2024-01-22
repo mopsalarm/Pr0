@@ -261,12 +261,12 @@ class UploadService(
         object Processing : State()
     }
 
-    fun upload(file: File, sfw: ContentType, tags: Set<String>): Flow<State> {
+    fun upload(file: File, contentType: ContentType, tags: Set<String>): Flow<State> {
         return upload(file).transform { state ->
             emit(state)
 
             if (state is State.Uploaded) {
-                emitAll(post(state.key, sfw, tags, true))
+                emitAll(post(state.key, contentType, tags, true))
             }
         }
     }
@@ -382,13 +382,13 @@ class UploadService(
 }
 
 fun isValidTag(tag: String): Boolean {
-    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound", "text")
+    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "pol", "gif", "video", "sound", "text")
     val invalid = tag.lowercase(Locale.ROOT) in invalidTags || tag.length < 2 || tag.length > 32
     return !invalid
 }
 
 fun isMoreRestrictiveContentTypeTag(tags: List<String>, tag: String): Boolean {
-    val sorted = listOf("sfw", "nsfp", "nsfw", "nsfl")
+    val sorted = listOf("sfw", "pol", "nsfp", "nsfw", "nsfl")
 
     val newTagIndex = sorted.indexOf(tag.lowercase(Locale.ROOT))
     if (newTagIndex < 0) {

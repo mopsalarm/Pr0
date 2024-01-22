@@ -38,24 +38,35 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     val contentTypeNsfl: Boolean
         get() = preferences.getBoolean("pref_feed_type_nsfl", false)
 
+    val contentTypePol: Boolean
+        get() = preferences.getBoolean("pref_feed_type_pol", true)
+
     /**
      * Gets a set of all selected content types. This gets called only for logged in users.
      */
     val contentType: EnumSet<ContentType>
         get() {
-            val result = EnumSet.of(ContentType.SFW, ContentType.NSFW, ContentType.NSFL)
+            val result = EnumSet.of(ContentType.SFW, ContentType.NSFW, ContentType.NSFL, ContentType.POL)
 
-            if (!contentTypeNsfl)
+            if (!contentTypeNsfl) {
                 result.remove(ContentType.NSFL)
+            }
 
-            if (!contentTypeNsfw)
+            if (!contentTypeNsfw) {
                 result.remove(ContentType.NSFW)
+            }
 
-            if (result.size > 1 && !contentTypeSfw)
+            if (!contentTypePol) {
+                result.remove(ContentType.POL)
+            }
+
+            if (result.size > 1 && !contentTypeSfw) {
                 result.remove(ContentType.SFW)
+            }
 
-            if (result.contains(ContentType.SFW))
+            if (ContentType.SFW in result) {
                 result.add(ContentType.NSFP)
+            }
 
             return result
         }
@@ -122,6 +133,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
 
     val feedStartAtSfw: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_sfw", false)
+
+    val feedStartAtSfwIncludesPOL: Boolean
+        get() = preferences.getBoolean("pref_feed_start_at_sfwpol", false)
 
     val showCategoryRandom: Boolean
         get() = preferences.getBoolean("pref_show_category_random", true)
@@ -213,6 +227,7 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
             putBoolean("pref_feed_type_sfw", true)
             putBoolean("pref_feed_type_nsfw", false)
             putBoolean("pref_feed_type_nsfl", false)
+            putBoolean("pref_feed_type_pol", true)
         }
     }
 

@@ -44,6 +44,7 @@ import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.databinding.PlayerDelayedOverlayBinding
 import com.pr0gramm.app.databinding.PlayerSubtitleContainerBinding
 import com.pr0gramm.app.databinding.SubtitleBinding
 import com.pr0gramm.app.io.Cache
@@ -57,6 +58,7 @@ import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.priority
+import com.pr0gramm.app.util.removeFromParent
 
 
 @SuppressLint("ViewConstructor")
@@ -66,6 +68,9 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     private val volumeController: VolumeController?
 
     private val preferences: SharedPreferences by instance()
+
+    // the player has confirmed that he wants to start the video
+    private var isConfirmed: Boolean = false
 
     // the current player.
     // Will be released on detach and re-created on attach.
@@ -103,6 +108,10 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             }
         }
 
+        if (config.mediaUri.delay) {
+            initializePlayButtonOverlay()
+        }
+
         publishControllerView(controlsView)
         publishControllerView(subtitleContainer)
 
@@ -110,14 +119,14 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
             addOnAttachListener {
                 if (isPlaying) {
                     logger.debug { "View is attached, re-create video player now." }
-                    play()
+                    startVideo()
                 }
             }
 
             addOnDetachListener {
                 if (exo != null) {
                     logger.debug { "View is detached, releasing video player now." }
-                    stop()
+                    stopVideo()
                 }
             }
         }
@@ -133,6 +142,29 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
 
             updatePauseViewIcon()
         }
+    }
+
+    private fun initializePlayButtonOverlay() {
+        val overlay = PlayerDelayedOverlayBinding.inflate(layoutInflater, this, true).also { cc ->
+            cc.playerConfirm.setOnClickListener {
+                cc.playerConfirm.animate()
+                    .alpha(0f).scaleX(0.8f).scaleY(0.8f)
+                    .withEndAction { cc.playerConfirm.removeFromParent() }
+                    .start()
+
+
+                isConfirmed = true
+                playMedia()
+            }
+        }
+
+        // Display the overlay in a smooth animation
+        overlay.playerConfirm.alpha = 0f
+        overlay.playerConfirm.scaleX = 0.8f
+        overlay.playerConfirm.scaleY = 0.8f
+        overlay.playerConfirm.animate()
+            .alpha(1f).scaleX(1f).scaleY(1f)
+            .setStartDelay(300).start()
     }
 
     private fun toggleSubtitles(toggleView: ImageView, forceOn: Boolean = false) {
@@ -172,7 +204,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     }
 
     @OptIn(UnstableApi::class)
-    private fun play() {
+    private fun startVideo() {
         logger.info { "$effectiveUri, ${exo == null}, $isPlaying" }
         if (exo != null || !isPlaying) {
             return
@@ -245,7 +277,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         updatePauseViewIcon()
     }
 
-    private fun stop() {
+    private fun stopVideo() {
         this.exo?.let { exo ->
             logger.info { "Stopping exo for $effectiveUri" }
 
@@ -276,13 +308,17 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     }
 
     override fun playMedia() {
+        if (config.mediaUri.delay && !isConfirmed) {
+            return
+        }
+
         super.playMedia()
-        play()
+        startVideo()
     }
 
     override fun stopMedia() {
         super.stopMedia()
-        stop()
+        stopVideo()
     }
 
     override fun rewind() {

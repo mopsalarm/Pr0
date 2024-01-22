@@ -272,7 +272,7 @@ class NavigationProvider(
 
             NavigationItem(
                 action = ActionType.BOOKMARK, layout = layoutId,
-                title = title, icon = icon, bookmark = entry,
+                title = title.trim(), icon = icon, bookmark = entry,
                 filter = filter, filterInverse = filterInverse,
                 isSelected = isSelected
             )

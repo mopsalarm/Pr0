@@ -78,6 +78,7 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         R.id.upload_type_nsfp to ContentType.NSFP,
         R.id.upload_type_nsfw to ContentType.NSFW,
         R.id.upload_type_nsfl to ContentType.NSFL,
+        R.id.upload_type_pol to ContentType.POL,
     )
 
     private val vm by viewModels {
@@ -128,10 +129,11 @@ class UploadFragment : BaseFragment("UploadFragment", R.layout.fragment_upload) 
         }
 
         val types = listOf(
-                R.id.upload_type_sfw,
-                R.id.upload_type_nsfp,
-                R.id.upload_type_nsfw,
-                R.id.upload_type_nsfl,
+            R.id.upload_type_sfw,
+            R.id.upload_type_nsfp,
+            R.id.upload_type_nsfw,
+            R.id.upload_type_nsfl,
+            R.id.upload_type_pol,
         )
 
         for (viewId in types) {

@@ -1,5 +1,18 @@
 [
   {
+    "version": 204,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Kategorie 'pol' als deine unabhängige und facettenreiche Nachrichtenquelle."
+      },
+      {
+        "type": "Fix",
+        "change": "Vollbild im mit Mobilfunk auf einigen Geräten behoben."
+      }
+    ]
+  },
+  {
     "version": 203,
     "changes": [
       {

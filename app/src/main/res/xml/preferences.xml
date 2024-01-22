@@ -84,6 +84,13 @@
                     android:summary="@string/pref_feed_start_at_sfw_summary"
                     android:title="@string/pref_feed_start_at_sfw_title" />
 
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:key="pref_feed_start_at_sfwpol"
+                    android:dependency="pref_feed_start_at_sfw"
+                    android:summary="@string/pref_feed_start_at_sfwpol_summary"
+                    android:title="@string/pref_feed_start_at_sfwpol_title" />
+
             </PreferenceCategory>
 
             <PreferenceCategory

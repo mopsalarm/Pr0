@@ -46,6 +46,7 @@
     <string name="type_nsfp">sfw/nsfp</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
+    <string name="type_pol">pol</string>
     <string name="prefcat_behaviour">Behaviour</string>
     <string name="pref_seen_indicator_style">Mark images as seen</string>
 
@@ -269,6 +270,8 @@
     <string name="share_to_clipboard">To clipboard</string>
     <string name="pref_feed_start_at_sfw_title">Default to \'sfw\'</string>
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
+    <string name="pref_feed_start_at_sfwpol_title">Default to \'sfw\' includes \'pol\'</string>
+    <string name="pref_feed_start_at_sfwpol_summary">When the app automatically activates \'sfw\' on startup, it also activates \'pol\'.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
     <string name="pref_use_incognito_browser_summary">Open links from comments in firefox focus browser with no history.</string>
     <string name="action_invite">Invites</string>
@@ -434,6 +437,7 @@
     <string name="type_nsfp_upper" translatable="false">NSFP</string>
     <string name="type_nsfw_upper" translatable="false">NSFW</string>
     <string name="type_nsfl_upper" translatable="false">NSFL</string>
+    <string name="type_pol_upper" translatable="false">POL</string>
     <string name="stats_title_uploads_favs">Uploads</string>
     <string name="stats_title_votes">Your voting behaviour</string>
     <string name="monat">MONTH</string>

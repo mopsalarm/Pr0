@@ -12,7 +12,11 @@ import java.util.EnumSet
  * Content type to load.
  */
 enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
-    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl), NSFP(8, R.string.type_nsfp);
+    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl), NSFP(
+        8,
+        R.string.type_nsfp
+    ),
+    POL(16, R.string.type_pol);
 
     override fun describeContents(): Int {
         return 0
@@ -24,11 +28,11 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
 
     fun isAvailable(loginState: LoginState): Boolean {
         if (!loginState.authorized) {
-            return this == SFW
+            return this == SFW || this == POL
         }
 
         if (!loginState.verified) {
-            return this == SFW || this == NSFP
+            return this == SFW || this == NSFP || this == POL
         }
 
         return true

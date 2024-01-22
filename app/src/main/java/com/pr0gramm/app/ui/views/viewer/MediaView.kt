@@ -63,7 +63,7 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
     /**
      * Returns the url that this view should display.
      */
-    private val mediaUri: MediaUri
+    private val mediaUri: MediaUri = config.mediaUri
 
     var wasViewed: Listener<Unit>? = null
 
@@ -71,6 +71,7 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
 
     var isPlaying: Boolean = false
         private set
+
 
     var busyIndicator: View? = null
         private set
@@ -94,8 +95,6 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
         }
 
     init {
-        this.mediaUri = config.mediaUri
-
         layoutParams = DEFAULT_PARAMS
         if (layoutId != null) {
             LayoutInflater.from(config.activity).inflate(layoutId, this)
@@ -239,9 +238,9 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
         // the moment the preview is removed
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event)
-    }
+    // override fun onTouchEvent(event: MotionEvent): Boolean {
+    //     return gestureDetector.onTouchEvent(event)
+    // }
 
     /**
      * The listener that handles double tapping

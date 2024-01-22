@@ -94,7 +94,7 @@ class FeedServiceImpl(
             }
 
             FeedType.BESTOF -> {
-                // add add s:1000 tag to the query.
+                // add add s:2000 tag to the query.
                 // and add s:700 to nsfw posts.
 
                 val tagsQuery = Tags.joinOr(

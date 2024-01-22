@@ -20,7 +20,7 @@
             <group android:checkableBehavior="all">
                 <item
                     android:id="@+id/action_content_type_sfw"
-                    android:title="@string/type_sfw"/>
+                    android:title="@string/type_sfw" />
 
                 <item
                     android:id="@+id/action_content_type_nsfw"
@@ -29,6 +29,10 @@
                 <item
                     android:id="@+id/action_content_type_nsfl"
                     android:title="@string/type_nsfl" />
+
+                <item
+                    android:id="@+id/action_content_type_pol"
+                    android:title="@string/type_pol" />
             </group>
         </menu>
     </item>

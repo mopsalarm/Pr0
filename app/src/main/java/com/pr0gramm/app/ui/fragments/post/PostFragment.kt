@@ -351,7 +351,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun updateTitle(tags: List<Api.Tag>) {
         val exclude = setOf(
-            "sfw", "nsfw", "nsfl", "nsfp", "gif", "video", "sound",
+            "sfw", "nsfw", "nsfl", "nsfp", "pol", "gif", "video", "sound",
             "text", "porn", "richtiges grau", "achtung laut", "repost", "loop"
         )
 
@@ -881,7 +881,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         if (Settings.showContentTypeFlag) {
             // show the little admin triangle
-            mediaControlsContainer.background = TriangleDrawable(feedItem.contentType, activity.dp(16))
+            mediaControlsContainer.background = TriangleDrawable(activity, feedItem.contentType, activity.dp(16))
             mediaControlsContainer.minimumHeight = activity.dp(16)
         }
 

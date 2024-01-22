@@ -119,12 +119,14 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         val nsfp = counts[ContentType.NSFP] ?: 0
         val nsfw = counts[ContentType.NSFW] ?: 0
         val nsfl = counts[ContentType.NSFL] ?: 0
+        val pol = counts[ContentType.POL] ?: 0
 
         val values = listOf(
             CircleChartView.Value(sfw, getColorCompat(R.color.type_sfw)),
             CircleChartView.Value(nsfp, getColorCompat(R.color.type_nsfp)),
             CircleChartView.Value(nsfw, getColorCompat(R.color.type_nsfw)),
             CircleChartView.Value(nsfl, getColorCompat(R.color.type_nsfl)),
+            CircleChartView.Value(pol, getColorCompat(R.color.type_pol)),
         )
 
         view.chartValues = values

@@ -118,6 +118,7 @@ class FeedManager(private val scope: CoroutineScope, private val feedService: Fe
                 "sfwRequired" -> FeedException.InvalidContentTypeException(ContentType.SFW)
                 "nsfwRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFW)
                 "nsflRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFL)
+                "polRequired" -> FeedException.InvalidContentTypeException(ContentType.POL)
                 else -> FeedException.GeneralFeedException(error)
             })
 

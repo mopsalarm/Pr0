@@ -12,6 +12,7 @@ import androidx.core.view.get
 import androidx.core.view.size
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -279,6 +280,27 @@ private class PlaceholderView(context: Context) : FrameLayout(context) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return viewer?.onTouchEvent(event) ?: false
+        val viewer = viewer ?: return false
+
+        val posInViewer = viewer.translationY + event.y + y
+
+        val offsetY = y - viewer.y
+        val touchY = event.y + offsetY
+
+        val log = Logger("Touch")
+        log.info { "Viewer height: ${viewer.height}" }
+        log.info { "Viewer y: ${viewer.y}" }
+        log.info { "Container height: ${height}" }
+        log.info { "Container y: ${y}" }
+        log.info { "TouchY: ${event.y}" }
+        log.info { "Translated touch: $touchY" }
+
+        val originalY = event.y
+        event.setLocation(event.x, touchY)
+        try {
+            return viewer.dispatchTouchEvent(event)
+        } finally {
+            event.setLocation(event.x, originalY)
+        }
     }
 }
