@@ -48,6 +48,7 @@ import com.pr0gramm.app.databinding.PlayerDelayedOverlayBinding
 import com.pr0gramm.app.databinding.PlayerSubtitleContainerBinding
 import com.pr0gramm.app.databinding.SubtitleBinding
 import com.pr0gramm.app.io.Cache
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.views.instance
 import com.pr0gramm.app.ui.views.viewer.video.InputStreamCacheDataSource
@@ -59,6 +60,7 @@ import com.pr0gramm.app.util.isLocalFile
 import com.pr0gramm.app.util.layoutInflater
 import com.pr0gramm.app.util.priority
 import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.setImageResource
 
 
 @SuppressLint("ViewConstructor")
@@ -170,7 +172,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
     private fun toggleSubtitles(toggleView: ImageView, forceOn: Boolean = false) {
         if (forceOn || !subtitleContainer.isVisible) {
             subtitleContainer.isVisible = true
-            toggleView.setImageResource(R.drawable.ic_subtitles_on)
+            toggleView.setImageResource(R.drawable.ic_subtitles_on, ThemeHelper.accentColor)
             preferences.edit { putBoolean("subtitles", true) }
         } else {
             subtitleContainer.isVisible = false
@@ -188,7 +190,7 @@ class SimpleVideoMediaView(config: Config) : AbstractProgressMediaView(config, R
         if (!exo.playWhenReady) {
             pauseView.setImageResource(icon)
         } else {
-            pauseView.setImageResource(icon)
+            pauseView.setImageResource(icon, ThemeHelper.accentColor)
         }
     }
 

@@ -10,11 +10,13 @@ import com.pr0gramm.app.Duration
 import com.pr0gramm.app.Logger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.base.AsyncScope
 import com.pr0gramm.app.ui.base.launchIgnoreErrors
 import com.pr0gramm.app.util.catchAll
 import com.pr0gramm.app.util.delay
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.setImageResource
 
 class VolumeController(val view: ImageView, private val exo: () -> ExoPlayer?) {
     private val logger = Logger("VolumeController")
@@ -64,25 +66,26 @@ class VolumeController(val view: ImageView, private val exo: () -> ExoPlayer?) {
             false
         } else {
             logger.debug { "Request to get audio focus" }
-            val result = audioManager.requestAudioFocus(afChangeListener,
-                    AudioManager.STREAM_MUSIC, audioFocusGain())
+            val result = audioManager.requestAudioFocus(
+                afChangeListener,
+                AudioManager.STREAM_MUSIC, audioFocusGain()
+            )
 
             result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         }
 
-        val resIcon: Int
 
         if (mute || !hasAudioFocus) {
             exo.volume = 0f
             storeUnmuteTime(0)
-            resIcon = R.drawable.ic_video_mute_on
+            view.setImageResource(R.drawable.ic_video_mute_on)
         } else {
             exo.volume = 1f
             storeUnmuteTime(System.currentTimeMillis())
-            resIcon = R.drawable.ic_video_mute_off
+            view.setImageResource(R.drawable.ic_video_mute_off, ThemeHelper.accentColor)
         }
 
-        view.setImageResource(resIcon)
+
     }
 
     /**

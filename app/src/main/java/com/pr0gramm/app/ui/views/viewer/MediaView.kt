@@ -238,9 +238,9 @@ abstract class MediaView(protected val config: Config, @LayoutRes layoutId: Int?
         // the moment the preview is removed
     }
 
-    // override fun onTouchEvent(event: MotionEvent): Boolean {
-    //     return gestureDetector.onTouchEvent(event)
-    // }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event)
+    }
 
     /**
      * The listener that handles double tapping

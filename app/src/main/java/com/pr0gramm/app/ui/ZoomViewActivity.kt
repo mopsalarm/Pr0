@@ -22,10 +22,10 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.util.AndroidUtility.getTintedDrawable
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.di.instance
+import com.pr0gramm.app.util.getTintedDrawable
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
 import kotlin.math.max
@@ -155,7 +155,7 @@ class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     }
 
     private fun getColoredHqIcon(@ColorRes colorId: Int): Drawable {
-        return getTintedDrawable(this, R.drawable.ic_action_high_quality, colorId)
+        return this.getTintedDrawable(R.drawable.ic_action_high_quality, colorId)
     }
 
     private fun loadImageWithUrl(url: Uri) {

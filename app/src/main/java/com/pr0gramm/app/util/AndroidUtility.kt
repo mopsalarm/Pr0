@@ -18,6 +18,7 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -167,16 +168,6 @@ object AndroidUtility {
 
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm)
-    }
-
-    /**
-     * Gets the color tinted hq-icon
-     */
-    fun getTintedDrawable(context: Context, @DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable {
-        val resources = context.resources
-        val icon = DrawableCompat.wrap(AppCompatResources.getDrawable(context, drawableId)!!)
-        DrawableCompat.setTint(icon, ResourcesCompat.getColor(resources, colorId, null))
-        return icon
     }
 
     /**
@@ -359,4 +350,17 @@ fun Throwable.getMessageWithCauses(): String {
             type
         }
     }
+}
+
+/**
+ * Gets the color tinted hq-icon
+ */
+fun Context.getTintedDrawable(@DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable {
+    val icon = DrawableCompat.wrap(AppCompatResources.getDrawable(this, drawableId)!!.mutate())
+    DrawableCompat.setTint(icon, ResourcesCompat.getColor(resources, colorId, null))
+    return icon
+}
+
+fun ImageView.setImageResource(@DrawableRes drawableId: Int, @ColorRes colorId: Int) {
+    setImageDrawable(context.getTintedDrawable(drawableId, colorId))
 }
