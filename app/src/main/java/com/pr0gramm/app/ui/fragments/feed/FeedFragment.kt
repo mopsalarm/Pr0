@@ -775,30 +775,16 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             )
         }
 
-        menu.findItem(R.id.action_change_content_type__not_verified)?.let { item ->
-            item.isVisible = userService.isAuthorized && !userService.userIsVerified
-            item.icon = ContentTypeDrawable(activity, listOf(SFW)).also { icon ->
-                icon.textSize = resources.getDimensionPixelSize(
-                    R.dimen.feed_content_type_action_icon_text_size
-                ).toFloat()
-            }
-        }
-
         menu.findItem(R.id.action_change_content_type)?.let { item ->
-            if (userService.userIsVerified) {
-                val icon = ContentTypeDrawable(activity, selectedContentType)
-                icon.textSize = resources.getDimensionPixelSize(
-                    R.dimen.feed_content_type_action_icon_text_size
-                ).toFloat()
+            val icon = ContentTypeDrawable(activity, selectedContentType)
+            icon.textSize = resources.getDimensionPixelSize(
+                R.dimen.feed_content_type_action_icon_text_size
+            ).toFloat()
 
-                item.icon = icon
-                item.isVisible = true
+            item.icon = icon
+            item.isVisible = true
 
-                updateContentTypeItems(menu)
-
-            } else {
-                item.isVisible = false
-            }
+            updateContentTypeItems(menu)
         }
 
         val bookmark = menu.findItem(R.id.action_bookmark)
@@ -840,13 +826,26 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_content_type_pol to "pref_feed_type_pol",
         )
 
+        val requireVerification = setOf(
+            R.id.action_content_type_nsfw,
+            R.id.action_content_type_nsfl,
+        )
+
         if (contentTypes.containsKey(item.itemId)) {
             val newState = !item.isChecked
+
+            if (newState && item.itemId in requireVerification) {
+                if (userService.isAuthorized && !userService.userIsVerified) {
+                    hintUserIsNotVerified()
+                    return true
+                }
+            }
+
+            // this applies the new content types and refreshes the menu.
             Settings.edit {
                 putBoolean(contentTypes[item.itemId], newState)
             }
 
-            // this applies the new content types and refreshes the menu.
             return true
         }
 
@@ -860,7 +859,6 @@ class FeedFragment : BaseFragment("FeedFragment", R.layout.fragment_feed), Filte
             R.id.action_open_in_admin -> openUserInAdmin()
             R.id.action_scroll_seen -> scrollToNextSeenAsync()
             R.id.action_scroll_unseen -> scrollToNextUnseenAsync()
-            R.id.action_change_content_type__not_verified -> hintUserIsNotVerified()
 
             else -> super.onOptionsItemSelected(item)
         }

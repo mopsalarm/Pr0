@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Icon auf dem Videospieler wieder farbig gemacht."
+      },
+      {
+        "type": "Fix",
+        "change": "Nicht verifizierte Nutzer können zwischen SFW/POL wählen."
       }
     ]
   },
