@@ -48,7 +48,7 @@ class BookmarkSyncService(private val api: Api, private val userService: UserSer
      * We might have better handling for those bookmarks in the app
      */
     private fun isAppSpecialCategory(bookmark: Api.Bookmark): Boolean {
-        val name = bookmark.name.lowercase(Locale.GERMAN)
+        val name = bookmark.name.lowercase(Locale.GERMAN).trim()
         return name == "best of" || name == "kontrovers" || name == "wichteln"
     }
 

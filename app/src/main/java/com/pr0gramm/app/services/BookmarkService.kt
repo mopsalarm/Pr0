@@ -106,7 +106,10 @@ class BookmarkService(
      */
     fun observe(): Flow<List<Bookmark>> {
         val comparator = compareBy<Bookmark> { !it.trending }.thenBy { it.title.lowercase(Locale.getDefault()) }
-        return bookmarks.map { it.sortedWith(comparator) }.distinctUntilChanged()
+        return bookmarks
+            .map { bookmarks -> bookmarks.sortedWith(comparator) }
+            .map { bookmarks -> bookmarks.distinctBy { it.title.trim() } }
+            .distinctUntilChanged()
     }
 
     /**
@@ -149,7 +152,7 @@ class BookmarkService(
             val local = bookmarks.value.filter { it._link == null || it.notSyncable }
 
             // and merge them together, with the local ones winning.
-            val merged = (local + update).distinctBy { it.title.lowercase(Locale.getDefault()) }
+            val merged = (local + update).distinctBy { it.title.lowercase(Locale.getDefault()).trim() }
 
             bookmarks.value = merged
         }
@@ -230,7 +233,7 @@ class BookmarkService(
     val canEdit: Boolean get() = bookmarkSyncService.canChange
 
     private fun Bookmark.hasTitle(title: String): Boolean {
-        return this.title.equals(title, ignoreCase = false)
+        return this.title.trim().equals(title.trim(), ignoreCase = false)
     }
 
     private val Bookmark.syncable: Boolean
