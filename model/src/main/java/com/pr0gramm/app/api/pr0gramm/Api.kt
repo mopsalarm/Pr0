@@ -180,6 +180,12 @@ interface Api {
         older: Long?
     ): Inbox
 
+    @GET("/api/inbox/digests")
+    suspend fun inboxDigests(
+        @Query("older")
+        older: Long?
+    ): DigestsInbox
+
     @GET("/api/profile/comments")
     suspend fun userComments(
         @Query("name") user: String,
@@ -643,6 +649,45 @@ interface Api {
             val flags: Int? = null,
             val image: String? = null,
             @Json(name = "thumb") val thumbnail: String? = null
+        )
+    }
+
+    @JsonClass(generateAdapter = true)
+    class DigestsInbox(val digests: List<Digest> = listOf()) {
+        @JsonClass(generateAdapter = true)
+        class Digest(
+            val id: Long,
+            @Json(name = "created") val creationTime: Instant,
+            val type: String,
+            val pushNotification: DigestPushNotificationData,
+            val body: String,
+            val extraMessage: String?,
+            val items: List<ItemHighlight>,
+            val read: Boolean,
+        )
+
+        @JsonClass(generateAdapter = true)
+        class DigestPushNotificationData(
+            val title: String,
+            val body: String,
+        )
+
+        @JsonClass(generateAdapter = true)
+        class ItemHighlight(
+            val id: Long,
+            val flags: Int,
+            @Json(name = "thumb") val thumbnail: String,
+            @Json(name = "preview") val preview: String?,
+            val user: ItemHighlightUser,
+            val up: Int,
+            val down: Int,
+            @Json(name = "created") val creationTime: Instant,
+        )
+
+        @JsonClass(generateAdapter = true)
+        class ItemHighlightUser(
+            val name: String,
+            val mark: Int,
         )
     }
 
