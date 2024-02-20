@@ -138,7 +138,7 @@ interface Api {
     ): Info
 
     @GET("/api/inbox/pending")
-    suspend fun inboxPending(): Inbox
+    suspend fun inboxPending(): PendingInbox
 
     @GET("/api/inbox/conversations")
     suspend fun listConversations(
@@ -651,6 +651,12 @@ interface Api {
             @Json(name = "thumb") val thumbnail: String? = null
         )
     }
+
+    @JsonClass(generateAdapter = true)
+    class PendingInbox (
+        val messages: List<Inbox.Item> = listOf(),
+        val digests: List<DigestsInbox.Digest> = listOf(),
+    )
 
     @JsonClass(generateAdapter = true)
     class DigestsInbox(val digests: List<Digest> = listOf()) {

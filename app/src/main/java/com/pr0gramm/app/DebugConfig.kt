@@ -19,7 +19,7 @@ var debugConfig = if (BuildConfig.DEBUG) actualDebugConfig else DebugConfig()
 
 data class DebugConfig(
         val ignoreUnreadState: Boolean = false,
-        val pendingNotifications: Api.Inbox? = null,
+        val pendingNotifications: Api.PendingInbox? = null,
         val delayApiRequests: Boolean = false,
         val mockApiUrl: String? = null,
         val versionOverride: Int? = null) {

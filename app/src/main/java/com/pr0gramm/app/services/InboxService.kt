@@ -59,7 +59,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     suspend fun pending(): List<Message> {
         val pending = debugConfig.pendingNotifications ?: api.inboxPending()
 
-        return convertInbox(pending, markAsRead = false) {
+        return convertInbox(Api.Inbox(pending.messages), markAsRead = false) {
             it.toMessage()
         }
     }
