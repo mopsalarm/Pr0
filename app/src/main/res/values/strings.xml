@@ -540,6 +540,7 @@
     <string name="hint_select_download_directory">Please select a download directory from internal storage or sdcard.</string>
     <string name="inbox_type_all">All</string>
     <string name="inbox_type_stalk">Stalk</string>
+    <string name="inbox_type_digests">Digests</string>
     <string name="inbox_type_notifications">Notifications</string>
     <string name="action_to_conversation">Open conversation</string>
     <string name="message_type_comment">Comment</string>

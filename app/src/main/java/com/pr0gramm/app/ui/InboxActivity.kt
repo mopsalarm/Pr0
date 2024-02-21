@@ -14,6 +14,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.bindViews
 import com.pr0gramm.app.ui.base.launchWhenCreated
 import com.pr0gramm.app.ui.fragments.ConversationsFragment
+import com.pr0gramm.app.ui.fragments.DigestsFragment
 import com.pr0gramm.app.ui.fragments.GenericInboxFragment
 import com.pr0gramm.app.ui.fragments.WrittenCommentsFragment
 import com.pr0gramm.app.util.di.instance
@@ -73,8 +74,18 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeStalk)
                 }
 
-                InboxType.NOTIFICATIONS -> tabsAdapter.addTab(getString(R.string.inbox_type_notifications), id = InboxType.NOTIFICATIONS) {
+                InboxType.NOTIFICATIONS -> tabsAdapter.addTab(
+                    getString(R.string.inbox_type_notifications),
+                    id = InboxType.NOTIFICATIONS
+                ) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeNotifications)
+                }
+
+                InboxType.DIGESTS -> tabsAdapter.addTab(
+                    getString(R.string.inbox_type_digests),
+                    id = InboxType.DIGESTS
+                ) {
+                    DigestsFragment()
                 }
             }
         }

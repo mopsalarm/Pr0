@@ -20,11 +20,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import java.util.concurrent.TimeUnit
 
-open class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
+class GenericInboxFragment() : InboxFragment("GenericInboxFragment") {
     private val userService: UserService by instance()
     private val notificationService: NotificationService by instance()
 
-    var messageType: String? by optionalFragmentArgument()
+    private var messageType: String? by optionalFragmentArgument()
 
     constructor(messageType: String) : this() {
         this.messageType = messageType

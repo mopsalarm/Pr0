@@ -11,7 +11,9 @@ enum class InboxType {
     COMMENTS_IN,
     COMMENTS_OUT,
     STALK,
-    NOTIFICATIONS;
+    NOTIFICATIONS,
+    DIGESTS,
+    ;
 
     companion object {
         fun forMessageType(messageType: MessageType): InboxType {

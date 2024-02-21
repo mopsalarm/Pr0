@@ -27,6 +27,7 @@ import com.pr0gramm.app.services.BookmarkSyncService
 import com.pr0gramm.app.services.CollectionItemsService
 import com.pr0gramm.app.services.CollectionsService
 import com.pr0gramm.app.services.ContactService
+import com.pr0gramm.app.services.DigestsService
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.FavedCommentService
 import com.pr0gramm.app.services.FollowService
@@ -169,6 +170,7 @@ fun appInjector(app: Application) = Module.build {
     bind<BookmarkSyncService>() with singleton { BookmarkSyncService(instance(), instance()) }
     bind<BookmarkService>() with eagerSingleton { BookmarkService(instance(), instance(), instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
+    bind<DigestsService>() with singleton { DigestsService(instance()) }
 
     bind<CachedVoteQueries>() with provider { instance<AppDB>().cachedVoteQueries }
     bind<CollectionItemQueries>() with provider { instance<AppDB>().collectionItemQueries }
