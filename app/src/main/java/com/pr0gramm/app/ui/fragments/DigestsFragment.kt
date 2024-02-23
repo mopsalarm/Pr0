@@ -143,8 +143,8 @@ private class DigestHeaderDelegate :
         holder.views.title.isVisible = value.pushNotification.title.isNotBlank()
         holder.views.title.text = value.pushNotification.title
 
-        holder.views.body.isVisible = value.pushNotification.body.isNotBlank()
-        holder.views.body.text = value.pushNotification.body
+        holder.views.body.isVisible = value.message.isNotBlank()
+        holder.views.body.text = value.message
 
         holder.views.extraText.isVisible = !value.notice.isNullOrBlank()
         holder.views.extraText.text = value.notice ?: ""
