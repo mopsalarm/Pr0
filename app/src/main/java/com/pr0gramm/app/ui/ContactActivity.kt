@@ -153,7 +153,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         }
 
         withContext(Dispatchers.IO + NonCancellable) {
-            contactService.post(category.category, email, subject, feedback)
+            contactService.post(email, subject, feedback)
         }
     }
 
@@ -177,15 +177,7 @@ private class Category(val category: String, val text: String) {
 }
 
 private val faqCategories = listOf(
-        Category("none", "Kategorie auswählen"),
-        Category("app", "App"),
-        Category("rules", "Regeln"),
-        Category("account", "Account"),
-        Category("pr0mium", "pr0mium"),
-        Category("deletions", "Löschanfragen"),
-        Category("technical", "Bugs"),
-        Category("helpers", "Helfer"),
-        Category("others", "Sonstiges"),
-        Category("glossary", "Glossar"),
-        Category("invites", "Invites"),
+    Category("none", "Kategorie auswählen"),
+    Category("app", "App"),
+    Category("pr0gramm", "pr0gramm"),
 )

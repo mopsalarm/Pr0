@@ -19,7 +19,7 @@ import java.util.Locale
  * A simple service that allows sending a message to the pr0gramm support.
  */
 class ContactService(private val api: Api) {
-    suspend fun post(faqCategory: String, email: String, subject: String, message: String) {
+    suspend fun post(email: String, subject: String, message: String) {
         val version = BuildConfig.VERSION_NAME
         val androidVersion = Build.VERSION.RELEASE
 
@@ -30,7 +30,7 @@ class ContactService(private val api: Api) {
             toString()
         }
 
-        api.contactSend(faqCategory, subject, email, msg, extraText = DeviceInfoService.generate())
+        api.contactSend(subject, email, msg, extraText = DeviceInfoService.generate())
     }
 
     suspend fun report(itemId: Long, comment: Long, reason: String) {

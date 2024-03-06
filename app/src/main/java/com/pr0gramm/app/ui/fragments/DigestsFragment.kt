@@ -92,7 +92,7 @@ class DigestsFragment : BaseFragment("DigestsFragment", R.layout.fragment_inbox)
     }
 
     private fun updateAdapterValues() {
-        val context = context ?: return
+        context ?: return
 
         val values = state.digests.flatMap { digest ->
             listOf(digest) + digest.items

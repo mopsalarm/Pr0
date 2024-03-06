@@ -322,7 +322,6 @@ interface Api {
     @FormUrlEncoded
     @POST("api/contact/send")
     suspend fun contactSend(
-        @Field("faqCategory") faqCategory: String,
         @Field("subject") subject: String,
         @Field("email") email: String,
         @Field("message") message: String,
