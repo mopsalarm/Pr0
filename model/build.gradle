@@ -8,8 +8,8 @@ buildscript {
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("app.cash.sqldelight") version "2.0.0"
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
+    id("app.cash.sqldelight") version "2.0.1"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.18"
 }
 
 android {
@@ -53,10 +53,10 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0"
 
-    implementation "com.squareup.moshi:moshi:1.15.0"
+    implementation "com.squareup.moshi:moshi:1.15.1"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
@@ -64,5 +64,5 @@ dependencies {
     api "app.cash.sqldelight:android-driver:2.0.1"
     api "app.cash.sqldelight:coroutines-extensions-jvm:2.0.1"
 
-    ksp "com.squareup.moshi:moshi-kotlin-codegen:1.15.0"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:1.15.1"
 }

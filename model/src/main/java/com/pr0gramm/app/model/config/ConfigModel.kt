@@ -23,6 +23,8 @@ data class Config(
         val userClasses: List<UserClass> = DefaultUserClasses,
         val endOfLifeAndroidVersion: Int = Build.VERSION_CODES.LOLLIPOP,
 
+        val showDigestInInbox: Boolean = false,
+
         // currently not working as they closed their affiliate program.
         val reAffiliate: String = "X-IGNORE",
 
