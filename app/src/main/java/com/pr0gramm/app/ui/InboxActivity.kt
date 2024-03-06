@@ -94,7 +94,10 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
                 }
 
                 InboxType.DIGESTS -> {
-                    if (config.showDigestInInbox) {
+                    val show = config.showDigestsInInbox ||
+                            (userService.userIsAdmin && config.showDigestsInInboxForAdmin)
+
+                    if (show) {
                         tabsAdapter.addTab(
                             getString(R.string.inbox_type_digests),
                             id = InboxType.DIGESTS
