@@ -98,9 +98,9 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
                 val totalSize = runInterruptible(Dispatchers.IO) {
                     items.values().sumOf { item ->
-                        item.media.length().toInt() +
-                                item.thumbnail.length().toInt() +
-                                (item.thumbnailFull?.length()?.toInt() ?: 0)
+                        item.media.length() +
+                                item.thumbnail.length() +
+                                (item.thumbnailFull?.length() ?: 0)
 
                     }
                 }
