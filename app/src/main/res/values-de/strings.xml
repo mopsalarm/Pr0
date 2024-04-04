@@ -499,6 +499,10 @@
     <string name="hint_follow_premium_only">Gespeichert. pr0mium-Account ist nötig, um gestelzte Benutzer zu sehen.</string>
     <string name="tags_show_all">Alle anzeigen</string>
 
+    <string name="action_block_user_2">Benutzer blockieren</string>
+    <string name="block_user_confirm">Möchtest du den Nutzer \'%s\' wirklich blockieren?</string>
+    <string name="block_user_pr0mium_hint">Blockierte Nutzer werden nur mit pr0mium ausgeblendet.</string>
+
     <string name="pref_tap_action_none">Keine Aktion</string>
     <string name="pref_tap_action_upvote">Blussi</string>
     <string name="pref_tap_action_downvote">Minus</string>
