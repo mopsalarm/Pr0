@@ -166,6 +166,10 @@ object AndroidUtility {
     fun isOnMobile(context: Context?): Boolean {
         context ?: return false
 
+        debugOnly {
+            return true
+        }
+
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm)
     }

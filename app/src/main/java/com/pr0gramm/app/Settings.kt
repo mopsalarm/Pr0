@@ -106,7 +106,7 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
                 prefValue = context.getString(R.string.pref_confirm_play_on_mobile_default)
             }
 
-            for (enumValue in ConfirmOnMobile.values()) {
+            for (enumValue in ConfirmOnMobile.entries) {
                 if (context.getString(enumValue.value) == prefValue) {
                     return enumValue
                 }

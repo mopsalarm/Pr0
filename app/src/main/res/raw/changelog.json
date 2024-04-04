@@ -1,5 +1,14 @@
 [
   {
+    "version": 205,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Videos können mobil wieder direkt gestartet werden."
+      }
+    ]
+  },
+  {
     "version": 204,
     "changes": [
       {
