@@ -58,15 +58,15 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
         InboxType.entries.forEach { type ->
             when (type) {
                 InboxType.PRIVATE -> tabsAdapter.addTab(
-                    getString(R.string.inbox_type_private),
-                    id = InboxType.PRIVATE
+                        getString(R.string.inbox_type_private),
+                        id = InboxType.PRIVATE
                 ) {
                     ConversationsFragment()
                 }
 
                 InboxType.COMMENTS_OUT -> tabsAdapter.addTab(
-                    getString(R.string.inbox_type_comments_out),
-                    id = InboxType.COMMENTS_OUT
+                        getString(R.string.inbox_type_comments_out),
+                        id = InboxType.COMMENTS_OUT
                 ) {
                     WrittenCommentsFragment()
                 }
@@ -76,8 +76,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
                 }
 
                 InboxType.COMMENTS_IN -> tabsAdapter.addTab(
-                    getString(R.string.inbox_type_comments_in),
-                    id = InboxType.COMMENTS_IN
+                        getString(R.string.inbox_type_comments_in),
+                        id = InboxType.COMMENTS_IN
                 ) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeComments)
                 }
@@ -87,8 +87,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
                 }
 
                 InboxType.NOTIFICATIONS -> tabsAdapter.addTab(
-                    getString(R.string.inbox_type_notifications),
-                    id = InboxType.NOTIFICATIONS
+                        getString(R.string.inbox_type_notifications),
+                        id = InboxType.NOTIFICATIONS
                 ) {
                     GenericInboxFragment(GenericInboxFragment.MessageTypeNotifications)
                 }
@@ -99,8 +99,8 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
 
                     if (show) {
                         tabsAdapter.addTab(
-                            getString(R.string.inbox_type_digests),
-                            id = InboxType.DIGESTS
+                                getString(R.string.inbox_type_digests),
+                                id = InboxType.DIGESTS
                         ) {
                             DigestsFragment()
                         }
@@ -142,16 +142,27 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity") {
                     return getString(id) + (if (count > 0) " ($count)" else "")
                 }
 
-                tabsAdapter.updateTabTitle(InboxType.ALL, titleOf(R.string.inbox_type_all, counts.total))
+                tabsAdapter.updateTabTitle(
+                        InboxType.ALL,
+
+                        // digests are not part of the 'All' tab, so we remove them from the total
+                        // count of unread messages
+                        titleOf(R.string.inbox_type_all, counts.total - counts.digests),
+                )
+
                 tabsAdapter.updateTabTitle(InboxType.PRIVATE, titleOf(R.string.inbox_type_private, counts.messages))
                 tabsAdapter.updateTabTitle(
-                    InboxType.NOTIFICATIONS,
-                    titleOf(R.string.inbox_type_notifications, counts.notifications)
+                        InboxType.NOTIFICATIONS,
+                        titleOf(R.string.inbox_type_notifications, counts.notifications)
                 )
                 tabsAdapter.updateTabTitle(InboxType.STALK, titleOf(R.string.inbox_type_stalk, counts.follows))
                 tabsAdapter.updateTabTitle(
-                    InboxType.COMMENTS_IN,
-                    titleOf(R.string.inbox_type_comments_in, counts.comments)
+                        InboxType.COMMENTS_IN,
+                        titleOf(R.string.inbox_type_comments_in, counts.comments)
+                )
+                tabsAdapter.updateTabTitle(
+                        InboxType.DIGESTS,
+                        titleOf(R.string.inbox_type_digests, counts.digests)
                 )
             }
         }

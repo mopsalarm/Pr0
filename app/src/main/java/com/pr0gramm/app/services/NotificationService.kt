@@ -176,8 +176,8 @@ class NotificationService(
             .values
 
         // convert to notifications
-        val notificationConfigs = messageGroups.map { messages ->
-            MessageNotificationConfig(context, messages)
+        val notificationConfigs = messageGroups.map { group ->
+            MessageNotificationConfig(context, group)
         }
 
         // cache notification ids by sender name
