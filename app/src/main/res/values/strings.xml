@@ -525,6 +525,10 @@
     <string name="tags_show_all">Show all</string>
     <string name="search_engine_none">None</string>
 
+    <string name="action_block_user_2">Block user</string>
+    <string name="block_user_confirm">Are you sure you want to block user \'%s\'?</string>
+    <string name="block_user_pr0mium_hint">Blocking only takes effect with pr0mium.</string>
+
     <string name="pref_tap_action_none">No action</string>
     <string name="pref_tap_action_upvote">Upvote</string>
     <string name="pref_tap_action_downvote">Downvote</string>

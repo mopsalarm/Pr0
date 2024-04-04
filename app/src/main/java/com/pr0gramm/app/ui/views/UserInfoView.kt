@@ -43,6 +43,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
     private val uploads: TextView = find(R.id.kpi_uploads)
     private val extraInfo: TextView = find(R.id.user_extra_info)
     private val writeNewMessage: View = find(R.id.action_new_message)
+    private val blockUser: View = find(R.id.action_block)
     private val shareUserProfile: View = find(R.id.action_share)
     private val badgesContainer: RecyclerView = find(R.id.badges_container)
     private val userTypeName: TextView = find(R.id.user_type_name)
@@ -75,10 +76,16 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         showCommentsContainer.isVisible = comments.isNotEmpty()
 
         writeNewMessage.isVisible = !myself && user.canReceiveMessages
+        blockUser.isVisible = !myself && user.canReceiveMessages
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
             actions.onWriteMessageClicked(user.name)
+        }
+
+        // open confirmation dialog to block user
+        blockUser.setOnClickListener {
+            actions.onBlockUserClicked(user.name)
         }
 
         // open share popup
@@ -242,6 +249,7 @@ class UserInfoView(context: Context) : FrameLayout(context) {
         fun onUserViewCollectionsClicked(name: String)
         fun onShowCommentsClicked()
         fun onShowUploadsClicked(name: String)
+        fun onBlockUserClicked(name: String)
         fun shareUserProfile(name: String)
     }
 

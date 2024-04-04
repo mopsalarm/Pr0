@@ -3,6 +3,10 @@
     "version": 205,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Nutzer können nun auch aus der App heraus blockiert werden."
+      },
+      {
         "type": "Fix",
         "change": "Videos können mobil wieder direkt gestartet werden."
       }

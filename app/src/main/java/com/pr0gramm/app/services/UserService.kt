@@ -516,6 +516,10 @@ class UserService(
         return api.userCaptcha()
     }
 
+    suspend fun blockUser(name: String) {
+        api.block(null, name)
+    }
+
     class LoginStateWithScoreGraph(
         val loginState: LoginState, val scoreGraph: Graph?
     )
