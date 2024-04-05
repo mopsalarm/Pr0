@@ -59,8 +59,10 @@ class UserDrawables(private val context: Context) {
 
         for (imageId in listOf(faceConfig.eyes, faceConfig.mouth, faceConfig.nose)) {
             val layer = BitmapFactory.decodeResource(context.resources, imageId)
-            canvas.drawBitmap(layer, null, layerSize, layerPaint)
-            layer.recycle()
+            if (layer != null) {
+                canvas.drawBitmap(layer, null, layerSize, layerPaint)
+                layer.recycle()
+            }
         }
 
         return bitmap
