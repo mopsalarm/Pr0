@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Videos können mobil wieder direkt gestartet werden."
+      },
+      {
+        "type": "Fix",
+        "change": "Pause/Untertitel Knopf wird nach Vollbild wieder angezeigt."
       }
     ]
   },
