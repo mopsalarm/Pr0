@@ -229,20 +229,22 @@ private object PlaceholderItemAdapterDelegate
             }
 
             if (item.mediaControlsContainer != null) {
+                val mcc = item.mediaControlsContainer
+
                 // only move media controls if they are attached to a different placeholder view.
                 // the reason to do so is that we could just have received an update after the
                 // controls were attached to a player in fullscreen.
-                if (pv.parent !== pv && (pv.parent == null || pv.parent is PlaceholderView)) {
-                    item.mediaControlsContainer.removeFromParent()
+                if (mcc.parent !== pv && (mcc.parent == null || mcc.parent is PlaceholderView)) {
+                    mcc.removeFromParent()
 
                     // align to bottom
-                    item.mediaControlsContainer.layoutParams = FrameLayout.LayoutParams(
+                    mcc.layoutParams = FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         Gravity.BOTTOM,
                     )
 
-                    pv.addView(item.mediaControlsContainer)
+                    pv.addView(mcc)
                 }
 
             } else {
