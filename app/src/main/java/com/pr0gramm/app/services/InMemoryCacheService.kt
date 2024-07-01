@@ -55,9 +55,10 @@ class InMemoryCacheService {
     /**
      * Caches the given items as reposts.
      */
-    private fun cacheReposts(newRepostIds: List<Long>) {
-        if (newRepostIds.isEmpty())
+    fun cacheReposts(newRepostIds: List<Long>) {
+        if (newRepostIds.isEmpty()) {
             return
+        }
 
         synchronized(repostCache) {
             val copy = repostCache.get().clone()

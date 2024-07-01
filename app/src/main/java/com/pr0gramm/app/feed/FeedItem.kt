@@ -33,6 +33,7 @@ data class FeedItem(
     val flags: Int,
     val audio: Boolean,
     val deleted: Boolean,
+    val repostApi: Boolean,
     val variants: List<Api.Feed.Variant>,
     val subtitles: List<Api.Feed.Subtitle>,
     val placeholder: Boolean,
@@ -56,6 +57,7 @@ data class FeedItem(
         deleted = item.deleted,
         variants = item.variants,
         subtitles = item.subtitles,
+        repostApi = item.repost,
         placeholder = false,
     )
 
@@ -135,6 +137,7 @@ data class FeedItem(
         bits = bits.or(if (audio) 0b0001 else 0)
         bits = bits.or(if (deleted) 0b0010 else 0)
         bits = bits.or(if (placeholder) 0b0100 else 0)
+        bits = bits.or(if (repostApi) 0b1000 else 0)
 
         bits = bits.or((mark and 0xff) shl 8)
         bits = bits.or((flags and 0xff) shl 16)
@@ -177,6 +180,7 @@ data class FeedItem(
         val audio = (bits and 0b0001) != 0
         val deleted = (bits and 0b0010) != 0
         val placeholder = (bits and 0b0100) != 0
+        val repostApi = (bits and 0b1000) != 0
 
         val mark = (bits ushr 8) and 0xff
         val flags = (bits ushr 16) and 0xff
@@ -215,6 +219,7 @@ data class FeedItem(
             flags = flags,
             audio = audio,
             deleted = deleted,
+            repostApi = repostApi,
             placeholder = placeholder,
             subtitles = subtitles,
             variants = variants,

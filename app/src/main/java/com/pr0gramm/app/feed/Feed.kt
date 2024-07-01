@@ -215,6 +215,7 @@ data class Feed(
                         variants = listOf(),
                         subtitles = listOf(),
                         placeholder = true,
+                        repostApi = false,
                     )
                 }
 

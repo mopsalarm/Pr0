@@ -549,6 +549,7 @@ interface Api {
                 val created: Instant,
                 val audio: Boolean = false,
                 val deleted: Boolean = false,
+                val repost: Boolean = false,
                 val subtitles: List<Subtitle> = listOf(),
                 val variants: List<Variant> = listOf(),
         )
