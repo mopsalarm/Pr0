@@ -189,8 +189,8 @@ dependencies {
 
     implementation 'androidx.fragment:fragment-ktx:1.8.1'
 
-    // 23.0.0 breaks the apk for some reason (too small, fails to read android-manifest)
-    implementation "com.google.android.gms:play-services-ads:23.2.0"
+    // 23.0.0 to 23.2.0 breaks the apk for some reason (too small, fails to read android-manifest)
+    implementation "com.google.android.gms:play-services-ads:22.6.0"
 
     implementation 'com.google.firebase:firebase-analytics:22.0.2'
     implementation 'com.google.firebase:firebase-crashlytics:19.0.2'
