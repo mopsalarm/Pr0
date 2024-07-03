@@ -28,14 +28,6 @@
             tools:src="@drawable/ic_vote_down"
             tools:tint="?android:textColorSecondary" />
 
-        <com.pr0gramm.app.ui.views.CollectView
-            android:id="@+id/collect"
-            android:layout_width="32dp"
-            android:layout_height="48dp"
-            android:padding="4dp"
-            tools:src="@drawable/ic_collection_no"
-            tools:tint="?android:textColorSecondary" />
-
         <View
             android:layout_width="1dp"
             android:layout_height="24dp"
@@ -65,6 +57,14 @@
                 tools:text="546 Benis · vor 8 Stunden" />
 
         </LinearLayout>
+
+        <com.pr0gramm.app.ui.views.CollectView
+            android:id="@+id/collect"
+            android:layout_width="32dp"
+            android:layout_height="48dp"
+            android:padding="4dp"
+            tools:src="@drawable/ic_collection_no"
+            tools:tint="?android:textColorSecondary" />
 
         <ImageButton
             android:id="@+id/action_follow"
