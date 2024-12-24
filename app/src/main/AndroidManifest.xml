@@ -154,6 +154,14 @@
                     android:scheme="https" />
                 <data
                     android:host="pr0gramm.com"
+                    android:pathPrefix="/junk"
+                    android:scheme="http" />
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/junk"
+                    android:scheme="https" />
+                <data
+                    android:host="pr0gramm.com"
                     android:pathPrefix="/user"
                     android:scheme="http" />
                 <data

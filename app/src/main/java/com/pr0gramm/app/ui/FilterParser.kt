@@ -36,6 +36,10 @@ object FilterParser {
                 filter = filter.withFeedType(FeedType.STALK)
             }
 
+            if (values["type"] == "junk") {
+                filter = filter.withFeedType(FeedType.JUNK).withShowJunk(true)
+            }
+
             val tag = values["tag"]
             val user = values["user"]
 
@@ -85,16 +89,16 @@ object FilterParser {
 
     private val reCommentSuffix = ":comment[0-9]+$".toRegex()
 
-    private val pFeed = Pattern.compile("^/(?<type>new|top|stalk)$")
-    private val pFeedId = Pattern.compile("^/(?<type>new|top|stalk)/(?<id>[0-9]+)$")
+    private val pFeed = Pattern.compile("^/(?<type>new|top|stalk|junk)$")
+    private val pFeedId = Pattern.compile("^/(?<type>new|top|stalk|junk)/(?<id>[0-9]+)$")
     private val pUser = Pattern.compile("^/user/(?<user>[^/]+)/?$")
     private val pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/?$")
     private val pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/(?<id>[0-9]+)$")
     private val pUserUploadsWithTag = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads)/(?<tag>[^/]+)$")
     private val pUserUploadsWithTagId =
         Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|[^/]+)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
-    private val pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$")
-    private val pTagId = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
+    private val pTag = Pattern.compile("^/(?<type>new|top|junk)/(?<tag>[^/]+)$")
+    private val pTagId = Pattern.compile("^/(?<type>new|top|junk)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
 
     private val patterns = listOf(
         pFeed,
