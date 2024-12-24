@@ -61,6 +61,7 @@ object FeedFilterFormatter {
             FeedType.STALK -> context.getString(R.string.filter_format_premium)
             FeedType.PROMOTED -> context.getString(R.string.filter_format_top)
             FeedType.CONTROVERSIAL -> context.getString(R.string.filter_format_controversial)
+            FeedType.JUNK -> context.getString(R.string.action_feed_type_junk)
         }
     }
 

@@ -126,7 +126,15 @@ class FeedServiceImpl(
                 val result = api.itemsGet(
                     promoted, following,
                     query.older, query.newer, query.around,
-                    flags, tags, collection, self, user
+                    flags, tags, collection, self, user,
+                    showJunk = when {
+                        // Don't set showJunk for user uploads
+                        user != null -> null
+                        // Set showJunk based on feed type
+                        feedType == FeedType.JUNK -> true
+                        feedType == FeedType.NEW || feedType == FeedType.PROMOTED -> false
+                        else -> feedFilter.showJunk
+                    }
                 )
 
                 result.also {

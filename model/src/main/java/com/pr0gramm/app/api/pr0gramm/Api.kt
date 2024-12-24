@@ -21,7 +21,8 @@ interface Api {
             @Query("tags") tags: String?,
             @Query("collection") collection: String?,
             @Query("self") self: Boolean?,
-            @Query("user") user: String?
+            @Query("user") user: String?,
+            @Query("show_junk") showJunk: Boolean?
     ): Feed
 
     @FormUrlEncoded
