@@ -26,6 +26,9 @@ class FeedFilter : DefaultParcelable {
     var username: String? = null
         private set
 
+    var showJunk: Boolean? = null
+        private set
+
     /**
      * Checks if this filter is a basic filter. A filter is basic, if
      * it has no tag/likes or username-filter.
@@ -41,6 +44,7 @@ class FeedFilter : DefaultParcelable {
         return copy {
             tags = null
             username = null
+            showJunk = null
         }
     }
 
@@ -59,6 +63,9 @@ class FeedFilter : DefaultParcelable {
     fun withFeedType(type: FeedType): FeedFilter {
         return copy {
             feedType = type
+            if (type == FeedType.PROMOTED || type == FeedType.NEW) {
+                showJunk = false
+            }
         }
     }
 
@@ -116,6 +123,15 @@ class FeedFilter : DefaultParcelable {
     }
 
     /**
+     * Returns a copy of this filter with the show_junk parameter set
+     */
+    fun withShowJunk(showJunk: Boolean): FeedFilter {
+        return copy {
+            this.showJunk = showJunk
+        }
+    }
+
+    /**
      * Normalizes the given string by trimming it and setting empty strings to null.
      */
     private fun normalizeString(value: String): String? = emptyToNull(value.trim())
@@ -127,12 +143,13 @@ class FeedFilter : DefaultParcelable {
         copy.collection = collection
         copy.collectionTitle = collectionTitle
         copy.username = username
+        copy.showJunk = showJunk
         copy.fn()
         return normalize(copy)
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(feedType, tags, collection, username)
+        return Objects.hash(feedType, tags, collection, username, showJunk)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -140,7 +157,8 @@ class FeedFilter : DefaultParcelable {
                 && feedType === other.feedType
                 && tags == other.tags
                 && username == other.username
-                && collection == other.collection)
+                && collection == other.collection
+                && showJunk == other.showJunk)
     }
 
     override fun toString(): String {
@@ -148,7 +166,8 @@ class FeedFilter : DefaultParcelable {
                 feedType.toString(),
                 tags?.let { "tags=$tags" },
                 username?.let { "username=$username" },
-                collection?.let { "collection=$collection" }
+                collection?.let { "collection=$collection" },
+                showJunk?.let { "show_junk=$showJunk" }
         )
 
         return "FeedFilter(${fields.joinToString(", ")})"
@@ -161,6 +180,7 @@ class FeedFilter : DefaultParcelable {
         dest.writeString(username)
         dest.writeString(collection)
         dest.writeString(collectionTitle)
+        dest.writeValue(showJunk)
     }
 
     companion object CREATOR : SimpleCreator<FeedFilter>(javaClassOf()) {
@@ -173,6 +193,7 @@ class FeedFilter : DefaultParcelable {
                 this.username = source.readString()?.ifBlank { null }
                 this.collection = source.readString()?.ifBlank { null }
                 this.collectionTitle = source.readString()?.ifBlank { null }
+                this.showJunk = source.readValue(Boolean::class.java.classLoader) as Boolean?
             }
         }
 

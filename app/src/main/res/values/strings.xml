@@ -3,7 +3,7 @@
     <string name="action_add_tag">Add</string>
     <string name="action_collections">Collections</string>
     <string name="action_feed_type_new">New</string>
-    <string name="action_feed_type_promoted">Top</string>
+    <string name="action_feed_type_promoted">Popular</string>
     <string name="action_search">Search in %s…</string>
     <string name="action_search_simple">Search</string>
     <string name="action_upload">Upload</string>
@@ -617,5 +617,6 @@
     <string name="collection_x_of_user">%s of %s</string>
     <string name="pref_video_quality_values_summary">Adaptive reduces the data usage on mobile networks.</string>
     <string name="pref_video_quality_values_title">Video quality</string>
+    <string name="action_feed_type_junk">Junk</string>
 </resources>
 

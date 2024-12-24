@@ -4,7 +4,8 @@
     <string name="dialog_action_add">Hinzufügen</string>
     <string name="action_collections">Sammlungen</string>
     <string name="action_feed_type_new">Neu</string>
-    <string name="action_feed_type_promoted">Top</string>
+    <string name="action_feed_type_promoted">Beliebt</string>
+    <string name="action_feed_type_junk">Müll</string>
     <string name="action_search">Suche in %s…</string>
     <string name="action_search_simple">Suchen</string>
     <string name="action_upload">Hochladen</string>
@@ -591,7 +592,7 @@
     <string name="pref_video_quality_human__adaptive">Adaptiv</string>
     <string name="pref_video_quality_human__high">Hohe Qualität</string>
     <string name="pref_video_quality_human__extrahigh">Extra hohe Qualität (nur wenige Videos)</string>
-    <string name="pref_video_quality_values_summary">Adaptiv verringt das Datenvolumen im Mobilfunk, sonst equivalent zu "Hohe Qualität"</string>
+    <string name="pref_video_quality_values_summary">Adaptiv verringert das Datenvolumen im Mobilfunk, sonst equivalent zu "Hohe Qualität"</string>
     <string name="pref_video_quality_values_title">Video Qualität</string>
 
     <string name="user_validate_success">Dein Alter wurde verifiziert</string>
