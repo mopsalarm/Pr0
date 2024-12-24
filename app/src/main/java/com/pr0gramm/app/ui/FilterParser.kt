@@ -37,7 +37,7 @@ object FilterParser {
             }
 
             if (values["type"] == "junk") {
-                filter = filter.withFeedType(FeedType.JUNK).withShowJunk(true)
+                filter = filter.withFeedType(FeedType.JUNK)
             }
 
             val tag = values["tag"]

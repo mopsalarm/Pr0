@@ -185,25 +185,25 @@ class NavigationProvider(
         items += makeItem(
             title = getString(R.string.action_feed_type_promoted),
             icon = iconFeedTypePromoted,
-            filter = FeedFilter().withFeedType(FeedType.PROMOTED).withShowJunk(false)
+            filter = FeedFilter().withFeedType(FeedType.PROMOTED)
         )
 
         items += makeItem(
             title = getString(R.string.action_feed_type_new),
             icon = iconFeedTypeNew,
-            filter = FeedFilter().withFeedType(FeedType.NEW).withShowJunk(false)
-        )
-
-        items += makeItem(
-            title = getString(R.string.action_feed_type_junk),
-            icon = iconFeedTypeJunk,
-            filter = FeedFilter().withFeedType(FeedType.JUNK).withShowJunk(true)
+            filter = FeedFilter().withFeedType(FeedType.NEW)
         )
 
         items += makeItem(
             title = getString(R.string.action_feed_type_bestof),
             icon = iconFeedTypeBestOf,
             filter = FeedFilter().withFeedType(FeedType.BESTOF)
+        )
+
+        items += makeItem(
+            title = getString(R.string.action_feed_type_junk),
+            icon = iconFeedTypeJunk,
+            filter = FeedFilter().withFeedType(FeedType.JUNK)
         )
 
         if (Settings.showCategoryControversial) {
