@@ -104,6 +104,7 @@ class SiteSettingsService {
         Settings.themeName = themeIdToThemeName(settings.themeId)
         Settings.backup = settings.enableItemHistory
         Settings.markItemsAsSeen = settings.markSeenItems
+        Settings.feedHideJunkInNew = settings.hideJunkInNew
     }
 }
 
@@ -118,6 +119,7 @@ private fun localSiteSettings(): SiteSettings {
         secondaryServers = Settings.useSecondaryServers,
         enableItemHistory = Settings.backup,
         markSeenItems = Settings.markItemsAsSeen,
+        hideJunkInNew = Settings.feedHideJunkInNew,
     )
 }
 

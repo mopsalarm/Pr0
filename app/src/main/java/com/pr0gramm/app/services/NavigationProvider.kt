@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.switchMap
 import kotlinx.coroutines.runInterruptible
 
 const val BLACK: Int = 0x80000000.toInt()
@@ -200,11 +201,13 @@ class NavigationProvider(
             filter = FeedFilter().withFeedType(FeedType.BESTOF)
         )
 
-        items += makeItem(
-            title = getString(R.string.action_feed_type_junk),
-            icon = iconFeedTypeJunk,
-            filter = FeedFilter().withFeedType(FeedType.JUNK)
-        )
+        if(Settings.showCategoryJunk) {
+            items += makeItem(
+                title = getString(R.string.action_feed_type_junk),
+                icon = iconFeedTypeJunk,
+                filter = FeedFilter().withFeedType(FeedType.JUNK)
+            )
+        }
 
         if (Settings.showCategoryControversial) {
             items += makeItem(

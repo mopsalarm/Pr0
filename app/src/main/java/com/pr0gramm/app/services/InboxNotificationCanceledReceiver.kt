@@ -8,6 +8,8 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Message
 import com.pr0gramm.app.util.bundle
 import com.pr0gramm.app.util.di.injector
+import com.pr0gramm.app.util.doInBackground
+import kotlinx.coroutines.flow.firstOrNull
 
 
 /**

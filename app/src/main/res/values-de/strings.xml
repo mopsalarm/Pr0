@@ -194,6 +194,7 @@
     <string name="filter_format_random">Zufall</string>
     <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
     <string name="pref_show_category_controversial_summary">Aktiviere die Kontrovers-Kategorie, die Bilder mit einer ähnlichen Anzahl an Blussis und Minus zeigt!</string>
+    <string name="pref_show_category_junk_title">Kategorie \'Müll\'</string>
     <string name="pref_show_category_premium_summary">Aktiviere die Stelz-Kategorie.</string>
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
@@ -519,6 +520,7 @@
     <string name="hint_select_download_directory">Bitte wähle ein Downloadverzeichnis auf dem Internen Speicher oder einer Speicherkarte.</string>
     <string name="inbox_type_all">Alle</string>
     <string name="inbox_type_stalk">Stelz-Abos</string>
+    <string name="inbox_type_digests">Highlights</string>
     <string name="inbox_type_notifications">Notifizierungen</string>
     <string name="action_to_conversation">Zur Unterhaltung</string>
     <string name="message_type_comment">Neuer Kommentar</string>
@@ -597,4 +599,7 @@
 
     <string name="user_validate_success">Dein Alter wurde verifiziert</string>
     <string name="user_validate_failed">Ungültiges Token.</string>
+    <string name="pref_show_category_junk_summary">Aktiviere diese Option um die \'Müll\' Kategorie in der Navigation zu zeigen.</string>
+    <string name="pref_feed_hide_junk_in_new_title">Mülltrennung</string>
+    <string name="pref_feed_hide_junk_in_new_summary">Deaktiviere diese Option um \'Müll\' auch in \'Neu\' anzuzeigen.</string>
 </resources>

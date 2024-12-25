@@ -14,4 +14,7 @@ data class SiteSettings(
 
     val enableItemHistory: Boolean,
     var markSeenItems: Boolean,
+
+    @Json(name = "junkSeparation")
+    var hideJunkInNew: Boolean = true,
 )

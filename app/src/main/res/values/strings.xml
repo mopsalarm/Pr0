@@ -215,6 +215,7 @@
     <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
     <string name="pref_show_category_controversial_summary">Activate this to show the category \'controversial\' in the drawer. This category shows images with a similar number of up/down votes.</string>
     <string name="pref_show_category_premium_summary">Activate this to show the category \'stelz\' in the drawer.</string>
+    <string name="pref_show_category_junk_summary">Activate this to show the category \'junk\' in the drawer.</string>
     <string name="prefcat_behaviour__categories_title">Categories</string>
     <string name="filter_format_bestof">Best of</string>
     <string name="action_feed_type_bestof">Best of</string>
@@ -272,6 +273,8 @@
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
     <string name="pref_feed_start_at_sfwpol_title">Default to \'sfw\' includes \'pol\'</string>
     <string name="pref_feed_start_at_sfwpol_summary">When the app automatically activates \'sfw\' on startup, it also activates \'pol\'.</string>
+    <string name="pref_feed_hide_junk_in_new_title">Separate junk</string>
+    <string name="pref_feed_hide_junk_in_new_summary">Disable to include \'junk\' items in the \'new\' feed.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
     <string name="pref_use_incognito_browser_summary">Open links from comments in firefox focus browser with no history.</string>
     <string name="action_invite">Invites</string>
@@ -618,5 +621,6 @@
     <string name="pref_video_quality_values_summary">Adaptive reduces the data usage on mobile networks.</string>
     <string name="pref_video_quality_values_title">Video quality</string>
     <string name="action_feed_type_junk">Junk</string>
+    <string name="pref_show_category_junk_title">Category \'Junk\'</string>
 </resources>
 

@@ -79,6 +79,12 @@
                     android:title="@string/pref_feed_start_at_new_title" />
 
                 <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_feed_hide_junk_in_new"
+                    android:summary="@string/pref_feed_hide_junk_in_new_summary"
+                    android:title="@string/pref_feed_hide_junk_in_new_title" />
+
+                <SwitchPreferenceCompat
                     android:defaultValue="true"
                     android:key="pref_feed_start_at_sfw"
                     android:summary="@string/pref_feed_start_at_sfw_summary"
@@ -114,6 +120,13 @@
                     android:key="pref_show_category_premium"
                     android:summary="@string/pref_show_category_premium_summary"
                     android:title="@string/pref_show_category_premium_title" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:key="pref_show_category_junk"
+                    android:summary="@string/pref_show_category_junk_summary"
+                    android:title="@string/pref_show_category_junk_title" />
+
             </PreferenceCategory>
 
             <PreferenceCategory

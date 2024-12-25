@@ -137,6 +137,10 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
     val feedStartAtSfwIncludesPOL: Boolean
         get() = preferences.getBoolean("pref_feed_start_at_sfwpol", false)
 
+    var feedHideJunkInNew: Boolean
+        get() = preferences.getBoolean("pref_feed_hide_junk_in_new", true)
+        set(value) = edit { putBoolean("pref_feed_hide_junk_in_new", value) }
+
     val showCategoryRandom: Boolean
         get() = preferences.getBoolean("pref_show_category_random", true)
 
@@ -145,6 +149,9 @@ object Settings : SharedPreferences.OnSharedPreferenceChangeListener {
 
     val showCategoryStalk: Boolean
         get() = preferences.getBoolean("pref_show_category_premium", true)
+
+    val showCategoryJunk: Boolean
+        get() = preferences.getBoolean("pref_show_category_junk", true)
 
     val useIncognitoBrowser: Boolean
         get() = preferences.getBoolean("pref_use_incognito_browser", false)

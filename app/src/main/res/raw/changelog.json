@@ -1,5 +1,18 @@
 [
   {
+    "version": 206,
+    "changes": [
+      {
+        "type": "Feature",
+        "change": "Mülltrennung jetzt auch in der App."
+      },
+      {
+        "type": "Neu",
+        "change": "Option um die 'Müll' Kategorie auszublenden oder Mülltrennung zu deaktivieren."
+      }
+    ]
+  },
+  {
     "version": 205,
     "changes": [
       {

@@ -2,6 +2,7 @@ package com.pr0gramm.app.feed
 
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.Logger
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.TimeFactory
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -130,15 +131,33 @@ class FeedServiceImpl(
                     }
                     .takeIf { self -> self }
 
-                // do the normal query as is.
-                val showJunk = when (feedType) {
-                    FeedType.JUNK -> true
-                    FeedType.NEW -> false
-                    FeedType.PROMOTED -> false
+                // true: show only junk
+                // false: show no junk
+                // null: show junk and everything else
+                val showJunk = when {
+                    // show "only junk" on the junk filter type
+                    feedType == FeedType.JUNK -> true
 
-                    // don't set show_junk for any other category
+                    // do not hide junk on user or collection page
+                    user != null || collection != null -> null
+
+                    // do not hide junk on our own pages
+                    self == true -> null
+
+                    // do not hide junk on the stalk feed
+                    feedType == FeedType.STALK -> null
+
+                    // we do not want to explicitly hide junk anywhere
+                    !Settings.feedHideJunkInNew -> null
+
+                    // in top & new we will fully hide junk
+                    feedType == FeedType.NEW -> false
+                    feedType == FeedType.PROMOTED -> false
+
+                    // in all other cases just allow it
                     else -> null
                 }
+
                 val result = api.itemsGet(
                     promoted, following,
                     query.older, query.newer, query.around,
