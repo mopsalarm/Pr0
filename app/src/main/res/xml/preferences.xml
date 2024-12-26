@@ -79,7 +79,7 @@
                     android:title="@string/pref_feed_start_at_new_title" />
 
                 <SwitchPreferenceCompat
-                    android:defaultValue="false"
+                    android:defaultValue="true"
                     android:key="pref_feed_hide_junk_in_new"
                     android:summary="@string/pref_feed_hide_junk_in_new_summary"
                     android:title="@string/pref_feed_hide_junk_in_new_title" />
