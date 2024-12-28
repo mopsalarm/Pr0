@@ -132,7 +132,7 @@ android.applicationVariants.configureEach { variant ->
                 def output = new ByteArrayOutputStream()
 
                 exec {
-                    commandLine("unzip", "-t", pathToApk)
+                    commandLine("tar", "-tf", pathToApk)
                     standardOutput output
                 }
 
