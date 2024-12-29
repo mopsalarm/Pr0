@@ -28,8 +28,8 @@ jobs:
       - name: Decrypt keystore
         env:
           PASSPHRASE: ${{ secrets.KEYSTORE_PASSPHRASE }}
-        run: |
-          gpg --decrypt --quiet --batch --yes 
+        run:
+          gpg --decrypt --batch --yes
             --passphrase "$PASSPHRASE"
             -o release.keystore release.keystore.gpg
 
