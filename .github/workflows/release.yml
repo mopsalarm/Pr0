@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    name: Build release
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Decrypt keystore
+        env:
+          PASSPHRASE: ${{ secrets.KEYSTORE_PASSPHRASE }}
+        run: |
+          gpg --decrypt --quiet --batch --yes 
+            --passphrase "$PASSPHRASE"
+            -o release.keystore release.keystore.gpg
+
+      - name: Build and push app release
+        run: ./release.sh
+        env:
+          CREDENTIALS_UPDATE: ${{ secrets.UPDATE_MANAGER_CREDENTIALS }}
+          CREDENTIALS_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          VERBOSE: "false"
+
+      - name: Delete keystore file
+        if: always()
+        run: rm -f release.keystore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr0gramm-app-debug.apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          compression-level: 0

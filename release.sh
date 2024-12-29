@@ -7,7 +7,9 @@ VERSION_PREV=$(egrep -o '[0-9]+' <app/version.gradle)
 VERSION_NEXT=$(( VERSION_PREV + 1 ))
 VERSION_LIVE=$(curl -s https://app.pr0gramm.com/updates/stable/update.json | jq .version)
 
-source upload_auth
+if [ -f upload_auth ] ; then
+  source upload_auth
+fi
 
 # check if we are clear to go
 if [[ -n "$(git status --porcelain)" ]] ; then
@@ -23,9 +25,11 @@ echo " * Upload apk to the update manager using auth $CREDENTIALS_UPDATE'"
 echo " * Create tag for version v$VERSION_NEXT"
 echo ""
 
-# user needs to type yes to continue
-read -p 'Is this correct?: ' CONFIRM || exit 1
-[[ "$CONFIRM" == "yes" ]] || exit 1
+if ${VERBOSE:-true} ; then
+  # user needs to type yes to continue
+  read -p 'Is this correct?: ' CONFIRM || exit 1
+  [[ "$CONFIRM" == "yes" ]] || exit 1
+fi
 
 function format_version() {
   local VERSION=$1
@@ -85,5 +89,7 @@ deploy_upload_apk
 echo "Prepare next dev cycle..."
 ./gradlew --console=plain --no-daemon generateDebugSources > /dev/null
 
-# link to the release manager
-echo "Go to the release manager at https://$CREDENTIALS_UPDATE@app.pr0gramm.com/update-manager/"
+if ${VERBOSE:-true} ; then
+  # link to the release manager
+  echo "Go to the release manager at https://$CREDENTIALS_UPDATE@app.pr0gramm.com/update-manager/"
+fi
