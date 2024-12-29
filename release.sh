@@ -42,7 +42,7 @@ function deploy_upload_apk() {
 
   echo "Upload apk file to github"
   ./upload.sh github_api_token="${CREDENTIALS_GITHUB}" \
-    owner="mopsalarm" repo="pr0" tag="$TAG" \
+    owner="pr0gramm-com" repo="pr0gramm-app" tag="$TAG" \
     filename="${APK_ALIGNED}"
 }
 

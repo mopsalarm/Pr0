@@ -74,7 +74,7 @@ class ChangeLogDialog : ViewBindingDialogFragment<ChangelogBinding>("ChangeLogDi
                 // add links to github issues
                 android.text.util.Linkify.addLinks(text, githubIssue, null, null) { match, _ ->
                     val issue = match.group().substring(1)
-                    "https://github.com/mopsalarm/Pr0/issues/$issue"
+                    "https://github.com/pr0gramm-com/pr0gramm-app/issues/$issue"
                 }
             }
 
