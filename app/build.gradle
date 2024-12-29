@@ -6,6 +6,8 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 apply from: 'version.gradle'
 
+import org.gradle.internal.os.OperatingSystem
+
 buildscript {
     repositories {
         mavenCentral()
@@ -132,7 +134,10 @@ android.applicationVariants.configureEach { variant ->
                 def output = new ByteArrayOutputStream()
 
                 exec {
-                    commandLine("unzip", "-t", pathToApk)
+                    if (OperatingSystem.current() == OperatingSystem.WINDOWS)
+                        commandLine("tar", "-tf", pathToApk)
+                    else
+                        commandLine("unzip", "-t", pathToApk)
                     standardOutput output
                 }
 
