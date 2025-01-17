@@ -39,6 +39,7 @@
         android:roundIcon="@mipmap/ic_roundapp"
         android:supportsRtl="false"
         android:theme="@style/AppTheme.Orange.NoActionBar"
+        android:localeConfig="@xml/locales_config"
         tools:replace="android:allowBackup,android:supportsRtl">
 
         <uses-library
