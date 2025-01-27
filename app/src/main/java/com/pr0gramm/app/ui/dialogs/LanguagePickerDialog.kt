@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.dialogs
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +25,7 @@ import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,10 +47,11 @@ class LanguagePickerDialog : BaseDialogFragment("LanguagePickerDialog") {
         savedInstanceState: Bundle?
     ): View {
         val supportedLocales = getSupportedLocales()
+        val currentLocale = getCurrentLocale(supportedLocales)
 
         return ComposeView(requireContext()).apply {
             setContent {
-                DialogContent(supportedLocales)
+                DialogContent(supportedLocales, currentLocale)
             }
         }
     }
@@ -57,8 +59,9 @@ class LanguagePickerDialog : BaseDialogFragment("LanguagePickerDialog") {
     @Composable
     fun DialogContent(
         supportedLocales: List<Locale>,
+        initialLocale: Locale
     ) {
-        val checkedState = remember { mutableIntStateOf(-1) }
+        val selectedLocale = remember { mutableStateOf(initialLocale) }
 
         Dialog(
             onDismissRequest = { dismiss() }
@@ -89,12 +92,12 @@ class LanguagePickerDialog : BaseDialogFragment("LanguagePickerDialog") {
                                 .align(Alignment.Start),
                         )
                     }
-                    supportedLocales.forEachIndexed { idx, it ->
+                    supportedLocales.forEach {
                         LanguageItem(
                             it,
-                            selected = idx == checkedState.intValue,
+                            selected = it == selectedLocale.value,
                             onClick = {
-                                checkedState.intValue = idx
+                                selectedLocale.value = it
                             },
                         )
                     }
@@ -114,19 +117,13 @@ class LanguagePickerDialog : BaseDialogFragment("LanguagePickerDialog") {
                         }
                         TextButton(
                             onClick = {
-                                val stateIdx = checkedState.intValue
-                                if (stateIdx != -1) {
-                                    val locale = supportedLocales[stateIdx]
-                                    AppCompatDelegate.setApplicationLocales(
-                                        LocaleListCompat.create(
-                                            locale
-                                        )
+                                AppCompatDelegate.setApplicationLocales(
+                                    LocaleListCompat.create(
+                                        selectedLocale.value
                                     )
-                                    activity?.recreate()
-                                }
+                                )
                                 dismiss()
                             },
-                            enabled = checkedState.intValue != -1,
                             modifier = Modifier.padding(8.dp),
                             colors = textButtonColors(
                                 contentColor = colorResource(R.color.orange_primary)
@@ -189,5 +186,32 @@ class LanguagePickerDialog : BaseDialogFragment("LanguagePickerDialog") {
         }
 
         return locales
+    }
+
+    private fun getCurrentLocale(supportedLocales: List<Locale>): Locale {
+        val applicationLocales = AppCompatDelegate.getApplicationLocales()
+        val appLocale = if (!applicationLocales.isEmpty) {
+            applicationLocales.get(0)!!
+        } else {
+            getCurrentAppLocale()
+        }
+
+        val candidate = supportedLocales.firstOrNull { it.isO3Language == appLocale.isO3Language }
+
+        if (candidate != null) {
+            return candidate
+        }
+
+        return Locale.forLanguageTag("en-US")
+    }
+
+    private fun getCurrentAppLocale(): Locale {
+        val config = requireContext().resources.configuration
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.locales[0]
+        } else {
+            @Suppress("DEPRECATION")
+            config.locale
+        }
     }
 }
