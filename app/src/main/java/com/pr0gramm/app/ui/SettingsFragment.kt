@@ -3,19 +3,30 @@ package com.pr0gramm.app.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
-import com.pr0gramm.app.*
-import com.pr0gramm.app.services.*
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.R
+import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.Settings
+import com.pr0gramm.app.services.BookmarkService
+import com.pr0gramm.app.services.RecentSearchesServices
+import com.pr0gramm.app.services.Storage
+import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BasePreferenceFragment
 import com.pr0gramm.app.ui.base.launchUntilPause
 import com.pr0gramm.app.ui.base.launchWhenStarted
+import com.pr0gramm.app.ui.dialogs.LanguagePickerDialog
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.AndroidUtility
@@ -50,6 +61,11 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
 
         if (!bookmarkService.canEdit) {
             hidePreferenceByName("pref_pseudo_restore_bookmarks")
+        }
+
+        // Per-app language works for API 24+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            hidePreferenceByName("pref_pseudo_language")
         }
 
         tintPreferenceIcons(color = 0xffd0d0d0.toInt())
@@ -181,6 +197,19 @@ class SettingsFragment : BasePreferenceFragment("SettingsFragment"),
             "pref_pseudo_download_target" -> {
                 val intent = Storage.openTreeIntent(requireContext())
                 startActivityForResult(intent, RequestCodes.SELECT_DOWNLOAD_PATH)
+                return true
+            }
+
+            "pref_pseudo_language" -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val intent = Intent(
+                        android.provider.Settings.ACTION_APP_LOCALE_SETTINGS,
+                        Uri.parse("package:${requireContext().packageName}"),
+                    )
+                    startActivity(intent)
+                } else {
+                    LanguagePickerDialog().show(parentFragmentManager, null)
+                }
                 return true
             }
 

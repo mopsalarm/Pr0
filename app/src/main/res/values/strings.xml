@@ -622,5 +622,12 @@
     <string name="pref_video_quality_values_title">Video quality</string>
     <string name="action_feed_type_junk">Junk</string>
     <string name="pref_show_category_junk_title">Category \'Junk\'</string>
+
+    <string name="pref_pseudo_language_title">Language</string>
+    <string name="pref_pseudo_language_summary">Change the app language independent of your system language</string>
+    <string name="language_picker_title">Choose language</string>
+    <string name="language_picker_subtitle">Please choose one of the available languages.</string>
+    <string name="language_picker_dismiss">Dismiss</string>
+    <string name="language_picker_confirm">Confirm</string>
 </resources>
 

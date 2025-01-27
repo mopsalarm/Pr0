@@ -363,6 +363,12 @@
 
         </PreferenceScreen>
 
+        <Preference
+            android:icon="@drawable/ic_white_translate"
+            android:key="pref_pseudo_language"
+            android:summary="@string/pref_pseudo_language_summary"
+            android:title="@string/pref_pseudo_language_title" />
+
     </PreferenceCategory>
 
     <!-- This screen is hidden on non debug builds -->
