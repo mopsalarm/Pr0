@@ -602,4 +602,11 @@
     <string name="pref_show_category_junk_summary">Aktiviere diese Option um die \'Müll\' Kategorie in der Navigation zu zeigen.</string>
     <string name="pref_feed_hide_junk_in_new_title">Mülltrennung</string>
     <string name="pref_feed_hide_junk_in_new_summary">Deaktiviere diese Option um \'Müll\' auch in \'Neu\' anzuzeigen.</string>
+
+    <string name="pref_pseudo_language_title">Sprache</string>
+    <string name="pref_pseudo_language_summary">Ändere die Sprache der App unabhängig deiner Systemsprache</string>
+    <string name="language_picker_title">Sprache wählen</string>
+    <string name="language_picker_subtitle">Bitte wähle eine der verfügbaren Sprachen.</string>
+    <string name="language_picker_dismiss">Abbrechen</string>
+    <string name="language_picker_confirm">Bestätigen</string>
 </resources>

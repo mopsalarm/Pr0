@@ -39,6 +39,7 @@
         android:roundIcon="@mipmap/ic_roundapp"
         android:supportsRtl="false"
         android:theme="@style/AppTheme.Orange.NoActionBar"
+        android:localeConfig="@xml/locales_config"
         tools:replace="android:allowBackup,android:supportsRtl">
 
         <uses-library
@@ -99,6 +100,17 @@
             android:name="com.google.firebase.provider.FirebaseInitProvider"
             android:authorities="${applicationId}.firebaseinitprovider"
             tools:node="remove" />
+
+        <!-- Add support for per-app language below Android 12 (API 32) -->
+        <!-- This can lead to violations in StrictMode (see docs) -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
 
         <activity
             android:name=".ui.MainActivity"
